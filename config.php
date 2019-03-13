@@ -10,13 +10,11 @@
 	$config_time_format = "h:ia";
 	$config_no_records = "There is nothing here!";
 
-	$config_www_path = "/var/www/admin.cwstaffingllc.com";
-
 	$config_company_name = "PittPC";
-	$config_company_address = "830 Thorn Street Unit 8";
-	$config_company_city = "Sewickley";
-	$config_company_state = "PA";
-	$config_company_zip = "15143";
+	$config_company_address = "";
+	$config_company_city = "";
+	$config_company_state = "";
+	$config_company_zip = "";
 
 	$_SESSION['alert_message'] = '';
 	$_SESSION['alert_type'] = "warning";
@@ -80,17 +78,6 @@
 		'US/Central',
 		'US/Mountain',
 		'US/Pacific'
-	);
-	$job_types_array = array(
-		'Official or Manager',
-		'Professional',
-		'Sales Worker',
-		'Technician',
-		'Office (clerical)',
-		'Operatives',
-		'Craft Worker',
-		'Laborer',
-		'Service Worker'
 	);
 
 ?>
