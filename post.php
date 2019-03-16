@@ -162,6 +162,24 @@ if(isset($_POST['add_expense'])){
 
 }
 
+if(isset($_POST['edit_expense'])){
+
+    $expense_id = intval($_POST['expense_id']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $amount = $_POST['amount'];
+    $account = intval($_POST['account']);
+    $vendor = intval($_POST['vendor']);
+    $category = intval($_POST['category']);
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+
+    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description' WHERE expense_id = $expense_id");
+
+    $_SESSION['alert_message'] = "Expense modified";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['add_user'])){
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $password = mysqli_real_escape_string($mysqli,$_POST['password']);
