@@ -26,7 +26,6 @@
             $account_name = $row['account_name'];
             $opening_balance = $row['opening_balance'];
 
-
           ?>
           <tr>
             <td><?php echo "$account_name"; ?></a></td>
