@@ -180,6 +180,37 @@ if(isset($_POST['edit_expense'])){
 
 }
 
+if(isset($_POST['add_transfer'])){
+
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $amount = $_POST['amount'];
+    $account_from = intval($_POST['account_from']);
+    $account_to = intval($_POST['account_to']);
+
+    mysqli_query($mysqli,"INSERT INTO transfers SET transfer_date = '$date', transfer_amount = '$amount', transfer_account_from = $account_from, transfer_account_to = $account_to");
+
+    $_SESSION['alert_message'] = "Transfer added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_transfer'])){
+
+    $transfer_id = intval($_POST['transfer_id']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $amount = $_POST['amount'];
+    $account_from = intval($_POST['account_from']);
+    $account_to = intval($_POST['account_to']);
+
+    mysqli_query($mysqli,"UPDATE transfers SET transfer_date = '$date', transfer_amount = '$amount', transfer_account_from = $account_from, transfer_account_to = $account_to WHERE transfer_id = $transfer_id");
+
+    $_SESSION['alert_message'] = "Transfer added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['add_user'])){
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $password = mysqli_real_escape_string($mysqli,$_POST['password']);
