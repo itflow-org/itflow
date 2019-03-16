@@ -34,7 +34,7 @@
       
           ?>
           <tr>
-            <td><a href="vendor.php?vendor_id=<?php echo $vendor_id; ?>"><?php echo "$vendor_name"; ?></a></td>
+            <td><?php echo "$vendor_name"; ?></td>
             <td><?php echo "$vendor_email"; ?></td>
             <td><?php echo "$vendor_phone"; ?></td>
             <td><?php echo "$vendor_website"; ?></td>
