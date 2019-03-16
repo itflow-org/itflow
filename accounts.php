@@ -24,11 +24,22 @@
           while($row = mysqli_fetch_array($sql)){
             $account_id = $row['account_id'];
             $account_name = $row['account_name'];
+            $opening_balance = $row['opening_balance'];
+
 
           ?>
           <tr>
             <td><?php echo "$account_name"; ?></a></td>
-            <td class="text-right text-monospace">$0.00</td>
+            <?php
+            $sql2 = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_amount FROM expenses WHERE account_id = $account_id");
+            $row2 = mysqli_fetch_array($sql2);
+            $total_amount = $opening_balance - $row2['total_amount'];
+            if($total_amount == ''){
+              $total_amount = '0.00'; 
+            }
+            ?>
+
+            <td class="text-right text-monospace">$<?php echo $total_amount; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
