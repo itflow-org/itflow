@@ -102,10 +102,8 @@
             <textarea class="form-control" rows="4" name="description" required><?php echo $expense_description; ?></textarea>
           </div>
           <div class="custom-file">
-            <div class="input-group">
-              <input type="file" class="custom-file-input" name="attachment">
-              <label class="custom-file-label">Attach Reciept...</label>
-            </div>
+            <input type="file" class="custom-file-input" name="attachment">
+            <label class="custom-file-label">Attach Reciept...</label>
           </div>
         </div>
         <div class="modal-footer">
