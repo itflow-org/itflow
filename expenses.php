@@ -45,7 +45,7 @@
           ?>
 
           <tr>
-            <td><?php echo "$expense_date - $expense_id"; ?></td>
+            <td><?php echo "$expense_date"; ?></td>
             <td class="text-right text-monospace">$<?php echo "$expense_amount"; ?></td>
             <td><?php echo "$vendor_name"; ?></td>
             <td><?php echo "$category_name"; ?></td>
@@ -57,8 +57,8 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="#">Duplicate</a>
-                  <a class="dropdown-item" href="#">Refund</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseCopyModal<?php echo $expense_id; ?>">Copy</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseRefundModal<?php echo $expense_id; ?>">Refund</a>
                   <a class="dropdown-item" href="#">Delete</a>
                 </div>
               </div>      
@@ -68,6 +68,8 @@
           <?php
 
           include("edit_expense_modal.php");
+          include("add_expense_copy_modal.php");
+          include("add_expense_refund_modal.php");
           }
 
           ?>
