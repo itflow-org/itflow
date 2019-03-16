@@ -18,7 +18,7 @@
   </li>
   <li class="nav-item">
     <a class="nav-link" href="vendors.php">
-      <i class="fas fa-fw fa-user-tie"></i>
+      <i class="fas fa-fw fa-briefcase"></i>
       <span>Vendors</span></a>
   </li>
   <li class="nav-item">
@@ -66,7 +66,7 @@
     </a>
     <div class="dropdown-menu" aria-labelledby="pagesDropdown">
       <a class="dropdown-item" href="settings-general.php">General</a>
-      <a class="dropdown-item" href="forgot-password.html">Categories</a>
+      <a class="dropdown-item" href="categories.php">Categories</a>
       <a class="dropdown-item" href="forgot-password.html">Users</a>
     </div>
   </li>

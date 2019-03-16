@@ -26,11 +26,17 @@
           while($row = mysqli_fetch_array($sql)){
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
+            $client_address = $row['client_address'];
+            $client_city = $row['client_city'];
+            $client_state = $row['client_state'];
+            $client_zip = $row['client_zip'];
             $client_email = $row['client_email'];
             $client_phone = $row['client_phone'];
             if(strlen($client_phone)>2){ 
               $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
             }
+            $client_website = $row['client_website'];
+
       
           ?>
           <tr>

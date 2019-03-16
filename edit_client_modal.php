@@ -9,6 +9,7 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body">
+          <input type="hidden" name="client_id" value="<?php echo $client_id; ?>" >
           <div class="form-group">
             <label>Name</label>
             <input type="text" class="form-control" name="name" value="<?php echo "$client_name"; ?>" required>
@@ -35,7 +36,12 @@
           </div>
           <div class="form-group">
             <label>State</label>
-            <input type="text" class="form-control" name="state" value="<?php echo "$client_state"; ?>" required>
+            <select class="form-control" name="state" required>
+              <option value="">Select a state...</option>
+                <?php foreach($states_array as $state_abbr => $state_name) { ?>
+                <option <?php if($client_state == $state_abbr) { echo "selected"; } ?> value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
+                <?php } ?>
+            </select>
           </div>
           <div class="form-group">
             <label>Zip</label>
@@ -44,7 +50,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="_client" class="btn btn-primary">Save</button>
+          <button type="submit" name="edit_client" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

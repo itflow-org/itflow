@@ -32,7 +32,12 @@
               <input type="text" class="form-control" name="city" placeholder="City" required>
             </div>
             <div class="form-group col-md-4">
-              <input type="text" class="form-control" name="state" placeholder="State" required>
+              <select class="form-control" name="state" required>
+                <option value="">Select a state...</option>
+                <?php foreach($states_array as $state_abbr => $state_name) { ?>
+                <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
+                <?php } ?>
+              </select> 
             </div>
             <div class="form-group col-md-3">
               <input type="text" class="form-control" name="zip" placeholder="Zip" required>

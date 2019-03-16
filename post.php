@@ -27,6 +27,27 @@ if(isset($_POST['add_client'])){
 
 }
 
+if(isset($_POST['edit_client'])){
+
+    $client_id = intval($_POST['client_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
+    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
+    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
+    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
+    $phone = preg_replace("/[^0-9]/", '',$phone);
+    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+    $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
+
+    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_phone = '$phone', client_email = '$email', client_website = '$website', client_updated_at = UNIX_TIMESTAMP() WHERE client_id = $client_id");
+
+    $_SESSION['alert_message'] = "Client updated";
+    
+    header("Location: clients.php");
+
+}
+
 if(isset($_POST['add_vendor'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
@@ -42,6 +63,27 @@ if(isset($_POST['add_vendor'])){
     mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_created_at = UNIX_TIMESTAMP()");
 
     $_SESSION['alert_message'] = "Vendor added";
+    
+    header("Location: vendors.php");
+
+}
+
+if(isset($_POST['edit_vendor'])){
+
+    $vendor_id = intval($_POST['vendor_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
+    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
+    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
+    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
+    $phone = preg_replace("/[^0-9]/", '',$phone);
+    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+    $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
+
+    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_updated_at = UNIX_TIMESTAMP() WHERE vendor_id = $vendor_id");
+
+    $_SESSION['alert_message'] = "Vendor modified";
     
     header("Location: vendors.php");
 
@@ -73,6 +115,50 @@ if(isset($_POST['add_account'])){
     $_SESSION['alert_message'] = "Account added";
     
     header("Location: accounts.php");
+
+}
+
+if(isset($_POST['add_category'])){
+
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
+
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = '$name', category_type = '$type'");
+
+    $_SESSION['alert_message'] = "Category added";
+    
+    header("Location: categories.php");
+
+}
+
+if(isset($_POST['edit_category'])){
+
+    $category_id = intval($_POST['category_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
+
+    mysqli_query($mysqli,"UPDATE categories SET category_name = '$name', category_type = '$type' WHERE category_id = $category_id");
+
+    $_SESSION['alert_message'] = "Category modified";
+    
+    header("Location: categories.php");
+
+}
+
+if(isset($_POST['add_expense'])){
+
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $amount = $_POST['amount'];
+    $account = intval($_POST['account']);
+    $vendor = intval($_POST['vendor']);
+    $category = intval($_POST['category']);
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+
+    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description'");
+
+    $_SESSION['alert_message'] = "Expense added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
