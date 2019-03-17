@@ -134,6 +134,19 @@ if(isset($_POST['add_account'])){
 
 }
 
+if(isset($_POST['edit_account'])){
+
+    $account_id = intval($_POST['account_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+
+    mysqli_query($mysqli,"UPDATE accounts SET account_name = '$name' WHERE account_id = $account_id");
+
+    $_SESSION['alert_message'] = "Account modified";
+    
+    header("Location: accounts.php");
+
+}
+
 if(isset($_POST['add_category'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
