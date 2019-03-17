@@ -4,8 +4,7 @@ include("config.php");
 include("check_login.php");
 //include("functions.php");
 
-$todays_date = date('m-d-Y',time());
-$todays_date_2 = date('Y-m-d',time());
+$todays_date = date('Y-m-d');
 
 if(isset($_POST['add_client'])){
 
@@ -232,13 +231,51 @@ if(isset($_POST['add_invoice'])){
 
     $client = intval($_POST['client']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $due = strip_tags(mysqli_real_escape_string($mysqli,$_POST['due']));
+    $category = intval($_POST['category']);
     
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_date = '$date', client_id = $client, invoice_status = 'Draft'");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_date = '$date', invoice_due = '$due', category_id = $category, invoice_status = 'Draft', client_id = $client");
+
+    $invoice_id = mysqli_insert_id($mysqli);
+
+    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = '$todays_date', invoice_history_status = 'Draft', invoice_history_description = 'INVOICE added!', invoice_id = $invoice_id");
 
     $_SESSION['alert_message'] = "Invoice added";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if(isset($_POST['add_invoice_item'])){
+
+    $invoice_id = intval($_POST['invoice_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $qty = $_POST['qty'];
+    $price = $_POST['price'];
+    $tax = $_POST['tax'];
+    
+    $sub_total = $price * $qty;
+    $tax = $sub_total * $tax;
+    $total = $sub_total + $tax;
+
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET invoice_item_name = '$name', invoice_item_description = '$description', invoice_item_quantity = $qty, invoice_item_price = '$price', invoice_item_tax = '$tax', invoice_item_total = '$total', invoice_id = $invoice_id");
+
+    $_SESSION['alert_message'] = "Invoice added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_invoice_item'])){
+    $invoice_item_id = intval($_GET['delete_invoice_item']);
+
+    mysqli_query($mysqli,"DELETE FROM invoice_items WHERE invoice_item_id = $invoice_item_id");
+
+    $_SESSION['alert_message'] = "Item deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
 }
 
 if(isset($_POST['add_user'])){

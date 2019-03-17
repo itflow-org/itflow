@@ -82,7 +82,7 @@
 
 	$category_types_array = array(
 		'Expense',
-		'Invoice'
+		'Income'
 	);
 
 ?>
