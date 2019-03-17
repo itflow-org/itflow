@@ -105,6 +105,23 @@ if(isset($_POST['add_mileage'])){
 
 }
 
+if(isset($_POST['edit_mileage'])){
+
+    $mileage_id = intval($_POST['mileage_id']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $starting_location = strip_tags(mysqli_real_escape_string($mysqli,$_POST['starting_location']));
+    $destination = strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination']));
+    $miles = intval($_POST['miles']);
+    $purpose = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose']));
+
+    mysqli_query($mysqli,"UPDATE mileage SET mileage_date = '$date', mileage_starting_location = '$starting_location', mileage_destination = '$destination', mileage_miles = $miles, mileage_purpose = '$purpose' WHERE mileage_id = $mileage_id");
+
+    $_SESSION['alert_message'] = "Mileage modified";
+    
+    header("Location: mileage.php");
+
+}
+
 if(isset($_POST['add_account'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));

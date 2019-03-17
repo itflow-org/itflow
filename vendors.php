@@ -5,6 +5,7 @@
 
 <div class="card mb-3">
   <div class="card-header">
+    <h6 class="float-left mt-1"><i class="fa fa-briefcase"></i> Vendors</h6>
     <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addVendorModal"><i class="fas fa-plus"></i> Add New</button>
   </div>
   <div class="card-body">

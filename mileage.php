@@ -15,8 +15,8 @@
           <tr>
             <th>Date</th>
             <th>Purpose</th>
-            <th>Start</th>
-            <th>Destination</th>
+            <th>From</th>
+            <th>To</th>
             <th>Miles</th>
             <th class="text-center">Actions</th>
           </tr>
