@@ -228,6 +228,19 @@ if(isset($_POST['edit_transfer'])){
 
 }
 
+if(isset($_POST['add_invoice'])){
+
+    $client = intval($_POST['client']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_date = '$date', client_id = $client, invoice_status = 'Draft'");
+
+    $_SESSION['alert_message'] = "Invoice added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['add_user'])){
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $password = mysqli_real_escape_string($mysqli,$_POST['password']);
