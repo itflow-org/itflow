@@ -268,13 +268,25 @@ if(isset($_POST['add_invoice_item'])){
     $price = $_POST['price'];
     $tax = $_POST['tax'];
     
-    $sub_total = $price * $qty;
-    $tax = $sub_total * $tax;
-    $total = $sub_total + $tax;
+    $subtotal = $price * $qty;
+    $tax = $subtotal * $tax;
+    $total = $subtotal + $tax;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET invoice_item_name = '$name', invoice_item_description = '$description', invoice_item_quantity = $qty, invoice_item_price = '$price', invoice_item_tax = '$tax', invoice_item_total = '$total', invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET invoice_item_name = '$name', invoice_item_description = '$description', invoice_item_quantity = $qty, invoice_item_price = '$price', invoice_item_subtotal = '$subtotal', invoice_item_tax = '$tax', invoice_item_total = '$total', invoice_id = $invoice_id");
 
-    $_SESSION['alert_message'] = "Invoice added";
+    //Update Invoice Balances
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+    $row = mysqli_fetch_array($sql);
+
+    $invoice_subtotal = $row['invoice_subtotal'] + $subtotal;
+    $invoice_tax = $row['invoice_tax'] + $tax; 
+    $invoice_total = $row['invoice_total'] + $total;
+    $invoice_balance = $row['invoice_balance'] + $total;
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_subtotal = '$invoice_subtotal', invoice_tax = '$invoice_tax', invoice_total = '$invoice_total', invoice_balance = '$invoice_balance' WHERE invoice_id = $invoice_id");
+
+    $_SESSION['alert_message'] = "Item added";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -283,9 +295,68 @@ if(isset($_POST['add_invoice_item'])){
 if(isset($_GET['delete_invoice_item'])){
     $invoice_item_id = intval($_GET['delete_invoice_item']);
 
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_item_id = $invoice_item_id");
+    $row = mysqli_fetch_array($sql);
+    $invoice_id = $row['invoice_id'];
+    $invoice_item_subtotal = $row['invoice_item_subtotal'];
+    $invoice_item_tax = $row['invoice_item_tax'];
+    $invoice_item_total = $row['invoice_item_total'];
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+    $row = mysqli_fetch_array($sql);
+    $invoice_balance = $row['invoice_balance'] - $invoice_item_total;
+    $invoice_subtotal = $row['invoice_subtotal'] - $invoice_item_subtotal;
+    $invoice_tax = $row['invoice_tax'] - $invoice_item_tax;
+    $invoice_total = $row['invoice_total'] - $invoice_item_total;
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_subtotal = '$invoice_subtotal', invoice_tax = '$invoice_tax', invoice_total = '$invoice_total', invoice_balance = '$invoice_balance' WHERE invoice_id = $invoice_id");
+
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE invoice_item_id = $invoice_item_id");
 
     $_SESSION['alert_message'] = "Item deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
+if(isset($_POST['add_invoice_payment'])){
+
+    $invoice_id = intval($_POST['invoice_id']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $amount = $_POST['amount'];
+    $account = intval($_POST['account']);
+    $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+    $row = mysqli_fetch_array($sql);
+    $invoice_balance = $row['invoice_balance'] - $amount;
+    $invoice_paid = $row['invoice_paid'] + $paid;
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_balance = '$invoice_balance', invoice_paid = '$invoice_paid' WHERE invoice_id = $invoice_id");
+
+    mysqli_query($mysqli,"INSERT INTO invoice_payments SET invoice_payment_date = '$date', invoice_payment_amount = '$amount', account_id = $account, invoice_payment_method = '$payment_method', invoice_id = $invoice_id");
+
+    $_SESSION['alert_message'] = "Payment added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_invoice_payment'])){
+    $invoice_payment_id = intval($_GET['delete_invoice_payment']);
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_payments WHERE invoice_payment_id = $invoice_id");
+    $row = mysqli_fetch_array($sql);
+    $invoice_id = $row['invoice_id'];
+    $invoice_payment_amount = $row['invoice_payment_amount'];
+
+    $invoice_balance = $row['invoice_balance'] - $invoice_payment_amount;
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_balance = '$invoice_balance' WHERE invoice_id = $invoice_id");
+
+    mysqli_query($mysqli,"DELETE FROM invoice_payments WHERE invoice_payment_id = $invoice_payment_id");
+
+    $_SESSION['alert_message'] = "Payment deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   

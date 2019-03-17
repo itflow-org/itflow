@@ -20,7 +20,12 @@ if(isset($_GET['invoice_id'])){
   $invoice_status = $row['invoice_status'];
   $invoice_date = $row['invoice_date'];
   $invoice_due = $row['invoice_due'];
-  $invoice_amount = $row['invoice_amount'];
+  $invoice_subtotal = $row['invoice_subtotal'];
+  $invoice_discount = $row['invoice_discount'];
+  $invoice_tax = $row['invoice_tax'];
+  $invoice_total = $row['invoice_total'];
+  $invoice_paid = $row['invoice_paid'];
+  $invoice_balance = $row['invoice_balance'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];
   $client_address = $row['client_address'];
@@ -33,6 +38,9 @@ if(isset($_GET['invoice_id'])){
     $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
   }
   $client_website = $row['client_website'];
+
+  $sql2 = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id ORDER BY invoice_history_id DESC");
+  $sql3 = mysqli_query($mysqli,"SELECT * FROM invoice_payments, accounts WHERE invoice_payments.account_id = accounts.account_id AND invoice_payments.invoice_id = $invoice_id ORDER BY invoice_payments.invoice_payment_id DESC");
 
 ?>
 <div class="row">
@@ -51,7 +59,7 @@ if(isset($_GET['invoice_id'])){
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editinvoiceModal<?php echo $invoice_id; ?>">Edit</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Send Email</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Add Payment</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoicePaymentModal">Add Payment</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Print</a>
         <a class="dropdown-item" href="#">Delete</a>
       </div>
@@ -101,7 +109,7 @@ if(isset($_GET['invoice_id'])){
   </div>
 </div>
 
-<?php $sql2 = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY invoice_item_id DESC"); ?>
+<?php $sql4 = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY invoice_item_id ASC"); ?>
 
 <div class="row mb-3">
   <div class="col-md-12">
@@ -113,41 +121,38 @@ if(isset($_GET['invoice_id'])){
         <table class="table">
           <thead>
             <tr>
+              <th></th>
               <th>Product</th>
               <th>Description</th>
               <th class="text-center">Qty</th>
               <th class="text-right">Price</th>
               <th class="text-right">Tax</th>
               <th class="text-right">Total</th>
-              <th class="text-center"></th>
             </tr>
           </thead>
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql2)){
+            while($row = mysqli_fetch_array($sql4)){
               $invoice_item_id = $row['invoice_item_id'];
               $invoice_item_name = $row['invoice_item_name'];
               $invoice_item_description = $row['invoice_item_description'];
               $invoice_item_quantity = $row['invoice_item_quantity'];
               $invoice_item_price = $row['invoice_item_price'];
+              $invoice_item_subtotal = $row['invoice_item_price'];
               $invoice_item_tax = $row['invoice_item_tax'];
               $invoice_item_total = $row['invoice_item_total'];
-
-              $invoice_subtotal = $invoice_subtotal + $invoice_item_price * $invoice_item_quantity;
-              $invoice_tax = $invoice_tax + $invoice_item_tax;
-              $invoice_total = $invoice_total + $invoice_item_total;
 
             ?>
 
             <tr>
+              <td class="text-center"><a class="btn btn-danger btn-sm" href="post.php?delete_invoice_item=<?php echo $invoice_item_id; ?>"><i class="fa fa-trash"></i></a></td>
               <td><?php echo $invoice_item_name; ?></td>
               <td><?php echo $invoice_item_description; ?></td>
               <td class="text-center"><?php echo $invoice_item_quantity; ?></td>
               <td class="text-right"><?php echo "$ $invoice_item_price"; ?></td>
               <td class="text-right"><?php echo "$ $invoice_item_tax"; ?></td>
-              <td class="text-right"><?php echo "$ $invoice_item_total"; ?></td>
-              <td class="text-center"><a class="btn btn-danger btn-sm" href="post.php?delete_invoice_item=<?php echo $invoice_item_id; ?>"><i class="fa fa-trash"></i></a></td>
+              <td class="text-right"><?php echo "$ $invoice_item_total"; ?></td>  
             </tr>
 
             <?php 
@@ -158,6 +163,7 @@ if(isset($_GET['invoice_id'])){
 
             <tr>
               <form action="post.php" method="post">
+                <td class="text-center"><button type="submit" class="btn btn-primary btn-sm" name="add_invoice_item"><i class="fa fa-check"></i></button></td>
                 <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
                 <td><input type="text" class="form-control" name="name"></td>
                 <td><textarea class="form-control" rows="1" name="description"></textarea></td>
@@ -169,27 +175,28 @@ if(isset($_GET['invoice_id'])){
                     <option value="0.07">State Tax 7%</option>
                   </select>
                 </td>
-                <td class="text-right">$ 0.00</td>
-                <td class="text-center"><button type="submit" class="btn btn-primary btn-sm" name="add_invoice_item"><i class="fa fa-check"></i></button></td>
+                <td class="text-right">$ 0.00</td>  
               </form>
             </tr>
             <tr>
-              <td colspan="4"></td>
+              <td colspan="5"></td>
               <td><strong>SubTotal</strong></td>
               <td class="text-right">$<?php echo $invoice_subtotal; ?></td>
-              <td></td>
             </tr>
             <tr>
-              <td colspan="4"></td>
+              <td colspan="5"></td>
+              <td><strong>Discount</strong></td>
+              <td class="text-right">$<?php echo $invoice_discount; ?></td>             
+            </tr>
+            <tr>
+              <td colspan="5"></td>
               <td><strong>Tax</strong></td>
-              <td class="text-right">$<?php echo $invoice_tax; ?></td>
-              <td></td>
+              <td class="text-right">$<?php echo $invoice_tax; ?></td>        
             </tr>
             <tr>
-              <td colspan="4"></td>
+              <td colspan="5"></td>
               <td><strong>Total</strong></td>
               <td class="text-right">$<?php echo $invoice_total; ?></td>
-              <td></td>
             </tr>
           </tbody>
         </table>   
@@ -246,6 +253,23 @@ if(isset($_GET['invoice_id'])){
             </tr>
           </thead>
           <tbody>
+            <?php
+      
+            while($row = mysqli_fetch_array($sql2)){
+              $invoice_history_date = $row['invoice_history_date'];
+              $invoice_history_status = $row['invoice_history_status'];
+              $invoice_history_description = $row['invoice_history_description'];
+             
+            ?>
+            <tr>
+              <td><?php echo $invoice_history_date; ?></td>
+              <td><?php echo $invoice_history_status; ?></td>
+              <td><?php echo $invoice_history_description; ?></td>
+            </tr>
+            <?php
+            }
+            ?>
+
           </tbody>
         </table>
       </div>
@@ -267,12 +291,33 @@ if(isset($_GET['invoice_id'])){
             </tr>
           </thead>
           <tbody>
+            <?php
+      
+            while($row = mysqli_fetch_array($sql3)){
+              $invoice_payment_id = $row['invoice_payment_id'];
+              $invoice_payment_date = $row['invoice_payment_date'];
+              $invoice_payment_amount = $row['invoice_payment_amount'];
+              $account_name = $row['account_name'];
+
+             
+            ?>
+            <tr>
+              <td><?php echo $invoice_payment_date; ?></td>
+              <td><?php echo $invoice_payment_amount; ?></td>
+              <td><?php echo $account_name; ?></td>
+              <td class="text-center"><a class="btn btn-danger btn-sm" href="post.php?delete_invoice_payment=<?php echo $invoice_payment_id; ?>"><i class="fa fa-trash"></i></a></td>
+            </tr>
+            <?php
+            }
+            ?>
           </tbody>
         </table>
       </div>
     </div>
   </div>
 </div>
+
+<?php include("add_invoice_payment_modal.php"); ?>
 
 <?php } ?>
 

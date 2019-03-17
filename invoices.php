@@ -35,7 +35,7 @@
             $invoice_status = $row['invoice_status'];
             $invoice_date = $row['invoice_date'];
             $invoice_due = $row['invoice_due'];
-            $invoice_amount = $row['invoice_amount'];
+            $invoice_balance = $row['invoice_balance'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
 
@@ -44,7 +44,7 @@
           <tr>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>">INV-<?php echo "$invoice_number"; ?></a></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo "$client_name"; ?></a></td>
-            <td class="text-right text-monospace">$<?php echo "$invoice_amount"; ?></td>
+            <td class="text-right text-monospace">$<?php echo "$invoice_balance"; ?></td>
             <td><?php echo "$invoice_date"; ?></td>
             <td><?php echo "$invoice_due"; ?></td>
             <td><?php echo "$invoice_status"; ?></td>
