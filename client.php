@@ -35,9 +35,8 @@ if(isset($_GET['client_id'])){
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientLocationModal">New Location</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAssetModal">New Asset</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientVendorModal">New Vendor</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientPasswordModal">New Password</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientLoginModal">New Login</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceModal">New Invoice</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPaymentModal">New Payment</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteModal">New Quote</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAttachmentModal">New Attachment</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientNoteModal">New Note</a>
@@ -65,6 +64,14 @@ if(isset($_GET['client_id'])){
 <?php include("edit_client_modal.php"); ?>
 <?php include("add_client_contact_modal.php"); ?>
 <?php include("add_client_location_modal.php"); ?>
+<?php include("add_client_asset_modal.php"); ?>
+<?php include("add_client_vendor_modal.php"); ?>
+<?php include("add_client_login_modal.php"); ?>
+<?php include("add_invoice_modal.php"); ?>
+<?php include("add_invoice_payment_modal.php"); ?>
+<?php include("add_quote_modal.php"); ?>
+<?php include("add_client_attachment_modal.php"); ?>
+<?php include("add_client_note_modal.php"); ?>
 
 <?php } ?>
 

@@ -14,8 +14,9 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th>Email</th>
+            <th>Address</th>
             <th>Phone</th>
+            <th>Email</th>
             <th class="text-right">Unpaid</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -30,19 +31,26 @@
             $client_city = $row['client_city'];
             $client_state = $row['client_state'];
             $client_zip = $row['client_zip'];
-            $client_email = $row['client_email'];
             $client_phone = $row['client_phone'];
             if(strlen($client_phone)>2){ 
               $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
             }
+            $client_email = $row['client_email'];
             $client_website = $row['client_website'];
 
       
           ?>
           <tr>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo "$client_name"; ?></a></td>
-            <td><?php echo "$client_email"; ?></td>
+            <td>
+              <a href="https://maps.google.com?q=<?php echo "$client_address $client_zip"; ?>" target="_blank">
+                <?php echo "$client_address"; ?>
+                <br>
+                <?php echo "$client_city $client_state $client_zip"; ?>
+              </a>
+            </td>
             <td><?php echo "$client_phone"; ?></td>
+            <td><a href="mailto:<?php echo$email; ?>"><?php echo "$client_email"; ?></a></td>
             <td class="text-right text-monospace">$0.00</td>
             <td>
               <div class="dropdown dropleft text-center">

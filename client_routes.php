@@ -16,8 +16,8 @@ if(isset($_GET['tab'])){
   elseif($_GET['tab'] == "vendors"){
     include("client_vendors.php");
   }
-  elseif($_GET['tab'] == "passwords"){
-    include("client_passwords.php");
+  elseif($_GET['tab'] == "logins"){
+    include("client_logins.php");
   }
   elseif($_GET['tab'] == "invoices"){
     include("client_invoices.php");

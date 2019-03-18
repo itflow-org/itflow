@@ -15,13 +15,10 @@
     <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=vendors">Vendors</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=passwords">Passwords</a>
+    <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=logins">Logins</a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=invoices">Invoices</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=payments">Payments</a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=quotes">Quotes</a>

@@ -398,6 +398,69 @@ if(isset($_POST['add_client_location'])){
 
 }
 
+if(isset($_POST['add_client_asset'])){
+
+    $client_id = intval($_POST['client_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
+    $make = strip_tags(mysqli_real_escape_string($mysqli,$_POST['make']));
+    $model = strip_tags(mysqli_real_escape_string($mysqli,$_POST['model']));
+    $serial = strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial']));
+    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+
+    mysqli_query($mysqli,"INSERT INTO client_assets SET client_asset_name = '$name', client_asset_type = '$type', client_asset_make = '$make', client_asset_model = '$model', client_asset_serial = '$serial', client_asset_note = '$note', client_id = $client_id");
+
+    $_SESSION['alert_message'] = "Asset added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['add_client_vendor'])){
+
+    $client_id = intval($_POST['client_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+
+    mysqli_query($mysqli,"INSERT INTO client_vendors SET client_vendor_name = '$name', client_vendor_description = '$description', client_vendor_note = '$note', client_id = $client_id");
+
+    $_SESSION['alert_message'] = "Vendor added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['add_client_login'])){
+
+    $client_id = intval($_POST['client_id']);
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
+    $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
+    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+
+    mysqli_query($mysqli,"INSERT INTO client_logins SET client_login_description = '$description', client_login_username = '$username', client_login_password = '$password', client_login_note = '$note', client_id = $client_id");
+
+    $_SESSION['alert_message'] = "Login added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['add_client_note'])){
+
+    $client_id = intval($_POST['client_id']);
+    $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
+    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+
+    mysqli_query($mysqli,"INSERT INTO client_notes SET client_note_subject = '$subject', client_note_body = '$note', client_id = $client_id");
+
+    $_SESSION['alert_message'] = "Note added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['add_user'])){
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $password = mysqli_real_escape_string($mysqli,$_POST['password']);

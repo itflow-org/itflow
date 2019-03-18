@@ -88,4 +88,19 @@
 		'Payment Method'
 	);
 
+	$asset_types_array = array(
+		'Laptop',
+		'Desktop',
+		'Mobile Phone',
+		'Tablet',
+		'Firewall/Router',
+		'Switch',
+		'Access Point',
+		'Printer',
+		'TV',
+		'Camera',
+		'TV',
+		'Virtual Machine',
+		'Other'
+	);
 ?>
