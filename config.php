@@ -10,6 +10,8 @@
 	$config_time_format = "h:ia";
 	$config_no_records = "There is nothing here!";
 
+	$config_start_page = "clients.php";
+
 	$config_company_name = "PittPC";
 	$config_company_address = "";
 	$config_company_city = "";

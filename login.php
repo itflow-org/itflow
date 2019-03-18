@@ -17,7 +17,7 @@ if(isset($_POST['login'])){
     $_SESSION['user_id'] = $row['user_id'];
     $_SESSION['name'] = $row['name'];
     
-    header("Location: index.php");
+    header("Location: $config_start_page");
   }else{
     $response = "
       <div class='alert alert-danger'>

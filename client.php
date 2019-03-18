@@ -31,7 +31,18 @@ if(isset($_GET['client_id'])){
         <i class="fas fa-ellipsis-h"></i>
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editinvoiceModal<?php echo $invoice_id; ?>">Edit</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientContactModal">New Contact</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientLocationModal">New Location</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAssetModal">New Asset</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientVendorModal">New Vendor</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientPasswordModal">New Password</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceModal">New Invoice</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPaymentModal">New Payment</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteModal">New Quote</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAttachmentModal">New Attachment</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientNoteModal">New Note</a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $invoice_id; ?>">Edit</a>
         <a class="dropdown-item" href="#">Delete</a>
       </div>
     </div>
@@ -41,62 +52,19 @@ if(isset($_GET['client_id'])){
   <div class="col-sm-12">
     <div class="card">
       <div class="card-header">
-        <ul class="nav nav-pills">
-          <li class="nav-item">
-            <a class="nav-link active" href="?client_id=<?php echo $client_id; ?>&tab=details">Details</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=contacts">Contacts</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Locations</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Assets</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Vendors</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Passwords</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Invoices</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Payments</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Quotes</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Attachments</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Notes</a>
-          </li>
-        </ul>
+        <?php include("client_nav.php"); ?>
       </div>
 
       <div class="card-body">
-        <?php
-        if(isset($_GET['tab'])){
-          if($_GET['tab'] == "details") {
-            include("client_details.php");
-          }
-          elseif($_GET['tab'] == "contacts") {
-            include("client_contacts.php");
-          }
-        }
-        else{
-          include("client_details.php");
-        }
-     
-        ?>
+        <?php include("client_routes.php"); ?>
       </div>
     </div>
   </div>
 </div>
+
+<?php include("edit_client_modal.php"); ?>
+<?php include("add_client_contact_modal.php"); ?>
+<?php include("add_client_location_modal.php"); ?>
 
 <?php } ?>
 

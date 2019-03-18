@@ -362,6 +362,42 @@ if(isset($_GET['delete_invoice_payment'])){
   
 }
 
+if(isset($_POST['add_client_contact'])){
+
+    $client_id = intval($_POST['client_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
+    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
+    $phone = preg_replace("/[^0-9]/", '',$phone);
+    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+
+    mysqli_query($mysqli,"INSERT INTO client_contacts SET client_contact_name = '$name', client_contact_title = '$title', client_contact_phone = '$phone', client_contact_email = '$email', client_id = $client_id");
+
+    $_SESSION['alert_message'] = "Contact added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['add_client_location'])){
+
+    $client_id = intval($_POST['client_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
+    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
+    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
+    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
+    $phone = preg_replace("/[^0-9]/", '',$phone);
+
+    mysqli_query($mysqli,"INSERT INTO client_locations SET client_location_name = '$name', client_location_address = '$address', client_location_city = '$city', client_location_state = '$state', client_location_zip = '$zip', client_location_phone = '$phone', client_id = $client_id");
+
+    $_SESSION['alert_message'] = "Location added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['add_user'])){
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $password = mysqli_real_escape_string($mysqli,$_POST['password']);
