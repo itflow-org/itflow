@@ -1,6 +1,22 @@
+## CRM
+### Features
+* Manage Clients
+  * Contacts
+  * Locations
+  * Assets
+  * Licenses
+  * Logins
+  * Files
+  * Technical Notes
+* Invoicing
+* Quotes / Estimates
+* Accounting
+  * P&L Reports
+  * Income Expense Summary
+  * Mileage Tracking
 
-## PittPC
-Manage Clients, Invoices and Accounting for a small IT Company
 
-## Technologies Used
-PHP/MySQL, Bootstrap (SBAdmin), Datatables, Jquery
+### Technologies Used
+* PHP/MySQL
+* SB Admin Bootstrap CSS Framework
+* Jquery

@@ -3,7 +3,10 @@
     <a class="nav-link active" href="?client_id=<?php echo $client_id; ?>&tab=details">Details</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=contacts">Contacts</a>
+    <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=contacts">
+      Contacts
+      <span class="badge badge-pill badge-dark"><?php echo $num_contacts; ?></span>
+    </a> 
   </li>
   <li class="nav-item">
     <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=locations">Locations</a>

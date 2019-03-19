@@ -1,5 +1,5 @@
 <div class="modal fade" id="addClientContactModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title"><i class="fa fa-user-plus"></i> New Contact</h5>
@@ -9,7 +9,7 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <div class="modal-body">
+        <div class="modal-body">    
           <div class="form-group">
             <label>Name</label>
             <div class="input-group">
@@ -19,6 +19,7 @@
               <input type="text" class="form-control" name="name" placeholder="Full Name" required>
             </div>
           </div>
+          
           <div class="form-group">
             <label>Title</label>
             <div class="input-group">
@@ -28,24 +29,24 @@
               <input type="text" class="form-control" name="title" placeholder="Title" required>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group col-sm">
-              <label>Phone</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-phone"></i></span>
-                </div>
-                <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" required> 
+        
+          <div class="form-group">
+            <label>Phone</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-phone"></i></span>
               </div>
+              <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" required> 
             </div>
-            <div class="form-group col-sm">
-              <label>Email</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-envelope"></i></span>
-                </div>
-                <input type="email" class="form-control" name="email" placeholder="Email Address" required>
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-envelope"></i></span>
               </div>
+              <input type="email" class="form-control" name="email" placeholder="Email Address" required>
             </div>
           </div>
         </div>

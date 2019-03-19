@@ -20,6 +20,23 @@ if(isset($_GET['client_id'])){
   }
   $client_website = $row['client_website'];
 
+  //Badge Counts
+
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_contact_id') AS num FROM client_contacts WHERE client_id = $client_id"));
+  $num_contacts = $row['num'];
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_location_id') AS num FROM client_locations WHERE client_id = $client_id"));
+  $num_locations = $row['num'];
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_asset_id') AS num FROM client_assets WHERE client_id = $client_id"));
+  $num_assets = $row['num'];
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_vendor_id') AS num FROM client_vendors WHERE client_id = $client_id"));
+  $num_vendors = $row['num'];
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_login_id') AS num FROM client_logins WHERE client_id = $client_id"));
+  $num_logins = $row['num'];
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE client_id = $client_id"));
+  $num_invoices = $row['num'];
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_note_id') AS num FROM client_notes WHERE client_id = $client_id"));
+  $num_notes = $row['num'];
+
 ?>
 <div class="row">
   <div class="col-8">
