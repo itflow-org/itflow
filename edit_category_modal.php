@@ -16,7 +16,7 @@
           <div class="form-group">
             <label>Type</label>
             <select class="form-control" name="type" required>
-              <?php foreach($category_types_array as $category_type2 => $category_type2) { ?>
+              <?php foreach($category_types_array as $category_type2) { ?>
               <option <?php if($category_type == $category_type2) { echo "selected"; } ?>><?php echo $category_type2; ?></option>
               <?php } ?>
             </select>

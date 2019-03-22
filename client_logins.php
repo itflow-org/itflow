@@ -31,7 +31,7 @@
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
               <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientLoginModal<?php echo $client_login_id; ?>">Edit</a>
-              <a class="dropdown-item" href="#">Delete</a>
+              <a class="dropdown-item" href="post.php?delete_client_login=<?php echo $client_login_id; ?>">Delete</a>
             </div>
           </div>      
         </td>

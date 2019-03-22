@@ -47,6 +47,17 @@ if(isset($_POST['edit_client'])){
 
 }
 
+if(isset($_GET['delete_client'])){
+    $client_id = intval($_GET['delete_client']);
+
+    mysqli_query($mysqli,"DELETE FROM clients WHERE client_id = $client_id");
+
+    $_SESSION['alert_message'] = "Client deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_vendor'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
@@ -88,6 +99,17 @@ if(isset($_POST['edit_vendor'])){
 
 }
 
+if(isset($_GET['delete_vendor'])){
+    $vendor_id = intval($_GET['delete_vendor']);
+
+    mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_id = $vendor_id");
+
+    $_SESSION['alert_message'] = "Vendor deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_mileage'])){
 
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
@@ -121,6 +143,17 @@ if(isset($_POST['edit_mileage'])){
 
 }
 
+if(isset($_GET['delete_mileage'])){
+    $mileage_id = intval($_GET['delete_mileage']);
+
+    mysqli_query($mysqli,"DELETE FROM mileage WHERE mileage_id = $mileage_id");
+
+    $_SESSION['alert_message'] = "Mileage deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_account'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
@@ -145,6 +178,17 @@ if(isset($_POST['edit_account'])){
     
     header("Location: accounts.php");
 
+}
+
+if(isset($_GET['delete_account'])){
+    $account_id = intval($_GET['delete_account']);
+
+    mysqli_query($mysqli,"DELETE FROM accounts WHERE account_id = $account_id");
+
+    $_SESSION['alert_message'] = "Account deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
 }
 
 if(isset($_POST['add_category'])){
@@ -172,6 +216,17 @@ if(isset($_POST['edit_category'])){
     
     header("Location: categories.php");
 
+}
+
+if(isset($_GET['delete_category'])){
+    $category_id = intval($_GET['delete_category']);
+
+    mysqli_query($mysqli,"DELETE FROM categories WHERE category_id = $category_id");
+
+    $_SESSION['alert_message'] = "Category deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
 }
 
 if(isset($_POST['add_expense'])){
@@ -209,6 +264,17 @@ if(isset($_POST['edit_expense'])){
 
 }
 
+if(isset($_GET['delete_expense'])){
+    $expense_id = intval($_GET['delete_expense']);
+
+    mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id");
+
+    $_SESSION['alert_message'] = "Expense deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_transfer'])){
 
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
@@ -240,6 +306,17 @@ if(isset($_POST['edit_transfer'])){
 
 }
 
+if(isset($_GET['delete_transfer'])){
+    $transfer_id = intval($_GET['delete_transfer']);
+
+    mysqli_query($mysqli,"DELETE FROM transfers WHERE transfer_id = $transfer_id");
+
+    $_SESSION['alert_message'] = "Transfer deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_invoice'])){
 
     $client = intval($_POST['client']);
@@ -257,6 +334,17 @@ if(isset($_POST['add_invoice'])){
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if(isset($_GET['delete_invoice'])){
+    $invoice_id = intval($_GET['delete_invoice']);
+
+    mysqli_query($mysqli,"DELETE FROM invoices WHERE invoice_id = $invoice_id");
+
+    $_SESSION['alert_message'] = "Invoice deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
 }
 
 if(isset($_POST['add_invoice_item'])){
@@ -396,6 +484,17 @@ if(isset($_POST['edit_client_contact'])){
 
 }
 
+if(isset($_GET['delete_client_contact'])){
+    $client_contact_id = intval($_GET['delete_client_contact']);
+
+    mysqli_query($mysqli,"DELETE FROM client_contacts WHERE client_contact_id = $client_contact_id");
+
+    $_SESSION['alert_message'] = "Contact deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_client_location'])){
 
     $client_id = intval($_POST['client_id']);
@@ -434,6 +533,17 @@ if(isset($_POST['edit_client_location'])){
 
 }
 
+if(isset($_GET['delete_client_location'])){
+    $client_location_id = intval($_GET['delete_client_location']);
+
+    mysqli_query($mysqli,"DELETE FROM client_locations WHERE client_location_id = $client_location_id");
+
+    $_SESSION['alert_message'] = "Location deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_client_asset'])){
 
     $client_id = intval($_POST['client_id']);
@@ -470,6 +580,17 @@ if(isset($_POST['edit_client_asset'])){
 
 }
 
+if(isset($_GET['delete_client_asset'])){
+    $client_asset_id = intval($_GET['delete_client_asset']);
+
+    mysqli_query($mysqli,"DELETE FROM client_assets WHERE client_asset_id = $client_asset_id");
+
+    $_SESSION['alert_message'] = "Asset deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_client_vendor'])){
 
     $client_id = intval($_POST['client_id']);
@@ -498,6 +619,17 @@ if(isset($_POST['edit_client_vendor'])){
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if(isset($_GET['delete_client_vendor'])){
+    $client_vendor_id = intval($_GET['delete_client_vendor']);
+
+    mysqli_query($mysqli,"DELETE FROM client_vendors WHERE client_vendor_id = $client_vendor_id");
+
+    $_SESSION['alert_message'] = "Vendor deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
 }
 
 if(isset($_POST['add_client_login'])){
@@ -532,6 +664,17 @@ if(isset($_POST['edit_client_login'])){
 
 }
 
+if(isset($_GET['delete_client_login'])){
+    $client_login_id = intval($_GET['delete_client_login']);
+
+    mysqli_query($mysqli,"DELETE FROM client_logins WHERE client_login_id = $client_login_id");
+
+    $_SESSION['alert_message'] = "Login deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_client_note'])){
 
     $client_id = intval($_POST['client_id']);
@@ -544,6 +687,31 @@ if(isset($_POST['add_client_note'])){
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if(isset($_POST['edit_client_note'])){
+
+    $client_note_id = intval($_POST['client_note_id']);
+    $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
+    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+
+    mysqli_query($mysqli,"UPDATE client_notes SET client_note_subject = '$subject', client_note_body = '$note' WHERE client_note_id = $client_note_id");
+
+    $_SESSION['alert_message'] = "Note updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_client_note'])){
+    $client_note_id = intval($_GET['delete_client_note']);
+
+    mysqli_query($mysqli,"DELETE FROM client_notes WHERE client_note_id = $client_note_id");
+
+    $_SESSION['alert_message'] = "Note deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
 }
 
 if(isset($_POST['add_user'])){

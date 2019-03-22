@@ -59,7 +59,7 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseCopyModal<?php echo $expense_id; ?>">Copy</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseRefundModal<?php echo $expense_id; ?>">Refund</a>
-                  <a class="dropdown-item" href="#">Delete</a>
+                  <a class="dropdown-item" href="post.php?delete_expense=<?php echo $expense_id; ?>">Delete</a>
                 </div>
               </div>      
             </td>
