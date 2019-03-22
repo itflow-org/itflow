@@ -59,7 +59,7 @@
       <span>Reports</span>
     </a>
     <div class="dropdown-menu" aria-labelledby="pagesDropdown">
-      <a class="dropdown-item" href="report_expense_income_summary.php">Income Summary</a>
+      <a class="dropdown-item" href="report_income_summary.php">Income Summary</a>
       <a class="dropdown-item" href="report_expense_summary.php">Expense Summary</a>
       <a class="dropdown-item" href="report_income_vs_expense.php">Income vs Expense</a>
       <a class="dropdown-item" href="report_profit_loss.php">Profit & Loss</a>

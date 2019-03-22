@@ -6,6 +6,41 @@ include("check_login.php");
 
 $todays_date = date('Y-m-d');
 
+if(isset($_POST['add_user'])){
+
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+    $password = md5(mysqli_real_escape_string($mysqli,$_POST['password']));
+
+    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password'");
+
+    $_SESSION['alert_message'] = "User added";
+    
+    header("Location: users.php");
+
+}
+
+if(isset($_POST['edit_user'])){
+
+    $user_id = intval($_POST['user_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+    $current_password_hash = mysqli_real_escape_string($mysqli,$_POST['current_password_hash']);
+    $password = mysqli_real_escape_string($mysqli,$_POST['password']);
+    if($current_password_hash == $password){
+        $password = $current_password_hash;
+    }else{
+        $password = md5($password);
+    }
+
+    mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', password = '$password' WHERE user_id = $user_id");
+
+    $_SESSION['alert_message'] = "User updated";
+    
+    header("Location: users.php");
+
+}
+
 if(isset($_POST['add_client'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
@@ -712,83 +747,6 @@ if(isset($_GET['delete_client_note'])){
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
-}
-
-if(isset($_POST['add_user'])){
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $password = mysqli_real_escape_string($mysqli,$_POST['password']);
-    $first_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['first_name']));
-    $last_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['last_name']));
-    $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
-    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
-    $phone = preg_replace("/[^0-9]/", '',$phone);
-    $location = intval($_POST['location']);
-    $user_access = intval($_POST['user_access']);
-    $hash_password = md5($password);
-
-    mysqli_query($mysqli,"INSERT INTO users SET email = '$email', password = '$hash_password', first_name = '$first_name', last_name = '$last_name', title = '$title', phone = '$phone', current_location_id = $location, user_created = UNIX_TIMESTAMP(), user_access = $user_access");
-    
-    $user_id = mysqli_insert_id($mysqli);
-
-    $check = getimagesize($_FILES["avatar"]["tmp_name"]);
-    if($check !== false) {
-        $avatar_path = "uploads/user_avatars/";
-        $avatar_path = $avatar_path . $user_id . '_' . time() . '_' . basename( $_FILES['avatar']['name']);
-        move_uploaded_file($_FILES['avatar']['tmp_name'], $avatar_path);
-    }else{
-        $avatar_path = "img/default_user_avatar.png";
-    }
-
-    mysqli_query($mysqli,"UPDATE users SET avatar = '$avatar_path' WHERE user_id = $user_id");
-
-    $event_description = "User $first_name $last_name $email created.";
-
-    mysqli_query($mysqli,"INSERT INTO events SET event_type = 'Add User', event_description = '$event_description', event_created_at = UNIX_TIMESTAMP(), user_id = $session_user_id");
-
-    $_SESSION['alert_message'] = "User Added";
-    
-    header("Location: admin.php?tab=users");
-
-}
-
-if(isset($_POST['edit_user'])){
-    $user_id = intval($_POST['user_id']);
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $current_password_hash = mysqli_real_escape_string($mysqli,$_POST['current_password_hash']);
-    $new_password = mysqli_real_escape_string($mysqli,$_POST['new_password']);
-    if($current_password_hash == $new_password){
-        $hash_password = $current_password_hash;
-    }else{
-        $hash_password = md5($new_password);
-    }
-    $first_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['first_name']));
-    $last_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['last_name']));
-    $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
-    $phone = mysqli_real_escape_string($mysqli,$_POST['phone']);
-    $phone = preg_replace("/[^0-9]/", '',$phone);
-    $user_access = intval($_POST['user_access']);
-    $location = intval($_POST['location']);
-    $avatar_path = $_POST['current_avatar_path'];
-    $check = getimagesize($_FILES["avatar"]["tmp_name"]);
-    if($check !== false) {
-        if($avatar_path != "img/default_user_avatar.png"){
-            unlink($avatar_path);
-        }
-        $avatar_path = "uploads/user_avatars/";
-        $avatar_path =  $avatar_path . $user_id . '_' . time() . '_' . basename( $_FILES['avatar']['name']);
-        move_uploaded_file($_FILES['avatar']['tmp_name'], "$avatar_path");
-    }
-
-    mysqli_query($mysqli,"UPDATE users SET email = '$email', password = '$hash_password', first_name = '$first_name', last_name = '$last_name', title = '$title', phone = '$phone', avatar = '$avatar_path', user_modified = UNIX_TIMESTAMP(), current_location_id = $location, user_access = $user_access WHERE user_id = $user_id");
-    
-    $event_description = "User $first_name $last_name $email modified.";
-
-    mysqli_query($mysqli,"INSERT INTO events SET event_type = 'Edit User', event_description = '$event_description', event_created_at = UNIX_TIMESTAMP(), user_id = $session_user_id");
-    
-    $_SESSION['alert_message'] = "User Updated.";
-    
-    header("Location: admin.php?tab=users");
-
 }
 
 if(isset($_POST['change_password'])){

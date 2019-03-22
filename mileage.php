@@ -34,11 +34,11 @@
 
           ?>
           <tr>
-            <td><?php echo "$mileage_date"; ?></td>
-            <td><?php echo "$mileage_purpose"; ?></td>
-            <td><?php echo "$mileage_starting_location"; ?></td>
-            <td><?php echo "$mileage_destination"; ?></td>
-            <td><?php echo "$mileage_miles"; ?></td>
+            <td><?php echo $mileage_date; ?></td>
+            <td><?php echo $mileage_purpose; ?></td>
+            <td><?php echo $mileage_starting_location; ?></td>
+            <td><?php echo $mileage_destination; ?></td>
+            <td><?php echo $mileage_miles; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
