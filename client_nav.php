@@ -45,6 +45,12 @@
     </a>
   </li>
   <li class="nav-item">
+    <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=applications">
+      Applications
+      <span class="badge badge-pill badge-dark"><?php echo $num_applications; ?></span>
+    </a>
+  </li>
+  <li class="nav-item">
     <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=invoices">
       Invoices
       <span class="badge badge-pill badge-dark"><?php echo $num_invoices; ?></span>

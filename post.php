@@ -835,6 +835,47 @@ if(isset($_GET['delete_client_domain'])){
   
 }
 
+if(isset($_POST['add_client_application'])){
+
+    $client_id = intval($_POST['client_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
+    $license = strip_tags(mysqli_real_escape_string($mysqli,$_POST['license']));
+
+    mysqli_query($mysqli,"INSERT INTO client_applications SET client_application_name = '$name', client_application_type = '$type', client_application_license = '$license', client_id = $client_id");
+
+    $_SESSION['alert_message'] = "Application added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_client_application'])){
+
+    $client_application_id = intval($_POST['client_application_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
+    $license = strip_tags(mysqli_real_escape_string($mysqli,$_POST['license']));
+
+    mysqli_query($mysqli,"UPDATE client_applications SET client_application_name = '$name', client_application_type = '$type', client_application_license = '$license' WHERE client_application_id = $client_application_id");
+
+    $_SESSION['alert_message'] = "Application updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_client_application'])){
+    $client_application_id = intval($_GET['delete_client_application']);
+
+    mysqli_query($mysqli,"DELETE FROM client_applications WHERE client_application_id = $client_application_id");
+
+    $_SESSION['alert_message'] = "Application deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['change_password'])){
     $current_url = $_POST['current_url'];
     $new_password = mysqli_real_escape_string($mysqli,$_POST['new_password']);

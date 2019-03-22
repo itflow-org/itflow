@@ -103,4 +103,11 @@
 		'Virtual Machine',
 		'Other'
 	);
+
+	$application_types_array = array(
+		'Web App',
+		'Desktop App',
+		'Other'
+	);
+	
 ?>
