@@ -32,6 +32,8 @@ if(isset($_GET['client_id'])){
   $num_vendors = $row['num'];
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_login_id') AS num FROM client_logins WHERE client_id = $client_id"));
   $num_logins = $row['num'];
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_network_id') AS num FROM client_networks WHERE client_id = $client_id"));
+  $num_networks = $row['num'];
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE client_id = $client_id"));
   $num_invoices = $row['num'];
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_note_id') AS num FROM client_notes WHERE client_id = $client_id"));
@@ -53,6 +55,7 @@ if(isset($_GET['client_id'])){
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAssetModal">New Asset</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientVendorModal">New Vendor</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientLoginModal">New Login</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientNetworkModal">New Network</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceModal">New Invoice</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteModal">New Quote</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAttachmentModal">New Attachment</a>
@@ -84,6 +87,7 @@ if(isset($_GET['client_id'])){
 <?php include("add_client_asset_modal.php"); ?>
 <?php include("add_client_vendor_modal.php"); ?>
 <?php include("add_client_login_modal.php"); ?>
+<?php include("add_client_network_modal.php"); ?>
 <?php include("add_invoice_modal.php"); ?>
 <?php include("add_invoice_payment_modal.php"); ?>
 <?php include("add_quote_modal.php"); ?>

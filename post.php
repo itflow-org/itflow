@@ -749,6 +749,49 @@ if(isset($_GET['delete_client_note'])){
   
 }
 
+if(isset($_POST['add_client_network'])){
+
+    $client_id = intval($_POST['client_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $network = strip_tags(mysqli_real_escape_string($mysqli,$_POST['network']));
+    $gateway = strip_tags(mysqli_real_escape_string($mysqli,$_POST['gateway']));
+    $dhcp_range = strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range']));
+
+    mysqli_query($mysqli,"INSERT INTO client_networks SET client_network_name = '$name', client_network = '$network', client_network_gateway = '$gateway', client_network_dhcp_range = '$dhcp_range', client_id = $client_id");
+
+    $_SESSION['alert_message'] = "Network added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_client_network'])){
+
+    $client_network_id = intval($_POST['client_network_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $network = strip_tags(mysqli_real_escape_string($mysqli,$_POST['network']));
+    $gateway = strip_tags(mysqli_real_escape_string($mysqli,$_POST['gateway']));
+    $dhcp_range = strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range']));
+
+    mysqli_query($mysqli,"UPDATE client_networks SET client_network_name = '$name', client_network = '$network', client_network_gateway = '$gateway', client_network_dhcp_range = '$dhcp_range' WHERE client_network_id = $client_network_id");
+
+    $_SESSION['alert_message'] = "Network updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_client_network'])){
+    $client_network_id = intval($_GET['delete_client_network']);
+
+    mysqli_query($mysqli,"DELETE FROM client_networks WHERE client_network_id = $client_network_id");
+
+    $_SESSION['alert_message'] = "Network deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['change_password'])){
     $current_url = $_POST['current_url'];
     $new_password = mysqli_real_escape_string($mysqli,$_POST['new_password']);
