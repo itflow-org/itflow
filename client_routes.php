@@ -22,6 +22,9 @@ if(isset($_GET['tab'])){
   elseif($_GET['tab'] == "networks"){
     include("client_networks.php");
   }
+  elseif($_GET['tab'] == "domains"){
+    include("client_domains.php");
+  }
   elseif($_GET['tab'] == "invoices"){
     include("client_invoices.php");
   }

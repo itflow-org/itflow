@@ -792,6 +792,49 @@ if(isset($_GET['delete_client_network'])){
   
 }
 
+if(isset($_POST['add_client_domain'])){
+
+    $client_id = intval($_POST['client_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $registrar = strip_tags(mysqli_real_escape_string($mysqli,$_POST['registrar']));
+    $expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire']));
+    $server = strip_tags(mysqli_real_escape_string($mysqli,$_POST['server']));
+
+    mysqli_query($mysqli,"INSERT INTO client_domains SET client_domain_name = '$name', client_domain_registrar = '$registrar', client_domain_expire = '$expire', client_domain_server = '$server', client_id = $client_id");
+
+    $_SESSION['alert_message'] = "Domain added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_client_domain'])){
+
+    $client_domain_id = intval($_POST['client_domain_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $registrar = strip_tags(mysqli_real_escape_string($mysqli,$_POST['registrar']));
+    $expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire']));
+    $server = strip_tags(mysqli_real_escape_string($mysqli,$_POST['server']));
+
+    mysqli_query($mysqli,"UPDATE client_domains SET client_domain_name = '$name', client_domain_registrar = '$registrar', client_domain_expire = '$expire', client_domain_server = '$server' WHERE client_domain_id = $client_domain_id");
+
+    $_SESSION['alert_message'] = "Domain updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_client_domain'])){
+    $client_domain_id = intval($_GET['delete_client_domain']);
+
+    mysqli_query($mysqli,"DELETE FROM client_domains WHERE client_domain_id = $client_domain_id");
+
+    $_SESSION['alert_message'] = "Domain deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['change_password'])){
     $current_url = $_POST['current_url'];
     $new_password = mysqli_real_escape_string($mysqli,$_POST['new_password']);
