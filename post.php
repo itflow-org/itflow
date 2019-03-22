@@ -379,6 +379,23 @@ if(isset($_POST['add_client_contact'])){
 
 }
 
+if(isset($_POST['edit_client_contact'])){
+
+    $client_contact_id = intval($_POST['client_contact_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
+    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
+    $phone = preg_replace("/[^0-9]/", '',$phone);
+    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+
+    mysqli_query($mysqli,"UPDATE client_contacts SET client_contact_name = '$name', client_contact_title = '$title', client_contact_phone = '$phone', client_contact_email = '$email' WHERE client_contact_id = $client_contact_id");
+
+    $_SESSION['alert_message'] = "Contact updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['add_client_location'])){
 
     $client_id = intval($_POST['client_id']);
@@ -393,6 +410,25 @@ if(isset($_POST['add_client_location'])){
     mysqli_query($mysqli,"INSERT INTO client_locations SET client_location_name = '$name', client_location_address = '$address', client_location_city = '$city', client_location_state = '$state', client_location_zip = '$zip', client_location_phone = '$phone', client_id = $client_id");
 
     $_SESSION['alert_message'] = "Location added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_client_location'])){
+
+    $client_location_id = intval($_POST['client_location_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
+    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
+    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
+    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
+    $phone = preg_replace("/[^0-9]/", '',$phone);
+
+    mysqli_query($mysqli,"UPDATE client_locations SET client_location_name = '$name', client_location_address = '$address', client_location_city = '$city', client_location_state = '$state', client_location_zip = '$zip', client_location_phone = '$phone' WHERE client_location_id = $client_location_id");
+
+    $_SESSION['alert_message'] = "Location updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -416,6 +452,24 @@ if(isset($_POST['add_client_asset'])){
 
 }
 
+if(isset($_POST['edit_client_asset'])){
+
+    $client_asset_id = intval($_POST['client_asset_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
+    $make = strip_tags(mysqli_real_escape_string($mysqli,$_POST['make']));
+    $model = strip_tags(mysqli_real_escape_string($mysqli,$_POST['model']));
+    $serial = strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial']));
+    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+
+    mysqli_query($mysqli,"UPDATE client_assets SET client_asset_name = '$name', client_asset_type = '$type', client_asset_make = '$make', client_asset_model = '$model', client_asset_serial = '$serial', client_asset_note = '$note' WHERE client_asset_id = $client_asset_id");
+
+    $_SESSION['alert_message'] = "Asset updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['add_client_vendor'])){
 
     $client_id = intval($_POST['client_id']);
@@ -426,6 +480,21 @@ if(isset($_POST['add_client_vendor'])){
     mysqli_query($mysqli,"INSERT INTO client_vendors SET client_vendor_name = '$name', client_vendor_description = '$description', client_vendor_note = '$note', client_id = $client_id");
 
     $_SESSION['alert_message'] = "Vendor added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_client_vendor'])){
+
+    $client_vendor_id = intval($_POST['client_vendor_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+
+    mysqli_query($mysqli,"UPDATE client_vendors SET client_vendor_name = '$name', client_vendor_description = '$description', client_vendor_note = '$note' WHERE client_vendor_id = $client_vendor_id");
+
+    $_SESSION['alert_message'] = "Vendor updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -442,6 +511,22 @@ if(isset($_POST['add_client_login'])){
     mysqli_query($mysqli,"INSERT INTO client_logins SET client_login_description = '$description', client_login_username = '$username', client_login_password = '$password', client_login_note = '$note', client_id = $client_id");
 
     $_SESSION['alert_message'] = "Login added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_client_login'])){
+
+    $client_login_id = intval($_POST['client_login_id']);
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
+    $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
+    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+
+    mysqli_query($mysqli,"UPDATE client_logins SET client_login_description = '$description', client_login_username = '$username', client_login_password = '$password', client_login_note = '$note' WHERE client_login_id = $client_login_id");
+
+    $_SESSION['alert_message'] = "Login updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
