@@ -37,7 +37,7 @@ if(isset($_GET['client_id'])){
 
 <div class="row">
   <div class="col-9">
-    <h1><?php echo $client_name; ?></h1>
+    <h2><?php echo $client_name; ?></h2>
     <table class="table">
       <tr>
         <th>Address</th>
@@ -88,9 +88,8 @@ if(isset($_GET['client_id'])){
 
 <?php $sql = mysqli_query($mysqli,"SELECT * FROM client_contacts WHERE client_id = $client_id ORDER BY client_contact_id DESC"); ?>
 
-<h2>Contacts</h2>
-<hr>
-<table class="table table-striped table-borderless mb-5">
+<h4>Contacts</h4>
+<table class="table table-bordered table-compact table-sm mb-4">
   <thead>
     <tr>
       <th>Name</th>
@@ -130,9 +129,8 @@ if(isset($_GET['client_id'])){
 
 <?php $sql = mysqli_query($mysqli,"SELECT * FROM client_locations WHERE client_id = $client_id ORDER BY client_location_id DESC"); ?>
 
-<h2>Locations</h2>
-<hr>
-<table class="table table-striped table-borderless mb-5">
+<h4>Locations</h4>
+<table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
       <th>Location</th>
@@ -158,7 +156,7 @@ if(isset($_GET['client_id'])){
     ?>
     <tr>
       <td><?php echo "$client_location_name"; ?></td>
-      <td><?php echo "$client_location_address <br> $client_location_city $client_location_state $client_location_zip"; ?></td>
+      <td><?php echo "$client_location_address $client_location_city $client_location_state $client_location_zip"; ?></td>
       <td><?php echo "$client_location_phone"; ?></td>
     </tr>
 
@@ -174,9 +172,8 @@ if(isset($_GET['client_id'])){
 
 <?php $sql = mysqli_query($mysqli,"SELECT * FROM client_assets WHERE client_id = $client_id ORDER BY client_asset_id DESC"); ?>
 
-<h2>Assets</h2>
-<hr>
-<table class="table table-striped table-borderless mb-5">
+<h4>Assets</h4>
+<table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
       <th>Type</th>
@@ -214,9 +211,8 @@ if(isset($_GET['client_id'])){
 
 <?php $sql = mysqli_query($mysqli,"SELECT * FROM client_vendors WHERE client_id = $client_id ORDER BY client_vendor_id DESC"); ?>
 
-<h2>Vendors</h2>
-<hr>
-<table class="table table-striped table-borderless mb-5">
+<h4>Vendors</h4>
+<table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
       <th>Vendor</th>
@@ -250,9 +246,8 @@ if(isset($_GET['client_id'])){
 
 <?php $sql = mysqli_query($mysqli,"SELECT * FROM client_logins WHERE client_id = $client_id ORDER BY client_login_id DESC"); ?>
 
-<h2>Logins</h2>
-<hr>
-<table class="table table-striped table-borderless mb-5">
+<h4>Logins</h4>
+<table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
       <th>Description</th>
@@ -286,9 +281,8 @@ if(isset($_GET['client_id'])){
 
 <?php $sql = mysqli_query($mysqli,"SELECT * FROM client_networks WHERE client_id = $client_id ORDER BY client_network_id DESC"); ?>
 
-<h2>Networks</h2>
-<hr>
-<table class="table table-striped table-borderless mb-5">
+<h4>Networks</h4>
+<table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
       <th>Name</th>
@@ -326,9 +320,8 @@ if(isset($_GET['client_id'])){
 
 <?php $sql = mysqli_query($mysqli,"SELECT * FROM client_domains WHERE client_id = $client_id ORDER BY client_domain_id DESC"); ?>
 
-<h2>Domains</h2>
-<hr>
-<table class="table table-striped table-borderless mb-5">
+<h4>Domains</h4>
+<table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
       <th>Domain</th>
@@ -365,9 +358,8 @@ if(isset($_GET['client_id'])){
 
 <?php $sql = mysqli_query($mysqli,"SELECT * FROM client_applications WHERE client_id = $client_id ORDER BY client_application_id DESC"); ?>
 
-<h2>Applications</h2>
-<hr>
-<table class="table table-striped table-borderless mb-5">
+<h4>Applications</h4>
+<table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
       <th>Application</th>
@@ -405,9 +397,8 @@ if(isset($_GET['client_id'])){
 
 ?>
 
-<h2>Invoices</h2>
-<hr>
-<table class="table table-striped table-borderless mb-5">
+<h4>Invoices</h4>
+<table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
       <th>Number</th>
@@ -450,7 +441,7 @@ if(isset($_GET['client_id'])){
 
 <?php $sql = mysqli_query($mysqli,"SELECT * FROM client_notes WHERE client_id = $client_id ORDER BY client_note_id DESC"); ?>
 
-<h2>Notes</h2>
+<h4>Notes</h4>
 <hr>
 
 <?php
@@ -461,9 +452,9 @@ while($row = mysqli_fetch_array($sql)){
   $client_note_body = $row['client_note_body'];
 
 ?>
-<h4><?php echo "$client_note_subject"; ?></h4>
+<h6><?php echo "$client_note_subject"; ?></h6>
 <hr>
-<p class="mb-5"><?php echo "$client_note_body"; ?></p>
+<p class="mb-4"><?php echo "$client_note_body"; ?></p>
 
 <?php
 }
