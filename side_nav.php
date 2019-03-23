@@ -1,5 +1,5 @@
 <!-- Sidebar -->
-<ul class="sidebar navbar-nav">
+<ul class="sidebar navbar-nav d-print-none">
   <li class="nav-item">
     <a class="nav-link" href="dashboard.php">
       <i class="fas fa-fw fa-tachometer-alt"></i>

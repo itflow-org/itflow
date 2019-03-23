@@ -23,7 +23,7 @@ if(isset($_GET['client_id'])){
 ?>
 
 <!-- Breadcrumbs-->
-<ol class="breadcrumb">
+<ol class="breadcrumb d-print-none">
   <li class="breadcrumb-item">
     <a href="index.html">Clients</a>
   </li>
@@ -32,6 +32,8 @@ if(isset($_GET['client_id'])){
   </li>
   <li class="breadcrumb-item active">Print</li>
 </ol>
+
+<button class="btn btn-primary d-print-none mb-2" onclick="window.print();"><i class="fa fa-print"></i> Print</button>
 
 <div class="row">
   <div class="col-9">
