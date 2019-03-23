@@ -6,6 +6,7 @@
       <tr>
         <th>Vendor</th>
         <th>Description</th>
+        <th>Account Number</th>
         <th class="text-center">Actions</th>
       </tr>
     </thead>
@@ -16,11 +17,13 @@
         $client_vendor_id = $row['client_vendor_id'];
         $client_vendor_name = $row['client_vendor_name'];
         $client_vendor_description = $row['client_vendor_description'];
+        $client_vendor_account_number = $row['client_vendor_account_number'];
   
       ?>
       <tr>
-        <td><?php echo "$client_vendor_name"; ?></td>
-        <td><?php echo "$client_vendor_description"; ?></td>
+        <td><?php echo $client_vendor_name; ?></td>
+        <td><?php echo $client_vendor_description; ?></td>
+        <td><?php echo $client_vendor_account_number; ?></td>
         <td>
           <div class="dropdown dropleft text-center">
             <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

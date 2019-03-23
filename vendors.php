@@ -13,10 +13,9 @@
       <table class="table table-striped table-borderless table-hover" id="dataTable" width="100%" cellspacing="0">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Website</th>
+            <th>Vendor</th>
+            <th>Description</th>
+            <th>Account Number</th>
             <th class="text-center">Actions</th>
           </tr>
         </thead>
@@ -26,26 +25,21 @@
           while($row = mysqli_fetch_array($sql)){
             $vendor_id = $row['vendor_id'];
             $vendor_name = $row['vendor_name'];
-            $vendor_email = $row['vendor_email'];
-            $vendor_phone = $row['vendor_phone'];
-            if(strlen($vendor_phone)>2){ 
-              $vendor_phone = substr($row['vendor_phone'],0,3)."-".substr($row['vendor_phone'],3,3)."-".substr($row['vendor_phone'],6,4);
-            }
-            $vendor_website = $row['vendor_website'];
+            $vendor_description = $row['vendor_description'];
+            $vendor_account_number = $row['vendor_account_number'];
       
           ?>
           <tr>
-            <td><?php echo "$vendor_name"; ?></td>
-            <td><?php echo "$vendor_email"; ?></td>
-            <td><?php echo "$vendor_phone"; ?></td>
-            <td><?php echo "$vendor_website"; ?></td>
+            <td><?php echo $vendor_name; ?></td>
+            <td><?php echo $vendor_description; ?></td>
+            <td><?php echo $vendor_account_number; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editvendorModal<?php echo $vendor_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_vendor=<?php echo $vendor_id; ?>">Delete</a>
                 </div>
               </div>      

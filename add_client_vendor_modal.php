@@ -29,8 +29,13 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Note</label>
-            <textarea rows="4" class="form-control" name="note"></textarea>
+            <label>Account Number</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-barcode"></i></span>
+              </div>
+              <input type="text" class="form-control" name="account_number" placeholder="Account number">
+            </div>
           </div>
         </div>
         <div class="modal-footer">

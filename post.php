@@ -96,16 +96,10 @@ if(isset($_GET['delete_client'])){
 if(isset($_POST['add_vendor'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
-    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
-    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
-    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
-    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
-    $phone = preg_replace("/[^0-9]/", '',$phone);
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $account_number = strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number']));
 
-    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_created_at = UNIX_TIMESTAMP()");
+    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_account_number = '$account_number', vendor_created_at = UNIX_TIMESTAMP()");
 
     $_SESSION['alert_message'] = "Vendor added";
     
@@ -117,16 +111,10 @@ if(isset($_POST['edit_vendor'])){
 
     $vendor_id = intval($_POST['vendor_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
-    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
-    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
-    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
-    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
-    $phone = preg_replace("/[^0-9]/", '',$phone);
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $account_number = strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number']));
 
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_updated_at = UNIX_TIMESTAMP() WHERE vendor_id = $vendor_id");
+    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_account_number = '$account_number', vendor_updated_at = UNIX_TIMESTAMP() WHERE vendor_id = $vendor_id");
 
     $_SESSION['alert_message'] = "Vendor modified";
     
@@ -631,9 +619,9 @@ if(isset($_POST['add_client_vendor'])){
     $client_id = intval($_POST['client_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+    $account_number = strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number']));
 
-    mysqli_query($mysqli,"INSERT INTO client_vendors SET client_vendor_name = '$name', client_vendor_description = '$description', client_vendor_note = '$note', client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO client_vendors SET client_vendor_name = '$name', client_vendor_description = '$description', client_vendor_account_number = '$account_number', client_id = $client_id");
 
     $_SESSION['alert_message'] = "Vendor added";
     
@@ -646,9 +634,9 @@ if(isset($_POST['edit_client_vendor'])){
     $client_vendor_id = intval($_POST['client_vendor_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+    $account_number = strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number']));
 
-    mysqli_query($mysqli,"UPDATE client_vendors SET client_vendor_name = '$name', client_vendor_description = '$description', client_vendor_note = '$note' WHERE client_vendor_id = $client_vendor_id");
+    mysqli_query($mysqli,"UPDATE client_vendors SET client_vendor_name = '$name', client_vendor_description = '$description', client_vendor_account_number = '$account_number' WHERE client_vendor_id = $client_vendor_id");
 
     $_SESSION['alert_message'] = "Vendor updated";
     

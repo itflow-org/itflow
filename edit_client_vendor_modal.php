@@ -28,6 +28,15 @@
               <input type="text" class="form-control" name="description" placeholder="Description of the Vendor" value="<?php echo $client_vendor_description; ?>"required>
             </div>
           </div>
+          <div class="form-group">
+            <label>Account Number</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-barcode"></i></span>
+              </div>
+              <input type="text" class="form-control" name="account_number" placeholder="Account number" value="<?php echo $client_vendor_account_number; ?>">
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
