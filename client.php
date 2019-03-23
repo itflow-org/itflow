@@ -97,11 +97,12 @@ if(isset($_GET['client_id'])){
 <?php include("add_client_network_modal.php"); ?>
 <?php include("add_client_domain_modal.php"); ?>
 <?php include("add_client_application_modal.php"); ?>
+<?php include("add_client_note_modal.php"); ?>
 <?php include("add_invoice_modal.php"); ?>
 <?php include("add_invoice_payment_modal.php"); ?>
 <?php include("add_quote_modal.php"); ?>
 <?php include("add_client_attachment_modal.php"); ?>
-<?php include("add_client_note_modal.php"); ?>
+
 
 <?php } ?>
 
