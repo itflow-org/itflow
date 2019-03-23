@@ -22,9 +22,15 @@
   <ul class="navbar-nav ml-auto ml-md-0">
     <li class="nav-item dropdown no-arrow">
       <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fas fa-user-circle fa-fw"></i> <?php echo "$session_name"; ?>
+        <img height="28" width="28" src="<?php echo "$session_avatar"; ?>" class="img-fluid rounded-circle"> <?php echo "$session_name"; ?>
       </a>
       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+        <a class="dropdown-item" data-toggle="modal" data-target="#changeAvatarModal" href="#">
+          <center>
+            <img height="128" width="128" src="<?php echo "$session_avatar"; ?>" class="img-fluid rounded-circle">
+          </center>
+        </a>
+        <div class="dropdown-divider"></div>
         <a class="dropdown-item" href="#">Settings</a>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" href="logout.php">Logout</a>

@@ -12,5 +12,6 @@
 	$sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $session_user_id");
 	$row = mysqli_fetch_array($sql);
 	$session_name = $row['name'];
+	$session_avatar = $row['avatar'];
 
 ?>

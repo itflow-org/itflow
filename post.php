@@ -14,6 +14,19 @@ if(isset($_POST['add_user'])){
 
     mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password'");
 
+    $user_id = mysqli_insert_id($mysqli);
+
+    $check = getimagesize($_FILES["avatar"]["tmp_name"]);
+    if($check !== false) {
+        $avatar_path = "uploads/user_avatars/";
+        $avatar_path = $avatar_path . $user_id . '_' . time() . '_' . basename( $_FILES['avatar']['name']);
+        move_uploaded_file($_FILES['avatar']['tmp_name'], $avatar_path);
+    }else{
+        $avatar_path = "img/default_user_avatar.png";
+    }
+
+    mysqli_query($mysqli,"UPDATE users SET avatar = '$avatar_path' WHERE user_id = $user_id");
+
     $_SESSION['alert_message'] = "User added";
     
     header("Location: users.php");
@@ -32,8 +45,18 @@ if(isset($_POST['edit_user'])){
     }else{
         $password = md5($password);
     }
-
-    mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', password = '$password' WHERE user_id = $user_id");
+    $avatar_path = $_POST['current_avatar_path'];
+    $check = getimagesize($_FILES["avatar"]["tmp_name"]);
+    if($check !== false) {
+        if($avatar_path != "img/default_user_avatar.png"){
+            unlink($avatar_path);
+        }
+        $avatar_path = "uploads/user_avatars/";
+        $avatar_path =  $avatar_path . $user_id . '_' . time() . '_' . basename( $_FILES['avatar']['name']);
+        move_uploaded_file($_FILES['avatar']['tmp_name'], "$avatar_path");
+    }
+    
+    mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', password = '$password', avatar = '$avatar_path' WHERE user_id = $user_id");
 
     $_SESSION['alert_message'] = "User updated";
     

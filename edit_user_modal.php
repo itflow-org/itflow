@@ -7,10 +7,14 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form action="post.php" method="post" autocomplete="off">
+      <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
         <input type="hidden" name="current_password_hash" value="<?php echo $password; ?>">
+        <input type="hidden" name="current_avatar_path" value="<?php echo $avatar; ?>">
         <div class="modal-body">    
+          <center class="mb-3">
+            <img class="img-fluid rounded-circle" src="<?php echo $avatar; ?>" height="128" width="128">
+          </center>
           <div class="form-group">
             <label>Name</label>
             <div class="input-group">
@@ -40,6 +44,10 @@
               <input type="password" class="form-control" name="password" placeholder="Enter a password" value="<?php echo $password; ?>" required>
             </div>
           </div>
+          <div class="form-group">
+            <label>Avatar</label>
+            <input type="file" class="form-control-file" accept="image/*;capture=camera" name="avatar">
+          </div>         
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

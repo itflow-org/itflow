@@ -13,7 +13,7 @@
       <table class="table table-striped table-borderless table-hover" id="dataTable" width="100%" cellspacing="0">
         <thead>
           <tr>
-            <th>Name</th>
+            <th class="text-center">Name</th>
             <th>Email</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -26,10 +26,14 @@
             $name = $row['name'];
             $email = $row['email'];
             $password = $row['password'];
+            $avatar = $row['avatar'];
       
           ?>
           <tr>
-            <td><?php echo $name; ?></a></td>
+            <td class="text-center">
+              <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo "$avatar"; ?>">
+              <div class="text-secondary"><?php echo $name; ?></div>
+            </td>
             <td><a href="mailto:<?php echo $email; ?>"><?php echo $email; ?></a></td>
             <td>
               <div class="dropdown dropleft text-center">

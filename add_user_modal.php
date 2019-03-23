@@ -7,7 +7,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form action="post.php" method="post" autocomplete="off">
+      <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <div class="modal-body">    
           <div class="form-group">
             <label>Name</label>
@@ -37,6 +37,10 @@
               </div>
               <input type="password" class="form-control" name="password" placeholder="Enter a Password" required>
             </div>
+          </div>
+          <div class="form-group">
+            <label>Avatar</label>
+            <input type="file" class="form-control-file" accept="image/*;capture=camera" name="avatar">
           </div>
         </div>
         <div class="modal-footer">
