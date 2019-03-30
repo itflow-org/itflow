@@ -28,7 +28,7 @@
       ?>
       <tr>
         <td><?php echo "$client_location_name"; ?></td>
-        <td><a href="https://maps.google.com?q=<?php echo "$client_location_address $client_location_zip"; ?>" target="_blank"><?php echo "$client_location_address"; ?></td>
+        <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$client_location_address $client_location_zip"; ?>" target="_blank"><?php echo "$client_location_address"; ?></td>
         <td><?php echo "$client_location_phone"; ?></td>
         <td>
           <div class="dropdown dropleft text-center">

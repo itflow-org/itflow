@@ -2,7 +2,7 @@
   <tr>
     <td><i class="fa fa-map-marker"></i></td>
     <td>
-      <a href="https://maps.google.com?q=<?php echo "$client_address $client_zip"; ?>" target="_blank">
+      <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$client_address $client_zip"; ?>" target="_blank">
         <?php echo $client_address; ?>
         <br>
         <?php echo "$client_city $client_state $client_zip"; ?>
