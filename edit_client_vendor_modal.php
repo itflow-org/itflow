@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-building"></i> New Vendor</h5>
+        <h5 class="modal-title"><i class="fa fa-building"></i> Edit Vendor</h5>
         <button type="button" class="close" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -37,6 +37,7 @@
               <input type="text" class="form-control" name="account_number" placeholder="Account number" value="<?php echo $client_vendor_account_number; ?>">
             </div>
           </div>
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

@@ -37,6 +37,29 @@
               <input type="text" class="form-control" name="account_number" placeholder="Account number">
             </div>
           </div>
+
+          <center><a class="btn btn-link" data-toggle="collapse" href="#optionsCollapse" role="button" aria-expanded="false" aria-controls="optionsCollapse">Add a pasword</a></center>
+          <div class="collapse multi-collapse" id="optionsCollapse">
+            <div class="form-group">
+              <label>Username</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-user"></i></span>
+                </div>
+                <input type="text" class="form-control" name="username">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                </div>
+                <input type="text" class="form-control" name="password">
+              </div>
+            </div>
+          </div>
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

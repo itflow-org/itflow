@@ -602,6 +602,19 @@ if(isset($_POST['add_client_asset'])){
 
     mysqli_query($mysqli,"INSERT INTO client_assets SET client_asset_name = '$name', client_asset_type = '$type', client_asset_make = '$make', client_asset_model = '$model', client_asset_serial = '$serial', client_asset_note = '$note', client_id = $client_id");
 
+    if(!empty($_POST['username'])) {
+        $asset_id = mysqli_insert_id($mysqli);
+        $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
+        $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
+        
+        mysqli_query($mysqli,"INSERT INTO client_logins SET client_login_username = '$username', client_login_password = '$password', client_asset_id = $asset_id, client_id = $client_id");
+
+        $login_id = mysqli_insert_id($mysqli);
+
+        mysqli_query($mysqli,"UPDATE client_assets SET client_login_id = $login_id WHERE client_asset_id = $asset_id");
+
+    }
+
     $_SESSION['alert_message'] = "Asset added";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -645,6 +658,15 @@ if(isset($_POST['add_client_vendor'])){
     $account_number = strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number']));
 
     mysqli_query($mysqli,"INSERT INTO client_vendors SET client_vendor_name = '$name', client_vendor_description = '$description', client_vendor_account_number = '$account_number', client_id = $client_id");
+
+    if(!empty($_POST['username'])) {
+        $vendor_id = mysqli_insert_id($mysqli);
+        $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
+        $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
+        
+        mysqli_query($mysqli,"INSERT INTO client_logins SET client_login_username = '$username', client_login_password = '$password', client_vendor_id = $vendor_id, client_id = $client_id");
+
+    }
 
     $_SESSION['alert_message'] = "Vendor added";
     
@@ -857,6 +879,15 @@ if(isset($_POST['add_client_application'])){
     $license = strip_tags(mysqli_real_escape_string($mysqli,$_POST['license']));
 
     mysqli_query($mysqli,"INSERT INTO client_applications SET client_application_name = '$name', client_application_type = '$type', client_application_license = '$license', client_id = $client_id");
+
+    if(!empty($_POST['username'])) {
+        $application_id = mysqli_insert_id($mysqli);
+        $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
+        $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
+        
+        mysqli_query($mysqli,"INSERT INTO client_logins SET client_login_username = '$username', client_login_password = '$password', client_application_id = $application_id, client_id = $client_id");
+
+    }
 
     $_SESSION['alert_message'] = "Application added";
     
