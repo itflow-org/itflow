@@ -509,7 +509,8 @@ if(isset($_POST['add_client_contact'])){
 
     $_SESSION['alert_message'] = "Contact added";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: client.php?client_id=$client_id&tab=contacts");
+
 
 }
 
@@ -556,7 +557,7 @@ if(isset($_POST['add_client_location'])){
 
     $_SESSION['alert_message'] = "Location added";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: client.php?client_id=$client_id&tab=locations");
 
 }
 
@@ -609,15 +610,11 @@ if(isset($_POST['add_client_asset'])){
         
         mysqli_query($mysqli,"INSERT INTO client_logins SET client_login_username = '$username', client_login_password = '$password', client_asset_id = $asset_id, client_id = $client_id");
 
-        $login_id = mysqli_insert_id($mysqli);
-
-        mysqli_query($mysqli,"UPDATE client_assets SET client_login_id = $login_id WHERE client_asset_id = $asset_id");
-
     }
 
     $_SESSION['alert_message'] = "Asset added";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: client.php?client_id=$client_id&tab=assets");
 
 }
 
@@ -670,7 +667,7 @@ if(isset($_POST['add_client_vendor'])){
 
     $_SESSION['alert_message'] = "Vendor added";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: client.php?client_id=$client_id&tab=vendors");
 
 }
 
@@ -715,7 +712,7 @@ if(isset($_POST['add_client_login'])){
 
     $_SESSION['alert_message'] = "Login added";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: client.php?client_id=$client_id&tab=logins");
 
 }
 
@@ -756,7 +753,7 @@ if(isset($_POST['add_client_note'])){
 
     $_SESSION['alert_message'] = "Note added";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: client.php?client_id=$client_id&tab=notes");
 
 }
 
@@ -797,7 +794,7 @@ if(isset($_POST['add_client_network'])){
 
     $_SESSION['alert_message'] = "Network added";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: client.php?client_id=$client_id&tab=networks");
 
 }
 
@@ -840,7 +837,7 @@ if(isset($_POST['add_client_domain'])){
 
     $_SESSION['alert_message'] = "Domain added";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: client.php?client_id=$client_id&tab=domains");
 
 }
 
@@ -891,7 +888,7 @@ if(isset($_POST['add_client_application'])){
 
     $_SESSION['alert_message'] = "Application added";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: client.php?client_id=$client_id&tab=applications");
 
 }
 
