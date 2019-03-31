@@ -5,9 +5,16 @@
 $sql_total_income = mysqli_query($mysqli,"SELECT SUM(invoice_payment_amount) AS total_income FROM invoice_payments");
 $row = mysqli_fetch_array($sql_total_income);
 $total_income = $row['total_income'];
+
 $sql_total_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses");
 $row = mysqli_fetch_array($sql_total_expenses);
 $total_expenses = $row['total_expenses'];
+
+$sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_total) AS invoice_totals FROM invoices");
+$row = mysqli_fetch_array($sql_invoice_totals);
+$invoice_totals = $row['invoice_totals'];
+
+$recievables = $invoice_totals - $total_income; 
 
 $profit = $total_income - $total_expenses;
 
@@ -19,9 +26,11 @@ $sql_latest_income_payments = mysqli_query($mysqli,"SELECT * FROM invoice_paymen
 	ORDER BY invoice_payments.invoice_payment_id DESC LIMIT 5"
 );
 
-$sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, categories 
-	WHERE expenses.category_id = categories.category_id
-	ORDER BY expense_id DESC LIMIT 5");
+$sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, categories 
+	WHERE expenses.vendor_id = vendors.vendor_id 
+	AND expenses.category_id = categories.category_id
+	ORDER BY expense_id DESC LIMIT 5"
+);
 
 ?>
 
@@ -34,6 +43,8 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, categories
           <i class="fas fa-fw fa-money-check"></i>
         </div>
         <div class="mr-5">Total Incomes <h1>$<?php echo $total_income; ?></h1></div>
+        <hr>
+        Recievables: $<?php echo $recievables; ?>
       </div>
     </div>
   </div>
@@ -158,6 +169,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, categories
             <thead>
               <tr>
                 <th>Date</th>
+            		<th>Vendor</th>
                 <th>Category</th>
                 <th class="text-right">Amount</th>
               </tr>
@@ -167,10 +179,13 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, categories
             	while($row = mysqli_fetch_array($sql_latest_expenses)){
 		            $expense_date = $row['expense_date'];
 		            $expense_amount = $row['expense_amount'];
+		            $vendor_name = $row['vendor_name'];
 		            $category_name = $row['category_name'];
+
 			        ?>
               <tr>
                 <td><?php echo $expense_date; ?></td>
+                <td><?php echo $vendor_name; ?></td>
                 <td><?php echo $category_name; ?></td>
                 <td class="text-right text-monospace">$<?php echo $expense_amount; ?></td>
               </tr>
