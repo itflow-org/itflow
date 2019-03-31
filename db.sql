@@ -27,7 +27,7 @@ CREATE TABLE `accounts` (
   `account_name` varchar(200) NOT NULL,
   `opening_balance` decimal(15,2) NOT NULL,
   PRIMARY KEY (`account_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -106,25 +106,6 @@ CREATE TABLE `client_contacts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `client_details`
---
-
-DROP TABLE IF EXISTS `client_details`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `client_details` (
-  `client_detail_id` int(11) NOT NULL AUTO_INCREMENT,
-  `client_detail_mail` varchar(200) NOT NULL,
-  `client_detail_webhost` varchar(200) NOT NULL,
-  `client_detail_cloud` varchar(200) NOT NULL,
-  `client_detail_unifi` varchar(200) NOT NULL,
-  `client_detail_unms` int(11) NOT NULL,
-  `client_id` int(11) NOT NULL,
-  PRIMARY KEY (`client_detail_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `client_domains`
 --
 
@@ -140,23 +121,6 @@ CREATE TABLE `client_domains` (
   `client_id` int(11) NOT NULL,
   PRIMARY KEY (`client_domain_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `client_licenses`
---
-
-DROP TABLE IF EXISTS `client_licenses`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `client_licenses` (
-  `client_license_id` int(11) NOT NULL AUTO_INCREMENT,
-  `client_license_software` varchar(200) NOT NULL,
-  `client_license_notes` text NOT NULL,
-  `client_login_id` int(11) NOT NULL,
-  `client_id` int(11) NOT NULL,
-  PRIMARY KEY (`client_license_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -292,7 +256,7 @@ CREATE TABLE `expenses` (
   `category_id` int(11) NOT NULL,
   `account_id` int(11) NOT NULL,
   PRIMARY KEY (`expense_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -309,7 +273,7 @@ CREATE TABLE `invoice_history` (
   `invoice_history_description` varchar(200) NOT NULL,
   `invoice_id` int(11) NOT NULL,
   PRIMARY KEY (`invoice_history_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -330,7 +294,7 @@ CREATE TABLE `invoice_items` (
   `invoice_item_total` decimal(15,2) NOT NULL,
   `invoice_id` int(11) NOT NULL,
   PRIMARY KEY (`invoice_item_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -349,7 +313,7 @@ CREATE TABLE `invoice_payments` (
   `account_id` int(11) NOT NULL,
   `invoice_id` int(11) NOT NULL,
   PRIMARY KEY (`invoice_payment_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -366,17 +330,11 @@ CREATE TABLE `invoices` (
   `invoice_date` date NOT NULL,
   `invoice_due` date NOT NULL,
   `invoice_amount` decimal(15,2) NOT NULL,
-  `invoice_subtotal` decimal(15,2) NOT NULL,
-  `invoice_discount` decimal(15,2) NOT NULL,
-  `invoice_tax` decimal(15,2) NOT NULL,
-  `invoice_total` decimal(15,2) NOT NULL,
-  `invoice_paid` decimal(15,2) NOT NULL,
-  `invoice_balance` decimal(15,2) NOT NULL,
   `invoice_notes` text NOT NULL,
   `category_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
   PRIMARY KEY (`invoice_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -461,4 +419,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-31 13:25:38
+-- Dump completed on 2019-03-31 16:33:55
