@@ -45,11 +45,11 @@
           ?>
 
           <tr>
-            <td><?php echo "$expense_date"; ?></td>
-            <td class="text-right text-monospace">$<?php echo "$expense_amount"; ?></td>
-            <td><?php echo "$vendor_name"; ?></td>
-            <td><?php echo "$category_name"; ?></td>
-            <td><?php echo "$account_name"; ?></td>
+            <td><?php echo $expense_date; ?></td>
+            <td class="text-right text-monospace">$<?php echo number_format($expense_amount,2); ?></td>
+            <td><?php echo $vendor_name; ?></td>
+            <td><?php echo $category_name; ?></td>
+            <td><?php echo $account_name; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -42,9 +42,9 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
         <div class="card-body-icon">
           <i class="fas fa-fw fa-money-check"></i>
         </div>
-        <div class="mr-5">Total Incomes <h1>$<?php echo $total_income; ?></h1></div>
+        <div class="mr-5">Total Incomes <h1>$<?php echo number_format($total_income,2); ?></h1></div>
         <hr>
-        Recievables: $<?php echo $recievables; ?>
+        Recievables: $<?php echo number_format($recievables,2); ?>
       </div>
     </div>
   </div>
@@ -54,7 +54,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
         <div class="card-body-icon">
           <i class="fas fa-fw fa-shopping-cart"></i>
         </div>
-        <div class="mr-5">Total Expenses <h1>$<?php echo $total_expenses; ?></h1></div>
+        <div class="mr-5">Total Expenses <h1>$<?php echo number_format($total_expenses,2); ?></h1></div>
       </div>      
     </div>
   </div>
@@ -64,7 +64,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
         <div class="card-body-icon">
           <i class="fas fa-fw fa-heart"></i>
         </div>
-        <div class="mr-5">Total Profit <h1>$<?php echo $profit; ?></h1></div>
+        <div class="mr-5">Total Profit <h1>$<?php echo number_format($profit,2); ?></h1></div>
       </div>
     </div>
   </div> 
@@ -97,7 +97,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
 
 			          ?>
                 <tr>
-			            <td><?php echo "$account_name"; ?></a></td>
+			            <td><?php echo $account_name; ?></a></td>
 			            <?php
 			            $sql2 = mysqli_query($mysqli,"SELECT SUM(invoice_payment_amount) AS total_payments FROM invoice_payments WHERE account_id = $account_id");
 			            $row2 = mysqli_fetch_array($sql2);
@@ -111,7 +111,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
 			            }
 			            ?>
 
-			            <td class="text-right text-monospace">$<?php echo $balance; ?></td>
+			            <td class="text-right text-monospace">$<?php echo number_format($balance,2); ?></td>
 			          </tr>
 			          <?php
 			        	}
@@ -149,7 +149,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
                 <td><?php echo $invoice_payment_date; ?></td>
                 <td><?php echo $client_name; ?></td>
                 <td><?php echo $invoice_number; ?></td>
-                <td class="text-right text-monospace">$<?php echo $invoice_payment_amount; ?></td>
+                <td class="text-right text-monospace">$<?php echo number_format($invoice_payment_amount,2); ?></td>
               </tr>
               <?php
 			        }
@@ -187,7 +187,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
                 <td><?php echo $expense_date; ?></td>
                 <td><?php echo $vendor_name; ?></td>
                 <td><?php echo $category_name; ?></td>
-                <td class="text-right text-monospace">$<?php echo $expense_amount; ?></td>
+                <td class="text-right text-monospace">$<?php echo number_format($expense_amount,2); ?></td>
               </tr>
              	<?php
 			        }

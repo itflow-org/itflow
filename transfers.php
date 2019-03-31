@@ -47,7 +47,7 @@ $sql = mysqli_query($mysqli,"SELECT * FROM transfers ORDER BY transfers.transfer
             <td><?php echo $transfer_date; ?></td>
             <td><?php echo $account_name_from; ?></td>
             <td><?php echo $account_name_to; ?></td>
-            <td class="text-right text-monospace">$<?php echo $transfer_amount; ?></td>
+            <td class="text-right text-monospace">$<?php echo number_format($transfer_amount,2); ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
