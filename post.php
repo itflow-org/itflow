@@ -423,12 +423,9 @@ if(isset($_POST['add_invoice_item'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql);
 
-    $invoice_subtotal = $row['invoice_subtotal'] + $subtotal;
-    $invoice_tax = $row['invoice_tax'] + $tax; 
-    $invoice_total = $row['invoice_total'] + $total;
-    $invoice_balance = $row['invoice_balance'] + $total;
+    $new_invoice_amount = $row['invoice_amount'] + $total;
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_subtotal = '$invoice_subtotal', invoice_tax = '$invoice_tax', invoice_total = '$invoice_total', invoice_balance = '$invoice_balance' WHERE invoice_id = $invoice_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id");
 
     $_SESSION['alert_message'] = "Item added";
     
@@ -448,12 +445,10 @@ if(isset($_GET['delete_invoice_item'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql);
-    $invoice_balance = $row['invoice_balance'] - $invoice_item_total;
-    $invoice_subtotal = $row['invoice_subtotal'] - $invoice_item_subtotal;
-    $invoice_tax = $row['invoice_tax'] - $invoice_item_tax;
-    $invoice_total = $row['invoice_total'] - $invoice_item_total;
+    
+    $new_invoice_amount = $row['invoice_amount'] - $invoice_item_total;
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_subtotal = '$invoice_subtotal', invoice_tax = '$invoice_tax', invoice_total = '$invoice_total', invoice_balance = '$invoice_balance' WHERE invoice_id = $invoice_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id");
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE invoice_item_id = $invoice_item_id");
 
@@ -471,14 +466,30 @@ if(isset($_POST['add_invoice_payment'])){
     $account = intval($_POST['account']);
     $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
 
+    mysqli_query($mysqli,"INSERT INTO invoice_payments SET invoice_payment_date = '$date', invoice_payment_amount = '$amount', account_id = $account, invoice_payment_method = '$payment_method', invoice_id = $invoice_id");
+
+    //Add up all the payments for the invoice and get the total amount paid to the invoice
+    $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(invoice_payment_amount) AS total_payments_amount FROM invoice_payments WHERE invoice_id = $invoice_id");
+    $row = mysqli_fetch_array($sql_total_payments_amount);
+    $total_payments_amount = $row['total_payments_amount'];
+    
+    //Get the invoice total
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql);
-    $invoice_balance = $row['invoice_balance'] - $amount;
-    $invoice_paid = $row['invoice_paid'] + $paid;
+    $invoice_amount = $row['invoice_amount'];
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_balance = '$invoice_balance', invoice_paid = '$invoice_paid' WHERE invoice_id = $invoice_id");
+    //Calculate the Invoice balance
+    $invoice_balance = $invoice_amount - $total_payments_amount;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_payments SET invoice_payment_date = '$date', invoice_payment_amount = '$amount', account_id = $account, invoice_payment_method = '$payment_method', invoice_id = $invoice_id");
+    //Determine if invoice has been paid
+    if($invoice_balance == 0){
+        $invoice_status = "Paid";
+    }else{
+        $invoice_status = "Partial";
+    }
+
+    //Update Invoice Status
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id");
 
     $_SESSION['alert_message'] = "Payment added";
     
@@ -489,14 +500,33 @@ if(isset($_POST['add_invoice_payment'])){
 if(isset($_GET['delete_invoice_payment'])){
     $invoice_payment_id = intval($_GET['delete_invoice_payment']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_payments WHERE invoice_payment_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_payments WHERE invoice_payment_id = $invoice_payment_id");
     $row = mysqli_fetch_array($sql);
     $invoice_id = $row['invoice_id'];
-    $invoice_payment_amount = $row['invoice_payment_amount'];
+    $deleted_payment_amount = $row['invoice_payment_amount'];
 
-    $invoice_balance = $row['invoice_balance'] - $invoice_payment_amount;
+    //Add up all the payments for the invoice and get the total amount paid to the invoice
+    $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(invoice_payment_amount) AS total_payments_amount FROM invoice_payments WHERE invoice_id = $invoice_id");
+    $row = mysqli_fetch_array($sql_total_payments_amount);
+    $total_payments_amount = $row['total_payments_amount'];
+    
+    //Get the invoice total
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+    $row = mysqli_fetch_array($sql);
+    $invoice_amount = $row['invoice_amount'];
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_balance = '$invoice_balance' WHERE invoice_id = $invoice_id");
+    //Calculate the Invoice balance
+    $invoice_balance = $invoice_amount - $total_payments_amount + $deleted_payment_amount;
+
+    //Determine if invoice has been paid
+    if($invoice_balance == 0){
+        $invoice_status = "Paid";
+    }else{
+        $invoice_status = "Partial";
+    }
+
+    //Update Invoice Status
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id");
 
     mysqli_query($mysqli,"DELETE FROM invoice_payments WHERE invoice_payment_id = $invoice_payment_id");
 

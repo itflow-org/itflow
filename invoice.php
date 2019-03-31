@@ -3,9 +3,6 @@
 <?php 
 
 if(isset($_GET['invoice_id'])){
-  $invoice_subtotal = 0.00;
-  $invoice_tax = 0.00;
-  $invoice_total = 0.00;
 
   $invoice_id = intval($_GET['invoice_id']);
 
@@ -20,12 +17,7 @@ if(isset($_GET['invoice_id'])){
   $invoice_status = $row['invoice_status'];
   $invoice_date = $row['invoice_date'];
   $invoice_due = $row['invoice_due'];
-  $invoice_subtotal = $row['invoice_subtotal'];
-  $invoice_discount = $row['invoice_discount'];
-  $invoice_tax = $row['invoice_tax'];
-  $invoice_total = $row['invoice_total'];
-  $invoice_paid = $row['invoice_paid'];
-  $invoice_balance = $row['invoice_balance'];
+  $invoice_amount = $row['invoice_amount'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];
   $client_address = $row['client_address'];
@@ -39,8 +31,16 @@ if(isset($_GET['invoice_id'])){
   }
   $client_website = $row['client_website'];
 
-  $sql2 = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id ORDER BY invoice_history_id DESC");
-  $sql3 = mysqli_query($mysqli,"SELECT * FROM invoice_payments, accounts WHERE invoice_payments.account_id = accounts.account_id AND invoice_payments.invoice_id = $invoice_id ORDER BY invoice_payments.invoice_payment_id DESC");
+  $sql_invoice_history = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id ORDER BY invoice_history_id DESC");
+  
+  $sql_payments = mysqli_query($mysqli,"SELECT * FROM invoice_payments, accounts WHERE invoice_payments.account_id = accounts.account_id AND invoice_payments.invoice_id = $invoice_id ORDER BY invoice_payments.invoice_payment_id DESC");
+
+  //Add up all the payments for the invoice and get the total amount paid to the invoice
+  $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(invoice_payment_amount) AS amount_paid FROM invoice_payments WHERE invoice_id = $invoice_id");
+  $row = mysqli_fetch_array($sql_amount_paid);
+  $amount_paid = $row['amount_paid'];
+
+  $balance = $invoice_amount - $amount_paid;
 
   //check to see if overdue
 
@@ -82,7 +82,7 @@ if(isset($_GET['invoice_id'])){
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editinvoiceModal<?php echo $invoice_id; ?>">Edit</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
         <a class="dropdown-item" href="email_invoice.php?invoice_id=<?php echo $invoice_id; ?>">Send Email</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoicePaymentModal">Add Payment</a>
+        <?php if($invoice_status !== "Paid"){ ?><a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoicePaymentModal">Add Payment</a><?php } ?>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Print</a>
         <a class="dropdown-item" href="#">Delete</a>
       </div>
@@ -219,8 +219,20 @@ if(isset($_GET['invoice_id'])){
             <tr>
               <td colspan="5"></td>
               <td><strong>Total</strong></td>
-              <td class="text-right">$<?php echo number_format($invoice_total,2); ?></td>
+              <td class="text-right">$<?php echo number_format($invoice_amount,2); ?></td>
             </tr>
+            <?php if($amount_paid > 0){ ?>
+            <tr>
+              <td colspan="5"></td>
+              <td><strong>Paid</strong></td>
+              <td class="text-right text-success">$<?php echo number_format($amount_paid,2); ?></td>
+            </tr>
+            <tr>
+              <td colspan="5"></td>
+              <td><strong>Balance</strong></td>
+              <td class="text-right">$<?php echo number_format($balance,2); ?></td>
+            </tr>
+          <?php } ?>
           </tbody>
         </table>   
     </div>
@@ -278,7 +290,7 @@ if(isset($_GET['invoice_id'])){
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql2)){
+            while($row = mysqli_fetch_array($sql_invoice_history)){
               $invoice_history_date = $row['invoice_history_date'];
               $invoice_history_status = $row['invoice_history_status'];
               $invoice_history_description = $row['invoice_history_description'];
@@ -316,7 +328,7 @@ if(isset($_GET['invoice_id'])){
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql3)){
+            while($row = mysqli_fetch_array($sql_payments)){
               $invoice_payment_id = $row['invoice_payment_id'];
               $invoice_payment_date = $row['invoice_payment_date'];
               $invoice_payment_amount = $row['invoice_payment_amount'];
