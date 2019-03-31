@@ -453,7 +453,7 @@ if(isset($_GET['client_id'])){
 
     <tr>
       <td>INV-<?php echo "$invoice_number"; ?></td>
-      <td class="text-right text-monospace">$<?php echo "$invoice_balance"; ?></td>
+      <td class="text-right text-monospace">$<?php echo number_format($invoice_balance,2); ?></td>
       <td><?php echo "$invoice_date"; ?></td>
       <td><?php echo "$invoice_due"; ?></td>
       <td><?php echo "$invoice_status"; ?></td>

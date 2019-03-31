@@ -173,9 +173,9 @@ if(isset($_GET['invoice_id'])){
               <td><?php echo $invoice_item_name; ?></td>
               <td><?php echo $invoice_item_description; ?></td>
               <td class="text-center"><?php echo $invoice_item_quantity; ?></td>
-              <td class="text-right"><?php echo "$ $invoice_item_price"; ?></td>
-              <td class="text-right"><?php echo "$ $invoice_item_tax"; ?></td>
-              <td class="text-right"><?php echo "$ $invoice_item_total"; ?></td>  
+              <td class="text-right">$<?php echo number_format($invoice_item_price,2); ?></td>
+              <td class="text-right">$<?php echo number_format($invoice_item_tax,2); ?></td>
+              <td class="text-right">$<?php echo number_format($invoice_item_total,2); ?></td>  
             </tr>
 
             <?php 
@@ -204,22 +204,22 @@ if(isset($_GET['invoice_id'])){
             <tr>
               <td colspan="5"></td>
               <td><strong>SubTotal</strong></td>
-              <td class="text-right">$<?php echo $invoice_subtotal; ?></td>
+              <td class="text-right">$<?php echo number_format($invoice_subtotal,2); ?></td>
             </tr>
             <tr>
               <td colspan="5"></td>
               <td><strong>Discount</strong></td>
-              <td class="text-right">$<?php echo $invoice_discount; ?></td>             
+              <td class="text-right">$<?php echo number_format($invoice_discount,2); ?></td>             
             </tr>
             <tr>
               <td colspan="5"></td>
               <td><strong>Tax</strong></td>
-              <td class="text-right">$<?php echo $invoice_tax; ?></td>        
+              <td class="text-right">$<?php echo number_format($invoice_tax,2); ?></td>        
             </tr>
             <tr>
               <td colspan="5"></td>
               <td><strong>Total</strong></td>
-              <td class="text-right">$<?php echo $invoice_total; ?></td>
+              <td class="text-right">$<?php echo number_format($invoice_total,2); ?></td>
             </tr>
           </tbody>
         </table>   
@@ -326,7 +326,7 @@ if(isset($_GET['invoice_id'])){
             ?>
             <tr>
               <td><?php echo $invoice_payment_date; ?></td>
-              <td><?php echo $invoice_payment_amount; ?></td>
+              <td>$<?php echo number_format($invoice_payment_amount,2); ?></td>
               <td><?php echo $account_name; ?></td>
               <td class="text-center"><a class="btn btn-danger btn-sm" href="post.php?delete_invoice_payment=<?php echo $invoice_payment_id; ?>"><i class="fa fa-trash"></i></a></td>
             </tr>
