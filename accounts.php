@@ -30,15 +30,19 @@
           <tr>
             <td><?php echo "$account_name"; ?></a></td>
             <?php
-            $sql2 = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_amount FROM expenses WHERE account_id = $account_id");
+            $sql2 = mysqli_query($mysqli,"SELECT SUM(invoice_payment_amount) AS total_payments FROM invoice_payments WHERE account_id = $account_id");
             $row2 = mysqli_fetch_array($sql2);
-            $total_amount = $opening_balance - $row2['total_amount'];
-            if($total_amount == ''){
-              $total_amount = '0.00'; 
+            
+            $sql3 = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
+            $row3 = mysqli_fetch_array($sql3);
+            
+            $balance = $opening_balance + $row2['total_payments'] - $row3['total_expenses'];
+            if($balance == ''){
+              $balance = '0.00'; 
             }
             ?>
 
-            <td class="text-right text-monospace">$<?php echo $total_amount; ?></td>
+            <td class="text-right text-monospace">$<?php echo $balance; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
