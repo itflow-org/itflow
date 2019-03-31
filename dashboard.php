@@ -10,7 +10,7 @@ $sql_total_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_
 $row = mysqli_fetch_array($sql_total_expenses);
 $total_expenses = $row['total_expenses'];
 
-$sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_total) AS invoice_totals FROM invoices");
+$sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_total) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft'");
 $row = mysqli_fetch_array($sql_invoice_totals);
 $invoice_totals = $row['invoice_totals'];
 
