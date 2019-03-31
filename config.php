@@ -1,11 +1,15 @@
 <?php
-	
+	//DB Settings
+
 	$dbhost = "localhost";
 	$dbusername = "root";
 	$dbpassword = "password";
 	$database = "pittpc";
 
 	$mysqli = mysqli_connect($dbhost, $dbusername, $dbpassword, $database);
+	
+	//General Settings
+
 	$config_date_format = "Y-m-d";
 	$config_time_format = "h:ia";
 	$config_no_records = "There is nothing here!";
@@ -18,8 +22,17 @@
 	$config_company_state = "";
 	$config_company_zip = "";
 
+	//Mail Settings (Host must require TLS Support)
+	$config_smtp_host = "";
+	$config_smtp_username = "";
+	$config_smtp_password = "";
+	$config_smtp_port = 587;
+	$config_mail_from_email = "";
+	$config_mail_from_name = "";
+
 	$_SESSION['alert_message'] = '';
 	$_SESSION['alert_type'] = "warning";
+
 
 	$states_array = array(
 	    'AL'=>'Alabama',

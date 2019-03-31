@@ -39,6 +39,26 @@
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
 
+            $unixtime_invoice_due = strtotime($invoice_due);
+            if($unixtime_invoice_due < time()){
+              $overdue_color = "text-danger";
+              $invoice_status = "Overdue";
+            }else{
+              $overdue_color = "text-success";
+            }
+
+            if($invoice_status == "Sent"){
+              $invoice_badge_color = "warning";
+            }elseif($invoice_status == "Partial"){
+              $invoice_badge_color = "primary";
+            }elseif($invoice_status == "Paid"){
+              $invoice_badge_color = "success";
+            }elseif($invoice_status == "Overdue"){
+              $invoice_badge_color = "danger";
+            }else{
+              $invoice_badge_color = "secondary";
+            }
+
           ?>
 
           <tr>
@@ -46,8 +66,12 @@
             <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo "$client_name"; ?></a></td>
             <td class="text-right text-monospace">$<?php echo "$invoice_balance"; ?></td>
             <td><?php echo "$invoice_date"; ?></td>
-            <td><?php echo "$invoice_due"; ?></td>
-            <td><?php echo "$invoice_status"; ?></td>
+            <td><div class="<?php echo $overdue_color; ?>"><?php echo "$invoice_due"; ?></div></td>
+            <td>
+              <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
+                <?php echo "$invoice_status"; ?>
+              </span>
+            </td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

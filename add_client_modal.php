@@ -24,7 +24,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-map-marker"></i></span>
               </div>
-              <input type="text" class="form-control" name="address" placeholder="Address" required>
+              <input type="text" class="form-control" name="address" placeholder="Address">
             </div>
           </div>
           <div class="form-row">
@@ -32,7 +32,7 @@
               <input type="text" class="form-control" name="city" placeholder="City" required>
             </div>
             <div class="form-group col-md-4">
-              <select class="form-control" name="state" required>
+              <select class="form-control" name="state">
                 <option value="">Select a state...</option>
                 <?php foreach($states_array as $state_abbr => $state_name) { ?>
                 <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
@@ -40,7 +40,7 @@
               </select> 
             </div>
             <div class="form-group col-md-3">
-              <input type="text" class="form-control" name="zip" placeholder="Zip" required>
+              <input type="text" class="form-control" name="zip" placeholder="Zip">
             </div>
           </div>
           <div class="form-row">
@@ -50,7 +50,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-phone"></i></span>
                 </div>
-                <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" required> 
+                <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'"> 
               </div>
             </div>
             <div class="form-group col-sm">
@@ -59,7 +59,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-envelope"></i></span>
                 </div>
-                <input type="email" class="form-control" name="email" placeholder="Email Address" required>
+                <input type="email" class="form-control" name="email" placeholder="Email Address">
               </div>
             </div>
           </div>
@@ -69,7 +69,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-globe"></i></span>
               </div>
-              <input type="text" class="form-control" name="website" placeholder="Web Address" required>
+              <input type="text" class="form-control" name="website" placeholder="Web Address">
             </div>
           </div>
         </div>

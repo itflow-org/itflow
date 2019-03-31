@@ -42,12 +42,35 @@ if(isset($_GET['invoice_id'])){
   $sql2 = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id ORDER BY invoice_history_id DESC");
   $sql3 = mysqli_query($mysqli,"SELECT * FROM invoice_payments, accounts WHERE invoice_payments.account_id = accounts.account_id AND invoice_payments.invoice_id = $invoice_id ORDER BY invoice_payments.invoice_payment_id DESC");
 
+  //check to see if overdue
+
+  $unixtime_invoice_due = strtotime($invoice_due);
+  if($unixtime_invoice_due < time()){
+    $invoice_status = "Overdue";
+    $invoice_color = "text-danger";
+  }
+  
+  //Set Badge color based off of invoice status
+  if($invoice_status == "Sent"){
+    $invoice_badge_color = "warning";
+  }elseif($invoice_status == "Partial"){
+    $invoice_badge_color = "primary";
+  }elseif($invoice_status == "Paid"){
+    $invoice_badge_color = "success";
+  }elseif($invoice_status == "Overdue"){
+    $invoice_badge_color = "danger";
+  }else{
+    $invoice_badge_color = "secondary";
+  }
+
+
+
 ?>
 <div class="row">
   <div class="col-md-11">
     <h3>Invoice #
       <small class="text-muted">INV-<?php echo $invoice_number; ?></small>
-      <span class="badge badge-secondary"><?php echo $invoice_status; ?></span>
+      <span class="badge badge-<?php echo $invoice_badge_color; ?>"><?php echo $invoice_status; ?></span>
     </h3>
   </div>
   <div class="col-md-1">
@@ -58,7 +81,7 @@ if(isset($_GET['invoice_id'])){
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editinvoiceModal<?php echo $invoice_id; ?>">Edit</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Send Email</a>
+        <a class="dropdown-item" href="email_invoice.php?invoice_id=<?php echo $invoice_id; ?>">Send Email</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoicePaymentModal">Add Payment</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Print</a>
         <a class="dropdown-item" href="#">Delete</a>
@@ -102,7 +125,7 @@ if(isset($_GET['invoice_id'])){
       <div class="card-body">
         <ul class="list-unstyled">
           <li class="mb-1"><strong>Invoice Date:</strong> <div class="float-right"><?php echo $invoice_date; ?></div></li>
-          <li><strong>Payment Due:</strong> <div class="float-right"><?php echo $invoice_due; ?></div></li>
+          <li><strong>Payment Due:</strong> <div class="float-right <?php echo $invoice_color; ?>"><?php echo $invoice_due; ?></div></li>
         </ul>
       </div>
     </div>
