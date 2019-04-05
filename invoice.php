@@ -165,6 +165,8 @@ if(isset($_GET['invoice_id'])){
               $invoice_item_subtotal = $row['invoice_item_price'];
               $invoice_item_tax = $row['invoice_item_tax'];
               $invoice_item_total = $row['invoice_item_total'];
+              $total_tax = $invoice_item_tax + $total_tax;
+              $sub_total = $invoice_item_price * $invoice_item_quantity + $sub_total;
 
             ?>
 
@@ -204,7 +206,7 @@ if(isset($_GET['invoice_id'])){
             <tr>
               <td colspan="5"></td>
               <td><strong>SubTotal</strong></td>
-              <td class="text-right">$<?php echo number_format($invoice_subtotal,2); ?></td>
+              <td class="text-right">$<?php echo number_format($sub_total,2); ?></td>
             </tr>
             <tr>
               <td colspan="5"></td>
@@ -214,7 +216,7 @@ if(isset($_GET['invoice_id'])){
             <tr>
               <td colspan="5"></td>
               <td><strong>Tax</strong></td>
-              <td class="text-right">$<?php echo number_format($invoice_tax,2); ?></td>        
+              <td class="text-right">$<?php echo number_format($total_tax,2); ?></td>        
             </tr>
             <tr>
               <td colspan="5"></td>
