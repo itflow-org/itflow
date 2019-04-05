@@ -380,7 +380,12 @@ if(isset($_POST['add_invoice'])){
     $due = strip_tags(mysqli_real_escape_string($mysqli,$_POST['due']));
     $category = intval($_POST['category']);
     
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_date = '$date', invoice_due = '$due', category_id = $category, invoice_status = 'Draft', client_id = $client");
+    //Get the last Invoice Number and add 1 for the new invoice number
+    $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_id DESC LIMIT 1");
+    $row = mysqli_fetch_array($sql);
+    $invoice_number = $row['invoice_number'] + 1;
+
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = '$due', category_id = $category, invoice_status = 'Draft', client_id = $client");
 
     $invoice_id = mysqli_insert_id($mysqli);
 
