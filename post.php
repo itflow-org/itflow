@@ -389,9 +389,38 @@ if(isset($_POST['add_invoice'])){
 
     $invoice_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = '$todays_date', invoice_history_status = 'Draft', invoice_history_description = 'INVOICE added!', invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Draft', invoice_history_description = 'INVOICE added!', invoice_id = $invoice_id");
 
     $_SESSION['alert_message'] = "Invoice added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_invoice'])){
+
+    $invoice_id = intval($_POST['invoice_id']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $due = strip_tags(mysqli_real_escape_string($mysqli,$_POST['due']));
+    $category = intval($_POST['category']);
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_date = '$date', invoice_due = '$due', category_id = $category WHERE invoice_id = $invoice_id");
+
+    $_SESSION['alert_message'] = "Invoice modified";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['mark_invoice_sent'])){
+
+    $invoice_id = intval($_GET['mark_invoice_sent']);
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
+
+    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Sent', invoice_history_description = 'INVOICE marked sent', invoice_id = $invoice_id");
+
+    $_SESSION['alert_message'] = "Invoice marked sent";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -496,7 +525,23 @@ if(isset($_POST['add_invoice_payment'])){
     //Update Invoice Status
     mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id");
 
+    //Add Payment to History
+    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = '$invoice_status', invoice_history_description = 'INVOICE payment added', invoice_id = $invoice_id");
+
     $_SESSION['alert_message'] = "Payment added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_invoice_note'])){
+
+    $invoice_id = intval($_POST['invoice_id']);
+    $invoice_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['invoice_note']));
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$invoice_note' WHERE invoice_id = $invoice_id");
+
+    $_SESSION['alert_message'] = "Notes added";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

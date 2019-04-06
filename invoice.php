@@ -18,6 +18,8 @@ if(isset($_GET['invoice_id'])){
   $invoice_date = $row['invoice_date'];
   $invoice_due = $row['invoice_due'];
   $invoice_amount = $row['invoice_amount'];
+  $invoice_note = $row['invoice_note'];
+  $invoice_category_id = $row['category_id'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];
   $client_address = $row['client_address'];
@@ -31,7 +33,7 @@ if(isset($_GET['invoice_id'])){
   }
   $client_website = $row['client_website'];
 
-  $sql_invoice_history = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id ORDER BY invoice_history_id DESC");
+  $sql_invoice_history = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id ORDER BY invoice_history_id ASC");
   
   $sql_payments = mysqli_query($mysqli,"SELECT * FROM invoice_payments, accounts WHERE invoice_payments.account_id = accounts.account_id AND invoice_payments.invoice_id = $invoice_id ORDER BY invoice_payments.invoice_payment_id DESC");
 
@@ -66,7 +68,7 @@ if(isset($_GET['invoice_id'])){
 
 
 ?>
-<div class="row">
+<div class="row d-print-none">
   <div class="col-md-11">
     <h3>Invoice #
       <small class="text-muted">INV-<?php echo $invoice_number; ?></small>
@@ -79,11 +81,13 @@ if(isset($_GET['invoice_id'])){
         <i class="fas fa-ellipsis-h"></i>
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editinvoiceModal<?php echo $invoice_id; ?>">Edit</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal">Edit</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceNoteModal">Note</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
         <a class="dropdown-item" href="email_invoice.php?invoice_id=<?php echo $invoice_id; ?>">Send Email</a>
+        <?php if($invoice_status == "Draft"){ ?><a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">Mark Sent</a><?php } ?>
         <?php if($invoice_status !== "Paid"){ ?><a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoicePaymentModal">Add Payment</a><?php } ?>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Print</a>
+        <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
         <a class="dropdown-item" href="#">Delete</a>
       </div>
     </div>
@@ -120,10 +124,11 @@ if(isset($_GET['invoice_id'])){
   <div class="col-sm">
     <div class="card">
       <div class="card-header">
-        Invoice # <?php echo $invoice_number; ?>
+        Details
       </div>
       <div class="card-body">
         <ul class="list-unstyled">
+          <li class="mb-1"><strong>Invoice Number:</strong> <div class="float-right">INV-<?php echo $invoice_number; ?></div></li>
           <li class="mb-1"><strong>Invoice Date:</strong> <div class="float-right"><?php echo $invoice_date; ?></div></li>
           <li><strong>Payment Due:</strong> <div class="float-right <?php echo $invoice_color; ?>"><?php echo $invoice_due; ?></div></li>
         </ul>
@@ -144,7 +149,7 @@ if(isset($_GET['invoice_id'])){
         <table class="table">
           <thead>
             <tr>
-              <th></th>
+              <th class="d-print-none"></th>
               <th>Product</th>
               <th>Description</th>
               <th class="text-center">Qty</th>
@@ -171,7 +176,7 @@ if(isset($_GET['invoice_id'])){
             ?>
 
             <tr>
-              <td class="text-center"><a class="btn btn-danger btn-sm" href="post.php?delete_invoice_item=<?php echo $invoice_item_id; ?>"><i class="fa fa-trash"></i></a></td>
+              <td class="text-center d-print-none"><a class="btn btn-danger btn-sm" href="post.php?delete_invoice_item=<?php echo $invoice_item_id; ?>"><i class="fa fa-trash"></i></a></td>
               <td><?php echo $invoice_item_name; ?></td>
               <td><?php echo $invoice_item_description; ?></td>
               <td class="text-center"><?php echo $invoice_item_quantity; ?></td>
@@ -186,7 +191,7 @@ if(isset($_GET['invoice_id'])){
 
             ?>
 
-            <tr>
+            <tr class="d-print-none">
               <form action="post.php" method="post">
                 <td class="text-center"><button type="submit" class="btn btn-primary btn-sm" name="add_invoice_item"><i class="fa fa-check"></i></button></td>
                 <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
@@ -200,41 +205,45 @@ if(isset($_GET['invoice_id'])){
                     <option value="0.07">State Tax 7%</option>
                   </select>
                 </td>
-                <td class="text-right">$ 0.00</td>  
+                <td></td>  
               </form>
             </tr>
             <tr>
-              <td colspan="5"></td>
+              <td class="d-print-none"></td>
+              <td colspan="4"></td>
               <td><strong>SubTotal</strong></td>
               <td class="text-right">$<?php echo number_format($sub_total,2); ?></td>
             </tr>
+            <?php if($discount > 0){ ?>
             <tr>
-              <td colspan="5"></td>
+              <td class="d-print-none"></td>
+              <td colspan="4"></td>
               <td><strong>Discount</strong></td>
               <td class="text-right">$<?php echo number_format($invoice_discount,2); ?></td>             
             </tr>
+            <?php } ?>
+            <?php if($total_tax > 0){ ?>
             <tr>
-              <td colspan="5"></td>
+              <td class="d-print-none"></td>
+              <td colspan="4"></td>
               <td><strong>Tax</strong></td>
               <td class="text-right">$<?php echo number_format($total_tax,2); ?></td>        
             </tr>
-            <tr>
-              <td colspan="5"></td>
-              <td><strong>Total</strong></td>
-              <td class="text-right">$<?php echo number_format($invoice_amount,2); ?></td>
-            </tr>
+            <?php } ?>
             <?php if($amount_paid > 0){ ?>
             <tr>
-              <td colspan="5"></td>
-              <td><strong>Paid</strong></td>
-              <td class="text-right text-success">$<?php echo number_format($amount_paid,2); ?></td>
+              <td class="d-print-none"></td>
+              <td colspan="4"></td>
+              <td><strong class="text-success">Paid</strong></td>
+              <td class="text-right text-success">-$<?php echo number_format($amount_paid,2); ?></td>
             </tr>
+            <?php } ?>
             <tr>
-              <td colspan="5"></td>
-              <td><strong>Balance</strong></td>
+              <td class="d-print-none"></td>
+              <td colspan="4"></td>
+              <td><strong>Total</strong></td>
               <td class="text-right">$<?php echo number_format($balance,2); ?></td>
             </tr>
-          <?php } ?>
           </tbody>
         </table>   
     </div>
@@ -243,39 +252,15 @@ if(isset($_GET['invoice_id'])){
 <div class="row mb-3">
   <div class="col-sm">
     <div class="card">
-      <div class="card-body">
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-          <li class="nav-item">
-            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Invoice Notes</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">History</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Payments</a>
-          </li>
-        </ul>
-        <div class="tab-content" id="myTabContent">
-          <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">...</div>
-          <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
-          <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="row mb-3">
-  <div class="col-sm">
-    <div class="card">
       <div class="card-header">
-        Invoice Note
+        Notes
       </div>
       <div class="card-body">
-        <textarea class="form-control" rows="8" name="invoice_note"></textarea>
+        <p><?php echo $invoice_note; ?></p>
       </div>
     </div>
   </div>
-  <div class="col-sm">
+  <div class="col-sm d-print-none">
     <div class="card">
       <div class="card-header">
         History
@@ -312,7 +297,7 @@ if(isset($_GET['invoice_id'])){
       </div>
     </div>
   </div>
-  <div class="col-sm">
+  <div class="col-sm d-print-none">
     <div class="card">
       <div class="card-header">
         Payments
@@ -355,7 +340,8 @@ if(isset($_GET['invoice_id'])){
 </div>
 
 <?php include("add_invoice_payment_modal.php"); ?>
-
+<?php include("edit_invoice_modal.php"); ?>
+<?php include("edit_invoice_note_modal.php"); ?>
 <?php } ?>
 
 <?php include("footer.php");
