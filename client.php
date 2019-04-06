@@ -44,36 +44,70 @@ if(isset($_GET['client_id'])){
   $num_notes = $row['num'];
 
 ?>
-<div class="row">
-  <div class="col-8">
-    <h2><?php echo $client_name; ?></h2>
-  </div>
-  <div class="col-4">
-    <div class="dropdown dropleft text-center">
-      <button class="btn btn-primary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fas fa-ellipsis-h"></i>
-      </button>
-      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientContactModal">New Contact</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientLocationModal">New Location</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAssetModal">New Asset</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientVendorModal">New Vendor</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientLoginModal">New Login</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientNetworkModal">New Network</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientDomainModal">New Domain</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientApplicationModal">New Application</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceModal">New Invoice</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteModal">New Quote</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAttachmentModal">New Attachment</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientNoteModal">New Note</a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="client_print.php?client_id=<?php echo $client_id; ?>">Print</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
-        <a class="dropdown-item" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
+
+<ol class="breadcrumb d-print-none">
+  <li class="breadcrumb-item">
+    <a href="clients.php">Clients</a>
+  </li>
+  <li class="breadcrumb-item active"><?php echo $client_name; ?></li>
+</ol>
+
+<div class="card mb-3 border-0">
+  <div class="card-body mb-4">
+    <div class="row">
+      <div class="col border-left border-right ">
+        <h2 class="text-secondary"><?php echo $client_name; ?></h2>
+      </div>
+      <div class="col border-right">
+        <h4 class="text-secondary">Address</h4>
+        <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$client_address $client_zip"; ?>" target="_blank">
+          <?php echo $client_address; ?>
+          <br>
+          <?php echo "$client_city $client_state $client_zip"; ?>
+        </a>
+      </div>
+      <div class="col border-right">
+        <h4 class="text-secondary">Contact</h4>
+        <i class="fa fa-envelope mx-1"></i> <a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a>
+        <br>
+        <i class="fa fa-phone mx-1"></i> <?php echo $client_phone; ?>
+        <br>
+        <i class="fa fa-globe mx-1"></i> <a target="_blank" href="//<?php echo $client_website; ?>"><?php echo $client_website; ?></a>
+      </div>
+      <div class="col border-right">
+        <h4 class="text-secondary">Standings</h4>
+        <h6>Paid to Date <small class="text-secondary ml-5">$0.00</small>
+        <h6>Balance <small class="text-secondary ml-5">$0.00</small>
+      </div>
+      <div class="col-1">
+        <div class="dropdown dropleft text-center">
+          <button class="btn btn-primary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-ellipsis-h"></i>
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientContactModal">New Contact</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientLocationModal">New Location</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAssetModal">New Asset</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientVendorModal">New Vendor</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientLoginModal">New Login</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientNetworkModal">New Network</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientDomainModal">New Domain</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientApplicationModal">New Application</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceModal">New Invoice</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteModal">New Quote</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAttachmentModal">New Attachment</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientNoteModal">New Note</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="client_print.php?client_id=<?php echo $client_id; ?>">Print</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
+            <a class="dropdown-item" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>    
+</div>
+
 <div class="row">
   <div class="col-sm-12">
     <div class="card">

@@ -42,9 +42,6 @@
             $unixtime_invoice_due = strtotime($invoice_due);
             if($unixtime_invoice_due < time()){
               $overdue_color = "text-danger";
-              $invoice_status = "Overdue";
-            }else{
-              $overdue_color = "text-success";
             }
 
             if($invoice_status == "Sent"){
@@ -89,7 +86,7 @@
 
           <?php
 
-          include("edit_invoice_modal.php");
+          //include("edit_invoice_modal.php");
           include("add_invoice_copy_modal.php");
           }
 

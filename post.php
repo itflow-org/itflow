@@ -338,6 +338,13 @@ if(isset($_POST['add_transfer'])){
     $account_from = intval($_POST['account_from']);
     $account_to = intval($_POST['account_to']);
 
+    
+
+    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', vendor_id = 0, account_id = $account_from");
+
+
+    mysqli_query($mysqli,"INSERT INTO invoice_payments SET invoice_payment_date = '$date', invoice_payment_amount = '$amount', account_id = $account_to, invoice_id = 0");
+
     mysqli_query($mysqli,"INSERT INTO transfers SET transfer_date = '$date', transfer_amount = '$amount', transfer_account_from = $account_from, transfer_account_to = $account_to");
 
     $_SESSION['alert_message'] = "Transfer added";
@@ -515,23 +522,30 @@ if(isset($_POST['add_invoice_payment'])){
     //Calculate the Invoice balance
     $invoice_balance = $invoice_amount - $total_payments_amount;
 
-    //Determine if invoice has been paid
-    if($invoice_balance == 0){
-        $invoice_status = "Paid";
+    if($amount > $invoice_balance){
+        $_SESSION['alert_message'] = "Payment is more than the balance";
+        
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+
     }else{
-        $invoice_status = "Partial";
-    }
+        
+        //Determine if invoice has been paid then set the status accordingly
+        if($invoice_balance == 0){
+            $invoice_status = "Paid";
+        }else{
+            $invoice_status = "Partial";
+        }
 
-    //Update Invoice Status
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id");
+        //Update Invoice Status
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id");
 
-    //Add Payment to History
-    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = '$invoice_status', invoice_history_description = 'INVOICE payment added', invoice_id = $invoice_id");
+        //Add Payment to History
+        mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = '$invoice_status', invoice_history_description = 'INVOICE payment added', invoice_id = $invoice_id");
 
-    $_SESSION['alert_message'] = "Payment added";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+        $_SESSION['alert_message'] = "Payment added";
+        
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    } 
 }
 
 if(isset($_POST['edit_invoice_note'])){

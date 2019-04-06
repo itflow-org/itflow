@@ -11,13 +11,12 @@
   <div class="card-body">
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover" id="dataTable" width="100%" cellspacing="0">
-        <thead>
+        <thead class="thead-dark">
           <tr>
             <th>Name</th>
-            <th>Address</th>
-            <th>Phone</th>
             <th>Email</th>
-            <th class="text-right">Unpaid</th>
+            <th>Phone</th>
+            <th class="text-right">Balance</th>
             <th class="text-center">Actions</th>
           </tr>
         </thead>
@@ -42,15 +41,8 @@
           ?>
           <tr>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo "$client_name"; ?></a></td>
-            <td>
-              <a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$client_address $client_zip"; ?>" target="_blank">
-                <?php echo "$client_address"; ?>
-                <br>
-                <?php echo "$client_city $client_state $client_zip"; ?>
-              </a>
-            </td>
-            <td><?php echo "$client_phone"; ?></td>
             <td><a href="mailto:<?php echo$email; ?>"><?php echo "$client_email"; ?></a></td>
+            <td><?php echo "$client_phone"; ?></td>
             <td class="text-right text-monospace">$0.00</td>
             <td>
               <div class="dropdown dropleft text-center">

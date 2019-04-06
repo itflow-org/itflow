@@ -6,8 +6,8 @@
       <tr>
         <th>Name</th>
         <th>Title</th>
-        <th>Phone</th>
         <th>Email</th>
+        <th>Phone</th>
         <th class="text-center">Actions</th>
       </tr>
     </thead>
@@ -28,8 +28,9 @@
       <tr>
         <td><?php echo "$client_contact_name"; ?></td>
         <td><?php echo "$client_contact_title"; ?></td>
-        <td><?php echo "$client_contact_phone"; ?></td>
         <td><a href="mailto:<?php echo $client_contact_email; ?>"><?php echo "$client_contact_email"; ?></a></td>
+        <td><?php echo "$client_contact_phone"; ?></td>
+        
         <td>
           <div class="dropdown dropleft text-center">
             <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

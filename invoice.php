@@ -68,14 +68,17 @@ if(isset($_GET['invoice_id'])){
 
 
 ?>
-<div class="row d-print-none">
-  <div class="col-md-11">
-    <h3>Invoice #
-      <small class="text-muted">INV-<?php echo $invoice_number; ?></small>
-      <span class="badge badge-<?php echo $invoice_badge_color; ?>"><?php echo $invoice_status; ?></span>
-    </h3>
-  </div>
-  <div class="col-md-1">
+
+<ol class="breadcrumb d-print-none">
+  <li class="breadcrumb-item">
+    <a href="index.html">Invoices</a>
+  </li>
+  <li class="breadcrumb-item active">INV-<?php echo $invoice_number; ?></li>
+  <span class="ml-3 p-2 badge badge-<?php echo $invoice_badge_color; ?>"><?php echo $invoice_status; ?></span>
+</ol>
+
+<div class="row mb-4 d-print-none">
+  <div class="col-md-12">
     <div class="dropdown dropleft text-center">
       <button class="btn btn-primary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <i class="fas fa-ellipsis-h"></i>
@@ -94,7 +97,7 @@ if(isset($_GET['invoice_id'])){
   </div>
 </div>    
 
-<div class="row mb-3">
+<div class="row mb-4">
   <div class="col-sm">
     <div class="card">
       <div class="card-header">
@@ -139,127 +142,127 @@ if(isset($_GET['invoice_id'])){
 
 <?php $sql4 = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY invoice_item_id ASC"); ?>
 
-<div class="row mb-3">
+<div class="row mb-4">
   <div class="col-md-12">
     <div class="card">
       <div class="card-header">
         Items
       </div>
       
-        <table class="table">
-          <thead>
-            <tr>
-              <th class="d-print-none"></th>
-              <th>Product</th>
-              <th>Description</th>
-              <th class="text-center">Qty</th>
-              <th class="text-right">Price</th>
-              <th class="text-right">Tax</th>
-              <th class="text-right">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php
-      
-            while($row = mysqli_fetch_array($sql4)){
-              $invoice_item_id = $row['invoice_item_id'];
-              $invoice_item_name = $row['invoice_item_name'];
-              $invoice_item_description = $row['invoice_item_description'];
-              $invoice_item_quantity = $row['invoice_item_quantity'];
-              $invoice_item_price = $row['invoice_item_price'];
-              $invoice_item_subtotal = $row['invoice_item_price'];
-              $invoice_item_tax = $row['invoice_item_tax'];
-              $invoice_item_total = $row['invoice_item_total'];
-              $total_tax = $invoice_item_tax + $total_tax;
-              $sub_total = $invoice_item_price * $invoice_item_quantity + $sub_total;
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="d-print-none"></th>
+            <th>Item</th>
+            <th>Description</th>
+            <th class="text-right">Unit Cost</th>
+            <th class="text-center">Quantity</th>
+            <th class="text-right">Tax</th>
+            <th class="text-right">Line Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+    
+          while($row = mysqli_fetch_array($sql4)){
+            $invoice_item_id = $row['invoice_item_id'];
+            $invoice_item_name = $row['invoice_item_name'];
+            $invoice_item_description = $row['invoice_item_description'];
+            $invoice_item_quantity = $row['invoice_item_quantity'];
+            $invoice_item_price = $row['invoice_item_price'];
+            $invoice_item_subtotal = $row['invoice_item_price'];
+            $invoice_item_tax = $row['invoice_item_tax'];
+            $invoice_item_total = $row['invoice_item_total'];
+            $total_tax = $invoice_item_tax + $total_tax;
+            $sub_total = $invoice_item_price * $invoice_item_quantity + $sub_total;
 
-            ?>
+          ?>
 
-            <tr>
-              <td class="text-center d-print-none"><a class="btn btn-danger btn-sm" href="post.php?delete_invoice_item=<?php echo $invoice_item_id; ?>"><i class="fa fa-trash"></i></a></td>
-              <td><?php echo $invoice_item_name; ?></td>
-              <td><?php echo $invoice_item_description; ?></td>
-              <td class="text-center"><?php echo $invoice_item_quantity; ?></td>
-              <td class="text-right">$<?php echo number_format($invoice_item_price,2); ?></td>
-              <td class="text-right">$<?php echo number_format($invoice_item_tax,2); ?></td>
-              <td class="text-right">$<?php echo number_format($invoice_item_total,2); ?></td>  
-            </tr>
+          <tr>
+            <td class="text-center d-print-none"><a class="btn btn-danger btn-sm" href="post.php?delete_invoice_item=<?php echo $invoice_item_id; ?>"><i class="fa fa-trash"></i></a></td>
+            <td><?php echo $invoice_item_name; ?></td>
+            <td><?php echo $invoice_item_description; ?></td>
+            <td class="text-right">$<?php echo number_format($invoice_item_price,2); ?></td>
+            <td class="text-center"><?php echo $invoice_item_quantity; ?></td>
+            <td class="text-right">$<?php echo number_format($invoice_item_tax,2); ?></td>
+            <td class="text-right">$<?php echo number_format($invoice_item_total,2); ?></td>  
+          </tr>
 
-            <?php 
+          <?php 
 
-            }
+          }
 
-            ?>
+          ?>
 
-            <tr class="d-print-none">
-              <form action="post.php" method="post">
-                <td class="text-center"><button type="submit" class="btn btn-primary btn-sm" name="add_invoice_item"><i class="fa fa-check"></i></button></td>
-                <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
-                <td><input type="text" class="form-control" name="name"></td>
-                <td><textarea class="form-control" rows="1" name="description"></textarea></td>
-                <td><input type="text" class="form-control" name="qty"></td>
-                <td class="text-right"><input type="text" class="form-control" name="price"></td>
-                <td>
-                  <select class="form-control" name="tax">
-                    <option value="0.00">None</option>
-                    <option value="0.07">State Tax 7%</option>
-                  </select>
-                </td>
-                <td></td>  
-              </form>
-            </tr>
-            <tr>
-              <td class="d-print-none"></td>
-              <td colspan="4"></td>
-              <td><strong>SubTotal</strong></td>
-              <td class="text-right">$<?php echo number_format($sub_total,2); ?></td>
-            </tr>
-            <?php if($discount > 0){ ?>
-            <tr>
-              <td class="d-print-none"></td>
-              <td colspan="4"></td>
-              <td><strong>Discount</strong></td>
-              <td class="text-right">$<?php echo number_format($invoice_discount,2); ?></td>             
-            </tr>
-            <?php } ?>
-            <?php if($total_tax > 0){ ?>
-            <tr>
-              <td class="d-print-none"></td>
-              <td colspan="4"></td>
-              <td><strong>Tax</strong></td>
-              <td class="text-right">$<?php echo number_format($total_tax,2); ?></td>        
-            </tr>
-            <?php } ?>
-            <?php if($amount_paid > 0){ ?>
-            <tr>
-              <td class="d-print-none"></td>
-              <td colspan="4"></td>
-              <td><strong class="text-success">Paid</strong></td>
-              <td class="text-right text-success">-$<?php echo number_format($amount_paid,2); ?></td>
-            </tr>
-            <?php } ?>
-            <tr>
-              <td class="d-print-none"></td>
-              <td colspan="4"></td>
-              <td><strong>Total</strong></td>
-              <td class="text-right">$<?php echo number_format($balance,2); ?></td>
-            </tr>
-          </tbody>
-        </table>   
+          <tr class="d-print-none">
+            <form action="post.php" method="post">
+              <td class="text-center"><button type="submit" class="btn btn-primary btn-sm" name="add_invoice_item"><i class="fa fa-check"></i></button></td>
+              <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+              <td><input type="text" class="form-control" name="name"></td>
+              <td><textarea class="form-control" rows="1" name="description"></textarea></td>
+              <td><input type="text" class="form-control" style="text-align: right;" name="price"></td>
+              <td><input type="text" class="form-control" style="text-align: center;" name="qty"></td>
+              <td>
+                <select dir="rtl" class="form-control" name="tax">
+                  <option value="0.00">None</option>
+                  <option value="0.07">State Tax 7%</option>
+                </select>
+              </td>
+              <td></td>  
+            </form>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
-<div class="row mb-3">
-  <div class="col-sm">
+
+<div class="row mb-4">
+  <div class="col-5">
     <div class="card">
       <div class="card-header">
         Notes
       </div>
-      <div class="card-body">
+      <div class="card-body mb-5">
         <p><?php echo $invoice_note; ?></p>
       </div>
     </div>
   </div>
+  <div class="col-3 offset-4">
+    <table class="table table-borderless">
+      <tbody>    
+        <tr class="border-bottom">
+          <td>Subtotal</td>
+          <td class="text-right">$<?php echo number_format($sub_total,2); ?></td>
+        </tr>
+        <?php if($discount > 0){ ?>
+        <tr class="border-bottom">
+          <td>Discount</td>
+          <td class="text-right">$<?php echo number_format($invoice_discount,2); ?></td>          
+        </tr>
+        <?php } ?>
+        <?php if($total_tax > 0){ ?>
+        <tr class="border-bottom">
+          <td>Tax</td>
+          <td class="text-right">$<?php echo number_format($total_tax,2); ?></td>        
+        </tr>
+        <?php } ?>
+        <?php if($amount_paid > 0){ ?>
+        <tr class="border-bottom">
+          <td><div class="text-success">Paid to Date</div></td>
+          <td class="text-right text-success">$<?php echo number_format($amount_paid,2); ?></td>
+        </tr>
+        <?php } ?>
+        <tr class="border-bottom">
+          <td><strong>Balance Due</strong></td>
+          <td class="text-right"><strong>$<?php echo number_format($balance,2); ?></strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row mb-3">
   <div class="col-sm d-print-none">
     <div class="card">
       <div class="card-header">

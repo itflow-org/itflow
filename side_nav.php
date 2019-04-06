@@ -1,61 +1,61 @@
 <!-- Sidebar -->
 <ul class="sidebar navbar-nav d-print-none">
-  <li class="nav-item">
+  <li class="nav-item active">
     <a class="nav-link" href="dashboard.php">
-      <i class="fas fa-fw fa-tachometer-alt"></i>
+      <i class="fas fa-fw fa-tachometer-alt mx-2"></i>
       <span>Dashboard</span>
     </a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="clients.php">
-      <i class="fas fa-fw fa-users"></i>
+      <i class="fas fa-fw fa-users mx-2"></i>
       <span>Clients</span></a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="vendors.php">
-      <i class="fas fa-fw fa-briefcase"></i>
+      <i class="fas fa-fw fa-briefcase mx-2"></i>
       <span>Vendors</span>
     </a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="invoices.php">
-      <i class="fas fa-fw fa-file-invoice-dollar"></i>
+      <i class="fas fa-fw fa-file-invoice-dollar mx-2"></i>
       <span>Invoices</span>
     </a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="quotes.php">
-      <i class="fas fa-fw fa-file-invoice"></i>
+      <i class="fas fa-fw fa-file-invoice mx-2"></i>
       <span>Quotes</span>
     </a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="expenses.php">
-      <i class="fas fa-fw fa-shopping-cart"></i>
+      <i class="fas fa-fw fa-shopping-cart mx-2"></i>
       <span>Expenses</span>
     </a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="accounts.php">
-      <i class="fas fa-fw fa-piggy-bank"></i>
+      <i class="fas fa-fw fa-piggy-bank mx-2"></i>
       <span>Accounts</span>
     </a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="transfers.php">
-      <i class="fas fa-fw fa-exchange-alt"></i>
+      <i class="fas fa-fw fa-exchange-alt mx-2"></i>
       <span>Transfers</span>
     </a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="mileage.php">
-      <i class="fas fa-fw fa-car"></i>
+      <i class="fas fa-fw fa-car mx-2"></i>
       <span>Mileage</span>
     </a>
   </li>
   <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      <i class="fas fa-fw fa-chart-area"></i>
+      <i class="fas fa-fw fa-chart-area mx-2"></i>
       <span>Reports</span>
     </a>
     <div class="dropdown-menu" aria-labelledby="pagesDropdown">
@@ -68,7 +68,7 @@
 
   <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      <i class="fas fa-fw fa-cogs"></i>
+      <i class="fas fa-fw fa-cog mx-2"></i>
       <span>Settings</span>
     </a>
     <div class="dropdown-menu" aria-labelledby="pagesDropdown">
