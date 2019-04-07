@@ -21,6 +21,21 @@ if(isset($_GET['client_id'])){
   $client_website = $row['client_website'];
   $client_net_terms = $row['client_net_terms'];
 
+  //Add up all the payments for the invoice and get the total amount paid to the invoice
+  $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE client_id = $client_id AND invoice_status NOT LIKE 'Draft'");
+  $row = mysqli_fetch_array($sql_invoice_amounts);
+
+  $invoice_amounts = $row['invoice_amounts'];
+
+  $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.client_id = $client_id");
+  $row = mysqli_fetch_array($sql_amount_paid);
+  
+  $amount_paid = $row['amount_paid'];
+
+  $balance = $invoice_amounts - $amount_paid;
+
+
+
   //Badge Counts
 
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_contact_id') AS num FROM client_contacts WHERE client_id = $client_id"));
@@ -77,8 +92,8 @@ if(isset($_GET['client_id'])){
       </div>
       <div class="col border-right">
         <h4 class="text-secondary">Standings</h4>
-        <h6>Paid to Date <small class="text-secondary ml-5">$0.00</small>
-        <h6>Balance <small class="text-secondary ml-5">$0.00</small>
+        <h6>Paid to Date <small class="text-secondary ml-5">$<?php echo number_format($amount_paid,2); ?></small>
+        <h6>Balance <small class="text-secondary ml-5">$<?php echo number_format($balance,2); ?></small>
       </div>
       <div class="col-1">
         <div class="dropdown dropleft text-center">
