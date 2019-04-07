@@ -35,10 +35,10 @@ if(isset($_GET['invoice_id'])){
 
   $sql_invoice_history = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id ORDER BY invoice_history_id ASC");
   
-  $sql_payments = mysqli_query($mysqli,"SELECT * FROM invoice_payments, accounts WHERE invoice_payments.account_id = accounts.account_id AND invoice_payments.invoice_id = $invoice_id ORDER BY invoice_payments.invoice_payment_id DESC");
+  $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
   //Add up all the payments for the invoice and get the total amount paid to the invoice
-  $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(invoice_payment_amount) AS amount_paid FROM invoice_payments WHERE invoice_id = $invoice_id");
+  $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE invoice_id = $invoice_id");
   $row = mysqli_fetch_array($sql_amount_paid);
   $amount_paid = $row['amount_paid'];
 
@@ -89,7 +89,7 @@ if(isset($_GET['invoice_id'])){
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
         <a class="dropdown-item" href="email_invoice.php?invoice_id=<?php echo $invoice_id; ?>">Send Email</a>
         <?php if($invoice_status == "Draft"){ ?><a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">Mark Sent</a><?php } ?>
-        <?php if($invoice_status !== "Paid"){ ?><a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoicePaymentModal">Add Payment</a><?php } ?>
+        <?php if($invoice_status !== "Paid"){ ?><a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPaymentModal">Add Payment</a><?php } ?>
         <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
         <a class="dropdown-item" href="#">Delete</a>
       </div>
@@ -319,18 +319,18 @@ if(isset($_GET['invoice_id'])){
             <?php
       
             while($row = mysqli_fetch_array($sql_payments)){
-              $invoice_payment_id = $row['invoice_payment_id'];
-              $invoice_payment_date = $row['invoice_payment_date'];
-              $invoice_payment_amount = $row['invoice_payment_amount'];
+              $payment_id = $row['payment_id'];
+              $payment_date = $row['payment_date'];
+              $payment_amount = $row['payment_amount'];
               $account_name = $row['account_name'];
 
              
             ?>
             <tr>
-              <td><?php echo $invoice_payment_date; ?></td>
-              <td>$<?php echo number_format($invoice_payment_amount,2); ?></td>
+              <td><?php echo $payment_date; ?></td>
+              <td>$<?php echo number_format($payment_amount,2); ?></td>
               <td><?php echo $account_name; ?></td>
-              <td class="text-center"><a class="btn btn-danger btn-sm" href="post.php?delete_invoice_payment=<?php echo $invoice_payment_id; ?>"><i class="fa fa-trash"></i></a></td>
+              <td class="text-center"><a class="btn btn-danger btn-sm" href="post.php?delete_payment=<?php echo $payment_id; ?>"><i class="fa fa-trash"></i></a></td>
             </tr>
             <?php
             }
@@ -342,7 +342,7 @@ if(isset($_GET['invoice_id'])){
   </div>
 </div>
 
-<?php include("add_invoice_payment_modal.php"); ?>
+<?php include("add_payment_modal.php"); ?>
 <?php include("edit_invoice_modal.php"); ?>
 <?php include("edit_invoice_note_modal.php"); ?>
 <?php } ?>

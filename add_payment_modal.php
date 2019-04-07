@@ -1,4 +1,4 @@
-<div class="modal fade" id="addInvoicePaymentModal" tabindex="-1">
+<div class="modal fade" id="addPaymentModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -80,7 +80,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_invoice_payment" class="btn btn-primary">Save</button>
+          <button type="submit" name="add_payment" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

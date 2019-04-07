@@ -75,8 +75,9 @@ if(isset($_POST['add_client'])){
     $phone = preg_replace("/[^0-9]/", '',$phone);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
+    $net_terms = intval($_POST['net_terms']);
 
-    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_phone = '$phone', client_email = '$email', client_website = '$website', client_created_at = UNIX_TIMESTAMP()");
+    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_phone = '$phone', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_created_at = UNIX_TIMESTAMP()");
 
     $client_id = mysqli_insert_id($mysqli);
 
@@ -499,7 +500,7 @@ if(isset($_GET['delete_invoice_item'])){
   
 }
 
-if(isset($_POST['add_invoice_payment'])){
+if(isset($_POST['add_payment'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
@@ -507,12 +508,12 @@ if(isset($_POST['add_invoice_payment'])){
     $account = intval($_POST['account']);
     $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
 
-    mysqli_query($mysqli,"INSERT INTO invoice_payments SET invoice_payment_date = '$date', invoice_payment_amount = '$amount', account_id = $account, invoice_payment_method = '$payment_method', invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = '$amount', account_id = $account, payment_method = '$payment_method', invoice_id = $invoice_id");
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
-    $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(invoice_payment_amount) AS total_payments_amount FROM invoice_payments WHERE invoice_id = $invoice_id");
+    $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payments_amount FROM payments WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql_total_payments_amount);
-    $total_payments_amount = $row['total_payments_amount'];
+    $total_payments_amount = $row['payments_amount'];
     
     //Get the invoice total
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
@@ -548,29 +549,16 @@ if(isset($_POST['add_invoice_payment'])){
     } 
 }
 
-if(isset($_POST['edit_invoice_note'])){
+if(isset($_GET['delete_payment'])){
+    $payment_id = intval($_GET['delete_payment']);
 
-    $invoice_id = intval($_POST['invoice_id']);
-    $invoice_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['invoice_note']));
-
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$invoice_note' WHERE invoice_id = $invoice_id");
-
-    $_SESSION['alert_message'] = "Notes added";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_GET['delete_invoice_payment'])){
-    $invoice_payment_id = intval($_GET['delete_invoice_payment']);
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_payments WHERE invoice_payment_id = $invoice_payment_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_id = $payment_id");
     $row = mysqli_fetch_array($sql);
     $invoice_id = $row['invoice_id'];
-    $deleted_payment_amount = $row['invoice_payment_amount'];
+    $deleted_payment_amount = $row['payment_amount'];
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
-    $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(invoice_payment_amount) AS total_payments_amount FROM invoice_payments WHERE invoice_id = $invoice_id");
+    $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_amount FROM payments WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql_total_payments_amount);
     $total_payments_amount = $row['total_payments_amount'];
     
@@ -592,12 +580,25 @@ if(isset($_GET['delete_invoice_payment'])){
     //Update Invoice Status
     mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id");
 
-    mysqli_query($mysqli,"DELETE FROM invoice_payments WHERE invoice_payment_id = $invoice_payment_id");
+    mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
 
     $_SESSION['alert_message'] = "Payment deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
+}
+
+if(isset($_POST['edit_invoice_note'])){
+
+    $invoice_id = intval($_POST['invoice_id']);
+    $invoice_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['invoice_note']));
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$invoice_note' WHERE invoice_id = $invoice_id");
+
+    $_SESSION['alert_message'] = "Notes added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
 
 if(isset($_POST['add_client_contact'])){

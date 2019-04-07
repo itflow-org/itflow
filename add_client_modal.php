@@ -63,15 +63,31 @@
               </div>
             </div>
           </div>
-          <div class="form-group">
-            <label>Website</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-globe"></i></span>
+          <div class="form-row">
+            <div class="form-group col">
+              <label>Website</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-globe"></i></span>
+                </div>
+                <input type="text" class="form-control" name="website" placeholder="Web Address">
               </div>
-              <input type="text" class="form-control" name="website" placeholder="Web Address">
             </div>
-          </div>
+            <div class="form-group col">
+              <label>Invoice Net Terms</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-clock"></i></span>
+                </div>
+                <select class="form-control" name="net_terms">
+                  <option value="7">Default (7 Days)</option>
+                  <option value="1">Upon Reciept</option>
+                  <option value="14">14 Day</option>
+                  <option value="30">30 Day</option>
+                </select> 
+              </div>
+            </div>
+          </div>    
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

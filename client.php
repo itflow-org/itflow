@@ -19,6 +19,7 @@ if(isset($_GET['client_id'])){
     $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
   }
   $client_website = $row['client_website'];
+  $client_net_terms = $row['client_net_terms'];
 
   //Badge Counts
 
