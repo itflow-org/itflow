@@ -36,6 +36,12 @@
     </a>
   </li>
   <li class="nav-item">
+    <a class="nav-link" href="payments.php">
+      <i class="fas fa-fw fa-credit-card mx-2"></i>
+      <span>Payments</span>
+    </a>
+  </li>
+  <li class="nav-item">
     <a class="nav-link" href="accounts.php">
       <i class="fas fa-fw fa-piggy-bank mx-2"></i>
       <span>Accounts</span>

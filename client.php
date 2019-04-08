@@ -34,8 +34,6 @@ if(isset($_GET['client_id'])){
 
   $balance = $invoice_amounts - $amount_paid;
 
-
-
   //Badge Counts
 
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_contact_id') AS num FROM client_contacts WHERE client_id = $client_id"));
