@@ -1,16 +1,18 @@
 <?php include("header.php"); ?>
 
 <?php
-
-$sql_total_income = mysqli_query($mysqli,"SELECT SUM(invoice_payment_amount) AS total_income FROM invoice_payments");
+//Get Total income Do not grab transfer payment as these have an invoice_id of 0
+$sql_total_income = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_income FROM payments WHERE invoice_id > 0");
 $row = mysqli_fetch_array($sql_total_income);
 $total_income = $row['total_income'];
 
-$sql_total_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses");
+//Get Total expenses and do not grab transfer expenses as these have a vendor of 0
+$sql_total_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE vendor_id > 0");
 $row = mysqli_fetch_array($sql_total_expenses);
 $total_expenses = $row['total_expenses'];
 
-$sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_total) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft'");
+//Total up all the 
+$sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft'");
 $row = mysqli_fetch_array($sql_invoice_totals);
 $invoice_totals = $row['invoice_totals'];
 
@@ -20,10 +22,10 @@ $profit = $total_income - $total_expenses;
 
 $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts ORDER BY account_id DESC");
 
-$sql_latest_income_payments = mysqli_query($mysqli,"SELECT * FROM invoice_payments, invoices, clients 
-	WHERE invoice_payments.invoice_id = invoices.invoice_id 
+$sql_latest_income_payments = mysqli_query($mysqli,"SELECT * FROM payments, invoices, clients 
+	WHERE payments.invoice_id = invoices.invoice_id 
 	AND invoices.client_id = clients.client_id 
-	ORDER BY invoice_payments.invoice_payment_id DESC LIMIT 5"
+	ORDER BY payment_id DESC LIMIT 5"
 );
 
 $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, categories 
@@ -99,7 +101,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
                 <tr>
 			            <td><?php echo $account_name; ?></a></td>
 			            <?php
-			            $sql2 = mysqli_query($mysqli,"SELECT SUM(invoice_payment_amount) AS total_payments FROM invoice_payments WHERE account_id = $account_id");
+			            $sql2 = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
 			            $row2 = mysqli_fetch_array($sql2);
 			            
 			            $sql3 = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
@@ -125,7 +127,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
     <div class="col-md-4">
       <div class="card">
         <div class="card-header">
-          Latest Incomes
+          Latest Payments
         </div>
         <div class="table-responsive">
           <table class="table table-borderless">
@@ -140,16 +142,16 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
             <tbody>
               <?php
             	while($row = mysqli_fetch_array($sql_latest_income_payments)){
-		            $invoice_payment_date = $row['invoice_payment_date'];
-		            $invoice_payment_amount = $row['invoice_payment_amount'];
+		            $payment_date = $row['payment_date'];
+		            $payment_amount = $row['payment_amount'];
 		            $invoice_number = $row['invoice_number'];
 		            $client_name = $row['client_name'];
 			        ?>
               <tr>
-                <td><?php echo $invoice_payment_date; ?></td>
+                <td><?php echo $payment_date; ?></td>
                 <td><?php echo $client_name; ?></td>
                 <td><?php echo $invoice_number; ?></td>
-                <td class="text-right text-monospace">$<?php echo number_format($invoice_payment_amount,2); ?></td>
+                <td class="text-right text-monospace">$<?php echo number_format($payment_amount,2); ?></td>
               </tr>
               <?php
 			        }

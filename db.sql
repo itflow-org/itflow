@@ -258,7 +258,7 @@ CREATE TABLE `expenses` (
   `category_id` int(11) NOT NULL,
   `account_id` int(11) NOT NULL,
   PRIMARY KEY (`expense_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -357,7 +357,7 @@ CREATE TABLE `payments` (
   `account_id` int(11) NOT NULL,
   `invoice_id` int(11) NOT NULL,
   PRIMARY KEY (`payment_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -410,8 +410,10 @@ CREATE TABLE `transfers` (
   `transfer_date` date NOT NULL,
   `transfer_account_from` int(11) NOT NULL,
   `transfer_account_to` int(11) NOT NULL,
+  `expense_id` int(11) NOT NULL,
+  `payment_id` int(11) NOT NULL,
   PRIMARY KEY (`transfer_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -458,4 +460,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-08  0:26:08
+-- Dump completed on 2019-04-08  1:16:28

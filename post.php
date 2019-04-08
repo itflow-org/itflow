@@ -379,14 +379,13 @@ if(isset($_POST['add_transfer'])){
     $account_from = intval($_POST['account_from']);
     $account_to = intval($_POST['account_to']);
 
-    
-
     mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', vendor_id = 0, account_id = $account_from");
+    $expense_id = mysqli_insert_id($mysqli);
+    
+    mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = '$amount', account_id = $account_to, invoice_id = 0");
+    $payment_id = mysqli_insert_id($mysqli);
 
-
-    mysqli_query($mysqli,"INSERT INTO invoice_payments SET invoice_payment_date = '$date', invoice_payment_amount = '$amount', account_id = $account_to, invoice_id = 0");
-
-    mysqli_query($mysqli,"INSERT INTO transfers SET transfer_date = '$date', transfer_amount = '$amount', transfer_account_from = $account_from, transfer_account_to = $account_to");
+    mysqli_query($mysqli,"INSERT INTO transfers SET transfer_date = '$date', transfer_amount = '$amount', transfer_account_from = $account_from, transfer_account_to = $account_to, expense_id = $expense_id, payment_id = $payment_id");
 
     $_SESSION['alert_message'] = "Transfer added";
     
@@ -397,14 +396,20 @@ if(isset($_POST['add_transfer'])){
 if(isset($_POST['edit_transfer'])){
 
     $transfer_id = intval($_POST['transfer_id']);
+    $expense_id = intval($_POST['expense_id']);
+    $payment_id = intval($_POST['payment_id']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $amount = $_POST['amount'];
     $account_from = intval($_POST['account_from']);
     $account_to = intval($_POST['account_to']);
 
+    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account_from WHERE expense_id = $expense_id");
+
+    mysqli_query($mysqli,"UPDATE payments SET payment_date = '$date', payment_amount = '$amount', account_id = $account_to WHERE payment_id = $payment_id");
+
     mysqli_query($mysqli,"UPDATE transfers SET transfer_date = '$date', transfer_amount = '$amount', transfer_account_from = $account_from, transfer_account_to = $account_to WHERE transfer_id = $transfer_id");
 
-    $_SESSION['alert_message'] = "Transfer added";
+    $_SESSION['alert_message'] = "Transfer modified";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -412,6 +417,16 @@ if(isset($_POST['edit_transfer'])){
 
 if(isset($_GET['delete_transfer'])){
     $transfer_id = intval($_GET['delete_transfer']);
+
+    //Query the transfer ID to get the Pyament and Expense IDs so we can delete those as well
+    $sql = mysqli_query($mysqli,"SELECT * FROM transfers WHERE transfer_id = $transfer_id");
+    $row = mysqli_fetch_array($sql);
+    $expense_id = $row['expense_id'];
+    $payment_id = $row['payment_id'];
+
+    mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id");
+
+    mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
 
     mysqli_query($mysqli,"DELETE FROM transfers WHERE transfer_id = $transfer_id");
 

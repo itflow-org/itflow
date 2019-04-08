@@ -2,7 +2,7 @@
 
 <?php 
 
-$sql = mysqli_query($mysqli,"SELECT * FROM transfers ORDER BY transfers.transfer_date DESC"); 
+$sql = mysqli_query($mysqli,"SELECT * FROM transfers ORDER BY transfer_date DESC"); 
 
 ?>
 
@@ -33,7 +33,9 @@ $sql = mysqli_query($mysqli,"SELECT * FROM transfers ORDER BY transfers.transfer
             $transfer_account_from = $row['transfer_account_from'];
             $transfer_account_to = $row['transfer_account_to'];
             $transfer_amount = $row['transfer_amount'];
-
+            $expense_id = $row['expense_id'];
+            $payment_id = $row['payment_id'];
+            
             $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_id = $transfer_account_from");
             $row = mysqli_fetch_array($sql2);
             $account_name_from = $row['account_name'];

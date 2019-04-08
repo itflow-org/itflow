@@ -10,6 +10,8 @@
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body">
           <input type="hidden" name="transfer_id" value="<?php echo $transfer_id; ?>">
+          <input type="hidden" name="expense_id" value="<?php echo $expense_id; ?>">
+          <input type="hidden" name="payment_id" value="<?php echo $payment_id; ?>">
           <div class="form-row">
             <div class="form-group col-sm">
               <label>Date</label>
