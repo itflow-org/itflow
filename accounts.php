@@ -26,20 +26,23 @@
             $account_name = $row['account_name'];
             $opening_balance = $row['opening_balance'];
 
+            $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_id = $account_id");
+            $row = mysqli_fetch_array($sql_accounts);
+            $opening_balance = $row['opening_balance'];
+
+            $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
+            $row = mysqli_fetch_array($sql_payments);
+            $total_payments = $row['total_payments'];
+            
+            $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
+            $row = mysqli_fetch_array($sql_expenses);
+            $total_expenses = $row['total_expenses'];
+
+            $balance = $opening_balance + $total_payments - $total_expenses;
           ?>
+          
           <tr>
             <td><?php echo $account_name; ?></a></td>
-            <?php
-            $sql2 = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
-            $row2 = mysqli_fetch_array($sql2);
-            
-            $sql3 = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
-            $row3 = mysqli_fetch_array($sql3);
-            
-            $balance = $opening_balance + $row2['total_payments'] - $row3['total_expenses'];
-            
-            ?>
-
             <td class="text-right text-monospace">$<?php echo number_format($balance,2); ?></td>
             <td>
               <div class="dropdown dropleft text-center">

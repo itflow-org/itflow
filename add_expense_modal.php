@@ -41,8 +41,23 @@
                   while($row = mysqli_fetch_array($sql)){
                     $account_id = $row['account_id'];
                     $account_name = $row['account_name'];
+
+                    $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_id = $account_id");
+                    $row = mysqli_fetch_array($sql_accounts);
+                    $opening_balance = $row['opening_balance'];
+
+                    $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
+                    $row = mysqli_fetch_array($sql_payments);
+                    $total_payments = $row['total_payments'];
+                    
+                    $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
+                    $row = mysqli_fetch_array($sql_expenses);
+                    $total_expenses = $row['total_expenses'];
+
+                    $balance = $opening_balance + $total_payments - $total_expenses;
+
                   ?>
-                    <option value="<?php echo "$account_id"; ?>"><?php echo "$account_name"; ?></option>
+                    <option value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
                   
                   <?php
                   }
