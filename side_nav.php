@@ -13,7 +13,7 @@
   </li>
   <li class="nav-item">
     <a class="nav-link" href="vendors.php">
-      <i class="fas fa-fw fa-briefcase mx-2"></i>
+      <i class="fas fa-fw fa-building mx-2"></i>
       <span>Vendors</span>
     </a>
   </li>
@@ -39,6 +39,12 @@
     <a class="nav-link" href="payments.php">
       <i class="fas fa-fw fa-credit-card mx-2"></i>
       <span>Payments</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="recurring.php">
+      <i class="fas fa-fw fa-copy mx-2"></i>
+      <span>Recurring</span>
     </a>
   </li>
   <li class="nav-item">
