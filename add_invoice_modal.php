@@ -1,4 +1,4 @@
-<div class="modal fade" id="addInvoiceModal" tabindex="-1">
+<div class="modal" id="addInvoiceModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -16,7 +16,7 @@
                 <span class="input-group-text"><i class="fa fa-user"></i></span>
               </div>
               <select class="form-control" name="client" required>
-                <option value="">- Customer -</option>
+                <option value="">- Select Customer -</option>
                 <?php 
                 
                 $sql = mysqli_query($mysqli,"SELECT * FROM clients"); 
@@ -54,7 +54,7 @@
           </div>
       
           <div class="form-group">
-            <label>Income Category</label>
+            <label>Category</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-user"></i></span>

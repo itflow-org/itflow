@@ -1,4 +1,4 @@
-<div class="modal fade" id="addExpenseModal" tabindex="-1">
+<div class="modal" id="addExpenseModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -16,7 +16,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required autofocus="autofocus">
+                <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
               </div>
             </div>
             <div class="form-group col-md">
@@ -25,7 +25,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-dollar-sign"></i></span>
                 </div>
-                <input type="number" class="form-control" step="0.01" name="amount" required>
+                <input type="number" class="form-control" step="0.01" name="amount" autofocus="autofocus" required>
               </div>
             </div>
             <div class="form-group col-md">

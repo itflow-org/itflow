@@ -1,4 +1,4 @@
-<div class="modal fade" id="addExpenseRefundModal<?php echo $expense_id; ?>" tabindex="-1">
+<div class="modal" id="addExpenseRefundModal<?php echo $expense_id; ?>" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -19,7 +19,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d",time()); ?>" required>
+                <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
               </div>
             </div>
             <div class="form-group col-md">

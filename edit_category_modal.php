@@ -1,4 +1,4 @@
-<div class="modal fade" id="editCategoryModal<?php echo $category_id; ?>" tabindex="-1">
+<div class="modal" id="editCategoryModal<?php echo $category_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">

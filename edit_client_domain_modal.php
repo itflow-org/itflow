@@ -1,4 +1,4 @@
-<div class="modal fade" id="editClientDomainModal<?php echo $client_domain_id; ?>" tabindex="-1">
+<div class="modal" id="editClientDomainModal<?php echo $client_domain_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">

@@ -1,4 +1,4 @@
-<div class="modal fade" id="addClientNoteModal" tabindex="-1">
+<div class="modal" id="addClientNoteModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -8,7 +8,7 @@
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-        <input type="text" name="client_id" value="<?php echo $client_id; ?>">
+        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="modal-body">  
           <div class="form-group">
             <label>Subject</label>
@@ -16,7 +16,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-edit"></i></span>
               </div>
-              <input type="text" class="form-control" name="subject" required>
+              <input type="text" class="form-control" name="subject" required autofocus>
             </div>
           </div>
           <div class="form-group">

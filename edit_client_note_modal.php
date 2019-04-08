@@ -1,4 +1,4 @@
-<div class="modal fade" id="editClientNoteModal<?php echo $client_note_id; ?>" tabindex="-1">
+<div class="modal" id="editClientNoteModal<?php echo $client_note_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">

@@ -1,4 +1,4 @@
-<div class="modal fade" id="addAccountModal" tabindex="-1">
+<div class="modal" id="addAccountModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -15,7 +15,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-university"></i></span>
               </div>
-              <input type="text" class="form-control" name="name" placeholder="Account name" required>
+              <input type="text" class="form-control" name="name" placeholder="Account name" required autofocus>
             </div>
           </div>
           <div class="form-group">

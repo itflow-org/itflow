@@ -1,4 +1,4 @@
-<div class="modal fade" id="addClientAssetModal" tabindex="-1">
+<div class="modal" id="addClientAssetModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -16,7 +16,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-tag"></i></span>
               </div>
-              <input type="text" class="form-control" name="name" placeholder="Name the asset" required>
+              <input type="text" class="form-control" name="name" placeholder="Name the asset" required autofocus>
             </div>
           </div>
           <div class="form-group">

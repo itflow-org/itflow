@@ -1,4 +1,4 @@
-<div class="modal fade" id="editClientLocationModal<?php echo $client_location_id; ?>" tabindex="-1">
+<div class="modal" id="editClientLocationModal<?php echo $client_location_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">

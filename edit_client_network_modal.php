@@ -1,4 +1,4 @@
-<div class="modal fade" id="editClientNetworkModal<?php echo $client_network_id; ?>" tabindex="-1">
+<div class="modal" id="editClientNetworkModal<?php echo $client_network_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">

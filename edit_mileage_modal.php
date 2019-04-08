@@ -1,4 +1,4 @@
-<div class="modal fade" id="editMileageModal<?php echo $mileage_id; ?>" tabindex="-1">
+<div class="modal" id="editMileageModal<?php echo $mileage_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -11,7 +11,7 @@
         <div class="modal-body">
           <input type="hidden" name="mileage_id" value="<?php echo $mileage_id; ?>">
           <div class="form-row">
-            <div class="form-group col-sm">
+            <div class="form-group col-7">
               <label>Date</label>
               <div class="input-group">
                 <div class="input-group-prepend">
@@ -20,7 +20,7 @@
                 <input type="date" class="form-control" name="date" value="<?php echo $mileage_date; ?>" required>
               </div>
             </div>
-            <div class="form-group col-sm">
+            <div class="form-group col-5">
               <label>Miles</label>
               <div class="input-group">
                 <div class="input-group-prepend">
@@ -30,24 +30,22 @@
               </div>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group col-sm">
-              <label>Starting Location</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-map-marker"></i></span>
-                </div>
-                <input type="text" class="form-control" name="starting_location" value="<?php echo $mileage_starting_location; ?>" required>
+          <div class="form-group">
+            <label>Starting Location</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-map-marker"></i></span>
               </div>
+              <input type="text" class="form-control" name="starting_location" value="<?php echo $mileage_starting_location; ?>" required>
             </div>
-            <div class="form-group col-sm">
-              <label>Destination</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-arrow-right"></i></span>
-                </div>
-                <input type="text" class="form-control" name="destination" value="<?php echo $mileage_destination; ?>" required>
+          </div>
+          <div class="form-group">
+            <label>Destination</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-arrow-right"></i></span>
               </div>
+              <input type="text" class="form-control" name="destination" value="<?php echo $mileage_destination; ?>" required>
             </div>
           </div>
           <div class="form-group">

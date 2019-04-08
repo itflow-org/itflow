@@ -1,4 +1,4 @@
-<div class="modal fade" id="addMileageModal" tabindex="-1">
+<div class="modal" id="addMileageModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -10,43 +10,41 @@
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body">
           <div class="form-row">
-            <div class="form-group col-sm">
+            <div class="form-group col-7">
               <label>Date</label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="date" required autofocus="autofocus">
+                <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
               </div>
             </div>
-            <div class="form-group col-sm">
+            <div class="form-group col-5">
               <label>Miles</label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-car-side"></i></span>
                 </div>
-                <input type="number" class="form-control" name="miles" required>
+                <input type="number" class="form-control" name="miles" required autofocus="autofocus">
               </div>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group col-sm">
-              <label>Starting Location</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-map-marker"></i></span>
-                </div>
-                <input type="text" class="form-control" name="starting_location" required>
+          <div class="form-group">
+            <label>Starting Location</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-map-marker"></i></span>
               </div>
+              <input type="text" class="form-control" name="starting_location" required>
             </div>
-            <div class="form-group col-sm">
-              <label>Destination</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-arrow-right"></i></span>
-                </div>
-                <input type="text" class="form-control" name="destination" required>
+          </div>
+          <div class="form-group">
+            <label>Destination</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-arrow-right"></i></span>
               </div>
+              <input type="text" class="form-control" name="destination" required>
             </div>
           </div>
           <div class="form-group">

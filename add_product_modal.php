@@ -11,7 +11,7 @@
         <div class="modal-body">
           <div class="form-group">
             <label>Name</label>
-            <input type="text" class="form-control" name="name" required autofocus="autofocus">
+            <input type="text" class="form-control" name="name" required autofocus>
           </div>
           <div class="form-group">
             <label>Description</label>

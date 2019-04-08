@@ -15,7 +15,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-user"></i></span>
               </div>
-              <input type="text" class="form-control" name="name" placeholder="Name or Company" required>
+              <input type="text" class="form-control" name="name" placeholder="Name or Company" required autofocus>
             </div>
           </div>
           <div class="form-group">
@@ -29,9 +29,11 @@
           </div>
           <div class="form-row">
             <div class="form-group col-md-5">
+              <label>City</label>
               <input type="text" class="form-control" name="city" placeholder="City" required>
             </div>
             <div class="form-group col-md-4">
+              <label>State</label>
               <select class="form-control" name="state">
                 <option value="">Select a state...</option>
                 <?php foreach($states_array as $state_abbr => $state_name) { ?>
@@ -40,6 +42,7 @@
               </select> 
             </div>
             <div class="form-group col-md-3">
+              <label>Zip</label>
               <input type="text" class="form-control" name="zip" placeholder="Zip">
             </div>
           </div>

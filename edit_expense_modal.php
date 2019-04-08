@@ -1,4 +1,4 @@
-<div class="modal fade" id="editExpenseModal<?php echo $expense_id; ?>" tabindex="-1">
+<div class="modal" id="editExpenseModal<?php echo $expense_id; ?>" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
