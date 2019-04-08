@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-cart-plus"></i> New expense</h5>
+        <h5 class="modal-title"><i class="fa fa-cart-plus"></i> New Expense</h5>
         <button type="button" class="close" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -57,7 +57,7 @@
                     $balance = $opening_balance + $total_payments - $total_expenses;
 
                   ?>
-                    <option value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                    <option value="<?php echo $account_id; ?>"><div class="float-left"><?php echo $account_name; ?></div><div class="float-right"> [$<?php echo number_format($balance,2); ?>]</div></option>
                   
                   <?php
                   }

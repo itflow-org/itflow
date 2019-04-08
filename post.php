@@ -558,33 +558,32 @@ if(isset($_GET['delete_invoice_item'])){
 if(isset($_POST['add_payment'])){
 
     $invoice_id = intval($_POST['invoice_id']);
+    $balance = $_POST['balance'];
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $amount = $_POST['amount'];
     $account = intval($_POST['account']);
     $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
 
-    mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = '$amount', account_id = $account, payment_method = '$payment_method', invoice_id = $invoice_id");
-
-    //Add up all the payments for the invoice and get the total amount paid to the invoice
-    $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payments_amount FROM payments WHERE invoice_id = $invoice_id");
-    $row = mysqli_fetch_array($sql_total_payments_amount);
-    $total_payments_amount = $row['payments_amount'];
-    
-    //Get the invoice total
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
-    $row = mysqli_fetch_array($sql);
-    $invoice_amount = $row['invoice_amount'];
-
-    //Calculate the Invoice balance
-    $invoice_balance = $invoice_amount - $total_payments_amount;
-
-    if($amount > $invoice_balance){
+    //Check to see if amount entered is greater than the balance of the invoice
+    if($amount > $balance){
         $_SESSION['alert_message'] = "Payment is more than the balance";
-        
         header("Location: " . $_SERVER["HTTP_REFERER"]);
-
     }else{
+        mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = '$amount', account_id = $account, payment_method = '$payment_method', invoice_id = $invoice_id");
+
+        //Add up all the payments for the invoice and get the total amount paid to the invoice
+        $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payments_amount FROM payments WHERE invoice_id = $invoice_id");
+        $row = mysqli_fetch_array($sql_total_payments_amount);
+        $total_payments_amount = $row['payments_amount'];
         
+        //Get the invoice total
+        $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+        $row = mysqli_fetch_array($sql);
+        $invoice_amount = $row['invoice_amount'];
+
+        //Calculate the Invoice balance
+        $invoice_balance = $invoice_amount - $total_payments_amount;
+            
         //Determine if invoice has been paid then set the status accordingly
         if($invoice_balance == 0){
             $invoice_status = "Paid";
@@ -601,7 +600,7 @@ if(isset($_POST['add_payment'])){
         $_SESSION['alert_message'] = "Payment added";
         
         header("Location: " . $_SERVER["HTTP_REFERER"]);
-    } 
+    }
 }
 
 if(isset($_GET['delete_payment'])){
