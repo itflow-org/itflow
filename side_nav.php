@@ -12,6 +12,11 @@
       <span>Clients</span></a>
   </li>
   <li class="nav-item">
+    <a class="nav-link" href="products.php">
+      <i class="fas fa-fw fa-box mx-2"></i>
+      <span>Products</span></a>
+  </li>
+  <li class="nav-item">
     <a class="nav-link" href="vendors.php">
       <i class="fas fa-fw fa-building mx-2"></i>
       <span>Vendors</span>

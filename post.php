@@ -167,6 +167,46 @@ if(isset($_GET['delete_vendor'])){
   
 }
 
+if(isset($_POST['add_product'])){
+
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $cost = strip_tags(mysqli_real_escape_string($mysqli,$_POST['cost']));
+
+    mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_cost = '$cost'");
+
+    $_SESSION['alert_message'] = "Product added";
+    
+    header("Location: products.php");
+
+}
+
+if(isset($_POST['edit_product'])){
+
+    $product_id = intval($_POST['product_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $cost = strip_tags(mysqli_real_escape_string($mysqli,$_POST['cost']));
+
+    mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_cost = '$cost' WHERE product_id = $product_id");
+
+    $_SESSION['alert_message'] = "Product modified";
+    
+    header("Location: products.php");
+
+}
+
+if(isset($_GET['delete_product'])){
+    $product_id = intval($_GET['delete_product']);
+
+    mysqli_query($mysqli,"DELETE FROM products WHERE product_id = $product_id");
+
+    $_SESSION['alert_message'] = "Product deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_mileage'])){
 
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));

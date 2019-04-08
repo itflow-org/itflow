@@ -82,6 +82,6 @@
   <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
 </div>
 
-<?php include("add_invoice_modal.php"); ?>
+<?php include("add_recurring_invoice_modal.php"); ?>
 
 <?php include("footer.php");
