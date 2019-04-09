@@ -24,6 +24,7 @@
             <th>Vendor</th>
             <th>Category</th>
             <th>Account</th>
+            <th></th>
             <th class="text-center">Actions</th>
           </tr>
         </thead>
@@ -35,12 +36,19 @@
             $expense_date = $row['expense_date'];
             $expense_amount = $row['expense_amount'];
             $expense_description = $row['expense_description'];
+            $expense_receipt = $row['expense_receipt'];
             $vendor_id = $row['vendor_id'];
             $vendor_name = $row['vendor_name'];
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
             $account_name = $row['account_name'];
             $account_id = $row['account_id'];
+
+            if(empty($expense_receipt)){
+              $receipt_attached = "";
+            }else{
+              $receipt_attached = "<a class='btn btn-dark btn-sm' target='_blank' href='$expense_receipt'><i class='fa fa-file-pdf'></i></a>";
+            }
 
           ?>
 
@@ -50,6 +58,7 @@
             <td><?php echo $vendor_name; ?></td>
             <td><?php echo $category_name; ?></td>
             <td><?php echo $account_name; ?></td>
+            <td><?php echo $receipt_attached; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

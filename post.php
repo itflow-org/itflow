@@ -135,6 +135,11 @@ if(isset($_POST['add_vendor'])){
 
     mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_account_number = '$account_number', vendor_created_at = UNIX_TIMESTAMP()");
 
+    $vendor_id = mysqli_insert_id($mysqli);
+
+    //Create Directory to store expense reciepts for that vendor
+    mkdir("uploads/expenses/$vendor_id");
+
     $_SESSION['alert_message'] = "Vendor added";
     
     header("Location: vendors.php");
@@ -335,7 +340,14 @@ if(isset($_POST['add_expense'])){
     $category = intval($_POST['category']);
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
 
-    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description'");
+    if(!empty($_FILES['file'])){
+        $path = "uploads/expenses/$vendor/";
+        $path = $path . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);
+    }
+
+    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description', expense_receipt = '$path'");
 
     $_SESSION['alert_message'] = "Expense added";
     

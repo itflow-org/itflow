@@ -7,7 +7,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form action="post.php" method="post" autocomplete="off">
+      <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <div class="modal-body">
           <div class="form-row"> 
             <div class="form-group col-md">
@@ -119,7 +119,7 @@
             <textarea class="form-control" rows="4" name="description" required></textarea>
           </div>
           <div class="custom-file">
-            <input type="file" class="custom-file-input" name="attachment">
+            <input type="file" class="custom-file-input" name="file">
             <label class="custom-file-label">Attach Reciept...</label>
           </div>
         </div>
