@@ -4,7 +4,7 @@
  
   $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
     WHERE invoices.client_id = clients.client_id
-    ORDER BY invoices.invoice_date DESC");
+    ORDER BY invoices.invoice_number DESC");
 ?>
 
 <div class="card mb-3">
@@ -59,14 +59,14 @@
           ?>
 
           <tr>
-            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>">INV-<?php echo "$invoice_number"; ?></a></td>
-            <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo "$client_name"; ?></a></td>
+            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>">INV-<?php echo $invoice_number; ?></a></td>
+            <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
             <td class="text-right text-monospace">$<?php echo number_format($invoice_amount,2); ?></td>
-            <td><?php echo "$invoice_date"; ?></td>
-            <td><div class="<?php echo $overdue_color; ?>"><?php echo "$invoice_due"; ?></div></td>
+            <td><?php echo $invoice_date; ?></td>
+            <td><div class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></div></td>
             <td>
               <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
-                <?php echo "$invoice_status"; ?>
+                <?php echo $invoice_status; ?>
               </span>
             </td>
             <td>

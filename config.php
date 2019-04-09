@@ -13,6 +13,12 @@
 	$config_date_format = "Y-m-d";
 	$config_time_format = "h:ia";
 	$config_no_records = "There is nothing here!";
+	$config_default_expenes_account = "";
+	$config_default_invoice_account = "";
+	$config_default_net_terms = "";
+	$config_default_starting_location = "";
+
+
 
 	$config_start_page = "clients.php";
 
@@ -33,6 +39,14 @@
 	$_SESSION['alert_message'] = '';
 	$_SESSION['alert_type'] = "warning";
 
+	
+
+	$net_terms_array = array(
+	    '0'=>'On Reciept',
+	    '7'=>'7 Days',
+	    '14'=>'14 Days',
+	    '30'=>'30 Days'    
+	);
 
 	$states_array = array(
 	    'AL'=>'Alabama',
@@ -85,7 +99,7 @@
 	    'WA'=>'Washington',
 	    'WV'=>'West Virginia',
 	    'WI'=>'Wisconsin',
-	    'WY'=>'Wyoming',
+	    'WY'=>'Wyoming'
 	);
 	
 	$timezones_array = array(

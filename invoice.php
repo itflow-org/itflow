@@ -71,7 +71,7 @@ if(isset($_GET['invoice_id'])){
 
 <ol class="breadcrumb d-print-none">
   <li class="breadcrumb-item">
-    <a href="index.html">Invoices</a>
+    <a href="invoices.php">Invoices</a>
   </li>
   <li class="breadcrumb-item active">INV-<?php echo $invoice_number; ?></li>
   <span class="ml-3 p-2 badge badge-<?php echo $invoice_badge_color; ?>"><?php echo $invoice_status; ?></span>

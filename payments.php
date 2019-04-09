@@ -7,6 +7,7 @@
     AND payments.invoice_id = invoices.invoice_id
     AND payments.account_id = accounts.account_id
     ORDER BY payments.payment_id DESC");
+
 ?>
 
 <div class="card mb-3">

@@ -456,7 +456,7 @@ if(isset($_POST['add_invoice'])){
 
     $_SESSION['alert_message'] = "Invoice added";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: invoice.php?invoice_id=$invoice_id");
 
 }
 
@@ -766,8 +766,8 @@ if(isset($_POST['add_client_asset'])){
         $asset_id = mysqli_insert_id($mysqli);
         $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
         $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
-        
-        mysqli_query($mysqli,"INSERT INTO client_logins SET client_login_username = '$username', client_login_password = '$password', client_asset_id = $asset_id, client_id = $client_id");
+        $description = "$type - $name";
+        mysqli_query($mysqli,"INSERT INTO client_logins SET client_login_description = '$description', client_login_username = '$username', client_login_password = '$password', client_asset_id = $asset_id, client_id = $client_id");
 
     }
 

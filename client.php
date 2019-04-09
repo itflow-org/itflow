@@ -107,7 +107,7 @@ if(isset($_GET['client_id'])){
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientNetworkModal">New Network</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientDomainModal">New Domain</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientApplicationModal">New Application</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceModal">New Invoice</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientInvoiceModal">New Invoice</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteModal">New Quote</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAttachmentModal">New Attachment</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientNoteModal">New Note</a>
@@ -146,7 +146,7 @@ if(isset($_GET['client_id'])){
 <?php include("add_client_domain_modal.php"); ?>
 <?php include("add_client_application_modal.php"); ?>
 <?php include("add_client_note_modal.php"); ?>
-<?php include("add_invoice_modal.php"); ?>
+<?php include("add_client_invoice_modal.php"); ?>
 <?php include("add_invoice_payment_modal.php"); ?>
 <?php include("add_quote_modal.php"); ?>
 <?php include("add_client_attachment_modal.php"); ?>

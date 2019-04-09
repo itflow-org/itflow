@@ -6,7 +6,7 @@
       <tr>
         <th>Type</th>
         <th>Name</th>
-        <th>Make</th>
+        <th>Make/Model</th>
         <th>Serial</th>
         <th></th>
         <th class="text-center">Actions</th>
@@ -52,8 +52,9 @@
                   </button>
                 </div>
                 <div class="modal-body">
-                  <h2><?php echo $client_login_username; ?></h2>
-                  <h3><?php echo $client_login_password; ?></h3>
+                  <h3><i class="fa fa-user mr-4"></i> <?php echo $client_login_username; ?></h3>
+                  <hr>
+                  <h4><i class="fa fa-key mr-4"></i> <?php echo $client_login_password; ?></h4>
                 </div>
               </div>
             </div>
