@@ -40,17 +40,9 @@ $('#dT').dataTable( {
 
 });
 
-//Highlight top nav menu item with current page
+// Highlight the active nav link on side nav
 $(function() {
-    // Highlight the active nav link.
     var url = window.location.pathname;
     var filename = url.substr(url.lastIndexOf('/') + 1);
-    $('.navbar a[href$="' + filename + '"]').parent().addClass("active");
-});
-
-$(function() {
-    // Highlight the active nav link.
-    var url = window.location.pathname;
-    var filename = url.substr(url.lastIndexOf('/') + 1);
-    $('.nav a[href$="' + filename + '"]').parent().addClass("active");
+    $('.navbar-nav a[href$="' + filename + '"]').parent().addClass("active");
 });
