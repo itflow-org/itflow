@@ -119,7 +119,7 @@
             <textarea class="form-control" rows="4" name="description" required></textarea>
           </div>
           <div class="form-group">
-            <label>Reciept</label>
+            <label>Receipt</label>
             <input type="file" class="form-control-file" name="file">
           </div>
         </div>
