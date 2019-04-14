@@ -160,8 +160,8 @@ mpdf-->
 <td class="totals cost">$ '.number_format($total_tax,2).' </td>
 </tr>
 <tr>
-<td class="totals"><b>TOTAL:</b></td>
-<td class="totals cost"><b>$ '.number_format($invoice_amount,2).' </b></td>
+<td class="totals">Total:</td>
+<td class="totals cost">$ '.number_format($invoice_amount,2).' </td>
 </tr>
 <tr>
 <td class="totals">Paid:</td>
