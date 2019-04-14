@@ -16,7 +16,7 @@
           </div>
           <div class="form-group">
             <label>Description</label>
-            <input type="text" class="form-control" name="description" value="<?php echo $vendor_description; ?>" required>
+            <input type="text" class="form-control" name="description" value="<?php echo $vendor_description; ?>">
           </div>
           <div class="form-group">
             <label>Account Number</label>

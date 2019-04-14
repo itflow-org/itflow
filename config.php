@@ -23,10 +23,15 @@
 	$config_start_page = "clients.php";
 
 	$config_company_name = "PittPC";
-	$config_company_address = "";
-	$config_company_city = "";
-	$config_company_state = "";
-	$config_company_zip = "";
+	$config_company_address = "123 PittPC Street";
+	$config_company_city = "Pittsburgh";
+	$config_company_state = "PA";
+	$config_company_zip = "15205";
+	$config_company_phone = "412-500-9434";
+	$config_company_site = "pittpc.com";
+
+	$config_invoice_logo = "/uploads/invoice_logo.png";
+	$config_invoice_footer = "Please make checks payable to PittPC<br>Visit us at pittpc.com";
 
 	//Mail Settings (Host must require TLS Support)
 	$config_smtp_host = "";
@@ -34,7 +39,7 @@
 	$config_smtp_password = "";
 	$config_smtp_port = 587;
 	$config_mail_from_email = "";
-	$config_mail_from_name = "";
+	$config_mail_from_name = "Automated Billing Department";
 
 	$_SESSION['alert_message'] = '';
 	$_SESSION['alert_type'] = "warning";

@@ -91,6 +91,7 @@ if(isset($_GET['invoice_id'])){
         <?php if($invoice_status == "Draft"){ ?><a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">Mark Sent</a><?php } ?>
         <?php if($invoice_status !== "Paid"){ ?><a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPaymentModal">Add Payment</a><?php } ?>
         <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
+        <a class="dropdown-item" href="pdf_invoice.php?invoice_id=<?php echo $invoice_id; ?>">PDF</a>
         <a class="dropdown-item" href="#">Delete</a>
       </div>
     </div>
@@ -104,7 +105,13 @@ if(isset($_GET['invoice_id'])){
         From
       </div>
       <div class="card-body">
-        <strong><?php echo $config_company_name; ?></strong>
+        <ul class="list-unstyled">
+          <li><strong><?php echo $config_company_name; ?></strong></li>
+          <li><?php echo $config_company_address; ?></li>
+          <li class="mb-3"><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
+          <li><?php echo $config_company_phone; ?></li>
+          <li><?php echo $config_company_email; ?></li>
+        </ul>
       </div>
     </div>
   </div>

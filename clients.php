@@ -52,8 +52,6 @@
             //set Text color on balance
             if($balance > 0){
               $balance_text_color = "text-danger";
-            }else{
-              $balance_text_color = "text-success";
             }
 
           ?>
