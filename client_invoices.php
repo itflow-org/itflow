@@ -10,6 +10,7 @@
       <tr>
         <th>Number</th>
         <th class="text-right">Amount</th>
+        <th class="text-right">Balance</th>
         <th>Date</th>
         <th>Due</th>
         <th>Status</th>
@@ -47,11 +48,27 @@
           $invoice_badge_color = "secondary";
         }
 
+        //Add up all the payments for the invoice and get the total amount paid to the invoice
+
+        $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE invoice_id = $invoice_id");
+        $row = mysqli_fetch_array($sql_amount_paid);
+        
+        $amount_paid = $row['amount_paid'];
+
+        $balance = $invoice_amount - $amount_paid;
+        //set Text color on balance
+        if($balance > 0){
+          $balance_text_color = "text-danger";
+        }else{
+          $balance_text_color = "";
+        }
+
       ?>
 
       <tr>
         <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>">INV-<?php echo $invoice_number; ?></a></td>
         <td class="text-right text-monospace">$<?php echo number_format($invoice_amount,2); ?></td>
+        <td class="text-right text-monospace <?php echo $balance_text_color; ?>">$<?php echo number_format($balance,2); ?></td>
         <td><?php echo $invoice_date; ?></td>
         <td><div class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></div></td>
         <td>

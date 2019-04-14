@@ -72,7 +72,6 @@
               $balance_text_color = "";
             }
 
-
           ?>
 
           <tr>
