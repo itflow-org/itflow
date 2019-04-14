@@ -340,7 +340,7 @@ if(isset($_POST['add_expense'])){
     $category = intval($_POST['category']);
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
 
-    if(!empty($_FILES['file'])){
+    if($_FILES['file']['tmp_name']!='') {
         $path = "uploads/expenses/$vendor/";
         $path = $path . basename( $_FILES['file']['name']);
         $file_name = basename($path);
