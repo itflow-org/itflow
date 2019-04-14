@@ -118,9 +118,9 @@
             <label>Description</label>
             <textarea class="form-control" rows="4" name="description" required></textarea>
           </div>
-          <div class="custom-file">
-            <input type="file" class="custom-file-input" name="file">
-            <label class="custom-file-label">Attach Reciept...</label>
+          <div class="form-group">
+            <label>Reciept</label>
+            <input type="file" class="form-control-file" name="file">
           </div>
         </div>
         <div class="modal-footer">
