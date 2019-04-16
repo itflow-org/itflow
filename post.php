@@ -229,9 +229,14 @@ if(isset($_POST['add_mileage'])){
     $starting_location = strip_tags(mysqli_real_escape_string($mysqli,$_POST['starting_location']));
     $destination = strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination']));
     $miles = intval($_POST['miles']);
+    $roundtrip = intval($_POST['roundtrip']);
     $purpose = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose']));
 
     mysqli_query($mysqli,"INSERT INTO mileage SET mileage_date = '$date', mileage_starting_location = '$starting_location', mileage_destination = '$destination', mileage_miles = $miles, mileage_purpose = '$purpose'");
+
+    if($roundtrip == 1){
+        mysqli_query($mysqli,"INSERT INTO mileage SET mileage_date = '$date', mileage_starting_location = '$destination', mileage_destination = '$starting_location', mileage_miles = $miles, mileage_purpose = '$purpose'");
+    }
 
     $_SESSION['alert_message'] = "Mileage added";
     

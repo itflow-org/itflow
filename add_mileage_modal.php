@@ -51,6 +51,10 @@
             <label>Purpose</label>
             <textarea rows="4" class="form-control" name="purpose" required></textarea>
           </div>
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="roundtrip" value="1" >
+            <label class="custom-control-label" for="customControlAutosizing">Roundtrip</label>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
