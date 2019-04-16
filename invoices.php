@@ -4,6 +4,7 @@
  
   $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
     WHERE invoices.client_id = clients.client_id
+    AND invoices.invoice_number > 0
     ORDER BY invoices.invoice_number DESC");
 ?>
 
@@ -43,6 +44,8 @@
             $unixtime_invoice_due = strtotime($invoice_due);
             if($unixtime_invoice_due < time()){
               $overdue_color = "text-danger";
+            }else{
+              $overdue_color = "";
             }
 
             if($invoice_status == "Sent"){

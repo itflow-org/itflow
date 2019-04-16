@@ -472,7 +472,7 @@ if(isset($_POST['add_invoice'])){
     $category = intval($_POST['category']);
     
     //Get the last Invoice Number and add 1 for the new invoice number
-    $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_id DESC LIMIT 1");
+    $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
     $row = mysqli_fetch_array($sql);
     $invoice_number = $row['invoice_number'] + 1;
 
@@ -502,6 +502,28 @@ if(isset($_POST['edit_invoice'])){
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
+
+if(isset($_POST['add_recurring_invoice'])){
+
+    $client = intval($_POST['client']);
+    $frequency = strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency']));
+    $start_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date']));
+    $category = intval($_POST['category']);
+
+    mysqli_query($mysqli,"INSERT INTO invoices SET category_id = $category, invoice_status = 'Draft', client_id = $client");
+
+    $invoice_id = mysqli_insert_id($mysqli);
+
+    mysqli_query($mysqli,"INSERT INTO recurring_invoices SET recurring_invoice_frequency = '$frequency', recurring_invoice_start_date = '$start_date', recurring_invoice_next_date = '$start_date', invoice_id = $invoice_id");
+
+    $recurring_invoice_id = mysqli_insert_id($mysqli);
+
+    $_SESSION['alert_message'] = "Recurring Invoice added";
+    
+    header("Location: recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
+
+}
+
 
 if(isset($_GET['mark_invoice_sent'])){
 

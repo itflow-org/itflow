@@ -39,7 +39,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
+                <input type="date" class="form-control" name="start_date" value="<?php echo date("Y-m-d"); ?>" required>
               </div>
             </div>
             <div class="form-group col">
@@ -48,12 +48,12 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-clock"></i></span>
                 </div>
-                <select class="form-control" name="category" required>
+                <select class="form-control" name="frequency" required>
                   <option value="">- frequency -</option>
-                  <option value="">Daily</option>
-                  <option value="">Weekly</option>
-                  <option value="">Monthly</option>
-                  <option value="">Yearly</option>
+                  <option value="day">Daily</option>
+                  <option value="week">Weekly</option>
+                  <option value="month">Monthly</option>
+                  <option value="year">Yearly</option>
                 </select>
               </div>
             </div>
@@ -85,7 +85,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_invoice" class="btn btn-primary">Save</button>
+          <button type="submit" name="add_recurring_invoice" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

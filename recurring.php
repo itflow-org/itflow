@@ -2,9 +2,10 @@
 
 <?php 
  
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
+  $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoices, invoices, clients
     WHERE invoices.client_id = clients.client_id
-    ORDER BY invoices.invoice_date DESC");
+    AND invoices.invoice_id = recurring_invoices.invoice_id
+    ORDER BY recurring_invoices.recurring_invoice_id DESC");
 ?>
 
 <div class="card mb-3">
@@ -21,7 +22,7 @@
             <th>Client</th>
             <th>Start Date</th>
             <th>Last Sent</th>
-            <th class="text-right">Amount</th>
+            <th>Next Date</th>
             <th>Status</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -30,49 +31,41 @@
           <?php
       
           while($row = mysqli_fetch_array($sql)){
-            $invoice_id = $row['invoice_id'];
-            $invoice_number = $row['invoice_number'];
-            $invoice_status = $row['invoice_status'];
-            $invoice_date = $row['invoice_date'];
-            $invoice_due = $row['invoice_due'];
-            $invoice_amount = $row['invoice_amount'];
+            $recurring_invoice_id = $row['recurring_invoice_id'];
+            $recurring_invoice_frequency = $row['recurring_invoice_frequency'];
+            $recurring_invoice_status = $row['recurring_invoice_status'];
+            $recurring_invoice_start_date = $row['recurring_invoice_start_date'];
+            $recurring_invoice_last_sent = $row['recurring_invoice_last_sent'];
+            $recurring_invoice_next_date = $row['recurring_invoice_next_date'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
+            $invoice_id = $row['invoice_id'];
 
           ?>
 
           <tr>
-            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>">INV-<?php echo "$invoice_number"; ?></a></td>
-            <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo "$client_name"; ?></a></td>
-            <td class="text-right text-monospace">$<?php echo number_format($invoice_amount,2); ?></td>
-            <td><?php echo "$invoice_date"; ?></td>
-            <td><div class="<?php echo $overdue_color; ?>"><?php echo "$invoice_due"; ?></div></td>
-            <td>
-              <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
-                <?php echo "$invoice_status"; ?>
-              </span>
-            </td>
+            <td><?php echo $recurring_invoice_frequency; ?></td>
+            <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+            <td><?php echo $recurring_invoice_start_date; ?></td>
+            <td><?php echo $recurring_invoice_last_sent; ?></td>
+            <td><?php echo $recurring_invoice_next_date; ?></td>
+            <td><?php echo $recurring_invoice_status; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editinvoiceModal<?php echo $invoice_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">PDF</a>
+                  <a class="dropdown-item" href="recurring_invoice.php?recurring_invoice_id=<?php echo $recurring_invoice_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Disable</a>
                   <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
                 </div>
               </div>      
             </td>
           </tr>
-
+          
           <?php
-
-          //include("edit_invoice_modal.php");
-          include("add_invoice_copy_modal.php");
           }
-
           ?>
 
         </tbody>
