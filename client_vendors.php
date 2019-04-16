@@ -49,8 +49,22 @@
                   </button>
                 </div>
                 <div class="modal-body">
-                  <h2><?php echo $client_login_username; ?></h2>
-                  <h3><?php echo $client_login_password; ?></h3>
+                  <div class="form-group">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-user"></i></span>
+                      </div>
+                      <input type="text" class="form-control" value="<?php echo $client_login_username; ?>" readonly>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                      </div>
+                      <input type="text" class="form-control" value="<?php echo $client_login_password; ?>" readonly>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

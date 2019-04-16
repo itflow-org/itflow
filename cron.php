@@ -59,6 +59,15 @@ $invoice_date_due = $row['invoice_date_due'];
 
 //Send Recurring Invoices
 
+$sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoices WHERE recurring_invoice_active = 1");
+
+$recurring_invoice_id = $row['recurring_invoice_id'];
+$recurring_invoice_frequency = $row['recurring_invoice_frequency'];
+$recurring_invoice_amount = $row['recurring_invoice_amount'];
+$recurring_invoice_start_date = $row['recurring_invoice_start_date'];
+$recurring_invoice_last_sent = $row['recurring_invoice_last_sent'];
+
+
 //Send Past Due Invoice Reminders
 
 $sql = mysqli_query($mysqli,"SELECT * FROM accounts ORDER BY account_id DESC"); 

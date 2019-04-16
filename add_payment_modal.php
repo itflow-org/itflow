@@ -93,6 +93,10 @@
               </div>
             </div>
           </div>
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_receipt" value="1" >
+            <label class="custom-control-label" for="customControlAutosizing">Email Reciept</label>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

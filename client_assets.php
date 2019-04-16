@@ -52,9 +52,22 @@
                   </button>
                 </div>
                 <div class="modal-body">
-                  <h3><i class="fa fa-user mr-4"></i> <?php echo $client_login_username; ?></h3>
-                  <hr>
-                  <h4><i class="fa fa-key mr-4"></i> <?php echo $client_login_password; ?></h4>
+                  <div class="form-group">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-user"></i></span>
+                      </div>
+                      <input type="text" class="form-control" value="<?php echo $client_login_username; ?>" readonly>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                      </div>
+                      <input type="text" class="form-control" value="<?php echo $client_login_password; ?>" readonly>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

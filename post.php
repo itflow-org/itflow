@@ -4,6 +4,12 @@ include("config.php");
 include("check_login.php");
 //include("functions.php");
 
+require("vendor/PHPMailer-6.0.7/src/PHPMailer.php");
+require("vendor/PHPMailer-6.0.7/src/SMTP.php");
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 $todays_date = date('Y-m-d');
 
 if(isset($_POST['add_user'])){
@@ -575,6 +581,7 @@ if(isset($_POST['add_payment'])){
     $amount = $_POST['amount'];
     $account = intval($_POST['account']);
     $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
+    $email_receipt = intval($_POST['email_receipt']);
 
     //Check to see if amount entered is greater than the balance of the invoice
     if($amount > $balance){
@@ -589,18 +596,96 @@ if(isset($_POST['add_payment'])){
         $total_payments_amount = $row['payments_amount'];
         
         //Get the invoice total
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+        $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients WHERE invoices.client_id = clients.client_id AND invoices.invoice_id = $invoice_id");
         $row = mysqli_fetch_array($sql);
         $invoice_amount = $row['invoice_amount'];
+        $invoice_number = $row['invoice_number'];
+        $client_name = $row['client_name'];
+        $client_email = $row['client_email'];
 
         //Calculate the Invoice balance
         $invoice_balance = $invoice_amount - $total_payments_amount;
+
             
         //Determine if invoice has been paid then set the status accordingly
         if($invoice_balance == 0){
-            $invoice_status = "Paid";
+            $invoice_status = "Paid";        
+            if($email_receipt == 1){
+                $mail = new PHPMailer(true);
+
+                try {
+
+                  //Mail Server Settings
+
+                  //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+                  $mail->isSMTP();                                            // Set mailer to use SMTP
+                  $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+                  $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+                  $mail->Username   = $config_smtp_username;                     // SMTP username
+                  $mail->Password   = $config_smtp_password;                               // SMTP password
+                  $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+                  $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+
+                  //Recipients
+                  $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+                  $mail->addAddress("$client_email", "$client_name");     // Add a recipient
+
+                  // Content
+                  $mail->isHTML(true);                                  // Set email format to HTML
+                  $mail->Subject = "Thank You! - Payment Recieved for Invoice INV-$invoice_number";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment of $amount on $date for invoice INV-$invoice_number by $payment_method<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
+                  //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+
+                  $mail->send();
+                  echo 'Message has been sent';
+
+                  mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Sent', invoice_history_description = 'Emailed Receipt!', invoice_id = $invoice_id");
+
+                } catch (Exception $e) {
+                    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                }
+            }
+
+           
+
         }else{
             $invoice_status = "Partial";
+            if($email_receipt == 1){
+                $mail = new PHPMailer(true);
+
+                try {
+
+                  //Mail Server Settings
+
+                  //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+                  $mail->isSMTP();                                            // Set mailer to use SMTP
+                  $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+                  $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+                  $mail->Username   = $config_smtp_username;                     // SMTP username
+                  $mail->Password   = $config_smtp_password;                               // SMTP password
+                  $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+                  $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+
+                  //Recipients
+                  $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+                  $mail->addAddress("$client_email", "$client_name");     // Add a recipient
+
+                  // Content
+                  $mail->isHTML(true);                                  // Set email format to HTML
+                  $mail->Subject = "Thank You! - Partial Payment Recieved for Invoice INV-$invoice_number";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment of $amount on $date for invoice INV-$invoice_number by $payment_method, although you still have a balance of $balance<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
+                  //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+
+                  $mail->send();
+                  echo 'Message has been sent';
+
+                  mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Sent', invoice_history_description = 'Emailed Receipt!', invoice_id = $invoice_id");
+
+                } catch (Exception $e) {
+                    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                }
+            }
+
         }
 
         //Update Invoice Status
@@ -831,7 +916,7 @@ if(isset($_POST['add_client_vendor'])){
         $vendor_id = mysqli_insert_id($mysqli);
         $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
         $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
-        
+
         mysqli_query($mysqli,"INSERT INTO client_logins SET client_login_username = '$username', client_login_password = '$password', client_vendor_id = $vendor_id, client_id = $client_id");
 
     }

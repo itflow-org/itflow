@@ -106,7 +106,7 @@
                   <label>Application</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-building"></i></span>
+                      <span class="input-group-text"><i class="fa fa-box"></i></span>
                     </div>
                     <select class="form-control" name="application">
                       <option value="">- Application -</option>

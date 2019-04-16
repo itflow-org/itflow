@@ -1,5 +1,4 @@
 <?php 
-//Include PHP Mailer Config
 	include("config.php");
 	include("check_login.php");
 ?>

@@ -34,7 +34,7 @@
 	$config_invoice_footer = "Please make checks payable to PittPC<br>Visit us at pittpc.com";
 
 	//Mail Settings (Host must require TLS Support)
-	$config_smtp_host = "";
+	$config_smtp_host = "mail.pittpc.com";
 	$config_smtp_username = "";
 	$config_smtp_password = "";
 	$config_smtp_port = 587;
