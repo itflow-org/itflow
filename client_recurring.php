@@ -29,15 +29,26 @@
             $recurring_invoice_last_sent = $row['recurring_invoice_last_sent'];
             $recurring_invoice_next_date = $row['recurring_invoice_next_date'];
             $invoice_id = $row['invoice_id'];
+            if($recurring_invoice_status == 1){
+              $status = "Active";
+              $status_badge_color = "success";
+            }else{
+              $status = "Inactive";
+              $status_badge_color = "secondary";
+            }
 
           ?>
 
           <tr>
-            <td><?php echo $recurring_invoice_frequency; ?></td>
+            <td><?php echo ucwords($recurring_invoice_frequency); ?>ly</td>
             <td><?php echo $recurring_invoice_start_date; ?></td>
             <td><?php echo $recurring_invoice_last_sent; ?></td>
             <td><?php echo $recurring_invoice_next_date; ?></td>
-            <td><?php echo $recurring_invoice_status; ?></td>
+            <td>
+               <span class="p-2 badge badge-<?php echo $status_badge_color; ?>">
+                <?php echo $status; ?>
+              </span>
+            </td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -45,7 +56,11 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <a class="dropdown-item" href="recurring_invoice.php?recurring_invoice_id=<?php echo $recurring_invoice_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Disable</a>
+                  <?php if($recurring_invoice_status == 1){ ?>
+                    <a class="dropdown-item" href="post.php?recurring_deactivate=<?php echo $recurring_invoice_id; ?>">Deactivate</a>
+                  <?php }else{ ?>
+                    <a class="dropdown-item" href="post.php?recurring_activate=<?php echo $recurring_invoice_id; ?>">Activate</a>
+                  <?php } ?>
                   <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
                 </div>
               </div>      
