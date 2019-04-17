@@ -36,6 +36,15 @@ if(isset($_GET['recurring_invoice_id'])){
     $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
   }
   $client_website = $row['client_website'];
+  if($recurring_invoice_status == 1){
+    $status = "Active";
+    $status_badge_color = "success";
+  }else{
+    $status = "Inactive";
+    $status_badge_color = "secondary";
+  }
+
+
 
   $sql_invoice_history = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id ORDER BY invoice_history_id ASC");
   
@@ -55,6 +64,7 @@ if(isset($_GET['recurring_invoice_id'])){
     <a href="recurring.php"> Recurring Invoices</a>
   </li>
   <li class="breadcrumb-item active"><?php echo $recurring_invoice_id; ?></li>
+  <span class="ml-3 p-2 badge badge-<?php echo $status_badge_color; ?>"><?php echo $status; ?></span>
 </ol>
 
 <div class="row mb-4 d-print-none">
@@ -66,7 +76,11 @@ if(isset($_GET['recurring_invoice_id'])){
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal">Edit</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceNoteModal">Note</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Disable</a>
+        <?php if($recurring_invoice_status == 1){ ?>
+          <a class="dropdown-item" href="post.php?recurring_deactivate=<?php echo $recurring_invoice_id; ?>">Deactivate</a>
+        <?php }else{ ?>
+          <a class="dropdown-item" href="post.php?recurring_activate=<?php echo $recurring_invoice_id; ?>">Activate</a>
+        <?php } ?>
         <a class="dropdown-item" href="#">Delete</a>
       </div>
     </div>

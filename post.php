@@ -514,7 +514,7 @@ if(isset($_POST['add_recurring_invoice'])){
 
     $invoice_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO recurring_invoices SET recurring_invoice_frequency = '$frequency', recurring_invoice_start_date = '$start_date', recurring_invoice_next_date = '$start_date', invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO recurring_invoices SET recurring_invoice_frequency = '$frequency', recurring_invoice_start_date = '$start_date', recurring_invoice_next_date = '$start_date', recurring_invoice_status = 1, invoice_id = $invoice_id");
 
     $recurring_invoice_id = mysqli_insert_id($mysqli);
 
@@ -524,6 +524,29 @@ if(isset($_POST['add_recurring_invoice'])){
 
 }
 
+if(isset($_GET['recurring_activate'])){
+
+    $recurring_invoice_id = intval($_GET['recurring_activate']);
+
+    mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_status = 1 WHERE recurring_invoice_id = $recurring_invoice_id");
+
+    $_SESSION['alert_message'] = "Recurring Invoice Activated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['recurring_deactivate'])){
+
+    $recurring_invoice_id = intval($_GET['recurring_deactivate']);
+
+    mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_status = 0 WHERE recurring_invoice_id = $recurring_invoice_id");
+
+    $_SESSION['alert_message'] = "Recurring Invoice Deactivated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
 
 if(isset($_GET['mark_invoice_sent'])){
 
