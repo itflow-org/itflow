@@ -503,6 +503,84 @@ if(isset($_POST['edit_invoice'])){
 
 }
 
+if(isset($_POST['add_quote'])){
+
+    $client = intval($_POST['client']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $category = intval($_POST['category']);
+    
+    //Get the last Invoice Number and add 1 for the new invoice number
+    $sql = mysqli_query($mysqli,"SELECT quote_number FROM quotes ORDER BY quote_number DESC LIMIT 1");
+    $row = mysqli_fetch_array($sql);
+    $quote_number = $row['quote_number'] + 1;
+
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = $quote_number, quote_date = '$date', category_id = $category, quote_status = 'Draft', client_id = $client");
+
+    $quote_id = mysqli_insert_id($mysqli);
+
+    //mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Draft', invoice_history_description = 'INVOICE added!', invoice_id = $invoice_id");
+
+    $_SESSION['alert_message'] = "Quote added";
+    
+    header("Location: quote.php?quote_id=$quote_id");
+
+}
+
+if(isset($_POST['add_quote_item'])){
+
+    $quote_id = intval($_POST['quote_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $qty = $_POST['qty'];
+    $price = $_POST['price'];
+    $tax = $_POST['tax'];
+    
+    $subtotal = $price * $qty;
+    $tax = $subtotal * $tax;
+    $total = $subtotal + $tax;
+
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET invoice_item_name = '$name', invoice_item_description = '$description', invoice_item_quantity = $qty, invoice_item_price = '$price', invoice_item_subtotal = '$subtotal', invoice_item_tax = '$tax', invoice_item_total = '$total', quote_id = $quote_id");
+
+    //Update Invoice Balances
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_array($sql);
+
+    $new_quote_amount = $row['quote_amount'] + $total;
+
+    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount' WHERE quote_id = $quote_id");
+
+    $_SESSION['alert_message'] = "Item added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_quote_item'])){
+    $invoice_item_id = intval($_GET['delete_quote_item']);
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_item_id = $invoice_item_id");
+    $row = mysqli_fetch_array($sql);
+    $quote_id = $row['quote_id'];
+    $invoice_item_subtotal = $row['invoice_item_subtotal'];
+    $invoice_item_tax = $row['invoice_item_tax'];
+    $invoice_item_total = $row['invoice_item_total'];
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_array($sql);
+    
+    $new_quote_amount = $row['quote_amount'] - $invoice_item_total;
+
+    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount' WHERE quote_id = $quote_id");
+
+    mysqli_query($mysqli,"DELETE FROM invoice_items WHERE invoice_item_id = $invoice_item_id");
+
+    $_SESSION['alert_message'] = "Item deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_recurring_invoice'])){
 
     $client = intval($_POST['client']);
