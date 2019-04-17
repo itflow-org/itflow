@@ -81,6 +81,15 @@
     </a>
   </li>
   <?php } ?>
+  <?php if($num_recurring > 0){ ?>
+  <li class="nav-item">
+    <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=recurring">
+      <i class="fa fa-copy"></i><br>
+      Recurring<br>
+      <span class="badge badge-pill badge-dark"><?php echo $num_recurring; ?></span>
+    </a>
+  </li>
+  <?php } ?>
   <?php if($num_quotes > 0){ ?>
   <li class="nav-item">
     <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=quotes">

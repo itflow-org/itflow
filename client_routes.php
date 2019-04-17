@@ -28,6 +28,9 @@ if(isset($_GET['tab'])){
   elseif($_GET['tab'] == "invoices"){
     include("client_invoices.php");
   }
+  elseif($_GET['tab'] == "recurring"){
+    include("client_recurring.php");
+  }
   elseif($_GET['tab'] == "payments"){
     include("client_payments.php");
   }

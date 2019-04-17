@@ -110,6 +110,7 @@ if(isset($_GET['client_id'])){
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientDomainModal">New Domain</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientApplicationModal">New Application</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientInvoiceModal">New Invoice</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addRecurringInvoiceModal">New Recurring</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteModal">New Quote</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAttachmentModal">New Attachment</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientNoteModal">New Note</a>
