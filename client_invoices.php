@@ -1,6 +1,6 @@
 <?php 
  
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id ORDER BY invoice_number DESC");
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id AND invoice_number > 0 ORDER BY invoice_number DESC");
 
 ?>
 
