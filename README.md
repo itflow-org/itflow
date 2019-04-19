@@ -1,29 +1,46 @@
 ## CRM
-This is a Customer Relationship Management system for small Managed IT Companies. This was developed so we didn't have to worry about managing 
-three different systems. Before we used to use a wiki for internal and client documentation. Accounting software and invoicing software. This is an all in
-one solution.
-This is still in early development stages and by no means ready for the primetime. Please report bugs, and send some pulls, if you find this useful.
+CRM, Accounting and Invoicing System for small managed IT companies
 
 ### Features
 * Manage Clients
   * Contacts
   * Locations
+  * Vendors
   * Assets
   * Licenses
   * Logins
+  * Domains
+  * Apps
+  * Networks
   * Files
   * Technical Notes
 * Invoicing
+  * Email Past Due Reminders
+  * Auto Email Receipts upon payments
+  * Recurring Invoices
 * Quotes / Estimates
+  * Automated customer approval
+  * Turn Quotes into invoices with a click
+* Vendors
 * Accounting
+  * Track Business Expenses
   * P&L Reports
-  * Income Expense Summary
+  * Income/Expense Summary
   * Mileage Tracking
+  * Account Transfers
+  * Bank Accounts
+* Alerting
+  * Low Account Balances
+  * Domains to expire
+  * Password reset reminder for customers
+  * Past Due Invoices
+  * Software License Expiring
+  * Many more...
 
 ### Installation Instructions
 
-* create a mysql database dump db.sql into it
-* set db user and password in config.php
+* Create a mysql database dump db.sql into it
+* Set db user and password in config.php
 * Point your browser and away you go
 
 #### Requirements
@@ -32,9 +49,12 @@ This is still in early development stages and by no means ready for the primetim
 * PHP7+
 * Mysql or MariaDB
 
-
-
 ### Technologies Used
 * PHP/MySQL
 * SB Admin Bootstrap CSS Framework
+* fontawesome
+* datatables
+* chart.js
 * Jquery
+* PHPmailer
+* mPDF
