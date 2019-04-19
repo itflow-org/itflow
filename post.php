@@ -347,6 +347,37 @@ if(isset($_GET['delete_category'])){
   
 }
 
+if(isset($_GET['alert_ack'])){
+
+    $alert_id = intval($_GET['alert_ack']);
+
+    mysqli_query($mysqli,"UPDATE alerts SET alert_ack_date = CURDATE() WHERE alert_id = $alert_id");
+
+    $_SESSION['alert_message'] = "Alert Acknowledged";
+    
+    header("Location: alerts.php");
+
+}
+
+if(isset($_GET['ack_all_alerts'])){
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM alerts ORDER BY alert_id DESC");
+    
+    while($row = mysqli_fetch_array($sql)){
+        $alert_id = $row['alert_id'];
+        $alert_ack_date = $row['alert_ack_date'];
+
+        if($alert_ack_date = 0 ){
+            mysqli_query($mysqli,"UPDATE alerts SET alert_ack_date = CURDATE() WHERE alert_id = $alert_id");
+        }
+    }
+    
+    $_SESSION['alert_message'] = "Alerts Acknowledged";
+    
+    header("Location: alerts.php");
+
+}
+
 if(isset($_POST['add_expense'])){
 
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));

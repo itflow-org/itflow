@@ -15,8 +15,7 @@
             <th>Date</th>
             <th>Type</th>
             <th>Alert</th>
-            <th>Ack</th>
-            <th class="text-center">Actions</th>
+            <th class="text-center">Ack</th>
           </tr>
         </thead>
         <tbody>
@@ -27,23 +26,19 @@
             $alert_type = $row['alert_type'];
             $alert_message = $row['alert_message'];
             $alert_date = $row['alert_date'];
-            $alert_read = $row['alert_read'];
+            $alert_ack_date = $row['alert_ack_date'];
 
           ?>
-          <tr>
+          <tr class="row-danger">
             <td><?php echo $alert_date; ?></td>
             <td><?php echo $alert_type; ?></td>
             <td><?php echo $alert_message; ?></td>
-            <td><?php echo $alert_read; ?></td>
-            <td>
-              <div class="dropdown dropleft text-center">
-                <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="fas fa-ellipsis-h"></i>
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="post.php?delete_alert=<?php echo $client_id; ?>">Delete</a>
-                </div>
-              </div>      
+            <td class="text-center">
+              <?php if($alert_ack_date == 0){ ?>
+                <a class="btn btn-success btn-sm" href="post.php?alert_ack=<?php echo $alert_id; ?>"><i class="fa fa-check"></i></a>
+              <?php }else{ ?>
+                <?php echo $alert_ack_date; ?>
+              <?php } ?>
             </td>
           </tr>
 

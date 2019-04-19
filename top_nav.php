@@ -26,10 +26,10 @@
         <span class="badge badge-danger">9+</span>
       </a>
       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="alertsDropdown">
-        <a class="dropdown-item" href="#">Action</a>
-        <a class="dropdown-item" href="#">Another action</a>
+        <a class="dropdown-item" href="alerts.php">New Alerts</a>
+        <a class="dropdown-item" href="alerts.php">Acknowledged</a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="#">Something else here</a>
+        <a class="dropdown-item" href="post.php?ack_all_alerts">Acknowledge All</a>
       </div>
     </li>
     <li class="nav-item dropdown no-arrow">
