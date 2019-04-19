@@ -42,9 +42,9 @@ CREATE TABLE `alerts` (
   `alert_type` varchar(200) NOT NULL,
   `alert_message` varchar(200) NOT NULL,
   `alert_date` date NOT NULL,
-  `alert_read` int(1) NOT NULL,
+  `alert_ack_date` date NOT NULL,
   PRIMARY KEY (`alert_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -120,7 +120,7 @@ CREATE TABLE `client_contacts` (
   `location_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
   PRIMARY KEY (`client_contact_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -138,7 +138,7 @@ CREATE TABLE `client_domains` (
   `client_domain_server` varchar(200) NOT NULL,
   `client_id` int(11) NOT NULL,
   PRIMARY KEY (`client_domain_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -158,7 +158,7 @@ CREATE TABLE `client_locations` (
   `client_location_phone` varchar(200) NOT NULL,
   `client_id` int(11) NOT NULL,
   PRIMARY KEY (`client_location_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -256,7 +256,7 @@ CREATE TABLE `clients` (
   `client_created_at` int(11) NOT NULL,
   `client_updated_at` int(11) NOT NULL,
   PRIMARY KEY (`client_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -293,7 +293,7 @@ CREATE TABLE `invoice_history` (
   `invoice_history_description` varchar(200) NOT NULL,
   `invoice_id` int(11) NOT NULL,
   PRIMARY KEY (`invoice_history_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -313,8 +313,9 @@ CREATE TABLE `invoice_items` (
   `invoice_item_tax` decimal(15,2) NOT NULL,
   `invoice_item_total` decimal(15,2) NOT NULL,
   `invoice_id` int(11) NOT NULL,
+  `quote_id` int(11) NOT NULL,
   PRIMARY KEY (`invoice_item_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -335,7 +336,7 @@ CREATE TABLE `invoices` (
   `category_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
   PRIMARY KEY (`invoice_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -375,7 +376,7 @@ CREATE TABLE `payments` (
   `account_id` int(11) NOT NULL,
   `invoice_id` int(11) NOT NULL,
   PRIMARY KEY (`payment_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -395,6 +396,27 @@ CREATE TABLE `products` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `quotes`
+--
+
+DROP TABLE IF EXISTS `quotes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `quotes` (
+  `quote_id` int(11) NOT NULL AUTO_INCREMENT,
+  `quote_number` varchar(200) NOT NULL,
+  `quote_status` varchar(200) NOT NULL,
+  `quote_date` date NOT NULL,
+  `quote_amount` decimal(15,2) NOT NULL,
+  `quote_note` text NOT NULL,
+  `quote_url_key` varchar(200) NOT NULL,
+  `category_id` int(11) NOT NULL,
+  `client_id` int(11) NOT NULL,
+  PRIMARY KEY (`quote_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `recurring_invoices`
 --
 
@@ -407,10 +429,10 @@ CREATE TABLE `recurring_invoices` (
   `recurring_invoice_start_date` date NOT NULL,
   `recurring_invoice_last_sent` date NOT NULL,
   `recurring_invoice_next_date` date NOT NULL,
-  `recurring_invoice_active` int(1) NOT NULL,
+  `recurring_invoice_status` int(1) NOT NULL,
   `invoice_id` int(11) NOT NULL,
   PRIMARY KEY (`recurring_invoice_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -476,4 +498,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-16 19:58:20
+-- Dump completed on 2019-04-19 16:03:26
