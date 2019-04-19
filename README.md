@@ -29,7 +29,7 @@ CRM, Accounting and Invoicing System for small managed IT companies
   * Mileage Tracking
   * Account Transfers
   * Bank Accounts
-* Alerting
+* Alerting/Notifications
   * Low Account Balances
   * Domains to expire
   * Password reset reminder for customers
@@ -58,3 +58,4 @@ CRM, Accounting and Invoicing System for small managed IT companies
 * Jquery
 * PHPmailer
 * mPDF
+* SimpleMDE
