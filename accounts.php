@@ -26,10 +26,6 @@
             $account_name = $row['account_name'];
             $opening_balance = $row['opening_balance'];
 
-            $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_id = $account_id");
-            $row = mysqli_fetch_array($sql_accounts);
-            $opening_balance = $row['opening_balance'];
-
             $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
             $row = mysqli_fetch_array($sql_payments);
             $total_payments = $row['total_payments'];

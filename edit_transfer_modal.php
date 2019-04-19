@@ -46,8 +46,20 @@
                   while($row = mysqli_fetch_array($sql2)){
                     $account_id2 = $row['account_id'];
                     $account_name = $row['account_name'];
+                    $opening_balance = $row['opening_balance'];
+
+                    $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id2");
+                    $row = mysqli_fetch_array($sql_payments);
+                    $total_payments = $row['total_payments'];
+                    
+                    $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id2");
+                    $row = mysqli_fetch_array($sql_expenses);
+                    $total_expenses = $row['total_expenses'];
+
+                    $balance = $opening_balance + $total_payments - $total_expenses;
+                  
                   ?>
-                  <option <?php if($transfer_account_from == $account_id2){ ?> selected <?php } ?> value="<?php echo $account_id2; ?>"><?php echo $account_name; ?></option>
+                  <option <?php if($transfer_account_from == $account_id2){ ?> selected <?php } ?> value="<?php echo $account_id2; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
                   <?php
                   }
                   
@@ -68,8 +80,20 @@
                   while($row = mysqli_fetch_array($sql2)){
                     $account_id2 = $row['account_id'];
                     $account_name = $row['account_name'];
+                    $opening_balance = $row['opening_balance'];
+
+                    $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id2");
+                    $row = mysqli_fetch_array($sql_payments);
+                    $total_payments = $row['total_payments'];
+                    
+                    $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id2");
+                    $row = mysqli_fetch_array($sql_expenses);
+                    $total_expenses = $row['total_expenses'];
+
+                    $balance = $opening_balance + $total_payments - $total_expenses;
+
                   ?>
-                  <option <?php if($transfer_account_to == $account_id2){ ?> selected <?php } ?> value="<?php echo $account_id2; ?>"><?php echo $account_name; ?></option>
+                  <option <?php if($transfer_account_to == $account_id2){ ?> selected <?php } ?> value="<?php echo $account_id2; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
                   <?php
                   }
                   
