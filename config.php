@@ -44,6 +44,8 @@
 	$_SESSION['alert_message'] = '';
 	$_SESSION['alert_type'] = "warning";
 
+	$config_account_balance_threshold = 200;
+
 	
 
 	$net_terms_array = array(
