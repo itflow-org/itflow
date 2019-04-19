@@ -26,4 +26,9 @@
 		$session_map_source = "google";
 	}
 
+	//Get unAcked Alert Count for the badge on the top nav
+
+	$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('alert_id') AS num FROM alerts WHERE alert_ack_date = 0"));
+  	$num_alerts = $row['num'];
+
 ?>
