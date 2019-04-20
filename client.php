@@ -38,24 +38,37 @@ if(isset($_GET['client_id'])){
 
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_contact_id') AS num FROM client_contacts WHERE client_id = $client_id"));
   $num_contacts = $row['num'];
+  
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_location_id') AS num FROM client_locations WHERE client_id = $client_id"));
   $num_locations = $row['num'];
+  
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_asset_id') AS num FROM client_assets WHERE client_id = $client_id"));
   $num_assets = $row['num'];
+  
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_vendor_id') AS num FROM client_vendors WHERE client_id = $client_id"));
   $num_vendors = $row['num'];
+  
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_login_id') AS num FROM client_logins WHERE client_id = $client_id"));
   $num_logins = $row['num'];
+  
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_network_id') AS num FROM client_networks WHERE client_id = $client_id"));
   $num_networks = $row['num'];
+  
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_domain_id') AS num FROM client_domains WHERE client_id = $client_id"));
   $num_domains = $row['num'];
+  
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_application_id') AS num FROM client_applications WHERE client_id = $client_id"));
   $num_applications = $row['num'];
+  
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE client_id = $client_id AND invoice_number > 0"));
   $num_invoices = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE client_id = $client_id AND invoice_number = 0"));
+  
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('file_id') AS num FROM files WHERE client_id = $client_id"));
+  $num_files = $row['num'];
+  
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_invoice_id') AS num FROM recurring_invoices WHERE client_id = $client_id"));
   $num_recurring = $row['num'];
+  
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_note_id') AS num FROM client_notes WHERE client_id = $client_id"));
   $num_notes = $row['num'];
 
@@ -112,7 +125,7 @@ if(isset($_GET['client_id'])){
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientInvoiceModal">New Invoice</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addRecurringInvoiceModal">New Recurring</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteModal">New Quote</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAttachmentModal">New Attachment</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientFileModal">Upload File</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientNoteModal">New Note</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="client_print.php?client_id=<?php echo $client_id; ?>">Print</a>
@@ -153,7 +166,7 @@ if(isset($_GET['client_id'])){
 <?php include("add_recurring_invoice_modal.php"); ?>
 <?php include("add_invoice_payment_modal.php"); ?>
 <?php include("add_quote_modal.php"); ?>
-<?php include("add_client_attachment_modal.php"); ?>
+<?php include("add_client_file_modal.php"); ?>
 
 
 <?php } ?>

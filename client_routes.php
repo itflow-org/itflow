@@ -37,8 +37,8 @@ if(isset($_GET['tab'])){
   elseif($_GET['tab'] == "quotes"){
     include("client_quotes.php");
   }
-  elseif($_GET['tab'] == "attachments"){
-    include("client_attachements.php");
+  elseif($_GET['tab'] == "files"){
+    include("client_files.php");
   }
   elseif($_GET['tab'] == "notes"){
     include("client_notes.php");

@@ -99,12 +99,12 @@
     </a>
   </li>
   <?php } ?>
-  <?php if($num_attachments > 0){ ?>
+  <?php if($num_files > 0){ ?>
   <li class="nav-item">
-    <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=attachments">
+    <a class="nav-link" href="?client_id=<?php echo $client_id; ?>&tab=files">
       <i class="fa fa-paperclip"></i><br>
-      Attachments<br>
-      <span class="badge badge-pill badge-dark"><?php echo $num_attachments; ?></span>
+      Files<br>
+      <span class="badge badge-pill badge-dark"><?php echo $num_files; ?></span>
     </a>
   </li>
   <?php } ?>
