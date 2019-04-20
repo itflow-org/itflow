@@ -46,3 +46,13 @@ $(function() {
     var filename = url.substr(url.lastIndexOf('/') + 1);
     $('.navbar-nav a[href$="' + filename + '"]').parent().addClass("active");
 });
+
+new EasyMDE({
+  autoDownloadFontAwesome: false,
+  element: document.getElementById('addClientNote')
+});
+
+new EasyMDE({
+    autoDownloadFontAwesome: false,
+    element: document.getElementById('editClientNote')
+});

@@ -1,5 +1,5 @@
 <div class="modal" id="editClientNoteModal<?php echo $client_note_id; ?>" tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title"><i class="fa fa-edit"></i> Edit Note</h5>
@@ -12,16 +12,11 @@
         <div class="modal-body">  
           <div class="form-group">
             <label>Subject</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-edit"></i></span>
-              </div>
-              <input type="text" class="form-control" name="subject" value="<?php echo $client_note_subject; ?>" required>
-            </div>
+            <input type="text" class="form-control" name="subject" value="<?php echo $client_note_subject; ?>" required>
           </div>
           <div class="form-group">
             <label>Note</label>
-            <textarea rows="8" class="form-control" name="note" required><?php echo $client_note_body; ?></textarea>
+            <textarea rows="8" class="form-control" name="note" id="editClientNote" required><?php echo $client_note_body; ?></textarea>
           </div>
         </div>
         <div class="modal-footer">
