@@ -58,4 +58,5 @@ CRM, Accounting and Invoicing System for small managed IT companies
 * Jquery
 * PHPmailer
 * mPDF
-* SimpleMDE
+* EasyMDE forked from SimpleMDE
+* parsedown
