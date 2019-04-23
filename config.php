@@ -13,37 +13,34 @@
 	$config_date_format = "Y-m-d";
 	$config_time_format = "h:ia";
 	$config_no_records = "There is nothing here!";
-	$config_default_expenes_account = "";
-	$config_default_invoice_account = "";
+	$config_default_expense_account = "";
+	$config_default_payment_account = "";
 	$config_default_net_terms = "";
 
-	$config_start_page = "clients.php";
+	$sql = mysqli_query($mysqli,"SELECT * FROM settings");
+	$row = mysqli_fetch_array($sql);
 
-	$config_company_name = "PittPC";
-	$config_company_address = "123 PittPC Street";
-	$config_company_city = "Pittsburgh";
-	$config_company_state = "PA";
-	$config_company_zip = "15205";
-	$config_company_phone = "412-500-9434";
-	$config_company_site = "pittpc.com";
-
-	$config_invoice_logo = "/uploads/invoice_logo.png";
-	$config_invoice_footer = "Please make checks payable to PittPC<br>Visit us at pittpc.com";
-
-	//Mail Settings (Host must require TLS Support)
-	$config_smtp_host = "mail.pittpc.com";
-	$config_smtp_username = "";
-	$config_smtp_password = "";
-	$config_smtp_port = 587;
-	$config_mail_from_email = "";
-	$config_mail_from_name = "Automated Billing Department";
+	$config_start_page = $row['config_start_page'];
+	$config_company_name = $row['config_company_name'];
+	$config_company_address = $row['config_company_address'];
+	$config_company_city = $row['config_company_city'];
+	$config_company_state = $row['config_company_state'];
+	$config_company_zip = $row['config_company_zip'];
+	$config_company_phone = $row['config_company_phone'];
+	$config_company_site = $row['config_company_site'];
+	$config_next_invoice_number = $row['config_next_invoice_number'];
+	$config_invoice_logo = $row['config_invoice_logo'];
+	$config_invoice_footer = $row['config_invoice_footer'];
+	$config_smtp_host = $row['config_smtp_host'];
+	$config_smtp_username = $row['config_smtp_username'];
+	$config_smtp_password = $row['config_smtp_password'];
+	$config_smtp_port = $row['config_smtp_port'];
+	$config_mail_from_email = $row['config_mail_from_email'];
+	$config_mail_from_name = $row['config_mail_from_name'];
+	$config_account_balance_threshold = $row['config_account_balance_threshold'];
 
 	$_SESSION['alert_message'] = '';
 	$_SESSION['alert_type'] = "warning";
-
-	$config_account_balance_threshold = 200;
-
-	
 
 	$net_terms_array = array(
 	    '0'=>'On Reciept',

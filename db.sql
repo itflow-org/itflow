@@ -44,7 +44,7 @@ CREATE TABLE `alerts` (
   `alert_date` date NOT NULL,
   `alert_ack_date` date NOT NULL,
   PRIMARY KEY (`alert_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -120,7 +120,7 @@ CREATE TABLE `client_contacts` (
   `location_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
   PRIMARY KEY (`client_contact_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -214,7 +214,7 @@ CREATE TABLE `client_notes` (
   `client_note_body` text NOT NULL,
   `client_id` int(11) NOT NULL,
   PRIMARY KEY (`client_note_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -277,6 +277,23 @@ CREATE TABLE `expenses` (
   `account_id` int(11) NOT NULL,
   PRIMARY KEY (`expense_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `files`
+--
+
+DROP TABLE IF EXISTS `files`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `files` (
+  `file_id` int(11) NOT NULL AUTO_INCREMENT,
+  `file_type` varchar(200) NOT NULL,
+  `reference_file_name` varchar(200) NOT NULL,
+  `file_name` varchar(200) NOT NULL,
+  `client_id` int(11) NOT NULL,
+  PRIMARY KEY (`file_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -436,6 +453,38 @@ CREATE TABLE `recurring_invoices` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `settings`
+--
+
+DROP TABLE IF EXISTS `settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `settings` (
+  `config_default_expense_account` varchar(200) NOT NULL,
+  `config_default_payment_account` varchar(200) NOT NULL,
+  `config_default_net_terms` varchar(200) NOT NULL,
+  `config_start_page` varchar(200) NOT NULL,
+  `config_company_name` varchar(200) NOT NULL,
+  `config_company_address` varchar(200) NOT NULL,
+  `config_company_city` varchar(200) NOT NULL,
+  `config_company_state` varchar(200) NOT NULL,
+  `config_company_zip` varchar(200) NOT NULL,
+  `config_company_phone` varchar(200) NOT NULL,
+  `config_company_site` varchar(200) NOT NULL,
+  `config_smtp_host` varchar(200) NOT NULL,
+  `config_smtp_username` varchar(200) NOT NULL,
+  `config_smtp_password` varchar(200) NOT NULL,
+  `config_smtp_port` varchar(200) NOT NULL,
+  `config_mail_from_email` varchar(200) NOT NULL,
+  `config_mail_from_name` varchar(200) NOT NULL,
+  `config_account_balance_threshold` varchar(200) NOT NULL,
+  `config_invoice_logo` varchar(200) NOT NULL,
+  `config_invoice_footer` text NOT NULL,
+  `config_next_invoice_number` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `transfers`
 --
 
@@ -498,4 +547,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-19 16:03:26
+-- Dump completed on 2019-04-23 15:11:59

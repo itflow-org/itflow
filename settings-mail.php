@@ -1,7 +1,5 @@
 <?php include("header.php"); ?>
 
-<?php $sql = mysqli_query($mysqli,"SELECT * FROM accounts ORDER BY account_id DESC"); ?>
-
 <?php include("settings-nav.php"); ?>
 
 <div class="card mb-3">
@@ -16,7 +14,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-server"></i></span>
           </div>
-          <input type="text" class="form-control" name="smtp_host" placeholder="Mail Server Address" required autofocus>
+          <input type="text" class="form-control" name="config_smtp_host" placeholder="Mail Server Address" value="<?php echo $config_smtp_host; ?>" required autofocus>
         </div>
       </div>
       
@@ -26,7 +24,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-user"></i></span>
           </div>
-          <input type="text" class="form-control" name="username" placeholder="Username" required>
+          <input type="text" class="form-control" name="config_smtp_username" placeholder="Username" value="<?php echo $config_smtp_username; ?>" required>
         </div>
       </div>
 
@@ -36,12 +34,12 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-lock"></i></span>
           </div>
-          <input type="password" class="form-control" name="password" placeholder="Password" required>
+          <input type="password" class="form-control" name="config_smtp_password" placeholder="Password" value="<?php echo $config_smtp_password; ?>" required>
         </div>
       </div>
 
       <hr>
-      <button type="submit" name="add_client_contact" class="btn btn-primary">Save</button>
+      <button type="submit" name="edit_mail_settings" class="btn btn-primary">Save</button>
         
     </form>
   </div>

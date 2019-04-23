@@ -1,7 +1,5 @@
 <?php include("header.php"); ?>
 
-<?php $sql = mysqli_query($mysqli,"SELECT * FROM accounts ORDER BY account_id DESC"); ?>
-
 <?php include("settings-nav.php"); ?>
 
 <div class="card mb-3">
@@ -17,7 +15,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-barcode"></i></span>
           </div>
-          <input type="text" class="form-control" name="next_number" placeholder="Next Invoice Number" required autofocus>
+          <input type="text" class="form-control" name="config_next_invoice_number" placeholder="Next Invoice Number" value="<?php echo $config_next_invoice_number; ?>" required autofocus>
         </div>
       </div>
       
@@ -27,7 +25,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-envelope"></i></span>
           </div>
-          <input type="email" class="form-control" name="email" placeholder="Email Address" required>
+          <input type="email" class="form-control" name="config_mail_from_email" placeholder="Email Address" value="<?php echo $config_mail_from_email; ?>" required>
         </div>
       </div>
 
@@ -37,27 +35,24 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-user"></i></span>
           </div>
-          <input type="text" class="form-control" name="name_from" placeholder="Name" required>
+          <input type="text" class="form-control" name="config_mail_from_name" placeholder="Name" value="<?php echo $config_mail_from_name; ?>" required>
         </div>
       </div>
 
       <div class="form-group">
-        <label>Send Overdue Reminders</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-user"></i></span>
-          </div>
-          <input type="text" class="form-control" name="name_from" placeholder="Name" required>
-        </div>
+        <label>Invoice Footer</label>
+        <textarea class="form-control" rows="4" name="config_invoice_footer"><?php echo $config_invoice_footer; ?></textarea>
       </div>
       
+      <img class="img-fluid" src="uploads/invoice_logo.png">
+
       <div class="form-group mb-5">
         <label>Logo</label>
         <input type="file" class="form-control-file" name="logo">
       </div>
       
       <hr>
-      <button type="submit" name="edit_settings_invoice" class="btn btn-primary">Save</button>        
+      <button type="submit" name="edit_invoice_settings" class="btn btn-primary">Save</button>        
     
     </form>
   </div>

@@ -13,9 +13,66 @@ require_once $mpdf_path . '/vendor/autoload.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-
-
 $todays_date = date('Y-m-d');
+
+if(isset($_POST['edit_general_settings'])){
+
+    $config_start_page = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_start_page']));
+    $config_account_balance_threshold = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_account_balance_threshold']));
+
+    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold'");
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_company_settings'])){
+
+    $config_company_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_name']));
+    $config_company_address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_address']));
+    $config_company_city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_city']));
+    $config_company_state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_state']));
+    $config_company_zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_zip']));
+    $config_company_phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_phone']));
+    $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
+    if($_FILES['file']['tmp_name']!='') {
+        $path = "uploads/";
+        $path = $path . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);
+    }
+
+
+    mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site' config_invoice_logo = '$path'");
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_mail_settings'])){
+
+    $config_smtp_host = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_host']));
+    $config_smtp_username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_username']));
+    $config_smtp_password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_password']));
+
+    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password'");
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_invoice_settings'])){
+
+    $config_next_invoice_number = intval($_POST['config_next_invoice_number']);
+    $config_mail_from_email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_email']));
+    $config_mail_from_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name']));
+    $config_invoice_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer']));
+
+    mysqli_query($mysqli,"UPDATE settings SET config_next_invoice_number = '$config_next_invoice_number', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer'");
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
 
 if(isset($_POST['add_user'])){
 

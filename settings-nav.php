@@ -1,6 +1,14 @@
 <ul class="nav nav-pills nav-fill mb-3">
+  
   <li class="nav-item">
     <a class="nav-link active" href="settings-general.php">
+      <i class="fa fa-2x fa-cog"></i><br>
+      Company
+    </a> 
+  </li>
+
+  <li class="nav-item">
+    <a class="nav-link" href="settings-company.php">
       <i class="fa fa-2x fa-building"></i><br>
       Company
     </a> 
