@@ -16,9 +16,6 @@
 	$config_default_expenes_account = "";
 	$config_default_invoice_account = "";
 	$config_default_net_terms = "";
-	$config_default_starting_location = "";
-
-
 
 	$config_start_page = "clients.php";
 

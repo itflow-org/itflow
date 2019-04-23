@@ -1,0 +1,18 @@
+<?php include("header.php"); ?>
+
+<?php $sql = mysqli_query($mysqli,"SELECT * FROM accounts ORDER BY account_id DESC"); ?>
+
+<?php include("settings-nav.php"); ?>
+
+<div class="card mb-3">
+  <div class="card-header">
+    <h6 class="float-left mt-1"><i class="fa fa-database"></i> Backup</h6>
+  </div>
+  <div class="card-body p-5">
+    <center>
+      <button class="btn btn-primary btn-lg"><i class="fa fa-download"></i> Download Database</button>
+    </center>
+  </div>
+</div>
+
+<?php include("footer.php");
