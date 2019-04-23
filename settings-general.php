@@ -10,12 +10,17 @@
     <form class="p-3" action="post.php" method="post" autocomplete="off">
       <div class="form-group">
         <label>Starting Page</label>
-        <select class="form-control" name="config_start_page" required>
-          <option value="dashboard.php">Dashboard</option>
-          <option value="clients.php">Clients</option>
-          <option value="invoices.php">Invoices</option>
-          <option value="expenses.php">Expenses</option>
-        </select>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-plane-arrival"></i></span>
+          </div>
+          <select class="form-control" name="config_start_page" required>
+            <option value="dashboard.php">Dashboard</option>
+            <option value="clients.php">Clients</option>
+            <option value="invoices.php">Invoices</option>
+            <option value="expenses.php">Expenses</option>
+          </select>
+        </div>
       </div>
 
       <div class="form-group mb-5">
