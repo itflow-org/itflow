@@ -10,7 +10,7 @@
   </div>
   <div class="card-body p-5">
     <center>
-      <button class="btn btn-primary btn-lg"><i class="fa fa-download"></i> Download Database</button>
+      <a class="btn btn-primary btn-lg" href="post.php?download_database"><i class="fa fa-download"></i> Download Database</a>
     </center>
   </div>
 </div>

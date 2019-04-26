@@ -110,7 +110,7 @@ if(isset($_GET['client_id'])){
       </div>
       <div class="col-1">
         <div class="dropdown dropleft text-center">
-          <button class="btn btn-primary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button class="btn btn-secondary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="fas fa-ellipsis-h"></i>
           </button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
