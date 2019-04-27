@@ -114,6 +114,10 @@
             <textarea class="form-control" rows="4" name="description" required><?php echo $expense_description; ?></textarea>
           </div>
           <div class="form-group">
+            <label>Reference</label>
+            <input type="text" class="form-control" name="reference" value="<?php echo $expense_reference; ?>">
+          </div>
+          <div class="form-group">
             <label>Receipt</label>
             <input type="file" class="form-control-file" name="file">
           </div>

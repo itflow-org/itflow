@@ -578,6 +578,7 @@ if(isset($_POST['add_expense'])){
     $vendor = intval($_POST['vendor']);
     $category = intval($_POST['category']);
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
 
     if($_FILES['file']['tmp_name']!='') {
         $path = "uploads/expenses/$vendor/";
@@ -586,7 +587,7 @@ if(isset($_POST['add_expense'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
     }
 
-    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description', expense_receipt = '$path'");
+    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description', expense_reference = '$reference', expense_receipt = '$path'");
 
     $_SESSION['alert_message'] = "Expense added";
     
@@ -603,8 +604,9 @@ if(isset($_POST['edit_expense'])){
     $vendor = intval($_POST['vendor']);
     $category = intval($_POST['category']);
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
 
-    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description' WHERE expense_id = $expense_id");
+    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description', expense_reference = '$reference' WHERE expense_id = $expense_id");
 
     $_SESSION['alert_message'] = "Expense modified";
     
@@ -937,6 +939,7 @@ if(isset($_POST['add_payment'])){
     $amount = $_POST['amount'];
     $account = intval($_POST['account']);
     $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
+    $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
     $email_receipt = intval($_POST['email_receipt']);
 
     //Check to see if amount entered is greater than the balance of the invoice
@@ -944,7 +947,7 @@ if(isset($_POST['add_payment'])){
         $_SESSION['alert_message'] = "Payment is more than the balance";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }else{
-        mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = '$amount', account_id = $account, payment_method = '$payment_method', invoice_id = $invoice_id");
+        mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = '$amount', account_id = $account, payment_method = '$payment_method', payment_reference = '$reference', invoice_id = $invoice_id");
 
         //Add up all the payments for the invoice and get the total amount paid to the invoice
         $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payments_amount FROM payments WHERE invoice_id = $invoice_id");

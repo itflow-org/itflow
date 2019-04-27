@@ -90,6 +90,10 @@
               </div>
             </div>
           </div>
+          <div class="form-group">
+            <label>Reference</label>
+            <input type="text" class="form-control" name="reference">
+          </div>
           <div class="custom-control custom-checkbox">
             <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_receipt" value="1" >
             <label class="custom-control-label" for="customControlAutosizing">Email Reciept</label>

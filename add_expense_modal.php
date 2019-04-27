@@ -116,6 +116,10 @@
             <textarea class="form-control" rows="4" name="description" required></textarea>
           </div>
           <div class="form-group">
+            <label>Reference</label>
+            <input type="text" class="form-control" name="reference">
+          </div>
+          <div class="form-group">
             <label>Receipt</label>
             <input type="file" class="form-control-file" name="file">
           </div>

@@ -37,6 +37,7 @@
             $expense_amount = $row['expense_amount'];
             $expense_description = $row['expense_description'];
             $expense_receipt = $row['expense_receipt'];
+            $expense_reference = $row['expense_reference'];
             $vendor_id = $row['vendor_id'];
             $vendor_name = $row['vendor_name'];
             $category_id = $row['category_id'];
