@@ -272,6 +272,48 @@ if(isset($_GET['delete_client'])){
   
 }
 
+if(isset($_POST['add_calendar_event'])){
+
+    $calendar_id = intval($_POST['calendar']);
+    $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
+    $start = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start']));
+    $end = strip_tags(mysqli_real_escape_string($mysqli,$_POST['end']));
+
+    mysqli_query($mysqli,"INSERT INTO calendar_events SET calendar_event_title = '$title', calendar_event_start = '$start', calendar_event_end = '$end', calendar_id = $calendar_id");
+
+    $_SESSION['alert_message'] = "Event added to the calendar";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_calendar_event'])){
+
+    $calendar_event_id = intval($_POST['calendar_event_id']);
+    $calendar_id = intval($_POST['calendar']);
+    $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
+    $start = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start']));
+    $end = strip_tags(mysqli_real_escape_string($mysqli,$_POST['end']));
+
+    mysqli_query($mysqli,"UPDATE calendar_events SET calendar_event_title = '$title', calendar_event_start = '$start', calendar_event_end = '$end', calendar_id = $calendar_id WHERE calendar_event_id = $calendar_event_id");
+
+    $_SESSION['alert_message'] = "Event modified on the calendar";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_calendar_event'])){
+    $calendar_event_id = intval($_GET['delete_calendar_event']);
+
+    mysqli_query($mysqli,"DELETE FROM calendar_events WHERE calendar_event_id = $calendar_event_id");
+
+    $_SESSION['alert_message'] = "Event deleted on the calendar";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_vendor'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
