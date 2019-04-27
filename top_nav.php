@@ -9,7 +9,7 @@
   <!-- Navbar Search -->
   <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0" action="global_search.php">
     <div class="input-group">
-      <input type="text" class="form-control" placeholder="Search for..." name="query" value="<?php if(isset($_GET['query'])){ echo $_GET['query']; } ?>"aria-label="Search" aria-describedby="basic-addon2">
+      <input type="text" class="form-control" placeholder="Search for..." name="query" value="<?php if(isset($_GET['query'])){ echo $_GET['query']; } ?>">
       <div class="input-group-append">
         <button class="btn btn-dark" type="button">
           <i class="fas fa-search"></i>
@@ -36,16 +36,14 @@
       <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <img height="32" width="32" src="<?php echo "$session_avatar"; ?>" class="img-fluid rounded-circle"> <strong><?php echo "$session_name"; ?></strong>
       </a>
-      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-        <a class="dropdown-item" data-toggle="modal" data-target="#changeAvatarModal" href="#">
-          <center>
-            <img height="128" width="128" src="<?php echo "$session_avatar"; ?>" class="img-fluid rounded-circle">
-          </center>
-        </a>
+      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">   
+        <center>
+          <img height="128" width="128" src="<?php echo "$session_avatar"; ?>" class="img-fluid rounded-circle">
+        </center>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="#">Settings</a>
+        <a class="dropdown-item" href="#"><i class="fa fa-cog"></i> Settings</a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="logout.php">Logout</a>
+        <a class="dropdown-item" href="logout.php"><i class="fa fa-sign-out-alt"></i> Logout</a>
       </div>
     </li>
   </ul>

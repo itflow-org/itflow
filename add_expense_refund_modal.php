@@ -36,9 +36,9 @@
             <label>Description</label>
             <textarea class="form-control" rows="4" name="description" required>Refund on Expense ID: <?php echo $expense_id; ?> - <?php echo $expense_description; ?></textarea>
           </div>
-          <div class="custom-file">
-            <input type="file" class="custom-file-input" name="attachment">
-            <label class="custom-file-label">Attach Reciept...</label>
+          <div class="form-group">
+            <label>Receipt</label>
+            <input type="file" class="form-control-file" name="file">
           </div>
         </div>
         <div class="modal-footer">

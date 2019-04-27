@@ -319,8 +319,16 @@ if(isset($_POST['add_vendor'])){
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $account_number = strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number']));
-
-    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_account_number = '$account_number', vendor_created_at = UNIX_TIMESTAMP()");
+    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
+    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
+    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
+    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
+    $phone = preg_replace("/[^0-9]/", '',$phone);
+    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+    $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
+    
+    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_created_at = UNIX_TIMESTAMP()");
 
     $vendor_id = mysqli_insert_id($mysqli);
 
@@ -339,8 +347,16 @@ if(isset($_POST['edit_vendor'])){
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $account_number = strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number']));
+    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
+    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
+    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
+    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
+    $phone = preg_replace("/[^0-9]/", '',$phone);
+    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+    $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
 
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_account_number = '$account_number', vendor_updated_at = UNIX_TIMESTAMP() WHERE vendor_id = $vendor_id");
+    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_updated_at = UNIX_TIMESTAMP() WHERE vendor_id = $vendor_id");
 
     $_SESSION['alert_message'] = "Vendor modified";
     

@@ -48,6 +48,39 @@ CREATE TABLE `alerts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `calendar_events`
+--
+
+DROP TABLE IF EXISTS `calendar_events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `calendar_events` (
+  `calendar_event_id` int(11) NOT NULL AUTO_INCREMENT,
+  `calendar_event_title` varchar(200) NOT NULL,
+  `calendar_event_start` datetime NOT NULL,
+  `calendar_event_end` datetime NOT NULL,
+  `client_id` int(11) NOT NULL,
+  `client_location_id` int(11) NOT NULL,
+  `calendar_id` int(11) NOT NULL,
+  PRIMARY KEY (`calendar_event_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `calendars`
+--
+
+DROP TABLE IF EXISTS `calendars`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `calendars` (
+  `calendar_id` int(11) NOT NULL AUTO_INCREMENT,
+  `calendar_name` varchar(200) NOT NULL,
+  PRIMARY KEY (`calendar_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `categories`
 --
 
@@ -253,10 +286,11 @@ CREATE TABLE `clients` (
   `client_email` varchar(200) NOT NULL,
   `client_website` varchar(200) NOT NULL,
   `client_net_terms` int(10) NOT NULL,
+  `client_reference` varchar(200) NOT NULL,
   `client_created_at` int(11) NOT NULL,
   `client_updated_at` int(11) NOT NULL,
   PRIMARY KEY (`client_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -276,7 +310,7 @@ CREATE TABLE `expenses` (
   `category_id` int(11) NOT NULL,
   `account_id` int(11) NOT NULL,
   PRIMARY KEY (`expense_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -332,7 +366,7 @@ CREATE TABLE `invoice_items` (
   `invoice_id` int(11) NOT NULL,
   `quote_id` int(11) NOT NULL,
   PRIMARY KEY (`invoice_item_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -531,11 +565,18 @@ CREATE TABLE `vendors` (
   `vendor_id` int(11) NOT NULL AUTO_INCREMENT,
   `vendor_name` varchar(200) NOT NULL,
   `vendor_description` varchar(200) NOT NULL,
+  `vendor_address` varchar(200) NOT NULL,
+  `vendor_city` varchar(200) NOT NULL,
+  `vendor_state` varchar(200) NOT NULL,
+  `vendor_zip` varchar(200) NOT NULL,
+  `vendor_phone` varchar(200) NOT NULL,
+  `vendor_email` varchar(200) NOT NULL,
+  `vendor_website` varchar(200) NOT NULL,
   `vendor_account_number` varchar(200) NOT NULL,
   `vendor_created_at` int(11) NOT NULL,
   `vendor_updated_at` int(11) NOT NULL,
   PRIMARY KEY (`vendor_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -547,4 +588,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-23 15:11:59
+-- Dump completed on 2019-04-27 12:08:54

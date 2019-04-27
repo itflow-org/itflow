@@ -5,6 +5,7 @@ if ( window.history.replaceState ) {
 
 //Data Tables Options
 $('#dt').dataTable( {
+    "aaSorting": [],
     "order": [],
     language: {
         search: '_INPUT_',
@@ -23,8 +24,9 @@ $('#dt').dataTable( {
 $('#dataTable').DataTable();
 
 $('#dT').dataTable( {
+  "order": [],
   "columnDefs": [
-    { "orderable": false, "targets": 5 }
+    { "orderable": false, "targets":[""]}
   ],
   "orderCellsTop": true,
   language: {
@@ -55,4 +57,10 @@ new EasyMDE({
 new EasyMDE({
     autoDownloadFontAwesome: false,
     element: document.getElementById('editClientNote')
+});
+
+
+$('#selectIt').select2({
+    theme: 'bootstrap4',
+    dropdownParent: $('#addInvoiceModal')
 });

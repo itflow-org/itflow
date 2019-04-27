@@ -25,6 +25,8 @@
 
   <script src="vendor/easy-markdown-editor-2.5.1/dist/easymde.min.js"></script>
 
+  <script src="vendor/select2/dist/js/select2.min.js"></script>
+
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin.min.js"></script>
 

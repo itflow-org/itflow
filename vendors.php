@@ -15,6 +15,9 @@
           <tr>
             <th>Vendor</th>
             <th>Description</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Website</th>
             <th>Account Number</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -27,11 +30,25 @@
             $vendor_name = $row['vendor_name'];
             $vendor_description = $row['vendor_description'];
             $vendor_account_number = $row['vendor_account_number'];
+            $vendor_address = $row['vendor_address'];
+            $vendor_city = $row['vendor_city'];
+            $vendor_state = $row['vendor_state'];
+            $vendor_zip = $row['vendor_zip'];
+            $vendor_phone = $row['vendor_phone'];
+            if(strlen($vendor_phone)>2){ 
+              $vendor_phone = substr($row['vendor_phone'],0,3)."-".substr($row['vendor_phone'],3,3)."-".substr($row['vendor_phone'],6,4);
+            }
+            $vendor_email = $row['vendor_email'];
+            $vendor_website = $row['vendor_website'];
+
       
           ?>
           <tr>
             <td><?php echo $vendor_name; ?></td>
             <td><?php echo $vendor_description; ?></td>
+            <td><?php echo $vendor_phone; ?></td>
+            <td><?php echo $vendor_email; ?></td>
+            <td><?php echo $vendor_website; ?></td>
             <td><?php echo $vendor_account_number; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
