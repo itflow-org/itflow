@@ -58,7 +58,7 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group mb-5">
         <label>Website</label>
         <div class="input-group">
           <div class="input-group-prepend">
@@ -67,12 +67,6 @@
           <input type="text" class="form-control" name="config_company_site" placeholder="Website address https://" value="<?php echo $config_company_site; ?>" >
         </div>
       </div>
-      
-      <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
-
-      
-
-
       
       <hr>
       

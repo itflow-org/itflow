@@ -39,16 +39,9 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group mb-5">
         <label>Invoice Footer</label>
         <textarea class="form-control" rows="4" name="config_invoice_footer"><?php echo $config_invoice_footer; ?></textarea>
-      </div>
-      
-      <img class="img-fluid" src="uploads/invoice_logo.png">
-
-      <div class="form-group mb-5">
-        <label>Logo</label>
-        <input type="file" class="form-control-file" name="logo">
       </div>
       
       <hr>

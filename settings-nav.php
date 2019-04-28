@@ -4,7 +4,7 @@
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-general.php") { echo "active"; } ?>" 
       href="settings-general.php">
       <i class="fa fa-2x fa-cog"></i><br>
-      Company
+      General
     </a> 
   </li>
 
@@ -29,6 +29,14 @@
       href="settings-invoice.php">
       <i class="fa fa-2x fa-file"></i><br>
       Invoice
+    </a> 
+  </li>
+
+  <li class="nav-item">
+    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-logo.php") { echo "active"; } ?>" 
+      href="settings-logo.php">
+      <i class="fa fa-2x fa-image"></i><br>
+      Logo
     </a> 
   </li>
  
