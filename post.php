@@ -1322,7 +1322,7 @@ if(isset($_GET['email_invoice'])){
         //Don't chnage the status to sent if the status is anything but draf
         if($invoice_status == 'Draft'){
 
-            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', client_id = $client_id");
+            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', client_id = $client_id WHERE invoice_id = $invoice_id");
 
         }
 
