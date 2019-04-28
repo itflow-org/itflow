@@ -1,6 +1,6 @@
 <?php 
  
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id AND invoice_number > 0 ORDER BY invoice_number DESC");
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id ORDER BY invoice_number DESC");
 
 ?>
 
@@ -29,11 +29,7 @@
         $invoice_amount = $row['invoice_amount'];
         //check to see if overdue
 
-        $unixtime_invoice_due = strtotime($invoice_due);
-        if($unixtime_invoice_due < time()){
-          $invoice_status = "Overdue";
-          $invoice_color = "text-danger";
-        }
+       
         
         //Set Badge color based off of invoice status
         if($invoice_status == "Sent"){

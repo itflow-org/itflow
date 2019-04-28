@@ -33,7 +33,7 @@ if(isset($_GET['invoice_id'])){
   }
   $client_website = $row['client_website'];
 
-  $sql_invoice_history = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id ORDER BY invoice_history_id ASC");
+  $sql_invoice_history = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id ORDER BY invoice_history_id DESC");
   
   $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
@@ -72,6 +72,9 @@ if(isset($_GET['invoice_id'])){
 <ol class="breadcrumb d-print-none">
   <li class="breadcrumb-item">
     <a href="invoices.php">Invoices</a>
+  </li>
+  <li class="breadcrumb-item">
+    <a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
   </li>
   <li class="breadcrumb-item active">INV-<?php echo $invoice_number; ?></li>
   <span class="ml-3 p-2 badge badge-<?php echo $invoice_badge_color; ?>"><?php echo $invoice_status; ?></span>

@@ -4,7 +4,6 @@
  
   $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
     WHERE invoices.client_id = clients.client_id
-    AND invoices.invoice_number > 0
     ORDER BY invoices.invoice_number DESC");
 ?>
 
@@ -15,7 +14,7 @@
   </div>
   <div class="card-body">
     <div class="table-responsive">
-      <table class="table table-striped table-borderless table-hover" id="dT" width="100%" cellspacing="0">
+      <table class="table table-striped table-borderless table-hover" id="dt" width="100%" cellspacing="0">
         <thead>
           <tr>
             <th>Number</th>

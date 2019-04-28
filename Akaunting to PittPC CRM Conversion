@@ -1,0 +1,49 @@
+Akaunting to PittPC CRM Conversion
+
+Exports 
+
+Accounts
+
+SELECT id AS account_id, name AS account_name, opening_balance FROM c4v_accounts WHERE company_id = 1;
+
+Categories
+
+SELECT id AS category_id, name AS category_name, type AS category_type FROM c4v_categories WHERE company_id = 1;
+
+Clients
+
+SELECT id AS client_id, name AS client_name, address AS client_address, phone AS client_phone, email AS client_email, website AS client_website FROM c4v_customers WHERE company_id = 1;
+
+UPDATE clients SET client_phone = replace(client_phone, '-', '');
+
+Expenses
+
+SELECT id AS expense_id, description AS expense_description, amount AS expense_amount, paid_at AS expense_date, reference AS expense_reference, vendor_id, category_id, account_id FROM c4v_payments WHERE company_id = 1 AND deleted_at IS NULL;
+
+Invoices
+
+SELECT id AS invoice_id, invoice_number, invoice_status_code AS invoice_status, invoiced_at AS invoice_date, due_at AS invoice_due, amount AS invoice_amount, notes AS invoice_note, category_id, customer_id AS client_id FROM c4v_invoices WHERE company_id = 1 AND deleted_at IS NULL; 
+
+Invoice History
+
+SELECT id AS invoice_history_id, created_at AS invoice_history_date, status_code AS invoice_history_status, description AS invoice_history_description, invoice_id FROM c4v_invoice_histories WHERE company_id = 1 AND deleted_at IS NULL;
+
+Invoice Items (Missing Subtotal Need calculated)
+
+SELECT id AS invoice_item_id, name AS invoice_item_name, quantity AS invoice_item_quantity, price AS invoice_item_price, tax AS invoice_item_tax, total AS invoice_item_total, invoice_id FROM c4v_invoice_items WHERE company_id = 1 AND deleted_at IS NULL;
+
+Payments
+
+SELECT id AS payment_id, paid_at AS payment_date, amount AS payment_amount, payment_method, reference AS payment_reference, account_id, invoice_id FROM c4v_invoice_payments WHERE company_id = 1 AND deleted_at IS NULL;
+
+Transfers
+
+SELECT c4v_transfers.id AS transfer_id, c4v_payments.amount AS transfer_amount, c4v_transfers.created_at AS transfer_date, c4v_payments.account_id AS transfer_account_from, c4v_revenues.account_id AS transfer_account_to, payment_id AS expense_id, revenue_id AS payment_id   FROM c4v_transfers, c4v_payments, c4v_revenues WHERE c4v_transfers.revenue_id = c4v_revenues.id AND c4v_transfers.payment_id = c4v_payments.id AND c4v_transfers.company_id = 1 AND c4v_transfers.deleted_at IS NULL;
+
+Move Revenue to payments for Transfers only
+
+SELECT c4v_revenues.id AS payment_id, paid_at AS payment_date, amount AS payment_amount, account_id FROM c4v_transfers, c4v_revenues WHERE c4v_transfers.revenue_id = c4v_revenues.id AND c4v_revenues.deleted_at IS NULL;
+
+Vendors
+
+SELECT id AS vendor_id, name AS vendor_name, address AS vendor_address, email AS vendor_email, website AS vendor_website FROM c4v_vendors WHERE company_id = 1 AND deleted_at IS NULL;

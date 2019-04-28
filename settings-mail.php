@@ -17,6 +17,16 @@
           <input type="text" class="form-control" name="config_smtp_host" placeholder="Mail Server Address" value="<?php echo $config_smtp_host; ?>" required autofocus>
         </div>
       </div>
+
+      <div class="form-group">
+        <label>SMTP Port</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-plug"></i></span>
+          </div>
+          <input type="text" class="form-control" name="config_smtp_port" placeholder="Mail Server Port Number" value="<?php echo $config_smtp_port; ?>" required autofocus>
+        </div>
+      </div>
       
       <div class="form-group">
         <label>SMTP Username</label>

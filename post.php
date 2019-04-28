@@ -35,15 +35,10 @@ if(isset($_POST['edit_company_settings'])){
     $config_company_zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_zip']));
     $config_company_phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_phone']));
     $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
-    if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/";
-        $path = $path . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);
-    }
+   
 
 
-    mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site' config_invoice_logo = '$path'");
+    mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site'");
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -52,10 +47,11 @@ if(isset($_POST['edit_company_settings'])){
 if(isset($_POST['edit_mail_settings'])){
 
     $config_smtp_host = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_host']));
+    $config_smtp_port = intval($_POST['config_smtp_port']);
     $config_smtp_username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_username']));
     $config_smtp_password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_password']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password'");
+    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password'");
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -257,7 +253,7 @@ if(isset($_POST['edit_client'])){
 
     $_SESSION['alert_message'] = "Client updated";
     
-    header("Location: clients.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -1286,7 +1282,7 @@ if(isset($_GET['email_invoice'])){
     $mpdf->watermarkTextAlpha = 0.1;
     $mpdf->SetDisplayMode('fullpage');
     $mpdf->WriteHTML($html);
-    $mpdf->Output('uploads/invoice.pdf', 'F');
+    $mpdf->Output("uploads/$invoice_date-$config_company_name-Invoice$invoice_number.pdf", 'F');
 
     $mail = new PHPMailer(true);
 
@@ -1310,7 +1306,7 @@ if(isset($_GET['email_invoice'])){
         // Attachments
         //$mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
         //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
-        $mail->addAttachment('uploads/invoice.pdf');    // Optional name
+        $mail->addAttachment("uploads/$invoice_date-$config_company_name-Invoice$invoice_number.pdf");    // Optional name
 
         // Content
         $mail->isHTML(true);                                  // Set email format to HTML
@@ -1338,6 +1334,7 @@ if(isset($_GET['email_invoice'])){
     } catch (Exception $e) {
         echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }
+    unlink("uploads/$invoice_date-$config_company_name-Invoice$invoice_number.pdf");
 }
 
 if(isset($_GET['pdf_invoice'])){
