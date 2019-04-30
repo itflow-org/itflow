@@ -1,4 +1,4 @@
-<?php include("header.php"); ?>
+<?php include("config.php"); ?>
 
 <?php 
 
@@ -74,6 +74,8 @@ if(isset($_GET['client_id'])){
 
 ?>
 
+<?php include("header.php"); ?>
+
 <ol class="breadcrumb d-print-none">
   <li class="breadcrumb-item">
     <a href="clients.php">Clients</a>
@@ -97,11 +99,11 @@ if(isset($_GET['client_id'])){
       </div>
       <div class="col border-right">
         <h4 class="text-secondary">Contact</h4>
-        <i class="fa fa-envelope mx-1"></i> <a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a>
+        <i class="fa fa-fw fa-envelope mx-1"></i> <a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a>
         <br>
-        <i class="fa fa-phone mx-1"></i> <?php echo $client_phone; ?>
+        <i class="fa fa-fw fa-phone mx-1"></i> <?php echo $client_phone; ?>
         <br>
-        <i class="fa fa-globe mx-1"></i> <a target="_blank" href="//<?php echo $client_website; ?>"><?php echo $client_website; ?></a>
+        <i class="fa fa-fw fa-globe mx-1"></i> <a target="_blank" href="//<?php echo $client_website; ?>"><?php echo $client_website; ?></a>
       </div>
       <div class="col border-right">
         <h4 class="text-secondary">Standings</h4>

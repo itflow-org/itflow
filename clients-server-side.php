@@ -1,21 +1,47 @@
 <?php include("header.php"); ?>
 
-<?php $sql = mysqli_query($mysqli,"SELECT * FROM clients ORDER BY client_id DESC"); ?>
+<?php 
+
+if(isset($_GET['orderby'])){
+  $sql_orderby = "ORDER BY " . $_GET['orderby'];
+  $sql_order = "ASC";
+}
+
+if(isset($_GET['search'])){
+  $search = $_GET['search'];
+}
+
+?>
+
+<?php $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_name LIKE '%$search%' $sql_orderby $sql_order LIMIT 10"); ?>
 
 
-<div class="card mb-3">
+<div class="card">
   <div class="card-header">
-    <h6 class="float-left mt-1"><i class="fa fa-users"></i> Clients</h6>
-    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-plus"></i> New</button>
+    <div class="row">
+      <div class="col-4">
+        <form>
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search clients..." name="search">
+            <div class="input-group-append">
+              <button class="btn btn-dark" type="submit"><i class="fa fa-search"></i></button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-8">
+        <button type="button" class="btn btn-primary mr-auto float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-plus"></i></button>
+      </div>
+    </div>
   </div>
   <div class="card-body">
     <div class="table-responsive">
-      <table class="table table-striped table-borderless table-hover" id="dataTable" width="100%" cellspacing="0">
-        <thead class="thead-dark">
+      <table class="table table-striped table-borderless table-hover">
+        <thead>
           <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
+            <th><a href="<?php echo $_SERVER['REQUEST_URI']; ?>?orderby=client_name">Name <i class="fa fa-sort-alpha-down"></i></a></th>
+            <th><a href="?orderby=client_email">Email</a></th>
+            <th><a href="?sortby=client_phone">Phone</a></th>
             <th class="text-right">Balance</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -53,8 +79,6 @@
             //set Text color on balance
             if($balance > 0){
               $balance_text_color = "text-danger";
-            }else{
-              $balance_text_color = "";
             }
 
           ?>
@@ -83,6 +107,23 @@
 
         </tbody>
       </table>
+
+      <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-end">
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item"><a class="page-link" href="#">4</a></li>
+          <li class="page-item"><a class="page-link" href="#">5</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#">Next</a>
+          </li>
+        </ul>
+      </nav>
+
     </div>
   </div>
 </div>
