@@ -3,8 +3,11 @@
 <?php 
 
 if(isset($_GET['orderby'])){
-  $sql_orderby = "ORDER BY " . $_GET['orderby'];
-  $sql_order = "ASC";
+  $orderby = "ORDER BY " . $_GET['orderby'];
+}
+
+if(isset($_GET['order'])){
+  $order = $_GET['order'];
 }
 
 if(isset($_GET['search'])){
@@ -13,7 +16,7 @@ if(isset($_GET['search'])){
 
 ?>
 
-<?php $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_name LIKE '%$search%' $sql_orderby $sql_order LIMIT 10"); ?>
+<?php $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_name LIKE '%$search%' $orderby $order LIMIT 10"); ?>
 
 
 <div class="card">
@@ -39,7 +42,7 @@ if(isset($_GET['search'])){
       <table class="table table-striped table-borderless table-hover">
         <thead>
           <tr>
-            <th><a href="<?php echo $_SERVER['REQUEST_URI']; ?>?orderby=client_name">Name <i class="fa fa-sort-alpha-down"></i></a></th>
+            <th><a href="<?php $_SERVER['PHP_SELF']; ?>?orderby=client_name&order=asc">Name <i class="fa fa-sort-alpha-down"></i></a></th>
             <th><a href="?orderby=client_email">Email</a></th>
             <th><a href="?sortby=client_phone">Phone</a></th>
             <th class="text-right">Balance</th>
