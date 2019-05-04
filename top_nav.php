@@ -22,7 +22,7 @@
   <ul class="navbar-nav ml-auto ml-md-0">
     <li class="nav-item dropdown no-arrow mx-2">
       <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fas fa-bell fa-fw"></i>
+        <i class="fas fa-bell"></i>
         <?php if($num_alerts > 0){ ?> <span class="badge badge-danger"><?php echo $num_alerts; ?></span> <?php } ?>
       </a>
       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="alertsDropdown">
@@ -41,9 +41,9 @@
           <img height="128" width="128" src="<?php echo "$session_avatar"; ?>" class="img-fluid rounded-circle">
         </center>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="#"><i class="fa fa-cog"></i> Settings</a>
+        <a class="dropdown-item" href="#"><i class="fa fa-fw fa-cog"></i> Settings</a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="logout.php"><i class="fa fa-sign-out-alt"></i> Logout</a>
+        <a class="dropdown-item" href="logout.php"><i class="fa fa-fw fa-sign-out-alt"></i> Logout</a>
       </div>
     </li>
   </ul>

@@ -165,8 +165,9 @@
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editinvoiceModal<?php echo $invoice_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
-                  <a class="dropdown-item" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>">PDF</a>
-                  <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
+                  <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send</a>
+                  <a class="dropdown-item" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-file-pdf"></i> PDF</a>
+                  <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-trash"></i> Delete</a>
                 </div>
               </div>      
             </td>

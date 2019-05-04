@@ -1328,7 +1328,7 @@ if(isset($_GET['email_invoice'])){
 
         $_SESSION['alert_message'] = "Invoice has been sent";
 
-        header("Location: invoice.php?invoice_id=$invoice_id");
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 
     } catch (Exception $e) {

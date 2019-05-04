@@ -202,4 +202,5 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
   </div> <!-- row -->
 
 
+
 <?php include("footer.php"); ?>

@@ -76,13 +76,6 @@ if(isset($_GET['client_id'])){
 
 <?php include("header.php"); ?>
 
-<ol class="breadcrumb d-print-none">
-  <li class="breadcrumb-item">
-    <a href="clients.php">Clients</a>
-  </li>
-  <li class="breadcrumb-item active"><?php echo $client_name; ?></li>
-</ol>
-
 <div class="card mb-3 border-0">
   <div class="card-body mb-4">
     <div class="row">
