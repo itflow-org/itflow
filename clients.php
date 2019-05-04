@@ -52,7 +52,7 @@
             $balance = $invoice_amounts - $amount_paid;
             //set Text color on balance
             if($balance > 0){
-              $balance_text_color = "text-danger";
+              $balance_text_color = "text-danger font-weight-bold";
             }else{
               $balance_text_color = "";
             }

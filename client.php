@@ -109,21 +109,8 @@ if(isset($_GET['client_id'])){
             <i class="fas fa-ellipsis-h"></i>
           </button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientContactModal">New Contact</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientLocationModal">New Location</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientAssetModal">New Asset</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientVendorModal">New Vendor</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientLoginModal">New Login</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientNetworkModal">New Network</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientDomainModal">New Domain</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientApplicationModal">New Application</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientInvoiceModal">New Invoice</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addRecurringInvoiceModal">New Recurring</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteModal">New Quote</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientFileModal">Upload File</a>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addClientNoteModal">New Note</a>
-            <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="client_print.php?client_id=<?php echo $client_id; ?>">Print</a>
+            <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
             <a class="dropdown-item" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
           </div>
@@ -133,37 +120,14 @@ if(isset($_GET['client_id'])){
   </div>
 </div>
 
-<div class="row">
-  <div class="col-sm-12">
-    <div class="card">
-      <div class="card-header">
-        <?php include("client_nav.php"); ?>
-      </div>
-
-      <div class="card-body">
-        <?php include("client_routes.php"); ?>
-      </div>
-    </div>
-  </div>
-</div>
+<?php include("client_routes.php"); ?>
 
 <?php include("edit_client_modal.php"); ?>
-<?php include("add_client_contact_modal.php"); ?>
-<?php include("add_client_location_modal.php"); ?>
-<?php include("add_client_asset_modal.php"); ?>
-<?php include("add_client_vendor_modal.php"); ?>
-<?php include("add_client_login_modal.php"); ?>
-<?php include("add_client_network_modal.php"); ?>
-<?php include("add_client_domain_modal.php"); ?>
-<?php include("add_client_application_modal.php"); ?>
-<?php include("add_client_note_modal.php"); ?>
-<?php include("add_client_invoice_modal.php"); ?>
-<?php include("add_recurring_invoice_modal.php"); ?>
-<?php include("add_invoice_payment_modal.php"); ?>
-<?php include("add_quote_modal.php"); ?>
-<?php include("add_client_file_modal.php"); ?>
 
+<?php 
 
-<?php } ?>
+}
+
+?>
 
 <?php include("footer.php");
