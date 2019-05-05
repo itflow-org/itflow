@@ -88,7 +88,6 @@ if(isset($_GET['invoice_id'])){
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal">Edit</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceNoteModal">Note</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Recurring</a>
         <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send Email</a>
@@ -229,17 +228,22 @@ if(isset($_GET['invoice_id'])){
 </div>
 
 <div class="row mb-4">
-  <div class="col-5">
+  <div class="col-7">
     <div class="card">
       <div class="card-header">
         Notes
       </div>
-      <div class="card-body mb-5">
-        <p><?php echo $invoice_note; ?></p>
+      <div class="card-body">
+        <div class="d-none d-print-block"><?php echo $invoice_note; ?></div>
+        <form class="d-print-none" action="post.php" method="post">
+          <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+          <textarea rows="6" class="form-control mb-2" name="invoice_note"><?php echo $invoice_note; ?></textarea>
+          <button class="btn btn-primary btn-sm float-right" type="submit" name="edit_invoice_note"><i class="fa fa-fw fa-check"></i></button>
+        </form>
       </div>
     </div>
   </div>
-  <div class="col-3 offset-4">
+  <div class="col-3 offset-2">
     <table class="table table-borderless">
       <tbody>    
         <tr class="border-bottom">
@@ -355,7 +359,6 @@ if(isset($_GET['invoice_id'])){
 
 <?php include("add_payment_modal.php"); ?>
 <?php include("edit_invoice_modal.php"); ?>
-<?php include("edit_invoice_note_modal.php"); ?>
 <?php } ?>
 
 <?php include("footer.php");
