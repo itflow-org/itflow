@@ -2,7 +2,7 @@
 
   include("config.php");
   include("check_login.php");
-  include("vendor/Parsedown.php");
+  //include("vendor/Parsedown.php");
   //include("functions.php");
 
 ?>

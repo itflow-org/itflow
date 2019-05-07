@@ -20,13 +20,11 @@
   <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
   <!-- Page level plugin JavaScript-->
+  <script src="vendor/chart.js/Chart.min.js"></script>
   <script src="vendor/datatables/jquery.dataTables.js"></script>
   <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-
   <script src="vendor/easy-markdown-editor-2.5.1/dist/easymde.min.js"></script>
-
-  <script src="vendor/chart.js/Chart.min.js"></script>
-
+  
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin.min.js"></script>
 

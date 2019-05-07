@@ -1,18 +1,35 @@
 <?php include("header.php"); ?>
 
-<?php
+<?php 
+
+
+function roundUpToNearestMultiple($n, $increment = 1000)
+{
+    return (int) ($increment * ceil($n / $increment));
+}
+
+if(isset($_GET['year'])){
+  $year = intval($_GET['year']);
+}else{
+  $year = date('Y');
+}
+
+//GET THE YEARS
+$sql_payment_years = mysqli_query($mysqli,"SELECT DISTINCT YEAR(payment_date) AS payment_year FROM payments WHERE invoice_id > 0 ORDER BY payment_year DESC");
+
+
 //Get Total income Do not grab transfer payment as these have an invoice_id of 0
-$sql_total_income = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_income FROM payments WHERE invoice_id > 0");
+$sql_total_income = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_income FROM payments WHERE invoice_id > 0 AND YEAR(payment_date) = $year");
 $row = mysqli_fetch_array($sql_total_income);
 $total_income = $row['total_income'];
 
 //Get Total expenses and do not grab transfer expenses as these have a vendor of 0
-$sql_total_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE vendor_id > 0");
+$sql_total_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE vendor_id > 0 AND YEAR(expense_date) = $year");
 $row = mysqli_fetch_array($sql_total_expenses);
 $total_expenses = $row['total_expenses'];
 
 //Total up all the 
-$sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft'");
+$sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND AND YEAR(invoice_date) = $year");
 $row = mysqli_fetch_array($sql_invoice_totals);
 $invoice_totals = $row['invoice_totals'];
 
@@ -35,6 +52,22 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
 );
 
 ?>
+
+<form>
+  <select onchange="this.form.submit()" class="form-control mb-3" name="year">
+    <?php 
+            
+    while($row = mysqli_fetch_array($sql_payment_years)){
+      $payment_year = $row['payment_year'];
+    ?>
+    <option <?php if($year == $payment_year){ ?> selected <?php } ?> > <?php echo $payment_year; ?></option>
+    
+    <?php
+    }
+    ?>
+
+  </select>
+</form>
 
 <!-- Icon Cards-->
 <div class="row">
@@ -70,142 +103,168 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
       </div>
     </div>
   </div> 
-</div>
 
-  <!-- Area Chart Example-->
-  <div class="card mb-3">
-    <div class="card-header">
-      <i class="fas fa-chart-area"></i>
-      Cash Flow</div>
-    <div class="card-body">
-      <canvas id="myAreaChart" width="100%" height="30"></canvas>
+  <div class="col-md-12">
+    <!-- Area Chart Example-->
+    <div class="card mb-3">
+      <div class="card-header">
+        <i class="fas fa-chart-area"></i>
+        Cash Flow</div>
+      <div class="card-body">
+        <canvas id="myAreaChart" width="100%" height="25"></canvas>
+      </div>
+      <div class="card-footer"></div>
     </div>
-    <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
   </div>
 
-  <!-- DataTables Example -->
-  <div class="row mb-3">
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">Account Balance</div>
-          <div class="table-responsive">
-            <table class="table table-borderless">
-              <tbody>
-              	<?php
-              	while($row = mysqli_fetch_array($sql_accounts)){
-			            $account_id = $row['account_id'];
-			            $account_name = $row['account_name'];
-			            $opening_balance = $row['opening_balance'];
-
-			          ?>
-                <tr>
-			            <td><?php echo $account_name; ?></a></td>
-			            <?php
-			            $sql2 = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
-			            $row2 = mysqli_fetch_array($sql2);
-			            
-			            $sql3 = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
-			            $row3 = mysqli_fetch_array($sql3);
-			            
-			            $balance = $opening_balance + $row2['total_payments'] - $row3['total_expenses'];
-			            if($balance == ''){
-			              $balance = '0.00'; 
-			            }
-			            ?>
-
-			            <td class="text-right text-monospace">$<?php echo number_format($balance,2); ?></td>
-			          </tr>
-			          <?php
-			        	}
-			        	?>
-
-              </tbody>
-            </table>
-          </div>
+  <div class="col-lg-6">
+    <div class="card mb-3">
+      <div class="card-header">
+        <i class="fas fa-chart-pie"></i>
+        Income By Category
       </div>
-    </div> <!-- .col -->
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          Latest Payments
-        </div>
-        <div class="table-responsive">
-          <table class="table table-borderless">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Customer</th>
-                <th>Invoice</th>
-                <th class="text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php
-            	while($row = mysqli_fetch_array($sql_latest_income_payments)){
-		            $payment_date = $row['payment_date'];
-		            $payment_amount = $row['payment_amount'];
-		            $invoice_number = $row['invoice_number'];
-		            $client_name = $row['client_name'];
-			        ?>
-              <tr>
-                <td><?php echo $payment_date; ?></td>
-                <td><?php echo $client_name; ?></td>
-                <td><?php echo $invoice_number; ?></td>
-                <td class="text-right text-monospace">$<?php echo number_format($payment_amount,2); ?></td>
-              </tr>
-              <?php
-			        }
-			        ?>
-            </tbody>
-          </table>
-        </div>
+      <div class="card-body">
+        <canvas id="incomeByCategoryPieChart" width="100%" height="60"></canvas>
       </div>
-    </div> <!-- .col -->
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          Latest Expenses
-        </div>
-        <div class="table-responsive">
-          <table class="table table-borderless">
-            <thead>
-              <tr>
-                <th>Date</th>
-            		<th>Vendor</th>
-                <th>Category</th>
-                <th class="text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-            	<?php
-            	while($row = mysqli_fetch_array($sql_latest_expenses)){
-		            $expense_date = $row['expense_date'];
-		            $expense_amount = $row['expense_amount'];
-		            $vendor_name = $row['vendor_name'];
-		            $category_name = $row['category_name'];
+      <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+    </div>
+  </div>
 
-			        ?>
-              <tr>
-                <td><?php echo $expense_date; ?></td>
-                <td><?php echo $vendor_name; ?></td>
-                <td><?php echo $category_name; ?></td>
-                <td class="text-right text-monospace">$<?php echo number_format($expense_amount,2); ?></td>
-              </tr>
-             	<?php
-			        }
-			        ?>
-            </tbody>
-          </table>
-        </div>
+  <div class="col-lg-6">
+    <div class="card mb-3">
+      <div class="card-header">
+        <i class="fas fa-chart-pie"></i>
+        Expense By Category
       </div>
-    </div> <!-- .col -->
-  </div> <!-- row -->
+      <div class="card-body">
+        <canvas id="expenseByCategoryPieChart" width="100%" height="60"></canvas>
+      </div>
+      <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        Account Balance
+      </div>
+      <div class="table-responsive">
+        <table class="table table-borderless">
+          <tbody>
+          	<?php
+          	while($row = mysqli_fetch_array($sql_accounts)){
+	            $account_id = $row['account_id'];
+	            $account_name = $row['account_name'];
+	            $opening_balance = $row['opening_balance'];
+
+	          ?>
+            <tr>
+	            <td><?php echo $account_name; ?></a></td>
+	            <?php
+	            $sql2 = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
+	            $row2 = mysqli_fetch_array($sql2);
+	            
+	            $sql3 = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
+	            $row3 = mysqli_fetch_array($sql3);
+	            
+	            $balance = $opening_balance + $row2['total_payments'] - $row3['total_expenses'];
+	            if($balance == ''){
+	              $balance = '0.00'; 
+	            }
+	            ?>
+
+	            <td class="text-right text-monospace">$<?php echo number_format($balance,2); ?></td>
+	          </tr>
+	          <?php
+	        	}
+	        	?>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div> <!-- .col -->
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        Latest Payments
+      </div>
+      <div class="table-responsive">
+        <table class="table table-borderless">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Invoice</th>
+              <th class="text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+          	while($row = mysqli_fetch_array($sql_latest_income_payments)){
+	            $payment_date = $row['payment_date'];
+	            $payment_amount = $row['payment_amount'];
+	            $invoice_number = $row['invoice_number'];
+	            $client_name = $row['client_name'];
+		        ?>
+            <tr>
+              <td><?php echo $payment_date; ?></td>
+              <td><?php echo $client_name; ?></td>
+              <td><?php echo $invoice_number; ?></td>
+              <td class="text-right text-monospace">$<?php echo number_format($payment_amount,2); ?></td>
+            </tr>
+            <?php
+		        }
+		        ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div> <!-- .col -->
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        Latest Expenses
+      </div>
+      <div class="table-responsive">
+        <table class="table table-borderless">
+          <thead>
+            <tr>
+              <th>Date</th>
+          		<th>Vendor</th>
+              <th>Category</th>
+              <th class="text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+          	<?php
+          	while($row = mysqli_fetch_array($sql_latest_expenses)){
+	            $expense_date = $row['expense_date'];
+	            $expense_amount = $row['expense_amount'];
+	            $vendor_name = $row['vendor_name'];
+	            $category_name = $row['category_name'];
+
+		        ?>
+            <tr>
+              <td><?php echo $expense_date; ?></td>
+              <td><?php echo $vendor_name; ?></td>
+              <td><?php echo $category_name; ?></td>
+              <td class="text-right text-monospace">$<?php echo number_format($expense_amount,2); ?></td>
+            </tr>
+           	<?php
+		        }
+		        ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div> <!-- .col -->
+</div> <!-- row -->
 
 
 
 <?php include("footer.php"); ?>
 <script>
-
 // Set new default font family and font color to mimic Bootstrap's default styling
 Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
 Chart.defaults.global.defaultFontColor = '#292b2c';
@@ -215,9 +274,9 @@ var ctx = document.getElementById("myAreaChart");
 var myLineChart = new Chart(ctx, {
   type: 'line',
   data: {
-    labels: ["Mar 1", "Mar 2", "Mar 3", "Mar 4", "Mar 5", "Mar 6", "Mar 7", "Mar 8", "Mar 9", "Mar 10", "Mar 11", "Mar 12", "Mar 13"],
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"],
     datasets: [{
-      label: "Sessions",
+      label: "Income",
       lineTension: 0.3,
       backgroundColor: "rgba(2,117,216,0.2)",
       borderColor: "rgba(2,117,216,1)",
@@ -228,7 +287,27 @@ var myLineChart = new Chart(ctx, {
       pointHoverBackgroundColor: "rgba(2,117,216,1)",
       pointHitRadius: 50,
       pointBorderWidth: 2,
-      data: [10000, 30162, 26263, 18394, 18287, 28682, 31274, 33259, 25849, 24159, 32651, 31984, 38451],
+      data: [
+      <?php
+      for($month = 1; $month<=12; $month++) {
+          $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
+          $row = mysqli_fetch_array($sql_payments);
+          $income_for_month = $row['payment_amount_for_month'];
+          if($income_for_month > 0 AND $income_for_month > $largest_income_month){
+            $largest_income_month = $income_for_month;
+          }
+          
+
+        ?>
+          <?php echo "$income_for_month,"; ?>
+        
+        <?php
+        
+        }
+
+        ?>
+
+      ],
     }],
   },
   options: {
@@ -241,13 +320,13 @@ var myLineChart = new Chart(ctx, {
           display: false
         },
         ticks: {
-          maxTicksLimit: 7
+          maxTicksLimit: 12
         }
       }],
       yAxes: [{
         ticks: {
           min: 0,
-          max: 40000,
+          max: <?php echo roundUpToNearestMultiple($largest_income_month); ?>,
           maxTicksLimit: 5
         },
         gridLines: {
@@ -259,6 +338,108 @@ var myLineChart = new Chart(ctx, {
       display: false
     }
   }
+});
+
+// Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#292b2c';
+
+// Pie Chart Example
+var ctx = document.getElementById("incomeByCategoryPieChart");
+var myPieChart = new Chart(ctx, {
+  type: 'pie',
+  data: {
+    labels: [
+      <?php
+        $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name FROM categories, expenses WHERE expenses.category_id = categories.category_id AND YEAR(expense_date) = $year");
+        while($row = mysqli_fetch_array($sql_categories)){
+          $category_name = $row['category_name'];
+          echo "\"$category_name\",";
+        }
+      
+      ?>
+
+    ],
+    datasets: [{
+      data: [
+        <?php
+          $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'expense'");
+          while($row = mysqli_fetch_array($sql_categories)){
+            $category_id = $row['category_id'];
+
+            $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_year FROM expenses WHERE category_id = $category_id AND YEAR(expense_date) = $year");
+            $row = mysqli_fetch_array($sql_expenses);
+            $expense_amount_for_year = $row['expense_amount_for_year'];
+            echo "$expense_amount_for_year,";
+          }
+        
+        ?>
+
+      ],
+      backgroundColor: [
+        <?php
+          $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expenses.category_id = categories.category_id AND YEAR(expense_date) = $year");
+          while($row = mysqli_fetch_array($sql_categories)){
+            $category_color = $row['category_color'];
+            echo "\"$category_color\",";
+          }
+        
+        ?>
+
+      ],
+    }],
+  },
+});
+
+// Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#292b2c';
+
+// Pie Chart Example
+var ctx = document.getElementById("expenseByCategoryPieChart");
+var myPieChart = new Chart(ctx, {
+  type: 'pie',
+  data: {
+    labels: [
+      <?php
+        $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name FROM categories, expenses WHERE expenses.category_id = categories.category_id AND YEAR(expense_date) = $year");
+        while($row = mysqli_fetch_array($sql_categories)){
+          $category_name = $row['category_name'];
+          echo "\"$category_name\",";
+        }
+      
+      ?>
+
+    ],
+    datasets: [{
+      data: [
+        <?php
+          $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'expense'");
+          while($row = mysqli_fetch_array($sql_categories)){
+            $category_id = $row['category_id'];
+
+            $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_year FROM expenses WHERE category_id = $category_id AND YEAR(expense_date) = $year");
+            $row = mysqli_fetch_array($sql_expenses);
+            $expense_amount_for_year = $row['expense_amount_for_year'];
+            echo "$expense_amount_for_year,";
+          }
+        
+        ?>
+
+      ],
+      backgroundColor: [
+        <?php
+          $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expenses.category_id = categories.category_id AND YEAR(expense_date) = $year");
+          while($row = mysqli_fetch_array($sql_categories)){
+            $category_color = $row['category_color'];
+            echo "\"$category_color\",";
+          }
+        
+        ?>
+
+      ],
+    }],
+  },
 });
 
 </script>

@@ -3,11 +3,21 @@
 <ul class="sidebar navbar-nav d-print-none">
   <li class="nav-item">
     <a class="nav-link" href="clients.php">
+      <button class="btn btn-outline-light btn-block">
       <i class="fas fa-fw fa-arrow-left mx-2"></i>
       <span>Back</span>
+    </button>
     </a>
   </li>
-  
+
+  <li class="nav-item">
+    <a class="nav-link <?php if($_GET['tab'] == "overview") { echo "active"; } ?>" 
+      href="?client_id=<?php echo $client_id; ?>&tab=overview">
+      <i class="fas fa-fw fa-chart-bar mx-2"></i>
+      <span>Overview</span>
+    </a>
+  </li>
+
   <li class="nav-item">
     <a class="nav-link <?php if($_GET['tab'] == "contacts") { echo "active"; } ?>" 
       href="?client_id=<?php echo $client_id; ?>&tab=contacts">

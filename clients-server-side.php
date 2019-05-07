@@ -22,17 +22,29 @@ if(isset($_GET['search'])){
 <div class="card">
   <div class="card-header">
     <div class="row">
-      <div class="col-4">
-        <form>
+      <form>
+        <div class="col-2">
+          
           <div class="input-group">
             <input type="text" class="form-control" placeholder="Search clients..." name="search">
             <div class="input-group-append">
               <button class="btn btn-dark" type="submit"><i class="fa fa-search"></i></button>
             </div>
           </div>
-        </form>
-      </div>
-      <div class="col-8">
+        </div>
+        <div class="col-2">
+          <div class="input-group">
+            <select class="form-control" name="orderby">
+              <option>Sort By</option>
+              <option value="client_name">Client Name</option>
+            </select>
+            <div class="input-group-append">
+              <button class="btn btn-dark" type="submit" name="sort" value="ASC"><i class="fa fa-arrow-down"></i></button>
+            </div>
+          </div>
+          </form>
+        </div>
+        <div class="col-8">
         <button type="button" class="btn btn-primary mr-auto float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-plus"></i></button>
       </div>
     </div>

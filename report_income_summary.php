@@ -103,7 +103,6 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
               $payment_total_amount_for_month = $row['payment_total_amount_for_month'];
               $total_payment_for_all_months = $payment_total_amount_for_month + $total_payment_for_all_months;
               
-            
             ?>
 
               <th class="text-right">$<?php echo number_format($payment_total_amount_for_month,2); ?></th>

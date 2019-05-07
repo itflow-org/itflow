@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand navbar-dark bg-primary static-top">
 
-  <a class="navbar-brand mr-1" href="index.html"><?php echo "$config_company_name";?></a>
+  <a class="navbar-brand mr-1" href="index.php"><?php echo "$config_company_name";?></a>
 
   <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
     <i class="fas fa-bars"></i>
@@ -22,7 +22,7 @@
   <ul class="navbar-nav ml-auto ml-md-0">
     <li class="nav-item dropdown no-arrow mx-2">
       <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fas fa-bell"></i>
+        <i class="fas fa-bell mt-2"></i>
         <?php if($num_alerts > 0){ ?> <span class="badge badge-danger"><?php echo $num_alerts; ?></span> <?php } ?>
       </a>
       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="alertsDropdown">

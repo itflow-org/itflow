@@ -77,11 +77,13 @@ if(isset($_GET['invoice_id'])){
     <a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
   </li>
   <li class="breadcrumb-item active">INV-<?php echo $invoice_number; ?></li>
-  <span class="ml-3 p-2 badge badge-<?php echo $invoice_badge_color; ?>"><?php echo $invoice_status; ?></span>
+  <span class="p-2 ml-2 badge badge-<?php echo $invoice_badge_color; ?>"><?php echo $invoice_status; ?></span>
 </ol>
 
 <div class="row mb-4 d-print-none">
-  <div class="col-md-12">
+  <div class="col-md-4">
+  </div>
+  <div class="col-md-8">
     <div class="dropdown dropleft text-center">
       <button class="btn btn-primary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <i class="fas fa-ellipsis-h"></i>
@@ -90,7 +92,7 @@ if(isset($_GET['invoice_id'])){
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal">Edit</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Recurring</a>
-        <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send Email</a>
+        <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send</a>
         <?php if($invoice_status == "Draft"){ ?><a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">Mark Sent</a><?php } ?>
         <?php if($invoice_status !== "Paid"){ ?><a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPaymentModal">Add Payment</a><?php } ?>
         <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
@@ -327,7 +329,7 @@ if(isset($_GET['invoice_id'])){
               <th>Date</th>
               <th>Amount</th>
               <th>Account</th>
-              <th></th>
+              <th class="text-center">Action</th>
             </tr>
           </thead>
           <tbody>
