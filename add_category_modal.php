@@ -22,6 +22,10 @@
               <?php } ?>
             </select>
           </div>
+          <div class="form-group">
+            <label>Color</label>
+            <input type="color" class="form-control" name="color">
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

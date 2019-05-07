@@ -14,6 +14,7 @@
           <tr>
             <th>Name</th>
             <th>Type</th>
+            <th>Color</th>
             <th class="text-center">Actions</th>
           </tr>
         </thead>
@@ -24,11 +25,13 @@
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
             $category_type = $row['category_type'];
+            $category_color = $row['category_color'];
       
           ?>
           <tr>
             <td><?php echo "$category_name"; ?></td>
             <td><?php echo "$category_type"; ?></td>
+            <td><i class="fa fa-2x fa-circle" style="color:<?php echo $category_color; ?>;"></i></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

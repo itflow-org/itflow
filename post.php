@@ -501,8 +501,9 @@ if(isset($_POST['add_category'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
+    $color = strip_tags(mysqli_real_escape_string($mysqli,$_POST['color']));
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = '$name', category_type = '$type'");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = '$name', category_type = '$type', category_color = '$color'");
 
     $_SESSION['alert_message'] = "Category added";
     
@@ -515,8 +516,9 @@ if(isset($_POST['edit_category'])){
     $category_id = intval($_POST['category_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
+    $color = strip_tags(mysqli_real_escape_string($mysqli,$_POST['color']));
 
-    mysqli_query($mysqli,"UPDATE categories SET category_name = '$name', category_type = '$type' WHERE category_id = $category_id");
+    mysqli_query($mysqli,"UPDATE categories SET category_name = '$name', category_type = '$type', category_color = '$color' WHERE category_id = $category_id");
 
     $_SESSION['alert_message'] = "Category modified";
     
