@@ -76,12 +76,9 @@ if(isset($_GET['client_id'])){
 
 <?php include("header.php"); ?>
 
-<div class="card mb-3 border-0">
-  <div class="card-body mb-4">
+<div class="card mb-3">
+  <div class="card-body mb-2">
     <div class="row">
-      <div class="col border-left border-right ">
-        <h2 class="text-secondary"><?php echo $client_name; ?></h2>
-      </div>
       <div class="col border-right">
         <h4 class="text-secondary">Address</h4>
         <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$client_address $client_zip"; ?>" target="_blank">
@@ -105,7 +102,7 @@ if(isset($_GET['client_id'])){
       </div>
       <div class="col-1">
         <div class="dropdown dropleft text-center">
-          <button class="btn btn-secondary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button class="btn btn-dark btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="fas fa-ellipsis-h"></i>
           </button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">

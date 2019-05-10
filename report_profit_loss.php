@@ -75,7 +75,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
               
               ?>
                 
-                <td class="text-right">$<?php echo number_format($payment_amount_for_quarter_one,2); ?></td>
+                <td class="text-right text-monospace">$<?php echo number_format($payment_amount_for_quarter_one,2); ?></td>
 
               <?php
               
@@ -87,7 +87,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
               
               ?>
 
-                <td class="text-right">$<?php echo number_format($payment_amount_for_quarter_two,2); ?></td>
+                <td class="text-right text-monospace">$<?php echo number_format($payment_amount_for_quarter_two,2); ?></td>
 
               <?php
               
@@ -99,7 +99,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
               
               ?>
 
-                <td class="text-right">$<?php echo number_format($payment_amount_for_quarter_three,2); ?></td>
+                <td class="text-right text-monospace">$<?php echo number_format($payment_amount_for_quarter_three,2); ?></td>
 
               <?php
               
@@ -113,9 +113,9 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
 
               ?>
 
-              <td class="text-right">$<?php echo number_format($payment_amount_for_quarter_four,2); ?></td>        
+              <td class="text-right text-monospace">$<?php echo number_format($payment_amount_for_quarter_four,2); ?></td>        
               
-              <td class="text-right">$<?php echo number_format($total_payments_for_all_four_quarters,2); ?></td>
+              <td class="text-right text-monospace">$<?php echo number_format($total_payments_for_all_four_quarters,2); ?></td>
             </tr>
           
           <?php 
@@ -142,7 +142,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
             
             ?>  
             
-              <th class="text-right">$<?php echo number_format($payment_total_amount_for_quarter_one,2); ?></th>
+              <th class="text-right text-monospace">$<?php echo number_format($payment_total_amount_for_quarter_one,2); ?></th>
 
             <?php
  
@@ -154,7 +154,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
             
             ?>  
             
-              <th class="text-right">$<?php echo number_format($payment_total_amount_for_quarter_two,2); ?></th>
+              <th class="text-right text-monospace">$<?php echo number_format($payment_total_amount_for_quarter_two,2); ?></th>
 
             <?php
  
@@ -166,7 +166,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
             
             ?>  
             
-              <th class="text-right">$<?php echo number_format($payment_total_amount_for_quarter_three,2); ?></th>
+              <th class="text-right text-monospace">$<?php echo number_format($payment_total_amount_for_quarter_three,2); ?></th>
 
             <?php
  
@@ -180,9 +180,9 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
 
             ?>  
             
-            <th class="text-right">$<?php echo number_format($payment_total_amount_for_quarter_four,2); ?></th>
+            <th class="text-right text-monospace">$<?php echo number_format($payment_total_amount_for_quarter_four,2); ?></th>
 
-            <th class="text-right">$<?php echo number_format($total_payments_for_all_four_quarters,2); ?></th>
+            <th class="text-right text-monospace">$<?php echo number_format($total_payments_for_all_four_quarters,2); ?></th>
           </tr>
          
           <tr>
@@ -208,7 +208,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
               
               ?>
                 
-                <td class="text-right">$<?php echo number_format($expense_amount_for_quarter_one,2); ?></td>
+                <td class="text-right text-monospace">$<?php echo number_format($expense_amount_for_quarter_one,2); ?></td>
 
               <?php
               
@@ -220,7 +220,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
               
               ?>
 
-                <td class="text-right">$<?php echo number_format($expense_amount_for_quarter_two,2); ?></td>
+                <td class="text-right text-monospace">$<?php echo number_format($expense_amount_for_quarter_two,2); ?></td>
 
               <?php
               
@@ -232,7 +232,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
               
               ?>
 
-                <td class="text-right">$<?php echo number_format($expense_amount_for_quarter_three,2); ?></td>
+                <td class="text-right text-monospace">$<?php echo number_format($expense_amount_for_quarter_three,2); ?></td>
 
               <?php
               
@@ -246,9 +246,9 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
 
               ?>
 
-              <td class="text-right">$<?php echo number_format($expense_amount_for_quarter_four,2); ?></td>        
+              <td class="text-right text-monospace">$<?php echo number_format($expense_amount_for_quarter_four,2); ?></td>        
               
-              <td class="text-right">$<?php echo number_format($total_expenses_for_all_four_quarters,2); ?></td>
+              <td class="text-right text-monospace">$<?php echo number_format($total_expenses_for_all_four_quarters,2); ?></td>
             </tr>
           
           <?php 
@@ -275,7 +275,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
             
             ?>  
             
-              <th class="text-right">$<?php echo number_format($expense_total_amount_for_quarter_one,2); ?></th>
+              <th class="text-right text-monospace">$<?php echo number_format($expense_total_amount_for_quarter_one,2); ?></th>
 
             <?php
  
@@ -287,7 +287,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
             
             ?>  
             
-              <th class="text-right">$<?php echo number_format($expense_total_amount_for_quarter_two,2); ?></th>
+              <th class="text-right text-monospace">$<?php echo number_format($expense_total_amount_for_quarter_two,2); ?></th>
 
             <?php
  
@@ -299,7 +299,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
             
             ?>  
             
-              <th class="text-right">$<?php echo number_format($expense_total_amount_for_quarter_three,2); ?></th>
+              <th class="text-right text-monospace">$<?php echo number_format($expense_total_amount_for_quarter_three,2); ?></th>
 
             <?php
  
@@ -313,9 +313,9 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
 
             ?>  
             
-            <th class="text-right">$<?php echo number_format($expense_total_amount_for_quarter_four,2); ?></th>
+            <th class="text-right text-monospace">$<?php echo number_format($expense_total_amount_for_quarter_four,2); ?></th>
 
-            <th class="text-right">$<?php echo number_format($total_expenses_for_all_four_quarters,2); ?></th>
+            <th class="text-right text-monospace">$<?php echo number_format($total_expenses_for_all_four_quarters,2); ?></th>
           </tr>
           <tr>
             <?php
@@ -327,11 +327,11 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
             ?>
 
             <th>Net Profit</th>
-            <th class="text-right">$<?php echo number_format($net_profit_quarter_one,2); ?></th>
-            <th class="text-right">$<?php echo number_format($net_profit_quarter_two,2); ?></th>
-            <th class="text-right">$<?php echo number_format($net_profit_quarter_three,2); ?></th>
-            <th class="text-right">$<?php echo number_format($net_profit_quarter_four,2); ?></th>
-            <th class="text-right">$<?php echo number_format($net_profit_year,2); ?></th>
+            <th class="text-right text-monospace">$<?php echo number_format($net_profit_quarter_one,2); ?></th>
+            <th class="text-right text-monospace">$<?php echo number_format($net_profit_quarter_two,2); ?></th>
+            <th class="text-right text-monospace">$<?php echo number_format($net_profit_quarter_three,2); ?></th>
+            <th class="text-right text-monospace">$<?php echo number_format($net_profit_quarter_four,2); ?></th>
+            <th class="text-right text-monospace">$<?php echo number_format($net_profit_year,2); ?></th>
           </tr>
         </tbody>
       </table>

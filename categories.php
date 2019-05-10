@@ -5,7 +5,7 @@
 
 <div class="card mb-3">
   <div class="card-header">
-    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addCategoryModal"><i class="fas fa-plus"></i> New</button>
+    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addCategoryModal"><i class="fas fa-plus"></i></button>
   </div>
   <div class="card-body">
     <div class="table-responsive">

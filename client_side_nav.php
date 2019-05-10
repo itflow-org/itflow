@@ -1,10 +1,15 @@
 <!-- Sidebar -->
 
 <ul class="sidebar navbar-nav d-print-none">
+  
+  <li class="nav-item my-3">
+    <h2 class="text-white text-center"><?php echo $client_name; ?></h2>
+  </li>
+
   <li class="nav-item">
     <a class="nav-link" href="clients.php">
       <button class="btn btn-outline-light btn-block">
-      <i class="fas fa-fw fa-arrow-left mx-2"></i>
+      <i class="fas fa-fw fa-arrow-left"></i>
       <span>Back</span>
     </button>
     </a>

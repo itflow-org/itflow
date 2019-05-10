@@ -35,7 +35,7 @@ $sql = mysqli_query($mysqli,"SELECT * FROM calendars, calendar_events WHERE cale
       </select>
     </form>
 
-    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addCalendarEventModal"><i class="fas fa-plus"></i> New</button>
+    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addCalendarEventModal"><i class="fas fa-plus"></i></button>
   </div>
   <div class="card-body">
     <div class="table-responsive">
