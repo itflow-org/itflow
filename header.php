@@ -42,7 +42,7 @@
 
   <div id="wrapper">
     <?php 
-    if(basename(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)) == "client.php"){
+    if(basename(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)) == "client.php" or basename(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)) == "client_print.php"){
       include("client_side_nav.php");
     }else{
       include("side_nav.php");

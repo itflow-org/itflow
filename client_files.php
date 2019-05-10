@@ -18,7 +18,7 @@
         $file_name = $row['file_name'];
       
         ?>
-        <div class="col-2 mb-3">
+        <div class=" col-xl-2 col-lg-3 col-md-6 col-sm-6 mb-3">
           <?php echo $file_name; ?>
           <a href="#" data-toggle="modal" data-target="#viewClientFileModal<?php echo $file_id; ?>">
             <img class="img-fluid" src="<?php echo $file_name; ?>">

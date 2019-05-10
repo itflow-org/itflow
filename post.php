@@ -1030,7 +1030,7 @@ if(isset($_POST['add_payment'])){
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
                   $mail->Subject = "Thank You! - Partial Payment Recieved for Invoice INV-$invoice_number";
-                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment of $amount on $date for invoice INV-$invoice_number by $payment_method, although you still have a balance of $balance<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment of $amount on $date for invoice INV-$invoice_number by $payment_method, although you still have a balance of $invoice_balance<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
                   //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 
                   $mail->send();

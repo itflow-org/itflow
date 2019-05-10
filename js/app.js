@@ -1,4 +1,4 @@
-//Prevents resubmit on refresh or back
+//Prevents resubmit on forms
 if ( window.history.replaceState ) {
     window.history.replaceState( null, null, window.location.href );
 }
@@ -40,13 +40,6 @@ $('#dT').dataTable( {
       }
   }
 
-});
-
-// Highlight the active nav link on side nav
-$(function() {
-    var url = window.location.pathname;
-    var filename = url.substr(url.lastIndexOf('/') + 1);
-    $('.navbar-nav a[href$="' + filename + '"]').parent().addClass("active");
 });
 
 new EasyMDE({
