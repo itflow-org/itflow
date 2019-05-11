@@ -207,10 +207,10 @@ if(isset($_GET['invoice_id'])){
           ?>
 
           <tr class="d-print-none">
-            <form action="post.php" method="post">
+            <form action="post.php" method="post" autocomplete="off">
               <td class="text-center"><button type="submit" class="btn btn-primary btn-sm" name="add_invoice_item"><i class="fa fa-check"></i></button></td>
               <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
-              <td><input type="text" class="form-control" name="name"></td>
+              <td><input type="text" class="form-control typeahead" name="name" id="item"></td>
               <td><textarea class="form-control" rows="1" name="description"></textarea></td>
               <td><input type="text" class="form-control" style="text-align: right;" name="price"></td>
               <td><input type="text" class="form-control" style="text-align: center;" name="qty"></td>
@@ -363,4 +363,24 @@ if(isset($_GET['invoice_id'])){
 <?php include("edit_invoice_modal.php"); ?>
 <?php } ?>
 
-<?php include("footer.php");
+<?php include("footer.php"); ?>
+
+<script>
+
+var products = [
+  <?php 
+  $sql = mysqli_query($mysqli,"SELECT product_name FROM products");
+  while($row = mysqli_fetch_array($sql)){
+    $product_name = $row['product_name'];
+    echo "\"$product_name\",";
+  }
+  ?>
+
+];
+
+$('#item').typeahead({
+  source: products
+
+});
+
+</script>

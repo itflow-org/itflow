@@ -1,6 +1,6 @@
 <?php include("header.php"); ?>
 
-<?php $sql = mysqli_query($mysqli,"SELECT * FROM clients ORDER BY client_id DESC"); ?>
+<?php $sql = mysqli_query($mysqli,"SELECT * FROM clients ORDER BY client_name ASC"); ?>
 
 
 <div class="card mb-3">

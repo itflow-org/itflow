@@ -57,7 +57,7 @@ if(isset($_POST['login'])){
 
   <div class="container">
     <div class="card card-login mx-auto mt-5">
-      <div class="card-header"><?php echo $config_company_name; ?> Login</div>
+      <div class="card-header"><h3><?php echo $config_company_name; ?> Login</h3></div>
       <div class="card-body">
         <?php if(isset($response)) { echo $response; } ?>
         <form method="post">
