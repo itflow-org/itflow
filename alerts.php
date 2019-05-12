@@ -5,7 +5,7 @@
 
 <div class="card mb-3">
   <div class="card-header">
-    <h6 class="float-left mt-1"><i class="fa fa-users"></i> Alerts</h6>
+    <h6 class="float-left mt-1"><i class="fa fa-exclamation-triangle"></i> Alerts</h6>
   </div>
   <div class="card-body">
     <div class="table-responsive">

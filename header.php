@@ -2,7 +2,7 @@
 
   include("config.php");
   include("check_login.php");
-  //include("vendor/Parsedown.php");
+  include("vendor/Parsedown.php");
   //include("functions.php");
 
 ?>
@@ -30,6 +30,7 @@
 
   <!-- Custom styles for this template-->
   <link href="css/sb-admin.css" rel="stylesheet" type="text/css">
+  <link href="vendor/datepicker/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
 
   <!-- Custom Style Sheet -->
   <link href="css/style.css" rel="stylesheet" type="text/css">

@@ -49,7 +49,7 @@
                 <div class="modal-dialog modal-sm">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title"><i class="fa fa-key"></i> Login</h5>
+                      <h5 class="modal-title"><i class="fa fa-key"></i> <?php echo $client_vendor_name; ?> Login</h5>
                       <button type="button" class="close" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span>
                       </button>

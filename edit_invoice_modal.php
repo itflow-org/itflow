@@ -1,4 +1,4 @@
-<div class="modal" id="editInvoiceModal" tabindex="-1">
+<div class="modal" id="editInvoiceModal<?php echo $invoice_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -42,8 +42,8 @@
                 <option value="">- Category -</option>
                 <?php 
                 
-                $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income'"); 
-                while($row = mysqli_fetch_array($sql)){
+                $sql_income_category = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income'"); 
+                while($row = mysqli_fetch_array($income_category)){
                   $category_id = $row['category_id'];
                   $category_name = $row['category_name'];
                 ?>

@@ -1,13 +1,13 @@
 <?php 
  
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id AND invoice_number > 0 ORDER BY invoice_number DESC");
+  $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE client_id = $client_id ORDER BY quote_number DESC");
 
 ?>
 
 <div class="card">
   <div class="card-header">
     <h6 class="float-left mt-1"><i class="fa fa-file"></i> Quotes</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addClientQuoteModal"><i class="fa fa-plus"></i></button>
+    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addQuoteModal"><i class="fa fa-plus"></i></button>
   </div>
   <div class="card-body">
     <div class="table-responsive">
@@ -30,8 +30,6 @@
             $quote_status = $row['quote_status'];
             $quote_date = $row['quote_date'];
             $quote_amount = $row['quote_amount'];
-            $client_id = $row['client_id'];
-            $client_name = $row['client_name'];
 
             if($quote_status == "Sent"){
               $quote_badge_color = "warning";
@@ -47,13 +45,11 @@
 
           <tr>
             <td><a href="quote.php?quote_id=<?php echo $quote_id; ?>">QUO-<?php echo $quote_number; ?></a></td>
-            <td class="text-right text-monospace">$<?php echo number_format($invoice_amount,2); ?></td>
-            <td class="text-right text-monospace <?php echo $balance_text_color; ?>">$<?php echo number_format($balance,2); ?></td>
-            <td><?php echo $invoice_date; ?></td>
-            <td><div class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></div></td>
+            <td class="text-right text-monospace">$<?php echo number_format($quote_amount,2); ?></td>
+            <td><?php echo $quote_date; ?></td>
             <td>
-              <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
-                <?php echo $invoice_status; ?>
+              <span class="p-2 badge badge-<?php echo $quote_badge_color; ?>">
+                <?php echo $quote_status; ?>
               </span>
             </td>
             <td>
@@ -62,10 +58,10 @@
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editinvoiceModal<?php echo $invoice_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
-                  <a class="dropdown-item" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>">PDF</a>
-                  <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editquoteModal<?php echo $quote_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addquoteCopyModal<?php echo $quote_id; ?>">Copy</a>
+                  <a class="dropdown-item" href="post.php?pdf_quote=<?php echo $quote_id; ?>">PDF</a>
+                  <a class="dropdown-item" href="post.php?delete_quote=<?php echo $quote_id; ?>">Delete</a>
                 </div>
               </div>      
             </td>
@@ -84,5 +80,7 @@
     </div>
   </div>
 </div>
+
+<?php include("add_quote_modal.php"); ?>
 
 <?php include("add_client_quote_modal.php"); ?>

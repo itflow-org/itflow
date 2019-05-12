@@ -25,6 +25,8 @@
   <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
   <script src="vendor/easy-markdown-editor-2.5.1/dist/easymde.min.js"></script>
   <script src="vendor/Bootstrap-3-Typeahead/bootstrap3-typeahead.min.js"></script>
+  <script src="vendor/moment/min/moment.min.js"></script>
+  <script src="vendor/datepicker/build/js/tempusdominus-bootstrap-4.min.js"></script>
   
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin.min.js"></script>

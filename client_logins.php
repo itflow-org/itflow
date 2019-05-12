@@ -22,14 +22,20 @@
           while($row = mysqli_fetch_array($sql)){
             $client_login_id = $row['client_login_id'];
             $client_login_description = $row['client_login_description'];
+            $client_login_web_link = $row['client_login_web_link'];
+            if(!empty($client_login_web_link)){
+              $client_login_description_td = "<a href='$client_login_web_link' target='_blank'>$client_login_description <i class='fa fa-link'></i></a>";
+            }else{
+              $client_login_description_td = $row['client_login_description'];
+            }
             $client_login_username = $row['client_login_username'];
             $client_login_password = $row['client_login_password'];
       
           ?>
           <tr>
-            <td><?php echo "$client_login_description"; ?></td>
-            <td><?php echo "$client_login_username"; ?></td>
-            <td><?php echo "$client_login_password"; ?></td>
+            <td><?php echo $client_login_description_td; ?></td>
+            <td><?php echo $client_login_username; ?></td>
+            <td><?php echo $client_login_password; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

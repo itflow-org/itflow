@@ -30,6 +30,20 @@ if(isset($_GET['client_id'])){
   $sql_domains = mysqli_query($mysqli,"SELECT * FROM client_domains WHERE client_id = $client_id ORDER BY client_domain_id DESC");
   $sql_applications = mysqli_query($mysqli,"SELECT * FROM client_applications WHERE client_id = $client_id ORDER BY client_application_id DESC");
   $sql_invoices = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id ORDER BY invoices.invoice_date DESC");
+
+  $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, invoices, accounts
+    WHERE invoices.client_id = $client_id
+    AND payments.invoice_id = invoices.invoice_id
+    AND payments.account_id = accounts.account_id
+    ORDER BY payments.payment_id DESC"); 
+  
+  $sql_quotes = mysqli_query($mysqli,"SELECT * FROM quotes WHERE client_id = $client_id ORDER BY quote_number DESC");
+
+  $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring_invoices, invoices
+    WHERE invoices.invoice_id = recurring_invoices.invoice_id
+    AND invoices.client_id = $client_id
+    ORDER BY recurring_invoices.recurring_invoice_id DESC");
+
   $sql_notes = mysqli_query($mysqli,"SELECT * FROM client_notes WHERE client_id = $client_id ORDER BY client_note_id DESC");
 
   //Get Counts
@@ -49,8 +63,19 @@ if(isset($_GET['client_id'])){
   $num_domains = $row['num'];
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_application_id') AS num FROM client_applications WHERE client_id = $client_id"));
   $num_applications = $row['num'];
+  
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE client_id = $client_id"));
   $num_invoices = $row['num'];
+
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('payment_id') AS num FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.client_id = $client_id"));
+  $num_payments = $row['num'];
+
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('quote_id') AS num FROM quotes WHERE client_id = $client_id"));
+  $num_quotes = $row['num'];
+
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_invoice_id') AS num FROM recurring_invoices, invoices WHERE recurring_invoices.invoice_id = invoices.invoice_id AND invoices.client_id = $client_id"));
+  $num_recurring = $row['num'];
+
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_note_id') AS num FROM client_notes WHERE client_id = $client_id"));
   $num_notes = $row['num'];
 
@@ -111,7 +136,9 @@ if(isset($_GET['client_id'])){
           <?php if($num_domains > 0){ ?> <li>Domains</li> <?php } ?>
           <?php if($num_applications > 0){ ?> <li>Applications</li> <?php } ?>
           <?php if($num_invoices > 0){ ?> <li>Invoices</li> <?php } ?>
+          <?php if($num_payments > 0){ ?> <li>Payments</li> <?php } ?>
           <?php if($num_quotes > 0){ ?> <li>Quotes</li> <?php } ?>
+          <?php if($num_recurring > 0){ ?> <li>Recurring</li> <?php } ?>
           <?php if($num_attachments > 0){ ?> <li>Attachments</li> <?php } ?>
           <?php if($num_notes > 0){ ?> <li>Notes</li> <?php } ?>
         </ul>
@@ -457,6 +484,145 @@ if(isset($_GET['client_id'])){
       <td><?php echo "$invoice_date"; ?></td>
       <td><?php echo "$invoice_due"; ?></td>
       <td><?php echo "$invoice_status"; ?></td>
+    </tr>
+
+    <?php
+
+    }
+
+    ?>
+
+  </tbody>
+</table>
+<?php } ?>
+
+
+<?php if($num_payments > 0){ ?>
+<h4>Payments</h4>
+<table class="table table-bordered table-sm mb-4">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Invoice</th>
+      <th class="text-right">Amount</th>
+      <th>Account</th>
+      <th>Method</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php
+
+    while($row = mysqli_fetch_array($sql_payments)){
+      $invoice_id = $row['invoice_id'];
+      $invoice_number = $row['invoice_number'];
+      $invoice_status = $row['invoice_status'];
+      $payment_date = $row['payment_date'];
+      $payment_method = $row['payment_method'];
+      $payment_amount = $row['payment_amount'];
+      $account_name = $row['account_name'];
+
+    ?>
+
+    <tr>
+      <td><?php echo $payment_date; ?></td>
+      <td>INV-<?php echo $invoice_number; ?></td>
+      <td class="text-right text-monospace">$<?php echo number_format($payment_amount,2); ?></td>
+      <td><?php echo $account_name; ?></td>
+      <td><?php echo $payment_method; ?></td>
+    </tr>
+
+    <?php
+
+    }
+
+    ?>
+
+  </tbody>
+</table>
+<?php } ?>
+
+
+<?php if($num_quotes > 0){ ?>
+<h4>Quotes</h4>
+<table class="table table-bordered table-sm mb-4">
+  <thead>
+    <tr>
+      <th>Number</th>
+      <th class="text-right">Amount</th>
+      <th>Date</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php
+
+    while($row = mysqli_fetch_array($sql_quotes)){
+      $quote_id = $row['quote_id'];
+      $quote_number = $row['quote_number'];
+      $quote_status = $row['quote_status'];
+      $quote_date = $row['quote_date'];
+      $quote_amount = $row['quote_amount'];
+
+    ?>
+
+    <tr>
+      <td>QUO-<?php echo $quote_number; ?></td>
+      <td class="text-right text-monospace">$<?php echo number_format($quote_amount,2); ?></td>
+      <td><?php echo $quote_date; ?></td>
+      <td><?php echo $quote_status; ?></td>
+    </tr>
+
+    <?php
+
+    }
+
+    ?>
+
+  </tbody>
+</table>
+<?php } ?>
+
+
+<?php if($num_recurring > 0){ ?>
+<h4>Recurring Invoices</h4>
+<table class="table table-bordered table-sm mb-4">
+  <thead>
+    <tr>
+      <th>Frequency</th>
+      <th>Start Date</th>
+      <th>Last Sent</th>
+      <th>Next Date</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php
+
+    while($row = mysqli_fetch_array($sql_recurring)){
+      $recurring_invoice_id = $row['recurring_invoice_id'];
+      $recurring_invoice_frequency = $row['recurring_invoice_frequency'];
+      $recurring_invoice_status = $row['recurring_invoice_status'];
+      $recurring_invoice_start_date = $row['recurring_invoice_start_date'];
+      $recurring_invoice_last_sent = $row['recurring_invoice_last_sent'];
+      if($recurring_invoice_last_sent == 0){
+        $recurring_invoice_last_sent = "-";
+      }
+      $recurring_invoice_next_date = $row['recurring_invoice_next_date'];
+      $invoice_id = $row['invoice_id'];
+      if($recurring_invoice_status == 1){
+        $status = "Active";
+      }else{
+        $status = "Inactive";
+      }
+
+    ?>
+
+    <tr>
+      <td><?php echo ucwords($recurring_invoice_frequency); ?>ly</td>
+      <td><?php echo $recurring_invoice_start_date; ?></td>
+      <td><?php echo $recurring_invoice_last_sent; ?></td>
+      <td><?php echo $recurring_invoice_next_date; ?></td>
+      <td><?php echo $status; ?></td>
     </tr>
 
     <?php

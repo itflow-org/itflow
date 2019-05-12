@@ -1752,6 +1752,7 @@ if(isset($_POST['add_client_login'])){
 
     $client_id = intval($_POST['client_id']);
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $web_link = strip_tags(mysqli_real_escape_string($mysqli,$_POST['web_link']));
     $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
     $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
@@ -1759,7 +1760,7 @@ if(isset($_POST['add_client_login'])){
     $asset_id = intval($_POST['asset']);
     $application_id = intval($_POST['application']);
 
-    mysqli_query($mysqli,"INSERT INTO client_logins SET client_login_description = '$description', client_login_username = '$username', client_login_password = '$password', client_login_note = '$note', client_vendor_id = $vendor_id, client_asset_id = $asset_id, client_application_id = $application_id, client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO client_logins SET client_login_description = '$description', client_login_web_link = '$web_link', client_login_username = '$username', client_login_password = '$password', client_login_note = '$note', client_vendor_id = $vendor_id, client_asset_id = $asset_id, client_application_id = $application_id, client_id = $client_id");
 
     $_SESSION['alert_message'] = "Login added";
     
@@ -1771,11 +1772,12 @@ if(isset($_POST['edit_client_login'])){
 
     $client_login_id = intval($_POST['client_login_id']);
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $web_link = strip_tags(mysqli_real_escape_string($mysqli,$_POST['web_link']));
     $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
     $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
 
-    mysqli_query($mysqli,"UPDATE client_logins SET client_login_description = '$description', client_login_username = '$username', client_login_password = '$password', client_login_note = '$note' WHERE client_login_id = $client_login_id");
+    mysqli_query($mysqli,"UPDATE client_logins SET client_login_description = '$description', client_login_web_link = '$web_link', client_login_username = '$username', client_login_password = '$password', client_login_note = '$note' WHERE client_login_id = $client_login_id");
 
     $_SESSION['alert_message'] = "Login updated";
     
@@ -1812,6 +1814,23 @@ if(isset($_POST['add_client_file'])){
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if(isset($_GET['delete_file'])){
+    $file_id = intval($_GET['delete_file']);
+
+    $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id");
+    $row = mysqli_fetch_array($sql_file);
+    $file_name = $row['file_name'];
+
+    unlink($file_name);
+
+    mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
+
+    $_SESSION['alert_message'] = "File deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
 }
 
 if(isset($_POST['add_client_note'])){

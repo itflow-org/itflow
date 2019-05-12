@@ -12,7 +12,7 @@
 <div class="card mb-3">
   <div class="card-header">
     <h6 class="float-left mt-1"><i class="fa fa-shopping-cart"></i> Expenses</h6>
-    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addExpenseModal"><i class="fas fa-plus"></i></button>
+    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addExpenseModal"><i class="fas fa-cart-plus"></i></button>
   </div>
   <div class="card-body">
     <div class="table-responsive">
@@ -88,7 +88,6 @@
       </table>
     </div>
   </div>
-  <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
 </div>
 
 <?php include("add_expense_modal.php"); ?>

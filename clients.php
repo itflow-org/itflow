@@ -6,11 +6,11 @@
 <div class="card mb-3">
   <div class="card-header">
     <h6 class="float-left mt-1"><i class="fa fa-users"></i> Clients</h6>
-    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-plus"></i></button>
+    <button type="button" class="btn btn-primary badge-pill mr-auto float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-user-plus"></i></button>
   </div>
   <div class="card-body">
     <div class="table-responsive">
-      <table class="table table-striped table-borderless table-hover" id="dT" width="100%" cellspacing="0">
+      <table class="table table-striped table-borderless table-hover" id="dataTable" width="100%" cellspacing="0">
         <thead class="thead-dark">
           <tr>
             <th>Name</th>

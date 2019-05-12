@@ -36,6 +36,9 @@
             $recurring_invoice_status = $row['recurring_invoice_status'];
             $recurring_invoice_start_date = $row['recurring_invoice_start_date'];
             $recurring_invoice_last_sent = $row['recurring_invoice_last_sent'];
+            if($recurring_invoice_last_sent == 0){
+              $recurring_invoice_last_sent = "-";
+            }
             $recurring_invoice_next_date = $row['recurring_invoice_next_date'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
@@ -89,7 +92,6 @@
       </table>
     </div>
   </div>
-  <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
 </div>
 
 <?php include("add_recurring_invoice_modal.php"); ?>

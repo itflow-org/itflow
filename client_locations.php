@@ -2,7 +2,7 @@
 
 <div class="card">
   <div class="card-header">
-    <h6 class="float-left mt-1"><i class="fa fa-map-marker"></i> Locations</h6>
+    <h6 class="float-left mt-1"><i class="fa fa-map-marker-alt"></i> Locations</h6>
     <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addClientLocationModal"><i class="fa fa-plus"></i></button>
   </div>
   <div class="card-body">

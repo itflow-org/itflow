@@ -189,6 +189,21 @@
     </a>
   </li>
   
+  <li class="nav-item <?php if($_GET['tab'] == "payments") { echo "active"; } ?>">
+    <a class="nav-link" 
+      href="?client_id=<?php echo $client_id; ?>&tab=payments">
+      <i class="fas fa-fw fa-credit-card mx-2"></i>
+      <span>Payments
+        <?php 
+        if($num_payments > 0){ ?> 
+          <small class="float-right badge-secondary badge-pill mt-1"><?php echo $num_payments; ?></small>
+        <?php
+        }
+        ?>
+      </span>
+    </a>
+  </li>
+
   <li class="nav-item <?php if($_GET['tab'] == "files") { echo "active"; } ?>">
     <a class="nav-link" 
       href="?client_id=<?php echo $client_id; ?>&tab=files">

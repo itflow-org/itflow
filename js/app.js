@@ -19,6 +19,12 @@ $('#dataTable').dataTable( {
   }
 });
 
+$(function () {
+    $('#datepicker').datetimepicker({
+        format: 'L'
+    });
+});
+
 new EasyMDE({
   autoDownloadFontAwesome: false,
   element: document.getElementById('addClientNote')
@@ -26,5 +32,8 @@ new EasyMDE({
 
 new EasyMDE({
     autoDownloadFontAwesome: false,
+    autofocus: true,
+    forceSync: true,
     element: document.getElementById('editClientNote')
+     
 });

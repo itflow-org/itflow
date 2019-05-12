@@ -2,7 +2,7 @@
 
 <div class="card">
   <div class="card-header">
-    <h6 class="float-left mt-1"><i class="fa fa-tag"></i> Assets</h6>
+    <h6 class="float-left mt-1"><i class="fa fa-tags"></i> Assets</h6>
     <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addClientAssetModal"><i class="fa fa-plus"></i></button>
   </div>
   <div class="card-body">
@@ -13,7 +13,8 @@
           <tr>
             <th>Type</th>
             <th>Name</th>
-            <th>Make/Model</th>
+            <th>Make</th>
+            <th>Model</th>
             <th>Serial</th>
             <th></th>
             <th class="text-center">Actions</th>
@@ -39,10 +40,11 @@
       
           ?>
           <tr>
-            <td><?php echo "$client_asset_type"; ?></td>
-            <td><?php echo "$client_asset_name"; ?></td>
-            <td><?php echo "$client_asset_make $client_asset_model"; ?></td>
-            <td><?php echo "$client_asset_serial"; ?></td>
+            <td><?php echo $client_asset_type; ?></td>
+            <td><?php echo $client_asset_name; ?></td>
+            <td><?php echo $client_asset_make; ?></td>
+            <td><?php echo $client_asset_model; ?></td>
+            <td><?php echo $client_asset_serial; ?></td>
             <td>
               <?php
               if($client_asset_id == $client_asset_id_relation){

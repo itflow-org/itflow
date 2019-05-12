@@ -34,6 +34,9 @@
                 $recurring_invoice_status = $row['recurring_invoice_status'];
                 $recurring_invoice_start_date = $row['recurring_invoice_start_date'];
                 $recurring_invoice_last_sent = $row['recurring_invoice_last_sent'];
+                if($recurring_invoice_last_sent == 0){
+                  $recurring_invoice_last_sent = "-";
+                }
                 $recurring_invoice_next_date = $row['recurring_invoice_next_date'];
                 $invoice_id = $row['invoice_id'];
                 if($recurring_invoice_status == 1){

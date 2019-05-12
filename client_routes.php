@@ -45,7 +45,7 @@ if(isset($_GET['tab'])){
   }
 }
 else{
-  include("client_contacts.php");
+  include("client_overview.php");
 }
 
 ?>

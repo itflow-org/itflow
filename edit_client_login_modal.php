@@ -20,6 +20,15 @@
             </div>
           </div>
           <div class="form-group">
+            <label>Web Link</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-link"></i></span>
+              </div>
+              <input type="text" class="form-control" name="web_link" value="<?php echo $client_login_web_link; ?>">
+            </div>
+          </div>
+          <div class="form-group">
             <label>Username</label>
             <div class="input-group">
               <div class="input-group-prepend">
