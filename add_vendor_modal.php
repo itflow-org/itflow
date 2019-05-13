@@ -29,7 +29,7 @@
             <div class="form-group col">
               <label>State</label>
               <select class="form-control" name="state">
-                <option value="">Select a state...</option>
+                <option value="">- State -</option>
                 <?php foreach($states_array as $state_abbr => $state_name) { ?>
                 <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
                 <?php } ?>

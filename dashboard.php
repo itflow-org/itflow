@@ -111,7 +111,6 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
       <div class="card-body">
         <canvas id="myAreaChart" width="100%" height="25"></canvas>
       </div>
-      <div class="card-footer"></div>
     </div>
   </div>
 
@@ -124,7 +123,6 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
       <div class="card-body">
         <canvas id="incomeByCategoryPieChart" width="100%" height="60"></canvas>
       </div>
-      <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
     </div>
   </div>
 
@@ -137,7 +135,6 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
       <div class="card-body">
         <canvas id="expenseByCategoryPieChart" width="100%" height="60"></canvas>
       </div>
-      <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
     </div>
   </div>
 

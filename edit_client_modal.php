@@ -50,7 +50,7 @@
             <label class="col-sm-2 col-form-label">State</label>
             <div class="col-sm-10">
               <select class="form-control" name="state" required>
-                <option value="">Select a state...</option>
+                <option value="">- State -</option>
                   <?php 
                   foreach($states_array as $state_abbr => $state_name){ 
                   ?>

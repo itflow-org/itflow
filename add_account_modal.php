@@ -13,7 +13,7 @@
             <label>Account Name</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-university"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
               </div>
               <input type="text" class="form-control" name="name" placeholder="Account name" required autofocus>
             </div>

@@ -95,11 +95,24 @@ if(isset($_GET['client_id'])){
       </div>
       <div class="col border-right">
         <h4 class="text-secondary">Contact</h4>
-        <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2"></i> <a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a>
+        <?php
+        if(!empty($client_email)){
+        ?>
+        <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i> <a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a>
         <br>
-        <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2"></i> <?php echo $client_phone; ?>
+        <?php
+        }
+        ?>
+
+        <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <?php echo $client_phone; ?>
         <br>
-        <i class="fa fa-fw fa-globe text-secondary ml-1 mr-2"></i> <a target="_blank" href="//<?php echo $client_website; ?>"><?php echo $client_website; ?></a>
+        <?php
+        if(!empty($client_website)){
+        ?>
+        <i class="fa fa-fw fa-globe text-secondary ml-1 mr-2 mb-2"></i> <a target="_blank" href="//<?php echo $client_website; ?>"><?php echo $client_website; ?></a>
+        <?php 
+        }
+        ?>
       </div>
       <div class="col border-right">
         <h4 class="text-secondary">Standings</h4>

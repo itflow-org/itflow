@@ -16,7 +16,7 @@
   <div class="card-body">
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover" id="dataTable" width="100%" cellspacing="0">
-        <thead>
+        <thead class="thead-dark">
           <tr>
             <th>Frequency</th>
             <th>Client</th>

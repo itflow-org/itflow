@@ -20,8 +20,8 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
 
 <div class="card mb-3">
   <div class="card-header">
-    <h6 class="float-left mt-1"><i class="fa fa-balance-scale"></i> Profit & Loss</h6>
-    <button type="button" class="btn btn-primary btn-sm float-right d-print-none" onclick="window.print();"><i class="fas fa-print"></i> Print</button>
+    <h6 class="float-left mt-1"><i class="fa fw-fw fa-balance-scale mr-2"></i>Profit & Loss</h6>
+    <button type="button" class="btn btn-primary btn-sm float-right d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
     <form>
       <select onchange="this.form.submit()" class="form-control mt-5" name="year">
         <?php 

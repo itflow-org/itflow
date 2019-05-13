@@ -25,7 +25,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                 </div>
-                <input type="number" class="form-control" step="0.01" name="amount" autofocus="autofocus" required>
+                <input type="number" class="form-control" step="0.01" name="amount" placeholder="Enter amount" autofocus required>
               </div>
             </div>
             <div class="form-group col-md">

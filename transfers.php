@@ -15,7 +15,7 @@ $sql = mysqli_query($mysqli,"SELECT * FROM transfers ORDER BY transfer_date DESC
   <div class="card-body">
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover" id="dataTable" width="100%" cellspacing="0">
-        <thead>
+        <thead class="thead-dark">
           <tr>
             <th>Date</th>
             <th>From Account</th>
