@@ -26,7 +26,45 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
               </div>
-              <input type="text" class="form-control" name="registrar" placeholder="ex GoDaddy" value="<?php echo $client_domain_registrar; ?>" required>
+              <select class="form-control" name="registrar">
+                <option value="">- Vendor -</option>
+                <?php 
+                
+                $sql_vendors1 = mysqli_query($mysqli,"SELECT * FROM client_vendors WHERE client_id = $client_id"); 
+                while($row = mysqli_fetch_array($sql_vendors1)){
+                  $client_vendor_id = $row['client_vendor_id'];
+                  $client_vendor_name = $row['client_vendor_name'];
+                ?>
+                <option <?php if($client_domain_registrar == $client_vendor_id) { echo "selected"; } ?> value="<?php echo $client_vendor_id; ?>"><?php echo $client_vendor_name; ?></option>
+                
+                <?php
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Webhost</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+              </div>
+              <select class="form-control" name="webhost">
+                <option value="">- Vendor -</option>
+                <?php 
+                
+                $sql_vendors2 = mysqli_query($mysqli,"SELECT * FROM client_vendors WHERE client_id = $client_id"); 
+                while($row = mysqli_fetch_array($sql_vendors2)){
+                  $client_vendor_id = $row['client_vendor_id'];
+                  $client_vendor_name = $row['client_vendor_name'];
+                ?>
+                <option <?php if($client_domain_webhost == $client_vendor_id){ echo "selected"; } ?> value="<?php echo $client_vendor_id; ?>"><?php echo $client_vendor_name; ?></option>
+                
+                <?php
+                }
+                ?>
+              </select>
             </div>
           </div>
         
@@ -40,15 +78,6 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label>Server</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-              </div>
-              <input type="text" class="form-control" name="server" placeholder="ex ns1.pittpc.com" value="<?php echo $client_domain_server; ?>" required>
-            </div>
-          </div>
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

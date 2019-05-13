@@ -1650,9 +1650,14 @@ if(isset($_POST['add_client_asset'])){
     $make = strip_tags(mysqli_real_escape_string($mysqli,$_POST['make']));
     $model = strip_tags(mysqli_real_escape_string($mysqli,$_POST['model']));
     $serial = strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial']));
+    $location = intval($_POST['location']);
+    $vendor = intval($_POST['vendor']);
+    $contact = intval($_POST['contact']);
+    $purchase_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date']));
+    $warranty_expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire']));
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
 
-    mysqli_query($mysqli,"INSERT INTO client_assets SET client_asset_name = '$name', client_asset_type = '$type', client_asset_make = '$make', client_asset_model = '$model', client_asset_serial = '$serial', client_asset_note = '$note', client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO client_assets SET client_asset_name = '$name', client_asset_type = '$type', client_asset_make = '$make', client_asset_model = '$model', client_asset_serial = '$serial', client_location_id = $location, client_vendor_id = $vendor, client_contact_id = $contact, client_asset_purchase_date = '$purchase_date', client_asset_warranty_expire = '$warranty_expire', client_asset_note = '$note', client_id = $client_id");
 
     if(!empty($_POST['username'])) {
         $asset_id = mysqli_insert_id($mysqli);
@@ -1671,15 +1676,37 @@ if(isset($_POST['add_client_asset'])){
 
 if(isset($_POST['edit_client_asset'])){
 
-    $client_asset_id = intval($_POST['client_asset_id']);
+    $asset_id = intval($_POST['client_asset_id']);
+    $login_id = intval($_POST['client_login_id']);
+    $client_id = intval($_POST['client_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
     $make = strip_tags(mysqli_real_escape_string($mysqli,$_POST['make']));
     $model = strip_tags(mysqli_real_escape_string($mysqli,$_POST['model']));
     $serial = strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial']));
+    $location = intval($_POST['location']);
+    $vendor = intval($_POST['vendor']);
+    $contact = intval($_POST['contact']);
+    $purchase_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date']));
+    $warranty_expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire']));
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+    $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
+    $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
+    $description = "$type - $name";
 
-    mysqli_query($mysqli,"UPDATE client_assets SET client_asset_name = '$name', client_asset_type = '$type', client_asset_make = '$make', client_asset_model = '$model', client_asset_serial = '$serial', client_asset_note = '$note' WHERE client_asset_id = $client_asset_id");
+    mysqli_query($mysqli,"UPDATE client_assets SET client_asset_name = '$name', client_asset_type = '$type', client_asset_make = '$make', client_asset_model = '$model', client_asset_serial = '$serial', client_location_id = $location, client_vendor_id = $vendor, client_contact_id = $contact, client_asset_purchase_date = '$purchase_date', client_asset_warranty_expire = '$warranty_expire', client_asset_note = '$note' WHERE client_asset_id = $asset_id");
+
+    //If login exists then update the login
+    if($login_id > 0){
+        mysqli_query($mysqli,"UPDATE client_logins SET client_login_description = '$description', client_login_username = '$username', client_login_password = '$password' WHERE client_login_id = $login_id");
+    }else{
+    //If Username is filled in then add a login
+        if(!empty($_POST['username'])) {
+            
+            mysqli_query($mysqli,"INSERT INTO client_logins SET client_login_description = '$description', client_login_username = '$username', client_login_password = '$password', client_asset_id = $asset_id, client_id = $client_id");
+
+        }
+    }
 
     $_SESSION['alert_message'] = "Asset updated";
     
@@ -1921,11 +1948,11 @@ if(isset($_POST['add_client_domain'])){
 
     $client_id = intval($_POST['client_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $registrar = strip_tags(mysqli_real_escape_string($mysqli,$_POST['registrar']));
+    $registrar = intval($_POST['registrar']);
+    $webhost = intval($_POST['webhost']);
     $expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire']));
-    $server = strip_tags(mysqli_real_escape_string($mysqli,$_POST['server']));
 
-    mysqli_query($mysqli,"INSERT INTO client_domains SET client_domain_name = '$name', client_domain_registrar = '$registrar', client_domain_expire = '$expire', client_domain_server = '$server', client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO client_domains SET client_domain_name = '$name', client_domain_registrar = $registrar,  client_domain_webhost = $webhost, client_domain_expire = '$expire', client_id = $client_id");
 
     $_SESSION['alert_message'] = "Domain added";
     
@@ -1937,11 +1964,11 @@ if(isset($_POST['edit_client_domain'])){
 
     $client_domain_id = intval($_POST['client_domain_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $registrar = strip_tags(mysqli_real_escape_string($mysqli,$_POST['registrar']));
+    $registrar = intval($_POST['registrar']);
+    $webhost = intval($_POST['webhost']);
     $expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire']));
-    $server = strip_tags(mysqli_real_escape_string($mysqli,$_POST['server']));
 
-    mysqli_query($mysqli,"UPDATE client_domains SET client_domain_name = '$name', client_domain_registrar = '$registrar', client_domain_expire = '$expire', client_domain_server = '$server' WHERE client_domain_id = $client_domain_id");
+    mysqli_query($mysqli,"UPDATE client_domains SET client_domain_name = '$name', client_domain_registrar = $registrar,  client_domain_webhost = $webhost, client_domain_expire = '$expire' WHERE client_domain_id = $client_domain_id");
 
     $_SESSION['alert_message'] = "Domain updated";
     

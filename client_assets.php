@@ -30,6 +30,13 @@
             $client_asset_make = $row['client_asset_make'];
             $client_asset_model = $row['client_asset_model'];
             $client_asset_serial = $row['client_asset_serial'];
+            $client_asset_purchase_date = $row['client_asset_purchase_date'];
+            $client_asset_warranty_expire = $row['client_asset_warranty_expire'];
+            $client_vendor_id = $row['client_vendor_id'];
+            $client_location_id = $row['client_location_id'];
+            $client_contact_id = $row['client_contact_id'];
+
+
 
             if($client_asset_type == 'Laptop'){
               $device_icon = "laptop";
@@ -59,8 +66,8 @@
               $device_icon = "tag";
             }
 
-            $sql2 = mysqli_query($mysqli,"SELECT * FROM client_logins WHERE client_asset_id = $client_asset_id");
-            $row = mysqli_fetch_array($sql2);
+            $sql_logins = mysqli_query($mysqli,"SELECT * FROM client_logins WHERE client_asset_id = $client_asset_id");
+            $row = mysqli_fetch_array($sql_logins);
             $client_login_id = $row['client_login_id'];
             $client_login_username = $row['client_login_username'];
             $client_login_password = $row['client_login_password'];
