@@ -5,7 +5,7 @@
 
 <div class="card mb-3">
   <div class="card-header">
-    <h6 class="float-left mt-1"><i class="fa fa-piggy-bank"></i> Accounts</h6>
+    <h6 class="float-left mt-1"><i class="fa fa-fw fa-piggy-bank mr-2"></i>Accounts</h6>
     <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addAccountModal"><i class="fas fa-plus"></i></button>
   </div>
   <div class="card-body">

@@ -5,6 +5,7 @@
 
 <div class="card mb-3">
   <div class="card-header">
+    <h6 class="float-left mt-1"><i class="fa fa-fw fa-list mr-2"></i>Categories</h6>
     <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addCategoryModal"><i class="fas fa-plus"></i></button>
   </div>
   <div class="card-body">

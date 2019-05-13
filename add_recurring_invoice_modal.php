@@ -1,22 +1,22 @@
 <div class="modal" id="addRecurringInvoiceModal" tabindex="-1">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-copy"></i> New Recurring Invoice</h5>
-        <button type="button" class="close" data-dismiss="modal">
+    <div class="modal-content bg-dark">
+      <div class="modal-header text-white">
+        <h5 class="modal-title"><i class="fa fa-fw fa-copy mr-2"></i>New Recurring Invoice</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-        <div class="modal-body">
+        <div class="modal-body bg-white">
           <div class="form-group">
             <label>Client</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-user"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
               </div>
               <select class="form-control" name="client" required>
-                <option value="">- Customer -</option>
+                <option value="">- Client -</option>
                 <?php 
                 
                 $sql = mysqli_query($mysqli,"SELECT * FROM clients"); 
@@ -37,7 +37,7 @@
               <label>Start Date</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
                 <input type="date" class="form-control" name="start_date" value="<?php echo date("Y-m-d"); ?>" required>
               </div>
@@ -46,10 +46,10 @@
               <label>Frequency</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-clock"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                 </div>
                 <select class="form-control" name="frequency" required>
-                  <option value="">- frequency -</option>
+                  <option value="">- Frequency -</option>
                   <option value="week">Weekly</option>
                   <option value="month">Monthly</option>
                   <option value="year">Yearly</option>
@@ -62,7 +62,7 @@
             <label>Income Category</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-user"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
               </div>
               <select class="form-control" name="category" required>
                 <option value="">- Category -</option>
@@ -82,7 +82,7 @@
             </div>
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="add_recurring_invoice" class="btn btn-primary">Save</button>
         </div>

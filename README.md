@@ -60,3 +60,11 @@ CRM, Accounting and Invoicing System for small managed IT companies
 * mPDF
 * EasyMDE forked from SimpleMDE
 * parsedown
+
+### Future Todo
+* FreePBX "Asterisk" Integration (For CallerID and to track client calls within the app)
+* MeshCentral Integation to assign devices and easily access remote desktop within the app
+* HestiaCP Integration for intergrating domains and webclients
+* CalDAV to integrate with 3rd party calendars
+* CardDAV to integrate with 3rd party Address books
+* Unifi and UNMS integration

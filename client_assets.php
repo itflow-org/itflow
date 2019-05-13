@@ -31,6 +31,34 @@
             $client_asset_model = $row['client_asset_model'];
             $client_asset_serial = $row['client_asset_serial'];
 
+            if($client_asset_type == 'Laptop'){
+              $device_icon = "laptop";
+            }elseif($client_asset_type == 'Desktop'){
+              $device_icon = "desktop";
+            }elseif($client_asset_type == 'Server'){
+              $device_icon = "server";
+            }elseif($client_asset_type == 'Printer'){
+              $device_icon = "print";
+            }elseif($client_asset_type == 'Camera'){
+              $device_icon = "video";
+            }elseif($file_ext == 'Switch' or $file_ext == 'Firewall/Router'){
+              $device_icon = "network";
+            }elseif($client_asset_type == 'Access Point'){
+              $device_icon = "wifi";
+            }elseif($client_asset_type == 'Phone'){
+              $device_icon = "phone";
+            }elseif($client_asset_type == 'Mobile Phone'){
+              $device_icon = "mobile-alt";
+            }elseif($client_asset_type == 'Tablet'){
+              $device_icon = "tablet-alt";
+            }elseif($client_asset_type == 'TV'){
+              $device_icon = "tv";
+            }elseif($client_asset_type == 'Virtual Machine'){
+              $device_icon = "cloud";
+            }else{
+              $device_icon = "tag";
+            }
+
             $sql2 = mysqli_query($mysqli,"SELECT * FROM client_logins WHERE client_asset_id = $client_asset_id");
             $row = mysqli_fetch_array($sql2);
             $client_login_id = $row['client_login_id'];
@@ -40,7 +68,7 @@
       
           ?>
           <tr>
-            <td><?php echo $client_asset_type; ?></td>
+            <td><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $client_asset_type; ?></td>
             <td><?php echo $client_asset_name; ?></td>
             <td><?php echo $client_asset_make; ?></td>
             <td><?php echo $client_asset_model; ?></td>
@@ -53,14 +81,14 @@
 
               <div class="modal" id="viewPasswordModal<?php echo $client_login_id; ?>" tabindex="-1">
                 <div class="modal-dialog modal-sm">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title"><i class="fa fa-key"></i> Login</h5>
-                      <button type="button" class="close" data-dismiss="modal">
+                  <div class="modal-content bg-dark">
+                    <div class="modal-header text-white">
+                      <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i><?php echo $client_asset_name; ?> Login</h5>
+                      <button type="button" class="close text-white" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span>
                       </button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body bg-white">
                       <div class="form-group">
                         <div class="input-group">
                           <div class="input-group-prepend">

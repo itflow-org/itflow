@@ -1,49 +1,49 @@
 <div class="modal" id="addClientLoginModal" tabindex="-1">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-lock"></i> New Login</h5>
-        <button type="button" class="close" data-dismiss="modal">
+    <div class="modal-content bg-dark">
+      <div class="modal-header text-white">
+        <h5 class="modal-title"><i class="fa fa-fw fa-lock mr-2"></i>New Login</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <div class="modal-body">  
+        <div class="modal-body bg-white">  
           <div class="form-group">
             <label>Description</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-info-circle"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
               </div>
-              <input type="text" class="form-control" name="description" required autofocus>
+              <input type="text" class="form-control" name="description" placeholder="Description of the login" required autofocus>
             </div>
           </div>
           <div class="form-group">
             <label>Web Link</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-link"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
               </div>
-              <input type="text" class="form-control" name="web_link">
+              <input type="text" class="form-control" name="web_link" placeholder="Please include http://">
             </div>
           </div>
           <div class="form-group">
             <label>Username</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-user"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
               </div>
-              <input type="text" class="form-control" name="username" required>
+              <input type="text" class="form-control" name="username" placeholder="Username" required>
             </div>
           </div>
           <div class="form-group">
             <label>Password</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
               </div>
-              <input type="text" class="form-control" name="password" required>
+              <input type="text" class="form-control" name="password" placeholder="Password" required>
             </div>
           </div>
           <center><a class="btn btn-link" data-toggle="collapse" href="#optionsCollapse" role="button" aria-expanded="false" aria-controls="optionsCollapse">Link Options</a></center>
@@ -65,7 +65,7 @@
                   <label>Vendor</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-building"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                     </div>
                     <select class="form-control" name="vendor">
                       <option value="">- Vendor -</option>
@@ -90,7 +90,7 @@
                   <label>Asset</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-tag"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                     </div>
                     <select class="form-control" name="asset">
                       <option value="">- Asset -</option>
@@ -115,7 +115,7 @@
                   <label>Application</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-box"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
                     </div>
                     <select class="form-control" name="application">
                       <option value="">- Application -</option>
@@ -138,7 +138,7 @@
             </div>
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="add_client_login" class="btn btn-primary">Save</button>
         </div>

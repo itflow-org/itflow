@@ -76,7 +76,7 @@
   </li>
   <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "mileage.php") { echo "active"; } ?>">
     <a class="nav-link" href="mileage.php">
-      <i class="fas fa-fw fa-car mx-2"></i>
+      <i class="fas fa-fw fa-bicycle mx-2"></i>
       <span>Mileage</span>
     </a>
   </li>

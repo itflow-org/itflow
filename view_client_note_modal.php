@@ -1,13 +1,13 @@
 <div class="modal" id="viewClientNoteModal<?php echo $client_note_id; ?>" tabindex="-1">
   <div class="modal-dialog modal-xl">
-    <div class="modal-content">
+    <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-note"></i> <?php echo $client_note_subject; ?></h5>
-        <button type="button" class="close" data-dismiss="modal">
+        <h5 class="modal-title text-white"><i class="fa fa-fw fa-edit mr-2"></i><?php echo $client_note_subject; ?></h5>
+        <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body bg-white">
         <?php
           $Parsedown = new Parsedown();
           echo $Parsedown->text("$client_note_body");

@@ -9,7 +9,7 @@ $sql = mysqli_query($mysqli,"SELECT * FROM transfers ORDER BY transfer_date DESC
 
 <div class="card mb-3">
   <div class="card-header">
-    <h6 class="float-left mt-1"><i class="fa fa-exchange-alt"></i> Transfers</h6>
+    <h6 class="float-left mt-1"><i class="fa fa-fw fa-exchange-alt mr-2"></i>Transfers</h6>
     <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addTransferModal"><i class="fas fa-plus"></i></button>
   </div>
   <div class="card-body">

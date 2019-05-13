@@ -1,22 +1,22 @@
 <div class="modal" id="addPaymentModal" tabindex="-1">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-money-bill-alt"></i> New Payment</h5>
-        <button type="button" class="close" data-dismiss="modal">
+    <div class="modal-content bg-dark">
+      <div class="modal-header text-white">
+        <h5 class="modal-title"><i class="fa fa-fw fa-money-bill-alt mr-2"></i>Add Payment</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
         <input type="hidden" name="balance" value="<?php echo $balance; ?>">
-        <div class="modal-body">
+        <div class="modal-body bg-white">
           <div class="form-row">
             <div class="form-group col">
               <label>Date</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
                 <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
               </div>
@@ -25,7 +25,7 @@
               <label>Amount</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-dollar-sign"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                 </div>
                 <input type="number" class="form-control" step="0.01" min="0.00" name="amount" value="<?php echo $balance; ?>" required>
               </div>
@@ -36,7 +36,7 @@
               <label>Account</label>
               <div class="input-group"> 
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-university"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-university"></i></span>
                 </div> 
                 <select class="form-control" name="account" required>
                   <option value="">- Account -</option>
@@ -71,10 +71,10 @@
               <label>Payment Method</label>
               <div class="input-group"> 
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-money-check-alt"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
                 </div> 
                 <select class="form-control" name="payment_method" required>
-                  <option value="">- Payment Method -</option>
+                  <option value="">- Method -</option>
                   <?php 
                   
                   $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method'"); 
@@ -92,14 +92,19 @@
           </div>
           <div class="form-group">
             <label>Reference</label>
-            <input type="text" class="form-control" name="reference">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+              </div>
+              <input type="text" class="form-control" name="reference" placeholder="Enter a reference">
+            </div>
           </div>
           <div class="custom-control custom-checkbox">
             <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_receipt" value="1" >
             <label class="custom-control-label" for="customControlAutosizing">Email Reciept</label>
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="add_payment" class="btn btn-primary">Save</button>
         </div>

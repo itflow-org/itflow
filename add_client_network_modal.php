@@ -1,20 +1,20 @@
 <div class="modal" id="addClientNetworkModal" tabindex="-1">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-network-wired"></i> New Network</h5>
-        <button type="button" class="close" data-dismiss="modal">
+    <div class="modal-content bg-dark">
+      <div class="modal-header text-white">
+        <h5 class="modal-title"><i class="fa fa-fw fa-network-wired mr-2"></i>New Network</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <div class="modal-body">    
+        <div class="modal-body bg-white">    
           <div class="form-group">
             <label>Name</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-network-wired"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
               </div>
               <input type="text" class="form-control" name="name" placeholder="Network name (VLAN, WAN, LAN2 etc)" required autofocus>
             </div>
@@ -24,7 +24,7 @@
             <label>Network</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-network-wired"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
               </div>
               <input type="text" class="form-control" name="network" placeholder="Network ex 192.168.1.0/24" required>
             </div>
@@ -34,7 +34,7 @@
             <label>Gateway</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-route"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-route"></i></span>
               </div>
               <input type="text" class="form-control" name="gateway" placeholder="ex 192.168.1.1" required> 
             </div>
@@ -44,13 +44,13 @@
             <label>DHCP Range</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-server"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
               </div>
               <input type="text" class="form-control" name="dhcp_range" placeholder="ex 192.168.1.11-199">
             </div>
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="add_client_network" class="btn btn-primary">Save</button>
         </div>

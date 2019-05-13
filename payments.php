@@ -12,7 +12,7 @@
 
 <div class="card mb-3">
   <div class="card-header">
-    <h6 class="float-left mt-1"><i class="fa fa-credit-card"></i> Payments</h6>
+    <h6 class="float-left mt-1"><i class="fa fa-fw fa-credit-card mr-2"></i>Payments</h6>
   </div>
   <div class="card-body">
     <div class="table-responsive">

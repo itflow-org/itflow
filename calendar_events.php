@@ -16,10 +16,11 @@ $sql = mysqli_query($mysqli,"SELECT * FROM calendars, calendar_events WHERE cale
 
 <div class="card mb-3">
   <div class="card-header">
-    <h6 class="float-left mt-1"><i class="fa fa-calendar"></i> Events</h6>
+    <h5 class="float-left mt-2"><i class="fa fa-calendar mr-2"></i>Events</h5>
+    <button type="button" class="btn btn-primary badge-pill mr-auto float-right" data-toggle="modal" data-target="#addCalendarEventModal"><i class="fas fa-fw fa-calendar-plus"></i></button>
     <form>
       <select onchange="this.form.submit()" class="form-control mt-5" name="calendar_id">
-        <option value="">ALL</option>
+        <option value="">- ALL Calendars -</option>
         <?php 
                 
         while($row = mysqli_fetch_array($sql_calendars)){
@@ -34,8 +35,6 @@ $sql = mysqli_query($mysqli,"SELECT * FROM calendars, calendar_events WHERE cale
 
       </select>
     </form>
-
-    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addCalendarEventModal"><i class="fas fa-calendar-plus"></i></button>
   </div>
   <div class="card-body">
     <div class="table-responsive">

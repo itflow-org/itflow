@@ -11,8 +11,8 @@
 
 <div class="card mb-3">
   <div class="card-header">
-    <h6 class="float-left mt-1"><i class="fa fa-shopping-cart"></i> Expenses</h6>
-    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addExpenseModal"><i class="fas fa-cart-plus"></i></button>
+    <h6 class="float-left mt-1"><i class="fa fa-fw fa-shopping-cart mr-2"></i>Expenses</h6>
+    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addExpenseModal"><i class="fas fa-fw fa-cart-plus"></i></button>
   </div>
   <div class="card-body">
     <div class="table-responsive">

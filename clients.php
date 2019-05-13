@@ -5,8 +5,8 @@
 
 <div class="card mb-3">
   <div class="card-header">
-    <h6 class="float-left mt-1"><i class="fa fa-users"></i> Clients</h6>
-    <button type="button" class="btn btn-primary badge-pill mr-auto float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-user-plus"></i></button>
+    <h5 class="float-left mt-2"><i class="fa fa-users mr-2"></i>Clients</h5>
+    <button type="button" class="btn btn-primary badge-pill mr-auto float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-user-plus"></i></button>
   </div>
   <div class="card-body">
     <div class="table-responsive">

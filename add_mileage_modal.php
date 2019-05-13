@@ -1,20 +1,20 @@
 <div class="modal" id="addMileageModal" tabindex="-1">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-car-side"></i> Add Mileage</h5>
-        <button type="button" class="close" data-dismiss="modal">
+    <div class="modal-content bg-dark">
+      <div class="modal-header text-white">
+        <h5 class="modal-title"><i class="fa fa-fw fa-bicycle mr-2"></i>New Trip</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-        <div class="modal-body">
+        <div class="modal-body bg-white">
           <div class="form-row">
             <div class="form-group col-7">
               <label>Date</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
                 <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
               </div>
@@ -23,28 +23,27 @@
               <label>Miles</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-car-side"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-bicycle"></i></span>
                 </div>
-                <input type="number" class="form-control" name="miles" required autofocus="autofocus">
+                <input type="number" class="form-control" name="miles" placeholder="Enter miles" required autofocus="autofocus">
               </div>
             </div>
           </div>
           <div class="form-group">
-            <label>Starting Location</label>
+            <label>Location</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-map-marker"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
               </div>
-              <input type="text" class="form-control" name="starting_location" required>
+              <input type="text" class="form-control" name="starting_location" placeholder="Enter your starting location" required>
             </div>
           </div>
           <div class="form-group">
-            <label>Destination</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-arrow-right"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-arrow-right"></i></span>
               </div>
-              <input type="text" class="form-control" name="destination" required>
+              <input type="text" class="form-control" name="destination" placeholder="Enter your destination" required>
             </div>
           </div>
           <div class="form-group">
@@ -56,7 +55,7 @@
             <label class="custom-control-label" for="customControlAutosizing">Roundtrip</label>
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="add_mileage" class="btn btn-primary">Save</button>
         </div>

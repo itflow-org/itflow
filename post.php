@@ -1798,7 +1798,6 @@ if(isset($_GET['delete_client_login'])){
 
 if(isset($_POST['add_client_file'])){
     $client_id = intval($_POST['client_id']);
-    $file_type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['file_type']));
     $new_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['new_name']));
 
     if($_FILES['file']['tmp_name']!='') {
@@ -1806,9 +1805,12 @@ if(isset($_POST['add_client_file'])){
         $path = $path . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
+        $ext = pathinfo($path);
+        $ext = $ext['extension'];
+
     }
 
-    mysqli_query($mysqli,"INSERT INTO files SET file_type = '$file_type', file_name = '$path', client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO files SET file_name = '$path', file_ext = '$ext', client_id = $client_id");
 
     $_SESSION['alert_message'] = "File uploaded";
     

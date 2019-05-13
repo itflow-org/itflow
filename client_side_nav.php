@@ -42,7 +42,7 @@
   <li class="nav-item <?php if($_GET['tab'] == "locations") { echo "active"; } ?>">
     <a class="nav-link" 
       href="?client_id=<?php echo $client_id; ?>&tab=locations">
-      <i class="fas fa-fw fa-map-marker mx-2"></i>
+      <i class="fas fa-fw fa-map-marker-alt mx-2"></i>
       <span>Locations
         <?php 
         if($num_locations > 0){ ?> 
@@ -132,7 +132,7 @@
   <li class="nav-item <?php if($_GET['tab'] == "applications") { echo "active"; } ?>">
     <a class="nav-link" 
       href="?client_id=<?php echo $client_id; ?>&tab=applications">
-      <i class="fas fa-fw fa-box mx-2"></i>
+      <i class="fas fa-fw fa-rocket mx-2"></i>
       <span>Applications
         <?php 
         if($num_applications > 0){ ?> 

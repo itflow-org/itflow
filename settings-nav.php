@@ -11,7 +11,7 @@
   <li class="nav-item">
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-company.php") { echo "active"; } ?>" 
       href="settings-company.php">
-      <i class="fa fa-2x fa-building"></i><br>
+      <i class="fa fa-fw fa-2x fa-building"></i><br>
       Company
     </a> 
   </li>
@@ -19,7 +19,7 @@
   <li class="nav-item">
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-mail.php") { echo "active"; } ?>" 
       href="settings-mail.php">
-      <i class="fa fa-2x fa-envelope"></i><br>
+      <i class="fa fa-fw fa-2x fa-envelope"></i><br>
       Mail
     </a> 
   </li>
@@ -27,7 +27,7 @@
   <li class="nav-item">
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-invoice.php") { echo "active"; } ?>" 
       href="settings-invoice.php">
-      <i class="fa fa-2x fa-file"></i><br>
+      <i class="fa fa-fw fa-2x fa-file"></i><br>
       Invoice
     </a> 
   </li>
@@ -35,7 +35,7 @@
   <li class="nav-item">
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-logo.php") { echo "active"; } ?>" 
       href="settings-logo.php">
-      <i class="fa fa-2x fa-image"></i><br>
+      <i class="fa fa-fw fa-2x fa-image"></i><br>
       Logo
     </a> 
   </li>
@@ -43,7 +43,7 @@
   <li class="nav-item">
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-backup.php") { echo "active"; } ?>" 
       href="settings-backup.php">
-      <i class="fa fa-2x fa-database"></i><br>
+      <i class="fa fa-fw fa-2x fa-database"></i><br>
       Backup
     </a> 
   </li>

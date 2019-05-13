@@ -1,18 +1,23 @@
 <div class="modal" id="editCalendarEventModal<?php echo $calendar_event_id; ?>" tabindex="-1">
   <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-calendar"></i> Edit Event</h5>
-        <button type="button" class="close" data-dismiss="modal">
+        <h5 class="modal-title text-white"><i class="fa fa-fw fa-calendar mr-2"></i>Edit Event</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="calendar_event_id" value="<?php echo $calendar_event_id; ?>">
-        <div class="modal-body">
+        <div class="modal-body bg-white">
           <div class="form-group">
             <label>Title</label>
-            <input type="text" class="form-control" name="title" placeholder="Title of the event" value="<?php echo $calendar_event_title; ?>" required>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
+              </div>
+              <input type="text" class="form-control" name="title" placeholder="Title of the event" value="<?php echo $calendar_event_title; ?>" required>
+            </div>
           </div>
           <div class="form-group">
             <label>Calendar</label>
@@ -41,7 +46,7 @@
               <label>Starts</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-clock"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                 </div>
                 <input type="datetime-local" class="form-control" name="start" value="<?php echo date('Y-m-d\TH:i:s', strtotime($calendar_event_start)); ?>" required>
               </div>
@@ -50,14 +55,14 @@
               <label>Ends</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-stopwatch"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
                 </div>
                 <input type="datetime-local" class="form-control" name="end" value="<?php echo date('Y-m-d\TH:i:s', strtotime($calendar_event_end)); ?>" required>
               </div>
             </div>
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="edit_calendar_event" class="btn btn-primary">Save</button>
         </div>

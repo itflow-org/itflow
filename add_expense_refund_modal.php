@@ -1,14 +1,14 @@
 <div class="modal" id="addExpenseRefundModal<?php echo $expense_id; ?>" tabindex="-1">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-refresh"></i> New refund</h5>
-        <button type="button" class="close" data-dismiss="modal">
+    <div class="modal-content bg-dark">
+      <div class="modal-header text-white">
+        <h5 class="modal-title"><i class="fa fa-fw fa-recycle mr-2"></i>New Refund</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-        <div class="modal-body">
+        <div class="modal-body bg-white">
           <input type="hidden" name="account" value="<?php echo $account_id; ?>">
           <input type="hidden" name="vendor" value="<?php echo $vendor_id; ?>">
           <input type="hidden" name="category" value="<?php echo $category_id; ?>">
@@ -17,7 +17,7 @@
               <label>Refund Date</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
                 <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
               </div>
@@ -26,7 +26,7 @@
               <label>Refund Amount</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-dollar-sign"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                 </div>
                 <input type="number" class="form-control" step="0.01" name="amount" value="-<?php echo $expense_amount; ?>" required>
               </div>
@@ -34,14 +34,23 @@
           </div>
           <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="4" name="description" required>Refund on Expense ID: <?php echo $expense_id; ?> - <?php echo $expense_description; ?></textarea>
+            <textarea class="form-control" rows="4" name="description" required>Refund: <?php echo $expense_description; ?></textarea>
+          </div>
+          <div class="form-group">
+            <label>Reference</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+              </div>
+              <input type="text" class="form-control" name="reference" placeholder="Enter a reference" value="<?php echo $expense_reference; ?>">
+            </div>
           </div>
           <div class="form-group">
             <label>Receipt</label>
             <input type="file" class="form-control-file" name="file">
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="add_expense" class="btn btn-primary">Save</button>
         </div>

@@ -1,20 +1,20 @@
 <div class="modal" id="editClientAssetModal<?php echo $client_asset_id; ?>" tabindex="-1">
   <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-tag"></i> Edit Asset</h5>
-        <button type="button" class="close" data-dismiss="modal">
+        <h5 class="modal-title text-white"><i class="fa fa-fw fa-tag mr-2"></i>Edit Asset</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="client_asset_id" value="<?php echo $client_asset_id; ?>">
-        <div class="modal-body">
+        <div class="modal-body bg-white">
           <div class="form-group">
             <label>Asset Name</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-tag"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
               </div>
               <input type="text" class="form-control" name="name" placeholder="Name the asset" value="<?php echo $client_asset_name; ?>" required>
             </div>
@@ -23,7 +23,7 @@
             <label>Asset Type</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-tags"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
               </div>
               <select class="form-control" name="type" required>
                 <?php foreach($asset_types_array as $asset_type) { ?>
@@ -36,7 +36,7 @@
             <label>Make</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-tag"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
               </div>
               <input type="text" class="form-control" name="make" placeholder="Manufacturer" value="<?php echo $client_asset_make; ?>" required>
             </div>
@@ -45,7 +45,7 @@
             <label>Model</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-tag"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
               </div>
               <input type="text" class="form-control" name="model" placeholder="Model Number" value="<?php echo $client_asset_model; ?>" required>
             </div>
@@ -54,13 +54,13 @@
             <label>Serial Number</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-barcode"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
               </div>
               <input type="text" class="form-control" name="serial" placeholder="Serial number" value="<?php echo $client_asset_serial; ?>" required>
             </div>
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="edit_client_asset" class="btn btn-primary">Save</button>
         </div>

@@ -1,20 +1,20 @@
 <div class="modal" id="addExpenseModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-cart-plus"></i> New Expense</h5>
-        <button type="button" class="close" data-dismiss="modal">
+    <div class="modal-content bg-dark">
+      <div class="modal-header text-white">
+        <h5 class="modal-title"><i class="fa fa-fw fa-cart-plus mr-2"></i>New Expense</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-        <div class="modal-body">
+        <div class="modal-body bg-white">
           <div class="form-row"> 
             <div class="form-group col-md">
               <label>Date</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
                 <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
               </div>
@@ -23,7 +23,7 @@
               <label>Amount</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-dollar-sign"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                 </div>
                 <input type="number" class="form-control" step="0.01" name="amount" autofocus="autofocus" required>
               </div>
@@ -32,9 +32,10 @@
               <label>Account</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-university"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-university"></i></span>
                 </div>
                 <select class="form-control" name="account" required>
+                  <option value="">- Account -</option>
                   <?php 
                   
                   $sql = mysqli_query($mysqli,"SELECT * FROM accounts"); 
@@ -68,10 +69,10 @@
               <label>Vendor</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-briefcase"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-briefcase"></i></span>
                 </div>
                 <select class="form-control" name="vendor" required>
-                  <option value="">- Select Vendor -</option>
+                  <option value="">- Vendor -</option>
                   <?php 
                   
                   $sql = mysqli_query($mysqli,"SELECT * FROM vendors"); 
@@ -91,10 +92,10 @@
               <label>Category</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-file"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                 </div>
                 <select class="form-control" name="category" required>
-                  <option value="">- Select Category -</option>
+                  <option value="">- Category -</option>
                   <?php 
                   
                   $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense'"); 
@@ -117,14 +118,19 @@
           </div>
           <div class="form-group">
             <label>Reference</label>
-            <input type="text" class="form-control" name="reference">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+              </div>
+              <input type="text" class="form-control" name="reference" placeholder="Enter a reference">
+            </div>
           </div>
           <div class="form-group">
             <label>Receipt</label>
             <input type="file" class="form-control-file" name="file">
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="add_expense" class="btn btn-primary">Save</button>
         </div>

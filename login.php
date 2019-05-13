@@ -53,12 +53,12 @@ if(isset($_POST['login'])){
 
 </head>
 
-<body class="bg-dark">
+<body class="bg-secondary">
 
   <div class="container">
-    <div class="card card-login mx-auto mt-5">
-      <div class="card-header"><h3><?php echo $config_company_name; ?> Login</h3></div>
-      <div class="card-body">
+    <div class="card card-login mx-auto mt-5 bg-dark">
+      <div class="card-header mt-2 text-white"><h3><i class="fa fa-cloud"></i> <?php echo $config_company_name; ?></h3></div>
+      <div class="card-body bg-white">
         <?php if(isset($response)) { echo $response; } ?>
         <form method="post">
           <div class="form-group">
