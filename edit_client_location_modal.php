@@ -54,6 +54,17 @@
               <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" value="<?php echo $client_location_phone; ?>" required> 
             </div>
           </div>
+
+          <div class="form-group">
+            <label>Hours</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+              </div>
+              <input type="text" class="form-control" name="hours" placeholder="Hours of operation" value="<?php echo $client_location_hours; ?> "> 
+            </div>
+          </div>
+
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

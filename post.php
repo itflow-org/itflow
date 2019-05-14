@@ -1603,8 +1603,9 @@ if(isset($_POST['add_client_location'])){
     $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
     $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
     $phone = preg_replace("/[^0-9]/", '',$phone);
+    $hours = strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours']));
 
-    mysqli_query($mysqli,"INSERT INTO client_locations SET client_location_name = '$name', client_location_address = '$address', client_location_city = '$city', client_location_state = '$state', client_location_zip = '$zip', client_location_phone = '$phone', client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO client_locations SET client_location_name = '$name', client_location_address = '$address', client_location_city = '$city', client_location_state = '$state', client_location_zip = '$zip', client_location_phone = '$phone', client_location_hours = '$hours', client_id = $client_id");
 
     $_SESSION['alert_message'] = "Location added";
     
@@ -1622,8 +1623,9 @@ if(isset($_POST['edit_client_location'])){
     $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
     $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
     $phone = preg_replace("/[^0-9]/", '',$phone);
+    $hours = strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours']));
 
-    mysqli_query($mysqli,"UPDATE client_locations SET client_location_name = '$name', client_location_address = '$address', client_location_city = '$city', client_location_state = '$state', client_location_zip = '$zip', client_location_phone = '$phone' WHERE client_location_id = $client_location_id");
+    mysqli_query($mysqli,"UPDATE client_locations SET client_location_name = '$name', client_location_address = '$address', client_location_city = '$city', client_location_state = '$state', client_location_zip = '$zip', client_location_phone = '$phone', client_location_hours = '$hours' WHERE client_location_id = $client_location_id");
 
     $_SESSION['alert_message'] = "Location updated";
     
