@@ -7,7 +7,7 @@
 <div class="card">
   <div class="card-header">
     <h6 class="float-left mt-1"><i class="fa fa-file"></i> Invoices</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addClientInvoiceModal"><i class="fa fa-plus"></i></button>
+    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addInvoiceModal"><i class="fa fa-plus"></i></button>
   </div>
   <div class="card-body">
 

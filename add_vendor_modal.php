@@ -30,17 +30,32 @@
 
               <div class="form-group">
                 <label>Name</label>
-                <input type="text" class="form-control" name="name" required autofocus>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="name" placeholder="Name" required autofocus>
+                </div>
               </div>
               
               <div class="form-group">
                 <label>Description</label>
-                <input type="text" class="form-control" name="description">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="description" placeholder="Description">
+                </div>
               </div>
 
               <div class="form-group">
                 <label>Account Number</label>
-                <input type="text" class="form-control" name="account_number">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-fingerprint"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="account_number" placeholder="Account number">
+                </div>
               </div>
 
             </div>
@@ -49,27 +64,47 @@
 
               <div class="form-group">
                 <label>Address</label>
-                <input type="text" class="form-control" name="address">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="address"placeholder="Street address" >
+                </div>
               </div>
               
               <div class="form-group">
                 <label>City</label>
-                <input type="text" class="form-control" name="city">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="city" placeholder="City">
+                </div>
               </div>
               
               <div class="form-group">
                 <label>State</label>
-                <select class="form-control" name="state">
-                  <option value="">- State -</option>
-                  <?php foreach($states_array as $state_abbr => $state_name) { ?>
-                  <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
-                  <?php } ?>
-                </select> 
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                  </div>
+                  <select class="form-control" name="state">
+                    <option value="">- State -</option>
+                    <?php foreach($states_array as $state_abbr => $state_name) { ?>
+                    <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
               </div>
               
               <div class="form-group">
                 <label>Zip</label>
-                <input type="text" class="form-control" name="zip">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="zip" placeholder="Zip code">
+                </div>
               </div>
 
             </div>
@@ -78,17 +113,32 @@
 
               <div class="form-group">
                 <label>Phone</label>
-                <input type="text" class="form-control" name="phone">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="phone" placeholder="Phone number">
+                </div>
               </div>
               
               <div class="form-group">
                 <label>Email</label>
-                <input type="email" class="form-control" name="email">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                  </div>
+                  <input type="email" class="form-control" name="email" placeholder="Email">
+                </div>
               </div>
               
               <div class="form-group">
                 <label>Website</label>
-                <input type="text" class="form-control" name="website">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="website" placeholder="Website include http://">
+                </div>
               </div>
             
             </div>

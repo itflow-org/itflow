@@ -114,10 +114,20 @@
             <div class="tab-pane fade" id="pills-more" role="tabpanel" aria-labelledby="pills-more-tab">
 
               <div class="form-group">
-                <label>Invoice Net Terms</label>
+                <label>Hours</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="hours" placeholder="Hours of operation">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Invoice Net Terms</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                   </div>
                   <select class="form-control" name="net_terms">
                     <option value="7">Default (7 Days)</option>

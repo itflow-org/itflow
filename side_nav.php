@@ -21,6 +21,12 @@
       <span>Calendar</span>
     </a>
   </li>
+  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "tickets.php") { echo "active"; } ?>">
+    <a class="nav-link" href="tickets.php">
+      <i class="fas fa-fw fa-tags mx-2"></i>
+      <span>Tickets</span>
+    </a>
+  </li>
   <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "products.php") { echo "active"; } ?>">
     <a class="nav-link" href="products.php">
       <i class="fas fa-fw fa-box mx-2"></i>

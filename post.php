@@ -310,6 +310,20 @@ if(isset($_GET['delete_calendar_event'])){
   
 }
 
+if(isset($_POST['add_ticket'])){
+
+    $client_id = intval($_POST['client']);
+    $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
+    $details = strip_tags(mysqli_real_escape_string($mysqli,$_POST['details']));
+
+    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_subject = '$subject', ticket_details = '$details', ticket_status = 'Open', ticket_created_at = NOW(), client_id = $client_id");
+
+    $_SESSION['alert_message'] = "Ticket created";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['add_vendor'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
@@ -419,11 +433,15 @@ if(isset($_POST['add_mileage'])){
     $miles = intval($_POST['miles']);
     $roundtrip = intval($_POST['roundtrip']);
     $purpose = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose']));
+    $client_id = intval($_POST['client']);
+    $invoice_id = intval($_POST['invoice']);
+    $location_id = intval($_POST['location']);
+    $vendor_id = intval($_POST['vendor']);
 
-    mysqli_query($mysqli,"INSERT INTO mileage SET mileage_date = '$date', mileage_starting_location = '$starting_location', mileage_destination = '$destination', mileage_miles = $miles, mileage_purpose = '$purpose'");
+    mysqli_query($mysqli,"INSERT INTO mileage SET mileage_date = '$date', mileage_starting_location = '$starting_location', mileage_destination = '$destination', mileage_miles = $miles, mileage_purpose = '$purpose', client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id");
 
     if($roundtrip == 1){
-        mysqli_query($mysqli,"INSERT INTO mileage SET mileage_date = '$date', mileage_starting_location = '$destination', mileage_destination = '$starting_location', mileage_miles = $miles, mileage_purpose = '$purpose'");
+        mysqli_query($mysqli,"INSERT INTO mileage SET mileage_date = '$date', mileage_starting_location = '$destination', mileage_destination = '$starting_location', mileage_miles = $miles, mileage_purpose = '$purpose',  client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id");
     }
 
     $_SESSION['alert_message'] = "Mileage added";

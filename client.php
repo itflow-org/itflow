@@ -85,7 +85,7 @@ if(isset($_GET['client_id'])){
 <div class="card mb-3">
   <div class="card-body mb-2">
     <div class="row">
-      <div class="col border-right">
+      <div class="col">
         <h4 class="text-secondary">Address</h4>
         <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$client_address $client_zip"; ?>" target="_blank">
           <?php echo $client_address; ?>
@@ -93,7 +93,7 @@ if(isset($_GET['client_id'])){
           <?php echo "$client_city $client_state $client_zip"; ?>
         </a>
       </div>
-      <div class="col border-right">
+      <div class="col border-left">
         <h4 class="text-secondary">Contact</h4>
         <?php
         if(!empty($client_email)){
@@ -114,12 +114,12 @@ if(isset($_GET['client_id'])){
         }
         ?>
       </div>
-      <div class="col border-right">
+      <div class="col border-left">
         <h4 class="text-secondary">Standings</h4>
         <h6>Paid to Date <small class="text-secondary ml-5">$<?php echo number_format($amount_paid,2); ?></small>
         <h6>Balance <small class="text-secondary ml-5">$<?php echo number_format($balance,2); ?></small>
       </div>
-      <div class="col-1">
+      <div class="col-1 border-left">
         <div class="dropdown dropleft text-center">
           <button class="btn btn-dark btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="fas fa-fw fa-ellipsis-v"></i>
