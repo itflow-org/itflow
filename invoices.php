@@ -11,12 +11,23 @@
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Draft'"));
   $draft_count = $row['num'];
 
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Cancelled'"));
+  $cancelled_count = $row['num'];
+
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_due > CURDATE()"));
   $overdue_count = $row['num'];
+
+  $sql_total_draft = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS total_draft FROM invoices WHERE invoice_status = 'Draft'");
+  $row = mysqli_fetch_array($sql_total_draft);
+  $total_draft = $row['total_draft'];
 
   $sql_total_sent = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS total_sent FROM invoices WHERE invoice_status = 'Sent'");
   $row = mysqli_fetch_array($sql_total_sent);
   $total_sent = $row['total_sent'];
+
+  $sql_total_cancelled = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS total_cancelled FROM invoices WHERE invoice_status = 'Cancelled'");
+  $row = mysqli_fetch_array($sql_total_cancelled);
+  $total_cancelled = $row['total_cancelled'];
   
   $sql_total_partial = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_partial FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.invoice_status = 'Partial'");
   $row = mysqli_fetch_array($sql_total_partial);
@@ -66,7 +77,7 @@
         <div class="card-body-icon">
           <i class="fas fa-fw fa-pencil-ruler"></i>
         </div>
-        <div class="mr-5"><?php echo $draft_count; ?> Draft <h1>$<?php echo number_format($total_paid,2); ?></h1></div>
+        <div class="mr-5"><?php echo $draft_count; ?> Draft <h1>$<?php echo number_format($total_draft,2); ?></h1></div>
       </div>
     </div>
   </div>
@@ -76,7 +87,7 @@
         <div class="card-body-icon">
           <i class="fas fa-fw fa-skull-crossbones"></i>
         </div>
-        <div class="mr-5"><?php echo $overdue_count; ?> Overdue <h1>$<?php echo number_format($real_overdue_amount,2); ?></h1></div>
+        <div class="mr-5"><?php echo $cancelled_count; ?> Cancelled <h1>$<?php echo number_format($total_cancelled,2); ?></h1></div>
       </div>
     </div>
   </div> 
@@ -113,16 +124,14 @@
             $invoice_amount = $row['invoice_amount'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
+            $category_id = $row['category_id'];
 
             $now = time();
 
             if(($invoice_status == "Sent" or $invoice_status == "Partial") and strtotime($invoice_due) < $now ){
               $overdue_color = "text-danger font-weight-bold";
-              $overdue_badge = "badge-danger";
-              $invoice_status = "Overdue";
             }else{
               $overdue_color = "";
-              $overdue_badge = "";
             }
 
             //$unixtime_invoice_due = strtotime($invoice_due);
@@ -138,7 +147,7 @@
               $invoice_badge_color = "primary";
             }elseif($invoice_status == "Paid"){
               $invoice_badge_color = "success";
-            }elseif($invoice_status == "Overdue"){
+            }elseif($invoice_status == "Cancelled"){
               $invoice_badge_color = "danger";
             }else{
               $invoice_badge_color = "secondary";
@@ -153,7 +162,7 @@
             <td><?php echo $invoice_date; ?></td>
             <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>
             <td>
-              <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?> <?php echo $overdue_badge; ?>">
+              <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
                 <?php echo $invoice_status; ?>
               </span>
             </td>
@@ -163,7 +172,7 @@
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-copy"></i> Copy</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-copy"></i> Copy</a>
                   <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-paper-plane"></i> Send</a>
                   <a class="dropdown-item" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-file-pdf"></i> PDF</a>
                   <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-trash"></i> Delete</a>

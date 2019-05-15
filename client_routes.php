@@ -10,6 +10,9 @@ if(isset($_GET['tab'])){
   elseif($_GET['tab'] == "assets"){
     include("client_assets.php");
   }
+  elseif($_GET['tab'] == "tickets"){
+    include("client_tickets.php");
+  }
   elseif($_GET['tab'] == "vendors"){
     include("client_vendors.php");
   }

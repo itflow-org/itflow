@@ -33,16 +33,13 @@
             $invoice_date = $row['invoice_date'];
             $invoice_due = $row['invoice_due'];
             $invoice_amount = $row['invoice_amount'];
-            $category_id = $row['category_id'];
+            $invoice_category_id = $row['category_id'];
             $now = time();
 
             if(($invoice_status == "Sent" or $invoice_status == "Partial") and strtotime($invoice_due) < $now ){
                 $overdue_color = "text-danger font-weight-bold";
-                $overdue_badge = "badge-danger";
-                $invoice_status = "Overdue";
               }else{
                 $overdue_color = "";
-                $overdue_badge = "";
               }
 
             //Set Badge color based off of invoice status
@@ -52,7 +49,7 @@
               $invoice_badge_color = "primary";
             }elseif($invoice_status == "Paid"){
               $invoice_badge_color = "success";
-            }elseif($invoice_status == "Overdue"){
+            }elseif($invoice_status == "Cancelled"){
               $invoice_badge_color = "danger";
             }else{
               $invoice_badge_color = "secondary";
@@ -66,7 +63,7 @@
             <td><?php echo $invoice_date; ?></td>
             <td><div class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></div></td>
             <td>
-              <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?> echo $overdue_badge;">
+              <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
                 <?php echo $invoice_status; ?>
               </span>
             </td>
@@ -77,7 +74,7 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
                   <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send</a>
                   <a class="dropdown-item" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>">PDF</a>
                   <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
@@ -89,7 +86,7 @@
           <?php
 
           include("edit_invoice_modal.php");
-          //include("add_invoice_copy_modal.php");
+          include("add_invoice_copy_modal.php");
           }
 
           ?>

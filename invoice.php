@@ -59,7 +59,7 @@ if(isset($_GET['invoice_id'])){
     $invoice_badge_color = "primary";
   }elseif($invoice_status == "Paid"){
     $invoice_badge_color = "success";
-  }elseif($invoice_status == "Overdue"){
+  }elseif($invoice_status == "Cancelled"){
     $invoice_badge_color = "danger";
   }else{
     $invoice_badge_color = "secondary";
@@ -86,18 +86,20 @@ if(isset($_GET['invoice_id'])){
   <div class="col-md-8">
     <div class="dropdown dropleft text-center">
       <button class="btn btn-primary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fas fa-ellipsis-h"></i>
+        <i class="fas fa-fw fa-ellipsis-v"></i>
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal">Edit</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addinvoiceCopyModal<?php echo $invoice_id; ?>">Recurring</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">Edit</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">Recurring</a>
         <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send</a>
-        <?php if($invoice_status == "Draft"){ ?><a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">Mark Sent</a><?php } ?>
-        <?php if($invoice_status !== "Paid"){ ?><a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPaymentModal">Add Payment</a><?php } ?>
+        <?php if($invoice_status == 'Draft'){ ?><a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">Mark Sent</a><?php } ?>
+        <?php if($invoice_status !== 'Paid' and $invoice_status !== 'Cancelled'){ ?><a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPaymentModal">Add Payment</a><?php } ?>
         <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
         <a class="dropdown-item" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>">PDF</a>
-        <a class="dropdown-item" href="#">Delete</a>
+        <?php if($invoice_status !== 'Cancelled' and $invoice_status !== 'Paid'){ ?>
+        <a class="dropdown-item" href="post.php?cancel_invoice=<?php echo $invoice_id; ?>">Cancel</a>
+        <?php } ?>
       </div>
     </div>
   </div>
@@ -191,7 +193,7 @@ if(isset($_GET['invoice_id'])){
           ?>
 
           <tr>
-            <td class="text-center d-print-none"><a class="btn btn-danger btn-sm" href="post.php?delete_invoice_item=<?php echo $invoice_item_id; ?>"><i class="fa fa-trash"></i></a></td>
+            <td class="text-center d-print-none"><a class="btn btn-sm btn-danger" href="post.php?delete_invoice_item=<?php echo $invoice_item_id; ?>"><i class="fa fa-trash"></i></a></td>
             <td><?php echo $invoice_item_name; ?></td>
             <td><?php echo $invoice_item_description; ?></td>
             <td class="text-right text-monospace">$<?php echo number_format($invoice_item_price,2); ?></td>
@@ -361,6 +363,7 @@ if(isset($_GET['invoice_id'])){
 
 <?php include("add_payment_modal.php"); ?>
 <?php include("edit_invoice_modal.php"); ?>
+<?php include("add_invoice_copy_modal.php"); ?>
 <?php } ?>
 
 <?php include("footer.php"); ?>

@@ -1,11 +1,4 @@
-<?php include("header.php"); ?>
-
-<?php 
-
-  $sql = mysqli_query($mysqli,"SELECT * FROM tickets, clients
-    WHERE tickets.client_id = clients.client_id
-    ORDER BY ticket_id DESC");
-?>
+<?php $sql = mysqli_query($mysqli,"SELECT * FROM tickets WHERE client_id = $client_id ORDER BY ticket_id DESC"); ?>
 
 <div class="card mb-3">
   <div class="card-header">
@@ -18,7 +11,6 @@
         <thead class="thead-dark">
           <tr>
             <th>Number</th>
-            <th>Client</th>
             <th>Subject</th>
             <th>Date Opened</th>
             <th>Status</th>
@@ -36,9 +28,7 @@
             $ticket_created_at = $row['ticket_created_at'];
             $ticket_updated_at = $row['ticket_updated_at'];
             $ticket_closed_at = $row['ticket_closed_at'];
-            $client_id = $row['client_id'];
-            $client_name = $row['client_name'];
-
+            
             if($ticket_status == "Open"){
               $ticket_badge_color = "primary";
             }elseif($ticket_status == "Resolved"){
@@ -53,7 +43,6 @@
 
           <tr>
             <td><a href="#" data-toggle="modal" data-target="#viewTicketModal<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo $ticket_id; ?></span></a></td>
-            <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
             <td><?php echo $ticket_subject; ?></td>
             <td><?php echo $ticket_created_at; ?></td>
             <td>
@@ -90,5 +79,3 @@
 </div>
 
 <?php include("add_ticket_modal.php"); ?>
-
-<?php include("footer.php");

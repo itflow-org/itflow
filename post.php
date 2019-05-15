@@ -324,6 +324,20 @@ if(isset($_POST['add_ticket'])){
 
 }
 
+if(isset($_POST['edit_ticket'])){
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
+    $details = strip_tags(mysqli_real_escape_string($mysqli,$_POST['details']));
+
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_details = '$details' WHERE ticket_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "Ticket updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['add_vendor'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
@@ -706,7 +720,6 @@ if(isset($_GET['delete_transfer'])){
 }
 
 if(isset($_POST['add_invoice'])){
-
     $client = intval($_POST['client']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $due = strip_tags(mysqli_real_escape_string($mysqli,$_POST['due']));
@@ -716,17 +729,12 @@ if(isset($_POST['add_invoice'])){
     $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
     $row = mysqli_fetch_array($sql);
     $invoice_number = $row['invoice_number'] + 1;
-
     mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = '$due', category_id = $category, invoice_status = 'Draft', client_id = $client");
-
     $invoice_id = mysqli_insert_id($mysqli);
-
     mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Draft', invoice_history_description = 'INVOICE added!', invoice_id = $invoice_id");
-
     $_SESSION['alert_message'] = "Invoice added";
     
     header("Location: invoice.php?invoice_id=$invoice_id");
-
 }
 
 if(isset($_POST['edit_invoice'])){
@@ -741,6 +749,50 @@ if(isset($_POST['edit_invoice'])){
     $_SESSION['alert_message'] = "Invoice modified";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['add_invoice_copy'])){
+
+    $invoice_id = intval($_POST['invoice_id']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $due = strip_tags(mysqli_real_escape_string($mysqli,$_POST['due']));
+    
+    //Get the last Invoice Number and add 1 for the new invoice number
+    $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
+    $row = mysqli_fetch_array($sql);
+    $invoice_number = $row['invoice_number'] + 1;
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+    $row = mysqli_fetch_array($sql);
+    $invoice_amount = $row['invoice_amount'];
+    $invoice_note = $row['invoice_note'];
+    $client_id = $row['client_id'];
+    $category_id = $row['category_id'];
+
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = '$due', category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', client_id = $client_id");
+
+    $new_invoice_id = mysqli_insert_id($mysqli);
+
+    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Draft', invoice_history_description = 'INVOICE added!', invoice_id = $new_invoice_id");
+
+    $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id");
+    while($row = mysqli_fetch_array($sql_invoice_items)){
+        $invoice_item_id = $row['invoice_item_id'];
+        $invoice_item_name = $row['invoice_item_name'];
+        $invoice_item_description = $row['invoice_item_description'];
+        $invoice_item_quantity = $row['invoice_item_quantity'];
+        $invoice_item_price = $row['invoice_item_price'];
+        $invoice_item_subtotal = $row['invoice_item_subtotal'];
+        $invoice_item_tax = $row['invoice_item_tax'];
+        $invoice_item_total = $row['invoice_item_total'];
+
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET invoice_item_name = '$invoice_item_name', invoice_item_description = '$invoice_item_description', invoice_item_quantity = $invoice_item_quantity, invoice_item_price = '$invoice_item_price', invoice_item_subtotal = '$invoice_item_subtotal', invoice_item_tax = '$invoice_item_tax', invoice_item_total = '$invoice_item_total', invoice_id = $new_invoice_id");
+    }
+
+    $_SESSION['alert_message'] = "Invoice copied";
+    
+    header("Location: invoice.php?invoice_id=$new_invoice_id");
 
 }
 
@@ -876,6 +928,20 @@ if(isset($_GET['mark_invoice_sent'])){
     mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Sent', invoice_history_description = 'INVOICE marked sent', invoice_id = $invoice_id");
 
     $_SESSION['alert_message'] = "Invoice marked sent";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['cancel_invoice'])){
+
+    $invoice_id = intval($_GET['cancel_invoice']);
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Cancelled' WHERE invoice_id = $invoice_id");
+
+    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Cancelled', invoice_history_description = 'INVOICE cancelled!', invoice_id = $invoice_id");
+
+    $_SESSION['alert_message'] = "Invoice cancelled";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

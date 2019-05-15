@@ -57,11 +57,26 @@
   <li class="nav-item <?php if($_GET['tab'] == "assets") { echo "active"; } ?>">
     <a class="nav-link" 
       href="?client_id=<?php echo $client_id; ?>&tab=assets">
-      <i class="fas fa-fw fa-tag mx-2"></i>
+      <i class="fas fa-fw fa-laptop mx-2"></i>
       <span>Assets
         <?php 
         if($num_assets > 0){ ?> 
           <small class="float-right badge-secondary badge-pill mt-1"><?php echo $num_assets; ?></small>
+        <?php
+        }
+        ?>
+      </span>
+    </a>
+  </li>
+
+  <li class="nav-item <?php if($_GET['tab'] == "tickets") { echo "active"; } ?>">
+    <a class="nav-link" 
+      href="?client_id=<?php echo $client_id; ?>&tab=tickets">
+      <i class="fas fa-fw fa-tags mx-2"></i>
+      <span>Tickets
+        <?php 
+        if($num_tickets > 0){ ?> 
+          <small class="float-right badge-secondary badge-pill mt-1"><?php echo $num_tickets; ?></small>
         <?php
         }
         ?>

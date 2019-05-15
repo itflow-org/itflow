@@ -43,7 +43,7 @@
                 <?php 
                 
                 $sql_income_category = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income'"); 
-                while($row = mysqli_fetch_array($income_category)){
+                while($row = mysqli_fetch_array($sql_income_category)){
                   $category_id = $row['category_id'];
                   $category_name = $row['category_name'];
                 ?>

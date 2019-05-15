@@ -22,7 +22,7 @@ if(isset($_GET['client_id'])){
   $client_net_terms = $row['client_net_terms'];
 
   //Add up all the payments for the invoice and get the total amount paid to the invoice
-  $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE client_id = $client_id AND invoice_status NOT LIKE 'Draft'");
+  $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled'");
   $row = mysqli_fetch_array($sql_invoice_amounts);
 
   $invoice_amounts = $row['invoice_amounts'];
@@ -44,6 +44,9 @@ if(isset($_GET['client_id'])){
   
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_asset_id') AS num FROM client_assets WHERE client_id = $client_id"));
   $num_assets = $row['num'];
+
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('ticket_id') AS num FROM tickets WHERE client_id = $client_id"));
+  $num_tickets = $row['num'];
   
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_vendor_id') AS num FROM client_vendors WHERE client_id = $client_id"));
   $num_vendors = $row['num'];
@@ -88,9 +91,8 @@ if(isset($_GET['client_id'])){
       <div class="col">
         <h4 class="text-secondary">Address</h4>
         <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$client_address $client_zip"; ?>" target="_blank">
-          <?php echo $client_address; ?>
-          <br>
-          <?php echo "$client_city $client_state $client_zip"; ?>
+          <div class="ml-1"><?php echo $client_address; ?></div>
+          <div class="ml-1"><?php echo "$client_city $client_state $client_zip"; ?></div>
         </a>
       </div>
       <div class="col border-left">
@@ -116,10 +118,10 @@ if(isset($_GET['client_id'])){
       </div>
       <div class="col border-left">
         <h4 class="text-secondary">Standings</h4>
-        <h6>Paid to Date <small class="text-secondary ml-5">$<?php echo number_format($amount_paid,2); ?></small>
-        <h6>Balance <small class="text-secondary ml-5">$<?php echo number_format($balance,2); ?></small>
+        <h6 class="ml-1">Paid <div class="text-secondary float-right">$<?php echo number_format($amount_paid,2); ?></div></h6>
+        <h6 class="ml-1">Balance <div class="text-secondary float-right">$<?php echo number_format($balance,2); ?></div></h6>
       </div>
-      <div class="col-1 border-left">
+      <div class="col border-left">
         <div class="dropdown dropleft text-center">
           <button class="btn btn-dark btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="fas fa-fw fa-ellipsis-v"></i>

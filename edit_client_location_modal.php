@@ -61,7 +61,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
               </div>
-              <input type="text" class="form-control" name="hours" placeholder="Hours of operation" value="<?php echo $client_location_hours; ?> "> 
+              <input type="text" class="form-control" name="hours" placeholder="Hours of operation" value="<?php echo $client_location_hours; ?>"> 
             </div>
           </div>
 

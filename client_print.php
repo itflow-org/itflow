@@ -35,7 +35,7 @@ if(isset($_GET['client_id'])){
     WHERE invoices.client_id = $client_id
     AND payments.invoice_id = invoices.invoice_id
     AND payments.account_id = accounts.account_id
-    ORDER BY payments.payment_id DESC"); 
+    ORDER BY invoices.invoice_number DESC"); 
   
   $sql_quotes = mysqli_query($mysqli,"SELECT * FROM quotes WHERE client_id = $client_id ORDER BY quote_number DESC");
 
@@ -474,16 +474,16 @@ if(isset($_GET['client_id'])){
       $invoice_status = $row['invoice_status'];
       $invoice_date = $row['invoice_date'];
       $invoice_due = $row['invoice_due'];
-      $invoice_balance = $row['invoice_balance'];
+      $invoice_amount = $row['invoice_amount'];
 
     ?>
 
     <tr>
-      <td>INV-<?php echo "$invoice_number"; ?></td>
-      <td class="text-right text-monospace">$<?php echo number_format($invoice_balance,2); ?></td>
-      <td><?php echo "$invoice_date"; ?></td>
-      <td><?php echo "$invoice_due"; ?></td>
-      <td><?php echo "$invoice_status"; ?></td>
+      <td>INV-<?php echo $invoice_number; ?></td>
+      <td class="text-right text-monospace">$<?php echo number_format($invoice_amount,2); ?></td>
+      <td><?php echo $invoice_date; ?></td>
+      <td><?php echo $invoice_due; ?></td>
+      <td><?php echo $invoice_status; ?></td>
     </tr>
 
     <?php

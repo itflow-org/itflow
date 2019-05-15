@@ -15,9 +15,6 @@
           <tr>
             <th>Vendor</th>
             <th>Description</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>Website</th>
             <th>Account Number</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -46,9 +43,6 @@
           <tr>
             <td><?php echo $vendor_name; ?></td>
             <td><?php echo $vendor_description; ?></td>
-            <td><?php echo $vendor_phone; ?></td>
-            <td><?php echo $vendor_email; ?></td>
-            <td><?php echo $vendor_website; ?></td>
             <td><?php echo $vendor_account_number; ?></td>
             <td>
               <div class="dropdown dropleft text-center">

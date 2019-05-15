@@ -27,7 +27,15 @@
             $client_domain_registrar = $row['client_domain_registrar'];
             $client_domain_webhost = $row['client_domain_webhost'];
             $client_domain_expire = $row['client_domain_expire'];
-      
+
+            $sql_client_domain_registrar = mysqli_query($mysqli,"SELECT client_vendor_name FROM client_vendors WHERE client_vendor_id = $client_domain_registrar");
+            $row = mysqli_fetch_array($sql_client_domain_registrar);
+            $client_domain_registrar = $row['client_vendor_name'];
+
+            $sql_client_domain_webhost = mysqli_query($mysqli,"SELECT client_vendor_name FROM client_vendors WHERE client_vendor_id = $client_domain_webhost");
+            $row = mysqli_fetch_array($sql_client_domain_webhost);
+            $client_domain_webhost = $row['client_vendor_name'];
+
           ?>
           <tr>
             <td><?php echo $client_domain_name; ?></td>
