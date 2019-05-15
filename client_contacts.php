@@ -9,7 +9,7 @@
       <table class="table table-striped table-borderless table-hover" id="dataTable" width="100%" cellspacing="0">
         <thead>
           <tr>
-            <th>Name</th>
+            <th class="text-center">Name</th>
             <th>Title</th>
             <th>Email</th>
             <th>Phone</th>
@@ -28,13 +28,17 @@
               $client_contact_phone = substr($row['client_contact_phone'],0,3)."-".substr($row['client_contact_phone'],3,3)."-".substr($row['client_contact_phone'],6,4);
             }
             $client_contact_email = $row['client_contact_email'];
+            $client_contact_photo = $row['client_contact_photo'];
       
           ?>
           <tr>
-            <td><?php echo "$client_contact_name"; ?></td>
-            <td><?php echo "$client_contact_title"; ?></td>
-            <td><a href="mailto:<?php echo $client_contact_email; ?>"><?php echo "$client_contact_email"; ?></a></td>
-            <td><?php echo "$client_contact_phone"; ?></td>
+            <td class="text-center">
+              <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $client_contact_photo; ?>">
+              <div class="text-secondary"><?php echo $client_contact_name; ?></div>
+            </td>
+            <td><?php echo $client_contact_title; ?></td>
+            <td><a href="mailto:<?php echo $client_contact_email; ?>"><?php echo $client_contact_email; ?></a></td>
+            <td><?php echo $client_contact_phone; ?></td>
             
             <td>
               <div class="dropdown dropleft text-center">

@@ -1640,7 +1640,14 @@ if(isset($_POST['add_client_contact'])){
     $phone = preg_replace("/[^0-9]/", '',$phone);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
 
-    mysqli_query($mysqli,"INSERT INTO client_contacts SET client_contact_name = '$name', client_contact_title = '$title', client_contact_phone = '$phone', client_contact_email = '$email', client_id = $client_id");
+    if($_FILES['file']['tmp_name']!='') {
+        $path = "uploads/client_contact_photos/";
+        $path = $path . time() . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);
+    }
+
+    mysqli_query($mysqli,"INSERT INTO client_contacts SET client_contact_name = '$name', client_contact_title = '$title', client_contact_phone = '$phone', client_contact_email = '$email', client_contact_photo = '$path', client_id = $client_id");
 
     $_SESSION['alert_message'] = "Contact added";
     

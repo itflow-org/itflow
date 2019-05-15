@@ -7,7 +7,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form action="post.php" method="post" autocomplete="off">
+      <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="modal-body bg-white">    
           <div class="form-group">
@@ -48,6 +48,10 @@
               </div>
               <input type="email" class="form-control" name="email" placeholder="Email Address" required>
             </div>
+          </div>
+          <div class="form-group">
+            <label>Photo</label>
+            <input type="file" class="form-control-file" name="file">
           </div>
         </div>
         <div class="modal-footer bg-white">

@@ -10,6 +10,7 @@
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="client_contact_id" value="<?php echo $client_contact_id; ?>">
         <div class="modal-body bg-white">    
+          <center><img class="img-fluid rounded-circle" src="<?php echo $client_contact_photo; ?>" height="256" width="256"></center>
           <div class="form-group">
             <label>Name</label>
             <div class="input-group">
