@@ -28,8 +28,8 @@ $sql_total_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_
 $row = mysqli_fetch_array($sql_total_expenses);
 $total_expenses = $row['total_expenses'];
 
-//Total up all the 
-$sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND AND YEAR(invoice_date) = $year");
+//Total up all the Invoices that are not draft or cancelled
+$sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' AND YEAR(invoice_date) = $year");
 $row = mysqli_fetch_array($sql_invoice_totals);
 $invoice_totals = $row['invoice_totals'];
 
@@ -409,7 +409,7 @@ var myPieChart = new Chart(ctx, {
     datasets: [{
       data: [
         <?php
-          $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'expense'");
+          $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense'");
           while($row = mysqli_fetch_array($sql_categories)){
             $category_id = $row['category_id'];
 

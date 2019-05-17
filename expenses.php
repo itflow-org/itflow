@@ -24,7 +24,6 @@
             <th>Vendor</th>
             <th>Category</th>
             <th>Account</th>
-            <th></th>
             <th class="text-center">Actions</th>
           </tr>
         </thead>
@@ -48,24 +47,30 @@
             if(empty($expense_receipt)){
               $receipt_attached = "";
             }else{
-              $receipt_attached = "<a class='btn btn-dark btn-sm' target='_blank' href='$expense_receipt'><i class='fa fa-file-pdf'></i></a>";
+              $receipt_attached = "<a class='text-secondary mr-2' target='_blank' href='$expense_receipt'><i class='fa fa-file-pdf'></i></a>";
             }
 
           ?>
 
           <tr>
-            <td><?php echo $expense_date; ?></td>
+            <td><?php echo $receipt_attached; ?> <?php echo $expense_date; ?></td>
             <td class="text-right text-monospace">$<?php echo number_format($expense_amount,2); ?></td>
             <td><?php echo $vendor_name; ?></td>
             <td><?php echo $category_name; ?></td>
             <td><?php echo $account_name; ?></td>
-            <td><?php echo $receipt_attached; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <?php 
+                  if(!empty($expense_receipt)){
+                  ?>
+                  <a class="dropdown-item" href="<?php echo $expense_receipt; ?>" target="_blank">Reciept</a>
+                  <?php
+                  }
+                  ?>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseCopyModal<?php echo $expense_id; ?>">Copy</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseRefundModal<?php echo $expense_id; ?>">Refund</a>

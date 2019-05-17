@@ -8,6 +8,7 @@
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
+        <input type="hidden" name="category_id" value="<?php echo $category_id; ?>">
         <div class="modal-body bg-white">
           <div class="form-group">
             <label>Name</label>
@@ -28,7 +29,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_category" class="btn btn-primary">Save</button>
+          <button type="submit" name="edit_category" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

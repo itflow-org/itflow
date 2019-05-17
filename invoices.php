@@ -45,8 +45,9 @@
   $real_overdue_amount = $total_overdue - $total_overdue_partial;
 
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, categories
     WHERE invoices.client_id = clients.client_id
+    AND invoices.category_id = categories.category_id
     ORDER BY invoices.invoice_number DESC");
 ?>
 
@@ -108,6 +109,7 @@
             <th class="text-right">Amount</th>
             <th>Invoice Date</th>
             <th>Due Date</th>
+            <th>Category</th>
             <th>Status</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -125,6 +127,7 @@
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
             $category_id = $row['category_id'];
+            $category_name = $row['category_name'];
 
             $now = time();
 
@@ -134,15 +137,8 @@
               $overdue_color = "";
             }
 
-            //$unixtime_invoice_due = strtotime($invoice_due);
-            //if($unixtime_invoice_due < time()){
-             // $overdue_color = "text-danger";
-            //}else{
-             // $overdue_color = "";
-            //}
-
             if($invoice_status == "Sent"){
-              $invoice_badge_color = "warning";
+              $invoice_badge_color = "warning text-white";
             }elseif($invoice_status == "Partial"){
               $invoice_badge_color = "primary";
             }elseif($invoice_status == "Paid"){
@@ -161,6 +157,7 @@
             <td class="text-right text-monospace">$<?php echo number_format($invoice_amount,2); ?></td>
             <td><?php echo $invoice_date; ?></td>
             <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>
+            <td><?php echo $category_name; ?></td>
             <td>
               <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
                 <?php echo $invoice_status; ?>

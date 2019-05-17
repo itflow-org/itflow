@@ -73,7 +73,7 @@
                 <select class="form-control" name="vendor" required>
                   <?php 
                   
-                  $sql2 = mysqli_query($mysqli,"SELECT * FROM vendors"); 
+                  $sql2 = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 ORDER BY vendor_name ASC"); 
                   while($row = mysqli_fetch_array($sql2)){
                     $vendor_id2 = $row['vendor_id'];
                     $vendor_name = $row['vendor_name'];

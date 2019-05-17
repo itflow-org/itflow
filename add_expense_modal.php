@@ -75,7 +75,7 @@
                   <option value="">- Vendor -</option>
                   <?php 
                   
-                  $sql = mysqli_query($mysqli,"SELECT * FROM vendors"); 
+                  $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 order by vendor_name ASC"); 
                   while($row = mysqli_fetch_array($sql)){
                     $vendor_id = $row['vendor_id'];
                     $vendor_name = $row['vendor_name'];

@@ -503,7 +503,7 @@ if(isset($_POST['add_account'])){
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $opening_balance = $_POST['opening_balance'];
 
-    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = '$name', opening_balance = '$opening_balance', account_created_at NOW()");
+    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = '$name', opening_balance = '$opening_balance', account_created_at = NOW()");
 
     $_SESSION['alert_message'] = "Account added";
     
@@ -516,7 +516,7 @@ if(isset($_POST['edit_account'])){
     $account_id = intval($_POST['account_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
 
-    mysqli_query($mysqli,"UPDATE accounts SET account_name = '$name' account_updated_at = NOW() WHERE account_id = $account_id");
+    mysqli_query($mysqli,"UPDATE accounts SET account_name = '$name', account_updated_at = NOW() WHERE account_id = $account_id");
 
     $_SESSION['alert_message'] = "Account modified";
     
@@ -740,7 +740,7 @@ if(isset($_POST['add_invoice'])){
     mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Draft', invoice_history_description = 'INVOICE added!', invoice_id = $invoice_id");
     $_SESSION['alert_message'] = "Invoice added";
     
-    header("Location: invoice.php?invoicvoice_id");
+    header("Location: invoice.php?invoice_id=$invoice_id");
 }
 
 if(isset($_POST['edit_invoice'])){
@@ -958,6 +958,27 @@ if(isset($_GET['delete_invoice'])){
 
     mysqli_query($mysqli,"DELETE FROM invoices WHERE invoice_id = $invoice_id");
 
+    //Delete Items Associated with the Invoice
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id");
+    while($row = mysqli_fetch_array($sql)){;
+        $item_id = $row['item_id'];
+        mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+    }
+
+    //Delete History Associated with the Invoice
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id");
+    while($row = mysqli_fetch_array($sql)){;
+        $invoice_history_id = $row['invoice_history_id'];
+        mysqli_query($mysqli,"DELETE FROM invoice_history WHERE invoice_history_id = $invoice_history_id");
+    }
+
+    //Delete Payments Associated with the Invoice
+    $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE invoice_id = $invoice_id");
+    while($row = mysqli_fetch_array($sql)){;
+        $payment_id = $row['payment_id'];
+        mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
+    }
+    
     $_SESSION['alert_message'] = "Invoice deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -1053,7 +1074,10 @@ if(isset($_POST['add_payment'])){
         //Calculate the Invoice balance
         $invoice_balance = $invoice_amount - $total_payments_amount;
 
-            
+        //Format Amount
+        $formatted_amount = number_format($amount,2);
+        $formatted_invoice_balance = number_format($invoice_balance,2);  
+        
         //Determine if invoice has been paid then set the status accordingly
         if($invoice_balance == 0){
             $invoice_status = "Paid";        
@@ -1079,8 +1103,8 @@ if(isset($_POST['add_payment'])){
 
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
-                  $mail->Subject = "Thank You! - Payment Recieved for Invoice INV-$invoice_number";
-                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment of $amount on $date for invoice INV-$invoice_number by $payment_method<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
+                  $mail->Subject = "Payment Recieved - Invoice INV-$invoice_number";
+                  $mail->Body    = "Hello $client_name,<br><br>You are paid in full, we have recieved your payment of $$formatted_amount on $date for invoice INV-$invoice_number by $payment_method.<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
                   //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 
                   $mail->send();
@@ -1119,8 +1143,8 @@ if(isset($_POST['add_payment'])){
 
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
-                  $mail->Subject = "Thank You! - Partial Payment Recieved for Invoice INV-$invoice_number";
-                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment of $amount on $date for invoice INV-$invoice_number by $payment_method, although you still have a balance of $invoice_balance<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
+                  $mail->Subject = "Partial Payment Recieved for Invoice INV-$invoice_number";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment of $$formatted_amount on $date for invoice INV-$invoice_number by $payment_method with a balance of $$formatted_invoice_balance.<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
                   //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 
                   $mail->send();
@@ -1177,6 +1201,9 @@ if(isset($_GET['delete_payment'])){
 
     //Update Invoice Status
     mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id");
+
+    //Add Payment to History
+    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = '$invoice_status', invoice_history_description = 'INVOICE payment deleted', invoice_id = $invoice_id");
 
     mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
 
@@ -1402,10 +1429,19 @@ if(isset($_GET['email_invoice'])){
 
         // Content
         $mail->isHTML(true);                                  // Set email format to HTML
-        $mail->Subject = "Invoice $invoice_number - $invoice_date - Due $invoice_due";
-        $mail->Body    = "Hello $client_name,<br><br>Thank you for choosing $config_company_name! -- attached to this email is your invoice in PDF form due on <b>$invoice_due</b> Please make all checks payable to $config_company_name and mail to $config_company_address $config_company_city $config_company_state $config_company_zip before <b>$invoice_due</b>.<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
-        //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+        
+        if($invoice_status == 'Paid'){
 
+            $mail->Subject = "Copy of Invoice $invoice_number";
+            $mail->Body    = "Hello $client_name,<br><br>Attached to this email is a copy of your invoice marked <b>paid</b>.<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
+
+        }else{
+
+            $mail->Subject = "Invoice $invoice_number - $invoice_date - Due on $invoice_due";
+            $mail->Body    = "Hello $client_name,<br><br>Attached to this email is your invoice. Please make all checks payable to $config_company_name and mail to <br><br>$config_company_address<br>$config_company_city $config_company_state $config_company_zip<br><br>before <b>$invoice_due</b>.<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
+            //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+        }
+        
         $mail->send();
         echo 'Message has been sent';
 

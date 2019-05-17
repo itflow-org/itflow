@@ -36,8 +36,6 @@
             $location_id = $row['location_id'];
             $contact_id = $row['contact_id'];
 
-
-
             if($asset_type == 'Laptop'){
               $device_icon = "laptop";
             }elseif($asset_type == 'Desktop'){
@@ -48,8 +46,8 @@
               $device_icon = "print";
             }elseif($asset_type == 'Camera'){
               $device_icon = "video";
-            }elseif($file_ext == 'Switch' or $file_ext == 'Firewall/Router'){
-              $device_icon = "network";
+            }elseif($asset_type == 'Switch' or $asset_type == 'Firewall/Router'){
+              $device_icon = "network-wired";
             }elseif($asset_type == 'Access Point'){
               $device_icon = "wifi";
             }elseif($asset_type == 'Phone'){
@@ -90,7 +88,7 @@
                 <div class="modal-dialog modal-sm">
                   <div class="modal-content bg-dark">
                     <div class="modal-header text-white">
-                      <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i><?php echo $asset_name; ?> Login</h5>
+                      <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i><?php echo $asset_name; ?></h5>
                       <button type="button" class="close text-white" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span>
                       </button>

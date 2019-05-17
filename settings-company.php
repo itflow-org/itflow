@@ -30,22 +30,37 @@
 
       <div class="form-group">
         <label>City</label>
-        <input type="text" class="form-control" name="config_company_city" placeholder="City" value="<?php echo $config_company_city; ?>" >
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
+          </div>
+          <input type="text" class="form-control" name="config_company_city" placeholder="City" value="<?php echo $config_company_city; ?>" >
+        </div>
       </div>
 
       <div class="form-group">
         <label>State</label>
-        <select class="form-control" name="config_company_state">
-          <option value="">Select a state...</option>
-            <?php foreach($states_array as $state_abbr => $state_name) { ?>
-            <option <?php if($config_company_state == $state_abbr) { echo "selected"; } ?> value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
-            <?php } ?>
-        </select>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+          </div>
+          <select class="form-control" name="config_company_state">
+            <option value="">Select a state...</option>
+              <?php foreach($states_array as $state_abbr => $state_name) { ?>
+              <option <?php if($config_company_state == $state_abbr) { echo "selected"; } ?> value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
+              <?php } ?>
+          </select>
+        </div>
       </div>
 
       <div class="form-group">
         <label>Zip</label>
-        <input type="text" class="form-control" name="config_company_zip" placeholder="Zip Code" value="<?php echo $config_company_zip; ?>" >
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
+          </div>
+          <input type="text" class="form-control" name="config_company_zip" placeholder="Zip Code" value="<?php echo $config_company_zip; ?>" >
+        </div>
       </div>
 
       <div class="form-group">

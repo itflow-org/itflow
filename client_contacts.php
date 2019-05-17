@@ -32,10 +32,14 @@
       
           ?>
           <tr>
+            <?php if(!empty($contact_photo)){ ?>
             <td class="text-center">
               <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $contact_photo; ?>">
               <div class="text-secondary"><?php echo $contact_name; ?></div>
             </td>
+            <?php }else{ ?>
+            <td class="text-center"><?php echo $contact_name; ?></td>
+          <?php } ?>
             <td><?php echo $contact_title; ?></td>
             <td><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a></td>
             <td><?php echo $contact_phone; ?></td>
