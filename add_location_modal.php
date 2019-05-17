@@ -1,4 +1,4 @@
-<div class="modal" id="addClientLocationModal" tabindex="-1">
+<div class="modal" id="addLocationModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
@@ -31,21 +31,39 @@
          
           <div class="form-group">
             <label>City</label>
-            <input type="text" class="form-control" name="city" placeholder="City" required>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
+              </div>
+              <input type="text" class="form-control" name="city" placeholder="City" required>
+            </div>
           </div>
+          
           <div class="form-group">
             <label>State</label>
-            <select class="form-control" name="state" required>
-              <option value="">- State -</option>
-              <?php foreach($states_array as $state_abbr => $state_name) { ?>
-              <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
-              <?php } ?>
-            </select> 
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+              </div>
+              <select class="form-control" name="state" required>
+                <option value="">- State -</option>
+                <?php foreach($states_array as $state_abbr => $state_name) { ?>
+                <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
+                <?php } ?>
+              </select>
+            </div>
           </div>
+          
           <div class="form-group">
             <label>Zip</label>
-            <input type="text" class="form-control" name="zip" placeholder="Zip" required>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
+              </div>
+              <input type="text" class="form-control" name="zip" placeholder="Zip" required>
+            </div>
           </div>
+          
           <div class="form-group">
             <label>Phone</label>
             <div class="input-group">
@@ -69,7 +87,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_client_location" class="btn btn-primary">Save</button>
+          <button type="submit" name="add_location" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

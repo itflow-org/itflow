@@ -1,4 +1,4 @@
-<div class="modal" id="addClientFileModal" tabindex="-1">
+<div class="modal" id="addFileModal" tabindex="-1">
   <div class="modal-dialog modal-sm">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
@@ -8,7 +8,7 @@
         </button>
       </div>
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-        <input type="hidden" name="client_id" value="<?php echo $_GET['client_id']; ?>">
+        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="modal-body bg-white">    
           
           <div class="form-group">
@@ -20,7 +20,7 @@
           </div>
         </div>
         <div class="modal-footer bg-white">
-          <button type="submit" name="add_client_file" class="btn btn-primary">Upload</button>
+          <button type="submit" name="add_file" class="btn btn-primary">Upload</button>
         </div>
       </form>
     </div>

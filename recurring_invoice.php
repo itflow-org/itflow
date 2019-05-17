@@ -2,23 +2,23 @@
 
 <?php 
 
-if(isset($_GET['recurring_invoice_id'])){
+if(isset($_GET['recurring_id'])){
 
-  $recurring_invoice_id = intval($_GET['recurring_invoice_id']);
+  $recurring_id = intval($_GET['recurring_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, recurring_invoices
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, recurring
     WHERE invoices.client_id = clients.client_id
-    AND invoices.invoice_id = recurring_invoices.invoice_id
-    AND recurring_invoices.recurring_invoice_id = $recurring_invoice_id"
+    AND invoices.invoice_id = recurring.invoice_id
+    AND recurring.recurring_id = $recurring_id"
   );
 
   $row = mysqli_fetch_array($sql);
-  $recurring_invoice_id = $row['recurring_invoice_id'];
-  $recurring_invoice_frequency = $row['recurring_invoice_frequency'];
-  $recurring_invoice_status = $row['recurring_invoice_status'];
-  $recurring_invoice_start_date = $row['recurring_invoice_start_date'];
-  $recurring_invoice_last_sent = $row['recurring_invoice_last_sent'];
-  $recurring_invoice_next_date = $row['recurring_invoice_next_date'];
+  $recurring_id = $row['recurring_id'];
+  $recurring_frequency = $row['recurring_frequency'];
+  $recurring_status = $row['recurring_status'];
+  $recurring_start_date = $row['recurring_start_date'];
+  $recurring_last_sent = $row['recurring_last_sent'];
+  $recurring_next_date = $row['recurring_next_date'];
   $invoice_id = $row['invoice_id'];
   $invoice_status = $row['invoice_status'];
   $invoice_amount = $row['invoice_amount'];
@@ -36,15 +36,15 @@ if(isset($_GET['recurring_invoice_id'])){
     $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
   }
   $client_website = $row['client_website'];
-  if($recurring_invoice_status == 1){
+  $client_net_terms = $row['client_net_terms'];
+  
+  if($recurring_status == 1){
     $status = "Active";
     $status_badge_color = "success";
   }else{
     $status = "Inactive";
     $status_badge_color = "secondary";
   }
-
-
 
   $sql_invoice_history = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id ORDER BY invoice_history_id ASC");
   
@@ -63,7 +63,7 @@ if(isset($_GET['recurring_invoice_id'])){
   <li class="breadcrumb-item">
     <a href="recurring.php"> Recurring Invoices</a>
   </li>
-  <li class="breadcrumb-item active"><?php echo $recurring_invoice_id; ?></li>
+  <li class="breadcrumb-item active"><?php echo $recurring_id; ?></li>
   <span class="ml-3 p-2 badge badge-<?php echo $status_badge_color; ?>"><?php echo $status; ?></span>
 </ol>
 
@@ -76,10 +76,10 @@ if(isset($_GET['recurring_invoice_id'])){
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal">Edit</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceNoteModal">Note</a>
-        <?php if($recurring_invoice_status == 1){ ?>
-          <a class="dropdown-item" href="post.php?recurring_deactivate=<?php echo $recurring_invoice_id; ?>">Deactivate</a>
+        <?php if($recurring_status == 1){ ?>
+          <a class="dropdown-item" href="post.php?recurring_deactivate=<?php echo $recurring_id; ?>">Deactivate</a>
         <?php }else{ ?>
-          <a class="dropdown-item" href="post.php?recurring_activate=<?php echo $recurring_invoice_id; ?>">Activate</a>
+          <a class="dropdown-item" href="post.php?recurring_activate=<?php echo $recurring_id; ?>">Activate</a>
         <?php } ?>
         <a class="dropdown-item" href="#">Delete</a>
       </div>
@@ -127,18 +127,18 @@ if(isset($_GET['recurring_invoice_id'])){
       </div>
       <div class="card-body">
         <ul class="list-unstyled">
-          <li class="mb-1"><strong>Frequency:</strong> <div class="float-right"><?php echo $recurring_invoice_frequency; ?></div></li>
-          <li class="mb-1"><strong>Start Date:</strong> <div class="float-right"><?php echo $recurring_invoice_start_date; ?></div></li>
-          <li class="mb-1"><strong>Next Date:</strong> <div class="float-right"><?php echo $recurring_invoice_next_date; ?></div></li>
-          <li class="mb-1"><strong>Last Sent:</strong> <div class="float-right"><?php echo $recurring_invoice_last_sent; ?></div></li>
-          <li class="mb-1"><strong>Net Terms:</strong> <div class="float-right">30 Day</div></li>
+          <li class="mb-1"><strong>Frequency:</strong> <div class="float-right"><?php echo ucwords($recurring_frequency); ?>ly</div></li>
+          <li class="mb-1"><strong>Start Date:</strong> <div class="float-right"><?php echo $recurring_start_date; ?></div></li>
+          <li class="mb-1"><strong>Next Date:</strong> <div class="float-right"><?php echo $recurring_next_date; ?></div></li>
+          <li class="mb-1"><strong>Last Sent:</strong> <div class="float-right"><?php echo $recurring_last_sent; ?></div></li>
+          <li class="mb-1"><strong>Net Terms:</strong> <div class="float-right"><?php echo $client_net_terms; ?> Day</div></li>
         </ul>
       </div>
     </div>
   </div>
 </div>
 
-<?php $sql4 = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY invoice_item_id ASC"); ?>
+<?php $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC"); ?>
 
 <div class="row mb-4">
   <div class="col-md-12">
@@ -162,28 +162,28 @@ if(isset($_GET['recurring_invoice_id'])){
         <tbody>
           <?php
     
-          while($row = mysqli_fetch_array($sql4)){
-            $invoice_item_id = $row['invoice_item_id'];
-            $invoice_item_name = $row['invoice_item_name'];
-            $invoice_item_description = $row['invoice_item_description'];
-            $invoice_item_quantity = $row['invoice_item_quantity'];
-            $invoice_item_price = $row['invoice_item_price'];
-            $invoice_item_subtotal = $row['invoice_item_price'];
-            $invoice_item_tax = $row['invoice_item_tax'];
-            $invoice_item_total = $row['invoice_item_total'];
-            $total_tax = $invoice_item_tax + $total_tax;
-            $sub_total = $invoice_item_price * $invoice_item_quantity + $sub_total;
+          while($row = mysqli_fetch_array($sql_items)){
+            $item_id = $row['item_id'];
+            $item_name = $row['item_name'];
+            $item_description = $row['item_description'];
+            $item_quantity = $row['item_quantity'];
+            $item_price = $row['item_price'];
+            $item_subtotal = $row['item_price'];
+            $item_tax = $row['item_tax'];
+            $item_total = $row['item_total'];
+            $total_tax = $item_tax + $total_tax;
+            $sub_total = $item_price * $item_quantity + $sub_total;
 
           ?>
 
           <tr>
-            <td class="text-center d-print-none"><a class="btn btn-danger btn-sm" href="post.php?delete_invoice_item=<?php echo $invoice_item_id; ?>"><i class="fa fa-trash"></i></a></td>
-            <td><?php echo $invoice_item_name; ?></td>
-            <td><?php echo $invoice_item_description; ?></td>
-            <td class="text-right">$<?php echo number_format($invoice_item_price,2); ?></td>
-            <td class="text-center"><?php echo $invoice_item_quantity; ?></td>
-            <td class="text-right">$<?php echo number_format($invoice_item_tax,2); ?></td>
-            <td class="text-right">$<?php echo number_format($invoice_item_total,2); ?></td>  
+            <td class="text-center d-print-none"><a class="btn btn-danger btn-sm" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-trash"></i></a></td>
+            <td><?php echo $item_name; ?></td>
+            <td><?php echo $item_description; ?></td>
+            <td class="text-right">$<?php echo number_format($item_price,2); ?></td>
+            <td class="text-center"><?php echo $item_quantity; ?></td>
+            <td class="text-right">$<?php echo number_format($item_tax,2); ?></td>
+            <td class="text-right">$<?php echo number_format($item_total,2); ?></td>  
           </tr>
 
           <?php 

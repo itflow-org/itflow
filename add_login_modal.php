@@ -1,4 +1,4 @@
-<div class="modal" id="addClientLoginModal" tabindex="-1">
+<div class="modal" id="addLoginModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
@@ -71,10 +71,10 @@
                       <option value="">- Vendor -</option>
                       <?php 
                       
-                      $sql = mysqli_query($mysqli,"SELECT * FROM client_vendors WHERE client_id = $client_id"); 
-                      while($row = mysqli_fetch_array($sql)){
-                        $vendor_id = $row['client_vendor_id'];
-                        $vendor_name = $row['client_vendor_name'];
+                      $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id"); 
+                      while($row = mysqli_fetch_array($sql_vendors)){
+                        $vendor_id = $row['vendor_id'];
+                        $vendor_name = $row['vendor_name'];
                       ?>
                         <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
                       
@@ -96,10 +96,10 @@
                       <option value="">- Asset -</option>
                       <?php 
                       
-                      $sql = mysqli_query($mysqli,"SELECT * FROM client_assets WHERE client_id = $client_id"); 
+                      $sql = mysqli_query($mysqli,"SELECT * FROM assets WHERE client_id = $client_id"); 
                       while($row = mysqli_fetch_array($sql)){
-                        $asset_id = $row['client_asset_id'];
-                        $asset_name = $row['client_asset_name'];
+                        $asset_id = $row['asset_id'];
+                        $asset_name = $row['asset_name'];
                       ?>
                         <option value="<?php echo $asset_id; ?>"><?php echo $asset_name; ?></option>
                       
@@ -121,12 +121,12 @@
                       <option value="">- Application -</option>
                       <?php 
                       
-                      $sql = mysqli_query($mysqli,"SELECT * FROM client_applications WHERE client_id = $client_id"); 
+                      $sql = mysqli_query($mysqli,"SELECT * FROM applications WHERE client_id = $client_id"); 
                       while($row = mysqli_fetch_array($sql)){
-                        $client_application_id = $row['client_application_id'];
-                        $client_application_name = $row['client_application_name'];
+                        $application_id = $row['application_id'];
+                        $application_name = $row['application_name'];
                       ?>
-                        <option value="<?php echo $client_application_id; ?>"><?php echo $client_application_name; ?></option>
+                        <option value="<?php echo $application_id; ?>"><?php echo $application_name; ?></option>
                       
                       <?php
                       }
@@ -140,7 +140,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_client_login" class="btn btn-primary">Save</button>
+          <button type="submit" name="add_login" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

@@ -42,6 +42,20 @@
 	$_SESSION['alert_message'] = '';
 	$_SESSION['alert_type'] = "warning";
 
+	$client_types_array = array(
+	    'Residential',
+	   	'Law',
+	    'Tax and Accounting',
+	    'General Contractor',
+	    'Medical',
+	    'Non Profit',
+	    'Industrial',
+	    'Automotive',
+	    'Retail',
+	    'Staffing Agency',
+	    'Other'
+	);
+
 	$net_terms_array = array(
 	    '0'=>'On Reciept',
 	    '7'=>'7 Days',
@@ -132,7 +146,8 @@
 		'Other'
 	);
 
-	$application_types_array = array(
+	$software_types_array = array(
+		'Operating System',
 		'Web App',
 		'Desktop App',
 		'Other'

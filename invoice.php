@@ -154,7 +154,7 @@ if(isset($_GET['invoice_id'])){
   </div>
 </div>
 
-<?php $sql4 = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY invoice_item_id ASC"); ?>
+<?php $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC"); ?>
 
 <div class="row mb-4">
   <div class="col-md-12">
@@ -178,28 +178,28 @@ if(isset($_GET['invoice_id'])){
         <tbody>
           <?php
     
-          while($row = mysqli_fetch_array($sql4)){
-            $invoice_item_id = $row['invoice_item_id'];
-            $invoice_item_name = $row['invoice_item_name'];
-            $invoice_item_description = $row['invoice_item_description'];
-            $invoice_item_quantity = $row['invoice_item_quantity'];
-            $invoice_item_price = $row['invoice_item_price'];
-            $invoice_item_subtotal = $row['invoice_item_price'];
-            $invoice_item_tax = $row['invoice_item_tax'];
-            $invoice_item_total = $row['invoice_item_total'];
-            $total_tax = $invoice_item_tax + $total_tax;
-            $sub_total = $invoice_item_price * $invoice_item_quantity + $sub_total;
+          while($row = mysqli_fetch_array($sql_invoice_items)){
+            $item_id = $row['item_id'];
+            $item_name = $row['item_name'];
+            $item_description = $row['item_description'];
+            $item_quantity = $row['item_quantity'];
+            $item_price = $row['item_price'];
+            $item_subtotal = $row['item_price'];
+            $item_tax = $row['item_tax'];
+            $item_total = $row['item_total'];
+            $total_tax = $item_tax + $total_tax;
+            $sub_total = $item_price * $item_quantity + $sub_total;
 
           ?>
 
           <tr>
-            <td class="text-center d-print-none"><a class="btn btn-sm btn-danger" href="post.php?delete_invoice_item=<?php echo $invoice_item_id; ?>"><i class="fa fa-trash"></i></a></td>
-            <td><?php echo $invoice_item_name; ?></td>
-            <td><?php echo $invoice_item_description; ?></td>
-            <td class="text-right text-monospace">$<?php echo number_format($invoice_item_price,2); ?></td>
-            <td class="text-center text-monospace"><?php echo $invoice_item_quantity; ?></td>
-            <td class="text-right text-monospace">$<?php echo number_format($invoice_item_tax,2); ?></td>
-            <td class="text-right text-monospace">$<?php echo number_format($invoice_item_total,2); ?></td>  
+            <td class="text-center d-print-none"><a class="btn btn-sm btn-danger" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-trash"></i></a></td>
+            <td><?php echo $item_name; ?></td>
+            <td><?php echo $item_description; ?></td>
+            <td class="text-right text-monospace">$<?php echo number_format($item_price,2); ?></td>
+            <td class="text-center text-monospace"><?php echo $item_quantity; ?></td>
+            <td class="text-right text-monospace">$<?php echo number_format($item_tax,2); ?></td>
+            <td class="text-right text-monospace">$<?php echo number_format($item_total,2); ?></td>  
           </tr>
 
           <?php 

@@ -1,4 +1,4 @@
-<div class="modal" id="addClientNetworkModal" tabindex="-1">
+<div class="modal" id="addNetworkModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
@@ -52,7 +52,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_client_network" class="btn btn-primary">Save</button>
+          <button type="submit" name="add_network" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

@@ -14,6 +14,7 @@
         <thead class="thead-dark">
           <tr>
             <th>Name</th>
+            <th>Type</th>
             <th>Email</th>
             <th>Phone</th>
             <th class="text-right">Balance</th>
@@ -26,6 +27,7 @@
           while($row = mysqli_fetch_array($sql)){
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
+            $client_type = $row['client_type'];
             $client_address = $row['client_address'];
             $client_city = $row['client_city'];
             $client_state = $row['client_state'];
@@ -59,9 +61,10 @@
 
           ?>
           <tr>
-            <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo "$client_name"; ?></a></td>
-            <td><a href="mailto:<?php echo$email; ?>"><?php echo "$client_email"; ?></a></td>
-            <td><?php echo "$client_phone"; ?></td>
+            <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+            <td><?php echo $client_type; ?></td>
+            <td><a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a></td>
+            <td><?php echo $client_phone; ?></td>
             <td class="text-right text-monospace <?php echo $balance_text_color; ?>">$<?php echo number_format($balance,2); ?></td>
             <td>
               <div class="dropdown dropleft text-center">

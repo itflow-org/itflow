@@ -1,4 +1,4 @@
-<div class="modal" id="addMileageModal" tabindex="-1">
+<div class="modal" id="addTripModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
@@ -137,10 +137,10 @@
                     <option value="">- Location -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM client_locations, clients WHERE client_locations.client_id = clients.client_id ORDER BY clients.client_id DESC"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM locations, clients WHERE locations.client_id = clients.client_id ORDER BY clients.client_id DESC"); 
                     while($row = mysqli_fetch_array($sql)){
-                      $location_id = $row['client_location_id'];
-                      $location_name = $row['client_location_name'];
+                      $location_id = $row['location_id'];
+                      $location_name = $row['location_name'];
                       $client_name = $row['client_name'];
                     ?>
                     <option value="<?php echo $location_id; ?>"><?php echo "$client_name - $location_name"; ?></option>
@@ -181,7 +181,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_mileage" class="btn btn-primary">Save</button>
+          <button type="submit" name="add_trip" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

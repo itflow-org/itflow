@@ -11,12 +11,12 @@
         <div class="modal-body bg-white">
           <div class="form-group">
             <label>Name</label>
-            <input type="text" class="form-control" name="name" required autofocus>
+            <input type="text" class="form-control" name="name" placeholder="Category name" required autofocus>
           </div>
           <div class="form-group">
             <label>Type</label>
             <select class="form-control" name="type" required>
-              <option value="">Select a type...</option>
+              <option value="">- Type -</option>
               <?php foreach($category_types_array as $category_type) { ?>
               <option><?php echo $category_type; ?></option>
               <?php } ?>
@@ -24,7 +24,7 @@
           </div>
           <div class="form-group">
             <label>Color</label>
-            <input type="color" class="form-control" name="color">
+            <input type="color" class="form-control col-md-2" name="color">
           </div>
         </div>
         <div class="modal-footer bg-white">

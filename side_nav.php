@@ -80,10 +80,10 @@
       <span>Transfers</span>
     </a>
   </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "mileage.php") { echo "active"; } ?>">
-    <a class="nav-link" href="mileage.php">
+  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "trips.php") { echo "active"; } ?>">
+    <a class="nav-link" href="trips.php">
       <i class="fas fa-fw fa-bicycle mx-2"></i>
-      <span>Mileage</span>
+      <span>Trips</span>
     </a>
   </li>
   <li class="nav-item dropdown">

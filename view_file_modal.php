@@ -1,4 +1,4 @@
-<div class="modal" id="viewClientFileModal<?php echo $file_id; ?>" tabindex="-1">
+<div class="modal" id="viewFileModal<?php echo $file_id; ?>" tabindex="-1">
   <div class="modal-dialog modal-xl ">
     <div class="modal-content bg-dark">
       <div class="modal-header">

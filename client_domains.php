@@ -1,9 +1,9 @@
-<?php $sql = mysqli_query($mysqli,"SELECT * FROM client_domains WHERE client_id = $client_id ORDER BY client_domain_id DESC"); ?>
+<?php $sql = mysqli_query($mysqli,"SELECT * FROM domains WHERE client_id = $client_id ORDER BY domain_id DESC"); ?>
 
 <div class="card">
   <div class="card-header">
     <h6 class="float-left mt-1"><i class="fa fa-globe"></i> Domains</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addClientDomainModal"><i class="fa fa-plus"></i></button>
+    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addDomainModal"><i class="fa fa-plus"></i></button>
   </div>
   <div class="card-body">
 
@@ -22,41 +22,41 @@
           <?php
       
           while($row = mysqli_fetch_array($sql)){
-            $client_domain_id = $row['client_domain_id'];
-            $client_domain_name = $row['client_domain_name'];
-            $client_domain_registrar = $row['client_domain_registrar'];
-            $client_domain_webhost = $row['client_domain_webhost'];
-            $client_domain_expire = $row['client_domain_expire'];
+            $domain_id = $row['domain_id'];
+            $domain_name = $row['domain_name'];
+            $domain_registrar = $row['domain_registrar'];
+            $domain_webhost = $row['domain_webhost'];
+            $domain_expire = $row['domain_expire'];
 
-            $sql_client_domain_registrar = mysqli_query($mysqli,"SELECT client_vendor_name FROM client_vendors WHERE client_vendor_id = $client_domain_registrar");
-            $row = mysqli_fetch_array($sql_client_domain_registrar);
-            $client_domain_registrar = $row['client_vendor_name'];
+            $sql_domain_registrar = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $domain_registrar");
+            $row = mysqli_fetch_array($sql_domain_registrar);
+            $domain_registrar_name = $row['vendor_name'];
 
-            $sql_client_domain_webhost = mysqli_query($mysqli,"SELECT client_vendor_name FROM client_vendors WHERE client_vendor_id = $client_domain_webhost");
-            $row = mysqli_fetch_array($sql_client_domain_webhost);
-            $client_domain_webhost = $row['client_vendor_name'];
+            $sql_domain_webhost = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $domain_webhost");
+            $row = mysqli_fetch_array($sql_domain_webhost);
+            $domain_webhost_name = $row['vendor_name'];
 
           ?>
           <tr>
-            <td><?php echo $client_domain_name; ?></td>
-            <td><?php echo $client_domain_registrar; ?></td>
-            <td><?php echo $client_domain_webhost; ?></td>
-            <td><?php echo $client_domain_expire; ?></td>
+            <td><?php echo $domain_name; ?></td>
+            <td><?php echo $domain_registrar_name; ?></td>
+            <td><?php echo $domain_webhost_name; ?></td>
+            <td><?php echo $domain_expire; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientDomainModal<?php echo $client_domain_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="post.php?delete_client_domain=<?php echo $client_domain_id; ?>">Delete</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editDomainModal<?php echo $domain_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="post.php?delete_domain=<?php echo $domain_id; ?>">Delete</a>
                 </div>
               </div>      
             </td>
           </tr>
 
           <?php
-          include("edit_client_domain_modal.php");
+          include("edit_domain_modal.php");
           }
           ?>
 
@@ -66,4 +66,4 @@
   </div>
 </div>
 
-<?php include("add_client_domain_modal.php"); ?>
+<?php include("add_domain_modal.php"); ?>

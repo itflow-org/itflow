@@ -1,6 +1,6 @@
 <?php include("header.php"); ?>
 
-<?php $sql = mysqli_query($mysqli,"SELECT * FROM vendors ORDER BY vendor_name ASC"); ?>
+<?php $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 ORDER BY vendor_name ASC"); ?>
 
 
 <div class="card mb-3">

@@ -1,4 +1,4 @@
-<div class="modal" id="addClientAssetModal" tabindex="-1">
+<div class="modal" id="addAssetModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
@@ -97,10 +97,10 @@
                     <option value="">- Location -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM client_locations WHERE client_id = $client_id"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE client_id = $client_id"); 
                     while($row = mysqli_fetch_array($sql)){
-                      $location_id = $row['client_location_id'];
-                      $location_name = $row['client_location_name'];
+                      $location_id = $row['location_id'];
+                      $location_name = $row['location_name'];
                     ?>
                     <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
                     
@@ -121,12 +121,12 @@
                     <option value="">- Contact -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM client_contacts WHERE client_id = $client_id"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id"); 
                     while($row = mysqli_fetch_array($sql)){
-                      $client_contact_id = $row['client_contact_id'];
-                      $client_contact_name = $row['client_contact_name'];
+                      $contact_id = $row['contact_id'];
+                      $contact_name = $row['contact_name'];
                     ?>
-                    <option value="<?php echo $client_contact_id; ?>"><?php echo $client_contact_name; ?></option>
+                    <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?></option>
                     
                     <?php
                     }
@@ -149,12 +149,12 @@
                     <option value="">- Vendor -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM client_vendors WHERE client_id = $client_id"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id"); 
                     while($row = mysqli_fetch_array($sql)){
-                      $client_vendor_id = $row['client_vendor_id'];
-                      $client_vendor_name = $row['client_vendor_name'];
+                      $vendor_id = $row['vendor_id'];
+                      $vendor_name = $row['vendor_name'];
                     ?>
-                    <option value="<?php echo $client_vendor_id; ?>"><?php echo $client_vendor_name; ?></option>
+                    <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
                     
                     <?php
                     }
@@ -210,7 +210,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_client_asset" class="btn btn-primary">Save</button>
+          <button type="submit" name="add_asset" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

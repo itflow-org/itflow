@@ -32,7 +32,7 @@
               <label>Account</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-fw fa-university"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                 </div>
                 <select class="form-control" name="account" required>
                   <option value="">- Account -</option>
@@ -69,7 +69,7 @@
               <label>Vendor</label>
               <div class="input-group">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-fw fa-briefcase"></i></span>
+                  <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                 </div>
                 <select class="form-control" name="vendor" required>
                   <option value="">- Vendor -</option>

@@ -1,14 +1,14 @@
-<div class="modal" id="addClientDomainModal" tabindex="-1">
+<div class="modal" id="editDomainModal<?php echo $domain_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-globe mr-2"></i>New Domain</h5>
+      <div class="modal-header">
+        <h5 class="modal-title text-white"><i class="fa fa-fw fa-globe mr-2"></i>Edit Domain</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+        <input type="hidden" name="domain_id" value="<?php echo $domain_id; ?>">
         <div class="modal-body bg-white">    
           <div class="form-group">
             <label>Domain Name</label>
@@ -16,7 +16,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
               </div>
-              <input type="text" class="form-control" name="name" placeholder="Domain name exmaple.com" required autofocus>
+              <input type="text" class="form-control" name="name" placeholder="Domain name exmaple.com" value="<?php echo $domain_name; ?>" required>
             </div>
           </div>
           
@@ -30,12 +30,12 @@
                 <option value="">- Vendor -</option>
                 <?php 
                 
-                $sql = mysqli_query($mysqli,"SELECT * FROM client_vendors WHERE client_id = $client_id"); 
-                while($row = mysqli_fetch_array($sql)){
-                  $client_vendor_id = $row['client_vendor_id'];
-                  $client_vendor_name = $row['client_vendor_name'];
+                $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id"); 
+                while($row = mysqli_fetch_array($sql_vendors)){
+                  $vendor_id_select = $row['vendor_id'];
+                  $vendor_name_select = $row['vendor_name'];
                 ?>
-                <option value="<?php echo $client_vendor_id; ?>"><?php echo $client_vendor_name; ?></option>
+                <option <?php if($domain_registrar == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
                 
                 <?php
                 }
@@ -43,7 +43,7 @@
               </select>
             </div>
           </div>
-        
+
           <div class="form-group">
             <label>Webhost</label>
             <div class="input-group">
@@ -54,12 +54,12 @@
                 <option value="">- Vendor -</option>
                 <?php 
                 
-                $sql = mysqli_query($mysqli,"SELECT * FROM client_vendors WHERE client_id = $client_id"); 
-                while($row = mysqli_fetch_array($sql)){
-                  $client_vendor_id = $row['client_vendor_id'];
-                  $client_vendor_name = $row['client_vendor_name'];
+                $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id"); 
+                while($row = mysqli_fetch_array($sql_vendors)){
+                  $vendor_id_select = $row['vendor_id'];
+                  $vendor_name_select = $row['vendor_name'];
                 ?>
-                <option value="<?php echo $client_vendor_id; ?>"><?php echo $client_vendor_name; ?></option>
+                <option <?php if($domain_webhost == $vendor_id_select){ echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
                 
                 <?php
                 }
@@ -74,14 +74,14 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
               </div>
-              <input type="date" class="form-control" name="expire" required> 
+              <input type="date" class="form-control" name="expire" value="<?php echo $domain_expire; ?>" required> 
             </div>
           </div>
 
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_client_domain" class="btn btn-primary">Save</button>
+          <button type="submit" name="edit_domain" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

@@ -21,15 +21,15 @@ if(isset($_GET['client_id'])){
   $client_website = $row['client_website'];
 
   //Query each table and store them in their array
-  $sql_contacts = mysqli_query($mysqli,"SELECT * FROM client_contacts WHERE client_id = $client_id ORDER BY client_contact_id DESC");
-  $sql_locations = mysqli_query($mysqli,"SELECT * FROM client_locations WHERE client_id = $client_id ORDER BY client_location_id DESC");
-  $sql_assets = mysqli_query($mysqli,"SELECT * FROM client_assets WHERE client_id = $client_id ORDER BY client_asset_id DESC");
-  $sql_vendors = mysqli_query($mysqli,"SELECT * FROM client_vendors WHERE client_id = $client_id ORDER BY client_vendor_id DESC");
-  $sql_logins = mysqli_query($mysqli,"SELECT * FROM client_logins WHERE client_id = $client_id ORDER BY client_login_id DESC");
-  $sql_networks = mysqli_query($mysqli,"SELECT * FROM client_networks WHERE client_id = $client_id ORDER BY client_network_id DESC");
-  $sql_domains = mysqli_query($mysqli,"SELECT * FROM client_domains WHERE client_id = $client_id ORDER BY client_domain_id DESC");
-  $sql_applications = mysqli_query($mysqli,"SELECT * FROM client_applications WHERE client_id = $client_id ORDER BY client_application_id DESC");
-  $sql_invoices = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id ORDER BY invoices.invoice_date DESC");
+  $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_id DESC");
+  $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE client_id = $client_id ORDER BY location_id DESC");
+  $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE client_id = $client_id ORDER BY asset_id DESC");
+  $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id ORDER BY vendor_id DESC");
+  $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE client_id = $client_id ORDER BY login_id DESC");
+  $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE client_id = $client_id ORDER BY network_id DESC");
+  $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE client_id = $client_id ORDER BY domain_id DESC");
+  $sql_applications = mysqli_query($mysqli,"SELECT * FROM applications WHERE client_id = $client_id ORDER BY application_id DESC");
+  $sql_invoices = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id ORDER BY invoice_date DESC");
 
   $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, invoices, accounts
     WHERE invoices.client_id = $client_id
@@ -44,24 +44,24 @@ if(isset($_GET['client_id'])){
     AND invoices.client_id = $client_id
     ORDER BY recurring_invoices.recurring_invoice_id DESC");
 
-  $sql_notes = mysqli_query($mysqli,"SELECT * FROM client_notes WHERE client_id = $client_id ORDER BY client_note_id DESC");
+  $sql_notes = mysqli_query($mysqli,"SELECT * FROM notes WHERE client_id = $client_id ORDER BY note_id DESC");
 
   //Get Counts
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_contact_id') AS num FROM client_contacts WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('contact_id') AS num FROM contacts WHERE client_id = $client_id"));
   $num_contacts = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_location_id') AS num FROM client_locations WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('location_id') AS num FROM locations WHERE client_id = $client_id"));
   $num_locations = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_asset_id') AS num FROM client_assets WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('asset_id') AS num FROM assets WHERE client_id = $client_id"));
   $num_assets = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_vendor_id') AS num FROM client_vendors WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE client_id = $client_id"));
   $num_vendors = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_login_id') AS num FROM client_logins WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('login_id') AS num FROM logins WHERE client_id = $client_id"));
   $num_logins = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_network_id') AS num FROM client_networks WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('network_id') AS num FROM networks WHERE client_id = $client_id"));
   $num_networks = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_domain_id') AS num FROM client_domains WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('domain_id') AS num FROM domains WHERE client_id = $client_id"));
   $num_domains = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_application_id') AS num FROM client_applications WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('application_id') AS num FROM applications WHERE client_id = $client_id"));
   $num_applications = $row['num'];
   
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE client_id = $client_id"));
@@ -76,7 +76,7 @@ if(isset($_GET['client_id'])){
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_invoice_id') AS num FROM recurring_invoices, invoices WHERE recurring_invoices.invoice_id = invoices.invoice_id AND invoices.client_id = $client_id"));
   $num_recurring = $row['num'];
 
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_note_id') AS num FROM client_notes WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('note_id') AS num FROM notes WHERE client_id = $client_id"));
   $num_notes = $row['num'];
 
 ?>
@@ -163,21 +163,21 @@ if(isset($_GET['client_id'])){
     <?php
 
     while($row = mysqli_fetch_array($sql_contacts)){
-      $client_contact_id = $row['client_contact_id'];
-      $client_contact_name = $row['client_contact_name'];
-      $client_contact_title = $row['client_contact_title'];
-      $client_contact_phone = $row['client_contact_phone'];
-      if(strlen($client_contact_phone)>2){ 
-        $client_contact_phone = substr($row['client_contact_phone'],0,3)."-".substr($row['client_contact_phone'],3,3)."-".substr($row['client_contact_phone'],6,4);
+      $contact_id = $row['contact_id'];
+      $contact_name = $row['contact_name'];
+      $contact_title = $row['contact_title'];
+      $contact_phone = $row['contact_phone'];
+      if(strlen($contact_phone)>2){ 
+        $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
       }
-      $client_contact_email = $row['client_contact_email'];
+      $contact_email = $row['contact_email'];
 
     ?>
     <tr>
-      <td><?php echo "$client_contact_name"; ?></td>
-      <td><?php echo "$client_contact_title"; ?></td>
-      <td><?php echo "$client_contact_phone"; ?></td>
-      <td><?php echo "$client_contact_email"; ?></td>
+      <td><?php echo $contact_name; ?></td>
+      <td><?php echo $contact_title; ?></td>
+      <td><?php echo $contact_phone; ?></td>
+      <td><?php echo $contact_email; ?></td>
     </tr>
 
     <?php
@@ -203,22 +203,22 @@ if(isset($_GET['client_id'])){
     <?php
 
     while($row = mysqli_fetch_array($sql_locations)){
-      $client_location_id = $row['client_location_id'];
-      $client_location_name = $row['client_location_name'];
-      $client_location_address = $row['client_location_address'];
-      $client_location_city = $row['client_location_city'];
-      $client_location_state = $row['client_location_state'];
-      $client_location_zip = $row['client_location_zip'];
-      $client_location_phone = $row['client_location_phone'];
-      if(strlen($client_location_phone)>2){ 
-        $client_location_phone = substr($row['client_location_phone'],0,3)."-".substr($row['client_location_phone'],3,3)."-".substr($row['client_location_phone'],6,4);
+      $location_id = $row['location_id'];
+      $location_name = $row['location_name'];
+      $location_address = $row['location_address'];
+      $location_city = $row['location_city'];
+      $location_state = $row['location_state'];
+      $location_zip = $row['location_zip'];
+      $location_phone = $row['location_phone'];
+      if(strlen($location_phone)>2){ 
+        $location_phone = substr($row['location_phone'],0,3)."-".substr($row['location_phone'],3,3)."-".substr($row['location_phone'],6,4);
       }
 
     ?>
     <tr>
-      <td><?php echo "$client_location_name"; ?></td>
-      <td><?php echo "$client_location_address $client_location_city $client_location_state $client_location_zip"; ?></td>
-      <td><?php echo "$client_location_phone"; ?></td>
+      <td><?php echo $location_name; ?></td>
+      <td><?php echo "$location_address $location_city $location_state $location_zip"; ?></td>
+      <td><?php echo $location_phone; ?></td>
     </tr>
 
     <?php
@@ -240,6 +240,7 @@ if(isset($_GET['client_id'])){
       <th>Type</th>
       <th>Name</th>
       <th>Make</th>
+      <th>Model</th>
       <th>Serial</th>
     </tr>
   </thead>
@@ -247,19 +248,20 @@ if(isset($_GET['client_id'])){
     <?php
 
     while($row = mysqli_fetch_array($sql_assets)){
-      $client_asset_id = $row['client_asset_id'];
-      $client_asset_type = $row['client_asset_type'];
-      $client_asset_name = $row['client_asset_name'];
-      $client_asset_make = $row['client_asset_make'];
-      $client_asset_model = $row['client_asset_model'];
-      $client_asset_serial = $row['client_asset_serial'];
+      $asset_id = $row['asset_id'];
+      $asset_type = $row['asset_type'];
+      $asset_name = $row['asset_name'];
+      $asset_make = $row['asset_make'];
+      $asset_model = $row['asset_model'];
+      $asset_serial = $row['asset_serial'];
 
     ?>
     <tr>
-      <td><?php echo $client_asset_type; ?></td>
-      <td><?php echo $client_asset_name; ?></td>
-      <td><?php echo "$client_asset_make $client_asset_model"; ?></td>
-      <td><?php echo $client_asset_serial; ?></td>
+      <td><?php echo $asset_type; ?></td>
+      <td><?php echo $asset_name; ?></td>
+      <td><?php echo $asset_make; ?></td>
+      <td><?php echo $asset_model; ?></td>
+      <td><?php echo $asset_serial; ?></td>
     </tr>
 
     <?php
@@ -285,16 +287,16 @@ if(isset($_GET['client_id'])){
     <?php
 
     while($row = mysqli_fetch_array($sql_vendors)){
-      $client_vendor_id = $row['client_vendor_id'];
-      $client_vendor_name = $row['client_vendor_name'];
-      $client_vendor_description = $row['client_vendor_description'];
-      $client_vendor_account_number = $row['client_vendor_account_number'];
+      $vendor_id = $row['vendor_id'];
+      $vendor_name = $row['vendor_name'];
+      $vendor_description = $row['vendor_description'];
+      $vendor_account_number = $row['vendor_account_number'];
 
     ?>
     <tr>
-      <td><?php echo $client_vendor_name; ?></td>
-      <td><?php echo $client_vendor_description; ?></td>
-      <td><?php echo $client_vendor_account_number; ?></td>
+      <td><?php echo $vendor_name; ?></td>
+      <td><?php echo $vendor_description; ?></td>
+      <td><?php echo $vendor_account_number; ?></td>
     </tr>
 
     <?php
@@ -320,16 +322,16 @@ if(isset($_GET['client_id'])){
     <?php
 
     while($row = mysqli_fetch_array($sql_logins)){
-      $client_login_id = $row['client_login_id'];
-      $client_login_description = $row['client_login_description'];
-      $client_login_username = $row['client_login_username'];
-      $client_login_password = $row['client_login_password'];
+      $login_id = $row['login_id'];
+      $login_description = $row['login_description'];
+      $login_username = $row['login_username'];
+      $login_password = $row['login_password'];
 
     ?>
     <tr>
-      <td><?php echo $client_login_description; ?></td>
-      <td><?php echo $client_login_username; ?></td>
-      <td><?php echo $client_login_password; ?></td>
+      <td><?php echo $login_description; ?></td>
+      <td><?php echo $login_username; ?></td>
+      <td><?php echo $login_password; ?></td>
     </tr>
 
     <?php
@@ -356,19 +358,19 @@ if(isset($_GET['client_id'])){
     <?php
 
     while($row = mysqli_fetch_array($sql_networks)){
-      $client_network_id = $row['client_network_id'];
-      $client_network_name = $row['client_network_name'];
-      $client_network = $row['client_network'];
-      $client_network_gateway = $row['client_network_gateway'];
-      $client_network_dhcp_range = $row['client_network_dhcp_range'];
+      $network_id = $row['network_id'];
+      $network_name = $row['network_name'];
+      $network = $row['network'];
+      $network_gateway = $row['network_gateway'];
+      $network_dhcp_range = $row['network_dhcp_range'];
 
 
     ?>
     <tr>
-      <td><?php echo $client_network_name; ?></td>
-      <td><?php echo $client_network; ?></td>
-      <td><?php echo $client_network_gateway; ?></td>
-      <td><?php echo $client_network_dhcp_range; ?></td>
+      <td><?php echo $network_name; ?></td>
+      <td><?php echo $network; ?></td>
+      <td><?php echo $network_gateway; ?></td>
+      <td><?php echo $network_dhcp_range; ?></td>
     </tr>
 
     <?php
@@ -387,26 +389,37 @@ if(isset($_GET['client_id'])){
     <tr>
       <th>Domain</th>
       <th>Registrar</th>
+      <th>Webhost</th>
       <th>Expire</th>
-      <th>Server</th>
+      
     </tr>
   </thead>
   <tbody>
     <?php
 
     while($row = mysqli_fetch_array($sql_domains)){
-      $client_domain_id = $row['client_domain_id'];
-      $client_domain_name = $row['client_domain_name'];
-      $client_domain_registrar = $row['client_domain_registrar'];
-      $client_domain_expire = $row['client_domain_expire'];
-      $client_domain_server = $row['client_domain_server'];
+      $domain_id = $row['domain_id'];
+      $domain_name = $row['domain_name'];
+      $domain_registrar = $row['domain_registrar'];
+      $domain_webhost = $row['domain_webhost'];
+      $domain_expire = $row['domain_expire'];
+
+      $sql_domain_registrar = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $domain_registrar");
+      $row = mysqli_fetch_array($sql_domain_registrar);
+      $domain_registrar = $row['vendor_name'];
+
+      $sql_domain_webhost = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $domain_webhost");
+      $row = mysqli_fetch_array($sql_domain_webhost);
+      $domain_webhost = $row['vendor_name'];
+      
 
     ?>
     <tr>
-      <td><?php echo $client_domain_name; ?></td>
-      <td><?php echo $client_domain_registrar; ?></td>
-      <td><?php echo $client_domain_expire; ?></td>
-      <td><?php echo $client_domain_server; ?></td>
+      <td><?php echo $domain_name; ?></td>
+      <td><?php echo $domain_registrar; ?></td>
+      <td><?php echo $domain_webhost; ?></td>
+      <td><?php echo $domain_expire; ?></td>
+      
     </tr>
 
     <?php
@@ -432,16 +445,16 @@ if(isset($_GET['client_id'])){
     <?php
 
     while($row = mysqli_fetch_array($sql_applications)){
-      $client_application_id = $row['client_application_id'];
-      $client_application_name = $row['client_application_name'];
-      $client_application_type = $row['client_application_type'];
-      $client_application_license = $row['client_application_license'];
+      $application_id = $row['application_id'];
+      $application_name = $row['application_name'];
+      $application_type = $row['application_type'];
+      $application_license = $row['application_license'];
 
     ?>
     <tr>
-      <td><?php echo $client_application_name; ?></td>
-      <td><?php echo $client_application_type; ?></td>
-      <td><?php echo $client_application_license; ?></td>
+      <td><?php echo $application_name; ?></td>
+      <td><?php echo $application_type; ?></td>
+      <td><?php echo $application_license; ?></td>
     </tr>
 
     <?php
@@ -643,14 +656,14 @@ if(isset($_GET['client_id'])){
 <?php
 
 while($row = mysqli_fetch_array($sql_notes)){
-  $client_note_id = $row['client_note_id'];
-  $client_note_subject = $row['client_note_subject'];
-  $client_note_body = $row['client_note_body'];
+  $note_id = $row['note_id'];
+  $note_subject = $row['note_subject'];
+  $note_body = $row['note_body'];
 
 ?>
-<h6><?php echo "$client_note_subject"; ?></h6>
+<h6><?php echo $note_subject; ?></h6>
 <hr>
-<p class="mb-4"><?php echo "$client_note_body"; ?></p>
+<p class="mb-4"><?php echo $note_body; ?></p>
 
 <?php } ?>
 

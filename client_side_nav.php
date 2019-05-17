@@ -1,9 +1,10 @@
-<!-- Sidebar -->
+<!-- Client Sidebar -->
 
 <ul class="sidebar navbar-nav d-print-none">
   
   <li class="nav-item my-3">
     <h2 class="text-white text-center"><?php echo $client_name; ?></h2>
+    <h6 class="text-secondary text-center"><?php echo $client_type; ?></h6>
   </li>
 
   <li class="nav-item">
@@ -21,7 +22,6 @@
       <i class="fas fa-fw fa-chart-bar mx-2"></i>
       <span>Overview</span>
     </a>
-
   </li>
 
   <li class="nav-item <?php if($_GET['tab'] == "contacts") { echo "active"; } ?>">
@@ -144,14 +144,14 @@
     </a>
   </li>
   
-  <li class="nav-item <?php if($_GET['tab'] == "applications") { echo "active"; } ?>">
+  <li class="nav-item <?php if($_GET['tab'] == "software") { echo "active"; } ?>">
     <a class="nav-link" 
-      href="?client_id=<?php echo $client_id; ?>&tab=applications">
+      href="?client_id=<?php echo $client_id; ?>&tab=software">
       <i class="fas fa-fw fa-rocket mx-2"></i>
-      <span>Applications
+      <span>Software
         <?php 
-        if($num_applications > 0){ ?> 
-          <small class="float-right badge-secondary badge-pill mt-1"><?php echo $num_applications; ?></small>
+        if($num_software > 0){ ?> 
+          <small class="float-right badge-secondary badge-pill mt-1"><?php echo $num_software; ?></small>
         <?php
         }
         ?>

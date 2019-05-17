@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-tag mr-2"></i>Edit Ticket # <?php echo $ticket_id; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-tag mr-2"></i>Ticket # <?php echo $ticket_id; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>

@@ -21,7 +21,7 @@
               <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Contact</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-more" role="tab" aria-controls="pills-more" aria-selected="false">More</a>
+              <a class="nav-link" id="pills-more-tab" data-toggle="pill" href="#pills-more" role="tab" aria-controls="pills-more" aria-selected="false">More</a>
             </li>
           </ul>
 
@@ -41,6 +41,21 @@
                 </div>
               </div>
 
+              <div class="form-group">
+                <label>Type</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                  </div>
+                  <select class="form-control" name="type" required>
+                    <option value="">- Type -</option>
+                    <?php foreach($client_types_array as $client_type) { ?>
+                    <option><?php echo $client_type; ?></option>
+                    <?php } ?>
+                  </select> 
+                </div>
+              </div>
+
             </div>
           
             <div class="tab-pane fade" id="pills-address" role="tabpanel" aria-labelledby="pills-address-tab">
@@ -57,22 +72,37 @@
           
               <div class="form-group">
                 <label>City</label>
-                <input type="text" class="form-control" name="city" placeholder="City" required>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="city" placeholder="City" required>
+                </div>
               </div>
               
               <div class="form-group">
                 <label>State</label>
-                <select class="form-control" name="state">
-                  <option value="">- State -</option>
-                  <?php foreach($states_array as $state_abbr => $state_name) { ?>
-                  <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
-                  <?php } ?>
-                </select> 
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                  </div>
+                  <select class="form-control" name="state">
+                    <option value="">- State -</option>
+                    <?php foreach($states_array as $state_abbr => $state_name) { ?>
+                    <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
               </div>
               
               <div class="form-group">
                 <label>Zip</label>
-                <input type="text" class="form-control" name="zip" placeholder="Zip">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="zip" placeholder="Zip">
+                </div>
               </div>
             
             </div>
@@ -130,11 +160,11 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                   </div>
                   <select class="form-control" name="net_terms">
-                    <option value="7">Default (7 Days)</option>
-                    <option value="1">Upon Reciept</option>
-                    <option value="14">14 Day</option>
-                    <option value="30">30 Day</option>
-                  </select> 
+                    <option value="">- Net Terms -</option>
+                    <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
+                    <option value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+                    <?php } ?>
+                  </select>
                 </div>
               </div>
             

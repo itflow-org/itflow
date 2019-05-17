@@ -9,7 +9,7 @@ if(isset($_GET['query'])){
   $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_name LIKE '%$query%' ORDER BY client_id DESC LIMIT 5");
   $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_name LIKE '%$query%' ORDER BY vendor_id DESC LIMIT 5");
   $sql_products = mysqli_query($mysqli,"SELECT * FROM products WHERE product_name LIKE '%$query%' ORDER BY product_id DESC LIMIT 5");
-  $sql_client_logins = mysqli_query($mysqli,"SELECT * FROM client_logins WHERE client_login_description LIKE '%$query%' ORDER BY client_login_id DESC LIMIT 5");
+  $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_description LIKE '%$query%' ORDER BY login_id DESC LIMIT 5");
 
 ?>
 
@@ -148,15 +148,15 @@ if(isset($_GET['query'])){
           <tbody>
             <?php
         
-            while($row = mysqli_fetch_array($sql_client_logins)){
-              $client_login_description = $row['client_login_description'];
-              $client_login_username = $row['client_login_username'];
-              $client_login_password = $row['client_login_password'];
+            while($row = mysqli_fetch_array($sql_logins)){
+              $login_description = $row['$login_description'];
+              $login_username = $row['$login_username'];
+              $login_password = $row['$login_password'];
             ?>
             <tr>
-              <td><?php echo $client_login_description; ?></td>
-              <td><?php echo $client_login_username; ?></td>
-              <td><?php echo $client_login_password; ?></td>
+              <td><?php echo $login_description; ?></td>
+              <td><?php echo $login_username; ?></td>
+              <td><?php echo $login_password; ?></td>
 
             </tr>
 
