@@ -184,18 +184,18 @@ if(isset($_POST['edit_user'])){
     }else{
         $password = md5($password);
     }
-    $avatar_path = $_POST['current_avatar_path'];
-    $check = getimagesize($_FILES["avatar"]["tmp_name"]);
-    if($check !== false) {
-        if($avatar_path != "img/default_user_avatar.png"){
-            unlink($avatar_path);
-        }
-        $avatar_path = "uploads/user_avatars/";
-        $avatar_path =  $avatar_path . $user_id . '_' . time() . '_' . basename( $_FILES['avatar']['name']);
-        move_uploaded_file($_FILES['avatar']['tmp_name'], "$avatar_path");
+    $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
+
+    if($_FILES['file']['tmp_name']!='') {
+        //remove old receipt
+        unlink($path);
+        $path = "uploads/user_avatars/";
+        $path = $path . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);   
     }
     
-    mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', password = '$password', avatar = '$avatar_path', updated_at = NOW() WHERE user_id = $user_id");
+    mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', password = '$password', avatar = '$path', updated_at = NOW() WHERE user_id = $user_id");
 
     $_SESSION['alert_message'] = "User updated";
     
@@ -641,17 +641,15 @@ if(isset($_POST['edit_expense'])){
     $category = intval($_POST['category']);
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
-    $receipt = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expense_receipt']));
+    $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expense_receipt']));
 
     if($_FILES['file']['tmp_name']!='') {
+        //remove old receipt
+        unlink($path);
         $path = "uploads/expenses/$vendor/";
         $path = $path . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
-        //remove old receipt
-        unlink($receipt);
-    }else{
-        $path = $receipt;
     }
 
     mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description', expense_reference = '$reference', expense_receipt = '$path', expense_updated_at = NOW() WHERE expense_id = $expense_id");
@@ -664,6 +662,12 @@ if(isset($_POST['edit_expense'])){
 
 if(isset($_GET['delete_expense'])){
     $expense_id = intval($_GET['delete_expense']);
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id");
+    $row = mysqli_fetch_array($sql);
+    $expense_receipt = $row['expense_receipt'];
+
+    unlink($expense_receipt);
 
     mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id");
 
