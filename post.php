@@ -641,8 +641,20 @@ if(isset($_POST['edit_expense'])){
     $category = intval($_POST['category']);
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
+    $receipt = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expense_receipt']));
 
-    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description', expense_reference = '$reference' expense_updated_at = NOW() WHERE expense_id = $expense_id");
+    if($_FILES['file']['tmp_name']!='') {
+        $path = "uploads/expenses/$vendor/";
+        $path = $path . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);
+        //remove old receipt
+        unlink($receipt);
+    }else{
+        $path = $receipt;
+    }
+
+    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description', expense_reference = '$reference', expense_receipt = '$path', expense_updated_at = NOW() WHERE expense_id = $expense_id");
 
     $_SESSION['alert_message'] = "Expense modified";
     
@@ -978,7 +990,7 @@ if(isset($_GET['delete_invoice'])){
         $payment_id = $row['payment_id'];
         mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
     }
-    
+
     $_SESSION['alert_message'] = "Invoice deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
