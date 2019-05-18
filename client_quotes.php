@@ -1,6 +1,6 @@
 <?php 
  
-  $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE client_id = $client_id ORDER BY quote_number DESC");
+  $sql = mysqli_query($mysqli,"SELECT * FROM quotes, categories WHERE client_id = $client_id AND categories.category_id = quotes.category_id ORDER BY quote_number DESC");
 
 ?>
 
@@ -17,6 +17,7 @@
             <th>Number</th>
             <th class="text-right">Amount</th>
             <th>Date</th>
+            <th>Category</th>
             <th>Status</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -30,6 +31,8 @@
             $quote_status = $row['quote_status'];
             $quote_date = $row['quote_date'];
             $quote_amount = $row['quote_amount'];
+            $category_id = $row['category_id'];
+            $category_name = $row['category_name'];
 
             if($quote_status == "Sent"){
               $quote_badge_color = "warning";
@@ -37,6 +40,8 @@
               $quote_badge_color = "primary";
             }elseif($quote_status == "Approved"){
               $quote_badge_color = "success";
+            }elseif($quote_status == "Cancelled"){
+              $quote_badge_color = "danger";
             }else{
               $quote_badge_color = "secondary";
             }
@@ -47,6 +52,7 @@
             <td><a href="quote.php?quote_id=<?php echo $quote_id; ?>">QUO-<?php echo $quote_number; ?></a></td>
             <td class="text-right text-monospace">$<?php echo number_format($quote_amount,2); ?></td>
             <td><?php echo $quote_date; ?></td>
+            <td><?php echo $category_name; ?></td>
             <td>
               <span class="p-2 badge badge-<?php echo $quote_badge_color; ?>">
                 <?php echo $quote_status; ?>

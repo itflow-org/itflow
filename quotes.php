@@ -2,8 +2,9 @@
 
 <?php 
  
-  $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients
+  $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients, categories
     WHERE quotes.client_id = clients.client_id
+    AND quotes.category_id = categories.category_id
     ORDER BY quotes.quote_number DESC");
 ?>
 
@@ -21,6 +22,7 @@
             <th>Client</th>
             <th class="text-right">Amount</th>
             <th>Date</th>
+            <th>Category</th>
             <th>Status</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -36,13 +38,17 @@
             $quote_amount = $row['quote_amount'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
+            $category_id = $row['category_id'];
+            $category_name = $row['category_name'];
 
             if($quote_status == "Sent"){
-              $quote_badge_color = "warning";
+              $quote_badge_color = "warning text-white";
             }elseif($quote_status == "Viewed"){
               $quote_badge_color = "primary";
             }elseif($quote_status == "Approved"){
               $quote_badge_color = "success";
+            }elseif($quote_status == "Cancelled"){
+              $quote_badge_color = "danger";
             }else{
               $quote_badge_color = "secondary";
             }
@@ -54,6 +60,7 @@
             <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
             <td class="text-right text-monospace">$<?php echo number_format($quote_amount,2); ?></td>
             <td><?php echo $quote_date; ?></td>
+            <td><?php echo $category_name; ?></td>
             <td>
               <span class="p-2 badge badge-<?php echo $quote_badge_color; ?>">
                 <?php echo $quote_status; ?>
@@ -65,8 +72,10 @@
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editquoteModal<?php echo $quote_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addquoteCopyModal<?php echo $quote_id; ?>">Copy</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuoteModal<?php echo $quote_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">Copy</a>
+                  <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send</a>
+                  <a class="dropdown-item" href="post.php?approve_quote=<?php echo $quote_id; ?>">Approve</a>
                   <a class="dropdown-item" href="post.php?pdf_quote=<?php echo $quote_id; ?>">PDF</a>
                   <a class="dropdown-item" href="post.php?delete_quote=<?php echo $quote_id; ?>">Delete</a>
                 </div>

@@ -31,6 +31,7 @@
 	$config_next_invoice_number = $row['config_next_invoice_number'];
 	$config_invoice_logo = $row['config_invoice_logo'];
 	$config_invoice_footer = $row['config_invoice_footer'];
+	$config_quote_footer = $row['config_quote_footer'];
 	$config_smtp_host = $row['config_smtp_host'];
 	$config_smtp_username = $row['config_smtp_username'];
 	$config_smtp_password = $row['config_smtp_password'];

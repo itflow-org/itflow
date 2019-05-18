@@ -2,7 +2,7 @@
 
 include("config.php");
 include("check_login.php");
-//include("functions.php");
+include("functions.php");
 
 require("vendor/PHPMailer-6.0.7/src/PHPMailer.php");
 require("vendor/PHPMailer-6.0.7/src/SMTP.php");
@@ -63,8 +63,9 @@ if(isset($_POST['edit_invoice_settings'])){
     $config_mail_from_email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_email']));
     $config_mail_from_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name']));
     $config_invoice_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer']));
+    $config_quote_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_footer']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_next_invoice_number = '$config_next_invoice_number', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer'");
+    mysqli_query($mysqli,"UPDATE settings SET config_next_invoice_number = '$config_next_invoice_number', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_quote_footer = '$config_quote_footer'");
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -187,8 +188,9 @@ if(isset($_POST['edit_user'])){
     $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
 
     if($_FILES['file']['tmp_name']!='') {
-        //remove old receipt
+        //delete old avatar file
         unlink($path);
+        //Update with new path
         $path = "uploads/user_avatars/";
         $path = $path . basename( $_FILES['file']['name']);
         $file_name = basename($path);
@@ -829,7 +831,11 @@ if(isset($_POST['add_quote'])){
     $row = mysqli_fetch_array($sql);
     $quote_number = $row['quote_number'] + 1;
 
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = $quote_number, quote_date = '$date', category_id = $category, quote_status = 'Draft', client_id = $client");
+    //Generate a unique URL key for clients to access
+    $quote_url_key = keygen();
+
+
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = $quote_number, quote_date = '$date', category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_created_at = NOW(), client_id = $client");
 
     $quote_id = mysqli_insert_id($mysqli);
 
@@ -838,6 +844,107 @@ if(isset($_POST['add_quote'])){
     $_SESSION['alert_message'] = "Quote added";
     
     header("Location: quote.php?quote_id=$quote_id");
+
+}
+
+if(isset($_POST['edit_quote'])){
+
+    $quote_id = intval($_POST['quote_id']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $category = intval($_POST['category']);
+
+     mysqli_query($mysqli,"UPDATE quotes SET quote_date = '$date', category_id = $category, quote_updated_at = NOW() WHERE quote_id = $quote_id");
+
+    $_SESSION['alert_message'] = "Quote modified";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['add_quote_copy'])){
+
+    $quote_id = intval($_POST['quote_id']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    
+    //Get the last Invoice Number and add 1 for the new invoice number
+    $sql = mysqli_query($mysqli,"SELECT quote_number FROM quotes ORDER BY quote_number DESC LIMIT 1");
+    $row = mysqli_fetch_array($sql);
+    $quote_number = $row['quote_number'] + 1;
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_array($sql);
+    $quote_amount = $row['quote_amount'];
+    $quote_note = $row['quote_note'];
+    $client_id = $row['client_id'];
+    $category_id = $row['category_id'];
+
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = $quote_number, quote_date = '$date', category_id = $category_id, quote_status = 'Draft', quote_amount = '$quote_amount', quote_note = '$quote_note', quote_created_at = NOW(), client_id = $client_id");
+
+    $new_quote_id = mysqli_insert_id($mysqli);
+
+    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Draft', invoice_history_description = 'Quote copied!', quote_id = $new_quote_id");
+
+    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
+    while($row = mysqli_fetch_array($sql_items)){
+        $item_id = $row['item_id'];
+        $item_name = $row['item_name'];
+        $item_description = $row['item_description'];
+        $item_quantity = $row['item_quantity'];
+        $item_price = $row['item_price'];
+        $item_subtotal = $row['item_subtotal'];
+        $item_tax = $row['item_tax'];
+        $item_total = $row['item_total'];
+
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', quote_id = $new_quote_id");
+    }
+
+    $_SESSION['alert_message'] = "Quote copied";
+    
+    header("Location: quote.php?quote_id=$new_quote_id");
+
+}
+
+if(isset($_POST['add_quote_to_invoice'])){
+
+    $quote_id = intval($_POST['quote_id']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $due = strip_tags(mysqli_real_escape_string($mysqli,$_POST['due']));
+    
+    //Get the last Invoice Number and add 1 for the new invoice number
+    $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
+    $row = mysqli_fetch_array($sql);
+    $invoice_number = $row['invoice_number'] + 1;
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_array($sql);
+    $quote_amount = $row['quote_amount'];
+    $quote_note = $row['quote_note'];
+    $client_id = $row['client_id'];
+    $category_id = $row['category_id'];
+
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = '$due', category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_created_at = NOW(), client_id = $client_id");
+
+    $new_invoice_id = mysqli_insert_id($mysqli);
+
+    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Draft', invoice_history_description = 'Quote copied to Invoice!', invoice_id = $new_invoice_id");
+
+    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
+    while($row = mysqli_fetch_array($sql_items)){
+        $item_id = $row['item_id'];
+        $item_name = $row['item_name'];
+        $item_description = $row['item_description'];
+        $item_quantity = $row['item_quantity'];
+        $item_price = $row['item_price'];
+        $item_subtotal = $row['item_subtotal'];
+        $item_tax = $row['item_tax'];
+        $item_total = $row['item_total'];
+
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', invoice_id = $new_invoice_id");
+    }
+
+    $_SESSION['alert_message'] = "Quoted copied to Invoice";
+    
+    header("Location: invoice.php?invoice_id=$new_invoice_id");
 
 }
 
@@ -894,6 +1001,445 @@ if(isset($_GET['delete_quote_item'])){
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
+}
+
+if(isset($_POST['edit_quote_note'])){
+
+    $quote_id = intval($_POST['quote_id']);
+    $quote_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['quote_note']));
+
+    mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$quote_note' WHERE quote_id = $quote_id");
+
+    $_SESSION['alert_message'] = "Notes added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['approve_quote'])){
+
+    $quote_id = intval($_GET['approve_quote']);
+
+    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Approved' WHERE quote_id = $quote_id");
+
+    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Approved', invoice_history_description = 'Quote approved!', quote_id = $quote_id");
+
+    $_SESSION['alert_message'] = "Quote approved";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['cancel_quote'])){
+
+    $quote_id = intval($_GET['cancel_quote']);
+
+    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Cancelled' WHERE quote_id = $quote_id");
+
+    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Cancelled', invoice_history_description = 'Quote cancelled!', quote_id = $quote_id");
+
+    $_SESSION['alert_message'] = "Quote cancelled";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['pdf_quote'])){
+
+    $quote_id = intval($_GET['pdf_quote']);
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients
+    WHERE quotes.client_id = clients.client_id
+    AND quotes.quote_id = $quote_id"
+    );
+
+    $row = mysqli_fetch_array($sql);
+    $quote_id = $row['quote_id'];
+    $quote_number = $row['quote_number'];
+    $quote_status = $row['quote_status'];
+    $quote_date = $row['quote_date'];
+    $quote_amount = $row['quote_amount'];
+    $quote_note = $row['quote_note'];
+    $quote_url_key = $row['quote_url_key'];
+    $client_id = $row['client_id'];
+    $client_name = $row['client_name'];
+    $client_address = $row['client_address'];
+    $client_city = $row['client_city'];
+    $client_state = $row['client_state'];
+    $client_zip = $row['client_zip'];
+    $client_email = $row['client_email'];
+    $client_phone = $row['client_phone'];
+    if(strlen($client_phone)>2){ 
+    $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+    }
+    $client_website = $row['client_website'];
+
+    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id ORDER BY item_id ASC");
+
+    while($row = mysqli_fetch_array($sql_items)){
+        $item_id = $row['item_id'];
+        $item_name = $row['item_name'];
+        $item_description = $row['item_description'];
+        $item_quantity = $row['item_quantity'];
+        $item_price = $row['item_price'];
+        $item_subtotal = $row['item_price'];
+        $item_tax = $row['item_tax'];
+        $item_total = $row['item_total'];
+        $total_tax = $item_tax + $total_tax;
+        $sub_total = $item_price * $item_quantity + $sub_total;
+
+
+        $items .= "
+          <tr>
+            <td align='center'>$item_name</td>
+            <td>$item_description</td>
+            <td class='cost'>$$item_price</td>
+            <td align='center'>$item_quantity</td>
+            <td class='cost'>$$item_tax</td>
+            <td class='cost'>$$item_total</td>
+          </tr>
+        ";
+
+    }
+
+    $html = '
+    <html>
+    <head>
+    <style>
+    body {font-family: sans-serif;
+    font-size: 10pt;
+    }
+    p { margin: 0pt; }
+    table.items {
+    border: 0.1mm solid #000000;
+    }
+    td { vertical-align: top; }
+    .items td {
+    border-left: 0.1mm solid #000000;
+    border-right: 0.1mm solid #000000;
+    }
+    table thead td { background-color: #EEEEEE;
+    text-align: center;
+    border: 0.1mm solid #000000;
+    font-variant: small-caps;
+    }
+    .items td.blanktotal {
+    background-color: #EEEEEE;
+    border: 0.1mm solid #000000;
+    background-color: #FFFFFF;
+    border: 0mm none #000000;
+    border-top: 0.1mm solid #000000;
+    border-right: 0.1mm solid #000000;
+    }
+    .items td.totals {
+    text-align: right;
+    border: 0.1mm solid #000000;
+    }
+    .items td.cost {
+    text-align: "." center;
+    }
+    </style>
+    </head>
+    <body>
+    <!--mpdf
+    <htmlpageheader name="myheader">
+    <table width="100%"><tr>
+    <td width="15%"><img width="75" height="75" src=" '.$config_invoice_logo.' "></img></td>
+    <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$config_company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
+    <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> QUO-'.$quote_number.' </span></td>
+    </tr></table>
+    </htmlpageheader>
+    <htmlpagefooter name="myfooter">
+    <div style="border-top: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; ">
+    Page {PAGENO} of {nb}
+    </div>
+    </htmlpagefooter>
+    <sethtmlpageheader name="myheader" value="on" show-this-page="1" />
+    <sethtmlpagefooter name="myfooter" value="on" />
+    mpdf-->
+    <div style="text-align: right">Date: '.$quote_date.'</div>
+    <table width="100%" style="font-family: serif;" cellpadding="10"><tr>
+    <td width="45%" style="border: 0.1mm solid #888888; "><span style="font-size: 7pt; color: #555555; font-family: sans;">TO:</span><br /><br /><b> '.$client_name.' </b><br />'.$client_address.'<br />'.$client_city.' '.$client_state.' '.$client_zip.' <br /><br> '.$client_email.' <br /> '.$client_phone.'</td>
+    <td width="65%">&nbsp;</td>
+
+    </tr></table>
+    <br />
+    <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse; " cellpadding="8">
+    <thead>
+    <tr>
+    <td width="20%">Item</td>
+    <td width="25%">Description</td>
+    <td width="15%">Unit Cost</td>
+    <td width="10%">Quantity</td>
+    <td width="15%">Tax</td>
+    <td width="15%">Line Total</td>
+    </tr>
+    </thead>
+    <tbody>
+    '.$items.'
+    <tr>
+    <td class="blanktotal" colspan="4" rowspan="3"><h4>Notes</h4> '.$quote_note.' </td>
+    <td class="totals">Subtotal:</td>
+    <td class="totals cost">$ '.number_format($sub_total,2).' </td>
+    </tr>
+    <tr>
+    <td class="totals">Tax:</td>
+    <td class="totals cost">$ '.number_format($total_tax,2).' </td>
+    </tr>
+    <tr>
+    <td class="totals">Total:</td>
+    <td class="totals cost">$ '.number_format($quote_amount,2).' </td>
+    </tr>
+    </tbody>
+    </table>
+    <div style="text-align: center; font-style: italic;"> '.$config_quote_footer.' </div>
+    </body>
+    </html>
+    ';
+    
+    $mpdf = new \Mpdf\Mpdf([
+    'margin_left' => 20,
+    'margin_right' => 15,
+    'margin_top' => 48,
+    'margin_bottom' => 25,
+    'margin_header' => 10,
+    'margin_footer' => 10
+    ]);
+    $mpdf->SetProtection(array('print'));
+    $mpdf->SetTitle("$config_company_name - Quote");
+    $mpdf->SetAuthor("$config_company_name");
+    $mpdf->SetWatermarkText("Quote");
+    $mpdf->showWatermarkText = true;
+    $mpdf->watermark_font = 'DejaVuSansCondensed';
+    $mpdf->watermarkTextAlpha = 0.1;
+    $mpdf->SetDisplayMode('fullpage');
+    $mpdf->WriteHTML($html);
+    $mpdf->Output();
+
+}
+
+if(isset($_GET['email_quote'])){
+    $quote_id = intval($_GET['email_quote']);
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients
+    WHERE quotes.client_id = clients.client_id
+    AND quotes.quote_id = $quote_id"
+    );
+
+    $row = mysqli_fetch_array($sql);
+    $quote_id = $row['quote_id'];
+    $quote_number = $row['quote_number'];
+    $quote_status = $row['quote_status'];
+    $quote_date = $row['quote_date'];
+    $quote_amount = $row['quote_amount'];
+    $quote_note = $row['quote_note'];
+    $quote_url_key = $row['quote_url_key'];
+    $client_id = $row['client_id'];
+    $client_name = $row['client_name'];
+    $client_address = $row['client_address'];
+    $client_city = $row['client_city'];
+    $client_state = $row['client_state'];
+    $client_zip = $row['client_zip'];
+    $client_email = $row['client_email'];
+    $client_phone = $row['client_phone'];
+    if(strlen($client_phone)>2){ 
+    $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+    }
+    $client_website = $row['client_website'];
+
+    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id ORDER BY item_id ASC");
+
+    while($row = mysqli_fetch_array($sql_items)){
+        $item_id = $row['item_id'];
+        $item_name = $row['item_name'];
+        $item_description = $row['item_description'];
+        $item_quantity = $row['item_quantity'];
+        $item_price = $row['item_price'];
+        $item_subtotal = $row['item_price'];
+        $item_tax = $row['item_tax'];
+        $item_total = $row['item_total'];
+        $total_tax = $item_tax + $total_tax;
+        $sub_total = $item_price * $item_quantity + $sub_total;
+
+
+        $items .= "
+          <tr>
+            <td align='center'>$item_name</td>
+            <td>$item_description</td>
+            <td class='cost'>$$item_price</td>
+            <td align='center'>$item_quantity</td>
+            <td class='cost'>$$item_tax</td>
+            <td class='cost'>$$item_total</td>
+          </tr>
+        ";
+
+    }
+
+    $html = '
+    <html>
+    <head>
+    <style>
+    body {font-family: sans-serif;
+    font-size: 10pt;
+    }
+    p { margin: 0pt; }
+    table.items {
+    border: 0.1mm solid #000000;
+    }
+    td { vertical-align: top; }
+    .items td {
+    border-left: 0.1mm solid #000000;
+    border-right: 0.1mm solid #000000;
+    }
+    table thead td { background-color: #EEEEEE;
+    text-align: center;
+    border: 0.1mm solid #000000;
+    font-variant: small-caps;
+    }
+    .items td.blanktotal {
+    background-color: #EEEEEE;
+    border: 0.1mm solid #000000;
+    background-color: #FFFFFF;
+    border: 0mm none #000000;
+    border-top: 0.1mm solid #000000;
+    border-right: 0.1mm solid #000000;
+    }
+    .items td.totals {
+    text-align: right;
+    border: 0.1mm solid #000000;
+    }
+    .items td.cost {
+    text-align: "." center;
+    }
+    </style>
+    </head>
+    <body>
+    <!--mpdf
+    <htmlpageheader name="myheader">
+    <table width="100%"><tr>
+    <td width="15%"><img width="75" height="75" src=" '.$config_invoice_logo.' "></img></td>
+    <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$config_company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
+    <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> QUO-'.$quote_number.' </span></td>
+    </tr></table>
+    </htmlpageheader>
+    <htmlpagefooter name="myfooter">
+    <div style="border-top: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; ">
+    Page {PAGENO} of {nb}
+    </div>
+    </htmlpagefooter>
+    <sethtmlpageheader name="myheader" value="on" show-this-page="1" />
+    <sethtmlpagefooter name="myfooter" value="on" />
+    mpdf-->
+    <div style="text-align: right">Date: '.$quote_date.'</div>
+    <table width="100%" style="font-family: serif;" cellpadding="10"><tr>
+    <td width="45%" style="border: 0.1mm solid #888888; "><span style="font-size: 7pt; color: #555555; font-family: sans;">TO:</span><br /><br /><b> '.$client_name.' </b><br />'.$client_address.'<br />'.$client_city.' '.$client_state.' '.$client_zip.' <br /><br> '.$client_email.' <br /> '.$client_phone.'</td>
+    <td width="65%">&nbsp;</td>
+
+    </tr></table>
+    <br />
+    <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse; " cellpadding="8">
+    <thead>
+    <tr>
+    <td width="20%">Item</td>
+    <td width="25%">Description</td>
+    <td width="15%">Unit Cost</td>
+    <td width="10%">Quantity</td>
+    <td width="15%">Tax</td>
+    <td width="15%">Line Total</td>
+    </tr>
+    </thead>
+    <tbody>
+    '.$items.'
+    <tr>
+    <td class="blanktotal" colspan="4" rowspan="3"><h4>Notes</h4> '.$quote_note.' </td>
+    <td class="totals">Subtotal:</td>
+    <td class="totals cost">$ '.number_format($sub_total,2).' </td>
+    </tr>
+    <tr>
+    <td class="totals">Tax:</td>
+    <td class="totals cost">$ '.number_format($total_tax,2).' </td>
+    </tr>
+    <tr>
+    <td class="totals">Total:</td>
+    <td class="totals cost">$ '.number_format($quote_amount,2).' </td>
+    </tr>
+    </tbody>
+    </table>
+    <div style="text-align: center; font-style: italic;"> '.$config_quote_footer.' </div>
+    </body>
+    </html>
+    ';
+    
+    $mpdf = new \Mpdf\Mpdf([
+    'margin_left' => 20,
+    'margin_right' => 15,
+    'margin_top' => 48,
+    'margin_bottom' => 25,
+    'margin_header' => 10,
+    'margin_footer' => 10
+    ]);
+    $mpdf->SetProtection(array('print'));
+    $mpdf->SetTitle("$config_company_name - Quote");
+    $mpdf->SetAuthor("$config_company_name");
+    $mpdf->SetWatermarkText("Quote");
+    $mpdf->showWatermarkText = true;
+    $mpdf->watermark_font = 'DejaVuSansCondensed';
+    $mpdf->watermarkTextAlpha = 0.1;
+    $mpdf->SetDisplayMode('fullpage');
+    $mpdf->WriteHTML($html);
+    $mpdf->Output("uploads/$quote_date-$config_company_name-Quote$quote_number.pdf", 'F');
+
+    $mail = new PHPMailer(true);
+
+    try{
+
+        //Mail Server Settings
+
+        //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+        $mail->isSMTP();                                            // Set mailer to use SMTP
+        $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+        $mail->Username   = $config_smtp_username;                     // SMTP username
+        $mail->Password   = $config_smtp_password;                               // SMTP password
+        $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+        $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+
+        //Recipients
+        $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+        $mail->addAddress("$client_email", "$client_name");     // Add a recipient
+
+        // Attachments
+        //$mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
+        //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
+        $mail->addAttachment("uploads/$quote_date-$config_company_name-Quote$quote_number.pdf");    // Optional name
+
+        // Content
+        $mail->isHTML(true);                                  // Set email format to HTML
+
+        $mail->Subject = "Quote $quote_number - $quote_date";
+        $mail->Body    = "Hello $client_name,<br><br>Attached to this email is the Quote you requested. You can approve or disapprove this quote by clicking here.<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>$config_company_phone";
+        
+        $mail->send();
+        echo 'Message has been sent';
+
+        mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Sent', invoice_history_description = 'Emailed Quote!', quote_id = $quote_id");
+
+        //Don't change the status to sent if the status is anything but draft
+        if($quote_status == 'Draft'){
+
+            mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent', client_id = $client_id WHERE quote_id = $quote_id");
+
+        }
+
+        $_SESSION['alert_message'] = "Quote has been sent";
+
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+
+    } catch (Exception $e) {
+        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+    }
+    unlink("uploads/$quote_date-$config_company_name-Quote$quote_number.pdf");
 }
 
 if(isset($_POST['add_recurring'])){

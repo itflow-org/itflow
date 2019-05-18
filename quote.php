@@ -18,7 +18,7 @@ if(isset($_GET['quote_id'])){
   $quote_date = $row['quote_date'];
   $quote_amount = $row['quote_amount'];
   $quote_note = $row['quote_note'];
-  $quote_category_id = $row['category_id'];
+  $category_id = $row['category_id'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];
   $client_address = $row['client_address'];
@@ -32,15 +32,17 @@ if(isset($_GET['quote_id'])){
   }
   $client_website = $row['client_website'];
 
-  $sql_quote_history = mysqli_query($mysqli,"SELECT * FROM quote_history WHERE quote_id = $quote_id ORDER BY quote_history_id ASC");
+  $sql_invoice_history = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE quote_id = $quote_id ORDER BY invoice_history_id DESC");
   
   //Set Badge color based off of quote status
   if($quote_status == "Sent"){
-    $quote_badge_color = "warning";
+    $quote_badge_color = "warning text-white";
   }elseif($quote_status == "Viewed"){
     $quote_badge_color = "primary";
   }elseif($quote_status == "Approved"){
     $quote_badge_color = "success";
+  }elseif($quote_status == "Cancelled"){
+    $quote_badge_color = "danger";
   }else{
     $quote_badge_color = "secondary";
   }
@@ -62,9 +64,11 @@ if(isset($_GET['quote_id'])){
         <i class="fas fa-ellipsis-h"></i>
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editquoteModal">Edit</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editquoteNoteModal">Note</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addquoteCopyModal<?php echo $quote_id; ?>">Copy</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuoteModal<?php echo $quote_id ?>">Edit</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">Copy</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteToInvoiceModal<?php echo $quote_id; ?>">Quote > Invoice</a>
+        <a class="dropdown-item" href="post.php?approve_quote=<?php echo $quote_id; ?>">Approve</a>
+        <a class="dropdown-item" href="post.php?cancel_quote=<?php echo $quote_id; ?>">Cancel</a>
         <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send Email</a>
         <?php if($quote_status == "Draft"){ ?><a class="dropdown-item" href="post.php?mark_quote_sent=<?php echo $quote_id; ?>">Mark Sent</a><?php } ?>
         <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
@@ -201,17 +205,23 @@ if(isset($_GET['quote_id'])){
 </div>
 
 <div class="row mb-4">
-  <div class="col-5">
+  <div class="col-7">
     <div class="card">
       <div class="card-header">
         Notes
       </div>
-      <div class="card-body mb-5">
-        <p><?php echo $quote_note; ?></p>
+      <div class="card-body">
+        <div class="d-none d-print-block"><?php echo $quote_note; ?></div>
+        <form class="d-print-none" action="post.php" method="post">
+          <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
+          <textarea rows="6" class="form-control mb-2" name="quote_note"><?php echo $quote_note; ?></textarea>
+          <button class="btn btn-primary btn-sm float-right" type="submit" name="edit_quote_note"><i class="fa fa-fw fa-check"></i></button>
+        </form>
       </div>
     </div>
   </div>
-  <div class="col-3 offset-4">
+
+  <div class="col-3 offset-2">
     <table class="table table-borderless">
       <tbody>    
         <tr class="border-bottom">
@@ -257,16 +267,16 @@ if(isset($_GET['quote_id'])){
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql_quote_history)){
-              $quote_history_date = $row['quote_history_date'];
-              $quote_history_status = $row['quote_history_status'];
-              $quote_history_description = $row['quote_history_description'];
+            while($row = mysqli_fetch_array($sql_invoice_history)){
+              $invoice_history_date = $row['invoice_history_date'];
+              $invoice_history_status = $row['invoice_history_status'];
+              $invoice_history_description = $row['invoice_history_description'];
              
             ?>
             <tr>
-              <td><?php echo $quote_history_date; ?></td>
-              <td><?php echo $quote_history_status; ?></td>
-              <td><?php echo $quote_history_description; ?></td>
+              <td><?php echo $invoice_history_date; ?></td>
+              <td><?php echo $invoice_history_status; ?></td>
+              <td><?php echo $invoice_history_description; ?></td>
             </tr>
             <?php
             }
@@ -280,7 +290,8 @@ if(isset($_GET['quote_id'])){
 </div>
 
 <?php include("edit_quote_modal.php"); ?>
-<?php include("edit_quote_note_modal.php"); ?>
+<?php include("add_quote_to_invoice_modal.php"); ?>
+<?php include("add_quote_copy_modal.php"); ?>
 
 <?php } ?>
 
