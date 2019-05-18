@@ -27,6 +27,9 @@
 	$config_company_state = $row['config_company_state'];
 	$config_company_zip = $row['config_company_zip'];
 	$config_company_phone = $row['config_company_phone'];
+	if(strlen($config_company_phone)>2){ 
+      $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
+    }
 	$config_company_site = $row['config_company_site'];
 	$config_next_invoice_number = $row['config_next_invoice_number'];
 	$config_invoice_logo = $row['config_invoice_logo'];
