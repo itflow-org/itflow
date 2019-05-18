@@ -1,8 +1,9 @@
 <?php 
  
-  $sql = mysqli_query($mysqli,"SELECT * FROM recurring, invoices
+  $sql = mysqli_query($mysqli,"SELECT * FROM recurring, invoices, categories
     WHERE invoices.invoice_id = recurring.invoice_id
     AND invoices.client_id = $client_id
+    AND invoices.category_id = categories.category_id
     ORDER BY recurring.recurring_id DESC");
 ?>
 
@@ -38,6 +39,8 @@
                   $recurring_last_sent = "-";
                 }
                 $recurring_next_date = $row['recurring_next_date'];
+                $category_id = $row['category_id'];
+                $category_name = $row['category_name'];
                 $invoice_id = $row['invoice_id'];
                 if($recurring_status == 1){
                   $status = "Active";
@@ -54,6 +57,7 @@
                 <td><?php echo $recurring_start_date; ?></td>
                 <td><?php echo $recurring_last_sent; ?></td>
                 <td><?php echo $recurring_next_date; ?></td>
+                <td><?php echo $category_name; ?></td>
                 <td>
                    <span class="p-2 badge badge-<?php echo $status_badge_color; ?>">
                     <?php echo $status; ?>

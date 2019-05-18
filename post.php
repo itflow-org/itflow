@@ -861,6 +861,31 @@ if(isset($_POST['edit_quote'])){
 
 }
 
+if(isset($_GET['delete_quote'])){
+    $quote_id = intval($_GET['delete_quote']);
+
+    mysqli_query($mysqli,"DELETE FROM quotes WHERE quote_id = $quote_id");
+
+    //Delete Items Associated with the Quote
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
+    while($row = mysqli_fetch_array($sql)){;
+        $item_id = $row['item_id'];
+        mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+    }
+
+    //Delete History Associated with the Quote
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE quote_id = $quote_id");
+    while($row = mysqli_fetch_array($sql)){;
+        $invoice_history_id = $row['invoice_history_id'];
+        mysqli_query($mysqli,"DELETE FROM invoice_history WHERE invoice_history_id = $invoice_history_id");
+    }
+
+    $_SESSION['alert_message'] = "Quotes deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_quote_copy'])){
 
     $quote_id = intval($_POST['quote_id']);

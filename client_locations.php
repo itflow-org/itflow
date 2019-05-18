@@ -14,6 +14,7 @@
             <th>Name</th>
             <th>Address</th>
             <th>Phone</th>
+            <th>Hours</th>
             <th class="text-center">Actions</th>
           </tr>
         </thead>
@@ -32,12 +33,16 @@
               $location_phone = substr($row['location_phone'],0,3)."-".substr($row['location_phone'],3,3)."-".substr($row['location_phone'],6,4);
             }
             $location_hours = $row['location_hours'];
+            if(empty($location_hours)){
+              $location_hours = '-';
+            }
       
           ?>
           <tr>
             <td><?php echo "$location_name"; ?></td>
-            <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo "$location_address"; ?></a></td>
-            <td><?php echo "$location_phone"; ?></td>
+            <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo $location_address; ?></a></td>
+            <td><?php echo $location_phone; ?></td>
+            <td><?php echo $location_hours; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

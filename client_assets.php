@@ -16,7 +16,6 @@
             <th>Make</th>
             <th>Model</th>
             <th>Serial</th>
-            <th></th>
             <th class="text-center">Actions</th>
           </tr>
         </thead>
@@ -74,15 +73,11 @@
           ?>
           <tr>
             <td><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $asset_type; ?></td>
-            <td><?php echo $asset_name; ?></td>
-            <td><?php echo $asset_make; ?></td>
-            <td><?php echo $asset_model; ?></td>
-            <td><?php echo $asset_serial; ?></td>
             <td>
               <?php
               if($asset_id == $asset_id_relation){
               ?>  
-              <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $login_id; ?>"><i class="fas fa-key"></i></button>
+              <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $login_id; ?>"><i class="fas fa-key text-dark"></i></button>
 
               <div class="modal" id="viewPasswordModal<?php echo $login_id; ?>" tabindex="-1">
                 <div class="modal-dialog modal-sm">
@@ -114,10 +109,15 @@
                   </div>
                 </div>
               </div>
+              <?php echo $asset_name; ?>
               <?php
               }
               ?>
+              
             </td>
+            <td><?php echo $asset_make; ?></td>
+            <td><?php echo $asset_model; ?></td>
+            <td><?php echo $asset_serial; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -4,7 +4,6 @@
 
 //GET ALERTS
 
-
 //DOMAINS EXPIRING 
 
 $domainAlertArray = [1, 14, 30, 90];
