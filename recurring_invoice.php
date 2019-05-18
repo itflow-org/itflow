@@ -18,6 +18,9 @@ if(isset($_GET['recurring_id'])){
   $recurring_status = $row['recurring_status'];
   $recurring_start_date = $row['recurring_start_date'];
   $recurring_last_sent = $row['recurring_last_sent'];
+  if($recurring_last_sent == 0){
+    $recurring_last_sent = '-';
+  }
   $recurring_next_date = $row['recurring_next_date'];
   $invoice_id = $row['invoice_id'];
   $invoice_status = $row['invoice_status'];
@@ -74,8 +77,7 @@ if(isset($_GET['recurring_id'])){
         <i class="fas fa-ellipsis-h"></i>
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal">Edit</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceNoteModal">Note</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringModal<?php echo $recurring_id; ?>">Edit</a>
         <?php if($recurring_status == 1){ ?>
           <a class="dropdown-item" href="post.php?recurring_deactivate=<?php echo $recurring_id; ?>">Deactivate</a>
         <?php }else{ ?>
@@ -216,17 +218,22 @@ if(isset($_GET['recurring_id'])){
 </div>
 
 <div class="row mb-4">
-  <div class="col-5">
+  <div class="col-7">
     <div class="card">
       <div class="card-header">
         Notes
       </div>
-      <div class="card-body mb-5">
-        <p><?php echo $invoice_note; ?></p>
+      <div class="card-body">
+        <div class="d-none d-print-block"><?php echo $invoice_note; ?></div>
+        <form class="d-print-none" action="post.php" method="post">
+          <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+          <textarea rows="6" class="form-control mb-2" name="invoice_note"><?php echo $invoice_note; ?></textarea>
+          <button class="btn btn-primary btn-sm float-right" type="submit" name="edit_invoice_note"><i class="fa fa-fw fa-check"></i></button>
+        </form>
       </div>
     </div>
   </div>
-  <div class="col-3 offset-4">
+  <div class="col-3 offset-2">
     <table class="table table-borderless">
       <tbody>    
         <tr class="border-bottom">
@@ -285,7 +292,6 @@ if(isset($_GET['recurring_id'])){
             ?>
             <tr>
               <td><?php echo $invoice_history_date; ?></td>
-              <td><?php echo $invoice_history_status; ?></td>
               <td><?php echo $invoice_history_description; ?></td>
             </tr>
             <?php
@@ -300,7 +306,7 @@ if(isset($_GET['recurring_id'])){
 </div>
 
 <?php include("edit_invoice_modal.php"); ?>
-<?php include("edit_invoice_note_modal.php"); ?>
+
 <?php } ?>
 
 <?php include("footer.php");

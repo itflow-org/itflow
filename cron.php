@@ -7,147 +7,59 @@
 
 //DOMAINS EXPIRING 
 
-//Get Domains Expiring within 1 days
-$sql = mysqli_query($mysqli,"SELECT * FROM domains, clients 
-  WHERE domains.client_id = clients.client_id 
-  AND domain_expire = CURDATE() + INTERVAL 1 DAY
-  ORDER BY domain_id DESC"
-);
+$domainAlertArray = [1, 14, 30, 90];
 
-while($row = mysqli_fetch_array($sql)){
-  $domain_id = $row['domain_id'];
-  $domain_name = $row['domain_name'];
-  $domain_expire = $row['domain_expire'];
-  $client_id = $row['client_id'];
-  $client_name = $row['client_name'];
+foreach ($domainAlertArray as $day)  {
 
-  mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Domain', alert_message = 'Domain $domain_name will expire tomorrow on $domain_expire', alert_date = CURDATE()");
+  //Get Domains Expiring within 1 days
+  $sql = mysqli_query($mysqli,"SELECT * FROM domains, clients 
+    WHERE domains.client_id = clients.client_id 
+    AND domain_expire = CURDATE() + INTERVAL $day DAY
+    ORDER BY domain_id DESC"
+  );
 
-}
+  while($row = mysqli_fetch_array($sql)){
+    $domain_id = $row['domain_id'];
+    $domain_name = $row['domain_name'];
+    $domain_expire = $row['domain_expire'];
+    $client_id = $row['client_id'];
+    $client_name = $row['client_name'];
 
-//Get Domains Expiring within 14 days
-$sql = mysqli_query($mysqli,"SELECT * FROM domains, clients 
-  WHERE domains.client_id = clients.client_id 
-  AND domain_expire = CURDATE() + INTERVAL 1 DAY
-  ORDER BY domain_id DESC"
-);
+    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Domain', alert_message = 'Domain $domain_name will expire $day Days on $domain_expire', alert_date = CURDATE()");
 
-while($row = mysqli_fetch_array($sql)){
-  $domain_id = $row['domain_id'];
-  $domain_name = $row['domain_name'];
-  $domain_expire = $row['domain_expire'];
-  $client_id = $row['client_id'];
-  $client_name = $row['client_name'];
-
-  mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Domain', alert_message = 'Domain $domain_name will expire in 14 Days on $domain_expire', alert_date = CURDATE()");
-
-}
-
-//Get Domains Expiring within 30 days
-$sql = mysqli_query($mysqli,"SELECT * FROM domains, clients 
-  WHERE domains.client_id = clients.client_id 
-  AND domain_expire = CURDATE() + INTERVAL 1 DAY
-  ORDER BY domain_id DESC"
-);
-
-while($row = mysqli_fetch_array($sql)){
-  $domain_id = $row['domain_id'];
-  $domain_name = $row['domain_name'];
-  $domain_expire = $row['domain_expire'];
-  $client_id = $row['client_id'];
-  $client_name = $row['client_name'];
-
-  mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Domain', alert_message = 'Domain $domain_name will expire in 30 Days on $domain_expire', alert_date = CURDATE()");
-
-}
-
-//Get Domains Expiring within 90 days
-$sql = mysqli_query($mysqli,"SELECT * FROM domains, clients 
-  WHERE domains.client_id = clients.client_id 
-  AND domain_expire = CURDATE() + INTERVAL 1 DAY
-  ORDER BY domain_id DESC"
-);
-
-while($row = mysqli_fetch_array($sql)){
-  $domain_id = $row['domain_id'];
-  $domain_name = $row['domain_name'];
-  $domain_expire = $row['domain_expire'];
-  $client_id = $row['client_id'];
-  $client_name = $row['client_name'];
-
-  mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Domain', alert_message = 'Domain $domain_name will expire in 90 Days on $domain_expire', alert_date = CURDATE()");
+  }
 
 }
 
 //PAST DUE INVOICES
 
-//14 Days 
-$sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
-    WHERE invoices.client_id = clients.client_id
-    AND invoices.invoice_number > 0
-    AND invoices.invoice_status NOT LIKE 'Draft'
-    AND invoices.invoice_status NOT LIKE 'Paid'
-    AND invoices.invoice_due = CURDATE() + INTERVAL 14 DAY
-    ORDER BY invoices.invoice_number DESC"
-);
-      
-while($row = mysqli_fetch_array($sql)){
-  $invoice_id = $row['invoice_id'];
-  $invoice_number = $row['invoice_number'];
-  $invoice_status = $row['invoice_status'];
-  $invoice_date = $row['invoice_date'];
-  $invoice_due = $row['invoice_due'];
-  $invoice_amount = $row['invoice_amount'];
-  $client_id = $row['client_id'];
-  $client_name = $row['client_name'];
+$invoiceAlertArray = [1, 14, 30, 90];
 
-  mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice', alert_message = 'Invoice INV-$invoice_number for $client_name in the amount of $invoice_amount is overdue by 14 days', alert_date = CURDATE()");
-}
+foreach ($invoiceAlertArray as $day)  {
 
-//30 Days 
-$sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
-    WHERE invoices.client_id = clients.client_id
-    AND invoices.invoice_number > 0
-    AND invoices.invoice_status NOT LIKE 'Draft'
-    AND invoices.invoice_status NOT LIKE 'Paid'
-    AND invoices.invoice_due = CURDATE() + INTERVAL 30 DAY
-    ORDER BY invoices.invoice_number DESC"
-);
-      
-while($row = mysqli_fetch_array($sql)){
-  $invoice_id = $row['invoice_id'];
-  $invoice_number = $row['invoice_number'];
-  $invoice_status = $row['invoice_status'];
-  $invoice_date = $row['invoice_date'];
-  $invoice_due = $row['invoice_due'];
-  $invoice_amount = $row['invoice_amount'];
-  $client_id = $row['client_id'];
-  $client_name = $row['client_name'];
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
+      WHERE invoices.client_id = clients.client_id
+      AND invoices.invoice_number > 0
+      AND invoices.invoice_status NOT LIKE 'Draft'
+      AND invoices.invoice_status NOT LIKE 'Paid'
+      AND invoices.invoice_status NOT LIKE 'Cancelled'
+      AND invoices.invoice_due = CURDATE() + INTERVAL $day DAY
+      ORDER BY invoices.invoice_number DESC"
+  );
+        
+  while($row = mysqli_fetch_array($sql)){
+    $invoice_id = $row['invoice_id'];
+    $invoice_number = $row['invoice_number'];
+    $invoice_status = $row['invoice_status'];
+    $invoice_date = $row['invoice_date'];
+    $invoice_due = $row['invoice_due'];
+    $invoice_amount = $row['invoice_amount'];
+    $client_id = $row['client_id'];
+    $client_name = $row['client_name'];
 
-  mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice', alert_message = 'Invoice INV-$invoice_number for $client_name in the amount of $invoice_amount is overdue by 30 days', alert_date = CURDATE()");
-}
+    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice', alert_message = 'Invoice INV-$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', alert_date = CURDATE()");
+  }
 
-//90 Days 
-$sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
-    WHERE invoices.client_id = clients.client_id
-    AND invoices.invoice_number > 0
-    AND invoices.invoice_status NOT LIKE 'Draft'
-    AND invoices.invoice_status NOT LIKE 'Paid'
-    AND invoices.invoice_due = CURDATE() + INTERVAL 90 DAY
-    ORDER BY invoices.invoice_number DESC"
-);
-      
-while($row = mysqli_fetch_array($sql)){
-  $invoice_id = $row['invoice_id'];
-  $invoice_number = $row['invoice_number'];
-  $invoice_status = $row['invoice_status'];
-  $invoice_date = $row['invoice_date'];
-  $invoice_due = $row['invoice_due'];
-  $invoice_amount = $row['invoice_amount'];
-  $client_id = $row['client_id'];
-  $client_name = $row['client_name'];
-
-  mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice', alert_message = 'Invoice INV-$invoice_number for $client_name in the amount of $invoice_amount is overdue by 90 days', alert_date = CURDATE()");
 }
 
 //LOW BALANCE ALERTS
@@ -179,7 +91,7 @@ while($row = mysqli_fetch_array($sql)){
 
 $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring, clients, invoices WHERE clients.client_id = invoices.client_id AND invoices.invoice_id = recurring.invoice_id AND recurring.recurring_next_date = CURDATE() AND recurring.recurring_status = 1");
 
-while($row = mysqli_fetch_array($sql_recurring_invoices)){
+while($row = mysqli_fetch_array($sql_recurring)){
   $recurring_id = $row['recurring_id'];
   $recurring_frequency = $row['recurring_frequency'];
   $recurring_status = $row['recurring_status'];
