@@ -15,12 +15,6 @@
       <span>Clients</span>
     </a>
   </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "calendar_events.php") { echo "active"; } ?>">
-    <a class="nav-link" href="calendar_events.php">
-      <i class="fas fa-fw fa-calendar mx-2"></i>
-      <span>Calendar</span>
-    </a>
-  </li>
   <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "tickets.php") { echo "active"; } ?>">
     <a class="nav-link" href="tickets.php">
       <i class="fas fa-fw fa-tags mx-2"></i>
@@ -38,10 +32,10 @@
       <span>Vendors</span>
     </a>
   </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "invoices.php") { echo "active"; } ?>">
-    <a class="nav-link" href="invoices.php">
-      <i class="fas fa-fw fa-file-invoice-dollar mx-2"></i>
-      <span>Invoices</span>
+  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "calendar_events.php") { echo "active"; } ?>">
+    <a class="nav-link" href="calendar_events.php">
+      <i class="fas fa-fw fa-calendar mx-2"></i>
+      <span>Calendar</span>
     </a>
   </li>
   <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "quotes.php") { echo "active"; } ?>">
@@ -50,10 +44,16 @@
       <span>Quotes</span>
     </a>
   </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "expenses.php") { echo "active"; } ?>">
-    <a class="nav-link" href="expenses.php">
-      <i class="fas fa-fw fa-shopping-cart mx-2"></i>
-      <span>Expenses</span>
+  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "invoices.php") { echo "active"; } ?>">
+    <a class="nav-link" href="invoices.php">
+      <i class="fas fa-fw fa-file-invoice-dollar mx-2"></i>
+      <span>Invoices</span>
+    </a>
+  </li>
+   <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "recurring.php") { echo "active"; } ?>">
+    <a class="nav-link" href="recurring.php">
+      <i class="fas fa-fw fa-copy mx-2"></i>
+      <span>Recurring</span>
     </a>
   </li>
   <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "payments.php") { echo "active"; } ?>">
@@ -62,10 +62,16 @@
       <span>Payments</span>
     </a>
   </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "recurring.php") { echo "active"; } ?>">
-    <a class="nav-link" href="recurring.php">
-      <i class="fas fa-fw fa-copy mx-2"></i>
-      <span>Recurring</span>
+  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "expenses.php") { echo "active"; } ?>">
+    <a class="nav-link" href="expenses.php">
+      <i class="fas fa-fw fa-shopping-cart mx-2"></i>
+      <span>Expenses</span>
+    </a>
+  </li>
+  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "trips.php") { echo "active"; } ?>">
+    <a class="nav-link" href="trips.php">
+      <i class="fas fa-fw fa-bicycle mx-2"></i>
+      <span>Trips</span>
     </a>
   </li>
   <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "accounts.php") { echo "active"; } ?>">
@@ -80,12 +86,6 @@
       <span>Transfers</span>
     </a>
   </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "trips.php") { echo "active"; } ?>">
-    <a class="nav-link" href="trips.php">
-      <i class="fas fa-fw fa-bicycle mx-2"></i>
-      <span>Trips</span>
-    </a>
-  </li>
   <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       <i class="fas fa-fw fa-chart-area mx-2"></i>
@@ -97,7 +97,6 @@
       <a class="dropdown-item" href="report_profit_loss.php">Profit & Loss</a>
     </div>
   </li>
-
   <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       <i class="fas fa-fw fa-cog mx-2"></i>
