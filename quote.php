@@ -32,7 +32,7 @@ if(isset($_GET['quote_id'])){
   }
   $client_website = $row['client_website'];
 
-  $sql_invoice_history = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE quote_id = $quote_id ORDER BY invoice_history_id DESC");
+  $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE quote_id = $quote_id ORDER BY history_id DESC");
   
   //Set Badge color based off of quote status
   if($quote_status == "Sent"){
@@ -267,16 +267,16 @@ if(isset($_GET['quote_id'])){
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql_invoice_history)){
-              $invoice_history_date = $row['invoice_history_date'];
-              $invoice_history_status = $row['invoice_history_status'];
-              $invoice_history_description = $row['invoice_history_description'];
+            while($row = mysqli_fetch_array($sql_history)){
+              $history_date = $row['history_date'];
+              $history_status = $row['history_status'];
+              $history_description = $row['history_description'];
              
             ?>
             <tr>
-              <td><?php echo $invoice_history_date; ?></td>
-              <td><?php echo $invoice_history_status; ?></td>
-              <td><?php echo $invoice_history_description; ?></td>
+              <td><?php echo $history_date; ?></td>
+              <td><?php echo $history_status; ?></td>
+              <td><?php echo $history_description; ?></td>
             </tr>
             <?php
             }

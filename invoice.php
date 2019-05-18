@@ -33,7 +33,7 @@ if(isset($_GET['invoice_id'])){
   }
   $client_website = $row['client_website'];
 
-  $sql_invoice_history = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id ORDER BY invoice_history_id DESC");
+  $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE invoice_id = $invoice_id ORDER BY history_id DESC");
   
   $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
@@ -91,7 +91,7 @@ if(isset($_GET['invoice_id'])){
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">Edit</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">Recurring</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceRecurringModal<?php echo $invoice_id; ?>">Recurring</a>
         <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send</a>
         <?php if($invoice_status == 'Draft'){ ?><a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">Mark Sent</a><?php } ?>
         <?php if($invoice_status !== 'Paid' and $invoice_status !== 'Cancelled'){ ?><a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPaymentModal">Add Payment</a><?php } ?>
@@ -299,16 +299,16 @@ if(isset($_GET['invoice_id'])){
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql_invoice_history)){
-              $invoice_history_date = $row['invoice_history_date'];
-              $invoice_history_status = $row['invoice_history_status'];
-              $invoice_history_description = $row['invoice_history_description'];
+            while($row = mysqli_fetch_array($sql_history)){
+              $history_date = $row['history_date'];
+              $history_status = $row['history_status'];
+              $history_description = $row['history_description'];
              
             ?>
             <tr>
-              <td><?php echo $invoice_history_date; ?></td>
-              <td><?php echo $invoice_history_status; ?></td>
-              <td><?php echo $invoice_history_description; ?></td>
+              <td><?php echo $history_date; ?></td>
+              <td><?php echo $history_status; ?></td>
+              <td><?php echo $history_description; ?></td>
             </tr>
             <?php
             }
@@ -364,6 +364,7 @@ if(isset($_GET['invoice_id'])){
 <?php include("add_payment_modal.php"); ?>
 <?php include("edit_invoice_modal.php"); ?>
 <?php include("add_invoice_copy_modal.php"); ?>
+<?php include("add_invoice_recurring_modal.php"); ?>
 <?php } ?>
 
 <?php include("footer.php"); ?>

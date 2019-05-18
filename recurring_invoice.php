@@ -6,9 +6,8 @@ if(isset($_GET['recurring_id'])){
 
   $recurring_id = intval($_GET['recurring_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, recurring
-    WHERE invoices.client_id = clients.client_id
-    AND invoices.invoice_id = recurring.invoice_id
+  $sql = mysqli_query($mysqli,"SELECT * FROM clients, recurring
+    WHERE recurring.client_id = clients.client_id
     AND recurring.recurring_id = $recurring_id"
   );
 
@@ -22,11 +21,9 @@ if(isset($_GET['recurring_id'])){
     $recurring_last_sent = '-';
   }
   $recurring_next_date = $row['recurring_next_date'];
-  $invoice_id = $row['invoice_id'];
-  $invoice_status = $row['invoice_status'];
-  $invoice_amount = $row['invoice_amount'];
-  $invoice_note = $row['invoice_note'];
-  $invoice_category_id = $row['category_id'];
+  $recurring_amount = $row['recurring_amount'];
+  $recurring_note = $row['recurring_note'];
+  $category_id = $row['category_id'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];
   $client_address = $row['client_address'];
@@ -49,16 +46,7 @@ if(isset($_GET['recurring_id'])){
     $status_badge_color = "secondary";
   }
 
-  $sql_invoice_history = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id ORDER BY invoice_history_id ASC");
-  
-  $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
-
-  //Add up all the payments for the invoice and get the total amount paid to the invoice
-  $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE invoice_id = $invoice_id");
-  $row = mysqli_fetch_array($sql_amount_paid);
-  $amount_paid = $row['amount_paid'];
-
-  $balance = $invoice_amount - $amount_paid;
+  $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE recurring_id = $recurring_id ORDER BY history_id DESC");
 
 ?>
 
@@ -83,7 +71,7 @@ if(isset($_GET['recurring_id'])){
         <?php }else{ ?>
           <a class="dropdown-item" href="post.php?recurring_activate=<?php echo $recurring_id; ?>">Activate</a>
         <?php } ?>
-        <a class="dropdown-item" href="#">Delete</a>
+        <a class="dropdown-item" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">Delete</a>
       </div>
     </div>
   </div>
@@ -140,7 +128,7 @@ if(isset($_GET['recurring_id'])){
   </div>
 </div>
 
-<?php $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC"); ?>
+<?php $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE recurring_id = $recurring_id ORDER BY item_id ASC"); ?>
 
 <div class="row mb-4">
   <div class="col-md-12">
@@ -179,7 +167,7 @@ if(isset($_GET['recurring_id'])){
           ?>
 
           <tr>
-            <td class="text-center d-print-none"><a class="btn btn-danger btn-sm" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-trash"></i></a></td>
+            <td class="text-center d-print-none"><a class="btn btn-danger btn-sm" href="post.php?delete_recurring_item=<?php echo $item_id; ?>"><i class="fa fa-trash"></i></a></td>
             <td><?php echo $item_name; ?></td>
             <td><?php echo $item_description; ?></td>
             <td class="text-right">$<?php echo number_format($item_price,2); ?></td>
@@ -196,8 +184,8 @@ if(isset($_GET['recurring_id'])){
 
           <tr class="d-print-none">
             <form action="post.php" method="post">
-              <td class="text-center"><button type="submit" class="btn btn-primary btn-sm" name="add_invoice_item"><i class="fa fa-check"></i></button></td>
-              <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+              <td class="text-center"><button type="submit" class="btn btn-primary btn-sm" name="add_recurring_item"><i class="fa fa-check"></i></button></td>
+              <input type="hidden" name="recurring_id" value="<?php echo $recurring_id; ?>">
               <td><input type="text" class="form-control" name="name"></td>
               <td><textarea class="form-control" rows="1" name="description"></textarea></td>
               <td><input type="text" class="form-control" style="text-align: right;" name="price"></td>
@@ -224,11 +212,11 @@ if(isset($_GET['recurring_id'])){
         Notes
       </div>
       <div class="card-body">
-        <div class="d-none d-print-block"><?php echo $invoice_note; ?></div>
+        <div class="d-none d-print-block"><?php echo $recurring_note; ?></div>
         <form class="d-print-none" action="post.php" method="post">
-          <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
-          <textarea rows="6" class="form-control mb-2" name="invoice_note"><?php echo $invoice_note; ?></textarea>
-          <button class="btn btn-primary btn-sm float-right" type="submit" name="edit_invoice_note"><i class="fa fa-fw fa-check"></i></button>
+          <input type="hidden" name="recurring_id" value="<?php echo $recurring_id; ?>">
+          <textarea rows="6" class="form-control mb-2" name="recurring_note"><?php echo $recurring_note; ?></textarea>
+          <button class="btn btn-primary btn-sm float-right" type="submit" name="edit_recurring_note"><i class="fa fa-fw fa-check"></i></button>
         </form>
       </div>
     </div>
@@ -252,15 +240,9 @@ if(isset($_GET['recurring_id'])){
           <td class="text-right">$<?php echo number_format($total_tax,2); ?></td>        
         </tr>
         <?php } ?>
-        <?php if($amount_paid > 0){ ?>
         <tr class="border-bottom">
-          <td><div class="text-success">Paid to Date</div></td>
-          <td class="text-right text-success">$<?php echo number_format($amount_paid,2); ?></td>
-        </tr>
-        <?php } ?>
-        <tr class="border-bottom">
-          <td><strong>Balance Due</strong></td>
-          <td class="text-right"><strong>$<?php echo number_format($balance,2); ?></strong></td>
+          <td><strong>Amount</strong></td>
+          <td class="text-right"><strong>$<?php echo number_format($recurring_amount,2); ?></strong></td>
         </tr>
       </tbody>
     </table>
@@ -277,22 +259,22 @@ if(isset($_GET['recurring_id'])){
         <table class="table">
           <thead>
             <tr>
-              <th>Date Sent</th>
-              <th>Invoice Number</th>
+              <th>Date</th>
+              <th>Event</th>
             </tr>
           </thead>
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql_invoice_history)){
-              $invoice_history_date = $row['invoice_history_date'];
-              $invoice_history_status = $row['invoice_history_status'];
-              $invoice_history_description = $row['invoice_history_description'];
+            while($row = mysqli_fetch_array($sql_history)){
+              $history_date = $row['history_date'];
+              $history_status = $row['history_status'];
+              $history_description = $row['history_description'];
              
             ?>
             <tr>
-              <td><?php echo $invoice_history_date; ?></td>
-              <td><?php echo $invoice_history_description; ?></td>
+              <td><?php echo $history_date; ?></td>
+              <td><?php echo $history_description; ?></td>
             </tr>
             <?php
             }
@@ -305,7 +287,7 @@ if(isset($_GET['recurring_id'])){
   </div>
 </div>
 
-<?php include("edit_invoice_modal.php"); ?>
+<?php include("edit_recurring_modal.php"); ?>
 
 <?php } ?>
 

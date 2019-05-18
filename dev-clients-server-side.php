@@ -18,38 +18,48 @@ if(isset($_GET['search'])){
 
 <?php $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_name LIKE '%$search%' $orderby $order LIMIT 10"); ?>
 
+<div class="row">
+  <div class="col-md-8">
+    <h6 class="ml-3"><i class="fa fa-users mr-2"></i>Clients</h6>
+  </div>
+  <div class="col-md-4">
+    
+  </div>
+</div>
 
 <div class="card">
   <div class="card-header">
-    <div class="row">
-      <form>
-        <div class="col-2">
-          
+
+    <form>
+      <div class="form-row">
+        <div class="form-group col-md-3">
           <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search clients..." name="search">
+            <input type="text" class="form-control form-control-sm" placeholder="Search clients..." name="search">
             <div class="input-group-append">
-              <button class="btn btn-dark" type="submit"><i class="fa fa-search"></i></button>
+              <button class="btn btn-sm btn-primary" type="submit"><i class="fa fa-search"></i></button>
             </div>
           </div>
         </div>
-        <div class="col-2">
+      
+        <div class="form-group col-md-2">
           <div class="input-group">
-            <select class="form-control" name="orderby">
-              <option>Sort By</option>
+            <select class="form-control form-control-sm" name="orderby">
+              <option>- Sort By -</option>
               <option value="client_name">Client Name</option>
             </select>
             <div class="input-group-append">
-              <button class="btn btn-dark" type="submit" name="sort" value="ASC"><i class="fa fa-arrow-down"></i></button>
+              <button class="btn btn-sm btn-secondary" type="submit" name="sort" value="ASC"><i class="fa fa-arrow-down"></i></button>
             </div>
           </div>
-          </form>
         </div>
-        <div class="col-8">
-        <button type="button" class="btn btn-primary mr-auto float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-plus"></i></button>
+        <div class="col-md-7">
+          <button type="button" class="btn btn-sm btn-primary float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-user-plus"></i></button>
+        </div>      
       </div>
-    </div>
+    </form>
+    
   </div>
-  <div class="card-body">
+  
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
         <thead>
@@ -140,7 +150,7 @@ if(isset($_GET['search'])){
       </nav>
 
     </div>
-  </div>
+ 
 </div>
 
 <?php include("add_client_modal.php"); ?>

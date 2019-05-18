@@ -1,9 +1,8 @@
 <?php 
  
-  $sql = mysqli_query($mysqli,"SELECT * FROM recurring, invoices, categories
-    WHERE invoices.invoice_id = recurring.invoice_id
-    AND invoices.client_id = $client_id
-    AND invoices.category_id = categories.category_id
+  $sql = mysqli_query($mysqli,"SELECT * FROM recurring, categories
+    WHERE recurring.client_id = $client_id
+    AND recurring.category_id = categories.category_id
     ORDER BY recurring.recurring_id DESC");
 ?>
 
@@ -19,7 +18,6 @@
         <thead>
           <tr>
             <th>Frequency</th>
-            <th>Start Date</th>
             <th>Last Sent</th>
             <th>Next Date</th>
             <th>Status</th>
@@ -33,7 +31,6 @@
                 $recurring_id = $row['recurring_id'];
                 $recurring_frequency = $row['recurring_frequency'];
                 $recurring_status = $row['recurring_status'];
-                $recurring_start_date = $row['recurring_start_date'];
                 $recurring_last_sent = $row['recurring_last_sent'];
                 if($recurring_last_sent == 0){
                   $recurring_last_sent = "-";
@@ -41,7 +38,6 @@
                 $recurring_next_date = $row['recurring_next_date'];
                 $category_id = $row['category_id'];
                 $category_name = $row['category_name'];
-                $invoice_id = $row['invoice_id'];
                 if($recurring_status == 1){
                   $status = "Active";
                   $status_badge_color = "success";
@@ -54,7 +50,6 @@
 
               <tr>
                 <td><?php echo ucwords($recurring_frequency); ?>ly</td>
-                <td><?php echo $recurring_start_date; ?></td>
                 <td><?php echo $recurring_last_sent; ?></td>
                 <td><?php echo $recurring_next_date; ?></td>
                 <td><?php echo $category_name; ?></td>
@@ -75,7 +70,7 @@
                       <?php }else{ ?>
                         <a class="dropdown-item" href="post.php?recurring_activate=<?php echo $recurring_id; ?>">Activate</a>
                       <?php } ?>
-                      <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
+                      <a class="dropdown-item" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">Delete</a>
                     </div>
                   </div>      
                 </td>

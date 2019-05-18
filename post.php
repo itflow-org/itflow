@@ -755,7 +755,7 @@ if(isset($_POST['add_invoice'])){
     $invoice_number = $row['invoice_number'] + 1;
     mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = '$due', category_id = $category, invoice_status = 'Draft', client_id = $client");
     $invoice_id = mysqli_insert_id($mysqli);
-    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Draft', invoice_history_description = 'INVOICE added!', invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', invoice_id = $invoice_id");
     $_SESSION['alert_message'] = "Invoice added";
     
     header("Location: invoice.php?invoice_id=$invoice_id");
@@ -798,7 +798,7 @@ if(isset($_POST['add_invoice_copy'])){
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Draft', invoice_history_description = 'INVOICE added!', invoice_id = $new_invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', invoice_id = $new_invoice_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id");
     while($row = mysqli_fetch_array($sql_items)){
@@ -817,6 +817,43 @@ if(isset($_POST['add_invoice_copy'])){
     $_SESSION['alert_message'] = "Invoice copied";
     
     header("Location: invoice.php?invoice_id=$new_invoice_id");
+
+}
+
+if(isset($_POST['add_invoice_recurring'])){
+
+    $invoice_id = intval($_POST['invoice_id']);
+    $recurring_frequency = strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency']));
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+    $row = mysqli_fetch_array($sql);
+    $invoice_date = $row['invoice_date'];
+    $invoice_amount = $row['invoice_amount'];
+    $invoice_note = $row['invoice_note'];
+    $client_id = $row['client_id'];
+    $category_id = $row['category_id'];
+
+    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_frequency = '$recurring_frequency', recurring_start_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_status = 1, recurring_amount = '$invoice_amount', recurring_note = '$invoice_note', recurring_created_at = NOW(), category_id = $category_id, client_id = $client_id");
+
+    $recurring_id = mysqli_insert_id($mysqli);
+
+    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id");
+    while($row = mysqli_fetch_array($sql_items)){
+        $item_id = $row['item_id'];
+        $item_name = $row['item_name'];
+        $item_description = $row['item_description'];
+        $item_quantity = $row['item_quantity'];
+        $item_price = $row['item_price'];
+        $item_subtotal = $row['item_subtotal'];
+        $item_tax = $row['item_tax'];
+        $item_total = $row['item_total'];
+
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', recurring_id = $recurring_id");
+    }
+
+    $_SESSION['alert_message'] = "Created recurring Invoice from this Invoice";
+    
+    header("Location: recurring.php?recurring_id=$recurring_id");
 
 }
 
@@ -839,7 +876,7 @@ if(isset($_POST['add_quote'])){
 
     $quote_id = mysqli_insert_id($mysqli);
 
-    //mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Draft', invoice_history_description = 'INVOICE added!', invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote created!', quote_id = $quote_id");
 
     $_SESSION['alert_message'] = "Quote added";
     
@@ -874,10 +911,10 @@ if(isset($_GET['delete_quote'])){
     }
 
     //Delete History Associated with the Quote
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE quote_id = $quote_id");
     while($row = mysqli_fetch_array($sql)){;
-        $invoice_history_id = $row['invoice_history_id'];
-        mysqli_query($mysqli,"DELETE FROM invoice_history WHERE invoice_history_id = $invoice_history_id");
+        $history_id = $row['history_id'];
+        mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
     }
 
     $_SESSION['alert_message'] = "Quotes deleted";
@@ -907,7 +944,7 @@ if(isset($_POST['add_quote_copy'])){
 
     $new_quote_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Draft', invoice_history_description = 'Quote copied!', quote_id = $new_quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote copied!', quote_id = $new_quote_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
     while($row = mysqli_fetch_array($sql_items)){
@@ -951,7 +988,7 @@ if(isset($_POST['add_quote_to_invoice'])){
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Draft', invoice_history_description = 'Quote copied to Invoice!', invoice_id = $new_invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote copied to Invoice!', invoice_id = $new_invoice_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
     while($row = mysqli_fetch_array($sql_items)){
@@ -1047,7 +1084,7 @@ if(isset($_GET['approve_quote'])){
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Approved' WHERE quote_id = $quote_id");
 
-    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Approved', invoice_history_description = 'Quote approved!', quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Approved', history_description = 'Quote approved!', quote_id = $quote_id");
 
     $_SESSION['alert_message'] = "Quote approved";
     
@@ -1061,7 +1098,7 @@ if(isset($_GET['cancel_quote'])){
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Cancelled' WHERE quote_id = $quote_id");
 
-    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Cancelled', invoice_history_description = 'Quote cancelled!', quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'Quote cancelled!', quote_id = $quote_id");
 
     $_SESSION['alert_message'] = "Quote cancelled";
     
@@ -1447,7 +1484,7 @@ if(isset($_GET['email_quote'])){
         $mail->send();
         echo 'Message has been sent';
 
-        mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Sent', invoice_history_description = 'Emailed Quote!', quote_id = $quote_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed Quote!', quote_id = $quote_id");
 
         //Don't change the status to sent if the status is anything but draft
         if($quote_status == 'Draft'){
@@ -1474,15 +1511,51 @@ if(isset($_POST['add_recurring'])){
     $start_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date']));
     $category = intval($_POST['category']);
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET category_id = $category, invoice_status = 'Draft', client_id = $client");
+    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_frequency = '$frequency', recurring_next_date = '$start_date', category_id = $category, recurring_status = 1, client_id = $client");
 
-    $invoice_id = mysqli_insert_id($mysqli);
+    $recurring_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_frequency = '$frequency', recurring_start_date = '$start_date', recurring_next_date = '$start_date', recurring_status = 1, invoice_id = $invoice_id");
-
-    $recurring_invoice_id = mysqli_insert_id($mysqli);
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_description = 'Reccuring Invoice created!', recurring_id = $recurring_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_recurring'])){
+    $recurring_id = intval($_GET['delete_recurring']);
+
+    mysqli_query($mysqli,"DELETE FROM recurring WHERE recurring_id = $recurring_id");
+    
+    //Delete Items Associated with the Recurring
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE recurring_id = $recurring_id");
+    while($row = mysqli_fetch_array($sql)){;
+        $item_id = $row['item_id'];
+        mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+    }
+
+    //Delete History Associated with the Invoice
+    $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE recurring_id = $recurring_id");
+    while($row = mysqli_fetch_array($sql)){;
+        $history_id = $row['history_id'];
+        mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
+    }
+
+    $_SESSION['alert_message'] = "Recurring Invoice deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
+if(isset($_POST['edit_recurring_note'])){
+
+    $recurring_id = intval($_POST['recurring_id']);
+    $recurring_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['recurring_note']));
+
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_note = '$recurring_note' WHERE recurring_id = $recurring_id");
+
+    $_SESSION['alert_message'] = "Notes added";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -1512,13 +1585,69 @@ if(isset($_GET['recurring_deactivate'])){
 
 }
 
+if(isset($_POST['add_recurring_item'])){
+
+    $recurring_id = intval($_POST['recurring_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $qty = $_POST['qty'];
+    $price = $_POST['price'];
+    $tax = $_POST['tax'];
+    
+    $subtotal = $price * $qty;
+    $tax = $subtotal * $tax;
+    $total = $subtotal + $tax;
+
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', recurring_id = $recurring_id");
+
+    //Update Invoice Balances
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id");
+    $row = mysqli_fetch_array($sql);
+
+    $new_recurring_amount = $row['recurring_amount'] + $total;
+
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount' WHERE recurring_id = $recurring_id");
+
+    $_SESSION['alert_message'] = "Item added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_recurring_item'])){
+    $item_id = intval($_GET['delete_recurring_item']);
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
+    $row = mysqli_fetch_array($sql);
+    $recurring_id = $row['recurring_id'];
+    $item_subtotal = $row['item_subtotal'];
+    $item_tax = $row['item_tax'];
+    $item_total = $row['item_total'];
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id");
+    $row = mysqli_fetch_array($sql);
+    
+    $new_recurring_amount = $row['recurring_amount'] - $item_total;
+
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount' WHERE recurring_id = $recurring_id");
+
+    mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+
+    $_SESSION['alert_message'] = "Item deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
+
 if(isset($_GET['mark_invoice_sent'])){
 
     $invoice_id = intval($_GET['mark_invoice_sent']);
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
 
-    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Sent', invoice_history_description = 'INVOICE marked sent', invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'INVOICE marked sent', invoice_id = $invoice_id");
 
     $_SESSION['alert_message'] = "Invoice marked sent";
     
@@ -1532,7 +1661,7 @@ if(isset($_GET['cancel_invoice'])){
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Cancelled' WHERE invoice_id = $invoice_id");
 
-    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Cancelled', invoice_history_description = 'INVOICE cancelled!', invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'INVOICE cancelled!', invoice_id = $invoice_id");
 
     $_SESSION['alert_message'] = "Invoice cancelled";
     
@@ -1553,10 +1682,10 @@ if(isset($_GET['delete_invoice'])){
     }
 
     //Delete History Associated with the Invoice
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_history WHERE invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE invoice_id = $invoice_id");
     while($row = mysqli_fetch_array($sql)){;
-        $invoice_history_id = $row['invoice_history_id'];
-        mysqli_query($mysqli,"DELETE FROM invoice_history WHERE invoice_history_id = $invoice_history_id");
+        $history_id = $row['history_id'];
+        mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
     }
 
     //Delete Payments Associated with the Invoice
@@ -1697,7 +1826,7 @@ if(isset($_POST['add_payment'])){
                   $mail->send();
                   echo 'Message has been sent';
 
-                  mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Sent', invoice_history_description = 'Emailed Receipt!', invoice_id = $invoice_id");
+                  mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed Receipt!', invoice_id = $invoice_id");
 
                 } catch (Exception $e) {
                     echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
@@ -1737,7 +1866,7 @@ if(isset($_POST['add_payment'])){
                   $mail->send();
                   echo 'Message has been sent';
 
-                  mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Sent', invoice_history_description = 'Emailed Receipt!', invoice_id = $invoice_id");
+                  mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed Receipt!', invoice_id = $invoice_id");
 
                 } catch (Exception $e) {
                     echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
@@ -1750,7 +1879,7 @@ if(isset($_POST['add_payment'])){
         mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id");
 
         //Add Payment to History
-        mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = '$invoice_status', invoice_history_description = 'INVOICE payment added', invoice_id = $invoice_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'INVOICE payment added', invoice_id = $invoice_id");
 
         $_SESSION['alert_message'] = "Payment added";
         
@@ -1790,7 +1919,7 @@ if(isset($_GET['delete_payment'])){
     mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id");
 
     //Add Payment to History
-    mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = '$invoice_status', invoice_history_description = 'INVOICE payment deleted', invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'INVOICE payment deleted', invoice_id = $invoice_id");
 
     mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
 
@@ -2032,7 +2161,7 @@ if(isset($_GET['email_invoice'])){
         $mail->send();
         echo 'Message has been sent';
 
-        mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Sent', invoice_history_description = 'Emailed Invoice!', invoice_id = $invoice_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed Invoice!', invoice_id = $invoice_id");
 
         //Don't chnage the status to sent if the status is anything but draf
         if($invoice_status == 'Draft'){

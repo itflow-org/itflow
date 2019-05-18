@@ -2,10 +2,9 @@
 
 <?php 
  
-  $sql = mysqli_query($mysqli,"SELECT * FROM recurring, invoices, clients, categories
-    WHERE invoices.client_id = clients.client_id
-    AND invoices.invoice_id = recurring.invoice_id
-    AND invoices.category_id = categories.category_id
+  $sql = mysqli_query($mysqli,"SELECT * FROM recurring, clients, categories
+    WHERE recurring.client_id = clients.client_id
+    AND recurring.category_id = categories.category_id
     ORDER BY recurring.recurring_id DESC");
 ?>
 
@@ -21,7 +20,6 @@
           <tr>
             <th>Frequency</th>
             <th>Client</th>
-            <th>Start Date</th>
             <th>Last Sent</th>
             <th>Next Date</th>
             <th>Category</th>
@@ -36,7 +34,6 @@
             $recurring_id = $row['recurring_id'];
             $recurring_frequency = $row['recurring_frequency'];
             $recurring_status = $row['recurring_status'];
-            $recurring_start_date = $row['recurring_start_date'];
             $recurring_last_sent = $row['recurring_last_sent'];
             if($recurring_last_sent == 0){
               $recurring_last_sent = "-";
@@ -44,7 +41,6 @@
             $recurring_next_date = $row['recurring_next_date'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
-            $invoice_id = $row['invoice_id'];
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
             if($recurring_status == 1){
@@ -55,13 +51,11 @@
               $status_badge_color = "secondary";
             }
 
-
           ?>
 
           <tr>
             <td><?php echo ucwords($recurring_frequency); ?>ly</td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
-            <td><?php echo $recurring_start_date; ?></td>
             <td><?php echo $recurring_last_sent; ?></td>
             <td><?php echo $recurring_next_date; ?></td>
             <td><?php echo $category_name; ?></td>
@@ -83,7 +77,7 @@
                   <?php }else{ ?>
                     <a class="dropdown-item" href="post.php?recurring_activate=<?php echo $recurring_id; ?>">Activate</a>
                   <?php } ?>
-                    <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
+                    <a class="dropdown-item" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">Delete</a>
                 </div>
               </div>      
             </td>

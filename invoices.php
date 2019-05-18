@@ -53,6 +53,17 @@
 
 <div class="row">
   <div class="col-xl-3 col-sm-6 mb-3">
+    <div class="card text-white bg-secondary o-hidden">
+      <div class="card-body">
+        <div class="card-body-icon">
+          <i class="fas fa-fw fa-pencil-ruler"></i>
+        </div>
+        <div class="mr-5"><?php echo $draft_count; ?> Draft <h1>$<?php echo number_format($total_draft,2); ?></h1></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-sm-6 mb-3">
     <div class="card text-white bg-warning o-hidden">
       <div class="card-body">
         <div class="card-body-icon">
@@ -62,6 +73,7 @@
       </div>
     </div>
   </div>
+  
   <div class="col-xl-3 col-sm-6 mb-3">
     <div class="card text-white bg-primary o-hidden">
       <div class="card-body">
@@ -72,21 +84,12 @@
       </div>      
     </div>
   </div>
-  <div class="col-xl-3 col-sm-6 mb-3">
-    <div class="card text-white bg-secondary o-hidden">
-      <div class="card-body">
-        <div class="card-body-icon">
-          <i class="fas fa-fw fa-pencil-ruler"></i>
-        </div>
-        <div class="mr-5"><?php echo $draft_count; ?> Draft <h1>$<?php echo number_format($total_draft,2); ?></h1></div>
-      </div>
-    </div>
-  </div>
+  
   <div class="col-xl-3 col-sm-6 mb-3">
     <div class="card text-white bg-danger o-hidden">
       <div class="card-body">
         <div class="card-body-icon">
-          <i class="fas fa-fw fa-skull-crossbones"></i>
+          <i class="fas fa-fw fa-ban"></i>
         </div>
         <div class="mr-5"><?php echo $cancelled_count; ?> Cancelled <h1>$<?php echo number_format($total_cancelled,2); ?></h1></div>
       </div>

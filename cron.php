@@ -88,7 +88,7 @@ while($row = mysqli_fetch_array($sql)){
 
 //Send Recurring Invoices that match todays date and are active
 
-$sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring, clients, invoices WHERE clients.client_id = invoices.client_id AND invoices.invoice_id = recurring.invoice_id AND recurring.recurring_next_date = CURDATE() AND recurring.recurring_status = 1");
+$sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring, clients WHERE clients.client_id = recurring.client_id AND recurring.recurring_next_date = CURDATE() AND recurring.recurring_status = 1");
 
 while($row = mysqli_fetch_array($sql_recurring)){
   $recurring_id = $row['recurring_id'];
@@ -97,11 +97,9 @@ while($row = mysqli_fetch_array($sql_recurring)){
   $recurring_start_date = $row['recurring_start_date'];
   $recurring_last_sent = $row['recurring_last_sent'];
   $recurring_next_date = $row['recurring_next_date'];
-  $invoice_id = $row['invoice_id'];
-  $invoice_status = $row['invoice_status'];
-  $invoice_amount = $row['invoice_amount'];
-  $invoice_note = $row['invoice_note'];
-  $invoice_category_id = $row['category_id'];
+  $recurring_amount = $row['recurring_amount'];
+  $recurring_note = $row['recurring_note'];
+  $category_id = $row['category_id'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];
   $client_net_terms = $row['client_net_terms'];
@@ -111,13 +109,12 @@ while($row = mysqli_fetch_array($sql_recurring)){
   $row = mysqli_fetch_array($sql_invoice_number);
   $new_invoice_number = $row['invoice_number'] + 1;
 
-  mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $new_invoice_number, invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day) , invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', category_id = $invoice_category_id, invoice_status = 'Sent', client_id = $client_id");
+  mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $new_invoice_number, invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day) , invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', client_id = $client_id");
 
   $new_invoice_id = mysqli_insert_id($mysqli);
-
   
   //Copy Items from original invoice to new invoice
-  $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC");
+  $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE recurring = $recurring_id ORDER BY item_id ASC");
 
   while($row = mysqli_fetch_array($sql_invoice_items)){
     $item_id = $row['item_id'];
@@ -132,7 +129,7 @@ while($row = mysqli_fetch_array($sql_recurring)){
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', invoice_id = $new_invoice_id");
   }
 
-  mysqli_query($mysqli,"INSERT INTO invoice_history SET invoice_history_date = CURDATE(), invoice_history_status = 'Draft', invoice_history_description = 'INVOICE added!', invoice_id = $new_invoice_id");
+  mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'INVOICE Generated from Recurring!', invoice_id = $new_invoice_id");
 
   //update the recurring invoice with the new dates
   mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency) , invoice_id = $new_invoice_id WHERE recurring_id = $recurring_id");
