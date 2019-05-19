@@ -9,6 +9,7 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
+        <input type="hidden" name="client_net_terms" value="<?php echo $client_net_terms; ?>">
         
         <div class="modal-body bg-white">
          
@@ -19,16 +20,6 @@
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
               </div>
               <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>Payment Due</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-calendar-alt"></i></span>
-              </div>
-              <input type="date" class="form-control" name="due" required>
             </div>
           </div>
       

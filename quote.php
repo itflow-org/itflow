@@ -31,6 +31,10 @@ if(isset($_GET['quote_id'])){
     $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
   }
   $client_website = $row['client_website'];
+  $client_net_terms = $row['client_net_terms'];
+  if($client_net_terms == 0){
+    $client_net_terms = $config_default_net_terms;
+  }
 
   $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE quote_id = $quote_id ORDER BY history_id DESC");
   

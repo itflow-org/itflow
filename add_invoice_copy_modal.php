@@ -9,6 +9,7 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+        <input type="hidden" name="client_net_terms" value="<?php echo $client_net_terms; ?>">
         <div class="modal-body bg-white">
 
           <div class="form-group">
@@ -21,15 +22,6 @@
             </div>
           </div>
           
-          <div class="form-group">
-            <label>Payment Due</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-calendar-alt"></i></span>
-              </div>
-              <input type="date" class="form-control" name="due" required>
-            </div>
-          </div>
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

@@ -21,6 +21,9 @@ if(isset($_GET['client_id'])){
   }
   $client_website = $row['client_website'];
   $client_net_terms = $row['client_net_terms'];
+  if($client_net_terms == 0){
+    $client_net_terms = $config_default_net_terms;
+  }
 
   //Add up all the payments for the invoice and get the total amount paid to the invoice
   $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled'");
@@ -121,6 +124,10 @@ if(isset($_GET['client_id'])){
         <h4 class="text-secondary">Standings</h4>
         <h6 class="ml-1">Paid <div class="text-secondary float-right">$<?php echo number_format($amount_paid,2); ?></div></h6>
         <h6 class="ml-1">Balance <div class="text-secondary float-right">$<?php echo number_format($balance,2); ?></div></h6>
+      </div>
+      <div class="col border-left">
+        <h4 class="text-secondary">Net Terms</h4>
+        <h6 class="ml-1"><?php echo $client_net_terms; ?> <small class="text-secondary">Days</small></h6>
       </div>
       <div class="col border-left">
         <div class="dropdown dropleft text-center">

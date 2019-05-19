@@ -746,14 +746,14 @@ if(isset($_GET['delete_transfer'])){
 if(isset($_POST['add_invoice'])){
     $client = intval($_POST['client']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $due = strip_tags(mysqli_real_escape_string($mysqli,$_POST['due']));
+    $client_net_terms = intval($_POST['client_net_terms']);
     $category = intval($_POST['category']);
     
     //Get the last Invoice Number and add 1 for the new invoice number
     $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
     $row = mysqli_fetch_array($sql);
     $invoice_number = $row['invoice_number'] + 1;
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = '$due', category_id = $category, invoice_status = 'Draft', client_id = $client");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category, invoice_status = 'Draft', client_id = $client");
     $invoice_id = mysqli_insert_id($mysqli);
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', invoice_id = $invoice_id");
     $_SESSION['alert_message'] = "Invoice added";
@@ -780,7 +780,7 @@ if(isset($_POST['add_invoice_copy'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $due = strip_tags(mysqli_real_escape_string($mysqli,$_POST['due']));
+    $client_net_terms = intval($_POST['client_net_terms']);
     
     //Get the last Invoice Number and add 1 for the new invoice number
     $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
@@ -794,7 +794,7 @@ if(isset($_POST['add_invoice_copy'])){
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = '$due', category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', client_id = $client_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -833,7 +833,7 @@ if(isset($_POST['add_invoice_recurring'])){
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_frequency = '$recurring_frequency', recurring_start_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_status = 1, recurring_amount = '$invoice_amount', recurring_note = '$invoice_note', recurring_created_at = NOW(), category_id = $category_id, client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_frequency = '$recurring_frequency', recurring_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_status = 1, recurring_amount = '$invoice_amount', recurring_note = '$invoice_note', recurring_created_at = NOW(), category_id = $category_id, client_id = $client_id");
 
     $recurring_id = mysqli_insert_id($mysqli);
 
@@ -970,7 +970,7 @@ if(isset($_POST['add_quote_to_invoice'])){
 
     $quote_id = intval($_POST['quote_id']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $due = strip_tags(mysqli_real_escape_string($mysqli,$_POST['due']));
+    $client_net_terms = intval($_POST['client_net_terms']);
     
     //Get the last Invoice Number and add 1 for the new invoice number
     $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
@@ -984,7 +984,7 @@ if(isset($_POST['add_quote_to_invoice'])){
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = '$due', category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_created_at = NOW(), client_id = $client_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 

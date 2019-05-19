@@ -131,6 +131,10 @@
             $client_name = $row['client_name'];
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
+            $client_net_terms = $row['client_net_terms'];
+            if($client_net_terms == 0){
+              $client_net_terms = $config_default_net_terms;
+            }
 
             $now = time();
 

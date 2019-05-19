@@ -15,7 +15,7 @@
 	$config_no_records = "There is nothing here!";
 	$config_default_expense_account = "";
 	$config_default_payment_account = "";
-	$config_default_net_terms = "";
+	$config_default_net_terms = 7;
 
 	$sql = mysqli_query($mysqli,"SELECT * FROM settings");
 	$row = mysqli_fetch_array($sql);

@@ -9,6 +9,7 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
+          
           <div class="form-group">
             <label>Client</label>
             <div class="input-group">
@@ -32,6 +33,7 @@
               </select>
             </div>
           </div>
+          
           <div class="form-group">
             <label>Date</label>
             <div class="input-group">
@@ -64,6 +66,7 @@
               </select>
             </div>
           </div>
+        
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

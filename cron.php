@@ -109,7 +109,7 @@ while($row = mysqli_fetch_array($sql_recurring)){
   $row = mysqli_fetch_array($sql_invoice_number);
   $new_invoice_number = $row['invoice_number'] + 1;
 
-  mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $new_invoice_number, invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day) , invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', client_id = $client_id");
+  mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $new_invoice_number, invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', client_id = $client_id");
 
   $new_invoice_id = mysqli_insert_id($mysqli);
   
