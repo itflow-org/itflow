@@ -8,6 +8,11 @@
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
+        
+        <?php if(isset($_GET['client_id'])){ ?>
+          <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+        <?php } ?>
+
         <div class="modal-body bg-white">
           <div class="form-group">
             <label>Client</label>
@@ -15,7 +20,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
               </div>
-              <select class="form-control" name="client" required>
+              <select class="form-control" name="client" required <?php if(isset($_GET['client_id'])){ echo "disabled"; } ?>>
                 <option value="">- Client -</option>
                 <?php 
                 
@@ -24,7 +29,7 @@
                   $client_id = $row['client_id'];
                   $client_name = $row['client_name'];
                 ?>
-                  <option value="<?php echo "$client_id"; ?>"><?php echo "$client_name"; ?></option>
+                  <option <?php if($_GET['client_id'] == $client_id) { echo "selected"; } ?> value="<?php echo "$client_id"; ?>"><?php echo "$client_name"; ?></option>
                 
                 <?php
                 }

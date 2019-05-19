@@ -18,7 +18,7 @@
         </thead>
         <tbody>
           <?php
-      
+
           while($row = mysqli_fetch_array($sql)){
             $contact_id = $row['contact_id'];
             $contact_name = $row['contact_name'];
@@ -29,6 +29,7 @@
             }
             $contact_email = $row['contact_email'];
             $contact_photo = $row['contact_photo'];
+            $contact_initials = initials($contact_name);
       
           ?>
           <tr>
@@ -38,8 +39,15 @@
               <div class="text-secondary"><?php echo $contact_name; ?></div>
             </td>
             <?php }else{ ?>
-            <td class="text-center"><?php echo $contact_name; ?></td>
-          <?php } ?>
+            <td class="text-center">
+              <span class="fa-stack fa-2x">
+                <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+              </span>
+              <br>
+              <div class="text-secondary"><?php echo $contact_name; ?></div>
+            </td>
+            <?php } ?>
             <td><?php echo $contact_title; ?></td>
             <td><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a></td>
             <td><?php echo $contact_phone; ?></td>

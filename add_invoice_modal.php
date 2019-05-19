@@ -9,6 +9,11 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="client_net_terms" value="<?php echo $client_net_terms; ?>">
+        
+        <?php if(isset($_GET['client_id'])){ ?>
+          <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+        <?php } ?>
+        
         <div class="modal-body bg-white">
           <div class="form-group">
             <label>Client</label>
@@ -16,7 +21,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
               </div>
-              <select class="form-control" id="selectIt" name="client" required <?php if(isset($_GET['client_id'])){ echo "disabled"; } ?>>
+              <select class="form-control" name="client" required <?php if(isset($_GET['client_id'])){ echo "disabled"; } ?>>
                 <option value="">- Client -</option>
                 <?php 
                 

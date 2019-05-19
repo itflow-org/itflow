@@ -88,8 +88,9 @@
 
           <?php
 
-          include("edit_invoice_modal.php");
           include("add_invoice_copy_modal.php");
+          include("edit_invoice_modal.php");
+          
           }
 
           ?>
