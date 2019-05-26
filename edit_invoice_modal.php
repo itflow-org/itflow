@@ -44,10 +44,10 @@
                 
                 $sql_income_category = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income'"); 
                 while($row = mysqli_fetch_array($sql_income_category)){
-                  $category_id = $row['category_id'];
-                  $category_name = $row['category_name'];
+                  $category_id_select= $row['category_id'];
+                  $category_name_select = $row['category_name'];
                 ?>
-                <option <?php if($category_id == $invoice_category_id){ ?> selected <?php } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                <option <?php if($category_id == $category_id_select){ ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
                 
                 <?php
                 }

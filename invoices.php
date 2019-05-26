@@ -176,6 +176,7 @@
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-copy"></i> Copy</a>
                   <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-paper-plane"></i> Send</a>
                   <a class="dropdown-item" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-file-pdf"></i> PDF</a>
@@ -188,6 +189,7 @@
           <?php
 
           include("add_invoice_copy_modal.php");
+          include("edit_invoice_modal.php");
           }
 
           ?>

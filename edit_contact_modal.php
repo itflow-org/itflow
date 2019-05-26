@@ -10,7 +10,16 @@
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
         <div class="modal-body bg-white">    
-          <center><img class="img-fluid rounded-circle" src="<?php echo $contact_photo; ?>" height="256" width="256"></center>
+          <center>
+            <?php if(!empty($contact_photo)){ ?>
+            <img class="img-fluid rounded-circle" src="<?php echo $contact_photo; ?>" height="256" width="256">
+            <?php }else{ ?>
+            <span class="fa-stack fa-4x">
+              <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+              <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+            </span>
+            <?php } ?>
+          </center>
           <div class="form-group">
             <label>Name</label>
             <div class="input-group">

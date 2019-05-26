@@ -161,8 +161,6 @@ if(isset($_POST['add_user'])){
         $avatar_path = "uploads/user_avatars/";
         $avatar_path = $avatar_path . $user_id . '_' . time() . '_' . basename( $_FILES['avatar']['name']);
         move_uploaded_file($_FILES['avatar']['tmp_name'], $avatar_path);
-    }else{
-        $avatar_path = "img/default_user_avatar.png";
     }
 
     mysqli_query($mysqli,"UPDATE users SET avatar = '$avatar_path' WHERE user_id = $user_id");
@@ -884,6 +882,49 @@ if(isset($_POST['add_quote'])){
 
 }
 
+if(isset($_POST['save_quote'])){
+
+    $quote_id = intval($_POST['quote_id']);
+    
+    if(isset($_POST['name'])){
+        $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+        $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+        $qty = $_POST['qty'];
+        $price = $_POST['price'];
+        $tax = $_POST['tax'];
+        
+        $subtotal = $price * $qty;
+        $tax = $subtotal * $tax;
+        $total = $subtotal + $tax;
+
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', quote_id = $quote_id");
+
+        //Update Invoice Balances
+
+        $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+        $row = mysqli_fetch_array($sql);
+
+        $new_quote_amount = $row['quote_amount'] + $total;
+
+        mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount' WHERE quote_id = $quote_id");
+
+        $_SESSION['alert_message'] = "Item added";
+
+    }
+
+
+    if(isset($_POST['quote_note'])){
+        $quote_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['quote_note']));
+
+        mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$quote_note' WHERE quote_id = $quote_id");
+
+        $_SESSION['alert_message'] = "Notes added";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['edit_quote'])){
 
     $quote_id = intval($_POST['quote_id']);
@@ -1010,36 +1051,6 @@ if(isset($_POST['add_quote_to_invoice'])){
 
 }
 
-if(isset($_POST['add_quote_item'])){
-
-    $quote_id = intval($_POST['quote_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $qty = $_POST['qty'];
-    $price = $_POST['price'];
-    $tax = $_POST['tax'];
-    
-    $subtotal = $price * $qty;
-    $tax = $subtotal * $tax;
-    $total = $subtotal + $tax;
-
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', quote_id = $quote_id");
-
-    //Update Invoice Balances
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
-    $row = mysqli_fetch_array($sql);
-
-    $new_quote_amount = $row['quote_amount'] + $total;
-
-    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount' WHERE quote_id = $quote_id");
-
-    $_SESSION['alert_message'] = "Item added";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
 if(isset($_GET['delete_quote_item'])){
     $item_id = intval($_GET['delete_quote_item']);
 
@@ -1065,19 +1076,6 @@ if(isset($_GET['delete_quote_item'])){
   
 }
 
-if(isset($_POST['edit_quote_note'])){
-
-    $quote_id = intval($_POST['quote_id']);
-    $quote_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['quote_note']));
-
-    mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$quote_note' WHERE quote_id = $quote_id");
-
-    $_SESSION['alert_message'] = "Notes added";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
 if(isset($_GET['approve_quote'])){
 
     $quote_id = intval($_GET['approve_quote']);
@@ -1092,15 +1090,15 @@ if(isset($_GET['approve_quote'])){
 
 }
 
-if(isset($_GET['cancel_quote'])){
+if(isset($_GET['reject_quote'])){
 
-    $quote_id = intval($_GET['cancel_quote']);
+    $quote_id = intval($_GET['reject_quote']);
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Cancelled' WHERE quote_id = $quote_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Rejected' WHERE quote_id = $quote_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'Quote cancelled!', quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'Quote rejected!', quote_id = $quote_id");
 
-    $_SESSION['alert_message'] = "Quote cancelled";
+    $_SESSION['alert_message'] = "Quote rejected";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -1155,8 +1153,8 @@ if(isset($_GET['pdf_quote'])){
           <tr>
             <td align='center'>$item_name</td>
             <td>$item_description</td>
-            <td class='cost'>$$item_price</td>
             <td align='center'>$item_quantity</td>
+            <td class='cost'>$$item_price</td>
             <td class='cost'>$$item_tax</td>
             <td class='cost'>$$item_total</td>
           </tr>
@@ -1229,12 +1227,12 @@ if(isset($_GET['pdf_quote'])){
     <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse; " cellpadding="8">
     <thead>
     <tr>
-    <td width="20%">Item</td>
-    <td width="25%">Description</td>
-    <td width="15%">Unit Cost</td>
-    <td width="10%">Quantity</td>
-    <td width="15%">Tax</td>
-    <td width="15%">Line Total</td>
+    <td width="28%">Product</td>
+    <td width="28%">Description</td>
+    <td width="10%">Qty</td>
+    <td width="10%">Price</td>
+    <td width="12%">Tax</td>
+    <td width="12%">Total</td>
     </tr>
     </thead>
     <tbody>
@@ -1260,8 +1258,8 @@ if(isset($_GET['pdf_quote'])){
     ';
     
     $mpdf = new \Mpdf\Mpdf([
-    'margin_left' => 20,
-    'margin_right' => 15,
+    'margin_left' => 5,
+    'margin_right' => 5,
     'margin_top' => 48,
     'margin_bottom' => 25,
     'margin_header' => 10,
@@ -1328,8 +1326,8 @@ if(isset($_GET['email_quote'])){
           <tr>
             <td align='center'>$item_name</td>
             <td>$item_description</td>
-            <td class='cost'>$$item_price</td>
             <td align='center'>$item_quantity</td>
+            <td class='cost'>$$item_price</td>
             <td class='cost'>$$item_tax</td>
             <td class='cost'>$$item_total</td>
           </tr>
@@ -1402,12 +1400,12 @@ if(isset($_GET['email_quote'])){
     <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse; " cellpadding="8">
     <thead>
     <tr>
-    <td width="20%">Item</td>
-    <td width="25%">Description</td>
-    <td width="15%">Unit Cost</td>
-    <td width="10%">Quantity</td>
-    <td width="15%">Tax</td>
-    <td width="15%">Line Total</td>
+    <td width="28%">Product</td>
+    <td width="28%">Description</td>
+    <td width="10%">Qty</td>
+    <td width="10%">Price</td>
+    <td width="12%">Tax</td>
+    <td width="12%">Total</td>
     </tr>
     </thead>
     <tbody>
@@ -1433,8 +1431,8 @@ if(isset($_GET['email_quote'])){
     ';
     
     $mpdf = new \Mpdf\Mpdf([
-    'margin_left' => 20,
-    'margin_right' => 15,
+    'margin_left' => 5,
+    'margin_right' => 5,
     'margin_top' => 48,
     'margin_bottom' => 25,
     'margin_header' => 10,
@@ -1548,19 +1546,6 @@ if(isset($_GET['delete_recurring'])){
   
 }
 
-if(isset($_POST['edit_recurring_note'])){
-
-    $recurring_id = intval($_POST['recurring_id']);
-    $recurring_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['recurring_note']));
-
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_note = '$recurring_note' WHERE recurring_id = $recurring_id");
-
-    $_SESSION['alert_message'] = "Notes added";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
 if(isset($_GET['recurring_activate'])){
 
     $recurring_id = intval($_GET['recurring_activate']);
@@ -1585,32 +1570,46 @@ if(isset($_GET['recurring_deactivate'])){
 
 }
 
-if(isset($_POST['add_recurring_item'])){
+if(isset($_POST['save_recurring'])){
 
     $recurring_id = intval($_POST['recurring_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $qty = $_POST['qty'];
-    $price = $_POST['price'];
-    $tax = $_POST['tax'];
     
-    $subtotal = $price * $qty;
-    $tax = $subtotal * $tax;
-    $total = $subtotal + $tax;
+    if(isset($_POST['name'])){
+        $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+        $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+        $qty = $_POST['qty'];
+        $price = $_POST['price'];
+        $tax = $_POST['tax'];
+        
+        $subtotal = $price * $qty;
+        $tax = $subtotal * $tax;
+        $total = $subtotal + $tax;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', recurring_id = $recurring_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', recurring_id = $recurring_id");
 
-    //Update Invoice Balances
+        //Update Invoice Balances
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id");
-    $row = mysqli_fetch_array($sql);
+        $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id");
+        $row = mysqli_fetch_array($sql);
 
-    $new_recurring_amount = $row['recurring_amount'] + $total;
+        $new_recurring_amount = $row['recurring_amount'] + $total;
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount' WHERE recurring_id = $recurring_id");
+        mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount' WHERE recurring_id = $recurring_id");
 
-    $_SESSION['alert_message'] = "Item added";
-    
+        $_SESSION['alert_message'] = "Item added";
+
+    }
+
+    if(isset($_POST['recurring_note'])){
+
+        $recurring_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['recurring_note']));
+
+        mysqli_query($mysqli,"UPDATE recurring SET recurring_note = '$recurring_note' WHERE recurring_id = $recurring_id");
+
+        $_SESSION['alert_message'] = "Notes added";
+
+    }
+
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
@@ -1701,32 +1700,47 @@ if(isset($_GET['delete_invoice'])){
   
 }
 
-if(isset($_POST['add_invoice_item'])){
+if(isset($_POST['save_invoice'])){
 
     $invoice_id = intval($_POST['invoice_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $qty = $_POST['qty'];
-    $price = $_POST['price'];
-    $tax = $_POST['tax'];
     
-    $subtotal = $price * $qty;
-    $tax = $subtotal * $tax;
-    $total = $subtotal + $tax;
+    if(isset($_POST['name'])){
+        $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+        $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+        $qty = $_POST['qty'];
+        $price = $_POST['price'];
+        $tax = $_POST['tax'];
+        
+        $subtotal = $price * $qty;
+        $tax = $subtotal * $tax;
+        $total = $subtotal + $tax;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', invoice_id = $invoice_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', invoice_id = $invoice_id");
 
-    //Update Invoice Balances
+        //Update Invoice Balances
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
-    $row = mysqli_fetch_array($sql);
+        $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+        $row = mysqli_fetch_array($sql);
 
-    $new_invoice_amount = $row['invoice_amount'] + $total;
+        $new_invoice_amount = $row['invoice_amount'] + $total;
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id");
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id");
 
-    $_SESSION['alert_message'] = "Item added";
-    
+        $_SESSION['alert_message'] = "Item added";
+
+    }
+
+
+    if(isset($_POST['invoice_note'])){
+
+        $invoice_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['invoice_note']));
+
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$invoice_note' WHERE invoice_id = $invoice_id");
+
+        $_SESSION['alert_message'] = "Notes added";
+
+    }
+
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
@@ -1985,8 +1999,8 @@ if(isset($_GET['email_invoice'])){
           <tr>
             <td align='center'>$item_name</td>
             <td>$item_description</td>
-            <td class='cost'>$$item_price</td>
             <td align='center'>$item_quantity</td>
+            <td class='cost'>$$item_price</td>
             <td class='cost'>$$item_tax</td>
             <td class='cost'>$$item_total</td>
           </tr>
@@ -2060,12 +2074,12 @@ if(isset($_GET['email_invoice'])){
     <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse; " cellpadding="8">
     <thead>
     <tr>
-    <td width="20%">Item</td>
-    <td width="25%">Description</td>
-    <td width="15%">Unit Cost</td>
-    <td width="10%">Quantity</td>
-    <td width="15%">Tax</td>
-    <td width="15%">Line Total</td>
+    <td width="28%">Product</td>
+    <td width="28%">Description</td>
+    <td width="10%">Qty</td>
+    <td width="10%">Price</td>
+    <td width="12%">Tax</td>
+    <td width="12%">Total</td>
     </tr>
     </thead>
     <tbody>
@@ -2088,7 +2102,7 @@ if(isset($_GET['email_invoice'])){
     <td class="totals cost">$ '.number_format($amount_paid,2).' </td>
     </tr>
     <tr>
-    <td class="totals"><b>Balance due:</b></td>
+    <td class="totals"><b>Balance:</b></td>
     <td class="totals cost"><b>$ '.number_format($balance,2).' </b></td>
     </tr>
     </tbody>
@@ -2099,8 +2113,8 @@ if(isset($_GET['email_invoice'])){
     ';
     
     $mpdf = new \Mpdf\Mpdf([
-    'margin_left' => 20,
-    'margin_right' => 15,
+    'margin_left' => 5,
+    'margin_right' => 5,
     'margin_top' => 48,
     'margin_bottom' => 25,
     'margin_header' => 10,
@@ -2239,8 +2253,8 @@ if(isset($_GET['pdf_invoice'])){
         <tr>
             <td align='center'>$item_name</td>
             <td>$item_description</td>
-            <td class='cost'>$$item_price</td>
             <td align='center'>$item_quantity</td>
+            <td class='cost'>$$item_price</td>
             <td class='cost'>$$item_tax</td>
             <td class='cost'>$$item_total</td>
         </tr>
@@ -2314,12 +2328,12 @@ if(isset($_GET['pdf_invoice'])){
         <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse; " cellpadding="8">
         <thead>
         <tr>
-        <td width="20%">Item</td>
-        <td width="25%">Description</td>
-        <td width="15%">Unit Cost</td>
-        <td width="10%">Quantity</td>
-        <td width="15%">Tax</td>
-        <td width="15%">Line Total</td>
+        <td width="28%">Product</td>
+        <td width="28%">Description</td>
+        <td width="10%">Qty</td>
+        <td width="10%">Price</td>
+        <td width="12%">Tax</td>
+        <td width="12%">Total</td>
         </tr>
         </thead>
         <tbody>
@@ -2342,7 +2356,7 @@ if(isset($_GET['pdf_invoice'])){
         <td class="totals cost">$ '.number_format($amount_paid,2).' </td>
         </tr>
         <tr>
-        <td class="totals"><b>Balance due:</b></td>
+        <td class="totals"><b>Balance:</b></td>
         <td class="totals cost"><b>$ '.number_format($balance,2).' </b></td>
         </tr>
         </tbody>
@@ -2353,8 +2367,8 @@ if(isset($_GET['pdf_invoice'])){
     ';
 
     $mpdf = new \Mpdf\Mpdf([
-        'margin_left' => 20,
-        'margin_right' => 15,
+        'margin_left' => 5,
+        'margin_right' => 5,
         'margin_top' => 48,
         'margin_bottom' => 25,
         'margin_header' => 10,
@@ -2373,19 +2387,6 @@ if(isset($_GET['pdf_invoice'])){
     $mpdf->SetDisplayMode('fullpage');
     $mpdf->WriteHTML($html);
     $mpdf->Output();
-
-}
-
-if(isset($_POST['edit_invoice_note'])){
-
-    $invoice_id = intval($_POST['invoice_id']);
-    $invoice_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['invoice_note']));
-
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$invoice_note' WHERE invoice_id = $invoice_id");
-
-    $_SESSION['alert_message'] = "Notes added";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 

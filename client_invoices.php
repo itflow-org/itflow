@@ -34,7 +34,7 @@
             $invoice_date = $row['invoice_date'];
             $invoice_due = $row['invoice_due'];
             $invoice_amount = $row['invoice_amount'];
-            $invoice_category_id = $row['category_id'];
+            $category_id = $row['category_id'];
             $category_name = $row['category_name'];
             $now = time();
 

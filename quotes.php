@@ -51,7 +51,7 @@
               $quote_badge_color = "primary";
             }elseif($quote_status == "Approved"){
               $quote_badge_color = "success";
-            }elseif($quote_status == "Cancelled"){
+            }elseif($quote_status == "Rejected"){
               $quote_badge_color = "danger";
             }else{
               $quote_badge_color = "secondary";
@@ -89,7 +89,7 @@
 
           <?php
 
-          //include("edit_quote_modal.php");
+          include("edit_quote_modal.php");
           include("add_quote_copy_modal.php");
           }
 

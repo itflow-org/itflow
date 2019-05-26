@@ -27,11 +27,21 @@
             $email = $row['email'];
             $password = $row['password'];
             $avatar = $row['avatar'];
+            $initials = initials($name);
       
           ?>
           <tr>
             <td class="text-center">
-              <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo "$avatar"; ?>">
+              <?php if(!empty($avatar)){ ?>
+              <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $avatar; ?>">
+              <?php }else{ ?>
+              <span class="fa-stack fa-2x">
+                <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                <span class="fa fa-stack-1x text-white"><?php echo $initials; ?></span>
+              </span>
+              <br>
+            <?php } ?>
+
               <div class="text-secondary"><?php echo $name; ?></div>
             </td>
             <td><a href="mailto:<?php echo $email; ?>"><?php echo $email; ?></a></td>

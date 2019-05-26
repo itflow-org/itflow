@@ -25,6 +25,14 @@
   </li>
 
   <li class="nav-item">
+    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-carddav.php") { echo "active"; } ?>" 
+      href="settings-carddav.php">
+      <i class="fa fa-fw fa-2x fa-address-book"></i><br>
+      CardDAV
+    </a> 
+  </li>
+
+  <li class="nav-item">
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-invoice.php") { echo "active"; } ?>" 
       href="settings-invoice.php">
       <i class="fa fa-fw fa-2x fa-file"></i><br>

@@ -33,21 +33,23 @@
       
           ?>
           <tr>
-            <?php if(!empty($contact_photo)){ ?>
             <td class="text-center">
+              <?php if(!empty($contact_photo)){ ?>
+            
               <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $contact_photo; ?>">
-              <div class="text-secondary"><?php echo $contact_name; ?></div>
-            </td>
-            <?php }else{ ?>
-            <td class="text-center">
+    
+              <?php }else{ ?>
+  
               <span class="fa-stack fa-2x">
                 <i class="fa fa-circle fa-stack-2x text-secondary"></i>
                 <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
               </span>
               <br>
+              
+              <?php } ?>
               <div class="text-secondary"><?php echo $contact_name; ?></div>
             </td>
-            <?php } ?>
+            
             <td><?php echo $contact_title; ?></td>
             <td><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a></td>
             <td><?php echo $contact_phone; ?></td>

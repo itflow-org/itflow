@@ -13,7 +13,14 @@
         <input type="hidden" name="current_avatar_path" value="<?php echo $avatar; ?>">
         <div class="modal-body bg-white">    
           <center class="mb-3">
+            <?php if(!empty($avatar)){ ?>
             <img class="img-fluid rounded-circle" src="<?php echo $avatar; ?>" height="128" width="128">
+            <?php }else{ ?>
+            <span class="fa-stack fa-4x">
+              <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+              <span class="fa fa-stack-1x text-white"><?php echo $initials; ?></span>
+            </span>
+            <?php } ?>
           </center>
           <div class="form-group">
             <label>Name</label>

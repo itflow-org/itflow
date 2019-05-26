@@ -40,7 +40,7 @@
               $quote_badge_color = "primary";
             }elseif($quote_status == "Approved"){
               $quote_badge_color = "success";
-            }elseif($quote_status == "Cancelled"){
+            }elseif($quote_status == "Rejected"){
               $quote_badge_color = "danger";
             }else{
               $quote_badge_color = "secondary";
@@ -64,8 +64,10 @@
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editquoteModal<?php echo $quote_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addquoteCopyModal<?php echo $quote_id; ?>">Copy</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuoteModal<?php echo $quote_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">Copy</a>
+                  <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send</a>
+                  <a class="dropdown-item" href="post.php?approve_quote=<?php echo $quote_id; ?>">Approve</a>
                   <a class="dropdown-item" href="post.php?pdf_quote=<?php echo $quote_id; ?>">PDF</a>
                   <a class="dropdown-item" href="post.php?delete_quote=<?php echo $quote_id; ?>">Delete</a>
                 </div>
@@ -74,9 +76,10 @@
           </tr>
 
           <?php
-
-          //include("edit_invoice_modal.php");
-          include("add_invoice_copy_modal.php");
+          
+          include("edit_quote_modal.php");
+          include("add_quote_copy_modal.php");
+          
           }
 
           ?>
