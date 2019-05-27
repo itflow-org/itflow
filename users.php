@@ -15,6 +15,8 @@
           <tr>
             <th class="text-center">Name</th>
             <th>Email</th>
+            <th>Type</th>
+            <th>Status</th>
             <th class="text-center">Actions</th>
           </tr>
         </thead>
@@ -27,6 +29,7 @@
             $email = $row['email'];
             $password = $row['password'];
             $avatar = $row['avatar'];
+            $client_id = $row['client_id'];
             $initials = initials($name);
       
           ?>
@@ -45,6 +48,8 @@
               <div class="text-secondary"><?php echo $name; ?></div>
             </td>
             <td><a href="mailto:<?php echo $email; ?>"><?php echo $email; ?></a></td>
+            <td>Client</td>
+            <td>Status</td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

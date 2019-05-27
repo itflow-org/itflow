@@ -16,8 +16,14 @@ if(isset($_POST['login'])){
     $_SESSION['logged'] = TRUE;
     $_SESSION['user_id'] = $row['user_id'];
     $_SESSION['name'] = $row['name'];
-    
-    header("Location: $config_start_page");
+    $_SESSION['client_id'] = $row['client_id'];
+    $client_id = $row['client_id'];
+
+    if($client_id > 0){
+      header("Location: client.php?client_id=$client_id");
+    }else{
+      header("Location: $config_start_page");
+    }
   }else{
     $response = "
       <div class='alert alert-danger'>

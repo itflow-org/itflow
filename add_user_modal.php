@@ -16,8 +16,8 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
               </div>
-              <select class="form-control" name="client" <?php if(isset($_GET['client_id'])){ echo "disabled"; } ?>>
-                <option value="">- Client -</option>
+              <select class="form-control" name="client">
+                <option value="0">No Client Assignment</option>
                 <?php 
                 
                 $sql = mysqli_query($mysqli,"SELECT * FROM clients"); 
@@ -25,7 +25,7 @@
                   $client_id = $row['client_id'];
                   $client_name = $row['client_name'];
                 ?>
-                  <option <?php if($_GET['client_id'] == $client_id) { echo "selected"; } ?> value="<?php echo "$client_id"; ?>"><?php echo "$client_name"; ?></option>
+                  <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
                 
                 <?php
                 }

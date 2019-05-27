@@ -151,8 +151,9 @@ if(isset($_POST['add_user'])){
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $password = md5(mysqli_real_escape_string($mysqli,$_POST['password']));
+    $client_id = intval($_POST['client']);
 
-    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', created_at = NOW(), client_id = $client_id");
 
     $user_id = mysqli_insert_id($mysqli);
 
