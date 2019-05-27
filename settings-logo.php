@@ -9,7 +9,7 @@
   <div class="card-body">
     <form class="p-3" action="post.php" method="post" enctype="multipart/form-data" autocomplete="off"> 
       
-      <img class="img-fluid" src="uploads/invoice_logo.png">
+      <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
 
       <div class="form-group mb-5">
         <label>Logo</label>
@@ -17,7 +17,7 @@
       </div>
       
       <hr>
-      <button type="submit" name="edit_invoice_settings" class="btn btn-primary">Save</button>        
+      <button type="submit" name="edit_logo_settings" class="btn btn-primary">Save</button>        
     
     </form>
   </div>

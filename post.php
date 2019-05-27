@@ -71,6 +71,24 @@ if(isset($_POST['edit_invoice_settings'])){
 
 }
 
+if(isset($_POST['edit_logo_settings'])){
+
+    if($_FILES['file']['tmp_name']!='') {
+        $path = "uploads/settings";
+        $path = $path . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);
+        $ext = pathinfo($path);
+        $ext = $ext['extension'];
+
+        mysqli_query($mysqli,"UPDATE settings SET config_invoice_logo = '$path'");
+
+    } 
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_GET['download_database'])){
 
     // Get All Table Names From the Database
@@ -159,8 +177,9 @@ if(isset($_POST['add_user'])){
 
     $check = getimagesize($_FILES["avatar"]["tmp_name"]);
     if($check !== false) {
-        $avatar_path = "uploads/user_avatars/";
-        $avatar_path = $avatar_path . $user_id . '_' . time() . '_' . basename( $_FILES['avatar']['name']);
+        $avatar_path = "uploads/users/";
+        //$avatar_path = $avatar_path . $user_id . '_' . time() . '_' . basename( $_FILES['avatar']['name']);
+        $avatar_path = $avatar_path . basename( $_FILES['file']['name']);
         move_uploaded_file($_FILES['avatar']['tmp_name'], $avatar_path);
     }
 
@@ -190,7 +209,7 @@ if(isset($_POST['edit_user'])){
         //delete old avatar file
         unlink($path);
         //Update with new path
-        $path = "uploads/user_avatars/";
+        $path = "uploads/users/";
         $path = $path . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);   
@@ -230,7 +249,7 @@ if(isset($_POST['add_client'])){
         mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$website', domain_created_at = NOW(), client_id = $client_id");
     }
 
-    mkdir("uploads/client_files/$client_id");
+    mkdir("uploads/clients/$client_id");
 
     $_SESSION['alert_message'] = "Client added";
     
@@ -360,11 +379,6 @@ if(isset($_POST['add_vendor'])){
     mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_created_at = NOW(), client_id = $client_id");
 
     $vendor_id = mysqli_insert_id($mysqli);
-
-    //Create Directory to store expense reciepts for that vendor
-    if($client_id == 0){
-        mkdir("uploads/expenses/$vendor_id");
-    }
 
     $_SESSION['alert_message'] = "Vendor added";
     
@@ -618,7 +632,7 @@ if(isset($_POST['add_expense'])){
     $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
 
     if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/expenses/$vendor/";
+        $path = "uploads/expenses/";
         $path = $path . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
@@ -647,7 +661,7 @@ if(isset($_POST['edit_expense'])){
     if($_FILES['file']['tmp_name']!='') {
         //remove old receipt
         unlink($path);
-        $path = "uploads/expenses/$vendor/";
+        $path = "uploads/expenses/";
         $path = $path . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
@@ -2401,7 +2415,7 @@ if(isset($_POST['add_contact'])){
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
 
     if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/contact_photos/";
+        $path = "uploads/clients/$client_id/";
         $path = $path . time() . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
@@ -2630,7 +2644,7 @@ if(isset($_POST['add_file'])){
     $new_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['new_name']));
 
     if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/client_files/$client_id/";
+        $path = "uploads/clients/$client_id/";
         $path = $path . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
