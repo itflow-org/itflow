@@ -1,7 +1,5 @@
 <?php
 
-
-
 function keygen()
 {
     $chars = "abcdefghijklmnopqrstuvwxyz";
@@ -23,6 +21,15 @@ function initials($str) {
     foreach (explode(' ', $str) as $word)
         $ret .= strtoupper($word[0]);
     return $ret;
+}
+
+function removeDirectory($path) {
+  $files = glob($path . '/*');
+  foreach ($files as $file) {
+    is_dir($file) ? removeDirectory($file) : unlink($file);
+  }
+  rmdir($path);
+  return;
 }
 
 ?>
