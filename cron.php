@@ -10,7 +10,7 @@ $domainAlertArray = [1, 14, 30, 90];
 
 foreach ($domainAlertArray as $day)  {
 
-  //Get Domains Expiring within 1 days
+  //Get Domains Expiring
   $sql = mysqli_query($mysqli,"SELECT * FROM domains, clients 
     WHERE domains.client_id = clients.client_id 
     AND domain_expire = CURDATE() + INTERVAL $day DAY
@@ -24,7 +24,7 @@ foreach ($domainAlertArray as $day)  {
     $client_id = $row['client_id'];
     $client_name = $row['client_name'];
 
-    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Domain', alert_message = 'Domain $domain_name will expire $day Days on $domain_expire', alert_date = CURDATE()");
+    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Domain', alert_message = 'Domain $domain_name will expire in $day Days on $domain_expire', alert_date = CURDATE()");
 
   }
 
@@ -38,11 +38,10 @@ foreach ($invoiceAlertArray as $day)  {
 
   $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
       WHERE invoices.client_id = clients.client_id
-      AND invoices.invoice_number > 0
       AND invoices.invoice_status NOT LIKE 'Draft'
       AND invoices.invoice_status NOT LIKE 'Paid'
       AND invoices.invoice_status NOT LIKE 'Cancelled'
-      AND invoices.invoice_due = CURDATE() + INTERVAL $day DAY
+      AND DATE_ADD(invoices.invoice_due, INTERVAL $day DAY) = CURDATE()
       ORDER BY invoices.invoice_number DESC"
   );
         

@@ -42,12 +42,17 @@
   <?php include("top_nav.php"); ?>
 
   <div id="wrapper">
+    
     <?php 
-    if(basename(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)) == "client.php" or basename(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)) == "client_print.php"){
+    
+    if(basename(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)) == "client.php"){
       include("client_side_nav.php");
+    }elseif(basename(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)) == "client_print.php"){
+
     }else{
       include("side_nav.php");
     }
+
     ?>
     
     <div id="content-wrapper">

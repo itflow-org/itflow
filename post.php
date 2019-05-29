@@ -241,14 +241,6 @@ if(isset($_POST['add_client'])){
 
     $client_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = 'Main Contact', contact_phone = '$phone', contact_email = '$email', contact_created_at = NOW(), client_id = $client_id");
-
-    mysqli_query($mysqli,"INSERT INTO locations SET location_name = 'Main', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_created_at = NOW(), client_id = $client_id");
-
-    if(!empty($_POST['website'])) {
-        mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$website', domain_created_at = NOW(), client_id = $client_id");
-    }
-
     mkdir("uploads/clients/$client_id");
 
     $_SESSION['alert_message'] = "Client added";
