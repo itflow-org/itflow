@@ -42,6 +42,28 @@ if($_GET['api_key'] == $config_api_key){
         }
 
     }
+
+    if(isset($_GET['account_balance'])){
+
+        $client_id = intval($_GET['account_balance']);
+
+        //Add up all the payments for the invoice and get the total amount paid to the invoice
+        $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled'");
+        $row = mysqli_fetch_array($sql_invoice_amounts);
+
+        $invoice_amounts = $row['invoice_amounts'];
+
+        $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.client_id = $client_id");
+        $row = mysqli_fetch_array($sql_amount_paid);
+
+        $amount_paid = $row['amount_paid'];
+
+        $balance = $invoice_amounts - $amount_paid;
+
+        echo $balance;
+
+    }
+
 }else{
     echo "<h1> Ma!! You've been BAAAAADDDDD!! </h1>";
 }

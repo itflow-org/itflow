@@ -397,7 +397,7 @@ var myPieChart = new Chart(ctx, {
   data: {
     labels: [
       <?php
-        $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name FROM categories, expenses WHERE expenses.category_id = categories.category_id AND YEAR(expense_date) = $year");
+        $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, categories.category_id FROM categories, expenses WHERE expenses.category_id = categories.category_id AND YEAR(expense_date) = $year");
         while($row = mysqli_fetch_array($sql_categories)){
           $category_name = $row['category_name'];
           echo "\"$category_name\",";
@@ -409,7 +409,7 @@ var myPieChart = new Chart(ctx, {
     datasets: [{
       data: [
         <?php
-          $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense'");
+          $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, categories.category_id FROM categories, expenses WHERE expenses.category_id = categories.category_id AND YEAR(expense_date) = $year");
           while($row = mysqli_fetch_array($sql_categories)){
             $category_id = $row['category_id'];
 
