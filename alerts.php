@@ -1,11 +1,22 @@
 <?php include("header.php"); ?>
 
-<?php $sql = mysqli_query($mysqli,"SELECT * FROM alerts ORDER BY alert_id DESC"); ?>
+<?php
+if($_GET['status'] == "archived"){
+  $where_clause = "> 0";
+}else{
+  $where_clause = "= 0";
+}
+
+?>
+
+<?php $sql = mysqli_query($mysqli,"SELECT * FROM alerts WHERE alert_ack_date $where_clause ORDER BY alert_id DESC"); ?>
 
 
 <div class="card mb-3">
   <div class="card-header">
     <h6 class="float-left mt-1"><i class="fa fa-exclamation-triangle"></i> Alerts</h6>
+    <a href="?status=new" class="btn btn-primary btn-sm badge-pill float-right">New</a>
+    <a href="?status=archived" class="btn btn-primary btn-sm badge-pill float-right mr-2">Archived</a>
   </div>
   <div class="card-body">
     <div class="table-responsive">

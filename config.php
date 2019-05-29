@@ -43,6 +43,8 @@
 	$config_mail_from_name = $row['config_mail_from_name'];
 	$config_account_balance_threshold = $row['config_account_balance_threshold'];
 
+	$config_api_key = $row['config_api_key'];
+
 	$_SESSION['alert_message'] = '';
 	$_SESSION['alert_type'] = "warning";
 

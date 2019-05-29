@@ -19,8 +19,9 @@ if(isset($_POST['edit_general_settings'])){
 
     $config_start_page = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_start_page']));
     $config_account_balance_threshold = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_account_balance_threshold']));
+    $config_api_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold'");
+    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold', config_api_key = '$config_api_key'");
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
