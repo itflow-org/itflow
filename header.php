@@ -34,6 +34,11 @@
 
   <!-- Custom Style Sheet -->
   <link href="css/style.css" rel="stylesheet" type="text/css">
+
+  <link href='vendor/fullcalendar/core/main.min.css' rel='stylesheet' />
+  <link href='vendor/fullcalendar/daygrid/main.min.css' rel='stylesheet' />
+  <link href='vendor/fullcalendar/timegrid/main.min.css' rel='stylesheet' />
+  <link href='vendor/fullcalendar/list/main.min.css' rel='stylesheet' />
   
 </head>
 

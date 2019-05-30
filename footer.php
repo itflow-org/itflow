@@ -27,6 +27,10 @@
   <script src="vendor/Bootstrap-3-Typeahead/bootstrap3-typeahead.min.js"></script>
   <script src="vendor/moment/min/moment.min.js"></script>
   <script src="vendor/datepicker/build/js/tempusdominus-bootstrap-4.min.js"></script>
+  <script src='vendor/fullcalendar/core/main.min.js'></script>
+  <script src='vendor/fullcalendar/daygrid/main.min.js'></script>
+  <script src='vendor/fullcalendar/timegrid/main.min.js'></script>
+  <script src='vendor/fullcalendar/list/main.min.js'></script>
   
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin.min.js"></script>
