@@ -41,6 +41,10 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
 
   if(mysqli_num_rows($sql) == 1){
   
+    //Mark viewed in history
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed', invoice_id = $invoice_id");
+
+
     $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
@@ -81,7 +85,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     <div class="col-md-6">
       <div class="float-right">
         <a class="btn btn-primary" href="#" onclick="window.print();">Print</a>
-        <a class="btn btn-primary" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>">PDF</a>
+        <a class="btn btn-primary" href="guest_post.php?pdf_invoice=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>">PDF</a>
         <?php
         if($invoice_status != "Paid" or $invoice_status != "Cancelled" or $invoice_status != "Draft"){
         ?>

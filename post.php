@@ -759,8 +759,13 @@ if(isset($_POST['add_invoice'])){
     $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
     $row = mysqli_fetch_array($sql);
     $invoice_number = $row['invoice_number'] + 1;
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category, invoice_status = 'Draft', client_id = $client");
+
+    //Generate a unique URL key for clients to access
+    $url_key = keygen();
+
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', client_id = $client");
     $invoice_id = mysqli_insert_id($mysqli);
+    
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', invoice_id = $invoice_id");
     $_SESSION['alert_message'] = "Invoice added";
     
