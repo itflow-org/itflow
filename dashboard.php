@@ -2,7 +2,6 @@
 
 <?php 
 
-
 function roundUpToNearestMultiple($n, $increment = 1000)
 {
     return (int) ($increment * ceil($n / $increment));
@@ -109,7 +108,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
     <div class="card mb-3">
       <div class="card-header"><i class="fas fa-fw fa-chart-area"></i> Cash Flow</div>
       <div class="card-body">
-        <canvas id="myAreaChart" width="100%" height="25"></canvas>
+        <canvas id="myAreaChart" width="100%" height="20"></canvas>
       </div>
     </div>
   </div>

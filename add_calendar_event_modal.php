@@ -64,7 +64,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_calendar_event" class="btn btn-primary">Save</button>
+          <button type="submit" name="add_event" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>
