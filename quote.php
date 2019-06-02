@@ -195,8 +195,8 @@ if(isset($_GET['quote_id'])){
                 <td></td>
                 <td><input type="text" class="form-control" name="name"></td>
                 <td><textarea class="form-control" rows="1" name="description"></textarea></td>
-                <td><input type="text" class="form-control" style="text-align: right;" name="price"></td>
                 <td><input type="text" class="form-control" style="text-align: center;" name="qty"></td>
+                <td><input type="text" class="form-control" style="text-align: right;" name="price"></td>
                 <td>
                   <select dir="rtl" class="form-control" name="tax">
                     <option value="0.00">None</option>

@@ -2,26 +2,25 @@
 
 <?php 
 
-if(isset($_GET['invoice_id'], $_GET['url_key'])){
+if(isset($_GET['quote_id'], $_GET['url_key'])){
 
   $url_key = $_GET['url_key'];
-  $invoice_id = intval($_GET['invoice_id']);
+  $quote_id = intval($_GET['quote_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
-    WHERE invoices.client_id = clients.client_id
-    AND invoices.invoice_id = $invoice_id 
-    AND invoices.invoice_url_key = '$url_key'"
+  $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients
+    WHERE quotes.client_id = clients.client_id
+    AND quotes.quote_id = $quote_id
+    AND quotes.quote_url_key = '$url_key'"
   );
 
   $row = mysqli_fetch_array($sql);
-  $invoice_id = $row['invoice_id'];
-  $invoice_number = $row['invoice_number'];
-  $invoice_status = $row['invoice_status'];
-  $invoice_date = $row['invoice_date'];
-  $invoice_due = $row['invoice_due'];
-  $invoice_amount = $row['invoice_amount'];
-  $invoice_note = $row['invoice_note'];
-  $invoice_category_id = $row['category_id'];
+  $quote_id = $row['quote_id'];
+  $quote_number = $row['quote_number'];
+  $quote_status = $row['quote_status'];
+  $quote_date = $row['quote_date'];
+  $quote_amount = $row['quote_amount'];
+  $quote_note = $row['quote_note'];
+  $category_id = $row['category_id'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];
   $client_address = $row['client_address'];
@@ -40,56 +39,38 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
   }
 
   if(mysqli_num_rows($sql) == 1){
-  
+
     //Mark viewed in history
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed', invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$quote_status', history_description = 'Quote viewed', quote_id = $quote_id");
 
-
-    $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
-
-    //Add up all the payments for the invoice and get the total amount paid to the invoice
-    $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE invoice_id = $invoice_id");
-    $row = mysqli_fetch_array($sql_amount_paid);
-    $amount_paid = $row['amount_paid'];
-
-    $balance = $invoice_amount - $amount_paid;
-
-    //check to see if overdue
-
-    $unixtime_invoice_due = strtotime($invoice_due);
-    if($unixtime_invoice_due < time()){
-      $invoice_status = "Overdue";
-      $invoice_color = "text-danger";
-    }
-    
-    //Set Badge color based off of invoice status
-    if($invoice_status == "Sent"){
-      $invoice_badge_color = "warning text-white";
-    }elseif($invoice_status == "Partial"){
-      $invoice_badge_color = "primary";
-    }elseif($invoice_status == "Paid"){
-      $invoice_badge_color = "success";
-    }elseif($invoice_status == "Cancelled"){
-      $invoice_badge_color = "danger";
+    //Set Badge color based off of quote status
+    if($quote_status == "Sent"){
+      $quote_badge_color = "warning text-white";
+    }elseif($quote_status == "Viewed"){
+      $quote_badge_color = "primary";
+    }elseif($quote_status == "Approved"){
+      $quote_badge_color = "success";
+    }elseif($quote_status == "Cancelled"){
+      $quote_badge_color = "danger";
     }else{
-      $invoice_badge_color = "secondary";
+      $quote_badge_color = "secondary";
     }
-
-
 
   ?>
+
   <div class="row d-print-none">
     <div class="col-md-6">
-      <h2>Invoice <?php echo $invoice_number; ?></h2>
+      <h2>Quote <?php echo $quote_number; ?><span class="p-2 ml-2 badge badge-<?php echo $quote_badge_color; ?>"><?php echo $quote_status; ?></span></h2>
     </div>
     <div class="col-md-6">
       <div class="float-right">
         <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
-        <a class="btn btn-primary" download target="_blank" href="guest_post.php?pdf_invoice=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-download"></i> Download</a>
+        <a class="btn btn-primary" download target="_blank" href="guest_post.php?pdf_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-download"></i> Download</a>
         <?php
-        if($invoice_status != "Paid" and $invoice_status  != "Cancelled" and $invoice_status != "Draft"){
+        if($quote_status == "Draft" or $quote_status == "Sent"){
         ?>
-        <a class="btn btn-success" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card"></i> Pay Online</a>
+        <a class="btn btn-success" href="guest_post.php?approve_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-thumbs-up"></i> Approve</a>
+        <a class="btn btn-danger" href="guest_post.php?reject_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-thumbs-down"></i> Reject</a>
         <?php } ?>
       </div>
     </div>
@@ -117,7 +98,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     <div class="col-sm">
       <div class="card">
         <div class="card-header">
-          Bill To
+          Quote To
         </div>
         <div class="card-body">
           <ul class="list-unstyled">
@@ -137,16 +118,15 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         </div>
         <div class="card-body">
           <ul class="list-unstyled">
-            <li class="mb-1"><strong>Invoice Number:</strong> <div class="float-right">INV-<?php echo $invoice_number; ?></div></li>
-            <li class="mb-1"><strong>Invoice Date:</strong> <div class="float-right"><?php echo $invoice_date; ?></div></li>
-            <li><strong>Payment Due:</strong> <div class="float-right <?php echo $invoice_color; ?>"><?php echo $invoice_due; ?></div></li>
+            <li class="mb-1"><strong>Quote Number:</strong> <div class="float-right">QUO-<?php echo $quote_number; ?></div></li>
+            <li class="mb-1"><strong>Quote Date:</strong> <div class="float-right"><?php echo $quote_date; ?></div></li>
           </ul>
         </div>
       </div>
     </div>
   </div>
 
-  <?php $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC"); ?>
+  <?php $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id ORDER BY item_id ASC"); ?>
 
   <div class="row mb-4">
     <div class="col-md-12">
@@ -169,7 +149,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql_invoice_items)){
+            while($row = mysqli_fetch_array($sql_items)){
               $item_id = $row['item_id'];
               $item_name = $row['item_name'];
               $item_description = $row['item_description'];
@@ -178,7 +158,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
               $item_subtotal = $row['item_price'];
               $item_tax = $row['item_tax'];
               $item_total = $row['item_total'];
-              $total_tax = $item_tax + $total_tax;
+              $total_tax = $item_tax + $invoice_tax;
               $sub_total = $item_price * $item_quantity + $sub_total;
 
             ?>
@@ -187,9 +167,9 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
               <td><?php echo $item_name; ?></td>
               <td><?php echo $item_description; ?></td>
               <td class="text-center"><?php echo $item_quantity; ?></td>
-              <td class="text-right text-monospace">$<?php echo number_format($item_price,2); ?></td>
-              <td class="text-right text-monospace">$<?php echo number_format($item_tax,2); ?></td>
-              <td class="text-right text-monospace">$<?php echo number_format($item_total,2); ?></td>  
+              <td class="text-right">$<?php echo number_format($item_price,2); ?></td>
+              <td class="text-right">$<?php echo number_format($item_tax,2); ?></td>
+              <td class="text-right">$<?php echo number_format($item_total,2); ?></td>  
             </tr>
 
             <?php 
@@ -211,44 +191,38 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
           Notes
         </div>
         <div class="card-body">
-          <div class="d-none d-print-block"><?php echo $invoice_note; ?></div>      
+          <div><?php echo $quote_note; ?></div>
         </div>
       </div>
     </div>
+
     <div class="col-3 offset-2">
       <table class="table table-borderless">
         <tbody>    
           <tr class="border-bottom">
             <td>Subtotal</td>
-            <td class="text-right text-monospace">$<?php echo number_format($sub_total,2); ?></td>
+            <td class="text-right">$<?php echo number_format($sub_total,2); ?></td>
           </tr>
           <?php if($discount > 0){ ?>
           <tr class="border-bottom">
             <td>Discount</td>
-            <td class="text-right text-monospace">$<?php echo number_format($invoice_discount,2); ?></td>          
+            <td class="text-right">$<?php echo number_format($quote_discount,2); ?></td>          
           </tr>
           <?php } ?>
           <?php if($total_tax > 0){ ?>
           <tr class="border-bottom">
             <td>Tax</td>
-            <td class="text-right text-monospace">$<?php echo number_format($total_tax,2); ?></td>        
-          </tr>
-          <?php } ?>
-          <?php if($amount_paid > 0){ ?>
-          <tr class="border-bottom">
-            <td><div class="text-success">Paid to Date</div></td>
-            <td class="text-right text-monospace text-success">$<?php echo number_format($amount_paid,2); ?></td>
+            <td class="text-right">$<?php echo number_format($total_tax,2); ?></td>        
           </tr>
           <?php } ?>
           <tr class="border-bottom">
-            <td><strong>Balance Due</strong></td>
-            <td class="text-right text-monospace"><strong>$<?php echo number_format($balance,2); ?></strong></td>
+            <td><strong>Total</strong></td>
+            <td class="text-right"><strong>$<?php echo number_format($quote_amount,2); ?></strong></td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
-
 
 <?php 
   }else{
@@ -258,4 +232,4 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
   echo "GTFO";
 } ?>
 
-<?php include("guest_footer.php"); ?>
+<?php include("guest_footer.php");

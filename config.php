@@ -17,7 +17,7 @@
 	$config_default_payment_account = "";
 	$config_default_net_terms = 7;
 
-	$sql = mysqli_query($mysqli,"SELECT * FROM settings");
+	$sql = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = 1");
 	$row = mysqli_fetch_array($sql);
 
 	$config_start_page = $row['config_start_page'];
@@ -42,6 +42,10 @@
 	$config_mail_from_email = $row['config_mail_from_email'];
 	$config_mail_from_name = $row['config_mail_from_name'];
 	$config_account_balance_threshold = $row['config_account_balance_threshold'];
+
+	$config_quote_email_subject = $row['config_quote_email_subject'];
+
+	$config_recurring_email_auto_send = $row['config_recurring_email_auto_send'];
 
 	$config_api_key = $row['config_api_key'];
 

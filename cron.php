@@ -1,4 +1,14 @@
 <?php include("config.php"); ?>
+<?php include("functions.php"); ?>
+<?php
+
+require("vendor/PHPMailer-6.0.7/src/PHPMailer.php");
+require("vendor/PHPMailer-6.0.7/src/SMTP.php");
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+?>
 
 <?php
 
@@ -108,7 +118,10 @@ while($row = mysqli_fetch_array($sql_recurring)){
   $row = mysqli_fetch_array($sql_invoice_number);
   $new_invoice_number = $row['invoice_number'] + 1;
 
-  mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $new_invoice_number, invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', client_id = $client_id");
+  //Generate a unique URL key for clients to access
+  $url_key = keygen();
+
+  mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $new_invoice_number, invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', client_id = $client_id");
 
   $new_invoice_id = mysqli_insert_id($mysqli);
   
@@ -128,10 +141,73 @@ while($row = mysqli_fetch_array($sql_recurring)){
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', invoice_id = $new_invoice_id");
   }
 
-  mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'INVOICE Generated from Recurring!', invoice_id = $new_invoice_id");
+  mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', invoice_id = $new_invoice_id");
 
   //update the recurring invoice with the new dates
   mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency) , invoice_id = $new_invoice_id WHERE recurring_id = $recurring_id");
+
+  if($config_recurring_email_auto_send == 1){
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
+    WHERE invoices.client_id = clients.client_id
+    AND invoices.invoice_id = $new_invoice_id"
+    );
+
+    $row = mysqli_fetch_array($sql);
+    $invoice_number = $row['invoice_number'];
+    $invoice_date = $row['invoice_date'];
+    $invoice_due = $row['invoice_due'];
+    $invoice_amount = $row['invoice_amount'];
+    $invoice_url_key = $row['invoice_url_key'];
+    $client_id = $row['client_id'];
+    $client_name = $row['client_name'];
+    $client_address = $row['client_address'];
+    $client_city = $row['client_city'];
+    $client_state = $row['client_state'];
+    $client_zip = $row['client_zip'];
+    $client_email = $row['client_email'];
+    $client_phone = $row['client_phone'];
+    if(strlen($client_phone)>2){ 
+    $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+    }
+    $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
+
+    $mail = new PHPMailer(true);
+
+    try{
+
+        //Mail Server Settings
+
+        //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+        $mail->isSMTP();                                            // Set mailer to use SMTP
+        $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+        $mail->Username   = $config_smtp_username;                     // SMTP username
+        $mail->Password   = $config_smtp_password;                               // SMTP password
+        $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+        $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+
+        //Recipients
+        $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+        $mail->addAddress("$client_email", "$client_name");     // Add a recipient
+
+        // Content
+        $mail->isHTML(true);                                  // Set email format to HTML
+
+        $mail->Subject = "Invoice $invoice_number";
+        $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$config_company_name<br>$config_company_phone";
+        
+        $mail->send();
+
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Auto Emailed Invoice!', invoice_id = $new_invoice_id");
+
+        //Update Invoice Status to Sent
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', client_id = $client_id WHERE invoice_id = $new_invoice_id");
+
+    }catch (Exception $e) {
+        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Failed to send Invoice!', invoice_id = $new_invoice_id");
+    }
+  }
 }
 
 ?>
