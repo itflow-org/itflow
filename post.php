@@ -1478,8 +1478,6 @@ if(isset($_POST['save_recurring'])){
 
         mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount' WHERE recurring_id = $recurring_id");
 
-        $_SESSION['alert_message'] = "Item added";
-
     }
 
     if(isset($_POST['recurring_note'])){
@@ -1488,9 +1486,9 @@ if(isset($_POST['save_recurring'])){
 
         mysqli_query($mysqli,"UPDATE recurring SET recurring_note = '$recurring_note' WHERE recurring_id = $recurring_id");
 
-        $_SESSION['alert_message'] = "Notes added";
-
     }
+
+    $_SESSION['alert_message'] = "Recurring Invoice Updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
