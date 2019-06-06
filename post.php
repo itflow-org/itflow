@@ -284,6 +284,20 @@ if(isset($_GET['delete_client'])){
   
 }
 
+if(isset($_POST['add_calendar'])){
+
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $color = strip_tags(mysqli_real_escape_string($mysqli,$_POST['color']));
+
+    mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = '$name', calendar_color = '$color', calendar_created_at = NOW()");
+
+    $_SESSION['alert_message'] = "Calendar created, now lets add some events!";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+
 if(isset($_POST['add_event'])){
 
     $calendar_id = intval($_POST['calendar']);
@@ -1713,9 +1727,8 @@ if(isset($_POST['add_payment'])){
 
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
-                  $mail->Subject = "Payment Recieved - Invoice INV-$invoice_number";
-                  $mail->Body    = "Hello $client_name,<br><br>You are paid in full, we have recieved your payment of $$formatted_amount on $date for invoice INV-$invoice_number by $payment_method.<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
-                  //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+                  $mail->Subject = "Payment Recieved";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment in the amount of $$formatted_amount and it has been applied to your account. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$config_company_name<br>$config_company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';
@@ -1726,9 +1739,6 @@ if(isset($_POST['add_payment'])){
                     echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
                 }
             }
-
-           
-
         }else{
             $invoice_status = "Partial";
             if($email_receipt == 1){
@@ -1753,9 +1763,8 @@ if(isset($_POST['add_payment'])){
 
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
-                  $mail->Subject = "Partial Payment Recieved for Invoice INV-$invoice_number";
-                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment of $$formatted_amount on $date for invoice INV-$invoice_number by $payment_method with a balance of $$formatted_invoice_balance.<br><br>If you have any questions please contact us at the number below.<br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
-                  //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+                  $mail->Subject = "Payment Recieved";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment in the amount of $$formatted_amount and it has been applied to your account. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$config_company_name<br>$config_company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';
@@ -1881,11 +1890,6 @@ if(isset($_GET['email_invoice'])){
         $mail->setFrom($config_mail_from_email, $config_mail_from_name);
         $mail->addAddress("$client_email", "$client_name");     // Add a recipient
 
-        // Attachments
-        //$mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
-        //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
-        //$mail->addAttachment("uploads/$invoice_date-$config_company_name-Invoice$invoice_number.pdf");    // Optional name
-
         // Content
         $mail->isHTML(true);                                  // Set email format to HTML
         
@@ -1919,7 +1923,7 @@ if(isset($_GET['email_invoice'])){
 
 
     } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        echo "poop";
     }
 }
 

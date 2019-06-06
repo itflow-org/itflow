@@ -6,8 +6,7 @@
     <h2 class="text-white text-center"><?php echo $client_name; ?></h2>
     <h6 class="text-secondary text-center"><?php echo $client_type; ?></h6>
   </li>
-  
-  <?php if($session_client_id > 0){ ?>
+  <?php if($session_client_id == 0){ ?>
   <li class="nav-item">
     <a class="nav-link" href="clients.php">
       <button class="btn btn-outline-light btn-block">

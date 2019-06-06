@@ -1,4 +1,4 @@
-<div class="modal" id="editCalendarEventModal<?php echo $event_id; ?>" tabindex="-1">
+<div class="modal" id="editEventModal<?php echo $event_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
@@ -10,13 +10,14 @@
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="event_id" value="<?php echo $event_id; ?>">
         <div class="modal-body bg-white">
+          <p></p>
           <div class="form-group">
             <label>Title</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
               </div>
-              <input type="text" class="form-control" name="title" placeholder="Title of the event" value="<?php echo $event_title; ?>" required>
+              <input type="text" class="form-control" name="title" value="<?php echo $event_title; ?>" placeholder="Title of the event" required>
             </div>
           </div>
           <div class="form-group">
@@ -25,15 +26,16 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-calendar"></i></span>
               </div>
-              <select class="form-control" name="calendar" required>
+              <select class="form-control selectpicker" name="calendar" required>
                 <?php 
                 
                 $sql_calendars_select = mysqli_query($mysqli,"SELECT * FROM calendars"); 
                 while($row = mysqli_fetch_array($sql_calendars_select)){
                   $calendar_id_select = $row['calendar_id'];
                   $calendar_name_select = $row['calendar_name'];
+                  $calendar_color_select = $row['calendar_color'];
                 ?>
-                  <option <?php if($calendar_id == $calendar_id_select){ echo "selected"; } ?> value="<?php echo $calendar_id_select; ?>"><?php echo $calendar_name_select; ?></option>
+                  <option data-content="<i class='fa fa-circle mr-2' style='color:<?php echo $calendar_color_select; ?>;'></i> <?php echo $calendar_name_select; ?>"<?php if($calendar_id == $calendar_id_select){ echo "selected"; } ?> value="<?php echo $calendar_id_select; ?>"><?php echo $calendar_name_select; ?></option>
                 
                 <?php
                 }

@@ -32,13 +32,15 @@
   <link href="css/sb-admin.css" rel="stylesheet" type="text/css">
   <link href="vendor/datepicker/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
 
+
   <!-- Custom Style Sheet -->
   <link href="css/style.css" rel="stylesheet" type="text/css">
-
+  <link href="vendor/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css">
   <link href='vendor/fullcalendar/core/main.min.css' rel='stylesheet' />
   <link href='vendor/fullcalendar/daygrid/main.min.css' rel='stylesheet' />
   <link href='vendor/fullcalendar/timegrid/main.min.css' rel='stylesheet' />
   <link href='vendor/fullcalendar/list/main.min.css' rel='stylesheet' />
+  <link href='vendor/fullcalendar/bootstrap/main.min.css' rel='stylesheet' />
   
 </head>
 

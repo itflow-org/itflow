@@ -49,6 +49,8 @@
 
 	$config_api_key = $row['config_api_key'];
 
+	$config_base_url = "192.168.10.205/pittpc";
+
 	$_SESSION['alert_message'] = '';
 	$_SESSION['alert_type'] = "warning";
 
