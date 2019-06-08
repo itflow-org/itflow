@@ -24,7 +24,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
               </div>
-              <select class="form-control" name="calendar" required>
+              <select class="form-control selectpicker show-tick" name="calendar" required>
                 <option value="">- Calendar -</option>
                 <?php 
                 
@@ -32,8 +32,9 @@
                 while($row = mysqli_fetch_array($sql)){
                   $calendar_id = $row['calendar_id'];
                   $calendar_name = $row['calendar_name'];
+                  $calendar_color = $row['calendar_color'];
                 ?>
-                  <option value="<?php echo $calendar_id; ?>"><?php echo $calendar_name; ?></option>
+                  <option data-content="<i class='fa fa-circle mr-2' style='color:<?php echo $calendar_color; ?>;'></i> value="<?php echo $calendar_id; ?> ><?php echo $calendar_name; ?></option>
                 
                 <?php
                 }

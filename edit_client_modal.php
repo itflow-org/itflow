@@ -48,10 +48,14 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                   </div>
-                  <select class="form-control" name="type" required>
-                    <option value="">- Type -</option>
+                  <select class="form-control" name="type">
+                  
                     <?php foreach($client_types_array as $client_type_select) { ?>
-                    <option <?php if($client_type_select == $client_type) { echo "selected"; } ?>><?php echo $client_type_select; ?></option>
+                    <option 
+                      value="<?php echo $client_type_select; ?>"
+                      <?php if($client_type_select == $client_type) { echo "selected"; } ?> >
+                      <?php echo $client_type_select; ?>  
+                    </option>
                     <?php } ?>
                   </select> 
                 </div>
@@ -87,7 +91,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                   </div>
-                  <select class="form-control" name="state">
+                  <select class="form-control" data-live-search="true" name="state">
                     <option value="">- State -</option>
                     <?php foreach($states_array as $state_abbr => $state_name) { ?>
                     <option <?php if($client_state == $state_abbr) { echo "selected"; } ?> value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>

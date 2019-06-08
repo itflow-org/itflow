@@ -16,7 +16,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
               </div>
-              <select class="form-control" name="client">
+              <select class="form-control selectpicker show-tick" data-live-search="true" name="client">
                 <option value="0">No Client Assignment</option>
                 <?php 
                 

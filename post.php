@@ -267,7 +267,7 @@ if(isset($_POST['edit_client'])){
 
     mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_phone = '$phone', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_updated_at = NOW() WHERE client_id = $client_id");
 
-    $_SESSION['alert_message'] = "Client updated";
+    $_SESSION['alert_message'] = "Client updated type: $type - name: $name";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

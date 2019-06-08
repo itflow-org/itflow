@@ -45,7 +45,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                   </div>
-                  <select class="form-control" name="type" required>
+                  <select class="form-control selectpicker show-tick" data-live-search="true" name="type" required>
                     <option value="">- Type -</option>
                     <?php foreach($asset_types_array as $asset_type) { ?>
                     <option><?php echo $asset_type; ?></option>
@@ -93,7 +93,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                   </div>
-                  <select class="form-control" name="location">
+                  <select class="form-control selectpicker show-tick" data-live-search="true" name="location">
                     <option value="">- Location -</option>
                     <?php 
                     
@@ -117,7 +117,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                   </div>
-                  <select class="form-control" name="contact">
+                  <select class="form-control selectpicker show-tick" data-live-search="true" name="contact">
                     <option value="">- Contact -</option>
                     <?php 
                     
@@ -145,7 +145,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                   </div>
-                  <select class="form-control" name="vendor">
+                  <select class="form-control selectpicker show-tick" data-live-search="true" name="vendor">
                     <option value="">- Vendor -</option>
                     <?php 
                     

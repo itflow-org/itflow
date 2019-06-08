@@ -53,7 +53,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
 ?>
 
 <form>
-  <select onchange="this.form.submit()" class="form-control mb-3" name="year">
+  <select onchange="this.form.submit()" class="form-control selectpicker mb-3" name="year">
     <?php 
             
     while($row = mysqli_fetch_array($sql_payment_years)){

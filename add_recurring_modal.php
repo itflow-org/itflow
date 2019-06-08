@@ -20,7 +20,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
               </div>
-              <select class="form-control" name="client" required <?php if(isset($_GET['client_id'])){ echo "disabled"; } ?>>
+              <select class="form-control selectpicker show-tick" data-live-search="true" name="client" required <?php if(isset($_GET['client_id'])){ echo "disabled"; } ?>>
                 <option value="">- Client -</option>
                 <?php 
                 
@@ -54,7 +54,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
               </div>
-              <select class="form-control" name="frequency" required>
+              <select class="form-control selectpicker show-tick" name="frequency" required>
                 <option value="">- Frequency -</option>
                 <option value="week">Weekly</option>
                 <option value="month">Monthly</option>
@@ -70,7 +70,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
               </div>
-              <select class="form-control" name="category" required>
+              <select class="form-control selectpicker show-tick" name="category" required>
                 <option value="">- Category -</option>
                 <?php 
                 
