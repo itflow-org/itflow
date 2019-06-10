@@ -33,7 +33,7 @@ if(isset($_POST['add_database'])){
 
     $_SESSION['alert_message'] = "Database successful";
 
-    header("setup_post.php?import_database");
+    header("setup.php?import_database");
 
 }
 
@@ -65,8 +65,6 @@ if(isset($_POST['import_database'])){
     }
     echo "Tables imported successfully";
 
-    header("setup.php");
-
 }
 
 if(isset($_POST['add_user'])){
@@ -85,8 +83,6 @@ if(isset($_POST['add_user'])){
     mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW()");
 
     $_SESSION['alert_message'] = "User added";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -150,7 +146,7 @@ if(isset($_POST['add_company_settings'])){
   <div id="wrapper">
     
     <!-- Sidebar -->
-    <ul class="sidebar navbar-nav d-print-none">
+    <ul class="sidebar navbar-nav">
       <li class="nav-item">
         <h2 class="text-white text-center my-3">Setup</h2>
       </li>
@@ -185,7 +181,7 @@ if(isset($_POST['add_company_settings'])){
               <h6 class="mt-1"><i class="fa fa-database"></i> Setup Database</h6>
             </div>
             <div class="card-body">
-              <form class="p-3" action="setup_post.php" method="post" autocomplete="off">
+              <form class="p-3" method="post" autocomplete="off">
                 
                 <div class="form-group">
                   <label>MySQL Host</label>
@@ -231,11 +227,9 @@ if(isset($_POST['add_company_settings'])){
               </form>
             </div>
           </div>
-
-        <?php }?>
         
 
-        <?php if(isset($_GET['user'])){ ?>
+        <?php }elseif(isset($_GET['user'])){ ?>
 
           <div class="card mb-3">
             <div class="card-header">
@@ -243,7 +237,7 @@ if(isset($_POST['add_company_settings'])){
             </div>
             <div class="card-body">
         
-              <form class="p-3" action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+              <form class="p-3" method="post" enctype="multipart/form-data" autocomplete="off">
                 <div class="form-group">
                   <label>Name</label>
                   <div class="input-group">
@@ -282,17 +276,15 @@ if(isset($_POST['add_company_settings'])){
               </form>
             </div>
           </div>
-        <?php } ?>
 
-
-        <?php if(isset($_GET['company'])){ ?>
+        <?php }elseif(isset($_GET['company'])){ ?>
 
           <div class="card mb-3">
             <div class="card-header">
               <h6 class="mt-1"><i class="fa fa-building"></i> Company Settings</h6>
             </div>
             <div class="card-body">
-              <form class="p-3" action="post.php" method="post"  autocomplete="off">
+              <form class="p-3" method="post"  autocomplete="off">
                 <div class="form-group">
                   <label>Company Name</label>
                   <div class="input-group">
@@ -360,6 +352,10 @@ if(isset($_POST['add_company_settings'])){
               </form>
             </div>
           </div>
+
+        <?php }else{ ?>
+
+          <a href="?database" class="btn btn-lg btn-primary">Install</a>
 
         <?php } ?>
 
