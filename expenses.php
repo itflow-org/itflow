@@ -76,15 +76,19 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseRefundModal<?php echo $expense_id; ?>">Refund</a>
                   <a class="dropdown-item" href="post.php?delete_expense=<?php echo $expense_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php
+
+              include("edit_expense_modal.php");
+              include("add_expense_copy_modal.php");
+              include("add_expense_refund_modal.php");
+
+              ?>      
             </td>
           </tr>
 
           <?php
-
-          include("edit_expense_modal.php");
-          include("add_expense_copy_modal.php");
-          include("add_expense_refund_modal.php");
+          
           }
 
           ?>

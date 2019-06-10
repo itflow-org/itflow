@@ -52,13 +52,15 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_location=<?php echo $location_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div> 
+              <?php include("edit_location_modal.php"); ?>     
             </td>
           </tr>
 
           <?php
-          include("edit_location_modal.php");
+          
           }
+          
           ?>
 
         </tbody>

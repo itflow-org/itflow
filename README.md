@@ -36,6 +36,12 @@ CRM, Accounting and Invoicing System for small managed IT companies
   * Past Due Invoices
   * Software License Expiring
   * Many more...
+* Calendar Integration
+  * Schedule Jobs
+  * Overview of Invoices Domains
+  * Schedule Events
+* Dashboard
+  * Gives a clear overview of your business
 
 ### Installation Instructions
 
@@ -44,7 +50,6 @@ CRM, Accounting and Invoicing System for small managed IT companies
 * Point your browser and away you go
 
 #### Requirements
-* Linux
 * Webserver (Apache, NGINX)
 * PHP7+
 * Mysql or MariaDB
@@ -55,9 +60,14 @@ CRM, Accounting and Invoicing System for small managed IT companies
 * fontawesome
 * datatables
 * chart.js
+* moments.js
 * Jquery
 * PHPmailer
 * mPDF
+* FullCalendar.io
+* bootstrap-select
+* Date Range Picker
+* Bootstrap Typeahead
 * EasyMDE forked from SimpleMDE
 * parsedown
 

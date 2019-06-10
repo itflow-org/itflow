@@ -42,13 +42,15 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_product=<?php echo $product_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php include("edit_product_modal.php"); ?>      
             </td>
           </tr>
 
           <?php
-          include("edit_product_modal.php");
+          
           }
+          
           ?>
 
         </tbody>

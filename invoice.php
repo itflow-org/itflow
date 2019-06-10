@@ -86,7 +86,7 @@ if(isset($_GET['invoice_id'])){
 
 
 
-<form action="post.php" method="post">
+<form action="post.php" method="post" autocomplete="off">
   <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
   <div class="row mb-4 d-print-none">
     <div class="col-md-4">
@@ -222,8 +222,8 @@ if(isset($_GET['invoice_id'])){
                 <td></td>            
                 <td><input type="text" class="form-control typeahead" name="name" id="item"></td>
                 <td><textarea class="form-control" rows="1" name="description"></textarea></td>
-                <td><input type="text" class="form-control" style="text-align: right;" name="price"></td>
                 <td><input type="text" class="form-control" style="text-align: center;" name="qty"></td>
+                <td><input type="text" class="form-control" style="text-align: right;" id="price" name="price"></td>
                 <td>
                   <select dir="rtl" class="form-control" name="tax">
                     <option value="0.00">None</option>
@@ -389,9 +389,49 @@ var products = [
 
 ];
 
-$('#item').typeahead({
-  source: products
+var productCosts2 = [
+  <?php 
+  $sql = mysqli_query($mysqli,"SELECT product_id, product_name, product_cost FROM products");
+  while($row = mysqli_fetch_array($sql)){
+    $product_id = $row['product_id'];
+    $product_name = $row['product_name'];
+    $product_cost = $row['product_cost'];
+    echo "\"$product_cost\",";
+  }
+  ?>
 
+];
+
+
+var productCosts = [
+  <?php 
+  $sql = mysqli_query($mysqli,"SELECT product_id, product_name, product_cost FROM products");
+  while($row = mysqli_fetch_array($sql)){
+    $product_id = $row['product_id'];
+    $product_name = $row['product_name'];
+    $product_cost = $row['product_cost'];
+    echo "{ id: '$product_id', name: '$product_name', cost: '$product_cost' },";
+  }
+  ?>
+
+];
+
+$('#item1').typeahead({
+  source: products,
+  afterSelect: function(){
+    $('#price').val( '<?php echo $product_cost; ?>' );
+  }
+
+});
+
+$('#item').typeahead({
+  minLength: 3,
+  source: function (query, process) {
+    data: productCosts
+
+  afterSelect: function(args){
+      $('#price').val(args.cost );
+  }
 });
 
 </script>

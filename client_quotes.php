@@ -71,14 +71,17 @@
                   <a class="dropdown-item" href="post.php?pdf_quote=<?php echo $quote_id; ?>">PDF</a>
                   <a class="dropdown-item" href="post.php?delete_quote=<?php echo $quote_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php
+          
+              include("edit_quote_modal.php");
+              include("add_quote_copy_modal.php");
+
+              ?>      
             </td>
           </tr>
 
           <?php
-          
-          include("edit_quote_modal.php");
-          include("add_quote_copy_modal.php");
           
           }
 

@@ -49,12 +49,12 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_account=<?php echo $account_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php include("edit_account_modal.php"); ?>      
             </td>
           </tr>
 
           <?php
-          include("edit_account_modal.php");
           }
           ?>
 

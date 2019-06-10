@@ -34,7 +34,7 @@ foreach ($domainAlertArray as $day)  {
     $client_id = $row['client_id'];
     $client_name = $row['client_name'];
 
-    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Domain', alert_message = 'Domain $domain_name will expire in $day Days on $domain_expire', alert_date = CURDATE()");
+    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Domain', alert_message = 'Domain $domain_name will expire in $day Days on $domain_expire', alert_date = NOW()");
 
   }
 
@@ -65,7 +65,7 @@ foreach ($invoiceAlertArray as $day)  {
     $client_id = $row['client_id'];
     $client_name = $row['client_name'];
 
-    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice', alert_message = 'Invoice INV-$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', alert_date = CURDATE()");
+    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice', alert_message = 'Invoice INV-$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', alert_date = NOW()");
   }
 
 }
@@ -90,7 +90,7 @@ while($row = mysqli_fetch_array($sql)){
 
   if($balance < $config_account_balance_threshold){
 
-    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Account Low Balance', alert_message = 'Threshold of $config_account_balance_threshold triggered low balance of $balance on account $account_name', alert_date = CURDATE()");
+    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Account Low Balance', alert_message = 'Threshold of $config_account_balance_threshold triggered low balance of $balance on account $account_name', alert_date = NOW()");
   }
 
 }
@@ -120,7 +120,7 @@ while($row = mysqli_fetch_array($sql_recurring)){
   //Generate a unique URL key for clients to access
   $url_key = keygen();
 
-  mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $new_invoice_number, invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', client_id = $client_id");
+  mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $new_invoice_number, invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id");
 
   $new_invoice_id = mysqli_insert_id($mysqli);
   
@@ -137,13 +137,13 @@ while($row = mysqli_fetch_array($sql_recurring)){
     $item_tax = $row['item_tax'];
     $item_total = $row['item_total'];
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', invoice_id = $new_invoice_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), invoice_id = $new_invoice_id");
   }
 
-  mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', invoice_id = $new_invoice_id");
+  mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), invoice_id = $new_invoice_id");
 
   //update the recurring invoice with the new dates
-  mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency) WHERE recurring_id = $recurring_id");
+  mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW WHERE recurring_id = $recurring_id");
 
   if($config_recurring_email_auto_send == 1){
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
@@ -197,14 +197,14 @@ while($row = mysqli_fetch_array($sql_recurring)){
         
         $mail->send();
 
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Auto Emailed Invoice!', invoice_id = $new_invoice_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Auto Emailed Invoice!', history_created_at = NOW(), invoice_id = $new_invoice_id");
 
         //Update Invoice Status to Sent
         mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', client_id = $client_id WHERE invoice_id = $new_invoice_id");
 
     }catch (Exception $e) {
         echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Failed to send Invoice!', invoice_id = $new_invoice_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Failed to send Invoice!', history_created_at = NOW(), invoice_id = $new_invoice_id");
     }
   }
 }

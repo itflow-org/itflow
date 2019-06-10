@@ -48,13 +48,15 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $mileage_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_trip=<?php echo $trip_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php include("edit_trip_modal.php"); ?>      
             </td>
           </tr>
 
           <?php
-          include("edit_trip_modal.php");
+          
           }
+          
           ?>
 
         </tbody>

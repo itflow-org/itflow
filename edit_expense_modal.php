@@ -36,7 +36,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                 </div>
-                <select class="form-control" name="account" required>
+                <select class="form-control selectpicker show-tick" name="account" required>
                   <?php 
                   
                   $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts"); 
@@ -71,7 +71,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                 </div>
-                <select class="form-control" name="vendor" required>
+                <select class="form-control selectpicker show-tick" data-live-search="true" name="vendor" required>
                   <?php 
                   
                   $sql2 = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 ORDER BY vendor_name ASC"); 
@@ -93,7 +93,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                 </div>
-                <select class="form-control" name="category" required>
+                <select class="form-control selectpicker show-tick" name="category" required>
                   <?php 
                   
                   $sql2 = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense'"); 

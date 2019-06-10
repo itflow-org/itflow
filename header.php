@@ -41,6 +41,8 @@
   <link href='vendor/fullcalendar/timegrid/main.min.css' rel='stylesheet' />
   <link href='vendor/fullcalendar/list/main.min.css' rel='stylesheet' />
   <link href='vendor/fullcalendar/bootstrap/main.min.css' rel='stylesheet' />
+  <link href='vendor/daterangepicker/daterangepicker.css' rel='stylesheet' />
+  <link href='vendor/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css' rel='stylesheet' />
   
 </head>
 

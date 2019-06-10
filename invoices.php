@@ -182,14 +182,18 @@
                   <a class="dropdown-item" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-file-pdf"></i> PDF</a>
                   <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-trash"></i> Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php
+
+              include("add_invoice_copy_modal.php");
+              include("edit_invoice_modal.php");
+
+              ?>      
             </td>
           </tr>
 
           <?php
-
-          include("add_invoice_copy_modal.php");
-          include("edit_invoice_modal.php");
+          
           }
 
           ?>

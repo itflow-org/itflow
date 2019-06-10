@@ -45,13 +45,15 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_login=<?php echo $login_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div> 
+              <?php include("edit_login_modal.php"); ?>     
             </td>
           </tr>
 
           <?php
-          include("edit_login_modal.php");
+          
           }
+          
           ?>
 
         </tbody>

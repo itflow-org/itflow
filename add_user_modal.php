@@ -65,7 +65,7 @@
           </div>
           <div class="form-group">
             <label>Avatar</label>
-            <input type="file" class="form-control-file" accept="image/*;capture=camera" name="avatar">
+            <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
           </div>
         </div>
         <div class="modal-footer bg-white">

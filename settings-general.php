@@ -14,7 +14,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-plane-arrival"></i></span>
           </div>
-          <select class="form-control" name="config_start_page" required>
+          <select class="form-control selectpicker show-tick" name="config_start_page" required>
             <option value="dashboard.php">Dashboard</option>
             <option value="clients.php">Clients</option>
             <option value="invoices.php">Invoices</option>

@@ -59,13 +59,15 @@ $sql = mysqli_query($mysqli,"SELECT * FROM transfers ORDER BY transfer_date DESC
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTransferModal<?php echo $transfer_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_transfer=<?php echo $transfer_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php include("edit_transfer_modal.php"); ?>      
             </td>
           </tr>
 
           <?php
-          include("edit_transfer_modal.php");
+        
           }
+          
           ?>
 
         </tbody>

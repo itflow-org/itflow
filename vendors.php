@@ -53,13 +53,15 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_vendor=<?php echo $vendor_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php include("edit_vendor_modal.php"); ?>      
             </td>
           </tr>
 
           <?php
-          include("edit_vendor_modal.php");
+          
           }
+          
           ?>
 
         </tbody>

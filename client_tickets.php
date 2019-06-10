@@ -60,14 +60,18 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php
+
+              include("edit_ticket_modal.php");
+              include("view_ticket_modal.php");
+
+              ?>      
             </td>
           </tr>
 
           <?php
 
-          include("edit_ticket_modal.php");
-          include("view_ticket_modal.php");
           }
 
           ?>

@@ -43,13 +43,15 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editNetworkModal<?php echo $network_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_network=<?php echo $network_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php include("edit_network_modal.php"); ?>      
             </td>
           </tr>
 
           <?php
-          include("edit_network_modal.php");
+          
           }
+          
           ?>
 
         </tbody>

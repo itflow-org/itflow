@@ -17,6 +17,12 @@ if($_GET['api_key'] == $config_api_key){
 
     }
 
+    if(isset($_GET['incoming_call'])){
+
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'call', log_description = 'incoming', log_created_at = NOW()");
+
+    }
+
     if(isset($_GET['client_numbers'])){
 
         $sql = mysqli_query($mysqli,"SELECT * FROM clients;");
@@ -27,6 +33,70 @@ if($_GET['api_key'] == $config_api_key){
 
             echo "$client_name - $client_phone<br>";
         }
+
+    }
+
+    if(isset($_GET['phonebookalpha'])){
+
+        header('Content-type: text/xml');
+        header('Pragma: public');
+        header('Cache-control: private');
+        header('Expires: -1');
+        echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+        echo '<AddressBook>';
+
+        $sql = mysqli_query($mysqli,"SELECT * FROM clients;");
+
+        while($row = mysqli_fetch_array($sql)){
+            $client_name = $row['client_name'];
+            $client_phone = $row['client_phone'];
+
+        ?>
+            <Contact>
+                <LastName><?php echo $client_name; ?></LastName>
+                <Phone>
+                    <phonenumber><?php echo $client_phone; ?></phonenumber>
+                </Phone>
+            </Contact>
+        <?php
+        }
+        echo '</AddressBook>';
+
+    }
+
+    if(isset($_GET['phonebookbeta'])){
+
+        $myfile = fopen("phonebook.xml", "w");
+        
+        $txt = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+        
+        fwrite($myfile, $txt);
+
+        $txt = "<AddressBook>\n";
+        
+        fwrite($myfile, $txt);
+        $sql = mysqli_query($mysqli,"SELECT * FROM clients;");
+
+        while($row = mysqli_fetch_array($sql)){
+            $client_name = $row['client_name'];
+            $client_phone = $row['client_phone'];
+
+        $txt = "<Contact>\n
+                    <LastName>$client_name</LastName>\n
+                    <Phone>\n
+                        <phonenumber>$client_phone</phonenumber>\n
+                    </Phone>\n
+                </Contact>\n";
+        
+        fwrite($myfile, $txt);
+
+        }
+
+        $txt = "</AddressBook>";
+        fwrite($myfile, $txt);
+        fclose($myfile);
+
+        header("Location: phonebook.xml");
 
     }
 

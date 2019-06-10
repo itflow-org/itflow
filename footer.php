@@ -33,6 +33,9 @@
   <script src='vendor/fullcalendar/timegrid/main.min.js'></script>
   <script src='vendor/fullcalendar/list/main.min.js'></script>
   <script src='vendor/bootstrap-select/js/bootstrap-select.min.js'></script>
+  <script src='vendor/bootstrap-showpassword/bootstrap-show-password.min.js'></script>
+  <script src='vendor/daterangepicker/daterangepicker.js'></script>
+  <script src='vendor/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js'></script>
   
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin.min.js"></script>

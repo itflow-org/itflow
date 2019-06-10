@@ -78,13 +78,15 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php include("edit_client_modal.php"); ?>      
             </td>
           </tr>
 
           <?php
-          include("edit_client_modal.php");
+          
           }
+          
           ?>
 
         </tbody>

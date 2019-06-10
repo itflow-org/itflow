@@ -127,12 +127,12 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_asset=<?php echo $asset_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php include("edit_asset_modal.php"); ?>      
             </td>
           </tr>
 
           <?php
-          include("edit_asset_modal.php");
           }
           ?>
 

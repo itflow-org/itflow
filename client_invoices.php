@@ -82,14 +82,15 @@
                   <a class="dropdown-item" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>">PDF</a>
                   <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php
+              include("add_invoice_copy_modal.php");
+              include("edit_invoice_modal.php");
+              ?>      
             </td>
           </tr>
 
           <?php
-
-          include("add_invoice_copy_modal.php");
-          include("edit_invoice_modal.php");
           
           }
 

@@ -73,13 +73,15 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_software=<?php echo $software_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php include("edit_software_modal.php"); ?>      
             </td>
           </tr>
 
           <?php
-          include("edit_software_modal.php");
+          
           }
+          
           ?>
 
         </tbody>

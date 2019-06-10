@@ -51,13 +51,15 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editDomainModal<?php echo $domain_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_domain=<?php echo $domain_id; ?>">Delete</a>
                 </div>
-              </div>      
+              </div>
+              <?php include("edit_domain_modal.php"); ?>     
             </td>
           </tr>
 
           <?php
-          include("edit_domain_modal.php");
+          
           }
+          
           ?>
 
         </tbody>
