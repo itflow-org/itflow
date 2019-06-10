@@ -37,9 +37,9 @@ if(isset($_POST['add_database'])){
 
 }
 
-include("config.php");
-
 if(isset($_POST['import_database'])){
+
+    include("config.php");
 
     // Name of the file
     $filename = 'db.sql';
@@ -58,16 +58,32 @@ if(isset($_POST['import_database'])){
         // If it has a semicolon at the end, it's the end of the query
         if(substr(trim($line), -1, 1) == ';'){
             // Perform the query
-            mysqli_query($mysqli,$templine) or print('Error performing query \'<strong>' . $templine . '\': ' . mysqli_error() . '<br /><br />');
+            mysqli_query($mysqli,$templine);
             // Reset temp variable to empty
             $templine = '';
         }
     }
-    echo "Tables imported successfully";
+
+    //Create Some Data
+
+    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_created_at = NOW()");
+
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue', category_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red', category_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Advertising', category_type = 'Expense', category_color = 'green', category_created_at = NOW()");
+
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Service', category_type = 'Income', category_color = 'orange', category_created_at = NOW()");
+
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'purple', category_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'brown', category_created_at = NOW()");
+
+    mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue', calendar_created_at = NOW()");
 
 }
 
 if(isset($_POST['add_user'])){
+
+    include("config.php");
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
@@ -88,6 +104,8 @@ if(isset($_POST['add_user'])){
 
 if(isset($_POST['add_company_settings'])){
 
+    include("config.php");
+
     $config_company_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_name']));
     $config_company_address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_address']));
     $config_company_city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_city']));
@@ -96,9 +114,9 @@ if(isset($_POST['add_company_settings'])){
     $config_company_phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_phone']));
     $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
    
-    mysqli_query($mysqli,"INSERT INTO settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site'");
+    mysqli_query($mysqli,"INSERT INTO settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site', config_start_page = 'dashboard.php'");
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("login.php");
 
 }
 
@@ -125,6 +143,7 @@ if(isset($_POST['add_company_settings'])){
 
   <!-- Custom Style Sheet -->
   <link href="css/style.css" rel="stylesheet">
+  <link href="vendor/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css">
   
 </head>
 
@@ -279,6 +298,8 @@ if(isset($_POST['add_company_settings'])){
 
         <?php }elseif(isset($_GET['company'])){ ?>
 
+          <?php include("config.php"); ?>
+
           <div class="card mb-3">
             <div class="card-header">
               <h6 class="mt-1"><i class="fa fa-building"></i> Company Settings</h6>
@@ -312,7 +333,7 @@ if(isset($_POST['add_company_settings'])){
 
                 <div class="form-group">
                   <label>State</label>
-                  <select class="form-control" name="config_company_state">
+                  <select class="form-control selectpicker show-tick" data-live-search="true" name="config_company_state">
                     <option value="">Select a state...</option>
                       <?php foreach($states_array as $state_abbr => $state_name) { ?>
                       <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
@@ -355,7 +376,31 @@ if(isset($_POST['add_company_settings'])){
 
         <?php }else{ ?>
 
-          <a href="?database" class="btn btn-lg btn-primary">Install</a>
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6 class="mt-1"><i class="fa fa-database"></i> Start Install</h6>
+            </div>
+            <div class="card-body">
+              <p>Click on the install button to start the install process, you must create a database before starting</p>
+              <p>This process will accomplish the following</p>
+              <ul class="mb-4">
+                <li>Create a config.php</li>
+                <li>Creates the following expense cataegories (Office Supplies, Advertising, Travel)</li>
+                <li>Created the following payment methods (Cash, Check)</li>
+                <li>Creates an account named Cash</li>
+                <li>Creates an income 
+              </ul>
+              <p>After install add cron.php to your cron and set it to run once everyday at 12AM. This is so recurring invoices will automatically be sent out and created. This will also trigger late payment reminders, along with alerts such as domains expiration, etc.</p>
+              <p>An API is present to allow integration with other third pary apps. To activate the API you must enter an api key under settings. The API will give you the following capabilities</p>
+              <ul class="mb-4">
+                <li>Address book XML for VOIP Phones</li>
+                <li>Caller ID Lookup</li>
+                <li>Get List of Emails in CSV to export to a mailing list</li>
+                <li>Get Balance, can be useful for customer's to get balances by phone</li>
+              </ul>
+              <center><a href="?database" class="btn btn-lg btn-primary mb-5">Install</a></center>
+            </div>
+          </div>
 
         <?php } ?>
 
@@ -382,6 +427,7 @@ if(isset($_POST['add_company_settings'])){
 
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin.min.js"></script>
+  <script src='vendor/bootstrap-select/js/bootstrap-select.min.js'></script>
 
   <!-- Custom js-->
   <script src="js/app.js"></script>

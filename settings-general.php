@@ -19,6 +19,8 @@
             <option value="clients.php">Clients</option>
             <option value="invoices.php">Invoices</option>
             <option value="expenses.php">Expenses</option>
+            <option value="calendar_events.php">Calendar</option>
+            <option value="tickets.php">Tickets</option>
           </select>
         </div>
       </div>
