@@ -109,9 +109,10 @@
                   </div>
                 </div>
               </div>
-              <?php echo $asset_name; ?>
+              
               <?php
               }
+              echo $asset_name;
               ?>
               
             </td>

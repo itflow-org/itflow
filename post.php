@@ -60,13 +60,15 @@ if(isset($_POST['edit_mail_settings'])){
 
 if(isset($_POST['edit_invoice_settings'])){
 
+    $config_invoice_prefix = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_prefix']));
     $config_next_invoice_number = intval($_POST['config_next_invoice_number']);
     $config_mail_from_email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_email']));
     $config_mail_from_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name']));
     $config_invoice_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer']));
     $config_quote_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_footer']));
+    $config_invoice_overdue_reminders = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_overdue_reminders']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_next_invoice_number = '$config_next_invoice_number', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_quote_footer = '$config_quote_footer'");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_next_invoice_number = $config_next_invoice_number, config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_quote_footer = '$config_quote_footer'");
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -2149,7 +2151,16 @@ if(isset($_POST['edit_contact'])){
     $phone = preg_replace("/[^0-9]/", '',$phone);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_email = '$email', contact_updated_at = NOW() WHERE contact_id = $contact_id");
+    $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
+
+    if($_FILES['file']['tmp_name']!='') {
+        $path = "uploads/clients/$client_id/";
+        $path = $path . time() . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);
+    }
+
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_email = '$email', contact_photo = '$path', contact_updated_at = NOW() WHERE contact_id = $contact_id");
 
     $_SESSION['alert_message'] = "Contact updated";
     

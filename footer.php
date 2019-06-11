@@ -23,10 +23,10 @@
   <script src="vendor/chart.js/Chart.min.js"></script>
   <script src="vendor/datatables/jquery.dataTables.js"></script>
   <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-  <script src="vendor/easy-markdown-editor-2.5.1/dist/easymde.min.js"></script>
+  <script src="vendor/easy-markdown-editor/js/easymde.js"></script>
   <script src="vendor/Bootstrap-3-Typeahead/bootstrap3-typeahead.min.js"></script>
-  <script src="vendor/moment/min/moment.min.js"></script>
-  <script src="vendor/datepicker/build/js/tempusdominus-bootstrap-4.min.js"></script>
+  <script src="vendor/moment/moment.min.js"></script>
+  <script src="vendor/datepicker/js/tempusdominus-bootstrap-4.min.js"></script>
   <script src='vendor/fullcalendar/core/main.min.js'></script>
   <script src='vendor/fullcalendar/bootstrap/main.min.js'></script>
   <script src='vendor/fullcalendar/daygrid/main.min.js'></script>

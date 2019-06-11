@@ -10,12 +10,33 @@
     <form class="p-3" action="post.php" method="post" autocomplete="off"> 
       
       <div class="form-group">
+        <label>Invoice Prefix</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
+          </div>
+          <input type="text" class="form-control" name="config_invoice_prefix" placeholder="Invoice Prefix" value="<?php echo $config_invoice_prefix; ?>" required>
+        </div>
+      </div>
+
+
+      <div class="form-group">
         <label>Next Number</label>
         <div class="input-group">
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_next_invoice_number" placeholder="Next Invoice Number" value="<?php echo $config_next_invoice_number; ?>" required autofocus>
+          <input type="text" class="form-control" name="config_next_invoice_number" placeholder="Next Invoice Number" value="<?php echo $config_next_invoice_number; ?>" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Overdue Reminders</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
+          </div>
+          <input type="text" class="form-control" name="config_invoice_overdue_reminders" placeholder="Send After Due Days" value="<?php echo $config_invoice_overdue_reminders; ?>">
         </div>
       </div>
       
@@ -25,7 +46,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
           </div>
-          <input type="email" class="form-control" name="config_mail_from_email" placeholder="Email Address" value="<?php echo $config_mail_from_email; ?>" required>
+          <input type="email" class="form-control" name="config_mail_from_email" placeholder="Email Address" value="<?php echo $config_mail_from_email; ?>">
         </div>
       </div>
 
@@ -35,11 +56,11 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_mail_from_name" placeholder="Name" value="<?php echo $config_mail_from_name; ?>" required>
+          <input type="text" class="form-control" name="config_mail_from_name" placeholder="Name" value="<?php echo $config_mail_from_name; ?>">
         </div>
       </div>
 
-      <div class="form-group mb-5">
+      <div class="form-group">
         <label>Invoice Footer</label>
         <textarea class="form-control" rows="4" name="config_invoice_footer"><?php echo $config_invoice_footer; ?></textarea>
       </div>

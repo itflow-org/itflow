@@ -1,5 +1,7 @@
 <?php
 
+include("functions.php"); 
+
 if(isset($_POST['add_database'])){
 
   $host = $_POST['host'];
@@ -111,8 +113,9 @@ if(isset($_POST['add_company_settings'])){
   $config_company_zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_zip']));
   $config_company_phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_phone']));
   $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
+  $config_api_key = keygen();
  
-  mysqli_query($mysqli,"INSERT INTO settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site', config_start_page = 'dashboard.php'");
+  mysqli_query($mysqli,"INSERT INTO settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site', config_start_page = 'dashboard.php', config_invoice_prefix = 'INV-', config_next_invoice_number = 1, config_invoice_overdue_reminders = '1,3,7', config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0");
 
   header("Location: login.php");
 
@@ -375,20 +378,20 @@ if(isset($_POST['add_company_settings'])){
 
           <div class="card mb-3">
             <div class="card-header">
-              <h6 class="mt-1"><i class="fa fa-database"></i> Start Install <?php echo $database; ?></h6>
+              <h6 class="mt-1"><i class="fa fa-download"></i> Start Install <?php echo $database; ?></h6>
             </div>
             <div class="card-body">
-              <p>Click on the install button to start the install process, you must create a database before starting</p>
+              <p>Click on the install button to start the install process, you must create a database before proceeding</p>
               <p>This process will accomplish the following</p>
               <ul class="mb-4">
                 <li>Create a config.php</li>
                 <li>Creates the following expense cataegories (Office Supplies, Advertising, Travel)</li>
-                <li>Created the following payment methods (Cash, Check)</li>
+                <li>Creates the following payment methods (Cash, Check)</li>
                 <li>Creates an account named Cash</li>
-                <li>Creates an income 
+                <li>Creates an income category</li>
               </ul>
               <p>After install add cron.php to your cron and set it to run once everyday at 12AM. This is so recurring invoices will automatically be sent out and created. This will also trigger late payment reminders, along with alerts such as domains expiration, etc.</p>
-              <p>An API is present to allow integration with other third pary apps. To activate the API you must enter an api key under settings. The API will give you the following capabilities</p>
+              <p>An API is present to allow integration with other third pary apps. An API Key will be auto generated, and can be changed at a later date. The API will give you the following capabilities</p>
               <ul class="mb-4">
                 <li>Address book XML for VOIP Phones</li>
                 <li>Caller ID Lookup</li>

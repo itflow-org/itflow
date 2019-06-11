@@ -20,7 +20,7 @@
 
   <title><?php echo $config_company_name; ?></title>
 
-  <link href="vendor/easy-markdown-editor-2.5.1/dist/easymde.min.css" rel="stylesheet" type="text/css">
+  <link href="vendor/easy-markdown-editor/css/easymde.min.css" rel="stylesheet" type="text/css">
 
   <!-- Page level plugin CSS-->
   <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet" type="text/css">
@@ -30,7 +30,7 @@
 
   <!-- Custom styles for this template-->
   <link href="css/sb-admin.css" rel="stylesheet" type="text/css">
-  <link href="vendor/datepicker/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
+  <link href="vendor/datepicker/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
 
 
   <!-- Custom Style Sheet -->

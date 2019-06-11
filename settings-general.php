@@ -15,12 +15,12 @@
             <span class="input-group-text"><i class="fa fa-fw fa-plane-arrival"></i></span>
           </div>
           <select class="form-control selectpicker show-tick" name="config_start_page" required>
-            <option value="dashboard.php">Dashboard</option>
-            <option value="clients.php">Clients</option>
-            <option value="invoices.php">Invoices</option>
-            <option value="expenses.php">Expenses</option>
-            <option value="calendar_events.php">Calendar</option>
-            <option value="tickets.php">Tickets</option>
+            <option <?php if($config_start_page == 'dashboard.php'){ echo 'selected'; } ?> value="dashboard.php">Dashboard</option>
+            <option <?php if($config_start_page == 'clients.php'){ echo 'selected'; } ?> value="clients.php">Clients</option>
+            <option <?php if($config_start_page == 'invoices.php'){ echo 'selected'; } ?> value="invoices.php">Invoices</option>
+            <option <?php if($config_start_page == 'expenses.php'){ echo 'selected'; } ?> value="expenses.php">Expenses</option>
+            <option <?php if($config_start_page == 'calendar_events.php'){ echo 'selected'; } ?> value="calendar_events.php">Calendar</option>
+            <option <?php if($config_start_page == 'tickets.php'){ echo 'selected'; } ?> value="tickets.php">Tickets</option>
           </select>
         </div>
       </div>

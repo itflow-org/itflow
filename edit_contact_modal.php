@@ -7,8 +7,9 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form action="post.php" method="post" autocomplete="off">
+      <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
+        <input type="hidden" name="current_avatar_path" value="<?php echo $contact_photo; ?>">
         <div class="modal-body bg-white">    
           <center>
             <?php if(!empty($contact_photo)){ ?>
@@ -58,6 +59,10 @@
               </div>
               <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo $contact_email; ?>" required>
             </div>
+          </div>
+          <div class="form-group">
+            <label>Photo</label>
+            <input type="file" class="form-control-file" name="file">
           </div>
         </div>
         <div class="modal-footer bg-white">

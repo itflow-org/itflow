@@ -27,6 +27,8 @@ $config_smtp_port = $row['config_smtp_port'];
 $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
 $config_account_balance_threshold = $row['config_account_balance_threshold'];
+$config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
+$config_invoice_prefix = $row['config_invoice_prefix'];
 
 $config_quote_email_subject = $row['config_quote_email_subject'];
 
@@ -129,19 +131,20 @@ $category_types_array = array(
 );
 
 $asset_types_array = array(
-	'Laptop',
-	'Desktop',
-	'Server',
-	'Mobile Phone',
-	'Tablet',
-	'Firewall/Router',
-	'Switch',
-	'Access Point',
-	'Printer',
-	'Camera',
-	'TV',
-	'Virtual Machine',
-	'Other'
+	'Laptop'=>'fa-laptop',
+	'Desktop'=>'fa-desktop',
+	'Server'=>'fa-server',
+	'Phone'=>'fa-phone',
+    'Mobile Phone'=>'fa-mobile-alt',
+	'Tablet'=>'fa-tablet-alt',
+	'Firewall/Router'=>'fa-network-wired',
+	'Switch'=>'fa-network-wired',
+	'Access Point'=>'fa-wifi',
+	'Printer'=>'fa-print',
+	'Camera'=>'fa-video',
+	'TV'=>'fa-tv',
+	'Virtual Machine'=>'fa-cloud',
+	'Other'=>'fa-tag'
 );
 
 $software_types_array = array(

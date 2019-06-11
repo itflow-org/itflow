@@ -52,8 +52,8 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                   </div>
                   <select class="form-control selectpicker show-tick" data-live-search="true" name="type" required>
-                    <?php foreach($asset_types_array as $asset_type_select) { ?>
-                    <option <?php if($asset_type_select == $asset_type) { echo "selected"; } ?>><?php echo $asset_type_select; ?></option>
+                    <?php foreach($asset_types_array as $asset_type_select => $asset_icon_select) { ?>
+                    <option data-icon="text-secondary fa fa-fw <?php echo $asset_icon_select; ?>" <?php if($asset_type_select == $asset_type) { echo "selected"; } ?>><?php echo $asset_type_select; ?></option>
                     <?php } ?>
                   </select>
                 </div>

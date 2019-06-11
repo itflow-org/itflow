@@ -42,7 +42,7 @@ foreach ($domainAlertArray as $day)  {
 
 //PAST DUE INVOICES
 
-$invoiceAlertArray = [1, 14, 30, 90];
+$invoiceAlertArray = [$config_invoice_overdue_reminders];
 
 foreach ($invoiceAlertArray as $day)  {
 

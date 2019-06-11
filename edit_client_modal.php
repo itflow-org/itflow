@@ -167,7 +167,7 @@
                   <select class="form-control selectpicker show-tick" name="net_terms">
                     <option value="">- Net Terms -</option>
                     <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
-                    <option <?php if($net_term_value == $client_net_term) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+                    <option <?php if($net_term_value == $client_net_terms) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
                     <?php } ?>
                   </select>
                 </div>

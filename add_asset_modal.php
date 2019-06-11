@@ -47,8 +47,8 @@
                   </div>
                   <select class="form-control selectpicker show-tick" data-live-search="true" name="type" required>
                     <option value="">- Type -</option>
-                    <?php foreach($asset_types_array as $asset_type) { ?>
-                    <option><?php echo $asset_type; ?></option>
+                    <?php foreach($asset_types_array as $asset_type => $asset_icon) { ?>
+                    <option data-icon="text-secondary fa fa-fw <?php echo $asset_icon; ?>"><?php echo $asset_type; ?></option>
                     <?php } ?>
                   </select>
                 </div>
