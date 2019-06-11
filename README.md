@@ -45,9 +45,10 @@ CRM, Accounting and Invoicing System for small managed IT companies
 
 ### Installation Instructions
 
-* Create a mysql database dump db.sql into it
-* Set db user and password in config.php
-* Point your browser and away you go
+* Download the files in this repository
+* Create a Mysql database
+* Point your browser to setup.php fill in the info
+* Your Done! that easy..
 
 #### Requirements
 * Webserver (Apache, NGINX)

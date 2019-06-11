@@ -2,88 +2,84 @@
 
 if(isset($_POST['add_database'])){
 
-    $host = $_POST['host'];
-    $database = $_POST['database'];
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+  $host = $_POST['host'];
+  $database = $_POST['database'];
+  $username = $_POST['username'];
+  $password = $_POST['password'];
 
-    $myfile = fopen("dbconnect.php", "w");
+  $myfile = fopen("config.php", "w");
 
-    $txt = "<?php\n\n";
+  $txt = "<?php\n\n";
 
-    fwrite($myfile, $txt);
+  fwrite($myfile, $txt);
 
-    $txt = "\$dbhost = \"$host\";\n\$dbusername = \"$username\";\n\$dbpassword = \"$password\";\n\$database=\"$database\";\n\n";
+  $txt = "\$dbhost = \"$host\";\n\$dbusername = \"$username\";\n\$dbpassword = \"$password\";\n\$database = \"$database\";\n\n";
 
-    fwrite($myfile, $txt);
+  fwrite($myfile, $txt);
 
-    $txt = "\$mysqli = mysqli_connect(\$dbhost, \$dbusername, \$dbpassword, \$database);\n\n";
+  $txt = "\$mysqli = mysqli_connect(\$dbhost, \$dbusername, \$dbpassword, \$database);\n\n";
 
-    fwrite($myfile, $txt);
+  fwrite($myfile, $txt);
 
-    $txt = "include(\"get_settings.php\");\n\n";
+  $txt = "include(\"get_settings.php\");\n\n";
 
-    fwrite($myfile, $txt);
+  fwrite($myfile, $txt);
 
-    $txt = "?>";
+  $txt = "?>";
 
-    fwrite($myfile, $txt);
+  fwrite($myfile, $txt);
 
-    fclose($myfile);
+  fclose($myfile);
 
-    $_SESSION['alert_message'] = "Database successful";
+  include("config.php");
 
-    header("setup.php?import_database");
+  // Name of the file
+  $filename = 'db.sql';
+  // Temporary variable, used to store current query
+  $templine = '';
+  // Read in entire file
+  $lines = file($filename);
+  // Loop through each line
+  foreach ($lines as $line){
+      // Skip it if it's a comment
+      if(substr($line, 0, 2) == '--' || $line == '')
+          continue;
 
-}
+      // Add this line to the current segment
+      $templine .= $line;
+      // If it has a semicolon at the end, it's the end of the query
+      if(substr(trim($line), -1, 1) == ';'){
+          // Perform the query
+          mysqli_query($mysqli,$templine);
+          // Reset temp variable to empty
+          $templine = '';
+      }
+  }
 
-if(isset($_POST['import_database'])){
+  //Create Some Data
 
-    include("config.php");
+  mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_created_at = NOW()");
 
-    // Name of the file
-    $filename = 'db.sql';
-    // Temporary variable, used to store current query
-    $templine = '';
-    // Read in entire file
-    $lines = file($filename);
-    // Loop through each line
-    foreach ($lines as $line){
-        // Skip it if it's a comment
-        if(substr($line, 0, 2) == '--' || $line == '')
-            continue;
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue', category_created_at = NOW()");
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red', category_created_at = NOW()");
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Advertising', category_type = 'Expense', category_color = 'green', category_created_at = NOW()");
 
-        // Add this line to the current segment
-        $templine .= $line;
-        // If it has a semicolon at the end, it's the end of the query
-        if(substr(trim($line), -1, 1) == ';'){
-            // Perform the query
-            mysqli_query($mysqli,$templine);
-            // Reset temp variable to empty
-            $templine = '';
-        }
-    }
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Service', category_type = 'Income', category_color = 'orange', category_created_at = NOW()");
 
-    //Create Some Data
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'purple', category_created_at = NOW()");
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'brown', category_created_at = NOW()");
 
-    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_created_at = NOW()");
+  mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue', calendar_created_at = NOW()");
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue', category_created_at = NOW()");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red', category_created_at = NOW()");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Advertising', category_type = 'Expense', category_color = 'green', category_created_at = NOW()");
+  $_SESSION['alert_message'] = "Database successfully added";
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Service', category_type = 'Income', category_color = 'orange', category_created_at = NOW()");
-
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'purple', category_created_at = NOW()");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'brown', category_created_at = NOW()");
-
-    mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue', calendar_created_at = NOW()");
+  header("Location: setup.php?user");
 
 }
 
 if(isset($_POST['add_user'])){
 
-    include("config.php");
+  include("config.php");
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
@@ -100,23 +96,25 @@ if(isset($_POST['add_user'])){
 
     $_SESSION['alert_message'] = "User added";
 
+    header("Location: setup.php?company");
+
 }
 
 if(isset($_POST['add_company_settings'])){
 
-    include("config.php");
+  include("config.php");
 
-    $config_company_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_name']));
-    $config_company_address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_address']));
-    $config_company_city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_city']));
-    $config_company_state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_state']));
-    $config_company_zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_zip']));
-    $config_company_phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_phone']));
-    $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
-   
-    mysqli_query($mysqli,"INSERT INTO settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site', config_start_page = 'dashboard.php'");
+  $config_company_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_name']));
+  $config_company_address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_address']));
+  $config_company_city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_city']));
+  $config_company_state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_state']));
+  $config_company_zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_zip']));
+  $config_company_phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_phone']));
+  $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
+ 
+  mysqli_query($mysqli,"INSERT INTO settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site', config_start_page = 'dashboard.php'");
 
-    header("login.php");
+  header("Location: login.php");
 
 }
 
@@ -192,7 +190,7 @@ if(isset($_POST['add_company_settings'])){
     <div id="content-wrapper">
       
       <div class="container">
-        
+        <?php include("config.php"); ?>
         <?php if(isset($_GET['database'])){ ?>
     
           <div class="card mb-3">
@@ -203,17 +201,17 @@ if(isset($_POST['add_company_settings'])){
               <form class="p-3" method="post" autocomplete="off">
                 
                 <div class="form-group">
-                  <label>MySQL Host</label>
+                  <label>Database Name</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-server"></i></span>
+                      <span class="input-group-text"><i class="fa fa-database"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="host" placeholder="Usually localhost" required>
+                    <input type="text" class="form-control" name="database" placeholder="Name of the database" required>
                   </div>
                 </div>
 
                 <div class="form-group">
-                  <label>MySQL Username</label>
+                  <label>Username</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-user"></i></span>
@@ -223,7 +221,7 @@ if(isset($_POST['add_company_settings'])){
                 </div>
 
                 <div class="form-group">
-                  <label>MySQL Password</label>
+                  <label>Password</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-lock"></i></span>
@@ -231,16 +229,17 @@ if(isset($_POST['add_company_settings'])){
                     <input type="password" class="form-control" name="password" placeholder="Enter the password" required>
                   </div>
                 </div>
-                
+
                 <div class="form-group mb-5">
-                  <label>MySQL Database Name</label>
+                  <label>Database Host</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-database"></i></span>
+                      <span class="input-group-text"><i class="fa fa-server"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="database" placeholder="Name of the database" required>
+                    <input type="text" class="form-control" name="host" placeholder="Usually localhost" required>
                   </div>
                 </div>
+
                 <hr>
                 <button type="submit" name="add_database" class="btn btn-primary">Save</button>
               </form>
@@ -297,8 +296,6 @@ if(isset($_POST['add_company_settings'])){
           </div>
 
         <?php }elseif(isset($_GET['company'])){ ?>
-
-          <?php include("config.php"); ?>
 
           <div class="card mb-3">
             <div class="card-header">
@@ -378,7 +375,7 @@ if(isset($_POST['add_company_settings'])){
 
           <div class="card mb-3">
             <div class="card-header">
-              <h6 class="mt-1"><i class="fa fa-database"></i> Start Install</h6>
+              <h6 class="mt-1"><i class="fa fa-database"></i> Start Install <?php echo $database; ?></h6>
             </div>
             <div class="card-body">
               <p>Click on the install button to start the install process, you must create a database before starting</p>

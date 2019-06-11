@@ -1,12 +1,12 @@
 <?php
-	//DB Settings
 
-	$dbhost = "localhost";
-	$dbusername = "root";
-	$dbpassword = "password";
-	$database = "pittpc";
+$dbhost = "localhost";
+$dbusername = "root";
+$dbpassword = "password";
+$database="test";
 
-	$mysqli = mysqli_connect($dbhost, $dbusername, $dbpassword, $database);
-	
-	include("get_settings.php");
+$mysqli = mysqli_connect($dbhost, $dbusername, $dbpassword, $database);
+
+include("get_settings.php");
+
 ?>
