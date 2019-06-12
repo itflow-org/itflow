@@ -39,14 +39,6 @@
       Invoice
     </a> 
   </li>
-
-  <li class="nav-item">
-    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-logo.php") { echo "active"; } ?>" 
-      href="settings-logo.php">
-      <i class="fa fa-fw fa-2x fa-image"></i><br>
-      Logo
-    </a> 
-  </li>
  
   <li class="nav-item">
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-backup.php") { echo "active"; } ?>" 

@@ -198,7 +198,7 @@ if(isset($_POST['add_company_settings'])){
     
           <div class="card mb-3">
             <div class="card-header">
-              <h6 class="mt-1"><i class="fa fa-database"></i> Setup Database</h6>
+              <h6 class="mt-1"><i class="fa fa-fw fa-database"></i> Setup Database</h6>
             </div>
             <div class="card-body">
               <form class="p-3" method="post" autocomplete="off">
@@ -207,7 +207,7 @@ if(isset($_POST['add_company_settings'])){
                   <label>Database Name</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-database"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-database"></i></span>
                     </div>
                     <input type="text" class="form-control" name="database" placeholder="Name of the database" required>
                   </div>
@@ -217,7 +217,7 @@ if(isset($_POST['add_company_settings'])){
                   <label>Username</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-user"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                     </div>
                     <input type="text" class="form-control" name="username" placeholder="Username to access the database" required>
                   </div>
@@ -227,7 +227,7 @@ if(isset($_POST['add_company_settings'])){
                   <label>Password</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                     </div>
                     <input type="password" class="form-control" name="password" placeholder="Enter the password" required>
                   </div>
@@ -237,7 +237,7 @@ if(isset($_POST['add_company_settings'])){
                   <label>Database Host</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-server"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                     </div>
                     <input type="text" class="form-control" name="host" placeholder="Usually localhost" required>
                   </div>
@@ -254,7 +254,7 @@ if(isset($_POST['add_company_settings'])){
 
           <div class="card mb-3">
             <div class="card-header">
-              <h6 class="mt-1"><i class="fa fa-user"></i> Create your first user</h6>
+              <h6 class="mt-1"><i class="fa fa-fw fa-user"></i> Create your first user</h6>
             </div>
             <div class="card-body">
         
@@ -263,7 +263,7 @@ if(isset($_POST['add_company_settings'])){
                   <label>Name</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-user"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                     </div>
                     <input type="text" class="form-control" name="name" placeholder="Full Name" required>
                   </div>
@@ -273,7 +273,7 @@ if(isset($_POST['add_company_settings'])){
                   <label>Email</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                     </div>
                     <input type="email" class="form-control" name="email" placeholder="Email Address" required>
                   </div>
@@ -283,7 +283,7 @@ if(isset($_POST['add_company_settings'])){
                   <label>Password</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                     </div>
                     <input type="password" class="form-control" name="password" placeholder="Enter a Password" required>
                   </div>
@@ -302,7 +302,7 @@ if(isset($_POST['add_company_settings'])){
 
           <div class="card mb-3">
             <div class="card-header">
-              <h6 class="mt-1"><i class="fa fa-building"></i> Company Settings</h6>
+              <h6 class="mt-1"><i class="fa fa-fw fa-building"></i> Company Settings</h6>
             </div>
             <div class="card-body">
               <form class="p-3" method="post"  autocomplete="off">
@@ -310,7 +310,7 @@ if(isset($_POST['add_company_settings'])){
                   <label>Company Name</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-building"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                     </div>
                     <input type="text" class="form-control" name="config_company_name" placeholder="Company Name" required>  
                   </div>
@@ -320,7 +320,7 @@ if(isset($_POST['add_company_settings'])){
                   <label>Address</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-map-marker"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                     </div>
                     <input type="text" class="form-control" name="config_company_address" placeholder="Street Address">
                   </div>
@@ -328,29 +328,44 @@ if(isset($_POST['add_company_settings'])){
 
                 <div class="form-group">
                   <label>City</label>
-                  <input type="text" class="form-control" name="config_company_city" placeholder="City">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
+                    </div>
+                    <input type="text" class="form-control" name="config_company_city" placeholder="City">
+                  </div>
                 </div>
 
                 <div class="form-group">
                   <label>State</label>
-                  <select class="form-control selectpicker show-tick" data-live-search="true" name="config_company_state">
-                    <option value="">Select a state...</option>
-                      <?php foreach($states_array as $state_abbr => $state_name) { ?>
-                      <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
-                      <?php } ?>
-                  </select>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                    </div>
+                    <select class="form-control selectpicker show-tick" data-live-search="true" name="config_company_state">
+                      <option value="">Select a state...</option>
+                        <?php foreach($states_array as $state_abbr => $state_name) { ?>
+                        <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
+                        <?php } ?>
+                    </select>
+                  </div>
                 </div>
 
                 <div class="form-group">
                   <label>Zip</label>
-                  <input type="text" class="form-control" name="config_company_zip" placeholder="Zip Code">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
+                    </div>
+                    <input type="text" class="form-control" name="config_company_zip" placeholder="Zip Code">
+                  </div>
                 </div>
 
                 <div class="form-group">
                   <label>Phone</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-phone"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                     </div>
                     <input type="text" class="form-control" name="config_company_phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'"> 
                   </div>
@@ -360,7 +375,7 @@ if(isset($_POST['add_company_settings'])){
                   <label>Website</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-globe"></i></span>
+                      <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                     </div>
                     <input type="text" class="form-control" name="config_company_site" placeholder="Website address https://">
                   </div>
@@ -378,7 +393,7 @@ if(isset($_POST['add_company_settings'])){
 
           <div class="card mb-3">
             <div class="card-header">
-              <h6 class="mt-1"><i class="fa fa-download"></i> Start Install <?php echo $database; ?></h6>
+              <h6 class="mt-1"><i class="fa fa-fw fa-download"></i> Start Install <?php echo $database; ?></h6>
             </div>
             <div class="card-body">
               <p>Click on the install button to start the install process, you must create a database before proceeding</p>

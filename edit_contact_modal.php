@@ -9,6 +9,7 @@
       </div>
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
+        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <input type="hidden" name="current_avatar_path" value="<?php echo $contact_photo; ?>">
         <div class="modal-body bg-white">    
           <center>

@@ -7,7 +7,7 @@
     <h6 class="float-left mt-1"><i class="fa fa-fw fa-file mr-2"></i>Invoice Settings</h6>
   </div>
   <div class="card-body">
-    <form class="p-3" action="post.php" method="post" autocomplete="off"> 
+    <form class="p-3" action="post.php" method="post" autocomplete="off">
       
       <div class="form-group">
         <label>Invoice Prefix</label>
@@ -19,7 +19,6 @@
         </div>
       </div>
 
-
       <div class="form-group">
         <label>Next Number</label>
         <div class="input-group">
@@ -29,6 +28,13 @@
           <input type="text" class="form-control" name="config_next_invoice_number" placeholder="Next Invoice Number" value="<?php echo $config_next_invoice_number; ?>" required>
         </div>
       </div>
+
+      <div class="custom-control custom-switch mb-2">
+        <input type="checkbox" class="custom-control-input" name="config_send_invoice_reminders" <?php if($config_send_invoice_reminders == 1){ echo "checked"; } ?> value="1" id="customSwitch1">
+        <label class="custom-control-label" for="customSwitch1">Send Invoice Reminders</label>
+      </div>
+
+      <?php if($config_send_invoice_reminders == 1){ ?>
 
       <div class="form-group">
         <label>Overdue Reminders</label>
@@ -59,6 +65,8 @@
           <input type="text" class="form-control" name="config_mail_from_name" placeholder="Name" value="<?php echo $config_mail_from_name; ?>">
         </div>
       </div>
+
+      <?php } ?>
 
       <div class="form-group">
         <label>Invoice Footer</label>

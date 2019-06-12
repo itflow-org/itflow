@@ -21,7 +21,19 @@ if(isset($_POST['edit_general_settings'])){
     $config_account_balance_threshold = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_account_balance_threshold']));
     $config_api_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold', config_api_key = '$config_api_key'");
+    $path = "$config_invoice_logo";
+
+    if($_FILES['file']['tmp_name']!='') {
+        //delete old avatar file
+        unlink($path);
+        //Update with new path
+        $path = "uploads/settings/";
+        $path = $path . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);   
+    }
+
+    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold', config_invoice_logo = '$path', config_api_key = '$config_api_key'");
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -66,27 +78,15 @@ if(isset($_POST['edit_invoice_settings'])){
     $config_mail_from_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name']));
     $config_invoice_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer']));
     $config_quote_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_footer']));
+    $config_send_invoice_reminders = $_POST['config_send_invoice_reminders'];
+    if($config_send_invoice_reminders == 1){
+        $config_send_invoice_reminders = 1;
+    }else{
+        $config_send_invoice_reminders = 0;
+    }
     $config_invoice_overdue_reminders = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_overdue_reminders']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_next_invoice_number = $config_next_invoice_number, config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_quote_footer = '$config_quote_footer'");
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_POST['edit_logo_settings'])){
-
-    if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/settings";
-        $path = $path . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);
-        $ext = pathinfo($path);
-        $ext = $ext['extension'];
-
-        mysqli_query($mysqli,"UPDATE settings SET config_invoice_logo = '$path'");
-
-    } 
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_next_invoice_number = $config_next_invoice_number, config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_quote_footer = '$config_quote_footer'");
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -1238,7 +1238,7 @@ if(isset($_GET['pdf_quote'])){
     <!--mpdf
     <htmlpageheader name="myheader">
     <table width="100%"><tr>
-    <td width="15%"><img width="75" height="75" src=" '.$config_invoice_logo.' "></img></td>
+    <td width="15%"><img width="75" height="75" src=" /'.$config_invoice_logo.' "></img></td>
     <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$config_company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
     <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> QUO-'.$quote_number.' </span></td>
     </tr></table>
@@ -2032,7 +2032,7 @@ if(isset($_GET['pdf_invoice'])){
         <!--mpdf
         <htmlpageheader name="myheader">
         <table width="100%"><tr>
-        <td width="15%"><img width="75" height="75" src=" '.$config_invoice_logo.' "></img></td>
+        <td width="15%"><img width="75" height="75" src=" /'.$config_invoice_logo.' "></img></td>
         <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$config_company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
         <td width="35%" style="text-align: right;">Invoice No.<br /><span style="font-weight: bold; font-size: 12pt;"> INV-'.$invoice_number.' </span></td>
         </tr></table>
@@ -2145,6 +2145,7 @@ if(isset($_POST['add_contact'])){
 if(isset($_POST['edit_contact'])){
 
     $contact_id = intval($_POST['contact_id']);
+    $client_id = intval($_POST['client_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
     $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));

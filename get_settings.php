@@ -27,6 +27,7 @@ $config_smtp_port = $row['config_smtp_port'];
 $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
 $config_account_balance_threshold = $row['config_account_balance_threshold'];
+$config_send_invoice_reminders = $row['config_send_invoice_reminders'];
 $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
 $config_invoice_prefix = $row['config_invoice_prefix'];
 
