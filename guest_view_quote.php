@@ -41,7 +41,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
   if(mysqli_num_rows($sql) == 1){
 
     //Mark viewed in history
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$quote_status', history_description = 'Quote viewed', quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$quote_status', history_description = 'Quote viewed', history_created_at = NOW(), quote_id = $quote_id");
 
     //Set Badge color based off of quote status
     if($quote_status == "Sent"){

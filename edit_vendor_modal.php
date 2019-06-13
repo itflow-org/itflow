@@ -113,6 +113,16 @@
             <div class="tab-pane fade" id="pills-contact<?php echo $vendor_id; ?>" role="tabpanel" aria-labelledby="pills-contact-tab<?php echo $vendor_id; ?>">
 
               <div class="form-group">
+                <label>Contact Name</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="contact_name" value="<?php echo $vendor_contact_name; ?>" placeholder="Vendor contact name">
+                </div>
+              </div>
+
+              <div class="form-group">
                 <label>Phone</label>
                 <div class="input-group">
                   <div class="input-group-prepend">

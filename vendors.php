@@ -31,6 +31,7 @@
             $vendor_city = $row['vendor_city'];
             $vendor_state = $row['vendor_state'];
             $vendor_zip = $row['vendor_zip'];
+            $vendor_contact_name = $row['vendor_contact_name'];
             $vendor_phone = $row['vendor_phone'];
             if(strlen($vendor_phone)>2){ 
               $vendor_phone = substr($row['vendor_phone'],0,3)."-".substr($row['vendor_phone'],3,3)."-".substr($row['vendor_phone'],6,4);
@@ -38,7 +39,6 @@
             $vendor_email = $row['vendor_email'];
             $vendor_website = $row['vendor_website'];
 
-      
           ?>
           <tr>
             <td><?php echo $vendor_name; ?></td>

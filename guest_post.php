@@ -42,7 +42,7 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
     if(mysqli_num_rows($sql) == 1){
 
         //Mark downloaded in history
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice downloaded', invoice_id = $invoice_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice downloaded', history_created_at = NOW(), invoice_id = $invoice_id");
 
         $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
@@ -122,7 +122,7 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
             <!--mpdf
             <htmlpageheader name="myheader">
             <table width="100%"><tr>
-            <td width="15%"><img width="75" height="75" src=" '.$config_invoice_logo.' "></img></td>
+            <td width="15%"><img width="75" height="75" src=" /'.$config_invoice_logo.' "></img></td>
             <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$config_company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
             <td width="35%" style="text-align: right;">Invoice No.<br /><span style="font-weight: bold; font-size: 12pt;"> INV-'.$invoice_number.' </span></td>
             </tr></table>
@@ -315,7 +315,7 @@ if(isset($_GET['pdf_quote'], $_GET['url_key'])){
         <!--mpdf
         <htmlpageheader name="myheader">
         <table width="100%"><tr>
-        <td width="15%"><img width="75" height="75" src=" '.$config_invoice_logo.' "></img></td>
+        <td width="15%"><img width="75" height="75" src=" /'.$config_invoice_logo.' "></img></td>
         <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$config_company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
         <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> QUO-'.$quote_number.' </span></td>
         </tr></table>
@@ -407,7 +407,7 @@ if(isset($_GET['approve_quote'], $_GET['url_key'])){
 
         mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Approved' WHERE quote_id = $quote_id");
 
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Approved', history_description = 'Client approved Quote!', quote_id = $quote_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Approved', history_description = 'Client approved Quote!', history_created_at = NOW(), quote_id = $quote_id");
 
         $_SESSION['alert_message'] = "Quote approved";
         
@@ -432,7 +432,7 @@ if(isset($_GET['reject_quote'], $_GET['url_key'])){
 
         mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Rejected' WHERE quote_id = $quote_id");
 
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Rejected', history_description = 'Client rejected Quote!', quote_id = $quote_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Rejected', history_description = 'Client rejected Quote!', history_created_at = NOW(), quote_id = $quote_id");
 
         $_SESSION['alert_message'] = "Quote rejected";
         

@@ -42,7 +42,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
   if(mysqli_num_rows($sql) == 1){
   
     //Mark viewed in history
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed', invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed', history_created_at = NOW(), invoice_id = $invoice_id");
 
 
     $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
