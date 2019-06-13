@@ -26,7 +26,8 @@
             $network = $row['network'];
             $network_gateway = $row['network_gateway'];
             $network_dhcp_range = $row['network_dhcp_range'];
-
+            $network_dhcp_range = $row['network_dhcp_range'];
+            $location_id = $row['location_id'];
       
           ?>
           <tr>

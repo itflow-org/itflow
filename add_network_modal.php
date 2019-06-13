@@ -49,6 +49,31 @@
               <input type="text" class="form-control" name="dhcp_range" placeholder="ex 192.168.1.11-199">
             </div>
           </div>
+
+          <div class="form-group">
+            <label>Location</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+              </div>
+              <select class="form-control selectpicker show-tick" data-live-search="true" name="location">
+                <option value="">- Location -</option>
+                <?php 
+                
+                $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE client_id = $client_id"); 
+                while($row = mysqli_fetch_array($sql)){
+                  $location_id = $row['location_id'];
+                  $location_name = $row['location_name'];
+                ?>
+                <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                
+                <?php
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

@@ -9,14 +9,16 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
-
+          <?php if(isset($_GET['client_id'])){ ?>
+            <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+          <?php }else{ ?>
           <div class="form-group">
             <label>Client</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
               </div>
-              <select class="form-control selectpicker show-tick" data-live-search="true" name="client" required <?php if(isset($_GET['client_id'])){ echo "disabled"; } ?>>
+              <select class="form-control selectpicker show-tick" data-live-search="true" name="client" required>
                 <option value="">- Client -</option>
                 <?php 
                 
@@ -33,6 +35,7 @@
               </select>
             </div>
           </div>
+          <?php } ?>
           
           <div class="form-group">
             <label>Subject</label>

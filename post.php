@@ -2449,8 +2449,9 @@ if(isset($_POST['add_network'])){
     $network = strip_tags(mysqli_real_escape_string($mysqli,$_POST['network']));
     $gateway = strip_tags(mysqli_real_escape_string($mysqli,$_POST['gateway']));
     $dhcp_range = strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range']));
+    $location_id = intval($_POST['location']);
 
-    mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_created_at = NOW(), location_id = $location_id, client_id = $client_id");
 
     $_SESSION['alert_message'] = "Network added";
     
@@ -2465,8 +2466,9 @@ if(isset($_POST['edit_network'])){
     $network = strip_tags(mysqli_real_escape_string($mysqli,$_POST['network']));
     $gateway = strip_tags(mysqli_real_escape_string($mysqli,$_POST['gateway']));
     $dhcp_range = strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range']));
+    $location_id = intval($_POST['location']);
 
-    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_updated_at = NOW() WHERE network_id = $network_id");
+    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_updated_at = NOW(), location_id = $location_id WHERE network_id = $network_id");
 
     $_SESSION['alert_message'] = "Network updated";
     
