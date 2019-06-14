@@ -9,7 +9,7 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
-        <input type="hidden" name="client_net_terms" value="<?php echo $client_net_terms; ?>">
+        
         <div class="modal-body bg-white">
 
           <div class="form-group">

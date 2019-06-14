@@ -2,7 +2,6 @@
 
 <?php $sql = mysqli_query($mysqli,"SELECT * FROM trips ORDER BY trip_id DESC"); ?>
 
-
 <div class="card mb-3">
   <div class="card-header">
     <h6 class="float-left mt-1"><i class="fa fa-fw fa-bicycle mr-2"></i>Trips</h6>
@@ -31,6 +30,10 @@
             $trip_starting_location = $row['trip_starting_location'];
             $trip_destination = $row['trip_destination'];
             $trip_miles = $row['trip_miles'];
+            $client_id = $row['client_id'];
+            $invoice_id = $row['invoice_id'];
+            $location_id = $row['location_id'];
+            $vendor_id = $row['vendor_id'];
 
           ?>
           <tr>
@@ -45,11 +48,14 @@
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $mileage_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="//maps.google.com?q=<?php echo $trip_starting_location; ?> to <?php echo $trip_destination; ?>" target="_blank">Map it</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTripCopyModal<?php echo $trip_id; ?>">Copy</a>
                   <a class="dropdown-item" href="post.php?delete_trip=<?php echo $trip_id; ?>">Delete</a>
                 </div>
               </div>
-              <?php include("edit_trip_modal.php"); ?>      
+              <?php include("edit_trip_modal.php"); ?>
+              <?php include("add_trip_copy_modal.php"); ?>
             </td>
           </tr>
 

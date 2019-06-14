@@ -509,8 +509,12 @@ if(isset($_POST['edit_trip'])){
     $destination = strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination']));
     $miles = intval($_POST['miles']);
     $purpose = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose']));
+    $client_id = intval($_POST['client']);
+    $invoice_id = intval($_POST['invoice']);
+    $location_id = intval($_POST['location']);
+    $vendor_id = intval($_POST['vendor']);
 
-    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose' trip_updated_at = NOW() WHERE trip_id = $trip_id");
+    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', trip_updated_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id WHERE trip_id = $trip_id");
 
     $_SESSION['alert_message'] = "Trip modified";
     
@@ -775,9 +779,13 @@ if(isset($_GET['delete_transfer'])){
 if(isset($_POST['add_invoice'])){
     $client = intval($_POST['client']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $client_net_terms = intval($_POST['client_net_terms']);
     $category = intval($_POST['category']);
     
+    //Get Net Terms
+    $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients WHERE client_id = $client"); 
+    $row = mysqli_fetch_array($sql);
+    $client_net_terms = $row['client_net_terms'];
+
     //Get the last Invoice Number and add 1 for the new invoice number
     $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
     $row = mysqli_fetch_array($sql);
@@ -786,7 +794,7 @@ if(isset($_POST['add_invoice'])){
     //Generate a unique URL key for clients to access
     $url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client");
     $invoice_id = mysqli_insert_id($mysqli);
     
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', history_created_at = NOW(), invoice_id = $invoice_id");
@@ -814,8 +822,12 @@ if(isset($_POST['add_invoice_copy'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $client_net_terms = intval($_POST['client_net_terms']);
-    
+
+    //Get Net Terms
+    $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients, invoices WHERE clients.client_id = invoices.client_id AND invoices.invoice_id = $invoice_id");
+    $row = mysqli_fetch_array($sql);
+    $client_net_terms = $row['client_net_terms'];
+
     //Get the last Invoice Number and add 1 for the new invoice number
     $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
     $row = mysqli_fetch_array($sql);
@@ -828,7 +840,7 @@ if(isset($_POST['add_invoice_copy'])){
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', invoice_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', invoice_created_at = NOW(), client_id = $client_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 

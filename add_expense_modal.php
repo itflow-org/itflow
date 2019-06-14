@@ -19,6 +19,7 @@
                 <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
               </div>
             </div>
+
             <div class="form-group col-md">
               <label>Amount</label>
               <div class="input-group">
@@ -28,6 +29,10 @@
                 <input type="number" class="form-control" step="0.01" name="amount" placeholder="Enter amount" autofocus required>
               </div>
             </div>
+
+          </div>
+
+          <div class="form-row">
             <div class="form-group col-md">
               <label>Account</label>
               <div class="input-group">
@@ -63,8 +68,7 @@
                 </select>
               </div>
             </div>
-          </div>
-          <div class="form-row">
+
             <div class="form-group col-md">
               <label>Vendor</label>
               <div class="input-group">
@@ -88,6 +92,15 @@
                 </select>
               </div>
             </div>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" rows="4" name="description" required></textarea>
+          </div>
+          
+          <div class="form-row">
+
             <div class="form-group col-md">
               <label>Category</label>
               <div class="input-group">
@@ -111,20 +124,19 @@
                 </select>
               </div>
             </div>
-          </div>
-          <div class="form-group">
-            <label>Description</label>
-            <textarea class="form-control" rows="4" name="description" required></textarea>
-          </div>
-          <div class="form-group">
-            <label>Reference</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+
+            <div class="form-group col-md">
+              <label>Reference</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+                </div>
+                <input type="text" class="form-control" name="reference" placeholder="Enter a reference">
               </div>
-              <input type="text" class="form-control" name="reference" placeholder="Enter a reference">
             </div>
+
           </div>
+
           <div class="form-group">
             <label>Receipt</label>
             <input type="file" class="form-control-file" name="file">

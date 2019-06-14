@@ -8,7 +8,6 @@
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-        <input type="hidden" name="client_net_terms" value="<?php echo $client_net_terms; ?>">
         
         <div class="modal-body bg-white">
           <?php if(isset($_GET['client_id'])){ ?>

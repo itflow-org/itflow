@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-edit"></i></h5>
+        <h5 class="modal-title text-white"><i class="fa fa-fw fa-edit mr-2"></i>Edit Expense</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -11,7 +11,9 @@
         <div class="modal-body bg-white">
           <input type="hidden" name="expense_id" value="<?php echo $expense_id; ?>">
           <input type="hidden" name="expense_receipt" value="<?php echo $expense_receipt; ?>">
+          
           <div class="form-row"> 
+            
             <div class="form-group col-md">
               <label>Date</label>
               <div class="input-group">
@@ -21,6 +23,7 @@
                 <input type="date" class="form-control" name="date" value="<?php echo $expense_date; ?>" required>
               </div>
             </div>
+            
             <div class="form-group col-md">
               <label>Amount</label>
               <div class="input-group">
@@ -30,6 +33,10 @@
                 <input type="number" class="form-control" step="0.01" name="amount" value="<?php echo $expense_amount; ?>" required>
               </div>
             </div>
+
+          </div>
+          
+          <div class="form-row">
             <div class="form-group col-md">
               <label>Account</label>
               <div class="input-group">
@@ -39,23 +46,23 @@
                 <select class="form-control selectpicker show-tick" name="account" required>
                   <?php 
                   
-                  $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts"); 
-                  while($row = mysqli_fetch_array($sql2)){
-                    $account_id2 = $row['account_id'];
-                    $account_name = $row['account_name'];
+                  $sql_select = mysqli_query($mysqli,"SELECT * FROM accounts"); 
+                  while($row = mysqli_fetch_array($sql_select)){
+                    $account_id_select = $row['account_id'];
+                    $account_name_select = $row['account_name'];
                     $opening_balance = $row['opening_balance'];      
 
-                    $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id2");
+                    $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id_select");
                     $row = mysqli_fetch_array($sql_payments);
                     $total_payments = $row['total_payments'];
                     
-                    $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id2");
+                    $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id_select");
                     $row = mysqli_fetch_array($sql_expenses);
                     $total_expenses = $row['total_expenses'];
 
                     $balance = $opening_balance + $total_payments - $total_expenses;
                   ?>
-                  <option <?php if($account_id == $account_id2){ ?> selected <?php } ?> value="<?php echo $account_id2; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                  <option <?php if($account_id == $account_id_select){ ?> selected <?php } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance,2); ?>]</option>
                   <?php
                   }
                   
@@ -63,8 +70,7 @@
                 </select>
               </div>
             </div>
-          </div>
-          <div class="form-row">
+
             <div class="form-group col-md">
               <label>Vendor</label>
               <div class="input-group">
@@ -74,12 +80,12 @@
                 <select class="form-control selectpicker show-tick" data-live-search="true" name="vendor" required>
                   <?php 
                   
-                  $sql2 = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 ORDER BY vendor_name ASC"); 
-                  while($row = mysqli_fetch_array($sql2)){
-                    $vendor_id2 = $row['vendor_id'];
-                    $vendor_name = $row['vendor_name'];
+                  $sql_select = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 ORDER BY vendor_name ASC"); 
+                  while($row = mysqli_fetch_array($sql_select)){
+                    $vendor_id_select = $row['vendor_id'];
+                    $vendor_name_select = $row['vendor_name'];
                   ?>
-                  <option <?php if($vendor_id == $vendor_id2){ ?> selected <?php } ?> value="<?php echo $vendor_id2; ?>"><?php echo $vendor_name; ?></option>
+                  <option <?php if($vendor_id == $vendor_id_select){ ?> selected <?php } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
                   <?php
                   }
                   
@@ -87,6 +93,16 @@
                 </select>
               </div>
             </div>
+            
+          </div>
+            
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" rows="4" name="description" required><?php echo $expense_description; ?></textarea>
+          </div>
+          
+          <div class="form-row">
+
             <div class="form-group col-md">
               <label>Category</label>
               <div class="input-group">
@@ -96,12 +112,12 @@
                 <select class="form-control selectpicker show-tick" name="category" required>
                   <?php 
                   
-                  $sql2 = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense'"); 
-                  while($row = mysqli_fetch_array($sql2)){
-                    $category_id2 = $row['category_id'];
-                    $category_name = $row['category_name'];
+                  $sql_select = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense'"); 
+                  while($row = mysqli_fetch_array($sql_select)){
+                    $category_id_select = $row['category_id'];
+                    $category_name_select = $row['category_name'];
                   ?>
-                  <option <?php if($category_id == $category_id2){ ?> selected <?php } ?> value="<?php echo $category_id2; ?>"><?php echo $category_name; ?></option>
+                  <option <?php if($category_id == $category_id_select){ ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
                   <?php
                   }
                   
@@ -109,24 +125,24 @@
                 </select>
               </div>
             </div>
-          </div>
-          <div class="form-group">
-            <label>Description</label>
-            <textarea class="form-control" rows="4" name="description" required><?php echo $expense_description; ?></textarea>
-          </div>
-          <div class="form-group">
-            <label>Reference</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+
+            <div class="form-group col-md">
+              <label>Reference</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+                </div>
+                <input type="text" class="form-control" name="reference" placeholder="Enter a reference" value="<?php echo $expense_reference; ?>">
               </div>
-              <input type="text" class="form-control" name="reference" placeholder="Enter a reference" value="<?php echo $expense_reference; ?>">
             </div>
+          
           </div>
+
           <div class="form-group">
             <label>Receipt</label>
             <input type="file" class="form-control-file" name="file">
           </div>
+        
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
