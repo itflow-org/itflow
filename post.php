@@ -2253,14 +2253,16 @@ if(isset($_POST['add_asset'])){
     $make = strip_tags(mysqli_real_escape_string($mysqli,$_POST['make']));
     $model = strip_tags(mysqli_real_escape_string($mysqli,$_POST['model']));
     $serial = strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial']));
+    $ip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['ip']));
     $location = intval($_POST['location']);
     $vendor = intval($_POST['vendor']);
     $contact = intval($_POST['contact']);
+    $network = intval($_POST['network']);
     $purchase_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date']));
     $warranty_expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire']));
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
 
-    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_note = '$note', asset_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_ip = '$ip', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_note = '$note', asset_created_at = NOW(), network_id = $network, client_id = $client_id");
 
     if(!empty($_POST['username'])) {
         $asset_id = mysqli_insert_id($mysqli);
@@ -2287,9 +2289,11 @@ if(isset($_POST['edit_asset'])){
     $make = strip_tags(mysqli_real_escape_string($mysqli,$_POST['make']));
     $model = strip_tags(mysqli_real_escape_string($mysqli,$_POST['model']));
     $serial = strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial']));
+    $ip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['ip']));
     $location = intval($_POST['location']);
     $vendor = intval($_POST['vendor']);
     $contact = intval($_POST['contact']);
+    $network = intval($_POST['network']);
     $purchase_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date']));
     $warranty_expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire']));
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
@@ -2297,7 +2301,7 @@ if(isset($_POST['edit_asset'])){
     $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
     $description = "$type - $name";
 
-    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_note = '$note', asset_updated_at = NOW() WHERE asset_id = $asset_id");
+    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_ip = '$ip', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_note = '$note', asset_updated_at = NOW(), network_id = $network WHERE asset_id = $asset_id");
 
     //If login exists then update the login
     if($login_id > 0){

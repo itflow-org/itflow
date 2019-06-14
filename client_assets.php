@@ -13,6 +13,7 @@
           <tr>
             <th>Type</th>
             <th>Name</th>
+            <th>IP</th>
             <th>Make</th>
             <th>Model</th>
             <th>Serial</th>
@@ -29,11 +30,13 @@
             $asset_make = $row['asset_make'];
             $asset_model = $row['asset_model'];
             $asset_serial = $row['asset_serial'];
+            $asset_ip = $row['asset_ip'];
             $asset_purchase_date = $row['asset_purchase_date'];
             $asset_warranty_expire = $row['asset_warranty_expire'];
             $vendor_id = $row['vendor_id'];
             $location_id = $row['location_id'];
             $contact_id = $row['contact_id'];
+            $network_id = $row['network_id'];
 
             if($asset_type == 'Laptop'){
               $device_icon = "laptop";
@@ -116,6 +119,7 @@
               ?>
               
             </td>
+            <td><?php echo $asset_ip; ?></td>
             <td><?php echo $asset_make; ?></td>
             <td><?php echo $asset_model; ?></td>
             <td><?php echo $asset_serial; ?></td>

@@ -35,6 +35,8 @@
   <script src='vendor/bootstrap-select/js/bootstrap-select.min.js'></script>
   <script src='vendor/bootstrap-showpassword/bootstrap-show-password.min.js'></script>
   <script src='vendor/daterangepicker/daterangepicker.js'></script>
+  <script src='vendor/Inputmask/dist/inputmask.min.js'></script>
+  <script src='vendor/Inputmask/dist/bindings/inputmask.binding.js'></script>
   
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin.min.js"></script>

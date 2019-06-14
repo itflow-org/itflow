@@ -25,7 +25,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
               </div>
-              <input type="text" class="form-control" name="web_link" placeholder="Please include http://">
+              <input type="url" class="form-control" name="web_link" placeholder="Please include http://">
             </div>
           </div>
           <div class="form-group">

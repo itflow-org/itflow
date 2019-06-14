@@ -10,9 +10,9 @@
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
 
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tabCopy<?php echo $trip_id; ?>" role="tablist">
+          <ul class="nav nav-pills nav-justified mb-3" id="pills-tabCopy<?php echo $trip_id; ?>">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-basic-tabCopy<?php echo $trip_id; ?>" data-toggle="pill" href="#pills-basicCopy<?php echo $trip_id; ?>" role="tab" aria-controls="pills-basic" aria-selected="true">Basic</a>
+              <a class="nav-link active" id="pills-basic-tabCopy<?php echo $trip_id; ?>" data-toggle="pill" href="#pills-basicCopy<?php echo $trip_id; ?>">Basic</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" id="pills-link-tabCopy<?php echo $trip_id; ?>" data-toggle="pill" href="#pills-linkCopy<?php echo $trip_id; ?>" role="tab" aria-controls="pills-link" aria-selected="false">Link</a>
@@ -26,6 +26,7 @@
             <div class="tab-pane fade show active" id="pills-basicCopy<?php echo $trip_id; ?>" role="tabpanel" aria-labelledby="pills-basic-tab">
 
               <div class="form-row">
+                
                 <div class="form-group col">
                   <label>Date</label>
                   <div class="input-group">
@@ -45,6 +46,7 @@
                     <input type="number" class="form-control" name="miles" value="<?php echo $trip_miles; ?>" required>
                   </div>
                 </div>
+              
               </div>
 
               <div class="form-group">
@@ -56,6 +58,7 @@
                   <input type="text" class="form-control" name="starting_location" value="<?php echo $trip_starting_location; ?>" required>
                 </div>
               </div>
+              
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-prepend">
@@ -64,10 +67,12 @@
                   <input type="text" class="form-control" name="destination" value="<?php echo $trip_destination; ?>" required>
                 </div>
               </div>
+              
               <div class="form-group">
                 <label>Purpose</label>
                 <textarea rows="4" class="form-control" name="purpose" required><?php echo $trip_purpose; ?></textarea>
               </div>
+            
             </div>
 
             <div class="tab-pane fade" id="pills-linkCopy<?php echo $trip_id; ?>" role="tabpanel" aria-labelledby="pills-link-tab">
@@ -176,7 +181,7 @@
             </div>
 
           </div>
-          
+
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

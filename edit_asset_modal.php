@@ -140,6 +140,43 @@
                   </select>
                 </div>
               </div>
+
+              <div class="form-group">
+                <label>Network</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
+                  </div>
+                  <select class="form-control selectpicker show-tick" data-live-search="true" name="network">
+                    <option value="">- Network -</option>
+                    <?php 
+                    
+                    $sql = mysqli_query($mysqli,"SELECT * FROM networks WHERE client_id = $client_id"); 
+                    while($row = mysqli_fetch_array($sql)){
+                      $network_id_select = $row['network_id'];
+                      $network_name_select = $row['network_name'];
+                      $network_select = $row['network'];
+
+                    ?>
+                    <option <?php if($network_id == $network_id_select){ echo "selected"; } ?> value="<?php echo $network_id_select; ?>"><?php echo $network_name_select; ?> - <?php echo $network_select; ?></option>
+                    
+                    <?php
+                    }
+                    ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>IP</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="ip" value="<?php echo $asset_ip; ?>" placeholder="IP Address">
+                </div>
+              </div>
+            
             </div>
 
             <div class="tab-pane fade" id="pills-purchase<?php echo $asset_id; ?>" role="tabpanel" aria-labelledby="pills-purchase-tab<?php echo $asset_id; ?>">

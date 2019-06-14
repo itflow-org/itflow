@@ -101,7 +101,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="zip" placeholder="Zip">
+                  <input type="text" class="form-control" name="zip" placeholder="Zip" data-inputmask="'mask': '99999'">
                 </div>
               </div>
             

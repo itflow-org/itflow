@@ -57,7 +57,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
               </div>
-              <input type="text" class="form-control" name="zip" placeholder="Zip" value="<?php echo $location_zip; ?>" required>
+              <input type="text" class="form-control" name="zip" placeholder="Zip" value="<?php echo $location_zip; ?>" required data-inputmask="'mask': '99999'">
             </div>
           </div>
           <div class="form-group">

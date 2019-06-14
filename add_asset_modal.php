@@ -30,7 +30,7 @@
             <div class="tab-pane fade show active" id="pills-basic" role="tabpanel" aria-labelledby="pills-basic-tab">
               
               <div class="form-group">
-                <label>Asset Name</label>
+                <label>Asset Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
@@ -40,7 +40,7 @@
               </div>
               
               <div class="form-group">
-                <label>Asset Type</label>
+                <label>Asset Type <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
@@ -55,7 +55,7 @@
               </div>        
               
               <div class="form-group">
-                <label>Make</label>
+                <label>Make <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
@@ -65,7 +65,7 @@
               </div>
               
               <div class="form-group">
-                <label>Model</label>
+                <label>Model <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
@@ -75,7 +75,7 @@
               </div>
               
               <div class="form-group">
-                <label>Serial Number</label>
+                <label>Serial Number <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
@@ -132,6 +132,42 @@
                     }
                     ?>
                   </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Network</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
+                  </div>
+                  <select class="form-control selectpicker show-tick" data-live-search="true" name="network">
+                    <option value="">- Network -</option>
+                    <?php 
+                    
+                    $sql = mysqli_query($mysqli,"SELECT * FROM networks WHERE client_id = $client_id"); 
+                    while($row = mysqli_fetch_array($sql)){
+                      $network_id = $row['network_id'];
+                      $network_name = $row['network_name'];
+                      $network = $row['network'];
+
+                    ?>
+                    <option value="<?php echo $network_id; ?>"><?php echo $network_name; ?> - <?php echo $network; ?></option>
+                    
+                    <?php
+                    }
+                    ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>IP</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="ip" placeholder="IP Address" data-inputmask="'mask': '999.999.999.999'">
                 </div>
               </div>
             

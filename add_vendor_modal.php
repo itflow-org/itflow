@@ -104,7 +104,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="zip" placeholder="Zip code">
+                  <input type="text" class="form-control" name="zip" placeholder="Zip code" data-inputmask="'mask': '99999'">
                 </div>
               </div>
 
@@ -128,7 +128,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="phone" placeholder="Phone number">
+                  <input type="text" class="form-control" name="phone" placeholder="Phone number" data-inputmask="'mask': '999-999-9999'">
                 </div>
               </div>
               

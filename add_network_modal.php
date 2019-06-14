@@ -26,7 +26,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
               </div>
-              <input type="text" class="form-control" name="network" placeholder="Network ex 192.168.1.0/24" required>
+              <input type="text" class="form-control" name="network" placeholder="Network ex 192.168.1.0/24" required data-inputmask="'mask': '999.999.999.999/99'">
             </div>
           </div>
         
@@ -36,7 +36,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-route"></i></span>
               </div>
-              <input type="text" class="form-control" name="gateway" placeholder="ex 192.168.1.1" required> 
+              <input type="text" class="form-control" name="gateway" placeholder="ex 192.168.1.1" required data-inputmask="'mask': '999.999.999.999'"> 
             </div>
           </div>
 
@@ -46,7 +46,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
               </div>
-              <input type="text" class="form-control" name="dhcp_range" placeholder="ex 192.168.1.11-199">
+              <input type="text" class="form-control" name="dhcp_range" placeholder="ex 192.168.1.11-199" data-inputmask="'mask': '999.999.999.999-999'">
             </div>
           </div>
 

@@ -54,8 +54,14 @@
                   <a class="dropdown-item" href="post.php?delete_trip=<?php echo $trip_id; ?>">Delete</a>
                 </div>
               </div>
-              <?php include("edit_trip_modal.php"); ?>
-              <?php include("add_trip_copy_modal.php"); ?>
+  
+              <?php 
+              
+              include("add_trip_copy_modal.php");
+              include("edit_trip_modal.php");
+
+              ?>
+              
             </td>
           </tr>
 
