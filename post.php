@@ -35,6 +35,8 @@ if(isset($_POST['edit_general_settings'])){
 
     mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold', config_invoice_logo = '$path', config_api_key = '$config_api_key'");
 
+    $_SESSION['alert_message'] = "Settings updated";
+
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
@@ -53,6 +55,8 @@ if(isset($_POST['edit_company_settings'])){
 
     mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site'");
 
+    $_SESSION['alert_message'] = "Company Settings updated";
+
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
@@ -65,6 +69,8 @@ if(isset($_POST['edit_mail_settings'])){
     $config_smtp_password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_password']));
 
     mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password'");
+
+    $_SESSION['alert_message'] = "Mail Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -87,6 +93,8 @@ if(isset($_POST['edit_invoice_settings'])){
     $config_invoice_overdue_reminders = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_overdue_reminders']));
 
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_next_invoice_number = $config_next_invoice_number, config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_quote_footer = '$config_quote_footer'");
+
+    $_SESSION['alert_message'] = "Invoice Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
