@@ -2,8 +2,8 @@
 
 <div class="card mb-3">
   <div class="card-header">
-    <h5 class="float-left mt-2"><i class="fa fa-fw fa-tags mr-2"></i>Tickets</h5>
-    <button type="button" class="btn btn-primary badge-pill float-right" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i></button>
+    <h6 class="float-left mt-2"><i class="fa fa-fw fa-tags mr-2"></i>Tickets</h6>
+    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i></button>
   </div>
   <div class="card-body">
     <div class="table-responsive">
