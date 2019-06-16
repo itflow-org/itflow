@@ -20,7 +20,7 @@
 
   <title><?php echo $config_company_name; ?></title>
 
-  <link href="vendor/easy-markdown-editor/css/easymde.min.css" rel="stylesheet" type="text/css">
+  <link href="vendor/easy-markdown-editor/css/easymde.css" rel="stylesheet" type="text/css">
 
   <!-- Page level plugin CSS-->
   <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet" type="text/css">

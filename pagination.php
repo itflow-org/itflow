@@ -1,4 +1,8 @@
+<?php 
 
+if ($total_found_rows > 10) { 
+
+?>
 
 <ul class="pagination justify-content-end">
 
@@ -53,7 +57,8 @@
 
 <?php
 
-echo "<div class='justify-content-start'><br><b>$record_from to $record_to Records:</b> $total_found_rows</div>";
+}
 
+echo "<div class='justify-content-start'><br><b>Records:</b> $total_found_rows</div>";
 
 ?>

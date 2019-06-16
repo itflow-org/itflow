@@ -54,6 +54,12 @@ $client_types_array = array(
     'Automotive',
     'Retail',
     'Staffing Agency',
+    'Photography',
+    'Restaurant',
+    'Bar',
+    'Real Estate',
+    'Dental',
+    'Farm',
     'Other'
 );
 

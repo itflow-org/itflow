@@ -1,7 +1,7 @@
-<?php include("header.php"); ?>
+<?php include("header.php");
 
-<?php 
 //Rebuild URL
+
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 if(isset($_GET['p'])){
@@ -39,10 +39,6 @@ if(isset($_GET['o'])){
   $disp = "DESC";
 }
 
-?>
-
-<?php 
-
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE client_name LIKE '%$q%' OR client_email LIKE '%$q%' ORDER BY $sb $o LIMIT $record_from, $record_to"); 
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -55,7 +51,7 @@ $total_pages = ceil($total_found_rows / 10);
   <div class="card-header bg-dark text-white">
    
     <h6 class="float-left mt-2"><i class="fa fa-users mr-2"></i>Clients</h6>
-    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-user-plus"></i> New</button>
+    <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-user-plus"></i> New</button>
       
   </div>
   <div class="card-body">
@@ -137,8 +133,10 @@ $total_pages = ceil($total_found_rows / 10);
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
                 </div>
-              </div>
-              <?php include("edit_client_modal.php"); ?>      
+              </div>  
+
+              <?php include("edit_client_modal.php"); ?>
+            
             </td>
           </tr>
 

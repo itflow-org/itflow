@@ -44,55 +44,11 @@
 
   $real_overdue_amount = $total_overdue - $total_overdue_partial;
 
-  //Rebuild URL
 
-  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
-  if(isset($_GET['p'])){
-    $p = intval($_GET['p']);
-    $record_from = (($p)-1)*10;
-    $record_to =  10;
-  }else{
-    $record_from = 0;
-    $record_to = 10;
-    $p = 1;
-  }
-    
-  if(isset($_GET['q'])){
-    $q = $_GET['q'];
-  }else{
-    $q = "";
-  }
-
-  if(!empty($_GET['sb'])){
-    $sb = $_GET['sb'];
-  }else{
-    $sb = "invoice_number";
-  }
-
-  if(isset($_GET['o'])){
-    if($_GET['o'] == 'ASC'){
-      $o = "ASC";
-      $disp = "DESC";
-    }else{
-      $o = "DESC";
-      $disp = "ASC";
-    }
-  }else{
-    $o = "DESC";
-    $disp = "ASC";
-  }
-
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM invoices, clients, categories
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, categories
     WHERE invoices.client_id = clients.client_id
     AND invoices.category_id = categories.category_id
-    AND (invoice_number LIKE '%$q%' OR client_name LIKE '%$q%')
-    ORDER BY $sb $o LIMIT $record_from, $record_to");
-
-  $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-  $total_found_rows = $num_rows[0];
-  $total_pages = ceil($total_found_rows / 10);
-
+    ORDER BY invoices.invoice_number DESC");
 ?>
 
 <div class="row">
@@ -142,32 +98,23 @@
 </div>
 
 <div class="card mb-3">
-  <div class="card-header bg-dark text-white">
+  <div class="card-header">
     <h6 class="float-left mt-2"><i class="fa fa-fw fa-file mr-2"></i>Invoices</h6>
-    <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#addInvoiceModal"><i class="fas fa-fw fa-plus"></i> New</button>
+    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addInvoiceModal"><i class="fas fa-fw fa-plus"></i></button>
   </div>
   <div class="card-body">
-    <form autocomplete="off">
-      <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo $q;} ?>" placeholder="Search Invoices">
-        <div class="input-group-append">
-          <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-        </div>
-      </div>
-    </form>
-    <hr>
     <div class="table-responsive">
-      <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark">
+      <table class="table table-striped table-borderless table-hover" id="dataTable" width="100%" cellspacing="0">
+        <thead class="thead-dark">
           <tr>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_number&o=<?php echo $disp; ?>">Number</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
-            <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_amount&o=<?php echo $disp; ?>">Amount</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_date&o=<?php echo $disp; ?>">Invoice Date</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_due&o=<?php echo $disp; ?>">Due Date</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Category</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_status&o=<?php echo $disp; ?>">Status</a></th>
-            <th class="text-center">Action</th>
+            <th>Number</th>
+            <th>Client</th>
+            <th class="text-right">Amount</th>
+            <th>Invoice Date</th>
+            <th>Due Date</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th class="text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -253,9 +200,6 @@
 
         </tbody>
       </table>
-
-      <?php include("pagination.php"); ?>
-
     </div>
   </div>
 </div>
