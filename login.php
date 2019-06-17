@@ -15,15 +15,14 @@ if(isset($_POST['login'])){
   if(mysqli_num_rows($sql) == 1){
     $row = mysqli_fetch_array($sql);
     $token = $row['token'];
+    $_SESSION['user_id'] = $row['user_id'];
+    $_SESSION['name'] = $row['name'];
+    $_SESSION['client_id'] = $row['client_id'];
+    $client_id = $row['client_id'];
     
     if(empty($token)){
       $_SESSION['logged'] = TRUE;
-      $_SESSION['user_id'] = $row['user_id'];
-      $_SESSION['name'] = $row['name'];
-      $_SESSION['client_id'] = $row['client_id'];
-      $client_id = $row['client_id'];
-      
-
+         
       if($client_id > 0){
         header("Location: client.php?client_id=$client_id");
       }else{
@@ -35,10 +34,6 @@ if(isset($_POST['login'])){
 
       if(TokenAuth6238::verify($token,$current_code)){
         $_SESSION['logged'] = TRUE;
-        $_SESSION['user_id'] = $row['user_id'];
-        $_SESSION['name'] = $row['name'];
-        $_SESSION['client_id'] = $row['client_id'];
-        $client_id = $row['client_id'];
         header("Location: $config_start_page");
       }else{
         $response = "
@@ -108,7 +103,7 @@ if(isset($_POST['login'])){
           <div class="form-group">
             <div class="form-label-group">
               <input type="text" id="inputToken" name="current_code" class="form-control" placeholder="2FA Token if applicable">
-              <label for="inputToken">Token</label>
+              <label for="inputToken">2FA Token</label>
             </div>
           </div>
           <button class="btn btn-primary btn-block" type="submit" name="login">Login</button>

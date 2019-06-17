@@ -115,13 +115,23 @@ if(isset($_POST['edit_invoice_settings'])){
 
 }
 
-if(isset($_POST['settings_2fa'])){
+if(isset($_POST['enable_2fa'])){
 
     $token = mysqli_real_escape_string($mysqli,$_POST['token']);
 
     mysqli_query($mysqli,"UPDATE users SET token = '$token' WHERE user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Updated User Token";
+    $_SESSION['alert_message'] = "2FA Enabled and Token Updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['disable_2fa'])){
+
+    mysqli_query($mysqli,"UPDATE users SET token = '' WHERE user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "2FA Disabled you can now login without an additional code";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
