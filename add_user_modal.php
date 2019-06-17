@@ -8,65 +8,89 @@
         </button>
       </div>
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-        <div class="modal-body bg-white">    
-          
-          <div class="form-group">
-            <label>Assign a User to a Client</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+        <div class="modal-body bg-white">
+
+          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="pills-user-tab" data-toggle="pill" href="#pills-user">User</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="pills-assign-tab" data-toggle="pill" href="#pills-assign">Assign</a>
+            </li>
+          </ul>
+
+          <hr>
+
+          <div class="tab-content" id="pills-tabContent">
+
+            <div class="tab-pane fade show active" id="pills-user">
+
+              <div class="form-group">
+                <label>Name</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="name" placeholder="Full Name" required autofocus>
+                </div>
               </div>
-              <select class="form-control selectpicker show-tick" data-live-search="true" name="client">
-                <option value="0">No Client Assignment</option>
-                <?php 
-                
-                $sql = mysqli_query($mysqli,"SELECT * FROM clients"); 
-                while($row = mysqli_fetch_array($sql)){
-                  $client_id = $row['client_id'];
-                  $client_name = $row['client_name'];
-                ?>
-                  <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
-                
-                <?php
-                }
-                ?>
-              </select>
+
+              <div class="form-group">
+                <label>Email</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                  </div>
+                  <input type="email" class="form-control" name="email" placeholder="Email Address" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Password</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                  </div>
+                  <input type="password" class="form-control" name="password" placeholder="Enter a Password" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Avatar</label>
+                <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
+              </div>
+
             </div>
+
+            <div class="tab-pane fade" id="pills-assign">
+
+              <div class="form-group">
+                <label>Assign a User to a Client</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                  </div>
+                  <select class="form-control selectpicker show-tick" data-live-search="true" name="client">
+                    <option value="0">No Client Assignment</option>
+                    <?php 
+                    
+                    $sql = mysqli_query($mysqli,"SELECT * FROM clients"); 
+                    while($row = mysqli_fetch_array($sql)){
+                      $client_id = $row['client_id'];
+                      $client_name = $row['client_name'];
+                    ?>
+                      <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                    
+                    <?php
+                    }
+                    ?>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+
           </div>
 
-          <div class="form-group">
-            <label>Name</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-              </div>
-              <input type="text" class="form-control" name="name" placeholder="Full Name" required autofocus>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Email</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-              </div>
-              <input type="email" class="form-control" name="email" placeholder="Email Address" required>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Password</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-              </div>
-              <input type="password" class="form-control" name="password" placeholder="Enter a Password" required>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Avatar</label>
-            <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
-          </div>
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

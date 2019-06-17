@@ -15,6 +15,21 @@ use PHPMailer\PHPMailer\Exception;
 
 $todays_date = date('Y-m-d');
 
+if(isset($_POST['verify'])){
+
+    require_once("rfc6238.php");
+    $currentcode = $_POST['code'];  //code to validate, for example received from device
+
+    if(TokenAuth6238::verify($session_token,$currentcode)){
+        $_SESSION['alert_message'] = "VALID!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+    }else{
+        $_SESSION['alert_message'] = "INVALID";
+    } 
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['edit_general_settings'])){
 
     $config_start_page = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_start_page']));
@@ -95,6 +110,18 @@ if(isset($_POST['edit_invoice_settings'])){
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_next_invoice_number = $config_next_invoice_number, config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_quote_footer = '$config_quote_footer'");
 
     $_SESSION['alert_message'] = "Invoice Settings updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['settings_2fa'])){
+
+    $token = mysqli_real_escape_string($mysqli,$_POST['token']);
+
+    mysqli_query($mysqli,"UPDATE users SET token = '$token' WHERE user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Updated User Token";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

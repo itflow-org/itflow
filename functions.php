@@ -16,6 +16,21 @@ function keygen()
     return $key;
 }
 
+function key32gen()
+{
+    $chars .= "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    $chars .= "234567";
+    while (1) {
+        $key = '';
+        srand((double) microtime() * 1000000);
+        for ($i = 0; $i < 32; $i++) {
+            $key .= substr($chars, (rand() % (strlen($chars))), 1);
+        }
+        break;
+    }
+    return $key;
+}
+
 function initials($str) {
     $ret = '';
     foreach (explode(' ', $str) as $word)

@@ -20,6 +20,7 @@
 	$session_name = $row['name'];
 	$session_avatar = $row['avatar'];
 	$session_client_id = $row['client_id'];
+	$session_token = $row['token'];
 
 	//Detects if using an apple device and uses apple maps instead of google
 	$iPod    = stripos($_SERVER['HTTP_USER_AGENT'],"iPod");

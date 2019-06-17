@@ -6,11 +6,11 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
-  $record_from = (($p)-1)*10;
-  $record_to =  10;
+  $record_from = (($p)-1)*6;
+  $record_to =  6;
 }else{
   $record_from = 0;
-  $record_to = 10;
+  $record_to = 6;
   $p = 1;
 }
   
@@ -39,12 +39,9 @@ if(isset($_GET['o'])){
   $disp = "DESC";
 }
 
-
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM contacts WHERE client_id = $client_id AND (contact_name LIKE '%$q%') ORDER BY $sb $o LIMIT $record_from, $record_to"); 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM contacts WHERE client_id = $client_id AND (contact_name LIKE '%$q%') ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-$total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / 10);
 
 ?>
 

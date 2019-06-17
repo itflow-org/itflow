@@ -41,6 +41,7 @@
         <center>
           <img height="128" width="128" src="<?php echo "$session_avatar"; ?>" class="img-fluid rounded-circle">
         </center>
+        <a class="dropdown-item" href="settings-user.php"><i class="fa fa-fw fa-cog"></i> Settings</a>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" href="logout.php"><i class="fa fa-fw fa-sign-out-alt"></i> Logout</a>
       </div>
