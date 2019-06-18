@@ -62,6 +62,7 @@
         </div>
       </div>
     </form>
+    <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark">
