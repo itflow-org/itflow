@@ -1,11 +1,7 @@
-<?php include("header.php");
+<?php include("header.php"); ?>
 
-
-
-?>
-
-<div class="card mb-3">
-  <div class="card-header">
+<div class="card">
+  <div class="card-header bg-dark text-white">
     <h6 class="float-left mt-1"><i class="fa fa-fw fa-lock mr-2"></i>Two Factor Authentication</h6>
   </div>
   <div class="card-body">

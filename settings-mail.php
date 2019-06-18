@@ -2,8 +2,8 @@
 
 <?php include("settings-nav.php"); ?>
 
-<div class="card mb-3">
-  <div class="card-header">
+<div class="card">
+  <div class="card-header bg-dark text-white">
     <h6 class="float-left mt-1"><i class="fa fa-fw fa-envelope mr-2"></i>Mail Settings</h6>
   </div>
   <div class="card-body">

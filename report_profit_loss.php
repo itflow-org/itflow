@@ -18,12 +18,14 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
 
 ?>
 
-<div class="card mb-3">
-  <div class="card-header">
+<div class="card">
+  <div class="card-header bg-dark text-white">
     <h6 class="float-left mt-1"><i class="fa fw-fw fa-balance-scale mr-2"></i>Profit & Loss</h6>
     <button type="button" class="btn btn-primary btn-sm float-right d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
-    <form>
-      <select onchange="this.form.submit()" class="form-control mt-5" name="year">
+  </div>
+  <div class="card-body">
+    <form class="mb-3">
+      <select onchange="this.form.submit()" class="form-control" name="year">
         <?php 
                 
         while($row = mysqli_fetch_array($sql_all_years)){
@@ -37,11 +39,9 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
 
       </select>
     </form>
-  </div>
-  <div class="card-body">
     <div class="table-responsive">
       <table class="table">
-        <thead>
+        <thead class="text-dark">
           <tr>
             <th></th>
             <th class="text-right">Jan-Mar</th>

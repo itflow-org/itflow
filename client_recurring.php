@@ -1,27 +1,83 @@
-<?php 
+<?php
+
+//Rebuild URL
+
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+
+if(isset($_GET['p'])){
+  $p = intval($_GET['p']);
+  $record_from = (($p)-1)*6;
+  $record_to =  6;
+}else{
+  $record_from = 0;
+  $record_to = 6;
+  $p = 1;
+}
+  
+if(isset($_GET['q'])){
+  $q = $_GET['q'];
+}else{
+  $q = "";
+}
+
+if(!empty($_GET['sb'])){
+  $sb = $_GET['sb'];
+}else{
+  $sb = "recurring_id";
+}
+
+if(isset($_GET['o'])){
+  if($_GET['o'] == 'ASC'){
+    $o = "ASC";
+    $disp = "DESC";
+  }else{
+    $o = "DESC";
+    $disp = "ASC";
+  }
+}else{
+  $o = "ASC";
+  $disp = "DESC";
+}
  
-  $sql = mysqli_query($mysqli,"SELECT * FROM recurring, categories
-    WHERE recurring.client_id = $client_id
-    AND recurring.category_id = categories.category_id
-    ORDER BY recurring.recurring_id DESC");
+$sql = mysqli_query($mysqli,"SELECT * FROM recurring, categories
+  WHERE recurring.client_id = $client_id
+  AND recurring.category_id = categories.category_id
+  AND (recurring_frequency LIKE '%$q%' OR category_name LIKE '%$q%') 
+  ORDER BY $sb $o LIMIT $record_from, $record_to");
+
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$total_found_rows = $num_rows[0];
+$total_pages = ceil($total_found_rows / 10);
+
 ?>
 
 <div class="card">
-  <div class="card-header">
+  <div class="card-header bg-dark text-white">
     <h6 class="float-left mt-1"><i class="fa fa-copy"></i> Recurring Invoices</h6>
     <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addRecurringModal"><i class="fa fa-plus"></i></button>
   </div>
   <div class="card-body">
-
+    <form autocomplete="off">
+      <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+      <input type="hidden" name="tab" value="<?php echo $_GET['tab']; ?>">
+      <div class="input-group">
+        <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo $q;} ?>" placeholder="Search <?php echo ucwords($_GET['tab']); ?>">
+        <div class="input-group-append">
+          <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
+        </div>
+      </div>
+    </form>
+    <hr>
     <div class="table-responsive">
-      <table class="table table-striped table-borderless table-hover" id="dataTable" width="100%" cellspacing="0">
-        <thead>
+      <table class="table table-striped table-borderless table-hover">
+        <thead class="text-dark">
           <tr>
-            <th>Frequency</th>
-            <th>Last Sent</th>
-            <th>Next Date</th>
-            <th>Status</th>
-            <th class="text-center">Actions</th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_frequency&o=<?php echo $disp; ?>">Frequency</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_last_sent&o=<?php echo $disp; ?>">Last Sent</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_next_date&o=<?php echo $disp; ?>">Next Date</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Category</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_status&o=<?php echo $disp; ?>">Status</a></th>
+            <th class="text-center">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -84,6 +140,9 @@
 
         </tbody>
       </table>
+
+      <?php include("pagination.php"); ?>
+
     </div>
   </div>
 </div>

@@ -1,7 +1,7 @@
 <?php $sql = mysqli_query($mysqli,"SELECT * FROM notes WHERE client_id = $client_id ORDER BY note_id DESC"); ?>
 
 <div class="card">
-  <div class="card-header">
+  <div class="card-header bg-dark text-white">
     <h6 class="float-left mt-1"><i class="fa fa-edit"></i> Notes</h6>
     <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addNoteModal"><i class="fa fa-plus"></i></button>
   </div>

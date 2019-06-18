@@ -42,6 +42,9 @@ if(isset($_GET['o'])){
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM contacts WHERE client_id = $client_id AND (contact_name LIKE '%$q%') ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$total_found_rows = $num_rows[0];
+$total_pages = ceil($total_found_rows / 10);
+
 
 ?>
 

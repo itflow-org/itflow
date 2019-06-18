@@ -3,7 +3,7 @@
 <?php $sql_files_other = mysqli_query($mysqli,"SELECT * FROM files WHERE client_id = $client_id AND file_ext NOT LIKE 'JPG' AND file_ext NOT LIKE 'jpg' AND file_ext NOT LIKE 'png' AND file_ext NOT LIKE 'PNG' ORDER BY file_id DESC"); ?>
 
 <div class="card">
-  <div class="card-header">
+  <div class="card-header bg-dark text-white">
     <h6 class="float-left mt-1"><i class="fa fa-file"></i> Uploaded Files</h6>
     <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addFileModal"><i class="fa fa-cloud-upload-alt"></i></button>
   </div>
@@ -25,12 +25,12 @@
               <a href="#" data-toggle="modal" data-target="#viewFileModal<?php echo $file_id; ?>">  
                 <img class="img-fluid" src="<?php echo $file_name; ?>">       
               </a>
-              <div class="card-footer p-1">
+              <div class="card-footer bg-dark text-white p-1">
                 <center>
-                  <a href="<?php echo $file_name; ?>" download="<?php echo $file_name; ?>" class="text-secondary float-left ml-1"><i class="fa fa-cloud-download-alt"></i></a>
-                  <small class="text-secondary"><?php echo basename($file_name); ?></small>
+                  <a href="<?php echo $file_name; ?>" download="<?php echo $file_name; ?>" class="text-white float-left ml-1"><i class="fa fa-cloud-download-alt"></i></a>
+                  <small><?php echo basename($file_name); ?></small>
 
-                  <a href="post.php?delete_file=<?php echo $file_id; ?>" class="text-secondary float-right mr-1"><i class="fa fa-times"></i></a>
+                  <a href="post.php?delete_file=<?php echo $file_id; ?>" class="text-white float-right mr-1"><i class="fa fa-times"></i></a>
                 </center>
               </div>
             </div>   
