@@ -63,6 +63,7 @@ CREATE TABLE `assets` (
   `asset_make` varchar(200) NOT NULL,
   `asset_model` varchar(200) NOT NULL,
   `asset_serial` varchar(200) NOT NULL,
+  `asset_ip` varchar(20) NOT NULL,
   `asset_purchase_date` date NOT NULL,
   `asset_warranty_expire` date NOT NULL,
   `asset_reciept` varchar(200) NOT NULL,
@@ -73,6 +74,7 @@ CREATE TABLE `assets` (
   `vendor_id` int(11) NOT NULL,
   `location_id` int(11) NOT NULL,
   `contact_id` int(11) NOT NULL,
+  `network_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
   PRIMARY KEY (`asset_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -387,6 +389,10 @@ CREATE TABLE `logs` (
   `log_type` varchar(200) NOT NULL,
   `log_description` varchar(200) NOT NULL,
   `log_created_at` datetime NOT NULL,
+  `invoice_id` int(11) NOT NULL,
+  `quote_id` int(11) NOT NULL,
+  `recurring_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -407,6 +413,7 @@ CREATE TABLE `networks` (
   `network_notes` text NOT NULL,
   `network_created_at` datetime NOT NULL,
   `network_updated_at` datetime NOT NULL,
+  `location_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
   PRIMARY KEY (`network_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -677,6 +684,7 @@ CREATE TABLE `users` (
   `name` varchar(200) NOT NULL,
   `email` varchar(200) NOT NULL,
   `password` varchar(200) NOT NULL,
+  `token` varchar(200) NOT NULL,
   `avatar` varchar(200) NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
@@ -700,12 +708,13 @@ CREATE TABLE `vendors` (
   `vendor_city` varchar(200) NOT NULL,
   `vendor_state` varchar(200) NOT NULL,
   `vendor_zip` varchar(200) NOT NULL,
+  `vendor_contact_name` varchar(200) NOT NULL,
   `vendor_phone` varchar(200) NOT NULL,
   `vendor_email` varchar(200) NOT NULL,
   `vendor_website` varchar(200) NOT NULL,
   `vendor_account_number` varchar(200) NOT NULL,
-  `vendor_created_at` int(11) NOT NULL,
-  `vendor_updated_at` int(11) NOT NULL,
+  `vendor_created_at` datetime NOT NULL,
+  `vendor_updated_at` datetime NOT NULL,
   `client_id` int(11) NOT NULL,
   PRIMARY KEY (`vendor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -720,4 +729,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-11 17:51:43
+-- Dump completed on 2019-07-01 19:37:05

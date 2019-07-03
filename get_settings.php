@@ -34,7 +34,6 @@ $config_invoice_prefix = $row['config_invoice_prefix'];
 $config_quote_email_subject = $row['config_quote_email_subject'];
 
 $config_recurring_email_auto_send = $row['config_recurring_email_auto_send'];
-$config_default_net_terms = $row['default_net_terms'];
 
 $config_api_key = $row['config_api_key'];
 

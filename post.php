@@ -1834,7 +1834,7 @@ if(isset($_POST['add_payment'])){
         }
 
         //Update Invoice Status
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status' invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
 
         //Add Payment to History
         mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'INVOICE payment added', history_created_at = NOW(), invoice_id = $invoice_id");

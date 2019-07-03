@@ -23,7 +23,7 @@ if(isset($_GET['q'])){
 if(!empty($_GET['sb'])){
   $sb = $_GET['sb'];
 }else{
-  $sb = "client_name";
+  $sb = "client_id";
 }
 
 if(isset($_GET['o'])){
@@ -35,8 +35,8 @@ if(isset($_GET['o'])){
     $disp = "ASC";
   }
 }else{
-  $o = "ASC";
-  $disp = "DESC";
+  $o = "DESC";
+  $disp = "ASC";
 }
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE client_name LIKE '%$q%' OR client_email LIKE '%$q%' ORDER BY $sb $o LIMIT $record_from, $record_to"); 
