@@ -143,7 +143,7 @@ while($row = mysqli_fetch_array($sql_recurring)){
   mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), invoice_id = $new_invoice_id");
 
   //update the recurring invoice with the new dates
-  mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW WHERE recurring_id = $recurring_id");
+  mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
 
   if($config_recurring_email_auto_send == 1){
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients

@@ -18,7 +18,7 @@ $sql_payment_years = mysqli_query($mysqli,"SELECT DISTINCT YEAR(payment_date) AS
 
 
 //Get Total income Do not grab transfer payment as these have an invoice_id of 0
-$sql_total_income = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_income FROM payments WHERE YEAR(payment_date) = $year");
+$sql_total_income = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_income FROM payments WHERE YEAR(payment_date) = $year AND invoice_id > 0");
 $row = mysqli_fetch_array($sql_total_income);
 $total_income = $row['total_income'];
 

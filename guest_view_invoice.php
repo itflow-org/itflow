@@ -211,7 +211,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
           Notes
         </div>
         <div class="card-body">
-          <div class="d-none d-print-block"><?php echo $invoice_note; ?></div>      
+          <div><?php echo $invoice_note; ?></div>
         </div>
       </div>
     </div>

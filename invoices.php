@@ -144,7 +144,7 @@
 <div class="card mb-3">
   <div class="card-header bg-dark text-white">
     <h6 class="float-left mt-2"><i class="fa fa-fw fa-file mr-2"></i>Invoices</h6>
-    <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#addInvoiceModal"><i class="fas fa-fw fa-plus"></i> New</button>
+    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addInvoiceModal"><i class="fas fa-fw fa-plus"></i></button>
   </div>
   <div class="card-body">
     <form autocomplete="off">
