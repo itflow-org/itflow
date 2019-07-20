@@ -8,12 +8,12 @@ if($_GET['api_key'] == $config_api_key){
 
         $cid = intval($_GET['cid']);
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_phone = $cid");
+        $sql = mysqli_query($mysqli,"SELECT client_name AS name FROM clients WHERE client_phone = $cid UNION SELECT contact_name AS name FROM contacts WHERE contact_phone = $cid UNION SELECT location_name AS name FROM locations WHERE location_phone = $cid UNION SELECT vendor_name AS name FROM vendors WHERE vendor_phone = $cid");
 
         $row = mysqli_fetch_array($sql);
-        $client_name = $row['client_name'];
+        $name = $row['name'];
 
-        echo $client_name;
+        echo $name;
 
     }
 
