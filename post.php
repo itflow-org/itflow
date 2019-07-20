@@ -1399,7 +1399,7 @@ if(isset($_GET['email_quote'])){
     $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
     }
     $client_website = $row['client_website'];
-    $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
+    $base_url = $_SERVER['HTTP_HOST'];
 
     $mail = new PHPMailer(true);
 

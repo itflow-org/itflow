@@ -135,7 +135,7 @@ if($_GET['api_key'] == $config_api_key){
     }
 
 }else{
-    echo "<h1> Ma!! You've been BAAAAADDDDD!! </h1>";
+    header("Location: login.php");
 }
 
 ?>

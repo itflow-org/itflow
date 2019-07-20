@@ -90,7 +90,7 @@ if(isset($_GET['client_id'])){
 <?php include("header.php"); ?>
 
 <div class="card mb-3">
-  <div class="card-body mb-2">
+  <div class="card-body">
     <div class="row">
       <div class="col">
         <h4 class="text-secondary">Address</h4>

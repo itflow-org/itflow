@@ -4,7 +4,7 @@
 
 <div class="card">
   <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-file"></i> Uploaded Files</h6>
+    <h6 class="float-left mt-1"><i class="fa fa-paperclip mr-2"></i>Files</h6>
     <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addFileModal"><i class="fa fa-cloud-upload-alt"></i></button>
   </div>
   <div class="card-body">

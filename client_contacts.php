@@ -50,8 +50,8 @@ $total_pages = ceil($total_found_rows / 10);
 
 <div class="card">
   <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-users"></i> Contacts</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addContactModal"><i class="fa fa-plus"></i> New</button>
+    <h6 class="float-left mt-1"><i class="fa fa-users mr-2"></i>Contacts</h6>
+    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addContactModal"><i class="fa fa-plus"></i></button>
   </div>
   <div class="card-body">
     <form autocomplete="off">
