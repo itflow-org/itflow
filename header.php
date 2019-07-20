@@ -1,4 +1,8 @@
 <?php 
+  
+  if(!file_exists('config.php')){
+    header("Location: setup.php");
+  }
 
   include("config.php");
   include("check_login.php");

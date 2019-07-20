@@ -1,9 +1,4 @@
-<?php
-
-if(file_exists('config.php')){
-    include("header.php");
-
-?>
+<?php include("header.php"); ?>
 	
 	<!-- Breadcrumbs-->
 	<ol class="breadcrumb">
@@ -18,11 +13,4 @@ if(file_exists('config.php')){
 	<hr>
 	<p>This is a great starting point for new custom pages.</p>
 
-<?php
-	include("footer.php");
-
-}else{
-    header("Location: setup.php");
-}
-
-?>
+<?php include("footer.php"); ?>
