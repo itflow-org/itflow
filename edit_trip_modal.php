@@ -29,7 +29,7 @@
               <div class="form-row">
                 
                 <div class="form-group col">
-                  <label>Date</label>
+                  <label>Date <strong class="text-danger">*</strong></label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
@@ -39,7 +39,7 @@
                 </div>
                 
                 <div class="form-group col">
-                  <label>Miles</label>
+                  <label>Miles <strong class="text-danger">*</strong></label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-bicycle"></i></span>
@@ -51,7 +51,7 @@
               </div>
           
               <div class="form-group">
-                <label>Location</label>
+                <label>Location <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-map-marker-alt"></i></span>
@@ -70,7 +70,7 @@
               </div>
               
               <div class="form-group">
-                <label>Purpose</label>
+                <label>Purpose <strong class="text-danger">*</strong></label>
                 <textarea rows="4" class="form-control" name="purpose" required><?php echo $trip_purpose; ?></textarea>
               </div>
 

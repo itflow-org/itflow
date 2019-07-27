@@ -10,7 +10,7 @@
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
           <div class="form-group">
-            <label>Title</label>
+            <label>Title <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
@@ -19,7 +19,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Calendar</label>
+            <label>Calendar <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
@@ -44,7 +44,7 @@
           </div>
           <div class="form-row">
             <div class="form-group col">
-              <label>Starts</label>
+              <label>Starts <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
@@ -53,7 +53,7 @@
               </div>
             </div>
             <div class="form-group col">
-              <label>Ends</label>
+              <label>Ends <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>

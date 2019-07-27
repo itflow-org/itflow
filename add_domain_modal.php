@@ -11,7 +11,7 @@
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="modal-body bg-white">    
           <div class="form-group">
-            <label>Domain Name</label>
+            <label>Domain Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
@@ -21,7 +21,7 @@
           </div>
           
           <div class="form-group">
-            <label>Domain Registrar</label>
+            <label>Registrar</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
@@ -74,7 +74,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
               </div>
-              <input type="date" class="form-control" name="expire" required> 
+              <input type="date" class="form-control" name="expire"> 
             </div>
           </div>
 

@@ -12,7 +12,7 @@
         <div class="modal-body bg-white">    
           
           <div class="form-group">
-            <input type="text" class="form-control" name="new_name" placeholder="New File Name">
+            <input type="text" class="form-control" name="new_name" placeholder="New File Name (Optional)">
           </div>
 
           <div class="form-group">

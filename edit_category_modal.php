@@ -11,11 +11,11 @@
         <input type="hidden" name="category_id" value="<?php echo $category_id; ?>">
         <div class="modal-body bg-white">
           <div class="form-group">
-            <label>Name</label>
+            <label>Name <strong class="text-danger">*</strong></label>
             <input type="text" class="form-control" name="name" value="<?php echo $category_name; ?>" required>
           </div>
           <div class="form-group">
-            <label>Type</label>
+            <label>Type <strong class="text-danger">*</strong></label>
             <select class="form-control selectpicker show-tick" name="type" required>
               <?php foreach($category_types_array as $category_type_select) { ?>
               <option <?php if($category_type == $category_type_select) { echo "selected"; } ?>><?php echo $category_type_select; ?></option>
@@ -23,7 +23,7 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Color</label>
+            <label>Color <strong class="text-danger">*</strong></label>
             <input type="color" class="form-control col-md-2" name="color" value="<?php echo $category_color; ?>">
           </div>
         </div>

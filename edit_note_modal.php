@@ -11,11 +11,11 @@
         <input type="hidden" name="note_id" value="<?php echo $note_id; ?>">
         <div class="modal-body bg-white">  
           <div class="form-group">
-            <label>Subject</label>
-            <input type="text" class="form-control" name="subject" value="<?php echo $note_subject; ?>" required>
+            <label>Subject <strong class="text-danger">*</strong></label>
+            <input type="text" class="form-control" name="subject" value="<?php echo $note_subject; ?>" placeholder="Subject" required>
           </div>
           <div class="form-group">
-            <label>Note</label>
+            <label>Note <strong class="text-danger">*</strong></label>
             <textarea rows="8" class="form-control" id="editClientNote" name="note"><?php echo $note_body; ?></textarea>
           </div>
         </div>

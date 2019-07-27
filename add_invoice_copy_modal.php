@@ -13,7 +13,7 @@
         <div class="modal-body bg-white">
 
           <div class="form-group">
-            <label>Invoice Date</label>
+            <label>Invoice Date <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>

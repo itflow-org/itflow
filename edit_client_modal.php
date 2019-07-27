@@ -33,7 +33,7 @@
             <div class="tab-pane fade show active" id="pills-basic<?php echo $client_id; ?>" role="tabpanel" aria-labelledby="pills-basic-tab<?php echo $client_id; ?>">
 
               <div class="form-group">
-                <label>Name</label>
+                <label>Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
@@ -43,7 +43,7 @@
               </div>
 
               <div class="form-group">
-                <label>Type</label>
+                <label>Type <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
@@ -81,7 +81,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="city" placeholder="City" value="<?php echo $client_city; ?>" required>
+                  <input type="text" class="form-control" name="city" placeholder="City" value="<?php echo $client_city; ?>">
                 </div>
               </div>
               

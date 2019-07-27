@@ -12,7 +12,7 @@
           <div class="form-row"> 
             
             <div class="form-group col-md">
-              <label>Date</label>
+              <label>Date <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
@@ -22,7 +22,7 @@
             </div>
             
             <div class="form-group col-md">
-              <label>Amount</label>
+              <label>Amount <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
@@ -36,7 +36,7 @@
           <div class="form-row">
             
             <div class="form-group col-md">
-              <label>Account</label>
+              <label>Account <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
@@ -70,7 +70,7 @@
             </div>
           
             <div class="form-group col-md">
-              <label>Vendor</label>
+              <label>Vendor <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
@@ -95,40 +95,43 @@
           </div>
 
           <div class="form-group">
-            <label>Description</label>
+            <label>Description <strong class="text-danger">*</strong></label>
             <textarea class="form-control" rows="4" name="description" required><?php echo $expense_description; ?></textarea>
           </div>
           
-          <div class="form-group col-md">
-            <label>Category</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-              </div>
-              <select class="form-control selectpicker show-tick" name="category" required>
-                <?php 
-                
-                $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense'"); 
-                while($row = mysqli_fetch_array($sql_categories)){
-                  $category_id_select = $row['category_id'];
-                  $category_name_select = $row['category_name'];
-                ?>
-                <option <?php if($category_id == $category_id_select){ ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
-                <?php
-                }
-                
-                ?>
-              </select>
-            </div>
-          </div>
+          <div class="form-row">
 
-          <div class="form-group col-md">
-            <label>Reference</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+            <div class="form-group col-md">
+              <label>Category <strong class="text-danger">*</strong></label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                </div>
+                <select class="form-control selectpicker show-tick" name="category" required>
+                  <?php 
+                  
+                  $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense'"); 
+                  while($row = mysqli_fetch_array($sql_categories)){
+                    $category_id_select = $row['category_id'];
+                    $category_name_select = $row['category_name'];
+                  ?>
+                  <option <?php if($category_id == $category_id_select){ ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
+                  <?php
+                  }
+                  
+                  ?>
+                </select>
               </div>
-              <input type="text" class="form-control" name="reference" placeholder="Enter a reference" value="<?php $expense_reference; ?>">
+            </div>
+
+            <div class="form-group col-md">
+              <label>Reference</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+                </div>
+                <input type="text" class="form-control" name="reference" placeholder="Enter a reference" value="<?php $expense_reference; ?>">
+              </div>
             </div>
           </div>
           

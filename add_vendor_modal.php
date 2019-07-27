@@ -30,7 +30,7 @@
             <div class="tab-pane fade show active" id="pills-basic" role="tabpanel" aria-labelledby="pills-basic-tab">
 
               <div class="form-group">
-                <label>Name</label>
+                <label>Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
@@ -40,7 +40,7 @@
               </div>
               
               <div class="form-group">
-                <label>Description</label>
+                <label>Description <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>

@@ -10,11 +10,11 @@
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
           <div class="form-group">
-            <label>Name</label>
+            <label>Name <strong class="text-danger">*</strong></label>
             <input type="text" class="form-control" name="name" placeholder="Category name" required autofocus>
           </div>
           <div class="form-group">
-            <label>Type</label>
+            <label>Type <strong class="text-danger">*</strong></label>
             <select class="form-control selectpicker" name="type" required>
               <option value="">- Type -</option>
               <?php foreach($category_types_array as $category_type) { ?>
@@ -23,7 +23,7 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Color</label>
+            <label>Color <strong class="text-danger">*</strong></label>
             <input type="color" class="form-control col-md-2" name="color">
           </div>
         </div>

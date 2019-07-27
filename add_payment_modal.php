@@ -13,7 +13,7 @@
         <div class="modal-body bg-white">
           
           <div class="form-group">
-            <label>Date</label>
+            <label>Date <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
@@ -23,7 +23,7 @@
           </div>
           
           <div class="form-group">
-            <label>Amount</label>
+            <label>Amount <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
@@ -33,7 +33,7 @@
           </div>
 
           <div class="form-group">
-            <label>Account</label>
+            <label>Account <strong class="text-danger">*</strong></label>
             <div class="input-group"> 
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
@@ -69,7 +69,7 @@
           </div>
           
           <div class="form-group">
-            <label>Payment Method</label>
+            <label>Payment Method <strong class="text-danger">*</strong></label>
             <div class="input-group"> 
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>

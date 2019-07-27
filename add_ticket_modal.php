@@ -13,7 +13,7 @@
             <input type="hidden" name="client" value="<?php echo $client_id; ?>">
           <?php }else{ ?>
           <div class="form-group">
-            <label>Client</label>
+            <label>Client <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
@@ -38,17 +38,17 @@
           <?php } ?>
           
           <div class="form-group">
-            <label>Subject</label>
+            <label>Subject <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
               </div>
-              <input type="text" class="form-control" name="subject" required>
+              <input type="text" class="form-control" name="subject" placeholder="Subject" required>
             </div>
           </div>
           
           <div class="form-group">
-            <label>Details</label>
+            <label>Details <strong class="text-danger">*</strong></label>
             <textarea class="form-control" rows="8" name="details"></textarea>
           </div>
 

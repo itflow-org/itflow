@@ -10,16 +10,16 @@
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
           <div class="form-group">
-            <label>Name</label>
-            <input type="text" class="form-control" name="name" required autofocus>
+            <label>Name <strong class="text-danger">*</strong></label>
+            <input type="text" class="form-control" name="name" placeholder="Product name" required autofocus>
           </div>
           <div class="form-group">
             <label>Description</label>
-            <input type="text" class="form-control" name="description">
+            <input type="text" class="form-control" name="description" placeholder="Product description">
           </div>
           <div class="form-group">
-            <label>Cost</label>
-            <input type="text" class="form-control" name="cost" required>
+            <label>Cost <strong class="text-danger">*</strong></label>
+            <input type="text" class="form-control" name="cost" placeholder="Cost" required>
           </div>
         </div>
         <div class="modal-footer bg-white">

@@ -16,7 +16,7 @@
           <?php }else{ ?>
           
           <div class="form-group">
-            <label>Client</label>
+            <label>Client <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
@@ -42,7 +42,7 @@
           <?php } ?>
           
           <div class="form-group">
-            <label>Date</label>
+            <label>Date <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
@@ -51,7 +51,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Category</label>
+            <label>Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>

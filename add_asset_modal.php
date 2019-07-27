@@ -167,7 +167,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="ip" placeholder="IP Address" data-inputmask="'mask': '999.999.999.999'">
+                  <input type="text" class="form-control" name="ip" placeholder="IP Address">
                 </div>
               </div>
             

@@ -11,11 +11,11 @@
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="modal-body bg-white">  
           <div class="form-group">
-            <label>Title</label>
-            <input type="text" class="form-control" name="subject" required autofocus>
+            <label>Title <strong class="text-danger">*</strong></label>
+            <input type="text" class="form-control" name="subject" placeholder="Title" required autofocus>
           </div>
           <div class="form-group">
-            <label>Note</label>
+            <label>Note <strong class="text-danger">*</strong></label>
             <textarea rows="8" class="form-control" name="note" id="addClientNote"></textarea>
           </div>
         </div>

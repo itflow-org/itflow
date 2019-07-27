@@ -23,7 +23,7 @@
             <?php } ?>
           </center>
           <div class="form-group">
-            <label>Name</label>
+            <label>Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-user"></i></span>
@@ -33,7 +33,7 @@
           </div>
           
           <div class="form-group">
-            <label>Title</label>
+            <label>Title <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-id-badge"></i></span>
@@ -43,7 +43,7 @@
           </div>
         
           <div class="form-group">
-            <label>Phone</label>
+            <label>Phone <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-phone"></i></span>
@@ -53,7 +53,7 @@
           </div>
 
           <div class="form-group">
-            <label>Email</label>
+            <label>Email <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-envelope"></i></span>

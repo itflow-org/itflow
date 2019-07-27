@@ -11,7 +11,7 @@
         <input type="hidden" name="location_id" value="<?php echo $location_id; ?>">
         <div class="modal-body bg-white">
           <div class="form-group">
-            <label>Location Name</label>
+            <label>Location Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
@@ -20,7 +20,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Address</label>
+            <label>Address <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
@@ -30,7 +30,7 @@
           </div>
          
           <div class="form-group">
-            <label>City</label>
+            <label>City <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
@@ -39,7 +39,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label>State</label>
+            <label>State <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
@@ -52,7 +52,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Zip</label>
+            <label>Zip <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
@@ -61,7 +61,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Phone</label>
+            <label>Phone <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>

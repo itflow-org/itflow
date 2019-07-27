@@ -6,11 +6,11 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
-  $record_from = (($p)-1)*6;
-  $record_to =  6;
+  $record_from = (($p)-1)*10;
+  $record_to =  10;
 }else{
   $record_from = 0;
-  $record_to = 6;
+  $record_to = 10;
   $p = 1;
 }
   

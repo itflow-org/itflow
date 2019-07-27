@@ -11,7 +11,7 @@
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="modal-body bg-white">  
           <div class="form-group">
-            <label>Description</label>
+            <label>Description <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
@@ -29,7 +29,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Username</label>
+            <label>Username <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
@@ -38,7 +38,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Password</label>
+            <label>Password <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>

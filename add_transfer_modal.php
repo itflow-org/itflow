@@ -11,7 +11,7 @@
         <div class="modal-body bg-white">
           <div class="form-row">
             <div class="form-group col">
-              <label>Date</label>
+              <label>Date <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
@@ -20,7 +20,7 @@
               </div>
             </div>
             <div class="form-group col">
-              <label>Amount</label>
+              <label>Amount <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
@@ -31,7 +31,7 @@
           </div>
        
           <div class="form-group">
-            <label>Transfer</label>
+            <label>Transfer <strong class="text-danger">*</strong></label>
             <div class="input-group"> 
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>

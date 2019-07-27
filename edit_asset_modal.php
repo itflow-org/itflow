@@ -36,7 +36,7 @@
             <div class="tab-pane fade show active" id="pills-basic<?php echo $asset_id; ?>" role="tabpanel" aria-labelledby="pills-basic-tab<?php echo $asset_id; ?>">
           
               <div class="form-group">
-                <label>Asset Name</label>
+                <label>Asset Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
@@ -46,7 +46,7 @@
               </div>
               
               <div class="form-group">
-                <label>Asset Type</label>
+                <label>Asset Type <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
@@ -60,7 +60,7 @@
               </div>        
               
               <div class="form-group">
-                <label>Make</label>
+                <label>Make <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
@@ -70,7 +70,7 @@
               </div>
               
               <div class="form-group">
-                <label>Model</label>
+                <label>Model <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
@@ -80,7 +80,7 @@
               </div>
               
               <div class="form-group">
-                <label>Serial Number</label>
+                <label>Serial Number <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
@@ -151,8 +151,8 @@
                     <option value="">- Network -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM networks WHERE client_id = $client_id"); 
-                    while($row = mysqli_fetch_array($sql)){
+                    $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE client_id = $client_id"); 
+                    while($row = mysqli_fetch_array($sql_networks)){
                       $network_id_select = $row['network_id'];
                       $network_name_select = $row['network_name'];
                       $network_select = $row['network'];

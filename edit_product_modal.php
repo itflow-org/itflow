@@ -11,7 +11,7 @@
         <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
         <div class="modal-body bg-white">
           <div class="form-group">
-            <label>Name</label>
+            <label>Name <strong class="text-danger">*</strong></label>
             <input type="text" class="form-control" name="name" value="<?php echo $product_name; ?>" required>
           </div>
           <div class="form-group">
@@ -19,8 +19,8 @@
             <input type="text" class="form-control" name="description" value="<?php echo $product_description; ?>">
           </div>
           <div class="form-group">
-            <label>Cost</label>
-            <input type="text" class="form-control" name="cost" value="<?php echo $product_cost; ?>">
+            <label>Cost <strong class="text-danger">*</strong></label>
+            <input type="text" class="form-control" name="cost" value="<?php echo $product_cost; ?>" required>
           </div>
         </div>
         <div class="modal-footer bg-white">

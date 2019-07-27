@@ -11,7 +11,7 @@
         <input type="hidden" name="account_id" value="<?php echo $account_id; ?>">
         <div class="modal-body bg-white">
           <div class="form-group">
-            <label>Account Name</label>
+            <label>Account Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>

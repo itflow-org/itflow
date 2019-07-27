@@ -13,7 +13,7 @@
         <div class="modal-body bg-white">
 
           <div class="form-group">
-            <label>Invoice Date</label>
+            <label>Invoice Date <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
@@ -23,7 +23,7 @@
           </div>
 
           <div class="form-group">
-            <label>Payment Due</label>
+            <label>Payment Due <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar-alt"></i></span>
@@ -33,7 +33,7 @@
           </div>
 
           <div class="form-group">
-            <label>Income Category</label>
+            <label>Income Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>

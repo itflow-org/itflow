@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-tag mr-2"></i>Ticket # <?php echo $ticket_id; ?> for Client <?php echo $client_name; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-tag mr-2"></i>Ticket # <?php echo $ticket_id; ?> for <?php echo $client_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -12,17 +12,17 @@
         <div class="modal-body bg-white">
         
           <div class="form-group">
-            <label>Subject</label>
+            <label>Subject <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
               </div>
-              <input type="text" class="form-control" name="subject" value="<?php echo $ticket_subject; ?>" required>
+              <input type="text" class="form-control" name="subject" value="<?php echo $ticket_subject; ?>" placeholder="Subject" required>
             </div>
           </div>
           
           <div class="form-group">
-            <label>Details</label>
+            <label>Details <strong class="text-danger">*</strong></label>
             <textarea class="form-control" rows="8" name="details" required><?php echo $ticket_details; ?></textarea>
           </div>
 

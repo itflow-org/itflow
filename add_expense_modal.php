@@ -11,7 +11,7 @@
         <div class="modal-body bg-white">
           <div class="form-row"> 
             <div class="form-group col-md">
-              <label>Date</label>
+              <label>Date <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
@@ -21,7 +21,7 @@
             </div>
 
             <div class="form-group col-md">
-              <label>Amount</label>
+              <label>Amount <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
@@ -34,7 +34,7 @@
 
           <div class="form-row">
             <div class="form-group col-md">
-              <label>Account</label>
+              <label>Account <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
@@ -70,7 +70,7 @@
             </div>
 
             <div class="form-group col-md">
-              <label>Vendor</label>
+              <label>Vendor <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
@@ -95,14 +95,14 @@
           </div>
 
           <div class="form-group">
-            <label>Description</label>
+            <label>Description <strong class="text-danger">*</strong></label>
             <textarea class="form-control" rows="4" name="description" required></textarea>
           </div>
           
           <div class="form-row">
 
             <div class="form-group col-md">
-              <label>Category</label>
+              <label>Category <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>

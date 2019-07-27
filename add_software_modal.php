@@ -12,7 +12,7 @@
         <div class="modal-body bg-white">    
           
           <div class="form-group">
-            <label>Software Name</label>
+            <label>Software Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
@@ -22,10 +22,10 @@
           </div>
           
           <div class="form-group">
-            <label>Type</label>
+            <label>Type <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-tag"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
               </div>
               <select class="form-control selectpicker show-tick" name="type" required>
                 <option value="">- Type -</option>
@@ -42,7 +42,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
               </div>
-              <input type="text" class="form-control" name="license" placeholder="License key" required> 
+              <input type="text" class="form-control" name="license" placeholder="License key"> 
             </div>
           </div>
 

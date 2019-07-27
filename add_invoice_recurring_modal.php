@@ -12,7 +12,7 @@
         <div class="modal-body bg-white">
           
           <div class="form-group">
-            <label>Frequency</label>
+            <label>Frequency <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>

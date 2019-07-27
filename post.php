@@ -2304,7 +2304,13 @@ if(isset($_POST['add_asset'])){
     $contact = intval($_POST['contact']);
     $network = intval($_POST['network']);
     $purchase_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date']));
+    if(empty($purchase_date)){
+        $purchase_date = "0000-00-00";
+    }
     $warranty_expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire']));
+    if(empty($warranty_expire)){
+        $warranty_expire = "0000-00-00";
+    }
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
 
     mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_ip = '$ip', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_note = '$note', asset_created_at = NOW(), network_id = $network, client_id = $client_id");
@@ -2320,7 +2326,7 @@ if(isset($_POST['add_asset'])){
 
     $_SESSION['alert_message'] = "Asset added";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+   // header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -2340,7 +2346,13 @@ if(isset($_POST['edit_asset'])){
     $contact = intval($_POST['contact']);
     $network = intval($_POST['network']);
     $purchase_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date']));
+    if(empty($purchase_date)){
+        $purchase_date = "0000-00-00";
+    }
     $warranty_expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire']));
+    if(empty($warranty_expire)){
+        $warranty_expire = "0000-00-00";
+    }
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
     $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
     $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
@@ -2555,6 +2567,9 @@ if(isset($_POST['add_domain'])){
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
     $expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire']));
+    if(empty($expire)){
+        $expire = "0000-00-00";
+    }
 
     mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_created_at = NOW(), client_id = $client_id");
 
@@ -2571,6 +2586,9 @@ if(isset($_POST['edit_domain'])){
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
     $expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire']));
+    if(empty($expire)){
+        $expire = "0000-00-00";
+    }
 
     mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_updated_at = NOW() WHERE domain_id = $domain_id");
 
