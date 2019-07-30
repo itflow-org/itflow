@@ -94,20 +94,22 @@ $total_pages = ceil($total_found_rows / 10);
           ?>
           <tr>
             <td class="text-center">
-              <?php if(!empty($contact_photo)){ ?>
-            
-              <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $contact_photo; ?>">
-    
-              <?php }else{ ?>
-  
-              <span class="fa-stack fa-2x">
-                <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
-              </span>
-              <br>
+              <a class="text-dark" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
+                <?php if(!empty($contact_photo)){ ?>
               
-              <?php } ?>
-              <div class="text-secondary"><?php echo $contact_name; ?></div>
+                <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $contact_photo; ?>">
+                
+                <?php }else{ ?>
+    
+                <span class="fa-stack fa-2x">
+                  <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                  <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+                </span>
+                <br>
+                
+                <?php } ?>
+                <div class="text-secondary"><?php echo $contact_name; ?></div>
+              </a>
             </td>
             
             <td><?php echo $contact_title; ?></td>

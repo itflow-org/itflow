@@ -91,7 +91,7 @@ $total_pages = ceil($total_found_rows / 10);
       
           ?>
           <tr>
-            <td><?php echo $network_name; ?></td>
+            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editNetworkModal<?php echo $network_id; ?>"><?php echo $network_name; ?></a></td>
             <td><?php echo $network; ?></td>
             <td><?php echo $network_gateway; ?></td>
             <td><?php echo $network_dhcp_range; ?></td>

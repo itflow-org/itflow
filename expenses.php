@@ -105,7 +105,7 @@
           ?>
 
           <tr>
-            <td><?php echo $receipt_attached; ?> <?php echo $expense_date; ?></td>
+            <td><?php echo $receipt_attached; ?> <a class="text-dark" href="#" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>"><?php echo $expense_date; ?></a></td>
             <td class="text-right text-monospace">$<?php echo number_format($expense_amount,2); ?></td>
             <td><?php echo $vendor_name; ?></td>
             <td><?php echo $category_name; ?></td>

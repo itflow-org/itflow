@@ -93,7 +93,7 @@
 
           ?>
           <tr>
-            <td><?php echo $trip_date; ?></td>
+            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>"><?php echo $trip_date; ?></a></td>
             <td><?php echo $trip_purpose; ?></td>
             <td><?php echo $trip_starting_location; ?></td>
             <td><?php echo $trip_destination; ?></td>

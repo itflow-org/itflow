@@ -90,17 +90,19 @@
           ?>
           <tr>
             <td class="text-center">
-              <?php if(!empty($avatar)){ ?>
-              <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $avatar; ?>">
-              <?php }else{ ?>
-              <span class="fa-stack fa-2x">
-                <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                <span class="fa fa-stack-1x text-white"><?php echo $initials; ?></span>
-              </span>
-              <br>
-            <?php } ?>
+              <a class="text-dark" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">
+                <?php if(!empty($avatar)){ ?>
+                <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $avatar; ?>">
+                <?php }else{ ?>
+                <span class="fa-stack fa-2x">
+                  <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                  <span class="fa fa-stack-1x text-white"><?php echo $initials; ?></span>
+                </span>
+                <br>
+              <?php } ?>
 
-              <div class="text-secondary"><?php echo $name; ?></div>
+                <div class="text-secondary"><?php echo $name; ?></div>
+              </a>
             </td>
             <td><a href="mailto:<?php echo $email; ?>"><?php echo $email; ?></a></td>
             <td>Client</td>

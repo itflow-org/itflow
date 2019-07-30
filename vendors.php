@@ -97,7 +97,7 @@
 
           ?>
           <tr>
-            <td><?php echo $vendor_name; ?></td>
+            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></a></td>
             <td><?php echo $vendor_description; ?></td>
             <td><?php echo $vendor_account_number; ?></td>
             <td>

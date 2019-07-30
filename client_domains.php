@@ -97,7 +97,7 @@ $total_pages = ceil($total_found_rows / 10);
 
           ?>
           <tr>
-            <td><?php echo $domain_name; ?></td>
+            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editDomainModal<?php echo $domain_id; ?>"><?php echo $domain_name; ?></a></td>
             <td><?php echo $domain_registrar_name; ?></td>
             <td><?php echo $domain_webhost_name; ?></td>
             <td><?php echo $domain_expire; ?></td>

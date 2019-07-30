@@ -96,7 +96,7 @@ $total_pages = ceil($total_found_rows / 10);
 
           ?>
           <tr>
-            <td><?php echo $transfer_date; ?></td>
+            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTransferModal<?php echo $transfer_id; ?>"><?php echo $transfer_date; ?></a></td>
             <td><?php echo $account_name_from; ?></td>
             <td><?php echo $account_name_to; ?></td>
             <td class="text-right text-monospace">$<?php echo number_format($transfer_amount,2); ?></td>

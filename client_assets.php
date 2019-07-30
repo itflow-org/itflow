@@ -135,7 +135,11 @@ $total_pages = ceil($total_found_rows / 10);
       
           ?>
           <tr>
-            <td><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $asset_type; ?></td>
+            <td>
+              <a class="text-dark" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
+                <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_type; ?>
+              </a>
+            </td>
             <td>
               <?php
               if($asset_id == $asset_id_relation){

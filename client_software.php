@@ -96,7 +96,7 @@ $total_pages = ceil($total_found_rows / 10);
 
           ?>
           <tr>
-            <td><?php echo $software_name; ?></td>
+            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>"><?php echo $software_name; ?></a></td>
             <td><?php echo $software_type; ?></td>
             <td><?php echo $software_license; ?></td>
             <td>

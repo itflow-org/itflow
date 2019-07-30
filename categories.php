@@ -84,7 +84,7 @@
       
           ?>
           <tr>
-            <td><?php echo "$category_name"; ?></td>
+            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editCategoryModal<?php echo $category_id; ?>"><?php echo "$category_name"; ?></a></td>
             <td><?php echo "$category_type"; ?></td>
             <td><i class="fa fa-2x fa-circle" style="color:<?php echo $category_color; ?>;"></i></td>
             <td>
