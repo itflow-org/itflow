@@ -2319,7 +2319,7 @@ if(isset($_POST['add_asset'])){
         $asset_id = mysqli_insert_id($mysqli);
         $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
         $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
-        $description = "$type - $name";
+
         mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$description', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id");
 
     }
@@ -2356,18 +2356,17 @@ if(isset($_POST['edit_asset'])){
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
     $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
     $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
-    $description = "$type - $name";
 
     mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_ip = '$ip', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_note = '$note', asset_updated_at = NOW(), network_id = $network WHERE asset_id = $asset_id");
 
     //If login exists then update the login
     if($login_id > 0){
-        mysqli_query($mysqli,"UPDATE logins SET login_description = '$description', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id");
+        mysqli_query($mysqli,"UPDATE logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id");
     }else{
     //If Username is filled in then add a login
-        if(!empty($_POST['username'])) {
+        if(!empty($username)) {
             
-            mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$description', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id");
+            mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id");
 
         }
     }
@@ -2399,9 +2398,9 @@ if(isset($_POST['add_login'])){
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
-    $application_id = intval($_POST['application']);
+    $software_id = intval($_POST['software']);
 
-    mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = '$password', login_note = '$note', login_created_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, application_id = $application_id, client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = '$password', login_note = '$note', login_created_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id, client_id = $client_id");
 
     $_SESSION['alert_message'] = "Login added";
     
@@ -2417,8 +2416,11 @@ if(isset($_POST['edit_login'])){
     $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
     $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+    $vendor_id = intval($_POST['vendor']);
+    $asset_id = intval($_POST['asset']);
+    $software_id = intval($_POST['software']);
 
-    mysqli_query($mysqli,"UPDATE logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = '$password', login_note = '$note', login_updated_at = NOW() WHERE login_id = $login_id");
+    mysqli_query($mysqli,"UPDATE logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = '$password', login_note = '$note', login_updated_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id WHERE login_id = $login_id");
 
     $_SESSION['alert_message'] = "Login updated";
     
@@ -2622,8 +2624,8 @@ if(isset($_POST['add_software'])){
         $software_id = mysqli_insert_id($mysqli);
         $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
         $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
-        
-        mysqli_query($mysqli,"INSERT INTO logins SET login_username = '$username', login_password = '$password', software_id = $software_id, login_created_at = NOW(), client_id = $client_id");
+
+        mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$name', login_username = '$username', login_password = '$password', software_id = $software_id, login_created_at = NOW(), client_id = $client_id");
 
     }
 
@@ -2636,11 +2638,26 @@ if(isset($_POST['add_software'])){
 if(isset($_POST['edit_software'])){
 
     $software_id = intval($_POST['software_id']);
+    $login_id = intval($_POST['login_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
     $license = strip_tags(mysqli_real_escape_string($mysqli,$_POST['license']));
+    $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
+    $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
 
     mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_type = '$type', software_license = '$license', software_updated_at = NOW() WHERE software_id = $software_id");
+
+    //If login exists then update the login
+    if($login_id > 0){
+        mysqli_query($mysqli,"UPDATE logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id");
+    }else{
+    //If Username is filled in then add a login
+        if(!empty($username)) {
+            
+            mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id");
+
+        }
+    }
 
     $_SESSION['alert_message'] = "Software updated";
     

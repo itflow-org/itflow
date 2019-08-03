@@ -49,7 +49,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-header bg-dark text-white">
    
     <h6 class="float-left mt-2"><i class="fa fa-users mr-2"></i>Clients</h6>
-    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-user-plus"></i> New</button>
+    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-plus"></i></button>
       
   </div>
   <div class="card-body">

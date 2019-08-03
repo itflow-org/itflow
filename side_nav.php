@@ -1,9 +1,7 @@
 <!-- Sidebar -->
 <ul class="sidebar navbar-nav d-print-none">
-  <li class="nav-item">
-    <h2 class="text-white text-center my-3"><?php echo $config_company_name; ?></h2>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "dashboard.php") { echo "active"; } ?>">
+
+  <li class="nav-item mt-4 <?php if(basename($_SERVER["REQUEST_URI"]) == "dashboard.php") { echo "active"; } ?>">
     <a class="nav-link" href="dashboard.php">
       <i class="fas fa-fw fa-tachometer-alt mx-2"></i>
       <span>Dashboard</span>

@@ -87,7 +87,7 @@ $total_pages = ceil($total_found_rows / 10);
             $software_type = $row['software_type'];
             $software_license = $row['software_license'];
 
-            $sql_login = mysqli_query($mysqli,"SELECT * FROM logins WHERE vendor_id = $vendor_id");
+            $sql_login = mysqli_query($mysqli,"SELECT * FROM logins WHERE software_id = $software_id");
             $row = mysqli_fetch_array($sql_login);
             $login_id = $row['login_id'];
             $login_username = $row['login_username'];
@@ -107,20 +107,35 @@ $total_pages = ceil($total_found_rows / 10);
 
               <div class="modal" id="viewPasswordModal<?php echo $login_id; ?>" tabindex="-1">
                 <div class="modal-dialog modal-sm">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title"><i class="fa fa-key"></i> Login</h5>
-                      <button type="button" class="close" data-dismiss="modal">
+                  <div class="modal-content bg-dark">
+                    <div class="modal-header text-white">
+                      <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i><?php echo $software_name; ?></h5>
+                      <button type="button" class="close text-white" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span>
                       </button>
                     </div>
-                    <div class="modal-body">
-                      <h2><?php echo $login_username; ?></h2>
-                      <h3><?php echo $login_password; ?></h3>
+                    <div class="modal-body bg-white">
+                      <div class="form-group">
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-user"></i></span>
+                          </div>
+                          <input type="text" class="form-control" value="<?php echo $login_username; ?>" readonly>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                          </div>
+                          <input type="text" class="form-control" value="<?php echo $login_password; ?>" readonly>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+
               <?php
               }
               ?>

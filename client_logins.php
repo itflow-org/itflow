@@ -92,6 +92,9 @@ $total_pages = ceil($total_found_rows / 10);
             }
             $login_username = $row['login_username'];
             $login_password = $row['login_password'];
+            $vendor_id = $row['vendor_id'];
+            $asset_id = $row['asset_id'];
+            $software_id = $row['software_id'];
       
           ?>
           <tr>

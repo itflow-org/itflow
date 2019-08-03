@@ -9,41 +9,83 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="software_id" value="<?php echo $software_id; ?>">
+        <input type="hidden" name="login_id" value="<?php echo $login_id; ?>">
         <div class="modal-body bg-white">    
           
-          <div class="form-group">
-            <label>Application Name <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-              </div>
-              <input type="text" class="form-control" name="name" placeholder="Software name" value="<?php echo $software_name; ?>" required>
-            </div>
-          </div>
+          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab">
+            <li class="nav-item">
+              <a class="nav-link active" id="pills-software-tab<?php echo $software_id; ?>" data-toggle="pill" href="#pills-software<?php echo $software_id; ?>">Software</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="pills-login-tab<?php echo $software_id; ?>" data-toggle="pill" href="#pills-login<?php echo $software_id; ?>">Login</a>
+            </li>
+          </ul>
+
+          <hr>
           
-          <div class="form-group">
-            <label>Type <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+          <div class="tab-content" id="pills-tabContent<?php echo $software_id; ?>">
+
+            <div class="tab-pane fade show active" id="pills-software<?php echo $software_id; ?>">
+
+              <div class="form-group">
+                <label>Application Name <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="name" placeholder="Software name" value="<?php echo $software_name; ?>" required>
+                </div>
               </div>
-              <select class="form-control selectpicker show-tick" name="type" required>
-                <?php foreach($software_types_array as $software_type_select) { ?>
-                <option <?php if($software_type == $software_type_select) { echo "selected"; } ?>><?php echo $software_type_select; ?></option>
-                <?php } ?>
-              </select>
-            </div>
-          </div>
-        
-          <div class="form-group">
-            <label>License</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+              
+              <div class="form-group">
+                <label>Type <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                  </div>
+                  <select class="form-control selectpicker show-tick" name="type" required>
+                    <?php foreach($software_types_array as $software_type_select) { ?>
+                    <option <?php if($software_type == $software_type_select) { echo "selected"; } ?>><?php echo $software_type_select; ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
               </div>
-              <input type="text" class="form-control" name="license" placeholder="License key" value="<?php echo $software_license; ?>" required> 
+            
+              <div class="form-group">
+                <label>License</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="license" placeholder="License key" value="<?php echo $software_license; ?>" required> 
+                </div>
+              </div>
+
             </div>
-          </div>
+
+            <div class="tab-pane fade" id="pills-login<?php echo $software_id; ?>">
+
+              <div class="form-group">
+                <label>Username</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="username" placeholder="Username" value="<?php echo $login_username; ?>">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label>Password</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="password" placeholder="Password" value="<?php echo $login_password; ?>">
+                </div>
+              </div>
+            
+            </div>
 
         </div>
         <div class="modal-footer bg-white">
