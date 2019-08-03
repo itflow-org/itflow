@@ -1,7 +1,5 @@
 <nav class="navbar navbar-expand navbar-dark bg-primary static-top">
 
-  
-
   <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
     <i class="fas fa-bars"></i>
   </button>
@@ -23,7 +21,7 @@
     <li class="nav-item dropdown no-arrow mx-2">
       <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <?php if($num_alerts > 0){ ?> <span class="badge badge-danger"><?php echo $num_alerts; ?></span> <?php } ?>
-        <i class="fas fa-bell mt-2"></i>
+        <i class="fas fa-fw fa-bell mt-1"></i>
         
       </a>
       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="alertsDropdown">
@@ -35,11 +33,23 @@
     </li>
     <li class="nav-item dropdown no-arrow">
       <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <img height="32" width="32" src="<?php echo "$session_avatar"; ?>" class="img-fluid rounded-circle"> <strong><?php echo "$session_name"; ?></strong>
+        <?php if(!empty($session_avatar)){ ?>
+          <img height="28" width="28" src="<?php echo "$session_avatar"; ?>" class="img-fluid rounded-circle">
+          <?php }else{ ?>
+          <i class="fa fa-fw fa-user mt-1"></i>
+          <?php } ?>
+          <strong><?php echo "$session_name"; ?></strong>
       </a>
       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">   
         <center>
-          <img height="128" width="128" src="<?php echo "$session_avatar"; ?>" class="img-fluid rounded-circle">
+          <?php if(!empty($session_avatar)){ ?>
+          <img class="img-fluid rounded-circle" src="<?php echo $session_avatar; ?>" height="128" width="128">
+          <?php }else{ ?>
+          <span class="fa-stack fa-4x">
+            <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+            <span class="fa fa-stack-1x text-white"><?php echo initials($session_name); ?></span>
+          </span>
+          <?php } ?>
         </center>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" href="settings-user.php"><i class="fa fa-fw fa-cog"></i> Settings</a>

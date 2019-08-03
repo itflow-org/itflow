@@ -33,6 +33,14 @@
   </li>
 
   <li class="nav-item">
+    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-default.php") { echo "active"; } ?>" 
+      href="settings-default.php">
+      <i class="fa fa-fw fa-2x fa-cog"></i><br>
+      Defaults
+    </a> 
+  </li>
+
+  <li class="nav-item">
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-invoice.php") { echo "active"; } ?>" 
       href="settings-invoice.php">
       <i class="fa fa-fw fa-2x fa-file"></i><br>

@@ -221,7 +221,7 @@ if(isset($_GET['invoice_id'])){
               
                 <td></td>            
                 <td><input type="text" class="form-control typeahead" name="name" id="item"></td>
-                <td><textarea class="form-control" rows="1" name="description"></textarea></td>
+                <td><textarea class="form-control" id="description" rows="1" name="description"></textarea></td>
                 <td><input type="text" class="form-control" style="text-align: center;" name="qty"></td>
                 <td><input type="text" class="form-control" style="text-align: right;" id="price" name="price"></td>
                 <td>
@@ -416,22 +416,13 @@ var productCosts = [
 
 ];
 
-$('#item1').typeahead({
+$('#item').typeahead({
   source: products,
   afterSelect: function(){
-    $('#price').val( '<?php echo $product_cost; ?>' );
+    $('#item').val( '<?php echo $product_name; ?>' );
   }
 
 });
 
-$('#item').typeahead({
-  minLength: 3,
-  source: function (query, process) {
-    data: productCosts
-
-  afterSelect: function(args){
-      $('#price').val(args.cost );
-  }
-});
 
 </script>

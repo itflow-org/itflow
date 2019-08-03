@@ -109,9 +109,14 @@ if(isset($_GET['client_id'])){
         <?php
         }
         ?>
-
+        <?php
+        if(!empty($client_phone)){
+        ?>
         <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <?php echo $client_phone; ?>
         <br>
+        <?php 
+        } 
+        ?>
         <?php
         if(!empty($client_website)){
         ?>

@@ -36,7 +36,7 @@ if($_GET['api_key'] == $config_api_key){
 
     }
 
-    if(isset($_GET['phonebookalpha'])){
+    if(isset($_GET['phonebook'])){
 
         header('Content-type: text/xml');
         header('Pragma: public');
@@ -57,46 +57,54 @@ if($_GET['api_key'] == $config_api_key){
                 <Phone>
                     <phonenumber><?php echo $client_phone; ?></phonenumber>
                 </Phone>
+                <Groups>
+                    <groupid>0</groupid>
+                </Groups>
             </Contact>
         <?php
         }
-        echo '</AddressBook>';
 
-    }
-
-    if(isset($_GET['phonebookbeta'])){
-
-        $myfile = fopen("phonebook.xml", "w");
-        
-        $txt = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
-        
-        fwrite($myfile, $txt);
-
-        $txt = "<AddressBook>\n";
-        
-        fwrite($myfile, $txt);
-        $sql = mysqli_query($mysqli,"SELECT * FROM clients;");
+        $sql = mysqli_query($mysqli,"SELECT * FROM contacts;");
 
         while($row = mysqli_fetch_array($sql)){
-            $client_name = $row['client_name'];
-            $client_phone = $row['client_phone'];
+            $vendor_name = $row['contact_name'];
+            $vendor_phone = $row['contact_phone'];
 
-        $txt = "<Contact>\n
-                    <LastName>$client_name</LastName>\n
-                    <Phone>\n
-                        <phonenumber>$client_phone</phonenumber>\n
-                    </Phone>\n
-                </Contact>\n";
+        ?>
+            <Contact>
+                <LastName><?php echo $contact_name; ?></LastName>
+                <Phone>
+                    <phonenumber><?php echo $contact_phone; ?></phonenumber>
+                </Phone>
+                <Groups>
+                    <groupid>1</groupid>
+                </Groups>
+            </Contact>
         
-        fwrite($myfile, $txt);
-
+        <?php
         }
 
-        $txt = "</AddressBook>";
-        fwrite($myfile, $txt);
-        fclose($myfile);
+        $sql = mysqli_query($mysqli,"SELECT * FROM vendors;");
 
-        header("Location: phonebook.xml");
+        while($row = mysqli_fetch_array($sql)){
+            $vendor_name = $row['vendor_name'];
+            $vendor_phone = $row['vendor_phone'];
+
+        ?>
+            <Contact>
+                <LastName><?php echo $vendor_name; ?></LastName>
+                <Phone>
+                    <phonenumber><?php echo $vendor_phone; ?></phonenumber>
+                </Phone>
+                <Groups>
+                    <groupid>2</groupid>
+                </Groups>
+            </Contact>
+        
+        <?php
+        }
+
+        echo '</AddressBook>';
 
     }
 
