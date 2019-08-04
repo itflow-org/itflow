@@ -115,6 +115,21 @@ if(isset($_POST['edit_invoice_settings'])){
 
 }
 
+if(isset($_POST['edit_default_settings'])){
+
+    $config_default_expense_account = intval($_POST['config_default_expense_account']);
+    $config_default_payment_account = intval($_POST['config_default_payment_account']);
+    $config_default_transfer_from_account = intval($_POST['config_default_transfer_from_account']);
+    $config_default_transfer_to_account = intval($_POST['config_default_transfer_to_account']);
+    $config_default_calendar = intval($_POST['config_default_calendar']);
+
+    mysqli_query($mysqli,"UPDATE settings SET config_default_expense_account = $config_default_expense_account, config_default_payment_account = $config_default_payment_account, config_default_transfer_from_account = $config_default_transfer_from_account, config_default_transfer_to_account = $config_default_transfer_to_account, config_default_calendar = $config_default_calendar");
+
+    $_SESSION['alert_message'] = "Default Settings updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if(isset($_POST['enable_2fa'])){
 
     $token = mysqli_real_escape_string($mysqli,$_POST['token']);

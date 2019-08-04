@@ -31,6 +31,13 @@ $config_send_invoice_reminders = $row['config_send_invoice_reminders'];
 $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
 $config_invoice_prefix = $row['config_invoice_prefix'];
 
+//Defaults
+$config_default_expense_account = $row['config_default_expense_account'];
+$config_default_payment_account = $row['config_default_payment_account'];
+$config_default_transfer_from_account = $row['config_default_transfer_from_account'];
+$config_default_transfer_to_account = $row['config_default_transfer_to_account'];
+$config_default_calendar = $row['config_default_calendar'];
+
 $config_quote_email_subject = $row['config_quote_email_subject'];
 
 $config_recurring_email_auto_send = $row['config_recurring_email_auto_send'];

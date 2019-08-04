@@ -60,7 +60,7 @@
                     $balance = $opening_balance + $total_payments - $total_expenses;
 
                   ?>
-                    <option value="<?php echo $account_id; ?>"><div class="float-left"><?php echo $account_name; ?></div><div class="float-right"> [$<?php echo number_format($balance,2); ?>]</div></option>
+                    <option <?php if($config_default_expense_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><div class="float-left"><?php echo $account_name; ?></div><div class="float-right"> [$<?php echo number_format($balance,2); ?>]</div></option>
                   
                   <?php
                   }

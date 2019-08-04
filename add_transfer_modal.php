@@ -57,7 +57,7 @@
                   $balance = $opening_balance + $total_payments - $total_expenses;
                 
                 ?>
-                  <option value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                  <option <?php if($config_default_transfer_from_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
                 
                 <?php
                 }
@@ -91,7 +91,7 @@
                   $balance = $opening_balance + $total_payments - $total_expenses;
 
                 ?>
-                  <option value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                  <option <?php if($config_default_transfer_to_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
                 
                 <?php
                 }

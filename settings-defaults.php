@@ -15,7 +15,7 @@
             <span class="input-group-text"><i class="fa fa-exchange-alt"></i></span>
           </div>
           <select class="form-control selectpicker show-tick" name="config_default_transfer_from_account">
-            <option value="">- Account -</option>
+            <option value="0">- None -</option>
             <?php 
             
             $sql = mysqli_query($mysqli,"SELECT * FROM accounts"); 
@@ -24,7 +24,7 @@
               $account_name = $row['account_name'];
 
             ?>
-              <option value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+              <option <?php if($config_default_transfer_from_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
             
             <?php
             }
@@ -40,7 +40,7 @@
             <span class="input-group-text"><i class="fa fa-exchange-alt"></i></span>
           </div>
           <select class="form-control selectpicker show-tick" name="config_default_transfer_to_account">
-            <option value="">- Account -</option>
+            <option value="0">- None -</option>
             <?php 
             
             $sql = mysqli_query($mysqli,"SELECT * FROM accounts"); 
@@ -49,7 +49,7 @@
               $account_name = $row['account_name'];
 
             ?>
-              <option value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+              <option <?php if($config_default_transfer_to_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
             
             <?php
             }
@@ -65,7 +65,7 @@
             <span class="input-group-text"><i class="fa fa-credit-card"></i></span>
           </div>
           <select class="form-control selectpicker show-tick" name="config_default_payment_account">
-            <option value="">- Account -</option>
+            <option value="0">- None -</option>
             <?php 
             
             $sql = mysqli_query($mysqli,"SELECT * FROM accounts"); 
@@ -74,7 +74,7 @@
               $account_name = $row['account_name'];
 
             ?>
-              <option value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+              <option <?php if($config_default_payment_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
             
             <?php
             }
@@ -90,7 +90,7 @@
             <span class="input-group-text"><i class="fa fa-shopping-cart"></i></span>
           </div>
           <select class="form-control selectpicker show-tick" name="config_default_expense_account">
-            <option value="">- Account -</option>
+            <option value="0">- None -</option>
             <?php 
             
             $sql = mysqli_query($mysqli,"SELECT * FROM accounts"); 
@@ -99,7 +99,7 @@
               $account_name = $row['account_name'];
 
             ?>
-              <option value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+              <option <?php if($config_default_expense_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
             
             <?php
             }
@@ -115,7 +115,7 @@
             <span class="input-group-text"><i class="fa fa-calendar"></i></span>
           </div>
           <select class="form-control selectpicker show-tick" name="config_default_calendar">
-            <option value="">- Calendar -</option>
+            <option value="0">- None -</option>
             <?php 
             
             $sql = mysqli_query($mysqli,"SELECT * FROM calendars"); 
@@ -124,7 +124,7 @@
               $calendar_name = $row['calendar_name'];
 
             ?>
-              <option value="<?php echo $cakendar_id; ?>"><?php echo $calendar_name; ?></option>
+              <option <?php if($config_default_calendar == $calendar_id){ echo "selected"; } ?> value="<?php echo $calendar_id; ?>"><?php echo $calendar_name; ?></option>
             
             <?php
             }
@@ -134,7 +134,7 @@
       </div>
 
       <hr>
-      <button type="submit" name="add_client_contact" class="btn btn-primary">Save</button>
+      <button type="submit" name="edit_default_settings" class="btn btn-primary">Save</button>
         
     </form>
   </div>

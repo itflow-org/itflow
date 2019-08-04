@@ -33,8 +33,8 @@
   </li>
 
   <li class="nav-item">
-    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-default.php") { echo "active"; } ?>" 
-      href="settings-default.php">
+    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-defaults.php") { echo "active"; } ?>" 
+      href="settings-defaults.php">
       <i class="fa fa-fw fa-2x fa-cog"></i><br>
       Defaults
     </a> 
