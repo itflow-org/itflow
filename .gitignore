@@ -1,6 +1,6 @@
 node_modules
 config.php
-uploads/clients/*
-uploads/expenses/*
-uploads/settings/*
-uploads/users/*
+uploads/clients/*/*
+uploads/expenses/*/*
+uploads/settings/*/*
+uploads/users/*/*
