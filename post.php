@@ -786,6 +786,10 @@ if(isset($_POST['add_transfer'])){
     $payment_id = mysqli_insert_id($mysqli);
 
     mysqli_query($mysqli,"INSERT INTO transfers SET transfer_date = '$date', transfer_amount = '$amount', transfer_account_from = $account_from, transfer_account_to = $account_to, expense_id = $expense_id, payment_id = $payment_id, transfer_created_at = NOW()");
+    $transfer_id = mysqli_insert_id($mysqli);
+
+    mysqli_query($mysqli,"UPDATE expenses SET transfer_id = $transfer_id WHERE expense_id = $expense_id");
+    mysqli_query($mysqli,"UPDATE payments SET transfer_id = $transfer_id WHERE payment_id = $payment_id");
 
     $_SESSION['alert_message'] = "Transfer added";
     

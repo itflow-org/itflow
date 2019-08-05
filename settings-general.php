@@ -45,12 +45,12 @@
         </div>
       </div>
 
-      <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
-
-      <div class="form-group mb-5">
+      <div class="form-group mb-4">
         <label>Logo</label>
         <input type="file" class="form-control-file" name="file">
       </div>
+
+      <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
       
       <hr>
       
