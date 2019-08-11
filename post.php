@@ -782,14 +782,10 @@ if(isset($_POST['add_transfer'])){
     mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', vendor_id = 0, account_id = $account_from, expense_created_at = NOW()");
     $expense_id = mysqli_insert_id($mysqli);
     
-    mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = '$amount', account_id = $account_to, invoice_id = 0, payment_created_at = NOW()");
-    $payment_id = mysqli_insert_id($mysqli);
+    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', account_id = $account_to, category_id = 0, revenue_created_at = NOW()");
+    $revenue_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO transfers SET transfer_date = '$date', transfer_amount = '$amount', transfer_account_from = $account_from, transfer_account_to = $account_to, expense_id = $expense_id, payment_id = $payment_id, transfer_created_at = NOW()");
-    $transfer_id = mysqli_insert_id($mysqli);
-
-    mysqli_query($mysqli,"UPDATE expenses SET transfer_id = $transfer_id WHERE expense_id = $expense_id");
-    mysqli_query($mysqli,"UPDATE payments SET transfer_id = $transfer_id WHERE payment_id = $payment_id");
+    mysqli_query($mysqli,"INSERT INTO transfers SET expense_id = $expense_id, revenue_id = $revenue_id, transfer_created_at = NOW()");
 
     $_SESSION['alert_message'] = "Transfer added";
     
@@ -801,7 +797,7 @@ if(isset($_POST['edit_transfer'])){
 
     $transfer_id = intval($_POST['transfer_id']);
     $expense_id = intval($_POST['expense_id']);
-    $payment_id = intval($_POST['payment_id']);
+    $revenue_id = intval($_POST['revenue_id']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $amount = $_POST['amount'];
     $account_from = intval($_POST['account_from']);
@@ -809,7 +805,7 @@ if(isset($_POST['edit_transfer'])){
 
     mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account_from, expense_updated_at = NOW() WHERE expense_id = $expense_id");
 
-    mysqli_query($mysqli,"UPDATE payments SET payment_date = '$date', payment_amount = '$amount', account_id = $account_to, payment_updated_at = NOW() WHERE payment_id = $payment_id");
+    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', account_id = $account_to, revenue_updated_at = NOW() WHERE revenue_id = $revenue_id");
 
     mysqli_query($mysqli,"UPDATE transfers SET transfer_date = '$date', transfer_amount = '$amount', transfer_account_from = $account_from, transfer_account_to = $account_to, transfer_updated_at = NOW() WHERE transfer_id = $transfer_id");
 
@@ -826,11 +822,11 @@ if(isset($_GET['delete_transfer'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM transfers WHERE transfer_id = $transfer_id");
     $row = mysqli_fetch_array($sql);
     $expense_id = $row['expense_id'];
-    $payment_id = $row['payment_id'];
+    $revenue_id = $row['revenue_id'];
 
     mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id");
 
-    mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
+    mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id");
 
     mysqli_query($mysqli,"DELETE FROM transfers WHERE transfer_id = $transfer_id");
 
@@ -2001,6 +1997,54 @@ if(isset($_GET['email_invoice'])){
     }
 }
 
+if(isset($_POST['add_revenue'])){
+
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $amount = $_POST['amount'];
+    $account = intval($_POST['account']);
+    $category = intval($_POST['category']);
+    $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
+
+    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_created_at = NOW(), category_id = $category, account_id = $account");
+
+    $_SESSION['alert_message'] = "Revenue added!";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_revenue'])){
+
+    $revenue_id = intval($_POST['revenue_id']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $amount = $_POST['amount'];
+    $account = intval($_POST['account']);
+    $category = intval($_POST['category']);
+    $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
+
+    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_updated_at = NOW(), category_id = $category, account_id = $account WHERE revenue_id = $revenue_id");
+
+    $_SESSION['alert_message'] = "Revenue modified!";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    
+}
+
+if(isset($_GET['delete_revenue'])){
+    $revenue_id = intval($_GET['delete_revenue']);
+
+    mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id");
+
+    $_SESSION['alert_message'] = "Revenue deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_GET['pdf_invoice'])){
 
     $invoice_id = intval($_GET['pdf_invoice']);
@@ -2345,7 +2389,7 @@ if(isset($_POST['add_asset'])){
 
     $_SESSION['alert_message'] = "Asset added";
     
-   // header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 

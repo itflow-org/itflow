@@ -13,14 +13,24 @@ if(isset($_GET['year'])){
   $year = date('Y');
 }
 
-//GET THE YEARS
-$sql_payment_years = mysqli_query($mysqli,"SELECT DISTINCT YEAR(payment_date) AS payment_year FROM payments ORDER BY payment_year DESC");
+//GET unique years from expenses, payments and revenues
+$sql_payment_years = mysqli_query($mysqli,"SELECT YEAR(expense_date) AS all_years FROM expenses UNION DISTINCT SELECT YEAR(payment_date) FROM payments UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues ORDER BY all_years DESC");
 
 
-//Get Total income Do not grab transfer payment as these have an invoice_id of 0
-$sql_total_income = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_income FROM payments WHERE YEAR(payment_date) = $year AND invoice_id > 0");
-$row = mysqli_fetch_array($sql_total_income);
-$total_income = $row['total_income'];
+//GET unique years from expenses, payments and revenues
+$sql_payment_years = mysqli_query($mysqli,"SELECT YEAR(expense_date) AS all_years FROM expenses UNION DISTINCT SELECT YEAR(payment_date) FROM payments UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues ORDER BY all_years DESC");
+
+
+//Get Total income
+$sql_total_payments_to_invoices = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_to_invoices FROM payments WHERE YEAR(payment_date) = $year");
+$row = mysqli_fetch_array($sql_total_payments_to_invoices);
+$total_payments_to_invoices = $row['total_payments_to_invoices'];
+//Do not grab transfer payment as these have an category_id of 0
+$sql_total_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE YEAR(revenue_date) = $year AND category_id > 0");
+$row = mysqli_fetch_array($sql_total_revenues);
+$total_revenues = $row['total_revenues'];
+
+$total_income = $total_payments_to_invoices + $total_revenues;
 
 //Get Total expenses and do not grab transfer expenses as these have a vendor of 0
 $sql_total_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE vendor_id > 0 AND YEAR(expense_date) = $year");
@@ -32,13 +42,13 @@ $sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoic
 $row = mysqli_fetch_array($sql_invoice_totals);
 $invoice_totals = $row['invoice_totals'];
 
-$recievables = $invoice_totals - $total_income; 
+$recievables = $invoice_totals - $total_payments_to_invoices; 
 
 $profit = $total_income - $total_expenses;
 
-$sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts ORDER BY account_id DESC");
+$sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts");
 
-$sql_latest_income_payments = mysqli_query($mysqli,"SELECT * FROM payments, invoices, clients 
+$sql_latest_invoice_payments = mysqli_query($mysqli,"SELECT * FROM payments, invoices, clients 
 	WHERE payments.invoice_id = invoices.invoice_id 
 	AND invoices.client_id = clients.client_id 
 	ORDER BY payment_id DESC LIMIT 5"
@@ -57,7 +67,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
     <?php 
             
     while($row = mysqli_fetch_array($sql_payment_years)){
-      $payment_year = $row['payment_year'];
+      $payment_year = $row['all_years'];
     ?>
     <option <?php if($year == $payment_year){ ?> selected <?php } ?> > <?php echo $payment_year; ?></option>
     
@@ -167,18 +177,24 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
             <tr>
 	            <td><?php echo $account_name; ?></a></td>
 	            <?php
-	            $sql2 = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
-	            $row2 = mysqli_fetch_array($sql2);
+	            $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
+              $row = mysqli_fetch_array($sql_payments);
+              $total_payments = $row['total_payments'];
 	            
-	            $sql3 = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
-	            $row3 = mysqli_fetch_array($sql3);
+	            $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id");
+              $row = mysqli_fetch_array($sql_revenues);
+              $total_revenues = $row['total_revenues'];
+              
+              $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
+              $row = mysqli_fetch_array($sql_expenses);
+              $total_expenses = $row['total_expenses'];
 	            
-	            $balance = $opening_balance + $row2['total_payments'] - $row3['total_expenses'];
+              $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
+
 	            if($balance == ''){
 	              $balance = '0.00'; 
 	            }
 	            ?>
-
 	            <td class="text-right text-monospace">$<?php echo number_format($balance,2); ?></td>
 	          </tr>
 	          <?php
@@ -193,7 +209,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
   <div class="col-md-4">
     <div class="card">
       <div class="card-header">
-        Latest Payments
+        Latest Invoice Payments
       </div>
       <div class="table-responsive">
         <table class="table table-borderless">
@@ -207,7 +223,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
           </thead>
           <tbody>
             <?php
-          	while($row = mysqli_fetch_array($sql_latest_income_payments)){
+          	while($row = mysqli_fetch_array($sql_latest_invoice_payments)){
 	            $payment_date = $row['payment_date'];
 	            $payment_amount = $row['payment_amount'];
 	            $invoice_number = $row['invoice_number'];
@@ -298,7 +314,14 @@ var myLineChart = new Chart(ctx, {
       for($month = 1; $month<=12; $month++) {
           $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
           $row = mysqli_fetch_array($sql_payments);
-          $income_for_month = $row['payment_amount_for_month'];
+          $payments_for_month = $row['payment_amount_for_month'];
+
+          $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
+          $row = mysqli_fetch_array($sql_revenues);
+          $revenues_for_month = $row['revenue_amount_for_month'];
+
+          $income_for_month = $payments_for_month + $revenues_for_month;
+          
           if($income_for_month > 0 AND $income_for_month > $largest_income_month){
             $largest_income_month = $income_for_month;
           }

@@ -35,7 +35,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
       </select>
     </form>
     <div class="table-responsive">
-      <table class="table">
+      <table class="table table-striped table-sm">
         <thead class="text-dark">
           <tr>
             <th>Category</th>

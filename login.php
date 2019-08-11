@@ -1,3 +1,11 @@
+<?php
+
+if(!file_exists('config.php')){
+  header("Location: setup.php");
+}
+
+?>
+
 <?php include("config.php"); ?>
 
 <?php

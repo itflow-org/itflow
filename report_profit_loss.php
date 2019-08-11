@@ -8,8 +8,8 @@ if(isset($_GET['year'])){
   $year = date('Y');
 }
 
-//GET unique years from expenses and payments
-$sql_all_years = mysqli_query($mysqli,"SELECT YEAR(expense_date) AS all_years FROM expenses UNION DISTINCT SELECT YEAR(payment_date) FROM payments ORDER BY all_years DESC");
+//GET unique years from expenses, payments and revenues
+$sql_all_years = mysqli_query($mysqli,"SELECT YEAR(expense_date) AS all_years FROM expenses UNION DISTINCT SELECT YEAR(payment_date) FROM payments UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues ORDER BY all_years DESC");
 
 $sql_categories_income = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' ORDER BY category_name ASC");
 
@@ -40,7 +40,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
       </select>
     </form>
     <div class="table-responsive">
-      <table class="table">
+      <table class="table table-striped table-sm">
         <thead class="text-dark">
           <tr>
             <th></th>
@@ -70,7 +70,15 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
               for($month = 1; $month<=3; $month++) {
                 $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.category_id = $category_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
                 $row = mysqli_fetch_array($sql_payments);
-                $payment_amount_for_quarter_one = $payment_amount_for_quarter_one + $row['payment_amount_for_month'];              
+                $payment_amount_for_month = $row['payment_amount_for_month'];
+
+                $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenues.category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
+                $row = mysqli_fetch_array($sql_revenues);
+                $revenue_amount_for_month = $row['revenue_amount_for_month'];
+
+                $payment_amount_for_month = $payment_amount_for_month + $revenue_amount_for_month;
+                
+                $payment_amount_for_quarter_one = $payment_amount_for_quarter_one + $payment_amount_for_month;              
               }
               
               ?>
@@ -82,7 +90,15 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
               for($month = 4; $month<=6; $month++) {
                 $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.category_id = $category_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
                 $row = mysqli_fetch_array($sql_payments);
-                $payment_amount_for_quarter_two = $payment_amount_for_quarter_two + $row['payment_amount_for_month'];
+                $payment_amount_for_month = $row['payment_amount_for_month'];
+
+                $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenues.category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
+                $row = mysqli_fetch_array($sql_revenues);
+                $revenue_amount_for_month = $row['revenue_amount_for_month'];
+
+                $payment_amount_for_month = $payment_amount_for_month + $revenue_amount_for_month;
+
+                $payment_amount_for_quarter_two = $payment_amount_for_quarter_two + $payment_amount_for_month;
               }
               
               ?>
@@ -94,7 +110,14 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
               for($month = 7; $month<=9; $month++) {
                 $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.category_id = $category_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
                 $row = mysqli_fetch_array($sql_payments);
-                $payment_amount_for_quarter_three = $payment_amount_for_quarter_three + $row['payment_amount_for_month'];
+                $payment_amount_for_month = $row['payment_amount_for_month'];
+
+                $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenues.category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
+                $row = mysqli_fetch_array($sql_revenues);
+                $revenue_amount_for_month = $row['revenue_amount_for_month'];
+
+                $payment_amount_for_month = $payment_amount_for_month + $revenue_amount_for_month;
+                $payment_amount_for_quarter_three = $payment_amount_for_quarter_three + $payment_amount_for_month;
               }
               
               ?>
@@ -106,7 +129,14 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
               for($month = 10; $month<=12; $month++) {
                 $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.category_id = $category_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
                 $row = mysqli_fetch_array($sql_payments);
-                $payment_amount_for_quarter_four = $payment_amount_for_quarter_four + $row['payment_amount_for_month'];
+                $payment_amount_for_month = $row['payment_amount_for_month'];
+
+                $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenues.category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
+                $row = mysqli_fetch_array($sql_revenues);
+                $revenue_amount_for_month = $row['revenue_amount_for_month'];
+
+                $payment_amount_for_month = $payment_amount_for_month + $revenue_amount_for_month;
+                $payment_amount_for_quarter_four = $payment_amount_for_quarter_four + $payment_amount_for_month;
               }
               
               $total_payments_for_all_four_quarters = $payment_amount_for_quarter_one + $payment_amount_for_quarter_two + $payment_amount_for_quarter_three + $payment_amount_for_quarter_four;
@@ -137,7 +167,15 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
             for($month = 1; $month<=3; $month++) {
               $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_total_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
               $row = mysqli_fetch_array($sql_payments);
-              $payment_total_amount_for_quarter_one = $payment_total_amount_for_quarter_one + $row['payment_total_amount_for_month'];
+              $payment_total_amount_for_month = $row['payment_total_amount_for_month'];
+
+              $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_total_amount_for_month FROM revenues WHERE category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
+              $row = mysqli_fetch_array($sql_revenues);
+              $revenue_total_amount_for_month = $row['revenue_total_amount_for_month'];
+
+              $payment_total_amount_for_month = $payment_total_amount_for_month + $revenue_total_amount_for_month;
+
+              $payment_total_amount_for_quarter_one = $payment_total_amount_for_quarter_one + $payment_total_amount_for_month;
             }
             
             ?>  
@@ -149,7 +187,15 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
             for($month = 4; $month<=6; $month++) {
               $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_total_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
               $row = mysqli_fetch_array($sql_payments);
-              $payment_total_amount_for_quarter_two = $payment_total_amount_for_quarter_two + $row['payment_total_amount_for_month'];
+              $payment_total_amount_for_month = $row['payment_total_amount_for_month'];
+
+              $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_total_amount_for_month FROM revenues WHERE category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
+              $row = mysqli_fetch_array($sql_revenues);
+              $revenue_total_amount_for_month = $row['revenue_total_amount_for_month'];
+
+              $payment_total_amount_for_month = $payment_total_amount_for_month + $revenue_total_amount_for_month;
+
+              $payment_total_amount_for_quarter_two = $payment_total_amount_for_quarter_two + $payment_total_amount_for_month;
             }
             
             ?>  
@@ -161,7 +207,15 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
             for($month = 7; $month<=9; $month++) {
               $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_total_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
               $row = mysqli_fetch_array($sql_payments);
-              $payment_total_amount_for_quarter_three = $payment_total_amount_for_quarter_three + $row['payment_total_amount_for_month'];
+              $payment_total_amount_for_month = $row['payment_total_amount_for_month'];
+
+              $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_total_amount_for_month FROM revenues WHERE category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
+              $row = mysqli_fetch_array($sql_revenues);
+              $revenue_total_amount_for_month = $row['revenue_total_amount_for_month'];
+
+              $payment_total_amount_for_month = $payment_total_amount_for_month + $revenue_total_amount_for_month;
+
+              $payment_total_amount_for_quarter_three = $payment_total_amount_for_quarter_three + $payment_total_amount_for_month;
             }
             
             ?>  
@@ -173,7 +227,15 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
             for($month = 10; $month<=12; $month++) {
               $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_total_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
               $row = mysqli_fetch_array($sql_payments);
-              $payment_total_amount_for_quarter_four = $payment_total_amount_for_quarter_four + $row['payment_total_amount_for_month'];
+              $payment_total_amount_for_month = $row['payment_total_amount_for_month'];
+
+              $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_total_amount_for_month FROM revenues WHERE category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
+              $row = mysqli_fetch_array($sql_revenues);
+              $revenue_total_amount_for_month = $row['revenue_total_amount_for_month'];
+
+              $payment_total_amount_for_month = $payment_total_amount_for_month + $revenue_total_amount_for_month;
+
+              $payment_total_amount_for_quarter_four = $payment_total_amount_for_quarter_four + $payment_total_amount_for_month;
             }
             
             $total_payments_for_all_four_quarters = $payment_total_amount_for_quarter_one + $payment_total_amount_for_quarter_two + $payment_total_amount_for_quarter_three + $payment_total_amount_for_quarter_four;

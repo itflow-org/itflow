@@ -1,15 +1,13 @@
-<div class="modal" id="addPaymentModal" tabindex="-1">
+<div class="modal" id="addRevenueModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-money-bill-alt mr-2"></i>Add Payment</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-money-bill-alt mr-2"></i>Add Revenue</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-        <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
-        <input type="hidden" name="balance" value="<?php echo $balance; ?>">
         <div class="modal-body bg-white">
           
           <div class="form-group">
@@ -28,7 +26,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
               </div>
-              <input type="number" class="form-control" step="0.01" min="0.00" name="amount" value="<?php echo $balance; ?>" required>
+              <input type="number" class="form-control" step="0.01" min="0.00" name="amount" required>
             </div>
           </div>
 
@@ -52,15 +50,11 @@
                   $row = mysqli_fetch_array($sql_payments);
                   $total_payments = $row['total_payments'];
                   
-                  $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id");
-                  $row = mysqli_fetch_array($sql_revenues);
-                  $total_revenues = $row['total_revenues'];
-
                   $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
                   $row = mysqli_fetch_array($sql_expenses);
                   $total_expenses = $row['total_expenses'];
 
-                  $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
+                  $balance = $opening_balance + $total_payments - $total_expenses;
                   
                 ?>
                   <option <?php if($config_default_payment_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
@@ -71,7 +65,31 @@
               </select>
             </div>
           </div>
-          
+        
+          <div class="form-group">
+            <label>Category <strong class="text-danger">*</strong></label>
+            <div class="input-group"> 
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
+              </div> 
+              <select class="form-control selectpicker show-tick" name="category" required>
+                <option value="">- Category -</option>
+                <?php 
+                
+                $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income'"); 
+                while($row = mysqli_fetch_array($sql)){
+                  $category_id = $row['category_id'];
+                  $category_name = $row['category_name'];
+                ?>
+                  <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                
+                <?php
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+
           <div class="form-group">
             <label>Payment Method <strong class="text-danger">*</strong></label>
             <div class="input-group"> 
@@ -104,14 +122,16 @@
               <input type="text" class="form-control" name="reference" placeholder="Enter a reference">
             </div>
           </div>
-          <div class="custom-control custom-checkbox">
-            <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_receipt" value="1" >
-            <label class="custom-control-label" for="customControlAutosizing">Email Reciept</label>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" rows="4" name="description"></textarea>
           </div>
+  
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_payment" class="btn btn-primary">Save</button>
+          <button type="submit" name="add_revenue" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

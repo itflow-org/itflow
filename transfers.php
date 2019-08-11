@@ -40,7 +40,7 @@
   }
  
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM transfers ORDER BY $sb $o LIMIT $record_from, $record_to");
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS expenses.expense_date AS transfer_date, expenses.expense_amount AS transfer_amount, expenses.account_id AS transfer_account_from, revenues.account_id AS transfer_account_to, transfers.expense_id, transfers.revenue_id , transfers.transfer_id FROM transfers, expenses, revenues WHERE transfers.expense_id = expenses.expense_id AND transfers.revenue_id = revenues.revenue_id ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 $total_found_rows = $num_rows[0];
@@ -68,8 +68,8 @@ $total_pages = ceil($total_found_rows / 10);
         <thead class="text-dark">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=transfer_date&o=<?php echo $disp; ?>">Date</a></th>
-            <th>From Account</th>
-            <th>To Account</th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=transfer_account_from&o=<?php echo $disp; ?>">From Account</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=transfer_account_to&o=<?php echo $disp; ?>">To Account</a></th>
             <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=transfer_amount&o=<?php echo $disp; ?>">Amount</a></th>
             <th class="text-center">Action</th>
           </tr>
@@ -84,7 +84,7 @@ $total_pages = ceil($total_found_rows / 10);
             $transfer_account_to = $row['transfer_account_to'];
             $transfer_amount = $row['transfer_amount'];
             $expense_id = $row['expense_id'];
-            $payment_id = $row['payment_id'];
+            $revenue_id = $row['revenue_id'];
             
             $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_id = $transfer_account_from");
             $row = mysqli_fetch_array($sql2);

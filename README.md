@@ -45,10 +45,10 @@ CRM, Accounting and Invoicing System for small managed IT companies
 
 ### Installation Instructions
 
-* Download the files in this repository
+* Clone this repo
 * Create a Mysql database
 * Point your browser to setup.php fill in the info
-* Your Done! that easy..
+* Your Done!
 
 #### Requirements
 * Webserver (Apache, NGINX)

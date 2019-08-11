@@ -42,6 +42,12 @@
       <span>Quotes</span>
     </a>
   </li>
+  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "revenues.php") { echo "active"; } ?>">
+    <a class="nav-link" href="revenues.php">
+      <i class="fas fa-fw fa-credit-card mx-2"></i>
+      <span>Revenues</span>
+    </a>
+  </li>
   <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "invoices.php") { echo "active"; } ?>">
     <a class="nav-link" href="invoices.php">
       <i class="fas fa-fw fa-file-invoice-dollar mx-2"></i>
