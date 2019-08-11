@@ -232,13 +232,13 @@ CREATE TABLE `expenses` (
   `expense_amount` decimal(15,2) NOT NULL,
   `expense_date` date NOT NULL,
   `expense_reference` varchar(200) DEFAULT NULL,
+  `expense_payment_method` varchar(200) DEFAULT NULL,
   `expense_receipt` varchar(200) DEFAULT NULL,
   `expense_created_at` datetime NOT NULL,
   `expense_updated_at` datetime DEFAULT NULL,
   `vendor_id` int(11) DEFAULT NULL,
   `category_id` int(11) DEFAULT NULL,
   `account_id` int(11) DEFAULT NULL,
-  `transfer_id` int(11) DEFAULT 0,
   PRIMARY KEY (`expense_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -316,7 +316,7 @@ DROP TABLE IF EXISTS `invoices`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `invoices` (
   `invoice_id` int(11) NOT NULL AUTO_INCREMENT,
-  `invoice_number` int(11) NOT NULL,
+  `invoice_number` varchar(20) NOT NULL,
   `invoice_status` varchar(200) NOT NULL,
   `invoice_date` date NOT NULL,
   `invoice_due` date NOT NULL,
@@ -455,7 +455,6 @@ CREATE TABLE `payments` (
   `payment_updated_at` datetime DEFAULT NULL,
   `account_id` int(11) NOT NULL,
   `invoice_id` int(11) DEFAULT NULL,
-  `transfer_id` int(11) DEFAULT 0,
   PRIMARY KEY (`payment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -522,6 +521,29 @@ CREATE TABLE `recurring` (
   `client_id` int(11) NOT NULL,
   PRIMARY KEY (`recurring_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `revenues`
+--
+
+DROP TABLE IF EXISTS `revenues`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `revenues` (
+  `revenue_id` int(11) NOT NULL AUTO_INCREMENT,
+  `revenue_date` date NOT NULL,
+  `revenue_amount` decimal(15,2) NOT NULL,
+  `revenue_payment_method` varchar(200) DEFAULT NULL,
+  `revenue_reference` varchar(200) DEFAULT NULL,
+  `revenue_description` varchar(200) DEFAULT NULL,
+  `revenue_created_at` datetime NOT NULL,
+  `revenue_updated_at` datetime DEFAULT NULL,
+  `category_id` int(11) NOT NULL,
+  `account_id` int(11) NOT NULL,
+  `client_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`revenue_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -640,14 +662,10 @@ DROP TABLE IF EXISTS `transfers`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `transfers` (
   `transfer_id` int(11) NOT NULL AUTO_INCREMENT,
-  `transfer_amount` decimal(15,2) NOT NULL,
-  `transfer_date` date NOT NULL,
   `transfer_created_at` datetime NOT NULL,
   `transfer_updated_at` datetime DEFAULT NULL,
-  `transfer_account_from` int(11) NOT NULL,
-  `transfer_account_to` int(11) NOT NULL,
   `expense_id` int(11) NOT NULL,
-  `payment_id` int(11) NOT NULL,
+  `revenue_id` int(11) NOT NULL,
   PRIMARY KEY (`transfer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -735,4 +753,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-08-05 17:42:16
+-- Dump completed on 2019-08-11 13:46:43
