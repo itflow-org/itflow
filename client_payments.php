@@ -96,7 +96,7 @@ $total_pages = ceil($total_found_rows / 10);
           ?>
           <tr>
             <td><?php echo $payment_date; ?></td>
-            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>">INV-<?php echo $invoice_number; ?></a></td>
+            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo $invoice_number; ?></a></td>
             <td class="text-right text-monospace">$<?php echo number_format($payment_amount,2); ?></td>
             <td><?php echo $account_name; ?></td>
             <td><?php echo $payment_method; ?></td>

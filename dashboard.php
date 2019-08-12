@@ -123,7 +123,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
     </div>
   </div>
 
-  <div class="col-lg-4">
+  <div class="col-lg-6">
     <div class="card mb-3">
       <div class="card-header">
         <i class="fas fa-chart-pie"></i>
@@ -135,7 +135,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
     </div>
   </div>
 
-  <div class="col-lg-4">
+  <div class="col-lg-6">
     <div class="card mb-3">
       <div class="card-header">
         <i class="fas fa-chart-pie"></i>
@@ -147,7 +147,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
     </div>
   </div>
 
-  <div class="col-lg-4">
+  <div class="col-lg-6">
     <div class="card mb-3">
       <div class="card-header">
         <i class="fas fa-chart-pie"></i>
@@ -159,7 +159,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
     </div>
   </div>
 
-  <div class="col-md-4">
+  <div class="col-md-6">
     <div class="card">
       <div class="card-header">
         Account Balance
@@ -206,7 +206,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
       </div>
     </div>
   </div> <!-- .col -->
-  <div class="col-md-4">
+  <div class="col-md-6">
     <div class="card">
       <div class="card-header">
         Latest Invoice Payments
@@ -243,7 +243,7 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
       </div>
     </div>
   </div> <!-- .col -->
-  <div class="col-md-4">
+  <div class="col-md-6">
     <div class="card">
       <div class="card-header">
         Latest Expenses

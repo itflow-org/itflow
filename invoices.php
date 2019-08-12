@@ -212,7 +212,7 @@
           ?>
 
           <tr>
-            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>">INV-<?php echo $invoice_number; ?></a></td>
+            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo $invoice_number; ?></a></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
             <td class="text-right text-monospace">$<?php echo number_format($invoice_amount,2); ?></td>
             <td><?php echo $invoice_date; ?></td>
