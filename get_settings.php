@@ -20,6 +20,9 @@ $config_company_site = $row['config_company_site'];
 
 $config_quote_footer = $row['config_quote_footer'];
 $config_quote_email_subject = $row['config_quote_email_subject'];
+$config_quote_next_number = $row['config_quote_next_number'];
+$config_quote_prefix = $row['config_quote_prefix'];
+
 
 $config_smtp_host = $row['config_smtp_host'];
 $config_smtp_username = $row['config_smtp_username'];

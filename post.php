@@ -98,7 +98,6 @@ if(isset($_POST['edit_invoice_settings'])){
     $config_mail_from_email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_email']));
     $config_mail_from_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name']));
     $config_invoice_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer']));
-    $config_quote_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_footer']));
     $config_send_invoice_reminders = $_POST['config_send_invoice_reminders'];
     if($config_send_invoice_reminders == 1){
         $config_send_invoice_reminders = 1;
@@ -107,13 +106,28 @@ if(isset($_POST['edit_invoice_settings'])){
     }
     $config_invoice_overdue_reminders = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_overdue_reminders']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_quote_footer = '$config_quote_footer'");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders'");
 
     $_SESSION['alert_message'] = "Invoice Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
+
+if(isset($_POST['edit_quote_settings'])){
+
+    $config_quote_prefix = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_prefix']));
+    $config_quote_next_number = intval($_POST['config_quote_next_number']);
+    $config_quote_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_footer']));
+
+    mysqli_query($mysqli,"UPDATE settings SET config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer'");
+
+    $_SESSION['alert_message'] = "Quote Settings updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 
 if(isset($_POST['edit_default_settings'])){
 
@@ -845,13 +859,6 @@ if(isset($_POST['add_invoice'])){
     $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients WHERE client_id = $client"); 
     $row = mysqli_fetch_array($sql);
     $client_net_terms = $row['client_net_terms'];
-
-    //OLD Get the last Invoice Number and add 1 for the new invoice number
-    //$sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
-    //$row = mysqli_fetch_array($sql);
-    //$invoice_number = $row['invoice_number'] + 1;
-
-    //OLD Get the last Invoice Number and add 1 for the new invoice number
     
     //Get the last Invoice Number and add 1 for the new invoice number
     $invoice_number = "$config_invoice_prefix$config_invoice_next_number";
@@ -895,10 +902,9 @@ if(isset($_POST['add_invoice_copy'])){
     $row = mysqli_fetch_array($sql);
     $client_net_terms = $row['client_net_terms'];
 
-    //Get the last Invoice Number and add 1 for the new invoice number
-    $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
-    $row = mysqli_fetch_array($sql);
-    $invoice_number = $row['invoice_number'] + 1;
+    $invoice_number = "$config_invoice_prefix$config_invoice_next_number";
+    $new_config_invoice_next_number = $config_invoice_next_number + 1;
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = 1");
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql);
@@ -907,7 +913,7 @@ if(isset($_POST['add_invoice_copy'])){
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', invoice_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', invoice_created_at = NOW(), client_id = $client_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -977,15 +983,15 @@ if(isset($_POST['add_quote'])){
     $category = intval($_POST['category']);
     
     //Get the last Invoice Number and add 1 for the new invoice number
-    $sql = mysqli_query($mysqli,"SELECT quote_number FROM quotes ORDER BY quote_number DESC LIMIT 1");
-    $row = mysqli_fetch_array($sql);
-    $quote_number = $row['quote_number'] + 1;
+    $quote_number = "$config_quote_prefix$config_quote_next_number";
+    $new_config_quote_next_number = $config_quote_next_number + 1;
+    mysqli_query($mysqli,"UPDATE settings SET config_quote_next_number = $new_config_quote_next_number WHERE company_id = 1");
 
     //Generate a unique URL key for clients to access
     $quote_url_key = keygen();
 
 
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = $quote_number, quote_date = '$date', category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_created_at = NOW(), client_id = $client");
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = '$quote_number', quote_date = '$date', category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_created_at = NOW(), client_id = $client");
 
     $quote_id = mysqli_insert_id($mysqli);
 
@@ -994,6 +1000,92 @@ if(isset($_POST['add_quote'])){
     $_SESSION['alert_message'] = "Quote added";
     
     header("Location: quote.php?quote_id=$quote_id");
+
+}
+
+if(isset($_POST['add_quote_copy'])){
+
+    $quote_id = intval($_POST['quote_id']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    
+    //Get the last Invoice Number and add 1 for the new invoice number
+    $quote_number = "$config_quote_prefix$config_quote_next_number";
+    $new_config_quote_next_number = $config_quote_next_number + 1;
+    mysqli_query($mysqli,"UPDATE settings SET config_quote_next_number = $new_config_quote_next_number WHERE company_id = 1");
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_array($sql);
+    $quote_amount = $row['quote_amount'];
+    $quote_note = $row['quote_note'];
+    $client_id = $row['client_id'];
+    $category_id = $row['category_id'];
+
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = '$quote_number', quote_date = '$date', category_id = $category_id, quote_status = 'Draft', quote_amount = '$quote_amount', quote_note = '$quote_note', quote_created_at = NOW(), client_id = $client_id");
+
+    $new_quote_id = mysqli_insert_id($mysqli);
+
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote copied!', history_created_at = NOW(), quote_id = $new_quote_id");
+
+    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
+    while($row = mysqli_fetch_array($sql_items)){
+        $item_id = $row['item_id'];
+        $item_name = $row['item_name'];
+        $item_description = $row['item_description'];
+        $item_quantity = $row['item_quantity'];
+        $item_price = $row['item_price'];
+        $item_subtotal = $row['item_subtotal'];
+        $item_tax = $row['item_tax'];
+        $item_total = $row['item_total'];
+
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), quote_id = $new_quote_id");
+    }
+
+    $_SESSION['alert_message'] = "Quote copied";
+    
+    header("Location: quote.php?quote_id=$new_quote_id");
+
+}
+
+if(isset($_POST['add_quote_to_invoice'])){
+
+    $quote_id = intval($_POST['quote_id']);
+    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $client_net_terms = intval($_POST['client_net_terms']);
+    
+    $invoice_number = "$config_invoice_prefix$config_invoice_next_number";
+    $new_config_invoice_next_number = $config_invoice_next_number + 1;
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = 1");
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_array($sql);
+    $quote_amount = $row['quote_amount'];
+    $quote_note = $row['quote_note'];
+    $client_id = $row['client_id'];
+    $category_id = $row['category_id'];
+
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_created_at = NOW(), client_id = $client_id");
+
+    $new_invoice_id = mysqli_insert_id($mysqli);
+
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote copied to Invoice!', history_created_at = NOW(), invoice_id = $new_invoice_id");
+
+    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
+    while($row = mysqli_fetch_array($sql_items)){
+        $item_id = $row['item_id'];
+        $item_name = $row['item_name'];
+        $item_description = $row['item_description'];
+        $item_quantity = $row['item_quantity'];
+        $item_price = $row['item_price'];
+        $item_subtotal = $row['item_subtotal'];
+        $item_tax = $row['item_tax'];
+        $item_total = $row['item_total'];
+
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), invoice_id = $new_invoice_id");
+    }
+
+    $_SESSION['alert_message'] = "Quoted copied to Invoice";
+    
+    header("Location: invoice.php?invoice_id=$new_invoice_id");
 
 }
 
@@ -1077,93 +1169,6 @@ if(isset($_GET['delete_quote'])){
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
-}
-
-if(isset($_POST['add_quote_copy'])){
-
-    $quote_id = intval($_POST['quote_id']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    
-    //Get the last Invoice Number and add 1 for the new invoice number
-    $sql = mysqli_query($mysqli,"SELECT quote_number FROM quotes ORDER BY quote_number DESC LIMIT 1");
-    $row = mysqli_fetch_array($sql);
-    $quote_number = $row['quote_number'] + 1;
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
-    $row = mysqli_fetch_array($sql);
-    $quote_amount = $row['quote_amount'];
-    $quote_note = $row['quote_note'];
-    $client_id = $row['client_id'];
-    $category_id = $row['category_id'];
-
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = $quote_number, quote_date = '$date', category_id = $category_id, quote_status = 'Draft', quote_amount = '$quote_amount', quote_note = '$quote_note', quote_created_at = NOW(), client_id = $client_id");
-
-    $new_quote_id = mysqli_insert_id($mysqli);
-
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote copied!', history_created_at = NOW(), quote_id = $new_quote_id");
-
-    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
-    while($row = mysqli_fetch_array($sql_items)){
-        $item_id = $row['item_id'];
-        $item_name = $row['item_name'];
-        $item_description = $row['item_description'];
-        $item_quantity = $row['item_quantity'];
-        $item_price = $row['item_price'];
-        $item_subtotal = $row['item_subtotal'];
-        $item_tax = $row['item_tax'];
-        $item_total = $row['item_total'];
-
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), quote_id = $new_quote_id");
-    }
-
-    $_SESSION['alert_message'] = "Quote copied";
-    
-    header("Location: quote.php?quote_id=$new_quote_id");
-
-}
-
-if(isset($_POST['add_quote_to_invoice'])){
-
-    $quote_id = intval($_POST['quote_id']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $client_net_terms = intval($_POST['client_net_terms']);
-    
-    //Get the last Invoice Number and add 1 for the new invoice number
-    $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
-    $row = mysqli_fetch_array($sql);
-    $invoice_number = $row['invoice_number'] + 1;
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
-    $row = mysqli_fetch_array($sql);
-    $quote_amount = $row['quote_amount'];
-    $quote_note = $row['quote_note'];
-    $client_id = $row['client_id'];
-    $category_id = $row['category_id'];
-
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_created_at = NOW(), client_id = $client_id");
-
-    $new_invoice_id = mysqli_insert_id($mysqli);
-
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote copied to Invoice!', history_created_at = NOW(), invoice_id = $new_invoice_id");
-
-    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
-    while($row = mysqli_fetch_array($sql_items)){
-        $item_id = $row['item_id'];
-        $item_name = $row['item_name'];
-        $item_description = $row['item_description'];
-        $item_quantity = $row['item_quantity'];
-        $item_price = $row['item_price'];
-        $item_subtotal = $row['item_subtotal'];
-        $item_tax = $row['item_tax'];
-        $item_total = $row['item_total'];
-
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), invoice_id = $new_invoice_id");
-    }
-
-    $_SESSION['alert_message'] = "Quoted copied to Invoice";
-    
-    header("Location: invoice.php?invoice_id=$new_invoice_id");
-
 }
 
 if(isset($_GET['delete_quote_item'])){

@@ -116,7 +116,7 @@ if(isset($_POST['add_company_settings'])){
   $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
   $config_api_key = keygen();
  
-  mysqli_query($mysqli,"INSERT INTO settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = $config_company_phone, config_company_site = '$config_company_site', config_start_page = 'dashboard.php', config_invoice_prefix = 'INV-', config_next_invoice_number = 1, config_invoice_overdue_reminders = '1,3,7', config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0");
+  mysqli_query($mysqli,"INSERT INTO settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = $config_company_phone, config_company_site = '$config_company_site', config_start_page = 'dashboard.php', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0");
 
   header("Location: login.php");
 

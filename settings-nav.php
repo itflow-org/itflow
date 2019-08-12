@@ -47,6 +47,14 @@
       Invoice
     </a> 
   </li>
+
+  <li class="nav-item">
+    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-quote.php") { echo "active"; } ?>" 
+      href="settings-quote.php">
+      <i class="fa fa-fw fa-2x fa-file"></i><br>
+      Quote
+    </a> 
+  </li>
  
   <li class="nav-item">
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-backup.php") { echo "active"; } ?>" 

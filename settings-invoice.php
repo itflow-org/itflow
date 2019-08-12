@@ -72,12 +72,7 @@
         <label>Invoice Footer</label>
         <textarea class="form-control" rows="4" name="config_invoice_footer"><?php echo $config_invoice_footer; ?></textarea>
       </div>
-
-      <div class="form-group mb-5">
-        <label>Quote Footer</label>
-        <textarea class="form-control" rows="4" name="config_quote_footer"><?php echo $config_quote_footer; ?></textarea>
-      </div>
-      
+    
       <hr>
       <button type="submit" name="edit_invoice_settings" class="btn btn-primary">Save</button>        
     
