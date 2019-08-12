@@ -107,7 +107,7 @@ $total_pages = ceil($total_found_rows / 10);
           ?>
 
           <tr>
-            <td><a href="quote.php?quote_id=<?php echo $quote_id; ?>">QUO-<?php echo $quote_number; ?></a></td>
+            <td><a href="quote.php?quote_id=<?php echo $quote_id; ?>"><?php echo $quote_number; ?></a></td>
             <td class="text-right text-monospace">$<?php echo number_format($quote_amount,2); ?></td>
             <td><?php echo $quote_date; ?></td>
             <td><?php echo $category_name; ?></td>
