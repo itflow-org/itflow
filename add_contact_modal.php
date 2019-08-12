@@ -31,22 +31,32 @@
           </div>
         
           <div class="form-group">
-            <label>Phone <strong class="text-danger">*</strong></label>
+            <label>Phone</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
               </div>
-              <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" required> 
+              <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'"> 
             </div>
           </div>
 
           <div class="form-group">
-            <label>Email <strong class="text-danger">*</strong></label>
+            <label>Mobile</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
+              </div>
+              <input type="text" class="form-control" name="mobile" placeholder="Mobile Phone Number" data-inputmask="'mask': '999-999-9999'"> 
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
               </div>
-              <input type="email" class="form-control" name="email" placeholder="Email Address" required>
+              <input type="email" class="form-control" name="email" placeholder="Email Address">
             </div>
           </div>
           <div class="form-group">

@@ -563,11 +563,7 @@ if(isset($_POST['add_trip'])){
     $location_id = intval($_POST['location']);
     $vendor_id = intval($_POST['vendor']);
 
-    mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', trip_created_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id");
-
-    if($roundtrip == 1){
-        mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_starting_location = '$destination', trip_destination = '$starting_location', trip_miles = $miles, trip_purpose = '$purpose', trip_created_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id");
-    }
+    mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, round_trip = $round_trip, trip_purpose = '$purpose', trip_created_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id");
 
     $_SESSION['alert_message'] = "Trip added";
     
@@ -582,13 +578,14 @@ if(isset($_POST['edit_trip'])){
     $starting_location = strip_tags(mysqli_real_escape_string($mysqli,$_POST['starting_location']));
     $destination = strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination']));
     $miles = intval($_POST['miles']);
+    $roundtrip = intval($_POST['roundtrip']);
     $purpose = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose']));
     $client_id = intval($_POST['client']);
     $invoice_id = intval($_POST['invoice']);
     $location_id = intval($_POST['location']);
     $vendor_id = intval($_POST['vendor']);
 
-    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', trip_updated_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id WHERE trip_id = $trip_id");
+    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $round_trip, trip_updated_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id WHERE trip_id = $trip_id");
 
     $_SESSION['alert_message'] = "Trip modified";
     
@@ -2259,6 +2256,8 @@ if(isset($_POST['add_contact'])){
     $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
     $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
     $phone = preg_replace("/[^0-9]/", '',$phone);
+    $mobile = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mobile']));
+    $mobile = preg_replace("/[^0-9]/", '',$mobile);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
 
     if($_FILES['file']['tmp_name']!='') {
@@ -2268,7 +2267,7 @@ if(isset($_POST['add_contact'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_email = '$email', contact_photo = '$path', contact_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_created_at = NOW(), client_id = $client_id");
 
     $_SESSION['alert_message'] = "Contact added";
     
@@ -2284,6 +2283,8 @@ if(isset($_POST['edit_contact'])){
     $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
     $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
     $phone = preg_replace("/[^0-9]/", '',$phone);
+    $mobile = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mobile']));
+    $mobile = preg_replace("/[^0-9]/", '',$mobile);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
 
     $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
@@ -2295,7 +2296,7 @@ if(isset($_POST['edit_contact'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_email = '$email', contact_photo = '$path', contact_updated_at = NOW() WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_updated_at = NOW() WHERE contact_id = $contact_id");
 
     $_SESSION['alert_message'] = "Contact updated";
     

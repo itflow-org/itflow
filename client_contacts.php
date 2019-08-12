@@ -87,6 +87,10 @@ $total_pages = ceil($total_found_rows / 10);
             if(strlen($contact_phone)>2){ 
               $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
             }
+            $contact_mobile = $row['contact_mobile'];
+            if(strlen($contact_phone)>2){ 
+              $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
+            }
             $contact_email = $row['contact_email'];
             $contact_photo = $row['contact_photo'];
             $contact_initials = initials($contact_name);
@@ -114,7 +118,7 @@ $total_pages = ceil($total_found_rows / 10);
             
             <td><?php echo $contact_title; ?></td>
             <td><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a></td>
-            <td><?php echo $contact_phone; ?></td>
+            <td><?php echo $contact_phone; ?><br><?php echo $contact_mobile; ?><br></td>
             
             <td>
               <div class="dropdown dropleft text-center">
