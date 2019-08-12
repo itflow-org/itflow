@@ -113,14 +113,14 @@ while($row = mysqli_fetch_array($sql_recurring)){
   $client_net_terms = $row['client_net_terms'];
 
   //Get the last Invoice Number and add 1 for the new invoice number
-  $sql_invoice_number = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
-  $row = mysqli_fetch_array($sql_invoice_number);
-  $new_invoice_number = $row['invoice_number'] + 1;
+  $new_invoice_number = "$config_invoice_prefix$config_invoice_next_number";
+  $new_config_invoice_next_number = $config_invoice_next_number + 1;
+  mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = 1");
 
   //Generate a unique URL key for clients to access
   $url_key = keygen();
 
-  mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $new_invoice_number, invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id");
+  mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$new_invoice_number', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id");
 
   $new_invoice_id = mysqli_insert_id($mysqli);
   
