@@ -103,6 +103,11 @@
               <input type="text" class="form-control" name="reference" placeholder="Enter a reference" value="<?php echo $revenue_reference; ?>">
             </div>
           </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" rows="4" name="description"><?php echo $revenue_description; ?></textarea>
+          </div>
   
         </div>
         <div class="modal-footer bg-white">

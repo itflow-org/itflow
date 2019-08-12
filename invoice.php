@@ -49,11 +49,11 @@ if(isset($_GET['invoice_id'])){
   $balance = $invoice_amount - $amount_paid;
 
   //check to see if overdue
-
-  $unixtime_invoice_due = strtotime($invoice_due);
-  if($unixtime_invoice_due < time()){
-    $invoice_status = "Overdue";
-    $invoice_color = "text-danger";
+  if($invoice_status !== "Paid" AND $invoice_status !== "Draft" AND $invoice_status !== "Cancelled"){
+    $unixtime_invoice_due = strtotime($invoice_due);
+    if($unixtime_invoice_due < time()){
+      $invoice_overdue = "Overdue";
+    }
   }
   
   //Set Badge color based off of invoice status
@@ -80,8 +80,11 @@ if(isset($_GET['invoice_id'])){
   <li class="breadcrumb-item">
     <a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
   </li>
-  <li class="breadcrumb-item active">INV-<?php echo $invoice_number; ?></li>
+  <li class="breadcrumb-item active"><?php echo $invoice_number; ?></li>
   <span class="p-2 ml-2 badge badge-<?php echo $invoice_badge_color; ?>"><?php echo $invoice_status; ?></span>
+  <?php if(isset($invoice_overdue)){ ?>
+  <span class="p-2 ml-2 badge badge-danger"><?php echo $invoice_overdue; ?></span>
+  <?php } ?>
 </ol>
 
 
