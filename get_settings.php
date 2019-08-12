@@ -6,6 +6,7 @@ $sql = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = 1");
 $row = mysqli_fetch_array($sql);
 
 $config_start_page = $row['config_start_page'];
+
 $config_company_name = $row['config_company_name'];
 $config_company_address = $row['config_company_address'];
 $config_company_city = $row['config_company_city'];
@@ -16,19 +17,24 @@ if(strlen($config_company_phone)>2){
   $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
 }
 $config_company_site = $row['config_company_site'];
-$config_next_invoice_number = $row['config_next_invoice_number'];
-$config_invoice_logo = $row['config_invoice_logo'];
-$config_invoice_footer = $row['config_invoice_footer'];
+
 $config_quote_footer = $row['config_quote_footer'];
+$config_quote_email_subject = $row['config_quote_email_subject'];
+
 $config_smtp_host = $row['config_smtp_host'];
 $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
 $config_smtp_port = $row['config_smtp_port'];
 $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
+
 $config_account_balance_threshold = $row['config_account_balance_threshold'];
+
 $config_send_invoice_reminders = $row['config_send_invoice_reminders'];
+$config_invoice_logo = $row['config_invoice_logo'];
+$config_invoice_footer = $row['config_invoice_footer'];
 $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
+$config_invoice_next_number = $row['config_invoice_next_number'];
 $config_invoice_prefix = $row['config_invoice_prefix'];
 
 //Defaults
@@ -37,8 +43,6 @@ $config_default_payment_account = $row['config_default_payment_account'];
 $config_default_transfer_from_account = $row['config_default_transfer_from_account'];
 $config_default_transfer_to_account = $row['config_default_transfer_to_account'];
 $config_default_calendar = $row['config_default_calendar'];
-
-$config_quote_email_subject = $row['config_quote_email_subject'];
 
 $config_recurring_email_auto_send = $row['config_recurring_email_auto_send'];
 

@@ -25,7 +25,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_next_invoice_number" placeholder="Next Invoice Number" value="<?php echo $config_next_invoice_number; ?>" required>
+          <input type="text" class="form-control" name="config_invoice_next_number" placeholder="Next Invoice Number" value="<?php echo $config_invoice_next_number; ?>" required>
         </div>
       </div>
 

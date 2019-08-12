@@ -94,7 +94,7 @@ if(isset($_POST['edit_mail_settings'])){
 if(isset($_POST['edit_invoice_settings'])){
 
     $config_invoice_prefix = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_prefix']));
-    $config_next_invoice_number = intval($_POST['config_next_invoice_number']);
+    $config_invoice_next_number = intval($_POST['config_invoice_next_number']);
     $config_mail_from_email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_email']));
     $config_mail_from_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name']));
     $config_invoice_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer']));
@@ -107,7 +107,7 @@ if(isset($_POST['edit_invoice_settings'])){
     }
     $config_invoice_overdue_reminders = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_overdue_reminders']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_next_invoice_number = $config_next_invoice_number, config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_quote_footer = '$config_quote_footer'");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_quote_footer = '$config_quote_footer'");
 
     $_SESSION['alert_message'] = "Invoice Settings updated";
 
@@ -846,15 +846,22 @@ if(isset($_POST['add_invoice'])){
     $row = mysqli_fetch_array($sql);
     $client_net_terms = $row['client_net_terms'];
 
+    //OLD Get the last Invoice Number and add 1 for the new invoice number
+    //$sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
+    //$row = mysqli_fetch_array($sql);
+    //$invoice_number = $row['invoice_number'] + 1;
+
+    //OLD Get the last Invoice Number and add 1 for the new invoice number
+    
     //Get the last Invoice Number and add 1 for the new invoice number
-    $sql = mysqli_query($mysqli,"SELECT invoice_number FROM invoices ORDER BY invoice_number DESC LIMIT 1");
-    $row = mysqli_fetch_array($sql);
-    $invoice_number = $row['invoice_number'] + 1;
+    $invoice_number = "$config_invoice_prefix$config_invoice_next_number";
+    $new_config_invoice_next_number = $config_invoice_next_number + 1;
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = 1");
 
     //Generate a unique URL key for clients to access
     $url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = $invoice_number, invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client");
     $invoice_id = mysqli_insert_id($mysqli);
     
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', history_created_at = NOW(), invoice_id = $invoice_id");
