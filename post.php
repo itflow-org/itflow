@@ -133,11 +133,13 @@ if(isset($_POST['edit_default_settings'])){
 
     $config_default_expense_account = intval($_POST['config_default_expense_account']);
     $config_default_payment_account = intval($_POST['config_default_payment_account']);
+    $config_default_payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_default_payment_method']));
+    $config_default_expense_payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_default_expense_payment_method']));
     $config_default_transfer_from_account = intval($_POST['config_default_transfer_from_account']);
     $config_default_transfer_to_account = intval($_POST['config_default_transfer_to_account']);
     $config_default_calendar = intval($_POST['config_default_calendar']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_default_expense_account = $config_default_expense_account, config_default_payment_account = $config_default_payment_account, config_default_transfer_from_account = $config_default_transfer_from_account, config_default_transfer_to_account = $config_default_transfer_to_account, config_default_calendar = $config_default_calendar");
+    mysqli_query($mysqli,"UPDATE settings SET config_default_expense_account = $config_default_expense_account, config_default_payment_account = $config_default_payment_account, config_default_payment_method = '$config_default_payment_method', config_default_expense_payment_method = '$config_default_expense_payment_method', config_default_transfer_from_account = $config_default_transfer_from_account, config_default_transfer_to_account = $config_default_transfer_to_account, config_default_calendar = $config_default_calendar");
 
     $_SESSION['alert_message'] = "Default Settings updated";
 
@@ -309,11 +311,12 @@ if(isset($_POST['add_client'])){
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
     $net_terms = intval($_POST['net_terms']);
 
-    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_phone = '$phone', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_phone = '$phone', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_created_at = NOW(), company_id = $session_company_id");
 
     $client_id = mysqli_insert_id($mysqli);
 
-    mkdir("uploads/clients/$client_id");
+    //Should be created when files are uploaded
+    //mkdir("uploads/clients/$client_id");
 
     $_SESSION['alert_message'] = "Client added";
     
@@ -360,7 +363,7 @@ if(isset($_POST['add_calendar'])){
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $color = strip_tags(mysqli_real_escape_string($mysqli,$_POST['color']));
 
-    mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = '$name', calendar_color = '$color', calendar_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = '$name', calendar_color = '$color', calendar_created_at = NOW(), company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Calendar created, now lets add some events!";
     
@@ -375,7 +378,7 @@ if(isset($_POST['add_event'])){
     $start = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start']));
     $end = strip_tags(mysqli_real_escape_string($mysqli,$_POST['end']));
 
-    mysqli_query($mysqli,"INSERT INTO events SET event_title = '$title', event_start = '$start', event_end = '$end', event_created_at = NOW(), calendar_id = $calendar_id");
+    mysqli_query($mysqli,"INSERT INTO events SET event_title = '$title', event_start = '$start', event_end = '$end', event_created_at = NOW(), calendar_id = $calendar_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Event added to the calendar";
     
@@ -416,7 +419,7 @@ if(isset($_POST['add_ticket'])){
     $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
     $details = strip_tags(mysqli_real_escape_string($mysqli,$_POST['details']));
 
-    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_subject = '$subject', ticket_details = '$details', ticket_status = 'Open', ticket_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_subject = '$subject', ticket_details = '$details', ticket_status = 'Open', ticket_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Ticket created";
     
@@ -465,7 +468,7 @@ if(isset($_POST['add_vendor'])){
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
     
-    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $vendor_id = mysqli_insert_id($mysqli);
 
@@ -516,7 +519,7 @@ if(isset($_POST['add_product'])){
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $cost = strip_tags(mysqli_real_escape_string($mysqli,$_POST['cost']));
 
-    mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_created_at = NOW(), company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Product added";
     
@@ -563,7 +566,7 @@ if(isset($_POST['add_trip'])){
     $location_id = intval($_POST['location']);
     $vendor_id = intval($_POST['vendor']);
 
-    mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, round_trip = $round_trip, trip_purpose = '$purpose', trip_created_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id");
+    mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, round_trip = $round_trip, trip_purpose = '$purpose', trip_created_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Trip added";
     
@@ -609,7 +612,7 @@ if(isset($_POST['add_account'])){
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $opening_balance = $_POST['opening_balance'];
 
-    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = '$name', opening_balance = '$opening_balance', account_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = '$name', opening_balance = '$opening_balance', account_created_at = NOW(), company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Account added";
     
@@ -647,7 +650,7 @@ if(isset($_POST['add_category'])){
     $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
     $color = strip_tags(mysqli_real_escape_string($mysqli,$_POST['color']));
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = '$name', category_type = '$type', category_color = '$color', category_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = '$name', category_type = '$type', category_color = '$color', category_created_at = NOW(), company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Category added";
     
@@ -729,7 +732,7 @@ if(isset($_POST['add_expense'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
     }
 
-    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description', expense_reference = '$reference', expense_receipt = '$path', expense_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description', expense_reference = '$reference', expense_receipt = '$path', expense_created_at = NOW(), company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Expense added";
     
@@ -790,13 +793,13 @@ if(isset($_POST['add_transfer'])){
     $account_from = intval($_POST['account_from']);
     $account_to = intval($_POST['account_to']);
 
-    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', vendor_id = 0, account_id = $account_from, expense_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', vendor_id = 0, category_id = 0, account_id = $account_from, expense_created_at = NOW(), company_id = $session_company_id");
     $expense_id = mysqli_insert_id($mysqli);
     
-    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', account_id = $account_to, category_id = 0, revenue_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', account_id = $account_to, category_id = 0, revenue_created_at = NOW(), company_id = $session_company_id");
     $revenue_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO transfers SET expense_id = $expense_id, revenue_id = $revenue_id, transfer_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO transfers SET expense_id = $expense_id, revenue_id = $revenue_id, transfer_created_at = NOW(), company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Transfer added";
     
@@ -860,15 +863,15 @@ if(isset($_POST['add_invoice'])){
     //Get the last Invoice Number and add 1 for the new invoice number
     $invoice_number = "$config_invoice_prefix$config_invoice_next_number";
     $new_config_invoice_next_number = $config_invoice_next_number + 1;
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
 
     //Generate a unique URL key for clients to access
     $url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client, company_id = $session_company_id");
     $invoice_id = mysqli_insert_id($mysqli);
     
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', history_created_at = NOW(), invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
     $_SESSION['alert_message'] = "Invoice added";
     
     header("Location: invoice.php?invoice_id=$invoice_id");
@@ -901,7 +904,7 @@ if(isset($_POST['add_invoice_copy'])){
 
     $invoice_number = "$config_invoice_prefix$config_invoice_next_number";
     $new_config_invoice_next_number = $config_invoice_next_number + 1;
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql);
@@ -910,11 +913,11 @@ if(isset($_POST['add_invoice_copy'])){
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', invoice_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', invoice_id = $new_invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', invoice_id = $new_invoice_id, company_id = $session_company_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id");
     while($row = mysqli_fetch_array($sql_items)){
@@ -927,7 +930,7 @@ if(isset($_POST['add_invoice_copy'])){
         $item_tax = $row['item_tax'];
         $item_total = $row['item_total'];
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), invoice_id = $new_invoice_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
     }
 
     $_SESSION['alert_message'] = "Invoice copied";
@@ -949,7 +952,7 @@ if(isset($_POST['add_invoice_recurring'])){
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_frequency = '$recurring_frequency', recurring_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_status = 1, recurring_amount = '$invoice_amount', recurring_note = '$invoice_note', recurring_created_at = NOW(), category_id = $category_id, client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_frequency = '$recurring_frequency', recurring_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_status = 1, recurring_amount = '$invoice_amount', recurring_note = '$invoice_note', recurring_created_at = NOW(), category_id = $category_id, client_id = $client_id, company_id = $session_company_id");
 
     $recurring_id = mysqli_insert_id($mysqli);
 
@@ -964,7 +967,7 @@ if(isset($_POST['add_invoice_recurring'])){
         $item_tax = $row['item_tax'];
         $item_total = $row['item_total'];
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), recurring_id = $recurring_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), recurring_id = $recurring_id, company_id = $session_company_id");
     }
 
     $_SESSION['alert_message'] = "Created recurring Invoice from this Invoice";
@@ -982,17 +985,17 @@ if(isset($_POST['add_quote'])){
     //Get the last Invoice Number and add 1 for the new invoice number
     $quote_number = "$config_quote_prefix$config_quote_next_number";
     $new_config_quote_next_number = $config_quote_next_number + 1;
-    mysqli_query($mysqli,"UPDATE settings SET config_quote_next_number = $new_config_quote_next_number WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_quote_next_number = $new_config_quote_next_number WHERE company_id = $session_company_id");
 
     //Generate a unique URL key for clients to access
     $quote_url_key = keygen();
 
 
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = '$quote_number', quote_date = '$date', category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_created_at = NOW(), client_id = $client");
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = '$quote_number', quote_date = '$date', category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_created_at = NOW(), client_id = $client, company_id = $session_company_id");
 
     $quote_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote created!', history_created_at = NOW(), quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote created!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Quote added";
     
@@ -1008,7 +1011,7 @@ if(isset($_POST['add_quote_copy'])){
     //Get the last Invoice Number and add 1 for the new invoice number
     $quote_number = "$config_quote_prefix$config_quote_next_number";
     $new_config_quote_next_number = $config_quote_next_number + 1;
-    mysqli_query($mysqli,"UPDATE settings SET config_quote_next_number = $new_config_quote_next_number WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_quote_next_number = $new_config_quote_next_number WHERE company_id = $session_company_id");
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_array($sql);
@@ -1017,11 +1020,11 @@ if(isset($_POST['add_quote_copy'])){
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = '$quote_number', quote_date = '$date', category_id = $category_id, quote_status = 'Draft', quote_amount = '$quote_amount', quote_note = '$quote_note', quote_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = '$quote_number', quote_date = '$date', category_id = $category_id, quote_status = 'Draft', quote_amount = '$quote_amount', quote_note = '$quote_note', quote_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $new_quote_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote copied!', history_created_at = NOW(), quote_id = $new_quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote copied!', history_created_at = NOW(), quote_id = $new_quote_id, company_id = $session_company_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
     while($row = mysqli_fetch_array($sql_items)){
@@ -1034,7 +1037,7 @@ if(isset($_POST['add_quote_copy'])){
         $item_tax = $row['item_tax'];
         $item_total = $row['item_total'];
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), quote_id = $new_quote_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), quote_id = $new_quote_id, company_id = $session_company_id");
     }
 
     $_SESSION['alert_message'] = "Quote copied";
@@ -1051,7 +1054,7 @@ if(isset($_POST['add_quote_to_invoice'])){
     
     $invoice_number = "$config_invoice_prefix$config_invoice_next_number";
     $new_config_invoice_next_number = $config_invoice_next_number + 1;
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_array($sql);
@@ -1060,11 +1063,11 @@ if(isset($_POST['add_quote_to_invoice'])){
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote copied to Invoice!', history_created_at = NOW(), invoice_id = $new_invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote copied to Invoice!', history_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
     while($row = mysqli_fetch_array($sql_items)){
@@ -1077,7 +1080,7 @@ if(isset($_POST['add_quote_to_invoice'])){
         $item_tax = $row['item_tax'];
         $item_total = $row['item_total'];
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), invoice_id = $new_invoice_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
     }
 
     $_SESSION['alert_message'] = "Quoted copied to Invoice";
@@ -1101,7 +1104,7 @@ if(isset($_POST['save_quote'])){
         $tax = $subtotal * $tax;
         $total = $subtotal + $tax;
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), quote_id = $quote_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
 
         //Update Invoice Balances
 
@@ -1199,7 +1202,7 @@ if(isset($_GET['approve_quote'])){
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Approved', quote_updated_at = NOW() WHERE quote_id = $quote_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Approved', history_description = 'Quote approved!', history_created_at = NOW(), quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Approved', history_description = 'Quote approved!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Quote approved";
     
@@ -1213,7 +1216,7 @@ if(isset($_GET['reject_quote'])){
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Rejected', quote_updated_at = NOW() WHERE quote_id = $quote_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'Quote rejected!', history_created_at = NOW(), quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'Quote rejected!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Quote rejected";
     
@@ -1323,7 +1326,7 @@ if(isset($_GET['pdf_quote'])){
     <table width="100%"><tr>
     <td width="15%"><img width="75" height="75" src=" /'.$config_invoice_logo.' "></img></td>
     <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$config_company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
-    <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> QUO-'.$quote_number.' </span></td>
+    <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> '.$quote_number.' </span></td>
     </tr></table>
     </htmlpageheader>
     <htmlpagefooter name="myfooter">
@@ -1458,7 +1461,7 @@ if(isset($_GET['email_quote'])){
         $mail->send();
         echo 'Message has been sent';
 
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed Quote!', history_created_at = NOW(), quote_id = $quote_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed Quote!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
 
         //Don't change the status to sent if the status is anything but draft
         if($quote_status == 'Draft'){
@@ -1484,11 +1487,11 @@ if(isset($_POST['add_recurring'])){
     $start_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date']));
     $category = intval($_POST['category']);
 
-    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_frequency = '$frequency', recurring_next_date = '$start_date', category_id = $category, recurring_status = 1, recurring_created_at = NOW(), client_id = $client");
+    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_frequency = '$frequency', recurring_next_date = '$start_date', category_id = $category, recurring_status = 1, recurring_created_at = NOW(), client_id = $client, company_id = $session_company_id");
 
     $recurring_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_description = 'Recurring Invoice created!', history_created_at = NOW(), recurring_id = $recurring_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_description = 'Recurring Invoice created!', history_created_at = NOW(), recurring_id = $recurring_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice added";
     
@@ -1560,7 +1563,7 @@ if(isset($_POST['save_recurring'])){
         $tax = $subtotal * $tax;
         $total = $subtotal + $tax;
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), recurring_id = $recurring_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), recurring_id = $recurring_id, company_id = $session_company_id");
 
         //Update Invoice Balances
 
@@ -1619,7 +1622,7 @@ if(isset($_GET['mark_invoice_sent'])){
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'INVOICE marked sent', history_created_at = NOW(), invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'INVOICE marked sent', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Invoice marked sent";
     
@@ -1633,7 +1636,7 @@ if(isset($_GET['cancel_invoice'])){
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Cancelled', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'INVOICE cancelled!', history_created_at = NOW(), invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'INVOICE cancelled!', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Invoice cancelled";
     
@@ -1688,7 +1691,7 @@ if(isset($_POST['save_invoice'])){
         $tax = $subtotal * $tax;
         $total = $subtotal + $tax;
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), invoice_id = $invoice_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
         //Update Invoice Balances
 
@@ -1759,7 +1762,7 @@ if(isset($_POST['add_payment'])){
         $_SESSION['alert_message'] = "Payment is more than the balance";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }else{
-        mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = '$amount', account_id = $account, payment_method = '$payment_method', payment_reference = '$reference', payment_created_at = NOW(), invoice_id = $invoice_id");
+        mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = '$amount', account_id = $account, payment_method = '$payment_method', payment_reference = '$reference', payment_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
         //Add up all the payments for the invoice and get the total amount paid to the invoice
         $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payments_amount FROM payments WHERE invoice_id = $invoice_id");
@@ -1812,7 +1815,7 @@ if(isset($_POST['add_payment'])){
                   $mail->send();
                   echo 'Message has been sent';
 
-                  mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed Receipt!', history_created_at = NOW(), invoice_id = $invoice_id");
+                  mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed Receipt!', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
                 } catch (Exception $e) {
                     echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
@@ -1848,7 +1851,7 @@ if(isset($_POST['add_payment'])){
                   $mail->send();
                   echo 'Message has been sent';
 
-                  mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed Receipt!', history_created_at = NOW(), invoice_id = $invoice_id");
+                  mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed Receipt!', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
                 } catch (Exception $e) {
                     echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
@@ -1861,7 +1864,7 @@ if(isset($_POST['add_payment'])){
         mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
 
         //Add Payment to History
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'INVOICE payment added', history_created_at = NOW(), invoice_id = $invoice_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'INVOICE payment added', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
         $_SESSION['alert_message'] = "Payment added";
         
@@ -1901,7 +1904,7 @@ if(isset($_GET['delete_payment'])){
     mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
 
     //Add Payment to History
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'INVOICE payment deleted', history_created_at = NOW(), invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'INVOICE payment deleted', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
     mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
 
@@ -1987,7 +1990,7 @@ if(isset($_GET['email_invoice'])){
         $mail->send();
         echo 'Message has been sent';
 
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed Invoice!', history_created_at = NOW(), invoice_id = $invoice_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed Invoice!', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
         //Don't chnage the status to sent if the status is anything but draf
         if($invoice_status == 'Draft'){
@@ -2016,7 +2019,7 @@ if(isset($_POST['add_revenue'])){
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
 
-    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_created_at = NOW(), category_id = $category, account_id = $account");
+    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_created_at = NOW(), category_id = $category, account_id = $account, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Revenue added!";
     
@@ -2165,7 +2168,7 @@ if(isset($_GET['pdf_invoice'])){
         <table width="100%"><tr>
         <td width="15%"><img width="75" height="75" src=" /'.$config_invoice_logo.' "></img></td>
         <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$config_company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
-        <td width="35%" style="text-align: right;">Invoice No.<br /><span style="font-weight: bold; font-size: 12pt;"> INV-'.$invoice_number.' </span></td>
+        <td width="35%" style="text-align: right;">Invoice No.<br /><span style="font-weight: bold; font-size: 12pt;"> '.$invoice_number.' </span></td>
         </tr></table>
         </htmlpageheader>
         <htmlpagefooter name="myfooter">
@@ -2267,7 +2270,7 @@ if(isset($_POST['add_contact'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Contact added";
     
@@ -2327,7 +2330,7 @@ if(isset($_POST['add_location'])){
     $phone = preg_replace("/[^0-9]/", '',$phone);
     $hours = strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours']));
 
-    mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Location added";
     
@@ -2389,14 +2392,14 @@ if(isset($_POST['add_asset'])){
     }
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
 
-    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_ip = '$ip', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_note = '$note', asset_created_at = NOW(), network_id = $network, client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_ip = '$ip', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_note = '$note', asset_created_at = NOW(), network_id = $network, client_id = $client_id, company_id = $session_company_id");
 
     if(!empty($_POST['username'])) {
         $asset_id = mysqli_insert_id($mysqli);
         $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
         $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
 
-        mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$description', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id");
+        mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$description', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id, company_id = $session_company_id");
 
     }
 
@@ -2442,7 +2445,7 @@ if(isset($_POST['edit_asset'])){
     //If Username is filled in then add a login
         if(!empty($username)) {
             
-            mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id");
+            mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id, company_id = $session_company_id");
 
         }
     }
@@ -2476,7 +2479,7 @@ if(isset($_POST['add_login'])){
     $asset_id = intval($_POST['asset']);
     $software_id = intval($_POST['software']);
 
-    mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = '$password', login_note = '$note', login_created_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id, client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = '$password', login_note = '$note', login_created_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id, client_id = $client_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Login added";
     
@@ -2529,7 +2532,7 @@ if(isset($_POST['add_file'])){
 
     }
 
-    mysqli_query($mysqli,"INSERT INTO files SET file_name = '$path', file_ext = '$ext', file_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO files SET file_name = '$path', file_ext = '$ext', file_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "File uploaded";
     
@@ -2560,7 +2563,7 @@ if(isset($_POST['add_note'])){
     $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
 
-    mysqli_query($mysqli,"INSERT INTO notes SET note_subject = '$subject', note_body = '$note', note_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO notes SET note_subject = '$subject', note_body = '$note', note_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Note added";
     
@@ -2602,7 +2605,7 @@ if(isset($_POST['add_network'])){
     $dhcp_range = strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range']));
     $location_id = intval($_POST['location']);
 
-    mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_created_at = NOW(), location_id = $location_id, client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_created_at = NOW(), location_id = $location_id, client_id = $client_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Network added";
     
@@ -2649,7 +2652,7 @@ if(isset($_POST['add_domain'])){
         $expire = "0000-00-00";
     }
 
-    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Domain added";
     
@@ -2694,14 +2697,14 @@ if(isset($_POST['add_software'])){
     $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
     $license = strip_tags(mysqli_real_escape_string($mysqli,$_POST['license']));
 
-    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_type = '$type', software_license = '$license', software_created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_type = '$type', software_license = '$license', software_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     if(!empty($_POST['username'])) {
         $software_id = mysqli_insert_id($mysqli);
         $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
         $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
 
-        mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$name', login_username = '$username', login_password = '$password', software_id = $software_id, login_created_at = NOW(), client_id = $client_id");
+        mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$name', login_username = '$username', login_password = '$password', software_id = $software_id, login_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     }
 
@@ -2730,7 +2733,7 @@ if(isset($_POST['edit_software'])){
     //If Username is filled in then add a login
         if(!empty($username)) {
             
-            mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id");
+            mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id, company_id = $session_company_id");
 
         }
     }

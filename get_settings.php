@@ -2,7 +2,7 @@
 
 //General Settings
 
-$sql = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = 1");
+$sql = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $session_company_id");
 $row = mysqli_fetch_array($sql);
 
 $config_start_page = $row['config_start_page'];
@@ -46,6 +46,8 @@ $config_default_payment_account = $row['config_default_payment_account'];
 $config_default_transfer_from_account = $row['config_default_transfer_from_account'];
 $config_default_transfer_to_account = $row['config_default_transfer_to_account'];
 $config_default_calendar = $row['config_default_calendar'];
+$config_default_payment_method = $row['config_default_payment_method'];
+$config_default_expense_payment_method = $row['config_default_expense_payment_method'];
 
 $config_recurring_email_auto_send = $row['config_recurring_email_auto_send'];
 

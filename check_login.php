@@ -15,12 +15,16 @@
 
 	$session_user_id = $_SESSION['user_id'];
 
-	$sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $session_user_id");
+	$sql = mysqli_query($mysqli,"SELECT * FROM users, companies, user_companies WHERE users.user_id = user_companies.user_id AND companies.company_id = user_companies.company_id AND users.user_id = $session_user_id");
 	$row = mysqli_fetch_array($sql);
 	$session_name = $row['name'];
 	$session_avatar = $row['avatar'];
+	$session_company_id = $row['company_id'];
+	$session_company_name = $row['company_name'];
 	$session_client_id = $row['client_id'];
 	$session_token = $row['token'];
+
+	include("get_settings.php");
 
 	//Detects if using an apple device and uses apple maps instead of google
 	$iPod    = stripos($_SERVER['HTTP_USER_AGENT'],"iPod");

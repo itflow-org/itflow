@@ -74,7 +74,7 @@ if(isset($_POST['login'])){
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-  <title><?php echo $config_company_name; ?> | Login</title>
+  <title><?php echo $config_app_name; ?> | Login</title>
 
   <!-- Custom fonts for this template-->
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">

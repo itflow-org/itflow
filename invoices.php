@@ -67,7 +67,7 @@
   if(!empty($_GET['sb'])){
     $sb = $_GET['sb'];
   }else{
-    $sb = "invoice_number";
+    $sb = "invoice_id";
   }
 
   if(isset($_GET['o'])){

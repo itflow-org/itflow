@@ -40,7 +40,7 @@
           <?php }else{ ?>
           <i class="fa fa-fw fa-user mt-1"></i>
           <?php } ?>
-          <strong><?php echo "$session_name"; ?></strong>
+          <strong><?php echo "$session_name@$session_company_name"; ?></strong>
       </a>
       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">   
         <center>
@@ -52,6 +52,7 @@
             <span class="fa fa-stack-1x text-white"><?php echo initials($session_name); ?></span>
           </span>
           <?php } ?>
+          <?php echo $session_company_name; ?>
         </center>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" href="settings-user.php"><i class="fa fa-fw fa-cog"></i> Settings</a>

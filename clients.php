@@ -39,7 +39,7 @@ if(isset($_GET['o'])){
   $disp = "ASC";
 }
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE client_name LIKE '%$q%' OR client_email LIKE '%$q%' ORDER BY $sb $o LIMIT $record_from, $record_to"); 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE (client_name LIKE '%$q%' OR client_email LIKE '%$q%') AND (company_id = $session_company_id) ORDER BY $sb $o LIMIT $record_from, $record_to"); 
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
@@ -68,7 +68,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <th class="w-40"><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Name <i class="fa fa-sort<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
             <th class="w-15"><a href="?<?php echo $url_query_strings_sb; ?>&sb=client_type&o=<?php echo $disp; ?>">Type <i class="fa fa-sort-up"></i></a></th>
-            <th class="w-15">Email</th>
+            <th class="w-15"><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=client_email&o=<?php echo $disp; ?>">Email</a></th>
             <th class="w-10">Phone</th>
             <th class="w-10 text-right">Balance</th>
             <th class="w-10 text-center">Action</th>

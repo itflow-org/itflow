@@ -86,7 +86,7 @@
                 while($row = mysqli_fetch_array($sql)){
                   $category_name = $row['category_name'];
                 ?>
-                  <option><?php echo "$category_name"; ?></option>
+                  <option <?php if($config_default_payment_method == $category_name){ echo "selected"; } ?>><?php echo $category_name; ?></option>
                 
                 <?php
                 }

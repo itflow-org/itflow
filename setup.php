@@ -23,7 +23,7 @@ if(isset($_POST['add_database'])){
 
   fwrite($myfile, $txt);
 
-  $txt = "include(\"get_settings.php\");\n\n";
+  $txt = "config_app_name = IT CRM\n\n";
 
   fwrite($myfile, $txt);
 
@@ -58,21 +58,6 @@ if(isset($_POST['add_database'])){
       }
   }
 
-  //Create Some Data
-
-  mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_created_at = NOW()");
-
-  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue', category_created_at = NOW()");
-  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red', category_created_at = NOW()");
-  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Advertising', category_type = 'Expense', category_color = 'green', category_created_at = NOW()");
-
-  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Service', category_type = 'Income', category_color = 'orange', category_created_at = NOW()");
-
-  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'purple', category_created_at = NOW()");
-  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'brown', category_created_at = NOW()");
-
-  mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue', calendar_created_at = NOW()");
-
   $_SESSION['alert_message'] = "Database successfully added";
 
   header("Location: setup.php?user");
@@ -95,6 +80,7 @@ if(isset($_POST['add_user'])){
     }
 
     mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW()");
+    $user_id = mysqli_insert_id($mysqli);
 
     $_SESSION['alert_message'] = "User added";
 
@@ -115,8 +101,29 @@ if(isset($_POST['add_company_settings'])){
   $config_company_phone = preg_replace("/[^0-9]/", '',$config_company_phone);
   $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
   $config_api_key = keygen();
+
+  mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$config_company_name', company_created_at = NOW()");
+
+  $company_id = mysqli_insert_id($mysqli);
+
+  mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company_id");
  
-  mysqli_query($mysqli,"INSERT INTO settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = $config_company_phone, config_company_site = '$config_company_site', config_start_page = 'dashboard.php', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0");
+  mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = $config_company_phone, config_company_site = '$config_company_site', config_start_page = 'dashboard.php', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0");
+
+  //Create Some Data
+
+  mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_created_at = NOW(), company_id = $company_id");
+
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue', category_created_at = NOW(), company_id = $company_id");
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red', category_created_at = NOW(), company_id = $company_id");
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Advertising', category_type = 'Expense', category_color = 'green', category_created_at = NOW(), company_id = $company_id");
+
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Service', category_type = 'Income', category_color = 'orange', category_created_at = NOW(), company_id = $company_id");
+
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'purple', category_created_at = NOW(), company_id = $company_id");
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'brown', category_created_at = NOW(), company_id = $company_id");
+
+  mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue', calendar_created_at = NOW(), company_id = $company_id");
 
   header("Location: login.php");
 

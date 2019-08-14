@@ -19,7 +19,7 @@ if(isset($_GET['invoice_id'])){
   $invoice_due = $row['invoice_due'];
   $invoice_amount = $row['invoice_amount'];
   $invoice_note = $row['invoice_note'];
-  $invoice_category_id = $row['category_id'];
+  $category_id = $row['category_id'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];
   $client_address = $row['client_address'];
