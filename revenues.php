@@ -42,6 +42,7 @@
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM accounts, revenues, categories
     WHERE revenues.account_id = accounts.account_id
     AND revenues.category_id = categories.category_id
+    AND revenues.company_id = $session_company_id
     AND (account_name LIKE '%$q%' AND revenue_payment_method LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 

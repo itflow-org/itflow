@@ -22,7 +22,7 @@
                 <option value="">- Client -</option>
                 <?php 
                 
-                $sql = mysqli_query($mysqli,"SELECT * FROM clients"); 
+                $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id"); 
                 while($row = mysqli_fetch_array($sql)){
                   $client_id = $row['client_id'];
                   $client_name = $row['client_name'];

@@ -28,7 +28,7 @@
                 <option value="">- Calendar -</option>
                 <?php 
                 
-                $sql = mysqli_query($mysqli,"SELECT * FROM calendars"); 
+                $sql = mysqli_query($mysqli,"SELECT * FROM calendars WHERE company_id = $session_company_id"); 
                 while($row = mysqli_fetch_array($sql)){
                   $calendar_id = $row['calendar_id'];
                   $calendar_name = $row['calendar_name'];

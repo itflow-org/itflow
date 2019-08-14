@@ -18,7 +18,7 @@
             <option value="0">- None -</option>
             <?php 
             
-            $sql = mysqli_query($mysqli,"SELECT * FROM accounts"); 
+            $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 
             while($row = mysqli_fetch_array($sql)){
               $account_id = $row['account_id'];
               $account_name = $row['account_name'];
@@ -43,7 +43,7 @@
             <option value="0">- None -</option>
             <?php 
             
-            $sql = mysqli_query($mysqli,"SELECT * FROM accounts"); 
+            $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 
             while($row = mysqli_fetch_array($sql)){
               $account_id = $row['account_id'];
               $account_name = $row['account_name'];
@@ -68,7 +68,7 @@
             <option value="0">- None -</option>
             <?php 
             
-            $sql = mysqli_query($mysqli,"SELECT * FROM accounts"); 
+            $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 
             while($row = mysqli_fetch_array($sql)){
               $account_id = $row['account_id'];
               $account_name = $row['account_name'];
@@ -93,7 +93,7 @@
             <option value="0">- None -</option>
             <?php 
             
-            $sql = mysqli_query($mysqli,"SELECT * FROM accounts"); 
+            $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 
             while($row = mysqli_fetch_array($sql)){
               $account_id = $row['account_id'];
               $account_name = $row['account_name'];
@@ -118,7 +118,7 @@
             <option value="">- None -</option>
             <?php 
             
-            $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method'"); 
+            $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method' AND company_id = $session_company_id"); 
             while($row = mysqli_fetch_array($sql)){
               $payment_method = $row['category_name'];
 
@@ -142,7 +142,7 @@
             <option value="">- None -</option>
             <?php 
             
-            $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method'"); 
+            $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method' AND company_id = $session_company_id"); 
             while($row = mysqli_fetch_array($sql)){
               $payment_method = $row['category_name'];
 
@@ -166,7 +166,7 @@
             <option value="0">- None -</option>
             <?php 
             
-            $sql = mysqli_query($mysqli,"SELECT * FROM calendars"); 
+            $sql = mysqli_query($mysqli,"SELECT * FROM calendars WHERE company_id = $session_company_id"); 
             while($row = mysqli_fetch_array($sql)){
               $calendar_id = $row['calendar_id'];
               $calendar_name = $row['calendar_name'];

@@ -40,7 +40,8 @@
   }
 
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM tickets, clients
-    WHERE tickets.client_id = clients.client_id 
+    WHERE tickets.client_id = clients.client_id
+    AND tickets.company_id = $session_company_id
     AND (ticket_id LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 

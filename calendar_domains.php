@@ -20,7 +20,7 @@
         },
         events: [
           <?php
-          $sql = mysqli_query($mysqli,"SELECT * FROM domains");
+          $sql = mysqli_query($mysqli,"SELECT * FROM domains WHERE company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
             $domain_id = $row['domain_id'];
             $domain = $row['domain_name'];

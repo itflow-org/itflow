@@ -40,7 +40,7 @@
   }
  
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS expenses.expense_date AS transfer_date, expenses.expense_amount AS transfer_amount, expenses.account_id AS transfer_account_from, revenues.account_id AS transfer_account_to, transfers.expense_id, transfers.revenue_id , transfers.transfer_id FROM transfers, expenses, revenues WHERE transfers.expense_id = expenses.expense_id AND transfers.revenue_id = revenues.revenue_id ORDER BY $sb $o LIMIT $record_from, $record_to");
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS expenses.expense_date AS transfer_date, expenses.expense_amount AS transfer_amount, expenses.account_id AS transfer_account_from, revenues.account_id AS transfer_account_to, transfers.expense_id, transfers.revenue_id , transfers.transfer_id FROM transfers, expenses, revenues WHERE transfers.expense_id = expenses.expense_id AND transfers.revenue_id = revenues.revenue_id AND transfers.company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 $total_found_rows = $num_rows[0];

@@ -32,7 +32,7 @@
                 <option value="">- Category -</option>
                 <?php 
                 
-                $sql_income_category = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income'"); 
+                $sql_income_category = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND company_id = $session_company_id"); 
                 while($row = mysqli_fetch_array($sql_income_category)){
                   $category_id_select = $row['category_id'];
                   $category_name_select = $row['category_name'];

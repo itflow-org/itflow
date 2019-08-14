@@ -40,7 +40,8 @@
   }
 
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips  
-    WHERE trip_purpose LIKE '%$q%' OR trip_starting_location LIKE '%$q%' OR trip_destination LIKE '%$q%'
+    WHERE (trip_purpose LIKE '%$q%' OR trip_starting_location LIKE '%$q%' OR trip_destination LIKE '%$q%')
+    AND company_id = $session_company_id
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));

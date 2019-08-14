@@ -48,7 +48,7 @@ if(isset($_POST['edit_general_settings'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);   
     }
 
-    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold', config_invoice_logo = '$path', config_api_key = '$config_api_key'");
+    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold', config_invoice_logo = '$path', config_api_key = '$config_api_key' WHERE company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Settings updated";
 
@@ -68,7 +68,7 @@ if(isset($_POST['edit_company_settings'])){
    
 
 
-    mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site'");
+    mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site' WHERE company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Company Settings updated";
 
@@ -83,7 +83,7 @@ if(isset($_POST['edit_mail_settings'])){
     $config_smtp_username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_username']));
     $config_smtp_password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_password']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password'");
+    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password' WHERE company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Mail Settings updated";
 
@@ -106,7 +106,7 @@ if(isset($_POST['edit_invoice_settings'])){
     }
     $config_invoice_overdue_reminders = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_overdue_reminders']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders'");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders' WHERE company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Invoice Settings updated";
 
@@ -120,7 +120,7 @@ if(isset($_POST['edit_quote_settings'])){
     $config_quote_next_number = intval($_POST['config_quote_next_number']);
     $config_quote_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_footer']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer'");
+    mysqli_query($mysqli,"UPDATE settings SET config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer' WHERE company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Quote Settings updated";
 
@@ -139,7 +139,7 @@ if(isset($_POST['edit_default_settings'])){
     $config_default_transfer_to_account = intval($_POST['config_default_transfer_to_account']);
     $config_default_calendar = intval($_POST['config_default_calendar']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_default_expense_account = $config_default_expense_account, config_default_payment_account = $config_default_payment_account, config_default_payment_method = '$config_default_payment_method', config_default_expense_payment_method = '$config_default_expense_payment_method', config_default_transfer_from_account = $config_default_transfer_from_account, config_default_transfer_to_account = $config_default_transfer_to_account, config_default_calendar = $config_default_calendar");
+    mysqli_query($mysqli,"UPDATE settings SET config_default_expense_account = $config_default_expense_account, config_default_payment_account = $config_default_payment_account, config_default_payment_method = '$config_default_payment_method', config_default_expense_payment_method = '$config_default_expense_payment_method', config_default_transfer_from_account = $config_default_transfer_from_account, config_default_transfer_to_account = $config_default_transfer_to_account, config_default_calendar = $config_default_calendar WHERE company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Default Settings updated";
 

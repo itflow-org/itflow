@@ -44,7 +44,7 @@
                 <select class="form-control selectpicker show-tick" name="account" required>
                   <?php 
                   
-                  $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts"); 
+                  $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 
                   while($row = mysqli_fetch_array($sql_accounts)){
                     $account_id_select = $row['account_id'];
                     $account_name_select = $row['account_name'];
@@ -82,7 +82,7 @@
                 <select class="form-control selectpicker show-tick" data-live-search="true" name="vendor" required>
                   <?php 
                   
-                  $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors"); 
+                  $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE company_id = $session_company_id"); 
                   while($row = mysqli_fetch_array($sql_vendors)){
                     $vendor_id_select = $row['vendor_id'];
                     $vendor_name_select = $row['vendor_name'];
@@ -114,7 +114,7 @@
                 <select class="form-control selectpicker show-tick" name="category" required>
                   <?php 
                   
-                  $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense'"); 
+                  $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense' AND company_id = $session_company_id"); 
                   while($row = mysqli_fetch_array($sql_categories)){
                     $category_id_select = $row['category_id'];
                     $category_name_select = $row['category_name'];

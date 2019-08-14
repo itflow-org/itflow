@@ -41,7 +41,7 @@
               <select class="form-control selectpicker show-tick" name="account_from" required>
                 <?php 
                 
-                $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts"); 
+                $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 
                   while($row = mysqli_fetch_array($sql_accounts)){
                     $account_id_select = $row['account_id'];
                     $account_name_select = $row['account_name'];
@@ -78,7 +78,7 @@
               <select class="form-control selectpicker show-tick" name="account_to" required>
                 <?php 
                 
-                $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts"); 
+                $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 
                 while($row = mysqli_fetch_array($sql2)){
                   $account_id2 = $row['account_id'];
                   $account_name = $row['account_name'];
@@ -88,7 +88,7 @@
                   $row = mysqli_fetch_array($sql_payments);
                   $total_payments = $row['total_payments'];
 
-                  $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id");
+                  $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id2");
                   $row = mysqli_fetch_array($sql_revenues);
                   $total_revenues = $row['total_revenues'];
                   

@@ -9,7 +9,7 @@ if(isset($_GET['year'])){
 
 $sql_payment_years = mysqli_query($mysqli,"SELECT DISTINCT YEAR(payment_date) AS payment_year FROM payments UNION SELECT DISTINCT YEAR(revenue_date) AS payment_year FROM revenues ORDER BY payment_year DESC");
 
-$sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type =  'Income' ORDER BY category_name ASC");
+$sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND company_id = $session_company_id ORDER BY category_name ASC");
 
 ?>
 
@@ -107,11 +107,11 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
             <?php
               
             for($month = 1; $month<=12; $month++) {
-              $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_total_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
+              $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_total_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month AND payments.company_id = $session_company_id");
               $row = mysqli_fetch_array($sql_payments);
               $payment_total_amount_for_month = $row['payment_total_amount_for_month'];
 
-              $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
+              $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month AND revenues.company_id = $session_company_id");
               $row = mysqli_fetch_array($sql_revenues);
               $revenues_total_amount_for_month = $row['revenue_amount_for_month'];
 

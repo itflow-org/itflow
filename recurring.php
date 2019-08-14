@@ -42,6 +42,7 @@
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM recurring, clients, categories
     WHERE recurring.client_id = clients.client_id
     AND recurring.category_id = categories.category_id
+    AND recurring.company_id = $session_company_id
     AND (recurring_frequency LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 

@@ -23,7 +23,7 @@ if(isset($_POST['add_database'])){
 
   fwrite($myfile, $txt);
 
-  $txt = "config_app_name = IT CRM\n\n";
+  $txt = "\$config_app_name = 'IT CRM';\n\n";
 
   fwrite($myfile, $txt);
 

@@ -39,7 +39,7 @@
     $disp = "ASC";
   }
 
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM categories WHERE category_name LIKE '%$q%' OR category_type LIKE '%$q%' ORDER BY $sb $o LIMIT $record_from, $record_to");
+  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM categories WHERE (category_name LIKE '%$q%' OR category_type LIKE '%$q%') AND company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   $total_found_rows = $num_rows[0];

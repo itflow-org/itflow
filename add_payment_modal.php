@@ -42,7 +42,7 @@
                 <option value="">- Account -</option>
                 <?php 
                 
-                $sql = mysqli_query($mysqli,"SELECT * FROM accounts"); 
+                $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 
                 while($row = mysqli_fetch_array($sql)){
                   $account_id = $row['account_id'];
                   $account_name = $row['account_name'];
@@ -82,7 +82,7 @@
                 <option value="">- Method of Payment -</option>
                 <?php 
                 
-                $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method'"); 
+                $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method' AND company_id = $session_company_id"); 
                 while($row = mysqli_fetch_array($sql)){
                   $category_name = $row['category_name'];
                 ?>

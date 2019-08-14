@@ -6,6 +6,7 @@
     WHERE invoices.client_id = clients.client_id
     AND payments.invoice_id = invoices.invoice_id
     AND payments.account_id = accounts.account_id
+    AND payments.company_id = $session_company_id
     ORDER BY payments.payment_id DESC");
 
 ?>

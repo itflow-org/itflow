@@ -29,7 +29,7 @@
               <select class="form-control selectpicker show-tick" name="calendar" required>
                 <?php 
                 
-                $sql_calendars_select = mysqli_query($mysqli,"SELECT * FROM calendars"); 
+                $sql_calendars_select = mysqli_query($mysqli,"SELECT * FROM calendars WHERE company_id = $session_company_id"); 
                 while($row = mysqli_fetch_array($sql_calendars_select)){
                   $calendar_id_select = $row['calendar_id'];
                   $calendar_name_select = $row['calendar_name'];

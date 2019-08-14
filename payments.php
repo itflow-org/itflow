@@ -43,6 +43,7 @@
     WHERE invoices.client_id = clients.client_id
     AND payments.invoice_id = invoices.invoice_id
     AND payments.account_id = accounts.account_id
+    AND payments.company_id = $session_company_id
     AND (invoice_number LIKE '%$q%' OR client_name LIKE '%$q%' OR account_name LIKE '%$q%' OR payment_method LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 

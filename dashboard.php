@@ -22,23 +22,23 @@ $sql_payment_years = mysqli_query($mysqli,"SELECT YEAR(expense_date) AS all_year
 
 
 //Get Total income
-$sql_total_payments_to_invoices = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_to_invoices FROM payments WHERE YEAR(payment_date) = $year");
+$sql_total_payments_to_invoices = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_to_invoices FROM payments WHERE YEAR(payment_date) = $year AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_payments_to_invoices);
 $total_payments_to_invoices = $row['total_payments_to_invoices'];
 //Do not grab transfer payment as these have an category_id of 0
-$sql_total_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE YEAR(revenue_date) = $year AND category_id > 0");
+$sql_total_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE YEAR(revenue_date) = $year AND category_id > 0 AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_revenues);
 $total_revenues = $row['total_revenues'];
 
 $total_income = $total_payments_to_invoices + $total_revenues;
 
 //Get Total expenses and do not grab transfer expenses as these have a vendor of 0
-$sql_total_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE vendor_id > 0 AND YEAR(expense_date) = $year");
+$sql_total_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE vendor_id > 0 AND YEAR(expense_date) = $year AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_expenses);
 $total_expenses = $row['total_expenses'];
 
 //Total up all the Invoices that are not draft or cancelled
-$sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' AND YEAR(invoice_date) = $year");
+$sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' AND YEAR(invoice_date) = $year AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_invoice_totals);
 $invoice_totals = $row['invoice_totals'];
 
@@ -46,17 +46,19 @@ $recievables = $invoice_totals - $total_payments_to_invoices;
 
 $profit = $total_income - $total_expenses;
 
-$sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts");
+$sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id");
 
 $sql_latest_invoice_payments = mysqli_query($mysqli,"SELECT * FROM payments, invoices, clients 
 	WHERE payments.invoice_id = invoices.invoice_id 
-	AND invoices.client_id = clients.client_id 
+	AND invoices.client_id = clients.client_id
+  AND clients.company_id = $session_company_id
 	ORDER BY payment_id DESC LIMIT 5"
 );
 
 $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, categories 
 	WHERE expenses.vendor_id = vendors.vendor_id 
 	AND expenses.category_id = categories.category_id
+  AND expenses.company_id = $session_company_id
 	ORDER BY expense_id DESC LIMIT 5"
 );
 

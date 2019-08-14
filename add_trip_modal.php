@@ -85,7 +85,7 @@
                     <option value="">- Invoice -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM clients, invoices WHERE invoices.client_id = clients.client_id ORDER BY invoice_number DESC"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM clients, invoices WHERE invoices.client_id = clients.client_id AND invoices.company_id = $session_company_id ORDER BY invoice_number DESC"); 
                     while($row = mysqli_fetch_array($sql)){
                       $client_id = $row['client_id'];
                       $client_name = $row['client_name'];
@@ -113,7 +113,7 @@
                     <option value="">- Client -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM clients"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id"); 
                     while($row = mysqli_fetch_array($sql)){
                       $client_id = $row['client_id'];
                       $client_name = $row['client_name'];
@@ -137,7 +137,7 @@
                     <option value="">- Location -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM locations, clients WHERE locations.client_id = clients.client_id ORDER BY clients.client_id DESC"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM locations, clients WHERE locations.client_id = clients.client_id AND locations.company_id = $session_company_id ORDER BY clients.client_id DESC");
                     while($row = mysqli_fetch_array($sql)){
                       $location_id = $row['location_id'];
                       $location_name = $row['location_name'];
@@ -162,7 +162,7 @@
                     <option value="">- Vendor -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 ORDER BY vendor_name ASC"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 AND company_id = $session_company_id ORDER BY vendor_name ASC"); 
                     while($row = mysqli_fetch_array($sql)){
                       $vendor_id = $row['vendor_id'];
                       $vendor_name = $row['vendor_name'];

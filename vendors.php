@@ -39,8 +39,7 @@
     $disp = "ASC";
   }
 
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM vendors WHERE client_id = 0 
-    AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%')
+  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM vendors WHERE client_id = 0 AND company_id = $session_company_id AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));

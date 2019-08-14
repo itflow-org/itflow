@@ -43,7 +43,7 @@
                   <option value="">- Account -</option>
                   <?php 
                   
-                  $sql = mysqli_query($mysqli,"SELECT * FROM accounts"); 
+                  $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 
                   while($row = mysqli_fetch_array($sql)){
                     $account_id = $row['account_id'];
                     $account_name = $row['account_name'];
@@ -83,12 +83,12 @@
                   <option value="">- Vendor -</option>
                   <?php 
                   
-                  $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 order by vendor_name ASC"); 
+                  $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 AND company_id = $session_company_id ORDER BY vendor_name ASC"); 
                   while($row = mysqli_fetch_array($sql)){
                     $vendor_id = $row['vendor_id'];
                     $vendor_name = $row['vendor_name'];
                   ?>
-                    <option value="<?php echo "$vendor_id"; ?>"><?php echo "$vendor_name"; ?></option>
+                    <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
                   
                   <?php
                   }
@@ -115,12 +115,12 @@
                   <option value="">- Category -</option>
                   <?php 
                   
-                  $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense'"); 
+                  $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense' AND company_id = $session_company_id"); 
                   while($row = mysqli_fetch_array($sql)){
                     $category_id = $row['category_id'];
                     $category_name = $row['category_name'];
                   ?>
-                    <option value="<?php echo "$category_id"; ?>"><?php echo "$category_name"; ?></option>
+                    <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
                   
                   <?php
                   }

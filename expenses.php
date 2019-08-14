@@ -43,6 +43,7 @@
     WHERE expenses.category_id = categories.category_id
     AND expenses.vendor_id = vendors.vendor_id
     AND expenses.account_id = accounts.account_id
+    AND expenses.company_id = $session_company_id
     AND (vendor_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 

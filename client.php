@@ -5,7 +5,7 @@
 if(isset($_GET['client_id'])){
   $client_id = intval($_GET['client_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
+  $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
 
   $row = mysqli_fetch_array($sql);
   $client_name = $row['client_name'];

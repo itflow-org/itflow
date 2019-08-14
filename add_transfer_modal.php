@@ -40,7 +40,7 @@
                 <option value="">- Account From -</option>
                 <?php 
                 
-                $sql = mysqli_query($mysqli,"SELECT * FROM accounts"); 
+                $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 
                 while($row = mysqli_fetch_array($sql)){
                   $account_id = $row['account_id'];
                   $account_name = $row['account_name'];
@@ -78,7 +78,7 @@
                 <option value="">- Account To -</option>
                 <?php 
                 
-                $sql = mysqli_query($mysqli,"SELECT * FROM accounts"); 
+                $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 
                 while($row = mysqli_fetch_array($sql)){
                   $account_id = $row['account_id'];
                   $account_name = $row['account_name'];

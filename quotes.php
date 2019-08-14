@@ -42,6 +42,7 @@
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM quotes, clients, categories
     WHERE quotes.client_id = clients.client_id
     AND quotes.category_id = categories.category_id
+    AND quotes.company_id = $session_company_id
     AND (quote_number LIKE '%$q%' OR client_name LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 

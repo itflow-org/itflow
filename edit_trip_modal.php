@@ -93,7 +93,7 @@
                     <option value="">- Invoice -</option>
                     <?php 
                     
-                    $sql_invoices = mysqli_query($mysqli,"SELECT * FROM clients, invoices WHERE invoices.client_id = clients.client_id ORDER BY invoice_number DESC"); 
+                    $sql_invoices = mysqli_query($mysqli,"SELECT * FROM clients, invoices WHERE invoices.client_id = clients.client_id AND clients.company_id = $session_company_id ORDER BY invoice_number DESC"); 
                     while($row = mysqli_fetch_array($sql_invoices)){
                       $client_id_select = $row['client_id'];
                       $client_name_select = $row['client_name'];

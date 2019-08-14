@@ -9,7 +9,7 @@ if($_GET['status'] == "archived"){
 
 ?>
 
-<?php $sql = mysqli_query($mysqli,"SELECT * FROM alerts WHERE alert_ack_date $where_clause ORDER BY alert_id DESC"); ?>
+<?php $sql = mysqli_query($mysqli,"SELECT * FROM alerts WHERE alert_ack_date $where_clause AND company_id = $session_company_id ORDER BY alert_id DESC"); ?>
 
 
 <div class="card mb-3">

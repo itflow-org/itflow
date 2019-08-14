@@ -40,7 +40,7 @@
   }
 
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM accounts 
-    WHERE account_name LIKE '%$q%'
+    WHERE account_name LIKE '%$q%' AND company_id = $session_company_id
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));

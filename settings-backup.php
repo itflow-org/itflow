@@ -1,7 +1,5 @@
 <?php include("header.php"); ?>
 
-<?php $sql = mysqli_query($mysqli,"SELECT * FROM accounts ORDER BY account_id DESC"); ?>
-
 <?php include("settings-nav.php"); ?>
 
 <div class="card">
