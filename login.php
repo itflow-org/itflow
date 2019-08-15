@@ -34,7 +34,8 @@ if(isset($_POST['login'])){
       if($client_id > 0){
         header("Location: client.php?client_id=$client_id");
       }else{
-        header("Location: $config_start_page");
+        //header("Location: $config_start_page");
+        header("Location: dashboard.php");
       }
     
     }else{
@@ -42,7 +43,8 @@ if(isset($_POST['login'])){
 
       if(TokenAuth6238::verify($token,$current_code)){
         $_SESSION['logged'] = TRUE;
-        header("Location: $config_start_page");
+        //header("Location: $config_start_page");
+        header("Location: dashboard.php");
       }else{
         $response = "
           <div class='alert alert-danger'>

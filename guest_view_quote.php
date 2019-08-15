@@ -13,35 +13,51 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     AND quotes.quote_url_key = '$url_key'"
   );
 
-  $row = mysqli_fetch_array($sql);
-  $quote_id = $row['quote_id'];
-  $quote_number = $row['quote_number'];
-  $quote_status = $row['quote_status'];
-  $quote_date = $row['quote_date'];
-  $quote_amount = $row['quote_amount'];
-  $quote_note = $row['quote_note'];
-  $category_id = $row['category_id'];
-  $client_id = $row['client_id'];
-  $client_name = $row['client_name'];
-  $client_address = $row['client_address'];
-  $client_city = $row['client_city'];
-  $client_state = $row['client_state'];
-  $client_zip = $row['client_zip'];
-  $client_email = $row['client_email'];
-  $client_phone = $row['client_phone'];
-  if(strlen($client_phone)>2){ 
-    $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
-  }
-  $client_website = $row['client_website'];
-  $client_net_terms = $row['client_net_terms'];
-  if($client_net_terms == 0){
-    $client_net_terms = $config_default_net_terms;
-  }
-
   if(mysqli_num_rows($sql) == 1){
 
+    $row = mysqli_fetch_array($sql);
+
+    $quote_id = $row['quote_id'];
+    $quote_number = $row['quote_number'];
+    $quote_status = $row['quote_status'];
+    $quote_date = $row['quote_date'];
+    $quote_amount = $row['quote_amount'];
+    $quote_note = $row['quote_note'];
+    $category_id = $row['category_id'];
+    $client_id = $row['client_id'];
+    $client_name = $row['client_name'];
+    $client_address = $row['client_address'];
+    $client_city = $row['client_city'];
+    $client_state = $row['client_state'];
+    $client_zip = $row['client_zip'];
+    $client_email = $row['client_email'];
+    $client_phone = $row['client_phone'];
+    if(strlen($client_phone)>2){ 
+      $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+    }
+    $client_website = $row['client_website'];
+    $client_net_terms = $row['client_net_terms'];
+    if($client_net_terms == 0){
+      $client_net_terms = $config_default_net_terms;
+    }
+    $company_id = $row['company_id'];
+
+    $sql_company = mysqli_query($mysqli,"SELECT * FROM settings, companies WHERE settings.company_id = companies.company_id AND companies.company_id = $company_id");
+    $row = mysqli_fetch_array($sql_company);
+
+    $company_name = $row['company_name'];
+    $config_company_address = $row['config_company_address'];
+    $config_company_city = $row['config_company_city'];
+    $config_company_state = $row['config_company_state'];
+    $config_company_zip = $row['config_company_zip'];
+    $config_company_phone = $row['config_company_phone'];
+    if(strlen($config_company_phone)>2){ 
+      $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
+    }
+    $config_company_email = $row['config_company_email'];
+
     //Mark viewed in history
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$quote_status', history_description = 'Quote viewed', history_created_at = NOW(), quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$quote_status', history_description = 'Quote viewed', history_created_at = NOW(), quote_id = $quote_id, company_id = $company_id");
 
     //Set Badge color based off of quote status
     if($quote_status == "Sent"){
@@ -86,7 +102,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
         </div>
         <div class="card-body">
           <ul class="list-unstyled">
-            <li><strong><?php echo $config_company_name; ?></strong></li>
+            <li><strong><?php echo $company_name; ?></strong></li>
             <li><?php echo $config_company_address; ?></li>
             <li class="mb-3"><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
             <li><?php echo $config_company_phone; ?></li>
@@ -118,7 +134,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
         </div>
         <div class="card-body">
           <ul class="list-unstyled">
-            <li class="mb-1"><strong>Quote Number:</strong> <div class="float-right">QUO-<?php echo $quote_number; ?></div></li>
+            <li class="mb-1"><strong>Quote Number:</strong> <div class="float-right"><?php echo $quote_number; ?></div></li>
             <li class="mb-1"><strong>Quote Date:</strong> <div class="float-right"><?php echo $quote_date; ?></div></li>
           </ul>
         </div>

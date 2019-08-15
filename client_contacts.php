@@ -88,7 +88,7 @@ $total_pages = ceil($total_found_rows / 10);
               $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
             }
             $contact_mobile = $row['contact_mobile'];
-            if(strlen($contact_phone)>2){ 
+            if(strlen($contact_mobile)>2){ 
               $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
             }
             $contact_email = $row['contact_email'];

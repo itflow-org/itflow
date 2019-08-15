@@ -1,11 +1,3 @@
-body {
-  font-size: .875rem;
-
-  table.dT thead .sorting, 
-	table.dT thead .sorting_asc, 
-	table.dT thead .sorting_desc {
-	    background : none;
-	}
-
-	
+body{
+	font-size: .875rem;
 }

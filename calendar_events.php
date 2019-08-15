@@ -15,7 +15,7 @@ if(isset($_GET['calendar_id'])){
 
 <?php
 //loop through IDs and create a modal for each
-$sql = mysqli_query($mysqli,"SELECT * FROM events, calendars WHERE events.calendar_id = calendars.calendar_id AND company_id = $session_company_id");
+$sql = mysqli_query($mysqli,"SELECT * FROM events, calendars WHERE events.calendar_id = calendars.calendar_id AND calendars.company_id = $session_company_id");
 while($row = mysqli_fetch_array($sql)){
   $event_id = $row['event_id'];
   $event_title = $row['event_title'];
@@ -63,7 +63,7 @@ while($row = mysqli_fetch_array($sql)){
         },
         events: [
           <?php
-          $sql = mysqli_query($mysqli,"SELECT * FROM events, calendars WHERE events.calendar_id = calendars.calendar_id AND company_id = $session_company_id");
+          $sql = mysqli_query($mysqli,"SELECT * FROM events, calendars WHERE events.calendar_id = calendars.calendar_id AND calendars.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
             $event_id = $row['event_id'];
             $event_title = $row['event_title'];

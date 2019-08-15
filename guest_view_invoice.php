@@ -13,36 +13,51 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     AND invoices.invoice_url_key = '$url_key'"
   );
 
-  $row = mysqli_fetch_array($sql);
-  $invoice_id = $row['invoice_id'];
-  $invoice_number = $row['invoice_number'];
-  $invoice_status = $row['invoice_status'];
-  $invoice_date = $row['invoice_date'];
-  $invoice_due = $row['invoice_due'];
-  $invoice_amount = $row['invoice_amount'];
-  $invoice_note = $row['invoice_note'];
-  $invoice_category_id = $row['category_id'];
-  $client_id = $row['client_id'];
-  $client_name = $row['client_name'];
-  $client_address = $row['client_address'];
-  $client_city = $row['client_city'];
-  $client_state = $row['client_state'];
-  $client_zip = $row['client_zip'];
-  $client_email = $row['client_email'];
-  $client_phone = $row['client_phone'];
-  if(strlen($client_phone)>2){ 
-    $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
-  }
-  $client_website = $row['client_website'];
-  $client_net_terms = $row['client_net_terms'];
-  if($client_net_terms == 0){
-    $client_net_terms = $config_default_net_terms;
-  }
-
   if(mysqli_num_rows($sql) == 1){
-  
+
+    $row = mysqli_fetch_array($sql);
+    $invoice_id = $row['invoice_id'];
+    $invoice_number = $row['invoice_number'];
+    $invoice_status = $row['invoice_status'];
+    $invoice_date = $row['invoice_date'];
+    $invoice_due = $row['invoice_due'];
+    $invoice_amount = $row['invoice_amount'];
+    $invoice_note = $row['invoice_note'];
+    $invoice_category_id = $row['category_id'];
+    $client_id = $row['client_id'];
+    $client_name = $row['client_name'];
+    $client_address = $row['client_address'];
+    $client_city = $row['client_city'];
+    $client_state = $row['client_state'];
+    $client_zip = $row['client_zip'];
+    $client_email = $row['client_email'];
+    $client_phone = $row['client_phone'];
+    if(strlen($client_phone)>2){ 
+      $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+    }
+    $client_website = $row['client_website'];
+    $client_net_terms = $row['client_net_terms'];
+    if($client_net_terms == 0){
+      $client_net_terms = $config_default_net_terms;
+    }
+    $company_id = $row['company_id'];
+
+    $sql_company = mysqli_query($mysqli,"SELECT * FROM settings, companies WHERE settings.company_id = companies.company_id AND companies.company_id = $company_id");
+    $row = mysqli_fetch_array($sql_company);
+
+    $company_name = $row['company_name'];
+    $config_company_address = $row['config_company_address'];
+    $config_company_city = $row['config_company_city'];
+    $config_company_state = $row['config_company_state'];
+    $config_company_zip = $row['config_company_zip'];
+    $config_company_phone = $row['config_company_phone'];
+    if(strlen($config_company_phone)>2){ 
+      $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
+    }
+    $config_company_email = $row['config_company_email'];
+
     //Mark viewed in history
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed', history_created_at = NOW(), invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $company_id");
 
 
     $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
@@ -89,7 +104,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         <?php
         if($invoice_status != "Paid" and $invoice_status  != "Cancelled" and $invoice_status != "Draft"){
         ?>
-        <a class="btn btn-success" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card"></i> Pay Online</a>
+        <a class="btn btn-success" href="guest_pay.php?invoice_id=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card"></i> Pay Online</a>
         <?php } ?>
       </div>
     </div>
@@ -105,7 +120,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         </div>
         <div class="card-body">
           <ul class="list-unstyled">
-            <li><strong><?php echo $config_company_name; ?></strong></li>
+            <li><strong><?php echo $company_name; ?></strong></li>
             <li><?php echo $config_company_address; ?></li>
             <li class="mb-3"><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
             <li><?php echo $config_company_phone; ?></li>
@@ -137,7 +152,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         </div>
         <div class="card-body">
           <ul class="list-unstyled">
-            <li class="mb-1"><strong>Invoice Number:</strong> <div class="float-right">INV-<?php echo $invoice_number; ?></div></li>
+            <li class="mb-1"><strong>Invoice Number:</strong> <div class="float-right"><?php echo $invoice_number; ?></div></li>
             <li class="mb-1"><strong>Invoice Date:</strong> <div class="float-right"><?php echo $invoice_date; ?></div></li>
             <li><strong>Payment Due:</strong> <div class="float-right <?php echo $invoice_color; ?>"><?php echo $invoice_due; ?></div></li>
           </ul>

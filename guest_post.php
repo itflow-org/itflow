@@ -17,32 +17,49 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
     AND invoices.invoice_url_key = '$url_key'"
     );
 
-    $row = mysqli_fetch_array($sql);
-    $invoice_id = $row['invoice_id'];
-    $invoice_number = $row['invoice_number'];
-    $invoice_status = $row['invoice_status'];
-    $invoice_date = $row['invoice_date'];
-    $invoice_due = $row['invoice_due'];
-    $invoice_amount = $row['invoice_amount'];
-    $invoice_note = $row['invoice_note'];
-    $invoice_category_id = $row['category_id'];
-    $client_id = $row['client_id'];
-    $client_name = $row['client_name'];
-    $client_address = $row['client_address'];
-    $client_city = $row['client_city'];
-    $client_state = $row['client_state'];
-    $client_zip = $row['client_zip'];
-    $client_email = $row['client_email'];
-    $client_phone = $row['client_phone'];
-    if(strlen($client_phone)>2){ 
-    $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
-    }
-    $client_website = $row['client_website'];
-
     if(mysqli_num_rows($sql) == 1){
 
+        $row = mysqli_fetch_array($sql);
+
+        $invoice_id = $row['invoice_id'];
+        $invoice_number = $row['invoice_number'];
+        $invoice_status = $row['invoice_status'];
+        $invoice_date = $row['invoice_date'];
+        $invoice_due = $row['invoice_due'];
+        $invoice_amount = $row['invoice_amount'];
+        $invoice_note = $row['invoice_note'];
+        $invoice_category_id = $row['category_id'];
+        $client_id = $row['client_id'];
+        $client_name = $row['client_name'];
+        $client_address = $row['client_address'];
+        $client_city = $row['client_city'];
+        $client_state = $row['client_state'];
+        $client_zip = $row['client_zip'];
+        $client_email = $row['client_email'];
+        $client_phone = $row['client_phone'];
+        if(strlen($client_phone)>2){ 
+        $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+        }
+        $client_website = $row['client_website'];
+        $company_id = $row['company_id'];
+
+        $sql_company = mysqli_query($mysqli,"SELECT * FROM settings, companies WHERE settings.company_id = companies.company_id AND companies.company_id = $company_id");
+        $row = mysqli_fetch_array($sql_company);
+
+        $company_name = $row['company_name'];
+        $config_company_address = $row['config_company_address'];
+        $config_company_city = $row['config_company_city'];
+        $config_company_state = $row['config_company_state'];
+        $config_company_zip = $row['config_company_zip'];
+        $config_company_phone = $row['config_company_phone'];
+        if(strlen($config_company_phone)>2){ 
+          $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
+        }
+        $config_company_email = $row['config_company_email'];
+        $config_invoice_logo = $row['config_invoice_logo']; 
+
         //Mark downloaded in history
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice downloaded', history_created_at = NOW(), invoice_id = $invoice_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice downloaded', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $company_id");
 
         $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
@@ -123,8 +140,8 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
             <htmlpageheader name="myheader">
             <table width="100%"><tr>
             <td width="15%"><img width="75" height="75" src=" /'.$config_invoice_logo.' "></img></td>
-            <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$config_company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
-            <td width="35%" style="text-align: right;">Invoice No.<br /><span style="font-weight: bold; font-size: 12pt;"> INV-'.$invoice_number.' </span></td>
+            <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
+            <td width="35%" style="text-align: right;">Invoice No.<br /><span style="font-weight: bold; font-size: 12pt;"> '.$invoice_number.' </span></td>
             </tr></table>
             </htmlpageheader>
             <htmlpagefooter name="myfooter">
@@ -194,8 +211,8 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
         ]);
 
         $mpdf->SetProtection(array('print'));
-        $mpdf->SetTitle("$config_company_name - Invoice");
-        $mpdf->SetAuthor("$config_company_name");
+        $mpdf->SetTitle("$company_name - Invoice");
+        $mpdf->SetAuthor("$company_name");
         if($invoice_status == 'Paid'){
             $mpdf->SetWatermarkText("Paid");
         }
@@ -204,7 +221,7 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
         $mpdf->watermarkTextAlpha = 0.1;
         $mpdf->SetDisplayMode('fullpage');
         $mpdf->WriteHTML($html);
-        $mpdf->Output("$invoice_date-$config_company_name-Invoice$invoice_number.pdf",'D');
+        $mpdf->Output("$invoice_date-$company_name-Invoice$invoice_number.pdf",'D');
 
     }else{
         echo "GTFO!!!";
@@ -222,28 +239,44 @@ if(isset($_GET['pdf_quote'], $_GET['url_key'])){
     AND quotes.quote_url_key = '$url_key'"
     );
 
-    $row = mysqli_fetch_array($sql);
-    $quote_id = $row['quote_id'];
-    $quote_number = $row['quote_number'];
-    $quote_status = $row['quote_status'];
-    $quote_date = $row['quote_date'];
-    $quote_amount = $row['quote_amount'];
-    $quote_note = $row['quote_note'];
-    $quote_url_key = $row['quote_url_key'];
-    $client_id = $row['client_id'];
-    $client_name = $row['client_name'];
-    $client_address = $row['client_address'];
-    $client_city = $row['client_city'];
-    $client_state = $row['client_state'];
-    $client_zip = $row['client_zip'];
-    $client_email = $row['client_email'];
-    $client_phone = $row['client_phone'];
-    if(strlen($client_phone)>2){ 
-        $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
-    }
-    $client_website = $row['client_website'];
-
     if(mysqli_num_rows($sql) == 1){
+        $row = mysqli_fetch_array($sql);
+        
+        $quote_id = $row['quote_id'];
+        $quote_number = $row['quote_number'];
+        $quote_status = $row['quote_status'];
+        $quote_date = $row['quote_date'];
+        $quote_amount = $row['quote_amount'];
+        $quote_note = $row['quote_note'];
+        $quote_url_key = $row['quote_url_key'];
+        $client_id = $row['client_id'];
+        $client_name = $row['client_name'];
+        $client_address = $row['client_address'];
+        $client_city = $row['client_city'];
+        $client_state = $row['client_state'];
+        $client_zip = $row['client_zip'];
+        $client_email = $row['client_email'];
+        $client_phone = $row['client_phone'];
+        if(strlen($client_phone)>2){ 
+            $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+        }
+        $client_website = $row['client_website'];
+        $company_id = $row['company_id'];
+
+        $sql_company = mysqli_query($mysqli,"SELECT * FROM settings, companies WHERE settings.company_id = companies.company_id AND companies.company_id = $company_id");
+        $row = mysqli_fetch_array($sql_company);
+
+        $company_name = $row['company_name'];
+        $config_company_address = $row['config_company_address'];
+        $config_company_city = $row['config_company_city'];
+        $config_company_state = $row['config_company_state'];
+        $config_company_zip = $row['config_company_zip'];
+        $config_company_phone = $row['config_company_phone'];
+        if(strlen($config_company_phone)>2){ 
+          $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
+        }
+        $config_company_email = $row['config_company_email'];
+        $config_invoice_logo = $row['config_invoice_logo']; 
 
         $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id ORDER BY item_id ASC");
 
@@ -316,8 +349,8 @@ if(isset($_GET['pdf_quote'], $_GET['url_key'])){
         <htmlpageheader name="myheader">
         <table width="100%"><tr>
         <td width="15%"><img width="75" height="75" src=" /'.$config_invoice_logo.' "></img></td>
-        <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$config_company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
-        <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> QUO-'.$quote_number.' </span></td>
+        <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
+        <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> '.$quote_number.' </span></td>
         </tr></table>
         </htmlpageheader>
         <htmlpagefooter name="myfooter">
@@ -377,15 +410,15 @@ if(isset($_GET['pdf_quote'], $_GET['url_key'])){
             'margin_footer' => 10
         ]);
         $mpdf->SetProtection(array('print'));
-        $mpdf->SetTitle("$config_company_name - Quote");
-        $mpdf->SetAuthor("$config_company_name");
+        $mpdf->SetTitle("$company_name - Quote");
+        $mpdf->SetAuthor("$company_name");
         $mpdf->SetWatermarkText("Quote");
         $mpdf->showWatermarkText = true;
         $mpdf->watermark_font = 'DejaVuSansCondensed';
         $mpdf->watermarkTextAlpha = 0.1;
         $mpdf->SetDisplayMode('fullpage');
         $mpdf->WriteHTML($html);
-        $mpdf->Output("$quote_date-$config_company_name-Quote$quote_number.pdf",'D');
+        $mpdf->Output("$quote_date-$company_name-Quote$quote_number.pdf",'D');
 
     }else{
         echo "GTFO!!!";
@@ -404,10 +437,9 @@ if(isset($_GET['approve_quote'], $_GET['url_key'])){
 
     if(mysqli_num_rows($sql) == 1){
     
-
         mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Approved' WHERE quote_id = $quote_id");
 
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Approved', history_description = 'Client approved Quote!', history_created_at = NOW(), quote_id = $quote_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Approved', history_description = 'Client approved Quote!', history_created_at = NOW(), quote_id = $quote_id, company_id = $company_id");
 
         $_SESSION['alert_message'] = "Quote approved";
         
@@ -432,7 +464,7 @@ if(isset($_GET['reject_quote'], $_GET['url_key'])){
 
         mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Rejected' WHERE quote_id = $quote_id");
 
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Rejected', history_description = 'Client rejected Quote!', history_created_at = NOW(), quote_id = $quote_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Rejected', history_description = 'Client rejected Quote!', history_created_at = NOW(), quote_id = $quote_id, company_id = $company_id");
 
         $_SESSION['alert_message'] = "Quote rejected";
         

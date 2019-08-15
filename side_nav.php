@@ -110,6 +110,7 @@
       <a class="dropdown-item" href="settings-general.php">General</a>
       <a class="dropdown-item" href="categories.php">Categories</a>
       <a class="dropdown-item" href="users.php">Users</a>
+      <a class="dropdown-item" href="companies.php">Companies</a>
     </div>
   </li>
 </ul>

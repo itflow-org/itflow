@@ -297,6 +297,41 @@ if(isset($_POST['edit_user'])){
 
 }
 
+if(isset($_POST['add_company'])){
+
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+
+    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_created_at = NOW()");
+
+    $_SESSION['alert_message'] = "Company added";
+    
+    header("Location: companies.php");
+
+}
+
+if(isset($_POST['edit_company'])){
+    $company_id = intval($_POST['company_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+
+    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_updated_at = NOW() WHERE company_id = $company_id");
+
+    $_SESSION['alert_message'] = "Company modified";
+    
+    header("Location: companies.php");
+
+}
+
+if(isset($_GET['delete_company'])){
+    $company_id = intval($_GET['delete_company']);
+
+    mysqli_query($mysqli,"DELETE FROM companies WHERE company_id = $company_id");
+
+    $_SESSION['alert_message'] = "Company deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_client'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
