@@ -92,7 +92,7 @@ if(isset($_POST['login'])){
 
   <div class="container">
     <div class="card card-login mx-auto mt-5 bg-dark">
-      <div class="card-header mt-2 text-white"><h3><i class="fa fa-cloud"></i> <?php echo $config_company_name; ?> CRM</h3></div>
+      <div class="card-header mt-2 text-white text-center"><h3><i class="fa fa-fw fa-network-wired mr-2"></i><?php echo $config_app_name; ?></h3></div>
       <div class="card-body bg-white">
         <?php if(isset($response)) { echo $response; } ?>
         <form method="post">
@@ -114,7 +114,7 @@ if(isset($_POST['login'])){
               <label for="inputToken">Token</label>
             </div>
           </div>
-          <button class="btn btn-primary btn-block" type="submit" name="login">Login</button>
+          <button class="btn btn-lg btn-primary btn-block" type="submit" name="login">Sign In</button>
         </form>
       </div>
     </div>
