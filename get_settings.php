@@ -52,6 +52,7 @@ $config_default_expense_payment_method = $row['config_default_expense_payment_me
 $config_recurring_email_auto_send = $row['config_recurring_email_auto_send'];
 
 $config_api_key = $row['config_api_key'];
+$config_enable_cron = $row['config_enable_cron'];
 
 $config_base_url = $row['config_base_url'];
 

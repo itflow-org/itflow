@@ -35,6 +35,13 @@ if(isset($_POST['edit_general_settings'])){
     $config_start_page = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_start_page']));
     $config_account_balance_threshold = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_account_balance_threshold']));
     $config_api_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key']));
+    $config_enable_cron = intval($_POST['config_enable_cron']);
+    
+    if($config_enable_cron == 1){
+        $config_enable_cron = 1;
+    }else{
+        $config_enable_cron = 0;
+    }
 
     $path = "$config_invoice_logo";
 
@@ -48,7 +55,7 @@ if(isset($_POST['edit_general_settings'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);   
     }
 
-    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold', config_invoice_logo = '$path', config_api_key = '$config_api_key' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold', config_invoice_logo = '$path', config_api_key = '$config_api_key', config_enable_cron = $config_enable_cron WHERE company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Settings updated";
 

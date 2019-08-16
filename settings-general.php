@@ -45,6 +45,11 @@
         </div>
       </div>
 
+      <div class="custom-control custom-switch mb-2">
+        <input type="checkbox" class="custom-control-input" name="config_enable_cron" <?php if($config_enable_cron == 1){ echo "checked"; } ?> value="1" id="customSwitch1">
+        <label class="custom-control-label" for="customSwitch1">Enable Cron <small>(cron.php must also be added to cron and run nightly at 12:00AM for auto jobs to work)</small></label>
+      </div>
+
       <div class="form-group mb-4">
         <label>Logo</label>
         <input type="file" class="form-control-file" name="file">
