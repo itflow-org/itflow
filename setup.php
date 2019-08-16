@@ -81,8 +81,6 @@ if(isset($_POST['add_user'])){
 
   mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW()");
   
-  $user_id = mysqli_insert_id($mysqli);
-
   $_SESSION['alert_message'] = "User added";
 
   header("Location: setup.php?company");
@@ -102,6 +100,7 @@ if(isset($_POST['add_company_settings'])){
   $config_company_phone = preg_replace("/[^0-9]/", '',$config_company_phone);
   $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
   $config_api_key = keygen();
+  $user_id = mysqli_insert_id($mysqli);
 
   mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$config_company_name', company_created_at = NOW()");
 
