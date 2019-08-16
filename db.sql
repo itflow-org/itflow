@@ -621,6 +621,7 @@ CREATE TABLE `settings` (
   `config_invoice_overdue_reminders` varchar(200) DEFAULT NULL,
   `config_quote_next_number` int(11) DEFAULT NULL,
   `config_quote_prefix` varchar(200) DEFAULT NULL,
+  `config_enable_cron` int(1) NOT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -804,4 +805,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-08-14 11:11:26
+-- Dump completed on 2019-08-15 22:34:10

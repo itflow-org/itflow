@@ -43,19 +43,19 @@ if(isset($_POST['add_database'])){
   $lines = file($filename);
   // Loop through each line
   foreach ($lines as $line){
-      // Skip it if it's a comment
-      if(substr($line, 0, 2) == '--' || $line == '')
-          continue;
+    // Skip it if it's a comment
+    if(substr($line, 0, 2) == '--' || $line == '')
+        continue;
 
-      // Add this line to the current segment
-      $templine .= $line;
-      // If it has a semicolon at the end, it's the end of the query
-      if(substr(trim($line), -1, 1) == ';'){
-          // Perform the query
-          mysqli_query($mysqli,$templine);
-          // Reset temp variable to empty
-          $templine = '';
-      }
+    // Add this line to the current segment
+    $templine .= $line;
+    // If it has a semicolon at the end, it's the end of the query
+    if(substr(trim($line), -1, 1) == ';'){
+        // Perform the query
+        mysqli_query($mysqli,$templine);
+        // Reset temp variable to empty
+        $templine = '';
+    }
   }
 
   $_SESSION['alert_message'] = "Database successfully added";
@@ -68,23 +68,24 @@ if(isset($_POST['add_user'])){
 
   include("config.php");
 
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $password = md5(mysqli_real_escape_string($mysqli,$_POST['password']));
+  $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+  $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+  $password = md5(mysqli_real_escape_string($mysqli,$_POST['password']));
 
-    if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/users/";
-        $path = $path . time() . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);
-    }
+  if($_FILES['file']['tmp_name']!='') {
+      $path = "uploads/users/";
+      $path = $path . time() . basename( $_FILES['file']['name']);
+      $file_name = basename($path);
+      move_uploaded_file($_FILES['file']['tmp_name'], $path);
+  }
 
-    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW()");
-    $user_id = mysqli_insert_id($mysqli);
+  mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW()");
+  
+  $user_id = mysqli_insert_id($mysqli);
 
-    $_SESSION['alert_message'] = "User added";
+  $_SESSION['alert_message'] = "User added";
 
-    header("Location: setup.php?company");
+  header("Location: setup.php?company");
 
 }
 
