@@ -23,7 +23,7 @@
   if(!empty($_GET['sb'])){
     $sb = $_GET['sb'];
   }else{
-    $sb = "company_id";
+    $sb = "companies.company_id";
   }
 
   if(isset($_GET['o'])){

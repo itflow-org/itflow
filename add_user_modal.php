@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-user-plus mr-2"></i>New User</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-user mr-2"></i>New User</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -62,6 +62,23 @@
             </div>
 
             <div class="tab-pane fade" id="pills-assign">
+
+              <?php
+              $sql = mysqli_query($mysqli,"SELECT * FROM companies");
+
+              while($row = mysqli_fetch_array($sql)){
+                $company_id = $row['company_id'];
+                $company_name = $row['company_name'];
+              ?>
+
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" name="company" value="<?php echo $company_id; ?>">
+                  <label class="form-check-label"><?php echo $company_name; ?></label>
+                </div>
+
+              <?php
+              }
+              ?>
 
               <div class="form-group">
                 <label>Assign a User to a Client</label>

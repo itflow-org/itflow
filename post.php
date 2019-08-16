@@ -15,6 +15,102 @@ use PHPMailer\PHPMailer\Exception;
 
 $todays_date = date('Y-m-d');
 
+if(isset($_POST['add_user'])){
+
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+    $password = md5(mysqli_real_escape_string($mysqli,$_POST['password']));
+    $client_id = intval($_POST['client']);
+
+    if($_FILES['file']['tmp_name']!='') {
+        $path = "uploads/users/";
+        $path = $path . time() . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);
+    }
+
+    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW(), client_id = $client_id");
+
+    $_SESSION['alert_message'] = "User added";
+    
+    header("Location: users.php");
+
+}
+
+if(isset($_POST['edit_user'])){
+
+    $user_id = intval($_POST['user_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+    $current_password_hash = mysqli_real_escape_string($mysqli,$_POST['current_password_hash']);
+    $password = mysqli_real_escape_string($mysqli,$_POST['password']);
+    if($current_password_hash == $password){
+        $password = $current_password_hash;
+    }else{
+        $password = md5($password);
+    }
+    $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
+
+    if($_FILES['file']['tmp_name']!='') {
+        //delete old avatar file
+        unlink($path);
+        //Update with new path
+        $path = "uploads/users/";
+        $path = $path . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);   
+    }
+    
+    mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', password = '$password', avatar = '$path', updated_at = NOW() WHERE user_id = $user_id");
+
+    $_SESSION['alert_message'] = "User updated";
+    
+    header("Location: users.php");
+
+}
+
+if(isset($_POST['add_company'])){
+
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+
+    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_created_at = NOW()");
+
+    $config_api_key = keygen();
+    $company_id = mysqli_insert_id($mysqli);
+ 
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0");
+
+    $_SESSION['alert_message'] = "Company added";
+    
+    header("Location: companies.php");
+
+}
+
+if(isset($_POST['edit_company'])){
+    $company_id = intval($_POST['company_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+
+    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_updated_at = NOW() WHERE company_id = $company_id");
+
+    $_SESSION['alert_message'] = "Company modified";
+    
+    header("Location: companies.php");
+
+}
+
+if(isset($_GET['delete_company'])){
+    $company_id = intval($_GET['delete_company']);
+
+    mysqli_query($mysqli,"DELETE FROM companies WHERE company_id = $company_id");
+
+    mysqli_query($mysqli,"DELETE FROM settings WHERE company_id = $company_id");
+
+    $_SESSION['alert_message'] = "Company deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['verify'])){
 
     require_once("rfc6238.php");
@@ -248,95 +344,6 @@ if(isset($_GET['download_database'])){
         exec('rm ' . $backup_file_name); 
     }
 
-}
-
-if(isset($_POST['add_user'])){
-
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $password = md5(mysqli_real_escape_string($mysqli,$_POST['password']));
-    $client_id = intval($_POST['client']);
-
-    if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/users/";
-        $path = $path . time() . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);
-    }
-
-    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW(), client_id = $client_id");
-
-    $_SESSION['alert_message'] = "User added";
-    
-    header("Location: users.php");
-
-}
-
-if(isset($_POST['edit_user'])){
-
-    $user_id = intval($_POST['user_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $current_password_hash = mysqli_real_escape_string($mysqli,$_POST['current_password_hash']);
-    $password = mysqli_real_escape_string($mysqli,$_POST['password']);
-    if($current_password_hash == $password){
-        $password = $current_password_hash;
-    }else{
-        $password = md5($password);
-    }
-    $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
-
-    if($_FILES['file']['tmp_name']!='') {
-        //delete old avatar file
-        unlink($path);
-        //Update with new path
-        $path = "uploads/users/";
-        $path = $path . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);   
-    }
-    
-    mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', password = '$password', avatar = '$path', updated_at = NOW() WHERE user_id = $user_id");
-
-    $_SESSION['alert_message'] = "User updated";
-    
-    header("Location: users.php");
-
-}
-
-if(isset($_POST['add_company'])){
-
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-
-    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_created_at = NOW()");
-
-    $_SESSION['alert_message'] = "Company added";
-    
-    header("Location: companies.php");
-
-}
-
-if(isset($_POST['edit_company'])){
-    $company_id = intval($_POST['company_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-
-    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_updated_at = NOW() WHERE company_id = $company_id");
-
-    $_SESSION['alert_message'] = "Company modified";
-    
-    header("Location: companies.php");
-
-}
-
-if(isset($_GET['delete_company'])){
-    $company_id = intval($_GET['delete_company']);
-
-    mysqli_query($mysqli,"DELETE FROM companies WHERE company_id = $company_id");
-
-    $_SESSION['alert_message'] = "Company deleted";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-  
 }
 
 if(isset($_POST['add_client'])){

@@ -91,6 +91,10 @@ if(isset($_POST['add_company_settings'])){
 
   include("config.php");
 
+  $sql = mysqli_query($mysqli,"SELECT user_id FROM users");
+  $row = mysqli_fetch_array($sql);
+  $user_id = $row['user_id'];
+
   $config_company_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_name']));
   $config_company_address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_address']));
   $config_company_city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_city']));
@@ -100,7 +104,7 @@ if(isset($_POST['add_company_settings'])){
   $config_company_phone = preg_replace("/[^0-9]/", '',$config_company_phone);
   $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
   $config_api_key = keygen();
-  $user_id = mysqli_insert_id($mysqli);
+  
 
   mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$config_company_name', company_created_at = NOW()");
 
@@ -203,6 +207,20 @@ if(isset($_POST['add_company_settings'])){
       <div class="container">
         <?php include("config.php"); ?>
         <?php if(isset($_GET['database'])){ ?>
+
+        <?php 
+        //Alert Feedback
+        if(!empty($_SESSION['alert_message'])){
+        ?>
+          <div class="alert alert-info" id="alert">
+            <?php echo $_SESSION['alert_message']; ?>
+            <button class='close' data-dismiss='alert'>&times;</button>
+          </div>
+          <?php
+          $_SESSION['alert_type'] = '';
+          $_SESSION['alert_message'] = '';
+        }
+        ?>
     
           <div class="card mb-3">
             <div class="card-header">
@@ -242,7 +260,7 @@ if(isset($_POST['add_company_settings'])){
                 </div>
 
                 <div class="form-group mb-5">
-                  <label>Database Host</label>
+                  <label>Host</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
