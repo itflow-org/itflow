@@ -43,7 +43,7 @@
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-bicycle"></i></span>
                     </div>
-                    <input type="number" class="form-control" name="miles" value="<?php echo $trip_miles; ?>" required>
+                    <input type="number" step="0.1" min="0" class="form-control" name="miles" value="<?php echo $trip_miles; ?>" required>
                   </div>
                 </div>
               
@@ -71,6 +71,11 @@
               <div class="form-group">
                 <label>Purpose <strong class="text-danger">*</strong></label>
                 <textarea rows="4" class="form-control" name="purpose" required><?php echo $trip_purpose; ?></textarea>
+              </div>
+
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="customControlAutosizingCopy<?php echo $trip_id; ?>" name="roundtrip" value="1" >
+                <label class="custom-control-label" for="customControlAutosizingCopy<?php echo $trip_id; ?>">Round Trip</label>
               </div>
             
             </div>

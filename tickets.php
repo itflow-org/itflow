@@ -105,7 +105,7 @@
           ?>
 
           <tr>
-            <td><a href="#" data-toggle="modal" data-target="#viewTicketModal<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo $ticket_id; ?></span></a></td>
+            <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo $ticket_id; ?></span></a></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
             <td><?php echo $ticket_subject; ?></td>
             <td><?php echo $ticket_created_at; ?></td>

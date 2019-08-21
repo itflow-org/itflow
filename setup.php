@@ -1,6 +1,9 @@
 <?php
   
-include("functions.php"); 
+include("functions.php");
+
+$_SESSION['alert_message'] = '';
+$_SESSION['alert_type'] = "warning";
 
 if(isset($_POST['add_database'])){
 
@@ -112,7 +115,7 @@ if(isset($_POST['add_company_settings'])){
 
   mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company_id");
  
-  mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = $config_company_phone, config_company_site = '$config_company_site', config_start_page = 'dashboard.php', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0");
+  mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = $config_company_phone, config_company_site = '$config_company_site', config_start_page = 'dashboard.php', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1");
 
   //Create Some Data
 
@@ -206,8 +209,7 @@ if(isset($_POST['add_company_settings'])){
       
       <div class="container">
         <?php include("config.php"); ?>
-        <?php if(isset($_GET['database'])){ ?>
-
+        
         <?php 
         //Alert Feedback
         if(!empty($_SESSION['alert_message'])){
@@ -221,7 +223,9 @@ if(isset($_POST['add_company_settings'])){
           $_SESSION['alert_message'] = '';
         }
         ?>
-    
+
+        <?php if(isset($_GET['database'])){ ?>
+
           <div class="card mb-3">
             <div class="card-header">
               <h6 class="mt-1"><i class="fa fa-fw fa-database"></i> Setup Database</h6>

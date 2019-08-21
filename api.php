@@ -20,7 +20,7 @@ if(isset($_GET['api_key'])){
             $row = mysqli_fetch_array($sql);
             $name = $row['name'];
 
-            echo $name;
+            echo "$name - $cid";
 
         }
 

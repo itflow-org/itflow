@@ -26,6 +26,9 @@
 
 	include("get_settings.php");
 
+	$_SESSION['alert_message'] = '';
+	$_SESSION['alert_type'] = "warning";
+
 	//Detects if using an apple device and uses apple maps instead of google
 	$iPod    = stripos($_SERVER['HTTP_USER_AGENT'],"iPod");
 	$iPhone  = stripos($_SERVER['HTTP_USER_AGENT'],"iPhone");

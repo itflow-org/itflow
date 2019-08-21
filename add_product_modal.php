@@ -19,7 +19,7 @@
           </div>
           <div class="form-group">
             <label>Cost <strong class="text-danger">*</strong></label>
-            <input type="text" class="form-control" name="cost" placeholder="Cost" required>
+            <input type="number" step="0.01" min="0" class="form-control" name="cost" placeholder="Cost" required>
           </div>
         </div>
         <div class="modal-footer bg-white">

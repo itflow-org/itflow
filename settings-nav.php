@@ -47,6 +47,14 @@
       Quote
     </a> 
   </li>
+
+  <li class="nav-item">
+    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-ticket.php") { echo "active"; } ?>" 
+      href="settings-ticket.php">
+      <i class="fa fa-fw fa-2x fa-tag"></i><br>
+      Ticket
+    </a> 
+  </li>
  
   <li class="nav-item">
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-backup.php") { echo "active"; } ?>" 

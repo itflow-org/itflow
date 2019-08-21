@@ -157,7 +157,7 @@ if(isset($_GET['invoice_id'])){
         </div>
         <div class="card-body">
           <ul class="list-unstyled">
-            <li class="mb-1"><strong>Invoice Number:</strong> <div class="float-right">INV-<?php echo $invoice_number; ?></div></li>
+            <li class="mb-1"><strong>Invoice Number:</strong> <div class="float-right"><?php echo $invoice_number; ?></div></li>
             <li class="mb-1"><strong>Invoice Date:</strong> <div class="float-right"><?php echo $invoice_date; ?></div></li>
             <li><strong>Payment Due:</strong> <div class="float-right <?php echo $invoice_color; ?>"><?php echo $invoice_due; ?></div></li>
           </ul>
@@ -225,8 +225,8 @@ if(isset($_GET['invoice_id'])){
                 <td></td>            
                 <td><input type="text" class="form-control typeahead" name="name" id="item"></td>
                 <td><textarea class="form-control" id="description" rows="1" name="description"></textarea></td>
-                <td><input type="text" class="form-control" style="text-align: center;" name="qty"></td>
-                <td><input type="text" class="form-control" style="text-align: right;" id="price" name="price"></td>
+                <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty"></td>
+                <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" id="price" name="price"></td>
                 <td>
                   <select dir="rtl" class="form-control" name="tax">
                     <option value="0.00">None</option>

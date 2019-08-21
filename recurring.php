@@ -125,6 +125,7 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <a class="dropdown-item" href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="post.php?force_recurring=<?php echo $recurring_id; ?>">Force</a>
                   <?php if($recurring_status == 1){ ?>
                     <a class="dropdown-item" href="post.php?recurring_deactivate=<?php echo $recurring_id; ?>">Deactivate</a>
                   <?php }else{ ?>

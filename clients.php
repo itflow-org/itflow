@@ -66,9 +66,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark">
           <tr>
-            <th class="w-40"><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Name <i class="fa fa-sort<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
-            <th class="w-15"><a href="?<?php echo $url_query_strings_sb; ?>&sb=client_type&o=<?php echo $disp; ?>">Type <i class="fa fa-sort-up"></i></a></th>
-            <th class="w-15"><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=client_email&o=<?php echo $disp; ?>">Email</a></th>
+            <th class="w-40"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Name <i class="fa fa-sort-alpha<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
+            <th class="w-15"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_type&o=<?php echo $disp; ?>">Type <i class="fa fa-sort"></i></a></th>
+            <th class="w-15"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_email&o=<?php echo $disp; ?>">Email</a></th>
             <th class="w-10">Phone</th>
             <th class="w-10 text-right">Balance</th>
             <th class="w-10 text-center">Action</th>

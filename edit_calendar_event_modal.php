@@ -65,6 +65,7 @@
           </div>
         </div>
         <div class="modal-footer bg-white">
+          <a href="post.php?delete_event=<?php echo $event_id; ?>" class="btn btn-outline-danger mr-auto">Delete</a>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="edit_event" class="btn btn-primary">Save</button>
         </div>

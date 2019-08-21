@@ -41,7 +41,7 @@
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-bicycle"></i></span>
                     </div>
-                    <input type="number" class="form-control" name="miles" placeholder="Enter miles" required autofocus>
+                    <input type="number" step="0.1" min="0" class="form-control" name="miles" placeholder="Enter miles" required autofocus>
                   </div>
                 </div>
               </div>
@@ -68,7 +68,7 @@
               </div>
               <div class="custom-control custom-checkbox">
                 <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="roundtrip" value="1" >
-                <label class="custom-control-label" for="customControlAutosizing">Roundtrip</label>
+                <label class="custom-control-label" for="customControlAutosizing">Round Trip</label>
               </div>
             
             </div>

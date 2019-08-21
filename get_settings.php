@@ -40,6 +40,9 @@ $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
 $config_invoice_next_number = $row['config_invoice_next_number'];
 $config_invoice_prefix = $row['config_invoice_prefix'];
 
+$config_ticket_next_number = $row['config_ticket_next_number'];
+$config_ticket_prefix = $row['config_ticket_prefix'];
+
 //Defaults
 $config_default_expense_account = $row['config_default_expense_account'];
 $config_default_payment_account = $row['config_default_payment_account'];
@@ -55,9 +58,6 @@ $config_api_key = $row['config_api_key'];
 $config_enable_cron = $row['config_enable_cron'];
 
 $config_base_url = $row['config_base_url'];
-
-$_SESSION['alert_message'] = '';
-$_SESSION['alert_type'] = "warning";
 
 $client_types_array = array(
     'Residential',

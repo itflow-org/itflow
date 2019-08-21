@@ -1,5 +1,13 @@
+<?php
+  //Debug - Page Load Time
+  $time = microtime();
+  $time = explode(' ', $time);
+  $time = $time[1] + $time[0];
+  $start = $time;
+?>
+
 <?php 
-  
+
   if(!file_exists('config.php')){
     header("Location: setup.php");
   }
@@ -22,7 +30,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title><?php echo $config_company_name; ?></title>
+  <title><?php echo $config_app_name; ?></title>
 
   <link href="vendor/easy-markdown-editor/css/easymde.css" rel="stylesheet" type="text/css">
 

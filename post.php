@@ -77,6 +77,10 @@ if(isset($_POST['add_company'])){
 
     $config_api_key = keygen();
     $company_id = mysqli_insert_id($mysqli);
+
+    mkdir("uploads/clients/$company_id");
+    mkdir("uploads/expenses/$company_id");
+    mkdir("uploads/settings/$company_id");
  
     mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0");
 
@@ -133,19 +137,13 @@ if(isset($_POST['edit_general_settings'])){
     $config_api_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key']));
     $config_enable_cron = intval($_POST['config_enable_cron']);
     
-    if($config_enable_cron == 1){
-        $config_enable_cron = 1;
-    }else{
-        $config_enable_cron = 0;
-    }
-
     $path = "$config_invoice_logo";
 
     if($_FILES['file']['tmp_name']!='') {
         //delete old avatar file
         unlink($path);
         //Update with new path
-        $path = "uploads/settings/";
+        $path = "uploads/settings/$session_company_id/";
         $path = $path . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);   
@@ -168,8 +166,6 @@ if(isset($_POST['edit_company_settings'])){
     $config_company_zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_zip']));
     $config_company_phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_phone']));
     $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
-   
-
 
     mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site' WHERE company_id = $session_company_id");
 
@@ -184,7 +180,7 @@ if(isset($_POST['edit_mail_settings'])){
     $config_smtp_host = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_host']));
     $config_smtp_port = intval($_POST['config_smtp_port']);
     $config_smtp_username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_username']));
-    $config_smtp_password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_password']));
+    $config_smtp_password = mysqli_real_escape_string($mysqli,$_POST['config_smtp_password']);
 
     mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password' WHERE company_id = $session_company_id");
 
@@ -201,12 +197,7 @@ if(isset($_POST['edit_invoice_settings'])){
     $config_mail_from_email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_email']));
     $config_mail_from_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name']));
     $config_invoice_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer']));
-    $config_send_invoice_reminders = $_POST['config_send_invoice_reminders'];
-    if($config_send_invoice_reminders == 1){
-        $config_send_invoice_reminders = 1;
-    }else{
-        $config_send_invoice_reminders = 0;
-    }
+    $config_send_invoice_reminders = intval($_POST['config_send_invoice_reminders']);
     $config_invoice_overdue_reminders = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_overdue_reminders']));
 
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders' WHERE company_id = $session_company_id");
@@ -231,6 +222,18 @@ if(isset($_POST['edit_quote_settings'])){
 
 }
 
+if(isset($_POST['edit_ticket_settings'])){
+
+    $config_ticket_prefix = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_prefix']));
+    $config_ticket_next_number = intval($_POST['config_ticket_next_number']);
+
+    mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number WHERE company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Ticket Settings updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
 
 if(isset($_POST['edit_default_settings'])){
 
@@ -365,7 +368,7 @@ if(isset($_POST['add_client'])){
     $client_id = mysqli_insert_id($mysqli);
 
     //Should be created when files are uploaded
-    //mkdir("uploads/clients/$client_id");
+    mkdir("uploads/clients/$session_company_id/$client_id");
 
     $_SESSION['alert_message'] = "Client added";
     
@@ -452,7 +455,7 @@ if(isset($_POST['edit_event'])){
 }
 
 if(isset($_GET['delete_event'])){
-    $event_id = intval($_GET['delete_calendar_event']);
+    $event_id = intval($_GET['delete_event']);
 
     mysqli_query($mysqli,"DELETE FROM events WHERE event_id = $event_id");
 
@@ -468,7 +471,12 @@ if(isset($_POST['add_ticket'])){
     $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
     $details = strip_tags(mysqli_real_escape_string($mysqli,$_POST['details']));
 
-    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_subject = '$subject', ticket_details = '$details', ticket_status = 'Open', ticket_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    //Get the next Ticket Number and add 1 for the new ticket number
+    $ticket_number = $config_ticket_next_number;
+    $new_config_ticket_next_number = $config_ticket_next_number + 1;
+    mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = $session_company_id");
+
+    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $session_user_id, client_id = $client_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Ticket created";
     
@@ -499,6 +507,19 @@ if(isset($_GET['delete_ticket'])){
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
+}
+
+if(isset($_POST['add_ticket_update'])){
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $ticket_update = strip_tags(mysqli_real_escape_string($mysqli,$_POST['ticket_update']));
+
+    mysqli_query($mysqli,"INSERT INTO ticket_updates SET ticket_update = '$ticket_update', ticket_update_created_at = NOW(), user_id = $session_user_id, ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
+
+    $_SESSION['alert_message'] = "Posted an update";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    
 }
 
 if(isset($_POST['add_vendor'])){
@@ -566,7 +587,7 @@ if(isset($_POST['add_product'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $cost = strip_tags(mysqli_real_escape_string($mysqli,$_POST['cost']));
+    $cost = floatval($_POST['cost']);
 
     mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_created_at = NOW(), company_id = $session_company_id");
 
@@ -581,7 +602,7 @@ if(isset($_POST['edit_product'])){
     $product_id = intval($_POST['product_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $cost = strip_tags(mysqli_real_escape_string($mysqli,$_POST['cost']));
+    $cost = floatval($_POST['cost']);
 
     mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_updated_at = NOW() WHERE product_id = $product_id");
 
@@ -607,7 +628,7 @@ if(isset($_POST['add_trip'])){
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $starting_location = strip_tags(mysqli_real_escape_string($mysqli,$_POST['starting_location']));
     $destination = strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination']));
-    $miles = intval($_POST['miles']);
+    $miles = floatval($_POST['miles']);
     $roundtrip = intval($_POST['roundtrip']);
     $purpose = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose']));
     $client_id = intval($_POST['client']);
@@ -615,7 +636,7 @@ if(isset($_POST['add_trip'])){
     $location_id = intval($_POST['location']);
     $vendor_id = intval($_POST['vendor']);
 
-    mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, round_trip = $round_trip, trip_purpose = '$purpose', trip_created_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_created_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Trip added";
     
@@ -629,7 +650,7 @@ if(isset($_POST['edit_trip'])){
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $starting_location = strip_tags(mysqli_real_escape_string($mysqli,$_POST['starting_location']));
     $destination = strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination']));
-    $miles = intval($_POST['miles']);
+    $miles = floatval($_POST['miles']);
     $roundtrip = intval($_POST['roundtrip']);
     $purpose = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose']));
     $client_id = intval($_POST['client']);
@@ -637,7 +658,7 @@ if(isset($_POST['edit_trip'])){
     $location_id = intval($_POST['location']);
     $vendor_id = intval($_POST['vendor']);
 
-    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $round_trip, trip_updated_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id WHERE trip_id = $trip_id");
+    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_updated_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id WHERE trip_id = $trip_id");
 
     $_SESSION['alert_message'] = "Trip modified";
     
@@ -767,7 +788,7 @@ if(isset($_GET['ack_all_alerts'])){
 if(isset($_POST['add_expense'])){
 
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $amount = $_POST['amount'];
+    $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
     $vendor = intval($_POST['vendor']);
     $category = intval($_POST['category']);
@@ -775,7 +796,7 @@ if(isset($_POST['add_expense'])){
     $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
 
     if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/expenses/";
+        $path = "uploads/expenses/$session_company_id/";
         $path = $path . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
@@ -793,7 +814,7 @@ if(isset($_POST['edit_expense'])){
 
     $expense_id = intval($_POST['expense_id']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $amount = $_POST['amount'];
+    $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
     $vendor = intval($_POST['vendor']);
     $category = intval($_POST['category']);
@@ -804,7 +825,7 @@ if(isset($_POST['edit_expense'])){
     if($_FILES['file']['tmp_name']!='') {
         //remove old receipt
         unlink($path);
-        $path = "uploads/expenses/";
+        $path = "uploads/expenses/$session_company_id/";
         $path = $path . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
@@ -838,7 +859,7 @@ if(isset($_GET['delete_expense'])){
 if(isset($_POST['add_transfer'])){
 
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $amount = $_POST['amount'];
+    $amount = floatval($_POST['amount']);
     $account_from = intval($_POST['account_from']);
     $account_to = intval($_POST['account_to']);
 
@@ -862,7 +883,7 @@ if(isset($_POST['edit_transfer'])){
     $expense_id = intval($_POST['expense_id']);
     $revenue_id = intval($_POST['revenue_id']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $amount = $_POST['amount'];
+    $amount = floatval($_POST['amount']);
     $account_from = intval($_POST['account_from']);
     $account_to = intval($_POST['account_to']);
 
@@ -962,11 +983,11 @@ if(isset($_POST['add_invoice_copy'])){
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id") or die(mysql_error());
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', invoice_id = $new_invoice_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Copied INVOICE!', history_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id");
     while($row = mysqli_fetch_array($sql_items)){
@@ -1004,6 +1025,8 @@ if(isset($_POST['add_invoice_recurring'])){
     mysqli_query($mysqli,"INSERT INTO recurring SET recurring_frequency = '$recurring_frequency', recurring_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_status = 1, recurring_amount = '$invoice_amount', recurring_note = '$invoice_note', recurring_created_at = NOW(), category_id = $category_id, client_id = $client_id, company_id = $session_company_id");
 
     $recurring_id = mysqli_insert_id($mysqli);
+
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Recurring Created from INVOICE!', history_created_at = NOW(), recurring_id = $recurring_id, company_id = $session_company_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id");
     while($row = mysqli_fetch_array($sql_items)){
@@ -1145,9 +1168,9 @@ if(isset($_POST['save_quote'])){
     if(isset($_POST['name'])){
         $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
         $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-        $qty = $_POST['qty'];
-        $price = $_POST['price'];
-        $tax = $_POST['tax'];
+        $qty = floatval($_POST['qty']);
+        $price = floatval($_POST['price']);
+        $tax = floatval($_POST['tax']);
         
         $subtotal = $price * $qty;
         $tax = $subtotal * $tax;
@@ -1798,9 +1821,9 @@ if(isset($_GET['delete_invoice_item'])){
 if(isset($_POST['add_payment'])){
 
     $invoice_id = intval($_POST['invoice_id']);
-    $balance = $_POST['balance'];
+    $balance = floatval($_POST['balance']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $amount = $_POST['amount'];
+    $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
     $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
     $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
@@ -2312,8 +2335,12 @@ if(isset($_POST['add_contact'])){
     $mobile = preg_replace("/[^0-9]/", '',$mobile);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
 
+    if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
+        mkdir("uploads/clients/$session_company_id/$client_id");
+    }
+
     if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/clients/$client_id/";
+        $path = "uploads/clients/$session_company_id/$client_id/";
         $path = $path . time() . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
@@ -2341,8 +2368,12 @@ if(isset($_POST['edit_contact'])){
 
     $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
 
+    if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
+        mkdir("uploads/clients/$session_company_id/$client_id");
+    }
+
     if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/clients/$client_id/";
+        $path = "uploads/clients/$session_company_id/$client_id/";
         $path = $path . time() . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
@@ -2571,8 +2602,12 @@ if(isset($_POST['add_file'])){
     $client_id = intval($_POST['client_id']);
     $new_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['new_name']));
 
+    if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
+        mkdir("uploads/clients/$session_company_id/$client_id");
+    }
+
     if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/clients/$client_id/";
+        $path = "uploads/clients/$session_company_id/$client_id/";
         $path = $path . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
@@ -2803,5 +2838,125 @@ if(isset($_GET['delete_software'])){
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
 }
+
+if(isset($_GET['force_recurring'])){
+    $recurring_id = intval($_GET['force_recurring']);
+
+    $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring, clients WHERE clients.client_id = recurring.client_id AND recurring.recurring_id = $recurring_id");
+
+    $row = mysqli_fetch_array($sql_recurring);
+    $recurring_id = $row['recurring_id'];
+    $recurring_frequency = $row['recurring_frequency'];
+    $recurring_status = $row['recurring_status'];
+    $recurring_last_sent = $row['recurring_last_sent'];
+    $recurring_next_date = $row['recurring_next_date'];
+    $recurring_amount = $row['recurring_amount'];
+    $recurring_note = $row['recurring_note'];
+    $category_id = $row['category_id'];
+    $client_id = $row['client_id'];
+    $client_name = $row['client_name'];
+    $client_net_terms = $row['client_net_terms'];
+
+    //Get the last Invoice Number and add 1 for the new invoice number
+    $new_invoice_number = "$config_invoice_prefix$config_invoice_next_number";
+    $new_config_invoice_next_number = $config_invoice_next_number + 1;
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
+
+    //Generate a unique URL key for clients to access
+    $url_key = keygen();
+
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$new_invoice_number', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+
+    $new_invoice_id = mysqli_insert_id($mysqli);
+
+    //Copy Items from original invoice to new invoice
+    $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE recurring_id = $recurring_id ORDER BY item_id ASC");
+
+    while($row = mysqli_fetch_array($sql_invoice_items)){
+        $item_id = $row['item_id'];
+        $item_name = $row['item_name'];
+        $item_description = $row['item_description'];
+        $item_quantity = $row['item_quantity'];
+        $item_price = $row['item_price'];
+        $item_subtotal = $row['item_price'];
+        $item_tax = $row['item_tax'];
+        $item_total = $row['item_total'];
+
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
+    }
+
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
+
+    //update the recurring invoice with the new dates
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
+
+    if($config_recurring_email_auto_send == 1){
+        $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
+            WHERE invoices.client_id = clients.client_id
+            AND invoices.invoice_id = $new_invoice_id"
+        );
+
+        $row = mysqli_fetch_array($sql);
+        $invoice_number = $row['invoice_number'];
+        $invoice_date = $row['invoice_date'];
+        $invoice_due = $row['invoice_due'];
+        $invoice_amount = $row['invoice_amount'];
+        $invoice_url_key = $row['invoice_url_key'];
+        $client_id = $row['client_id'];
+        $client_name = $row['client_name'];
+        $client_address = $row['client_address'];
+        $client_city = $row['client_city'];
+        $client_state = $row['client_state'];
+        $client_zip = $row['client_zip'];
+        $client_email = $row['client_email'];
+        $client_phone = $row['client_phone'];
+        if(strlen($client_phone)>2){ 
+        $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+        }
+        $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
+
+        $mail = new PHPMailer(true);
+
+        try{
+
+            //Mail Server Settings
+
+            //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+            $mail->isSMTP();                                            // Set mailer to use SMTP
+            $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+            $mail->Username   = $config_smtp_username;                     // SMTP username
+            $mail->Password   = $config_smtp_password;                               // SMTP password
+            $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+            $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+
+            //Recipients
+            $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+            $mail->addAddress("$client_email", "$client_name");     // Add a recipient
+
+            // Content
+            $mail->isHTML(true);                                  // Set email format to HTML
+
+            $mail->Subject = "Invoice $invoice_number";
+            $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$config_company_phone";
+
+            $mail->send();
+
+            mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Auto Emailed Invoice!', history_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
+
+            //Update Invoice Status to Sent
+            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW(), client_id = $client_id WHERE invoice_id = $new_invoice_id");
+
+        }catch(Exception $e){
+            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Failed to send Invoice!', history_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
+        } //End Mail Try
+    } //End Recurring Invoices Loop
+
+    $_SESSION['alert_message'] = "Recurring Invoice Forced";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+} //End Force Recurring
 
 ?>
