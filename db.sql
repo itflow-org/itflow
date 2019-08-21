@@ -621,6 +621,8 @@ CREATE TABLE `settings` (
   `config_invoice_overdue_reminders` varchar(200) DEFAULT NULL,
   `config_quote_next_number` int(11) DEFAULT NULL,
   `config_quote_prefix` varchar(200) DEFAULT NULL,
+  `config_ticket_prefix` varchar(200) DEFAULT NULL,
+  `config_ticket_next_number` int(11) NOT NULL,
   `config_enable_cron` int(1) NOT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -657,7 +659,7 @@ DROP TABLE IF EXISTS `ticket_updates`;
 CREATE TABLE `ticket_updates` (
   `ticket_update_id` int(11) NOT NULL AUTO_INCREMENT,
   `ticket_update` text NOT NULL,
-  `ticket_update_created_at` datetime DEFAULT NULL,
+  `ticket_update_created_at` datetime NOT NULL,
   `user_id` int(11) NOT NULL,
   `ticket_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -674,6 +676,8 @@ DROP TABLE IF EXISTS `tickets`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tickets` (
   `ticket_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ticket_prefix` varchar(200) DEFAULT NULL,
+  `ticket_number` int(11) NOT NULL,
   `ticket_category` varchar(200) DEFAULT NULL,
   `ticket_subject` varchar(200) NOT NULL,
   `ticket_details` text NOT NULL,
@@ -681,6 +685,8 @@ CREATE TABLE `tickets` (
   `ticket_created_at` datetime NOT NULL,
   `ticket_updated_at` datetime DEFAULT NULL,
   `ticket_closed_at` datetime DEFAULT NULL,
+  `ticket_created_by` int(11) NOT NULL,
+  `ticket_closed_by` int(11) DEFAULT NULL,
   `vendor_id` int(11) DEFAULT NULL,
   `client_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
@@ -805,4 +811,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-08-15 22:34:10
+-- Dump completed on 2019-08-21  1:03:20
