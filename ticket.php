@@ -120,13 +120,13 @@ if(isset($_GET['ticket_id'])){
       </div>
     </div>
 
-    <form action="post.php" method="post" autocomplete="off">
+    <form class="mb-3" action="post.php" method="post" autocomplete="off">
       <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
       <div class="form-group">
         <textarea rows="5" class="form-control" name="ticket_update"></textarea>
       </div>
       <button type="submit" name="add_ticket_update" class="btn btn-primary">Save</button>
-     
+      <button type="submit" name="close_ticket" class="btn btn-secondary">Close Ticket</button> 
     </form>
 
     <?php

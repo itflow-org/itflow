@@ -83,6 +83,7 @@ $total_pages = ceil($total_found_rows / 10);
       
           while($row = mysqli_fetch_array($sql)){
             $ticket_id = $row['ticket_id'];
+            $ticket_number = $row['ticket_number'];
             $ticket_subject = $row['ticket_subject'];
             $ticket_details = $row['ticket_details'];
             $ticket_status = $row['ticket_status'];
@@ -103,7 +104,7 @@ $total_pages = ceil($total_found_rows / 10);
           ?>
 
           <tr>
-            <td><a href="#" data-toggle="modal" data-target="#viewTicketModal<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo $ticket_id; ?></span></a></td>
+            <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo $ticket_number; ?></span></a></td>
             <td><?php echo $ticket_subject; ?></td>
             <td><?php echo $ticket_created_at; ?></td>
             <td>

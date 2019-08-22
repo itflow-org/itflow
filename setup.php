@@ -2,6 +2,60 @@
   
 include("functions.php");
 
+$states_array = array(
+    'AL'=>'Alabama',
+    'AK'=>'Alaska',
+    'AZ'=>'Arizona',
+    'AR'=>'Arkansas',
+    'CA'=>'California',
+    'CO'=>'Colorado',
+    'CT'=>'Connecticut',
+    'DE'=>'Delaware',
+    'DC'=>'District of Columbia',
+    'FL'=>'Florida',
+    'GA'=>'Georgia',
+    'HI'=>'Hawaii',
+    'ID'=>'Idaho',
+    'IL'=>'Illinois',
+    'IN'=>'Indiana',
+    'IA'=>'Iowa',
+    'KS'=>'Kansas',
+    'KY'=>'Kentucky',
+    'LA'=>'Louisiana',
+    'ME'=>'Maine',
+    'MD'=>'Maryland',
+    'MA'=>'Massachusetts',
+    'MI'=>'Michigan',
+    'MN'=>'Minnesota',
+    'MS'=>'Mississippi',
+    'MO'=>'Missouri',
+    'MT'=>'Montana',
+    'NE'=>'Nebraska',
+    'NV'=>'Nevada',
+    'NH'=>'New Hampshire',
+    'NJ'=>'New Jersey',
+    'NM'=>'New Mexico',
+    'NY'=>'New York',
+    'NC'=>'North Carolina',
+    'ND'=>'North Dakota',
+    'OH'=>'Ohio',
+    'OK'=>'Oklahoma',
+    'OR'=>'Oregon',
+    'PA'=>'Pennsylvania',
+    'RI'=>'Rhode Island',
+    'SC'=>'South Carolina',
+    'SD'=>'South Dakota',
+    'TN'=>'Tennessee',
+    'TX'=>'Texas',
+    'UT'=>'Utah',
+    'VT'=>'Vermont',
+    'VA'=>'Virginia',
+    'WA'=>'Washington',
+    'WV'=>'West Virginia',
+    'WI'=>'Wisconsin',
+    'WY'=>'Wyoming'
+);
+
 $_SESSION['alert_message'] = '';
 $_SESSION['alert_type'] = "warning";
 
@@ -112,6 +166,11 @@ if(isset($_POST['add_company_settings'])){
   mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$config_company_name', company_created_at = NOW()");
 
   $company_id = mysqli_insert_id($mysqli);
+
+  mkdir("uploads/clients/$company_id");
+  mkdir("uploads/expenses/$company_id");
+  mkdir("uploads/settings/$company_id");
+  mkdir("uploads/tmp/$company_id");
 
   mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company_id");
  
@@ -234,7 +293,7 @@ if(isset($_POST['add_company_settings'])){
               <form class="p-3" method="post" autocomplete="off">
                 
                 <div class="form-group">
-                  <label>Database Name</label>
+                  <label>Database</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-database"></i></span>
@@ -269,7 +328,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="host" placeholder="Usually localhost" required>
+                    <input type="text" class="form-control" name="host" value="localhost" placeholder="Hostname of the server" required>
                   </div>
                 </div>
 
@@ -278,7 +337,6 @@ if(isset($_POST['add_company_settings'])){
               </form>
             </div>
           </div>
-        
 
         <?php }elseif(isset($_GET['user'])){ ?>
 
@@ -473,6 +531,8 @@ if(isset($_POST['add_company_settings'])){
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin.min.js"></script>
   <script src='vendor/bootstrap-select/js/bootstrap-select.min.js'></script>
+  <script src='vendor/Inputmask/dist/inputmask.min.js'></script>
+  <script src='vendor/Inputmask/dist/bindings/inputmask.binding.js'></script>
 
   <!-- Custom js-->
   <script src="js/app.js"></script>

@@ -9,3 +9,5 @@ uploads/settings/*
 !uploads/settings/index.php
 uploads/users/*
 !uploads/users/index.php
+uploads/tmp/*
+!uploads/tmp/index.php

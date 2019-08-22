@@ -81,6 +81,7 @@ if(isset($_POST['add_company'])){
     mkdir("uploads/clients/$company_id");
     mkdir("uploads/expenses/$company_id");
     mkdir("uploads/settings/$company_id");
+    mkdir("uploads/tmp/$company_id");
  
     mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0");
 
@@ -517,6 +518,18 @@ if(isset($_POST['add_ticket_update'])){
     mysqli_query($mysqli,"INSERT INTO ticket_updates SET ticket_update = '$ticket_update', ticket_update_created_at = NOW(), user_id = $session_user_id, ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     $_SESSION['alert_message'] = "Posted an update";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    
+}
+
+if(isset($_POST['close_ticket'])){
+
+    $ticket_id = intval($_POST['ticket_id']);
+
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed', ticket_updated_at = NOW(), ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id") or die(mysqli_error($mysqli));
+
+    $_SESSION['alert_message'] = "Ticket Closed, this cannot not be reopened but you may start another one";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
     
