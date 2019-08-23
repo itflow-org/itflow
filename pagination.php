@@ -3,7 +3,8 @@
 $total_found_rows = $num_rows[0];
 $total_pages = ceil($total_found_rows / 10);
 
-if ($total_found_rows > 10) { 
+if ($total_found_rows > 10) {
+	$i=0;
 
 ?>
 
@@ -37,7 +38,7 @@ if ($total_found_rows > 10) {
 		if($p > 1){
 			echo "<li class='page-item $prev_class'><a class='page-link' href='?$url_query_strings&p=$prev_page'>Prev</a></li>";
 		}
-		
+	
 		while($i < $total_pages){
 	    	$i++;
 			if(($i == 1) OR (($p <= 3) AND ($i <= 6)) OR (($i >  $total_pages - 6) AND ($p > $total_pages - 3 )) OR (is_int($i / $pages_split)) OR (($p > 3) AND ($i >= $p - 2) AND ($i <= $p + 3)) OR ($i == $total_pages)){

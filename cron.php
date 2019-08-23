@@ -28,6 +28,7 @@ while($row = mysqli_fetch_array($sql_companies)){
   $config_smtp_port = $row['config_smtp_port'];
   $config_mail_from_email = $row['config_mail_from_email'];
   $config_mail_from_name = $row['config_mail_from_name'];
+  $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
 
   if($config_enable_cron == 1){
 
@@ -165,7 +166,7 @@ while($row = mysqli_fetch_array($sql_companies)){
       //update the recurring invoice with the new dates
       mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
 
-      if($config_recurring_email_auto_send == 1){
+      if($config_recurring_auto_send_invoice == 1){
         $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
           WHERE invoices.client_id = clients.client_id
           AND invoices.invoice_id = $new_invoice_id

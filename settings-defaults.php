@@ -156,7 +156,7 @@
         </div>
       </div>
 
-      <div class="form-group mb-5">
+      <div class="form-group">
         <label>Default Calendar</label>
         <div class="input-group">
           <div class="input-group-prepend">
@@ -177,6 +177,20 @@
             <?php
             }
             ?>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group mb-5">
+        <label>Default Net Terms</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+          </div>
+          <select class="form-control selectpicker show-tick" name="config_default_net_terms">
+            <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
+            <option <?php if($config_default_net_terms == $net_term_value){ echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+            <?php } ?>
           </select>
         </div>
       </div>

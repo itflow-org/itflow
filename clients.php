@@ -2,7 +2,7 @@
 
 //Rebuild URL
 
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+//$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
@@ -92,9 +92,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_email = $row['client_email'];
             $client_website = $row['client_website'];
             $client_net_terms = $row['client_net_terms'];
-            if($client_net_terms == 0){
-              $client_net_terms = $config_default_net_terms;
-            }
+            $client_hours = $row['client_hours'];
 
             //Add up all the payments for the invoice and get the total amount paid to the invoice
             $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' ");

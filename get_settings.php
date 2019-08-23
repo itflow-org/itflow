@@ -51,8 +51,9 @@ $config_default_transfer_to_account = $row['config_default_transfer_to_account']
 $config_default_calendar = $row['config_default_calendar'];
 $config_default_payment_method = $row['config_default_payment_method'];
 $config_default_expense_payment_method = $row['config_default_expense_payment_method'];
+$config_default_net_terms = $row['config_default_net_terms'];
 
-$config_recurring_email_auto_send = $row['config_recurring_email_auto_send'];
+$config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
 
 $config_api_key = $row['config_api_key'];
 $config_enable_cron = $row['config_enable_cron'];

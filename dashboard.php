@@ -19,7 +19,8 @@ $sql_payment_years = mysqli_query($mysqli,"SELECT YEAR(expense_date) AS all_year
 
 //GET unique years from expenses, payments and revenues
 $sql_payment_years = mysqli_query($mysqli,"SELECT YEAR(expense_date) AS all_years FROM expenses UNION DISTINCT SELECT YEAR(payment_date) FROM payments UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues ORDER BY all_years DESC");
-
+//Define var so it doesnt throw errors in logs
+$largest_income_month = 0;
 
 //Get Total income
 $sql_total_payments_to_invoices = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_to_invoices FROM payments WHERE YEAR(payment_date) = $year AND company_id = $session_company_id");
@@ -116,11 +117,10 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
   </div> 
 
   <div class="col-md-12">
-    <!-- Area Chart Example-->
     <div class="card mb-3">
       <div class="card-header"><i class="fas fa-fw fa-chart-area"></i> Cash Flow</div>
       <div class="card-body">
-        <canvas id="myAreaChart" width="100%" height="20"></canvas>
+        <canvas id="cashFlow" width="100%" height="20"></canvas>
       </div>
     </div>
   </div>
@@ -294,7 +294,7 @@ Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSyste
 Chart.defaults.global.defaultFontColor = '#292b2c';
 
 // Area Chart Example
-var ctx = document.getElementById("myAreaChart");
+var ctx = document.getElementById("cashFlow");
 var myLineChart = new Chart(ctx, {
   type: 'line',
   data: {
