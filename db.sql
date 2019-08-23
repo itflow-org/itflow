@@ -1,8 +1,8 @@
--- MySQL dump 10.17  Distrib 10.3.16-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.17  Distrib 10.4.7-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: admin_crm
 -- ------------------------------------------------------
--- Server version	10.3.16-MariaDB-1:10.3.16+maria~bionic
+-- Server version	10.4.7-MariaDB-1:10.4.7+maria~bionic
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -139,6 +139,7 @@ CREATE TABLE `clients` (
   `client_email` varchar(200) DEFAULT NULL,
   `client_website` varchar(200) DEFAULT NULL,
   `client_net_terms` int(10) NOT NULL,
+  `client_hours` varchar(200) DEFAULT NULL,
   `client_created_at` datetime NOT NULL,
   `client_updated_at` datetime DEFAULT NULL,
   `company_id` int(11) NOT NULL,
@@ -811,4 +812,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-08-21  1:03:20
+-- Dump completed on 2019-08-23 16:36:23
