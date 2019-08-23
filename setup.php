@@ -1,6 +1,11 @@
 <?php
-  
+
+include("config.php");
 include("functions.php");
+
+if(!isset($config_enable_setup) or $config_enable_setup == 0){
+  header("Location: login.php");
+}
 
 $states_array = array(
     'AL'=>'Alabama',
@@ -84,13 +89,7 @@ if(isset($_POST['add_database'])){
 
   fwrite($myfile, $txt);
 
-  $txt = "?>";
-
-  fwrite($myfile, $txt);
-
   fclose($myfile);
-
-  include("config.php");
 
   // Name of the file
   $filename = 'db.sql';
@@ -190,6 +189,18 @@ if(isset($_POST['add_company_settings'])){
   mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'brown', category_created_at = NOW(), company_id = $company_id");
 
   mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue', calendar_created_at = NOW(), company_id = $company_id");
+
+  $myfile = fopen("config.php", "a");
+
+  $txt = "\$config_enable_setup = 0;\n\n";
+
+  fwrite($myfile, $txt);
+
+  $txt = "?>";
+
+  fwrite($myfile, $txt);
+
+  fclose($myfile);
 
   header("Location: login.php");
 
@@ -445,7 +456,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="config_company_zip" placeholder="Zip Code">
+                    <input type="text" class="form-control" name="config_company_zip" placeholder="Zip Code" data-inputmask="'mask': '99999'">
                   </div>
                 </div>
 

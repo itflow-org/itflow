@@ -128,7 +128,7 @@ if(isset($_GET['quote_id'])){
         </div>
         <div class="card-body">
           <ul class="list-unstyled">
-            <li class="mb-1"><strong>Quote Number:</strong> <div class="float-right">QUO-<?php echo $quote_number; ?></div></li>
+            <li class="mb-1"><strong>Quote Number:</strong> <div class="float-right"><?php echo $quote_number; ?></div></li>
             <li class="mb-1"><strong>Quote Date:</strong> <div class="float-right"><?php echo $quote_date; ?></div></li>
           </ul>
         </div>

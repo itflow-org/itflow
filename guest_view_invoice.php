@@ -104,7 +104,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         <?php
         if($invoice_status != "Paid" and $invoice_status  != "Cancelled" and $invoice_status != "Draft"){
         ?>
-        <a class="btn btn-success" href="guest_pay.php?invoice_id=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card"></i> Pay Online</a>
+        <a class="btn btn-success" href="guest_pay.php?invoice_id=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card"></i> Pay Online (Comming Soon)</a>
         <?php } ?>
       </div>
     </div>

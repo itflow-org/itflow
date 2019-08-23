@@ -3,7 +3,7 @@
 <?php include("settings-nav.php"); ?>
 
 <div class="card mb-3">
-  <div class="card-header">
+  <div class="card-header bg-dark text-white">
     <h6 class="float-left mt-1"><i class="fa fa-fw fa-cog mr-2"></i>Defaults Settings</h6>
   </div>
   <div class="card-body">

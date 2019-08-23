@@ -26,16 +26,6 @@
       </div>
 
       <div class="form-group">
-        <label>Account Threshold</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-          </div>
-          <input type="text" class="form-control" name="config_account_balance_threshold" placeholder="Set an alert for dollar amount" value="<?php echo $config_account_balance_threshold; ?>" required>
-        </div>
-      </div>
-
-      <div class="form-group">
         <label>API Key</label>
         <div class="input-group">
           <div class="input-group-prepend">

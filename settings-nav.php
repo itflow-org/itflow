@@ -3,7 +3,7 @@
   <li class="nav-item">
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-general.php") { echo "active"; } ?>" 
       href="settings-general.php">
-      <i class="fa fa-2x fa-cog"></i><br>
+      <i class="fa fa-fw fa-2x fa-cog"></i><br>
       General
     </a> 
   </li>
@@ -53,6 +53,14 @@
       href="settings-ticket.php">
       <i class="fa fa-fw fa-2x fa-tag"></i><br>
       Ticket
+    </a> 
+  </li>
+
+  <li class="nav-item">
+    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-alerts.php") { echo "active"; } ?>" 
+      href="settings-alerts.php">
+      <i class="fa fa-fw fa-2x fa-bell"></i><br>
+      Alerts
     </a> 
   </li>
  

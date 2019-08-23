@@ -2,8 +2,8 @@
 
 //General Settings
 
-$sql = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $session_company_id");
-$row = mysqli_fetch_array($sql);
+$sql_settings = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $session_company_id");
+$row = mysqli_fetch_array($sql_settings);
 
 $config_start_page = $row['config_start_page'];
 

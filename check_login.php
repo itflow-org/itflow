@@ -1,5 +1,9 @@
 <?php
 	
+	if(!isset($config_enable_setup) or $config_enable_setup == 1){
+    	header("Location: setup.php");
+  	}
+
 	session_start();
 	
 	if(!$_SESSION['logged']){

@@ -59,7 +59,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_company_zip" placeholder="Zip Code" value="<?php echo $config_company_zip; ?>" >
+          <input type="text" class="form-control" name="config_company_zip" placeholder="Zip Code" value="<?php echo $config_company_zip; ?>" data-inputmask="'mask': '99999'">
         </div>
       </div>
 

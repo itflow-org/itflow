@@ -24,7 +24,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_smtp_port" placeholder="Mail Server Port Number" value="<?php echo $config_smtp_port; ?>" required>
+          <input type="number" min="0" class="form-control" name="config_smtp_port" placeholder="Mail Server Port Number" value="<?php echo $config_smtp_port; ?>" required>
         </div>
       </div>
       

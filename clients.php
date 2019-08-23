@@ -2,7 +2,7 @@
 
 //Rebuild URL
 
-//$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
