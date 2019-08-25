@@ -65,9 +65,6 @@ $states_array = array(
     'WY'=>'Wyoming'
 );
 
-$_SESSION['alert_message'] = '';
-$_SESSION['alert_type'] = "warning";
-
 if(isset($_POST['add_database'])){
 
   $host = $_POST['host'];
@@ -128,30 +125,32 @@ if(isset($_POST['add_database'])){
 
 if(isset($_POST['add_user'])){
 
-  include("config.php");
-
   $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
   $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
   $password = md5(mysqli_real_escape_string($mysqli,$_POST['password']));
 
+  mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW()");
+
+  $user_id = mysqli_insert_id($mysqli);
+
+  mkdir("uploads/users/$user_id");
+
   if($_FILES['file']['tmp_name']!='') {
-      $path = "uploads/users/";
+      $path = "uploads/users/$user_id/";
       $path = $path . time() . basename( $_FILES['file']['name']);
       $file_name = basename($path);
       move_uploaded_file($_FILES['file']['tmp_name'], $path);
   }
 
-  mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW()");
+  mysqli_query($mysqli,"UPDATE users SET avatar = '$path' WHERE user_id = $user_id");
   
-  $_SESSION['alert_message'] = "User added";
+  $_SESSION['alert_message'] = "User <strong>$name</strong> created!";
 
   header("Location: setup.php?company");
 
 }
 
 if(isset($_POST['add_company_settings'])){
-
-  include("config.php");
 
   $sql = mysqli_query($mysqli,"SELECT user_id FROM users");
   $row = mysqli_fetch_array($sql);
@@ -225,7 +224,7 @@ if(isset($_POST['add_company_settings'])){
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>Install CRM</title>
+  <title>Install IT CRM</title>
 
   <!-- Custom fonts for this template-->
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -284,7 +283,6 @@ if(isset($_POST['add_company_settings'])){
     <div id="content-wrapper">
       
       <div class="container">
-        <?php include("config.php"); ?>
         
         <?php 
         //Alert Feedback
@@ -510,8 +508,8 @@ if(isset($_POST['add_company_settings'])){
                 <li>Creates an account named Cash</li>
                 <li>Creates an income category</li>
               </ul>
-              <p>After install add cron.php to your cron and set it to run once everyday at 12AM. This is so recurring invoices will automatically be sent out and created. This will also trigger late payment reminders, along with alerts such as domains expiration, etc.</p>
-              <p>An API is present to allow integration with other third pary apps. An API Key will be auto generated, and can be changed at a later date. The API will give you the following capabilities</p>
+              <p>After install add cron.php to your cron and set it to run once everyday at 11:00PM. This is so recurring invoices will automatically be sent out and created. This will also trigger late payment reminders, along with alerts such as domains expiration, etc.</p>
+              <p>An API is present to allow integration with other third pary apps. An API Key will be auto generated, and can be changed in settings after install. The API will give you the following capabilities</p>
               <ul class="mb-4">
                 <li>Address book XML for VOIP Phones</li>
                 <li>Caller ID Lookup</li>
