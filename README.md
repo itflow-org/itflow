@@ -13,7 +13,7 @@ CRM, Accounting and Invoicing System for small managed IT companies
   * Apps
   * Networks
   * Files
-  * Technical Notes
+  * Documentation
 * Invoicing
   * Email Past Due Reminders
   * Auto Email Receipts upon payments
@@ -47,8 +47,10 @@ CRM, Accounting and Invoicing System for small managed IT companies
 
 * Clone this repo
 * Create a Mysql database
-* Point your browser to setup.php fill in the info
-* Your Done!
+* Point your browser to the URL where you downloaded the crm
+* Go through the Setup Process
+* Login
+* Start inputting some data
 
 #### Requirements
 * Webserver (Apache, NGINX)
@@ -59,7 +61,6 @@ CRM, Accounting and Invoicing System for small managed IT companies
 * PHP/MySQL
 * SB Admin Bootstrap CSS Framework
 * fontawesome
-* datatables
 * chart.js
 * moments.js
 * Jquery

@@ -86,7 +86,7 @@ if(isset($_POST['add_company'])){
  
     mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
 
-    $_SESSION['alert_message'] = "Company added";
+    $_SESSION['alert_message'] = "Company <ctrong>$name</strong> created!";
     
     header("Location: companies.php");
 
@@ -98,7 +98,7 @@ if(isset($_POST['edit_company'])){
 
     mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_updated_at = NOW() WHERE company_id = $company_id");
 
-    $_SESSION['alert_message'] = "Company modified";
+    $_SESSION['alert_message'] = "Company <strong>$name</strong> updated!";
     
     header("Location: companies.php");
 
@@ -777,6 +777,7 @@ if(isset($_GET['delete_category'])){
     mysqli_query($mysqli,"DELETE FROM categories WHERE category_id = $category_id");
 
     $_SESSION['alert_message'] = "Category deleted";
+    $_SESSION['alert_type'] = "danger";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   

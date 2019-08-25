@@ -56,6 +56,7 @@ $config_default_net_terms = $row['config_default_net_terms'];
 $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
 
 $config_api_key = $row['config_api_key'];
+$config_base_url = $row['config_base_url'];
 $config_enable_cron = $row['config_enable_cron'];
 
 $client_types_array = array(
