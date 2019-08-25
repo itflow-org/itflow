@@ -3,7 +3,11 @@
 include("config.php");
 include("functions.php");
 
-if(!isset($config_enable_setup) or $config_enable_setup == 0){
+if(!isset($config_enable_setup)){
+  $config_enable_setup = 1;
+}
+
+if($config_enable_setup == 0){
   header("Location: login.php");
 }
 
@@ -85,11 +89,13 @@ if(isset($_POST['add_database'])){
 
   fwrite($myfile, $txt);
 
-  $txt = "\$config_app_name = 'IT CRM';\n\n";
+  $txt = "\$config_app_name = 'IT CRM';\n";
 
   fwrite($myfile, $txt);
 
   fclose($myfile);
+
+  include("config.php");
 
   // Name of the file
   $filename = 'db.sql';
@@ -196,7 +202,7 @@ if(isset($_POST['add_company_settings'])){
 
   fwrite($myfile, $txt);
 
-  $txt = "?>";
+  $txt = "?>\n";
 
   fwrite($myfile, $txt);
 
