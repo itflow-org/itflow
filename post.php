@@ -76,6 +76,7 @@ if(isset($_POST['add_company'])){
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_created_at = NOW()");
 
     $config_api_key = keygen();
+    $config_base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
     $company_id = mysqli_insert_id($mysqli);
 
     mkdir("uploads/clients/$company_id");
@@ -83,7 +84,7 @@ if(isset($_POST['add_company'])){
     mkdir("uploads/settings/$company_id");
     mkdir("uploads/tmp/$company_id");
  
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0");
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
 
     $_SESSION['alert_message'] = "Company added";
     
@@ -134,7 +135,7 @@ if(isset($_POST['verify'])){
 if(isset($_POST['edit_general_settings'])){
 
     $config_start_page = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_start_page']));
-    $config_account_balance_threshold = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_account_balance_threshold']));
+    $config_base_url = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url']));
     $config_api_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key']));
     
     $path = "$config_invoice_logo";
@@ -149,7 +150,7 @@ if(isset($_POST['edit_general_settings'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);   
     }
 
-    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold', config_invoice_logo = '$path', config_api_key = '$config_api_key' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold', config_invoice_logo = '$path', config_api_key = '$config_api_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Settings updated";
 

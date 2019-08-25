@@ -26,6 +26,16 @@
       </div>
 
       <div class="form-group">
+        <label>Base URL</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+          </div>
+          <input type="text" class="form-control" name="config_api_key" placeholder="Base URL ex example.com/crm or example.com" value="<?php echo $config_base_url; ?>">
+        </div>
+      </div>
+
+      <div class="form-group">
         <label>API Key</label>
         <div class="input-group">
           <div class="input-group-prepend">

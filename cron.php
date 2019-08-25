@@ -21,7 +21,6 @@ while($row = mysqli_fetch_array($sql_companies)){
   $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
   $config_invoice_prefix = $row['config_invoice_prefix'];
   $config_invoice_next_number = $row['config_invoice_next_number'];
-  $config_recurring_email_auto_send = $row['config_recurring_email_auto_send'];
   $config_smtp_host = $row['config_smtp_host'];
   $config_smtp_username = $row['config_smtp_username'];
   $config_smtp_password = $row['config_smtp_password'];
@@ -29,6 +28,7 @@ while($row = mysqli_fetch_array($sql_companies)){
   $config_mail_from_email = $row['config_mail_from_email'];
   $config_mail_from_name = $row['config_mail_from_name'];
   $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
+  $config_base_url = $row['config_base_url'];
 
   if($config_enable_cron == 1){
 
@@ -86,7 +86,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         $client_id = $row['client_id'];
         $client_name = $row['client_name'];
 
-        mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice', alert_message = 'Invoice INV-$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', alert_date = NOW(), company_id = $company_id");
+        mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice', alert_message = 'Invoice $invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', alert_date = NOW(), company_id = $company_id");
       }
 
     }
@@ -193,7 +193,6 @@ while($row = mysqli_fetch_array($sql_companies)){
         if(strlen($client_phone)>2){ 
         $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
         }
-        $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
 
         $mail = new PHPMailer(true);
 

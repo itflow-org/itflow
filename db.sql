@@ -626,6 +626,7 @@ CREATE TABLE `settings` (
   `config_enable_cron` int(1) DEFAULT NULL,
   `enable_alert_domain_expire` int(1) DEFAULT NULL,
   `enable_alert_low_balance` int(1) DEFAULT NULL,
+  `config_base_url` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -813,4 +814,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-08-24 21:25:45
+-- Dump completed on 2019-08-24 22:12:13
