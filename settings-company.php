@@ -14,7 +14,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_company_name" placeholder="Company Name" value="<?php echo $config_company_name; ?>" required autofocus>  
+          <input type="text" class="form-control" name="config_company_name" placeholder="Company Name" value="<?php echo $config_company_name; ?>" required>  
         </div>
       </div>
       

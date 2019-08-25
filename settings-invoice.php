@@ -29,45 +29,6 @@
         </div>
       </div>
 
-      <div class="custom-control custom-switch mb-2">
-        <input type="checkbox" class="custom-control-input" name="config_send_invoice_reminders" <?php if($config_send_invoice_reminders == 1){ echo "checked"; } ?> value="1" id="customSwitch1">
-        <label class="custom-control-label" for="customSwitch1">Send Invoice Reminders</label>
-      </div>
-
-      <?php if($config_send_invoice_reminders == 1){ ?>
-
-      <div class="form-group">
-        <label>Overdue Reminders</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
-          </div>
-          <input type="text" class="form-control" name="config_invoice_overdue_reminders" placeholder="Send After Due Days" value="<?php echo $config_invoice_overdue_reminders; ?>">
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label>Email From</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-          </div>
-          <input type="email" class="form-control" name="config_mail_from_email" placeholder="Email Address" value="<?php echo $config_mail_from_email; ?>">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Email Name From</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-          </div>
-          <input type="text" class="form-control" name="config_mail_from_name" placeholder="Name" value="<?php echo $config_mail_from_name; ?>">
-        </div>
-      </div>
-
-      <?php } ?>
-
       <div class="form-group">
         <label>Invoice Footer</label>
         <textarea class="form-control" rows="4" name="config_invoice_footer"><?php echo $config_invoice_footer; ?></textarea>

@@ -58,8 +58,6 @@ $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice']
 $config_api_key = $row['config_api_key'];
 $config_enable_cron = $row['config_enable_cron'];
 
-$config_base_url = $row['config_base_url'];
-
 $client_types_array = array(
     'Residential',
    	'Law',

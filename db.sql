@@ -615,7 +615,6 @@ CREATE TABLE `settings` (
   `config_quote_email_body` varchar(200) DEFAULT NULL,
   `config_invoice_next_number` int(11) DEFAULT NULL,
   `config_recurring_auto_send_invoice` int(1) DEFAULT NULL,
-  `config_base_url` varchar(200) DEFAULT NULL,
   `config_api_key` varchar(200) DEFAULT NULL,
   `config_invoice_prefix` varchar(200) DEFAULT NULL,
   `config_send_invoice_reminders` int(1) DEFAULT NULL,
@@ -625,6 +624,8 @@ CREATE TABLE `settings` (
   `config_ticket_prefix` varchar(200) DEFAULT NULL,
   `config_ticket_next_number` int(11) NOT NULL,
   `config_enable_cron` int(1) NOT NULL,
+  `enable_alert_domain_expire` int(1) DEFAULT NULL,
+  `enable_alert_low_balance` int(1) NOT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -812,4 +813,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-08-23 16:36:23
+-- Dump completed on 2019-08-24 20:19:43

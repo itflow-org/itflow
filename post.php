@@ -136,7 +136,6 @@ if(isset($_POST['edit_general_settings'])){
     $config_start_page = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_start_page']));
     $config_account_balance_threshold = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_account_balance_threshold']));
     $config_api_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key']));
-    $config_enable_cron = intval($_POST['config_enable_cron']);
     
     $path = "$config_invoice_logo";
 
@@ -150,7 +149,7 @@ if(isset($_POST['edit_general_settings'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);   
     }
 
-    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold', config_invoice_logo = '$path', config_api_key = '$config_api_key', config_enable_cron = $config_enable_cron WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold', config_invoice_logo = '$path', config_api_key = '$config_api_key' WHERE company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Settings updated";
 
@@ -182,8 +181,10 @@ if(isset($_POST['edit_mail_settings'])){
     $config_smtp_port = intval($_POST['config_smtp_port']);
     $config_smtp_username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_username']));
     $config_smtp_password = mysqli_real_escape_string($mysqli,$_POST['config_smtp_password']);
+    $config_mail_from_email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_email']));
+    $config_mail_from_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Mail Settings updated";
 
@@ -195,13 +196,9 @@ if(isset($_POST['edit_invoice_settings'])){
 
     $config_invoice_prefix = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_prefix']));
     $config_invoice_next_number = intval($_POST['config_invoice_next_number']);
-    $config_mail_from_email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_email']));
-    $config_mail_from_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name']));
     $config_invoice_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer']));
-    $config_send_invoice_reminders = intval($_POST['config_send_invoice_reminders']);
-    $config_invoice_overdue_reminders = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_overdue_reminders']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_footer = '$config_invoice_footer', config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer' WHERE company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Invoice Settings updated";
 
@@ -252,6 +249,20 @@ if(isset($_POST['edit_default_settings'])){
     $_SESSION['alert_message'] = "Default Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if(isset($_POST['edit_alert_settings'])){
+
+    $config_enable_cron = intval($_POST['config_enable_cron']);
+    $config_send_invoice_reminders = intval($_POST['config_send_invoice_reminders']);
+    $config_invoice_overdue_reminders = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_overdue_reminders']));
+
+    mysqli_query($mysqli,"UPDATE settings SET config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_enable_cron = $config_enable_cron WHERE company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Alert Settings updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
 
 if(isset($_POST['enable_2fa'])){
@@ -1514,7 +1525,7 @@ if(isset($_GET['email_quote'])){
     $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
     }
     $client_website = $row['client_website'];
-    $base_url = $_SERVER['HTTP_HOST'];
+    $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
 
     $mail = new PHPMailer(true);
 
@@ -2906,7 +2917,7 @@ if(isset($_GET['force_recurring'])){
     //update the recurring invoice with the new dates
     mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
 
-    if($config_recurring_email_auto_send == 1){
+    if($config_recurring_auto_send_invoice == 1){
         $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
             WHERE invoices.client_id = clients.client_id
             AND invoices.invoice_id = $new_invoice_id"
@@ -2954,7 +2965,7 @@ if(isset($_GET['force_recurring'])){
             $mail->isHTML(true);                                  // Set email format to HTML
 
             $mail->Subject = "Invoice $invoice_number";
-            $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$config_company_phone";
+            $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$config_company_phone";
 
             $mail->send();
 

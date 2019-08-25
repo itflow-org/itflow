@@ -19,6 +19,7 @@ if(isset($_GET['client_id'])){
     $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
   }
   $client_website = $row['client_website'];
+  $client_net_terms = $row['client_net_terms'];
 
   //Query each table and store them in their array
   $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_id DESC");
@@ -29,15 +30,15 @@ if(isset($_GET['client_id'])){
   $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE client_id = $client_id ORDER BY network_id DESC");
   $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE client_id = $client_id ORDER BY domain_id DESC");
   $sql_applications = mysqli_query($mysqli,"SELECT * FROM applications WHERE client_id = $client_id ORDER BY application_id DESC");
-  $sql_invoices = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id ORDER BY invoice_date DESC");
+  $sql_invoices = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id ORDER BY invoice_id DESC");
 
   $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, invoices, accounts
     WHERE invoices.client_id = $client_id
     AND payments.invoice_id = invoices.invoice_id
     AND payments.account_id = accounts.account_id
-    ORDER BY invoices.invoice_number DESC"); 
+    ORDER BY payments.payment_id DESC"); 
   
-  $sql_quotes = mysqli_query($mysqli,"SELECT * FROM quotes WHERE client_id = $client_id ORDER BY quote_number DESC");
+  $sql_quotes = mysqli_query($mysqli,"SELECT * FROM quotes WHERE client_id = $client_id ORDER BY quote_id DESC");
 
   $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring_invoices, invoices
     WHERE invoices.invoice_id = recurring_invoices.invoice_id
@@ -118,6 +119,10 @@ if(isset($_GET['client_id'])){
         <th>Website</th>
         <td><?php echo $client_website; ?></td>
       </tr>
+      <tr>
+        <th>Net Terms</th>
+        <td><?php echo $client_net_terms; ?> Day</td>
+      </tr>
     </table>
   </div>
   <div class="col-3">
@@ -156,6 +161,7 @@ if(isset($_GET['client_id'])){
       <th>Name</th>
       <th>Title</th>
       <th>Phone</th>
+      <th>Mobile</th>
       <th>Email</th>
     </tr>
   </thead>
@@ -170,6 +176,10 @@ if(isset($_GET['client_id'])){
       if(strlen($contact_phone)>2){ 
         $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
       }
+      $contact_mobile = $row['contact_mobile'];
+      if(strlen($contact_mobile)>2){ 
+        $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
+      }
       $contact_email = $row['contact_email'];
 
     ?>
@@ -177,6 +187,7 @@ if(isset($_GET['client_id'])){
       <td><?php echo $contact_name; ?></td>
       <td><?php echo $contact_title; ?></td>
       <td><?php echo $contact_phone; ?></td>
+      <td><?php echo $contact_mobile; ?></td>
       <td><?php echo $contact_email; ?></td>
     </tr>
 
@@ -280,6 +291,9 @@ if(isset($_GET['client_id'])){
     <tr>
       <th>Vendor</th>
       <th>Description</th>
+      <th>Contact Name</th>
+      <th>Phone</th>
+      <th>Email</th>
       <th>Account Number</th>
     </tr>
   </thead>
@@ -291,11 +305,20 @@ if(isset($_GET['client_id'])){
       $vendor_name = $row['vendor_name'];
       $vendor_description = $row['vendor_description'];
       $vendor_account_number = $row['vendor_account_number'];
+      $vendor_contact_name = $row['vendor_contact_name'];
+      $vendor_phone = $row['vendor_phone'];
+      if(strlen($vendor_phone)>2){ 
+        $vendor_phone = substr($row['vendor_phone'],0,3)."-".substr($row['vendor_phone'],3,3)."-".substr($row['vendor_phone'],6,4);
+      }
+      $vendor_email = $row['vendor_email'];
 
     ?>
     <tr>
       <td><?php echo $vendor_name; ?></td>
       <td><?php echo $vendor_description; ?></td>
+      <td><?php echo $vendor_contact_name; ?></td>
+      <td><?php echo $vendor_phone; ?></td>
+      <td><?php echo $vendor_email; ?></td>
       <td><?php echo $vendor_account_number; ?></td>
     </tr>
 
@@ -520,6 +543,7 @@ if(isset($_GET['client_id'])){
       <th class="text-right">Amount</th>
       <th>Account</th>
       <th>Method</th>
+      <th>Check #</th>
     </tr>
   </thead>
   <tbody>
@@ -532,16 +556,18 @@ if(isset($_GET['client_id'])){
       $payment_date = $row['payment_date'];
       $payment_method = $row['payment_method'];
       $payment_amount = $row['payment_amount'];
+      $payment_reference = $row['payment_reference'];
       $account_name = $row['account_name'];
 
     ?>
 
     <tr>
       <td><?php echo $payment_date; ?></td>
-      <td>INV-<?php echo $invoice_number; ?></td>
+      <td><?php echo $invoice_number; ?></td>
       <td class="text-right text-monospace">$<?php echo number_format($payment_amount,2); ?></td>
       <td><?php echo $account_name; ?></td>
       <td><?php echo $payment_method; ?></td>
+      <td><?php echo $payment_reference; ?></td>
     </tr>
 
     <?php

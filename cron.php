@@ -29,7 +29,6 @@ while($row = mysqli_fetch_array($sql_companies)){
   $config_mail_from_email = $row['config_mail_from_email'];
   $config_mail_from_name = $row['config_mail_from_name'];
   $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
-  $config_base_url = $row['config_base_url'];
 
   if($config_enable_cron == 1){
 

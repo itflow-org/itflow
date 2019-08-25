@@ -73,6 +73,7 @@ $total_pages = ceil($total_found_rows / 10);
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_name&o=<?php echo $disp; ?>">Vendor</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_description&o=<?php echo $disp; ?>">Description</a></th>
+            <th>Contact</th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_account_number&o=<?php echo $disp; ?>">Account Number</a></th>
             <th></th>
             <th class="text-center">Action</th>
@@ -109,6 +110,32 @@ $total_pages = ceil($total_found_rows / 10);
           <tr>
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></a></td>
             <td><?php echo $vendor_description; ?></td>
+            <td>
+              <?php
+              if(!empty($vendor_contact_name)){
+              ?>
+              <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $vendor_contact_name; ?>
+              <br>
+              <?php
+              }
+              ?>
+              <?php
+              if(!empty($vendor_phone)){
+              ?>
+              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $vendor_phone; ?>
+              <br>
+              <?php
+              }
+              ?>
+              <?php
+              if(!empty($vendor_email)){
+              ?>
+              <i class="fa fa-fw fa-envelope text-secondary mr-2 mb-2"></i><?php echo $vendor_email; ?>
+              <br>
+              <?php
+              }
+              ?>
+            </td>
             <td><?php echo $vendor_account_number; ?></td>
             <td>
               <?php

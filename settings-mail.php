@@ -14,7 +14,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_smtp_host" placeholder="Mail Server Address" value="<?php echo $config_smtp_host; ?>" required autofocus>
+          <input type="text" class="form-control" name="config_smtp_host" placeholder="Mail Server Address" value="<?php echo $config_smtp_host; ?>" required>
         </div>
       </div>
 
@@ -38,13 +38,33 @@
         </div>
       </div>
 
-      <div class="form-group mb-5">
+      <div class="form-group">
         <label>SMTP Password</label>
         <div class="input-group">
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
           </div>
           <input type="password" class="form-control" name="config_smtp_password" placeholder="Password" value="<?php echo $config_smtp_password; ?>" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Email Address</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+          </div>
+          <input type="email" class="form-control" name="config_mail_from_email" placeholder="Email Address" value="<?php echo $config_mail_from_email; ?>">
+        </div>
+      </div>
+
+      <div class="form-group mb-5">
+        <label>Name</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+          </div>
+          <input type="text" class="form-control" name="config_mail_from_name" placeholder="Name" value="<?php echo $config_mail_from_name; ?>">
         </div>
       </div>
 

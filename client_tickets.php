@@ -118,15 +118,13 @@ $total_pages = ceil($total_found_rows / 10);
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#viewTicketModal<?php echo $ticket_id; ?>">Details</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
+                  <a class="dropdown-item" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
                 </div>
               </div>
               <?php
 
               include("edit_ticket_modal.php");
-              include("view_ticket_modal.php");
 
               ?>      
             </td>
