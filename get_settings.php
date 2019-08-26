@@ -5,8 +5,6 @@
 $sql_settings = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_settings);
 
-$config_start_page = $row['config_start_page'];
-
 $config_company_name = $row['config_company_name'];
 $config_company_address = $row['config_company_address'];
 $config_company_city = $row['config_company_city'];
@@ -19,7 +17,6 @@ if(strlen($config_company_phone)>2){
 $config_company_site = $row['config_company_site'];
 
 $config_quote_footer = $row['config_quote_footer'];
-$config_quote_email_subject = $row['config_quote_email_subject'];
 $config_quote_next_number = $row['config_quote_next_number'];
 $config_quote_prefix = $row['config_quote_prefix'];
 

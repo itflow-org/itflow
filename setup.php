@@ -129,7 +129,7 @@ if(isset($_POST['add_user'])){
   $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
   $password = md5(mysqli_real_escape_string($mysqli,$_POST['password']));
 
-  mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW()");
+  mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', created_at = NOW()");
 
   $user_id = mysqli_insert_id($mysqli);
 

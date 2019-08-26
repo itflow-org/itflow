@@ -8,22 +8,6 @@
   </div>
   <div class="card-body">
     <form class="p-3" action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-      <div class="form-group">
-        <label>Starting Page</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-fw fa-plane-arrival"></i></span>
-          </div>
-          <select class="form-control selectpicker show-tick" name="config_start_page" required>
-            <option <?php if($config_start_page == 'dashboard.php'){ echo 'selected'; } ?> value="dashboard.php">Dashboard</option>
-            <option <?php if($config_start_page == 'clients.php'){ echo 'selected'; } ?> value="clients.php">Clients</option>
-            <option <?php if($config_start_page == 'invoices.php'){ echo 'selected'; } ?> value="invoices.php">Invoices</option>
-            <option <?php if($config_start_page == 'expenses.php'){ echo 'selected'; } ?> value="expenses.php">Expenses</option>
-            <option <?php if($config_start_page == 'calendar_events.php'){ echo 'selected'; } ?> value="calendar_events.php">Calendar</option>
-            <option <?php if($config_start_page == 'tickets.php'){ echo 'selected'; } ?> value="tickets.php">Tickets</option>
-          </select>
-        </div>
-      </div>
 
       <div class="form-group">
         <label>Base URL</label>
@@ -31,7 +15,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_api_key" placeholder="Base URL ex example.com/crm or example.com" value="<?php echo $config_base_url; ?>">
+          <input type="text" class="form-control" name="config_base_url" placeholder="Base URL ex example.com/crm or example.com" value="<?php echo $config_base_url; ?>">
         </div>
       </div>
 

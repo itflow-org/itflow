@@ -22,16 +22,20 @@ if(isset($_POST['add_user'])){
     $password = md5(mysqli_real_escape_string($mysqli,$_POST['password']));
     $client_id = intval($_POST['client']);
 
+    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW(), client_id = $client_id");
+
+    $user_id = mysqli_insert_id($mysqli);
+
     if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/users/";
+        $path = "uploads/users/$user_id/";
         $path = $path . time() . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
     }
 
-    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"UPDATE users SET avatar = '$path' WHERE user_id = $user_id");
 
-    $_SESSION['alert_message'] = "User added";
+    $_SESSION['alert_message'] = "User <strong>$name</strong> created!";
     
     header("Location: users.php");
 
@@ -55,7 +59,7 @@ if(isset($_POST['edit_user'])){
         //delete old avatar file
         unlink($path);
         //Update with new path
-        $path = "uploads/users/";
+        $path = "uploads/users/$user_id/";
         $path = $path . basename( $_FILES['file']['name']);
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);   
@@ -63,7 +67,7 @@ if(isset($_POST['edit_user'])){
     
     mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', password = '$password', avatar = '$path', updated_at = NOW() WHERE user_id = $user_id");
 
-    $_SESSION['alert_message'] = "User updated";
+    $_SESSION['alert_message'] = "User <strong>$name</strong> updated";
     
     header("Location: users.php");
 
@@ -86,7 +90,7 @@ if(isset($_POST['add_company'])){
  
     mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
 
-    $_SESSION['alert_message'] = "Company <ctrong>$name</strong> created!";
+    $_SESSION['alert_message'] = "Company <strong>$name</strong> created!";
     
     header("Location: companies.php");
 
@@ -111,7 +115,8 @@ if(isset($_GET['delete_company'])){
 
     mysqli_query($mysqli,"DELETE FROM settings WHERE company_id = $company_id");
 
-    $_SESSION['alert_message'] = "Company deleted";
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Company deleted!";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
@@ -123,9 +128,9 @@ if(isset($_POST['verify'])){
     $currentcode = $_POST['code'];  //code to validate, for example received from device
 
     if(TokenAuth6238::verify($session_token,$currentcode)){
-        $_SESSION['alert_message'] = "VALID!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+        $_SESSION['alert_message'] = "VALID!";
     }else{
-        $_SESSION['alert_message'] = "INVALID";
+        $_SESSION['alert_message'] = "IN-VALID!";
     } 
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -134,7 +139,6 @@ if(isset($_POST['verify'])){
 
 if(isset($_POST['edit_general_settings'])){
 
-    $config_start_page = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_start_page']));
     $config_base_url = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url']));
     $config_api_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key']));
     
@@ -150,7 +154,7 @@ if(isset($_POST['edit_general_settings'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);   
     }
 
-    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$config_start_page', config_account_balance_threshold = '$config_account_balance_threshold', config_invoice_logo = '$path', config_api_key = '$config_api_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_logo = '$path', config_api_key = '$config_api_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Settings updated";
 
@@ -272,7 +276,7 @@ if(isset($_POST['enable_2fa'])){
 
     mysqli_query($mysqli,"UPDATE users SET token = '$token' WHERE user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "2FA Enabled and Token Updated";
+    $_SESSION['alert_message'] = "Two Factor Authentication Enabled and Token Updated, don't lose your code you will need this additionally to login";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -282,7 +286,7 @@ if(isset($_POST['disable_2fa'])){
 
     mysqli_query($mysqli,"UPDATE users SET token = '' WHERE user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "2FA Disabled you can now login without an additional code";
+    $_SESSION['alert_message'] = "Two Factor Authentication Disabled you can now login without TOTP Code";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
