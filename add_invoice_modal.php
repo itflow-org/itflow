@@ -51,6 +51,16 @@
           </div>
       
           <div class="form-group">
+            <label>Scope <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-th"></i></span>
+              </div>
+              <input type="text" class="form-control" name="scope">
+            </div>
+          </div>
+
+          <div class="form-group">
             <label>Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">

@@ -104,6 +104,8 @@ $total_pages = ceil($total_found_rows / 10);
             //Set Badge color based off of invoice status
             if($invoice_status == "Sent"){
               $invoice_badge_color = "warning";
+            }elseif($invoice_status == "Viewed"){
+              $invoice_badge_color = "info";
             }elseif($invoice_status == "Partial"){
               $invoice_badge_color = "primary";
             }elseif($invoice_status == "Paid"){

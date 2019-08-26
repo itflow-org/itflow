@@ -59,6 +59,10 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     //Mark viewed in history
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $company_id");
 
+    //Update status to Viewed only if invoice_status = "Sent" 
+    if($invoice_status == 'Sent'){
+      mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Viewed' WHERE invoice_id = $invoice_id");
+    }
 
     $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 

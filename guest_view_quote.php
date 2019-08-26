@@ -59,11 +59,16 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     //Mark viewed in history
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$quote_status', history_description = 'Quote viewed', history_created_at = NOW(), quote_id = $quote_id, company_id = $company_id");
 
+    //Update status to Viewed only if invoice_status = "Sent" 
+    if($quote_status == 'Sent'){
+      mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Viewed' WHERE quote_id = $quote_id");
+    }
+
     //Set Badge color based off of quote status
     if($quote_status == "Sent"){
       $quote_badge_color = "warning text-white";
     }elseif($quote_status == "Viewed"){
-      $quote_badge_color = "primary";
+      $quote_badge_color = "info";
     }elseif($quote_status == "Approved"){
       $quote_badge_color = "success";
     }elseif($quote_status == "Cancelled"){

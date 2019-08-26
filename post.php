@@ -1861,6 +1861,7 @@ if(isset($_POST['add_payment'])){
     $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
     $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
     $email_receipt = intval($_POST['email_receipt']);
+    $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
 
     //Check to see if amount entered is greater than the balance of the invoice
     if($amount > $balance){
@@ -1879,6 +1880,7 @@ if(isset($_POST['add_payment'])){
         $row = mysqli_fetch_array($sql);
         $invoice_amount = $row['invoice_amount'];
         $invoice_number = $row['invoice_number'];
+        $invoice_url_key = $row['invoice_url_key'];
         $client_name = $row['client_name'];
         $client_email = $row['client_email'];
 
@@ -1914,8 +1916,8 @@ if(isset($_POST['add_payment'])){
 
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
-                  $mail->Subject = "Payment Recieved";
-                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment in the amount of $$formatted_amount and it has been applied to your account. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$config_company_name<br>$config_company_phone";
+                  $mail->Subject = "Payment Recieved - Invoice $invoice_number";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment in the amount of $$formatted_amount for invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$config_company_name<br>$config_company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';
@@ -1950,8 +1952,8 @@ if(isset($_POST['add_payment'])){
 
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
-                  $mail->Subject = "Payment Recieved";
-                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment in the amount of $$formatted_amount and it has been applied to your account. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$config_company_name<br>$config_company_phone";
+                  $mail->Subject = "Partial Payment Recieved - Invoice $invoice_number";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved partial payment in the amount of $$formatted_amount and it has been applied to invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$config_company_name<br>$config_company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';
