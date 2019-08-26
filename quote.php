@@ -169,7 +169,7 @@ if(isset($_GET['quote_id'])){
               $item_subtotal = $row['item_price'];
               $item_tax = $row['item_tax'];
               $item_total = $row['item_total'];
-              $total_tax = $item_tax + $invoice_tax;
+              $total_tax = $item_tax + $total_tax;
               $sub_total = $item_price * $item_quantity + $sub_total;
 
             ?>

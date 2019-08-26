@@ -71,7 +71,7 @@ $total_pages = ceil($total_found_rows / 10);
           <tr>
             <th class="text-center"><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_title&o=<?php echo $disp; ?>">Title</a></th>
-            <th>Email</th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_email&o=<?php echo $disp; ?>">Email</a></th>
             <th>Phone</th>
             <th class="text-center">Action</th>
           </tr>
@@ -118,7 +118,25 @@ $total_pages = ceil($total_found_rows / 10);
             
             <td><?php echo $contact_title; ?></td>
             <td><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a></td>
-            <td><?php echo $contact_phone; ?><br><?php echo $contact_mobile; ?><br></td>
+            <td>
+              <?php
+              if(!empty($contact_phone)){
+              ?>
+              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $contact_phone; ?>
+              <br>
+              <?php
+              }
+              ?>
+              <?php
+              if(!empty($contact_mobile)){
+              ?>
+              <i class="fa fa-fw fa-mobile-alt text-secondary mr-2 mb-2"></i><?php echo $contact_mobile; ?>
+              <br>
+              <?php
+              }
+              ?>
+            </td>
+            
             
             <td>
               <div class="dropdown dropleft text-center">
