@@ -21,8 +21,6 @@
 
   <!-- Page level plugin JavaScript-->
   <script src="vendor/chart.js/Chart.min.js"></script>
-  <script src="vendor/datatables/jquery.dataTables.js"></script>
-  <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
   <script src="vendor/easy-markdown-editor/js/easymde.js"></script>
   <script src="vendor/Bootstrap-3-Typeahead/bootstrap3-typeahead.min.js"></script>
   <script src="vendor/moment/moment.min.js"></script>
