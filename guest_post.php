@@ -9,7 +9,7 @@ require_once $mpdf_path . '/vendor/autoload.php';
 if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
 
     $invoice_id = intval($_GET['pdf_invoice']);
-    $url_key = $_GET['url_key'];
+    $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
     WHERE invoices.client_id = clients.client_id
@@ -231,7 +231,7 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
 if(isset($_GET['pdf_quote'], $_GET['url_key'])){
 
     $quote_id = intval($_GET['pdf_quote']);
-    $url_key = $_GET['url_key'];
+    $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients
     WHERE quotes.client_id = clients.client_id
@@ -428,7 +428,7 @@ if(isset($_GET['pdf_quote'], $_GET['url_key'])){
 if(isset($_GET['approve_quote'], $_GET['url_key'])){
 
     $quote_id = intval($_GET['approve_quote']);
-    $url_key = $_GET['url_key'];
+    $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes
     WHERE quotes.quote_id = $quote_id
@@ -453,7 +453,7 @@ if(isset($_GET['approve_quote'], $_GET['url_key'])){
 if(isset($_GET['reject_quote'], $_GET['url_key'])){
 
     $quote_id = intval($_GET['reject_quote']);
-    $url_key = $_GET['url_key'];
+    $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes
     WHERE quotes.quote_id = $quote_id
