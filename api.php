@@ -3,7 +3,7 @@
 <?php
 //Check Key 
 if(isset($_GET['api_key'])){
-    $config_api_key = $_GET['api_key'];
+    $config_api_key = mysqli_real_escape_string($mysqli,$_GET['api_key']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM settings, companies WHERE settings.company_id = companies.company_id AND settings.config_api_key = '$config_api_key'");
 

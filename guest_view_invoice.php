@@ -4,7 +4,7 @@
 
 if(isset($_GET['invoice_id'], $_GET['url_key'])){
 
-  $url_key = $_GET['url_key'];
+  $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
   $invoice_id = intval($_GET['invoice_id']);
 
   $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
