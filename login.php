@@ -25,19 +25,11 @@ if(isset($_POST['login'])){
     $token = $row['token'];
     $_SESSION['user_id'] = $row['user_id'];
     $_SESSION['name'] = $row['name'];
-    $_SESSION['client_id'] = $row['client_id'];
-    $client_id = $row['client_id'];
     
     if(empty($token)){
       $_SESSION['logged'] = TRUE;
          
-      if($client_id > 0){
-        header("Location: client.php?client_id=$client_id");
-      }else{
-        //header("Location: $config_start_page");
-        header("Location: dashboard.php");
-      }
-    
+      header("Location: dashboard.php");
     }else{
       require_once("rfc6238.php");
 

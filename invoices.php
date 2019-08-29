@@ -192,7 +192,7 @@
 
             $now = time();
 
-            if(($invoice_status == "Sent" or $invoice_status == "Partial") and strtotime($invoice_due) < $now ){
+            if(($invoice_status == "Sent" or $invoice_status == "Partial" or $invoice_status == "Viewed") and strtotime($invoice_due) + 86400 < $now ){
               $overdue_color = "text-danger font-weight-bold";
             }else{
               $overdue_color = "";

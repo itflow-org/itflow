@@ -2,9 +2,9 @@
 
 <?php
 if($_GET['status'] == "archived"){
-  $where_clause = "> 0";
+  $where_clause = "IS NOT NULL";
 }else{
-  $where_clause = "= 0";
+  $where_clause = "IS NULL";
 }
 
 ?>

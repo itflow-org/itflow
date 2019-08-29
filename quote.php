@@ -18,6 +18,7 @@ if(isset($_GET['quote_id'])){
   $quote_date = $row['quote_date'];
   $quote_amount = $row['quote_amount'];
   $quote_note = $row['quote_note'];
+  $quote_url_key = $row['quote_url_key'];
   $category_id = $row['category_id'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];
@@ -57,6 +58,9 @@ if(isset($_GET['quote_id'])){
   <li class="breadcrumb-item">
     <a href="quotes.php">Quotes</a>
   </li>
+  <li class="breadcrumb-item">
+    <a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+  </li>
   <li class="breadcrumb-item active"><?php echo $quote_number; ?></li>
   <span class="ml-3 p-2 badge badge-<?php echo $quote_badge_color; ?>"><?php echo $quote_status; ?></span>
 </ol>
@@ -81,6 +85,7 @@ if(isset($_GET['quote_id'])){
           <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send Email</a>
           <?php if($quote_status == "Draft"){ ?><a class="dropdown-item" href="post.php?mark_quote_sent=<?php echo $quote_id; ?>">Mark Sent</a><?php } ?>
           <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
+          <a class="dropdown-item" href="guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">Guest URL</a>
           <a class="dropdown-item" href="post.php?pdf_quote=<?php echo $quote_id; ?>">PDF</a>
           <a class="dropdown-item" href="#">Delete</a>
         </div>

@@ -1,5 +1,5 @@
 <?php
-	
+	//Check to see if setup is enabled
 	if(!isset($config_enable_setup) or $config_enable_setup == 1){
     	header("Location: setup.php");
   	}
@@ -10,12 +10,6 @@
 	    header("Location: logout.php");
 	    die;
 	}
-	
-	//Check to see if its a client if so sandbox them to just post.php or client.php.
-	if($_SESSION['client_id'] > 0 AND basename($_SERVER['PHP_SELF']) !== 'client.php' AND basename($_SERVER['PHP_SELF']) !== 'post.php'){
-    	header("Location: logout.php");
-    	die;
-	}
 
 	$session_user_id = $_SESSION['user_id'];
 
@@ -25,7 +19,6 @@
 	$session_avatar = $row['avatar'];
 	$session_company_id = $row['company_id'];
 	$session_company_name = $row['company_name'];
-	$session_client_id = $row['client_id'];
 	$session_token = $row['token'];
 
 	include("get_settings.php");
@@ -42,7 +35,7 @@
 	}
 
 	//Get unAcked Alert Count for the badge on the top nav
-	$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('alert_id') AS num FROM alerts WHERE alert_ack_date = 0"));
+	$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('alert_id') AS num FROM alerts WHERE alert_ack_date IS NULL AND company_id = $session_company_id"));
   	$num_alerts = $row['num'];
 
 ?>

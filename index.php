@@ -1,5 +1,5 @@
 <?php include("header.php"); ?>
-	
+	<?php $os = get_ip(); ?>
 	<!-- Breadcrumbs-->
 	<ol class="breadcrumb">
 	  <li class="breadcrumb-item">
@@ -11,6 +11,10 @@
 	<!-- Page Content -->
 	<h1>Blank Page</h1>
 	<hr>
-	<p>This is a great starting point for new custom pages.</p>
+	<p><?php echo get_user_agent(); ?></p>
+	<p><?php echo get_ip(); ?></p>
+	<p><?php echo get_os(); ?></p>
+	<p><?php echo get_web_browser(); ?></p>
+	<p><?php echo get_device(); ?></p>
 
 <?php include("footer.php"); ?>

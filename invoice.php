@@ -19,6 +19,7 @@ if(isset($_GET['invoice_id'])){
   $invoice_due = $row['invoice_due'];
   $invoice_amount = $row['invoice_amount'];
   $invoice_note = $row['invoice_note'];
+  $invoice_url_key = $row['invoice_url_key'];
   $category_id = $row['category_id'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];
@@ -50,7 +51,7 @@ if(isset($_GET['invoice_id'])){
 
   //check to see if overdue
   if($invoice_status !== "Paid" AND $invoice_status !== "Draft" AND $invoice_status !== "Cancelled"){
-    $unixtime_invoice_due = strtotime($invoice_due);
+    $unixtime_invoice_due = strtotime($invoice_due) + 86400;
     if($unixtime_invoice_due < time()){
       $invoice_overdue = "Overdue";
     }
@@ -105,11 +106,12 @@ if(isset($_GET['invoice_id'])){
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
           <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">Edit</a>
           <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
-          <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceRecurringModal<?php echo $invoice_id; ?>">Recurring</a>
+          <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceRecurringModal<?php echo $invoice_id; ?>">Create Recurring</a>
           <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send</a>
           <?php if($invoice_status == 'Draft'){ ?><a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">Mark Sent</a><?php } ?>
           <?php if($invoice_status !== 'Paid' and $invoice_status !== 'Cancelled'){ ?><a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPaymentModal">Add Payment</a><?php } ?>
           <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
+          <a class="dropdown-item" href="guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Guest URL</a>
           <a class="dropdown-item" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>">PDF</a>
           <?php if($invoice_status !== 'Cancelled' and $invoice_status !== 'Paid'){ ?>
           <a class="dropdown-item" href="post.php?cancel_invoice=<?php echo $invoice_id; ?>">Cancel</a>

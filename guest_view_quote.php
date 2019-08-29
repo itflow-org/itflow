@@ -55,6 +55,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
       $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
     }
     $config_company_email = $row['config_company_email'];
+    $config_invoice_logo = $row['config_invoice_logo'];
 
     //Mark viewed in history
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$quote_status', history_description = 'Quote viewed', history_created_at = NOW(), quote_id = $quote_id, company_id = $company_id");
@@ -98,6 +99,12 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
   </div>
 
   <hr>
+
+  <div class="row mb-4">
+    <div class="col-sm-2">
+      <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
+    </div> 
+  </div>
 
   <div class="row mb-4">
     <div class="col-sm">
@@ -179,7 +186,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
               $item_subtotal = $row['item_price'];
               $item_tax = $row['item_tax'];
               $item_total = $row['item_total'];
-              $total_tax = $item_tax + $invoice_tax;
+              $total_tax = $item_tax + $total_tax;
               $sub_total = $item_price * $item_quantity + $sub_total;
 
             ?>
