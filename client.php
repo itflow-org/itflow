@@ -93,7 +93,7 @@ if(isset($_GET['client_id'])){
   <div class="card-body">
     <div class="row">
       <div class="col">
-        <h4 class="text-secondary">Address</h4>
+        <h4 class="text-secondary"><strong><?php echo $client_name; ?></strong></h4>
         <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$client_address $client_zip"; ?>" target="_blank">
           <div class="ml-1"><?php echo $client_address; ?></div>
           <div class="ml-1"><?php echo "$client_city $client_state $client_zip"; ?></div>

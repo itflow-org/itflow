@@ -1,11 +1,6 @@
 <!-- Client Sidebar -->
 
-<ul class="sidebar navbar-nav d-print-none">
-  
-  <li class="nav-item my-3">
-    <h2 class="text-white text-center"><?php echo $client_name; ?></h2>
-    <h6 class="text-secondary text-center"><?php echo $client_type; ?></h6>
-  </li>
+<ul class="sidebar navbar-nav d-print-none bg-primary">
   
   <li class="nav-item">
     <a class="nav-link" href="clients.php">

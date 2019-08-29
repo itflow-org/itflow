@@ -1,5 +1,4 @@
-## CRM
-CRM, Accounting and Invoicing System for small managed IT companies
+## IT Documentation Accounting and Invoicing System for Small Managed IT Companies
 
 ### Features
 * Manage Clients
@@ -35,13 +34,18 @@ CRM, Accounting and Invoicing System for small managed IT companies
   * Password reset reminder for customers
   * Past Due Invoices
   * Software License Expiring
-  * Many more...
 * Calendar Integration
   * Schedule Jobs
   * Overview of Invoices Domains
   * Schedule Events
 * Dashboard
   * Gives a clear overview of your business
+
+* API
+  * XML Phonebook download for VOIP Phones
+  * FreePBX Integrated called ID (When call comes in it queries the Database and displays the company name on your caller ID)
+  * Pull Email Lists
+  * Check account Balances using FreePBX IVR
 
 ### Installation Instructions
 
@@ -74,9 +78,9 @@ CRM, Accounting and Invoicing System for small managed IT companies
 * parsedown
 
 ### Future Todo
-* FreePBX "Asterisk" Integration (For CallerID and to track client calls within the app)
 * MeshCentral Integation to assign devices and easily access remote desktop within the app
 * HestiaCP Integration for intergrating domains and webclients
 * CalDAV to integrate with 3rd party calendars
 * CardDAV to integrate with 3rd party Address books
 * Unifi and UNMS integration
+* Stripe Integration for online payments
