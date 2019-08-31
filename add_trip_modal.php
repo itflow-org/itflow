@@ -176,14 +176,15 @@
                 </div>
               </div>
 
-          </div>
+            </div>
 
+          </div> <!-- Tabn Content -->
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="add_trip" class="btn btn-primary">Save</button>
         </div>
       </form>
-    </div>
-  </div>
-</div>
+    </div> <!-- Modal Content -->
+  </div> <!-- Modal Dialog -->
+</div> <!-- Modal -->
