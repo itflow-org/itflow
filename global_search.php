@@ -4,7 +4,7 @@
 
 if(isset($_GET['query'])){
 
-  $query = $_GET['query'];
+  $query = mysqli_real_escape_string($mysqli,$_GET['query']);
 
   $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY client_id DESC LIMIT 5");
   $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY vendor_id DESC LIMIT 5");

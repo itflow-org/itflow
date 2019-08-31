@@ -15,13 +15,13 @@
   }
     
   if(isset($_GET['q'])){
-    $q = $_GET['q'];
+    $q = mysqli_real_escape_string($mysqli,$_GET['q']);
   }else{
     $q = "";
   }
 
   if(!empty($_GET['sb'])){
-    $sb = $_GET['sb'];
+    $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
   }else{
     $sb = "category_type";
   }
@@ -56,7 +56,7 @@
   <div class="card-body">
     <form autocomplete="off">
       <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo $q;} ?>" placeholder="Search Categories">
+        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Categories">
         <div class="input-group-append">
           <button class="btn btn-primary"><i class="fa fa-search"></i></button>
         </div>

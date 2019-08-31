@@ -15,13 +15,13 @@ if(isset($_GET['p'])){
 }
   
 if(isset($_GET['q'])){
-  $q = $_GET['q'];
+  $q = mysqli_real_escape_string($mysqli,$_GET['q']);
 }else{
   $q = "";
 }
 
 if(!empty($_GET['sb'])){
-  $sb = $_GET['sb'];
+  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
   $sb = "vendor_id";
 }
@@ -60,7 +60,7 @@ $total_pages = ceil($total_found_rows / 10);
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
       <input type="hidden" name="tab" value="<?php echo $_GET['tab']; ?>">
       <div class="input-group">
-        <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo $q;} ?>" placeholder="Search <?php echo ucwords($_GET['tab']); ?>">
+        <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php echo ucwords($_GET['tab']); ?>">
         <div class="input-group-append">
           <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
         </div>

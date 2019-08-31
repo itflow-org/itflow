@@ -1168,6 +1168,9 @@ if(isset($_POST['add_quote_to_invoice'])){
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
+    //Generate a unique URL key for clients to access
+    $url_key = keygen();
+
     mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);

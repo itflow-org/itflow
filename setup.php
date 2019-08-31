@@ -297,6 +297,23 @@ if(isset($_POST['add_company_settings'])){
           $_SESSION['alert_message'] = '';
         }
         ?>
+        <?php if(isset($_GET['setup_checks'])){ ?>
+
+        <div class="card mb-3">
+          <div class="card-header">
+            <h6 class="mt-1"><i class="fa fa-fw fa-checkmark"></i> Setup Checks</h6>
+          </div>
+          <div class="card-body">
+            <ul class="mb-4">
+              <li>Upload is readable and writeable</li>
+              <li>PHP 7+ Installed</li>
+            </ul>
+            <center><a href="?database" class="btn btn-lg btn-primary mb-5">Install</a></center>
+          </div>
+        </div>
+
+        <?php } ?>
+
 
         <?php if(isset($_GET['database'])){ ?>
 
