@@ -69,7 +69,7 @@ $total_pages = ceil($total_found_rows / 10);
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead>
+        <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_address&o=<?php echo $disp; ?>">Address</a></th>

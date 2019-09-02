@@ -124,8 +124,6 @@ function get_os() {
     return $os_platform;
 }
 
-
-
 function get_device(){
     $tablet_browser = 0;
     $mobile_browser = 0;

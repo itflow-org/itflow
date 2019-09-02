@@ -21,7 +21,7 @@ if($_GET['status'] == "archived"){
   <div class="card-body">
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover" id="dataTable" width="100%" cellspacing="0">
-        <thead class="thead-dark">
+        <thead class="thead-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th>Date</th>
             <th>Type</th>
