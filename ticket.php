@@ -1,11 +1,18 @@
 <?php include("config.php"); ?>
+<?php include("header.php"); ?>
 
 <?php 
 
 if(isset($_GET['ticket_id'])){
   $ticket_id = intval($_GET['ticket_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM tickets, clients WHERE tickets.client_id = clients.client_id AND ticket_id = $ticket_id");
+  $sql = mysqli_query($mysqli,"SELECT * FROM tickets, clients WHERE tickets.client_id = clients.client_id AND ticket_id = $ticket_id AND tickets.company_id = $session_company_id");
+
+  if(mysqli_num_rows($sql) == 0){
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='tickets.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+
+    include("footer.php");
+  }else{
 
   $row = mysqli_fetch_array($sql);
   $client_id = $row['client_id'];
@@ -46,7 +53,7 @@ if(isset($_GET['ticket_id'])){
 
 ?>
 
-<?php include("header.php"); ?>
+
 
 <!-- Breadcrumbs-->
 <ol class="breadcrumb">
@@ -158,6 +165,8 @@ if(isset($_GET['ticket_id'])){
 <?php include("edit_ticket_modal.php"); ?>
 
 <?php 
+
+}
 
 }
 

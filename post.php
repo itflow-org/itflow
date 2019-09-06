@@ -135,8 +135,6 @@ if(isset($_GET['delete_company'])){
 
     mysqli_query($mysqli,"DELETE FROM settings WHERE company_id = $company_id");
 
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company Deleted', log_description = '$company_id', log_created_at = NOW()");
-
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Deleted', log_description = '$name', log_created_at = NOW()");
 

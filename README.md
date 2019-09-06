@@ -77,6 +77,13 @@
 * EasyMDE forked from SimpleMDE
 * parsedown
 
+### API Calls
+* Caller ID lookup (Returns a Name) - /api.php?api_key=[API_KEY]&cid=[PHONE_NUMBER]
+* XML Phonebook Download - /api.php?api_key=[API_KEY]&phonebook
+* Client Email (Returns Client Name - Email Address) - /api.php?api_key=[API_KEY]&client_emails
+* Account Balance for Client (Returns Account Balance) - /api.php?api_key=[API_KEY]&client_id=[CLIENT_ID]
+NOTE: [API_KEY] - is auto generated when a company is created and shows up in General Settings.
+
 ### Future Todo
 * MeshCentral Integation to assign devices and easily access remote desktop within the app
 * HestiaCP Integration for intergrating domains and webclients
