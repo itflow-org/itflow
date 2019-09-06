@@ -60,6 +60,9 @@ if(isset($_GET['ticket_id'])){
   <li class="breadcrumb-item">
     <a href="tickets.php">Tickets</a>
   </li>
+  <li class="breadcrumb-item">
+    <a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a>
+  </li>
   <li class="breadcrumb-item active">Ticket Details</li>
 </ol>
 <div class="row">
@@ -132,26 +135,26 @@ if(isset($_GET['ticket_id'])){
       <div class="form-group">
         <textarea rows="5" class="form-control" name="ticket_update"></textarea>
       </div>
-      <button type="submit" name="add_ticket_update" class="btn btn-primary">Save</button>
-      <button type="submit" name="close_ticket" class="btn btn-secondary">Close Ticket</button> 
+      <button type="submit" name="add_ticket_update" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save</button>
+      <button type="submit" name="close_ticket" class="btn btn-secondary float-right">Close Ticket</button> 
     </form>
 
     <?php
-    $sql = mysqli_query($mysqli,"SELECT * FROM ticket_updates WHERE ticket_id = $ticket_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM ticket_updates WHERE ticket_id = $ticket_id ORDER BY ticket_update_id DESC");
 
       while($row = mysqli_fetch_array($sql)){;
-      $ticket_update_id = $row['ticket_update_id'];
-      $ticket_update = $row['ticket_update'];
-      $ticket_update_created_at = $row['ticket_update_created_at'];
-      $user_id = $row['user_id'];
+        $ticket_update_id = $row['ticket_update_id'];
+        $ticket_update = $row['ticket_update'];
+        $ticket_update_created_at = $row['ticket_update_created_at'];
+        $user_id = $row['user_id'];
 
     ?>
 
     <div class="card mb-3">
       <div class="card-body">
-        <p class="blockquote"><?php echo $ticket_update; ?></p>
+        <p><?php echo $ticket_update; ?></p>
       </div>
-      <div class="card-footer"><?php echo $ticket_update_created_at - $user_id; ?></div>
+      <div class="card-footer"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_update_created_at; ?></div>
     </div>
 
     <?php

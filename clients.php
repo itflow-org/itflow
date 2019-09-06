@@ -115,7 +115,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           ?>
           <tr>
-            <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+            <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a></td>
             <td><?php echo $client_type; ?></td>
             <td><a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a></td>
             <td><?php echo $client_phone; ?></td>

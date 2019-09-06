@@ -77,8 +77,6 @@ if(isset($_GET['invoice_id'])){
     $invoice_badge_color = "secondary";
   }
 
-
-
 ?>
 
 <ol class="breadcrumb d-print-none">
@@ -86,7 +84,7 @@ if(isset($_GET['invoice_id'])){
     <a href="invoices.php">Invoices</a>
   </li>
   <li class="breadcrumb-item">
-    <a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+    <a href="client.php?client_id=<?php echo $client_id; ?>&tab=invoices"><?php echo $client_name; ?></a>
   </li>
   <li class="breadcrumb-item active"><?php echo $invoice_number; ?></li>
   <span class="p-2 ml-2 badge badge-<?php echo $invoice_badge_color; ?>"><?php echo $invoice_status; ?></span>
@@ -94,8 +92,6 @@ if(isset($_GET['invoice_id'])){
   <span class="p-2 ml-2 badge badge-danger"><?php echo $invoice_overdue; ?></span>
   <?php } ?>
 </ol>
-
-
 
 <form action="post.php" method="post" autocomplete="off">
   <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">

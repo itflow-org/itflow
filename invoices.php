@@ -5,6 +5,9 @@
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Sent' AND company_id = $session_company_id"));
   $sent_count = $row['num'];
 
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Viewed' AND company_id = $session_company_id"));
+  $viewed_count = $row['num'];
+
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Partial' AND company_id = $session_company_id"));
   $partial_count = $row['num'];
 
@@ -24,6 +27,10 @@
   $sql_total_sent = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS total_sent FROM invoices WHERE invoice_status = 'Sent' AND company_id = $session_company_id");
   $row = mysqli_fetch_array($sql_total_sent);
   $total_sent = $row['total_sent'];
+
+  $sql_total_viewed = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS total_viewed FROM invoices WHERE invoice_status = 'Viewed' AND company_id = $session_company_id");
+  $row = mysqli_fetch_array($sql_total_viewed);
+  $total_viewed = $row['total_viewed'];
 
   $sql_total_cancelled = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS total_cancelled FROM invoices WHERE invoice_status = 'Cancelled' AND company_id = $session_company_id");
   $row = mysqli_fetch_array($sql_total_cancelled);
@@ -122,6 +129,19 @@
       </div>
     </a>
   </div>
+
+  <div class="col-xl-3 col-sm-6 mb-3">
+    <a class="text-white" href="?q=Viewed">
+      <div class="card text-white bg-info o-hidden">
+        <div class="card-body">
+          <div class="card-body-icon">
+            <i class="fas fa-fw fa-eye"></i>
+          </div>
+          <div class="mr-5"><?php echo $viewed_count; ?> Viewed <h1>$<?php echo number_format($total_viewed,2); ?></h1></div>
+        </div>
+      </div>
+    </a>
+  </div>
   
   <div class="col-xl-3 col-sm-6 mb-3">
     <a class="text-white" href="?q=Partial">
@@ -135,19 +155,7 @@
       </div>
     </a>
   </div>
-  
-  <div class="col-xl-3 col-sm-6 mb-3">
-    <a class="text-white" href="?q=Cancelled">
-      <div class="card text-white bg-danger o-hidden">
-        <div class="card-body">
-          <div class="card-body-icon">
-            <i class="fas fa-fw fa-ban"></i>
-          </div>
-          <div class="mr-5"><?php echo $cancelled_count; ?> Cancelled <h1>$<?php echo number_format($total_cancelled,2); ?></h1></div>
-        </div>
-      </div>
-    </div>
-  </a>
+
 </div>
 
 <div class="card mb-3">
@@ -224,7 +232,7 @@
 
           <tr>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo $invoice_number; ?></a></td>
-            <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+            <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=invoices"><?php echo $client_name; ?></a></td>
             <td class="text-right text-monospace">$<?php echo number_format($invoice_amount,2); ?></td>
             <td><?php echo $invoice_date; ?></td>
             <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>

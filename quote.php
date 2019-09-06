@@ -59,7 +59,7 @@ if(isset($_GET['quote_id'])){
     <a href="quotes.php">Quotes</a>
   </li>
   <li class="breadcrumb-item">
-    <a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+    <a href="client.php?client_id=<?php echo $client_id; ?>&tab=quotes"><?php echo $client_name; ?></a>
   </li>
   <li class="breadcrumb-item active"><?php echo $quote_number; ?></li>
   <span class="ml-3 p-2 badge badge-<?php echo $quote_badge_color; ?>"><?php echo $quote_status; ?></span>
