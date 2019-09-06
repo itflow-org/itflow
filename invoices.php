@@ -98,48 +98,56 @@
 
 <div class="row">
   <div class="col-xl-3 col-sm-6 mb-3">
-    <div class="card text-white bg-secondary o-hidden">
-      <div class="card-body">
-        <div class="card-body-icon">
-          <i class="fas fa-fw fa-pencil-ruler"></i>
+    <a class="text-white" href="?q=Draft">
+      <div class="card text-white bg-secondary o-hidden">
+        <div class="card-body">
+          <div class="card-body-icon">
+            <i class="fas fa-fw fa-pencil-ruler"></i>
+          </div>
+          <div class="mr-5"><?php echo $draft_count; ?> Draft <h1>$<?php echo number_format($total_draft,2); ?></h1></div>
         </div>
-        <div class="mr-5"><?php echo $draft_count; ?> Draft <h1>$<?php echo number_format($total_draft,2); ?></h1></div>
       </div>
-    </div>
+    </a>
   </div>
 
   <div class="col-xl-3 col-sm-6 mb-3">
-    <div class="card text-white bg-warning o-hidden">
-      <div class="card-body">
-        <div class="card-body-icon">
-          <i class="fas fa-fw fa-paper-plane"></i>
+    <a class="text-white" href="?q=Sent">
+      <div class="card text-white bg-warning o-hidden">
+        <div class="card-body">
+          <div class="card-body-icon">
+            <i class="fas fa-fw fa-paper-plane"></i>
+          </div>
+          <div class="mr-5"><?php echo $sent_count; ?> Sent <h1>$<?php echo number_format($total_sent,2); ?></h1></div>
         </div>
-        <div class="mr-5"><?php echo $sent_count; ?> Sent <h1>$<?php echo number_format($total_sent,2); ?></h1></div>
       </div>
-    </div>
+    </a>
   </div>
   
   <div class="col-xl-3 col-sm-6 mb-3">
-    <div class="card text-white bg-primary o-hidden">
-      <div class="card-body">
-        <div class="card-body-icon">
-          <i class="fas fa-fw fa-wine-glass-alt"></i>
-        </div>
-        <div class="mr-5"><?php echo $partial_count; ?> Partial <h1>$<?php echo number_format($total_partial,2); ?></h1></div>        
-      </div>      
-    </div>
+    <a class="text-white" href="?q=Partial">
+      <div class="card text-white bg-primary o-hidden">
+        <div class="card-body">
+          <div class="card-body-icon">
+            <i class="fas fa-fw fa-wine-glass-alt"></i>
+          </div>
+          <div class="mr-5"><?php echo $partial_count; ?> Partial <h1>$<?php echo number_format($total_partial,2); ?></h1></div>        
+        </div>      
+      </div>
+    </a>
   </div>
   
   <div class="col-xl-3 col-sm-6 mb-3">
-    <div class="card text-white bg-danger o-hidden">
-      <div class="card-body">
-        <div class="card-body-icon">
-          <i class="fas fa-fw fa-ban"></i>
+    <a class="text-white" href="?q=Cancelled">
+      <div class="card text-white bg-danger o-hidden">
+        <div class="card-body">
+          <div class="card-body-icon">
+            <i class="fas fa-fw fa-ban"></i>
+          </div>
+          <div class="mr-5"><?php echo $cancelled_count; ?> Cancelled <h1>$<?php echo number_format($total_cancelled,2); ?></h1></div>
         </div>
-        <div class="mr-5"><?php echo $cancelled_count; ?> Cancelled <h1>$<?php echo number_format($total_cancelled,2); ?></h1></div>
       </div>
     </div>
-  </div> 
+  </a>
 </div>
 
 <div class="card mb-3">

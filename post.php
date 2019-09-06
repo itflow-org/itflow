@@ -35,6 +35,14 @@ if(isset($_POST['add_user'])){
 
     mysqli_query($mysqli,"UPDATE users SET avatar = '$path' WHERE user_id = $user_id");
 
+    if(isset($_POST['company'])){
+      if(is_array($_POST['company'])) {
+        foreach($_POST['company'] as $company_id){
+          mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company_id");
+        }
+      }
+    }
+
     $_SESSION['alert_message'] = "User <strong>$name</strong> created!";
     
     header("Location: users.php");
@@ -170,6 +178,7 @@ if(isset($_POST['edit_company_settings'])){
     $config_company_state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_state']));
     $config_company_zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_zip']));
     $config_company_phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_phone']));
+    $config_company_phone = preg_replace("/[^0-9]/", '',$config_company_phone);
     $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
 
     mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site' WHERE company_id = $session_company_id");
@@ -411,7 +420,7 @@ if(isset($_POST['edit_client'])){
     $net_terms = intval($_POST['net_terms']);
     $hours = strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours']));
 
-    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_phone = '$phone', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_updated_at = NOW() WHERE client_id = $client_id");
+    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_phone = '$phone', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Client $name updated";
     
@@ -422,7 +431,7 @@ if(isset($_POST['edit_client'])){
 if(isset($_GET['delete_client'])){
     $client_id = intval($_GET['delete_client']);
 
-    mysqli_query($mysqli,"DELETE FROM clients WHERE client_id = $client_id");
+    mysqli_query($mysqli,"DELETE FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Client deleted";
     
@@ -466,7 +475,7 @@ if(isset($_POST['edit_event'])){
     $start = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start']));
     $end = strip_tags(mysqli_real_escape_string($mysqli,$_POST['end']));
 
-    mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_start = '$start', event_end = '$end', event_updated_at = NOW(), calendar_id = $calendar_id WHERE event_id = $event_id");
+    mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_start = '$start', event_end = '$end', event_updated_at = NOW(), calendar_id = $calendar_id WHERE event_id = $event_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Event modified on the calendar";
     
@@ -477,7 +486,7 @@ if(isset($_POST['edit_event'])){
 if(isset($_GET['delete_event'])){
     $event_id = intval($_GET['delete_event']);
 
-    mysqli_query($mysqli,"DELETE FROM events WHERE event_id = $event_id");
+    mysqli_query($mysqli,"DELETE FROM events WHERE event_id = $event_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Event deleted on the calendar";
     
@@ -510,7 +519,7 @@ if(isset($_POST['edit_ticket'])){
     $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
     $details = strip_tags(mysqli_real_escape_string($mysqli,$_POST['details']));
 
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_details = '$details' ticket_updated_at = NOW() WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_details = '$details' ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Ticket updated";
     
@@ -521,7 +530,7 @@ if(isset($_POST['edit_ticket'])){
 if(isset($_GET['delete_ticket'])){
     $ticket_id = intval($_GET['delete_ticket']);
 
-    mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Ticket deleted";
     
@@ -546,7 +555,7 @@ if(isset($_POST['close_ticket'])){
 
     $ticket_id = intval($_POST['ticket_id']);
 
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed', ticket_updated_at = NOW(), ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed', ticket_updated_at = NOW(), ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     $_SESSION['alert_message'] = "Ticket Closed, this cannot not be reopened but you may start another one";
     
@@ -596,7 +605,7 @@ if(isset($_POST['edit_vendor'])){
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
 
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_updated_at = NOW() WHERE vendor_id = $vendor_id");
+    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_updated_at = NOW() WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Vendor modified";
     
@@ -607,7 +616,7 @@ if(isset($_POST['edit_vendor'])){
 if(isset($_GET['delete_vendor'])){
     $vendor_id = intval($_GET['delete_vendor']);
 
-    mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_id = $vendor_id");
+    mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Vendor deleted";
     
@@ -636,7 +645,7 @@ if(isset($_POST['edit_product'])){
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $cost = floatval($_POST['cost']);
 
-    mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_updated_at = NOW() WHERE product_id = $product_id");
+    mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_updated_at = NOW() WHERE product_id = $product_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Product modified";
     
@@ -647,7 +656,7 @@ if(isset($_POST['edit_product'])){
 if(isset($_GET['delete_product'])){
     $product_id = intval($_GET['delete_product']);
 
-    mysqli_query($mysqli,"DELETE FROM products WHERE product_id = $product_id");
+    mysqli_query($mysqli,"DELETE FROM products WHERE product_id = $product_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Product deleted";
     
@@ -690,7 +699,7 @@ if(isset($_POST['edit_trip'])){
     $location_id = intval($_POST['location']);
     $vendor_id = intval($_POST['vendor']);
 
-    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_updated_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id WHERE trip_id = $trip_id");
+    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_updated_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id WHERE trip_id = $trip_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Trip modified";
     
@@ -701,7 +710,7 @@ if(isset($_POST['edit_trip'])){
 if(isset($_GET['delete_trip'])){
     $trip_id = intval($_GET['delete_trip']);
 
-    mysqli_query($mysqli,"DELETE FROM trips WHERE trip_id = $trip_id");
+    mysqli_query($mysqli,"DELETE FROM trips WHERE trip_id = $trip_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Trip deleted";
     
@@ -727,7 +736,7 @@ if(isset($_POST['edit_account'])){
     $account_id = intval($_POST['account_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
 
-    mysqli_query($mysqli,"UPDATE accounts SET account_name = '$name', account_updated_at = NOW() WHERE account_id = $account_id");
+    mysqli_query($mysqli,"UPDATE accounts SET account_name = '$name', account_updated_at = NOW() WHERE account_id = $account_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Account modified";
     
@@ -738,7 +747,7 @@ if(isset($_POST['edit_account'])){
 if(isset($_GET['delete_account'])){
     $account_id = intval($_GET['delete_account']);
 
-    mysqli_query($mysqli,"DELETE FROM accounts WHERE account_id = $account_id");
+    mysqli_query($mysqli,"DELETE FROM accounts WHERE account_id = $account_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Account deleted";
     
@@ -767,7 +776,7 @@ if(isset($_POST['edit_category'])){
     $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
     $color = strip_tags(mysqli_real_escape_string($mysqli,$_POST['color']));
 
-    mysqli_query($mysqli,"UPDATE categories SET category_name = '$name', category_type = '$type', category_color = '$color', category_updated_at = NOW() WHERE category_id = $category_id");
+    mysqli_query($mysqli,"UPDATE categories SET category_name = '$name', category_type = '$type', category_color = '$color', category_updated_at = NOW() WHERE category_id = $category_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Category modified";
     
@@ -778,7 +787,7 @@ if(isset($_POST['edit_category'])){
 if(isset($_GET['delete_category'])){
     $category_id = intval($_GET['delete_category']);
 
-    mysqli_query($mysqli,"DELETE FROM categories WHERE category_id = $category_id");
+    mysqli_query($mysqli,"DELETE FROM categories WHERE category_id = $category_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Category deleted";
     $_SESSION['alert_type'] = "danger";
@@ -791,7 +800,7 @@ if(isset($_GET['alert_ack'])){
 
     $alert_id = intval($_GET['alert_ack']);
 
-    mysqli_query($mysqli,"UPDATE alerts SET alert_ack_date = CURDATE() WHERE alert_id = $alert_id");
+    mysqli_query($mysqli,"UPDATE alerts SET alert_ack_date = CURDATE() WHERE alert_id = $alert_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Alert Acknowledged";
     
@@ -801,14 +810,14 @@ if(isset($_GET['alert_ack'])){
 
 if(isset($_GET['ack_all_alerts'])){
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM alerts ORDER BY alert_id DESC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM alerts WHERE company_id = $session_company_id ORDER BY alert_id DESC");
     
     while($row = mysqli_fetch_array($sql)){
         $alert_id = $row['alert_id'];
         $alert_ack_date = $row['alert_ack_date'];
 
         if($alert_ack_date = 0 ){
-            mysqli_query($mysqli,"UPDATE alerts SET alert_ack_date = CURDATE() WHERE alert_id = $alert_id");
+            mysqli_query($mysqli,"UPDATE alerts SET alert_ack_date = CURDATE() WHERE alert_id = $alert_id AND company_id = $session_company_id");
         }
     }
     
@@ -864,7 +873,7 @@ if(isset($_POST['edit_expense'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
     }
 
-    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description', expense_reference = '$reference', expense_receipt = '$path', expense_updated_at = NOW() WHERE expense_id = $expense_id");
+    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description', expense_reference = '$reference', expense_receipt = '$path', expense_updated_at = NOW() WHERE expense_id = $expense_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Expense modified";
     
@@ -875,13 +884,13 @@ if(isset($_POST['edit_expense'])){
 if(isset($_GET['delete_expense'])){
     $expense_id = intval($_GET['delete_expense']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $expense_receipt = $row['expense_receipt'];
 
     unlink($expense_receipt);
 
-    mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id");
+    mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Expense deleted";
     
@@ -920,11 +929,11 @@ if(isset($_POST['edit_transfer'])){
     $account_from = intval($_POST['account_from']);
     $account_to = intval($_POST['account_to']);
 
-    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account_from, expense_updated_at = NOW() WHERE expense_id = $expense_id");
+    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account_from, expense_updated_at = NOW() WHERE expense_id = $expense_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', account_id = $account_to, revenue_updated_at = NOW() WHERE revenue_id = $revenue_id");
+    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', account_id = $account_to, revenue_updated_at = NOW() WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"UPDATE transfers SET transfer_date = '$date', transfer_amount = '$amount', transfer_account_from = $account_from, transfer_account_to = $account_to, transfer_updated_at = NOW() WHERE transfer_id = $transfer_id");
+    mysqli_query($mysqli,"UPDATE transfers SET transfer_date = '$date', transfer_amount = '$amount', transfer_account_from = $account_from, transfer_account_to = $account_to, transfer_updated_at = NOW() WHERE transfer_id = $transfer_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Transfer modified";
     
@@ -936,16 +945,16 @@ if(isset($_GET['delete_transfer'])){
     $transfer_id = intval($_GET['delete_transfer']);
 
     //Query the transfer ID to get the Pyament and Expense IDs so we can delete those as well
-    $sql = mysqli_query($mysqli,"SELECT * FROM transfers WHERE transfer_id = $transfer_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM transfers WHERE transfer_id = $transfer_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $expense_id = $row['expense_id'];
     $revenue_id = $row['revenue_id'];
 
-    mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id");
+    mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id");
+    mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"DELETE FROM transfers WHERE transfer_id = $transfer_id");
+    mysqli_query($mysqli,"DELETE FROM transfers WHERE transfer_id = $transfer_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Transfer deleted";
     
@@ -959,7 +968,7 @@ if(isset($_POST['add_invoice'])){
     $category = intval($_POST['category']);
     
     //Get Net Terms
-    $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients WHERE client_id = $client"); 
+    $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients WHERE client_id = $client AND company_id = $session_company_id"); 
     $row = mysqli_fetch_array($sql);
     $client_net_terms = $row['client_net_terms'];
     
@@ -987,7 +996,7 @@ if(isset($_POST['edit_invoice'])){
     $due = strip_tags(mysqli_real_escape_string($mysqli,$_POST['due']));
     $category = intval($_POST['category']);
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_date = '$date', invoice_due = '$due', invoice_updated_at = NOW(), category_id = $category WHERE invoice_id = $invoice_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_date = '$date', invoice_due = '$due', invoice_updated_at = NOW(), category_id = $category WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Invoice modified";
     
@@ -1001,7 +1010,7 @@ if(isset($_POST['add_invoice_copy'])){
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
 
     //Get Net Terms
-    $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients, invoices WHERE clients.client_id = invoices.client_id AND invoices.invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients, invoices WHERE clients.client_id = invoices.client_id AND invoices.invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $client_net_terms = $row['client_net_terms'];
 
@@ -1009,7 +1018,7 @@ if(isset($_POST['add_invoice_copy'])){
     $new_config_invoice_next_number = $config_invoice_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $invoice_amount = $row['invoice_amount'];
     $invoice_note = $row['invoice_note'];
@@ -1047,7 +1056,7 @@ if(isset($_POST['add_invoice_recurring'])){
     $invoice_id = intval($_POST['invoice_id']);
     $recurring_frequency = strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency']));
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $invoice_date = $row['invoice_date'];
     $invoice_amount = $row['invoice_amount'];
@@ -1061,7 +1070,7 @@ if(isset($_POST['add_invoice_recurring'])){
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Recurring Created from INVOICE!', history_created_at = NOW(), recurring_id = $recurring_id, company_id = $session_company_id");
 
-    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id");
+    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql_items)){
         $item_id = $row['item_id'];
         $item_name = $row['item_name'];
@@ -1118,7 +1127,7 @@ if(isset($_POST['add_quote_copy'])){
     $new_config_quote_next_number = $config_quote_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_quote_next_number = $new_config_quote_next_number WHERE company_id = $session_company_id");
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $quote_amount = $row['quote_amount'];
     $quote_note = $row['quote_note'];
@@ -1161,7 +1170,7 @@ if(isset($_POST['add_quote_to_invoice'])){
     $new_config_invoice_next_number = $config_invoice_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $quote_amount = $row['quote_amount'];
     $quote_note = $row['quote_note'];
@@ -1216,12 +1225,12 @@ if(isset($_POST['save_quote'])){
 
         //Update Invoice Balances
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+        $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
 
         $new_quote_amount = $row['quote_amount'] + $total;
 
-        mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount', quote_updated_at = NOW() WHERE quote_id = $quote_id");
+        mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
         $_SESSION['alert_message'] = "Item added";
 
@@ -1231,7 +1240,7 @@ if(isset($_POST['save_quote'])){
     if(isset($_POST['quote_note'])){
         $quote_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['quote_note']));
 
-        mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$quote_note', quote_updated_at = NOW() WHERE quote_id = $quote_id");
+        mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$quote_note', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
         $_SESSION['alert_message'] = "Notes added";
     }
@@ -1246,7 +1255,7 @@ if(isset($_POST['edit_quote'])){
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $category = intval($_POST['category']);
 
-     mysqli_query($mysqli,"UPDATE quotes SET quote_date = '$date', category_id = $category, quote_updated_at = NOW() WHERE quote_id = $quote_id");
+     mysqli_query($mysqli,"UPDATE quotes SET quote_date = '$date', category_id = $category, quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Quote modified";
     
@@ -1257,20 +1266,20 @@ if(isset($_POST['edit_quote'])){
 if(isset($_GET['delete_quote'])){
     $quote_id = intval($_GET['delete_quote']);
 
-    mysqli_query($mysqli,"DELETE FROM quotes WHERE quote_id = $quote_id");
+    mysqli_query($mysqli,"DELETE FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     //Delete Items Associated with the Quote
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
         $item_id = $row['item_id'];
-        mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+        mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     }
 
     //Delete History Associated with the Quote
-    $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE quote_id = $quote_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
         $history_id = $row['history_id'];
-        mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
+        mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
 
     $_SESSION['alert_message'] = "Quotes deleted";
@@ -1282,21 +1291,21 @@ if(isset($_GET['delete_quote'])){
 if(isset($_GET['delete_quote_item'])){
     $item_id = intval($_GET['delete_quote_item']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $quote_id = $row['quote_id'];
     $item_subtotal = $row['item_subtotal'];
     $item_tax = $row['item_tax'];
     $item_total = $row['item_total'];
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     
     $new_quote_amount = $row['quote_amount'] - $item_total;
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount', quote_updated_at = NOW() WHERE quote_id = $quote_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+    mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Item deleted";
     
@@ -1308,7 +1317,7 @@ if(isset($_GET['approve_quote'])){
 
     $quote_id = intval($_GET['approve_quote']);
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Approved', quote_updated_at = NOW() WHERE quote_id = $quote_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Approved', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Approved', history_description = 'Quote approved!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
 
@@ -1322,7 +1331,7 @@ if(isset($_GET['reject_quote'])){
 
     $quote_id = intval($_GET['reject_quote']);
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Rejected', quote_updated_at = NOW() WHERE quote_id = $quote_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Rejected', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'Quote rejected!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
 
@@ -1338,7 +1347,8 @@ if(isset($_GET['pdf_quote'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients
     WHERE quotes.client_id = clients.client_id
-    AND quotes.quote_id = $quote_id"
+    AND quotes.quote_id = $quote_id
+    AND quotes.company_id = $session_company_id"
     );
 
     $row = mysqli_fetch_array($sql);
@@ -1362,7 +1372,7 @@ if(isset($_GET['pdf_quote'])){
     }
     $client_website = $row['client_website'];
 
-    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id ORDER BY item_id ASC");
+    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id AND company_id = $session_company_id ORDER BY item_id ASC");
 
     while($row = mysqli_fetch_array($sql_items)){
         $item_id = $row['item_id'];
@@ -1511,7 +1521,8 @@ if(isset($_GET['email_quote'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients
     WHERE quotes.client_id = clients.client_id
-    AND quotes.quote_id = $quote_id"
+    AND quotes.quote_id = $quote_id
+    AND quotes.company_id = $session_company_id"
     );
 
     $row = mysqli_fetch_array($sql);
@@ -1574,7 +1585,7 @@ if(isset($_GET['email_quote'])){
         //Don't change the status to sent if the status is anything but draft
         if($quote_status == 'Draft'){
 
-            mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent', quote_updated_at = NOW() WHERE quote_id = $quote_id");
+            mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
         }
 
@@ -1610,20 +1621,20 @@ if(isset($_POST['add_recurring'])){
 if(isset($_GET['delete_recurring'])){
     $recurring_id = intval($_GET['delete_recurring']);
 
-    mysqli_query($mysqli,"DELETE FROM recurring WHERE recurring_id = $recurring_id");
+    mysqli_query($mysqli,"DELETE FROM recurring WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
     
     //Delete Items Associated with the Recurring
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE recurring_id = $recurring_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
         $item_id = $row['item_id'];
-        mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+        mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     }
 
     //Delete History Associated with the Invoice
-    $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE recurring_id = $recurring_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
         $history_id = $row['history_id'];
-        mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
+        mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
 
     $_SESSION['alert_message'] = "Recurring Invoice deleted";
@@ -1636,7 +1647,7 @@ if(isset($_GET['recurring_activate'])){
 
     $recurring_id = intval($_GET['recurring_activate']);
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_status = 1 WHERE recurring_id = $recurring_id");
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_status = 1 WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice Activated";
     
@@ -1648,7 +1659,7 @@ if(isset($_GET['recurring_deactivate'])){
 
     $recurring_id = intval($_GET['recurring_deactivate']);
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_status = 0 WHERE recurring_id = $recurring_id");
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_status = 0 WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice Deactivated";
     
@@ -1675,12 +1686,12 @@ if(isset($_POST['save_recurring'])){
 
         //Update Invoice Balances
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id");
+        $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
 
         $new_recurring_amount = $row['recurring_amount'] + $total;
 
-        mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_updated_at = NOW()WHERE recurring_id = $recurring_id");
+        mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     }
 
@@ -1688,7 +1699,7 @@ if(isset($_POST['save_recurring'])){
 
         $recurring_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['recurring_note']));
 
-        mysqli_query($mysqli,"UPDATE recurring SET recurring_note = '$recurring_note', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
+        mysqli_query($mysqli,"UPDATE recurring SET recurring_note = '$recurring_note', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     }
 
@@ -1701,21 +1712,21 @@ if(isset($_POST['save_recurring'])){
 if(isset($_GET['delete_recurring_item'])){
     $item_id = intval($_GET['delete_recurring_item']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $recurring_id = $row['recurring_id'];
     $item_subtotal = $row['item_subtotal'];
     $item_tax = $row['item_tax'];
     $item_total = $row['item_total'];
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     
     $new_recurring_amount = $row['recurring_amount'] - $item_total;
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+    mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Item deleted";
     
@@ -1728,7 +1739,7 @@ if(isset($_GET['mark_invoice_sent'])){
 
     $invoice_id = intval($_GET['mark_invoice_sent']);
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'INVOICE marked sent', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
@@ -1742,7 +1753,7 @@ if(isset($_GET['cancel_invoice'])){
 
     $invoice_id = intval($_GET['cancel_invoice']);
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Cancelled', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Cancelled', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'INVOICE cancelled!', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
@@ -1755,27 +1766,27 @@ if(isset($_GET['cancel_invoice'])){
 if(isset($_GET['delete_invoice'])){
     $invoice_id = intval($_GET['delete_invoice']);
 
-    mysqli_query($mysqli,"DELETE FROM invoices WHERE invoice_id = $invoice_id");
+    mysqli_query($mysqli,"DELETE FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     //Delete Items Associated with the Invoice
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
         $item_id = $row['item_id'];
-        mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+        mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     }
 
     //Delete History Associated with the Invoice
-    $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
         $history_id = $row['history_id'];
-        mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
+        mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
 
     //Delete Payments Associated with the Invoice
-    $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
         $payment_id = $row['payment_id'];
-        mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
+        mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id AND company_id = $session_company_id");
     }
 
     $_SESSION['alert_message'] = "Invoice deleted";
@@ -1803,12 +1814,12 @@ if(isset($_POST['save_invoice'])){
 
         //Update Invoice Balances
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+        $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
 
         $new_invoice_amount = $row['invoice_amount'] + $total;
 
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
         $_SESSION['alert_message'] = "Item added";
 
@@ -1819,7 +1830,7 @@ if(isset($_POST['save_invoice'])){
 
         $invoice_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['invoice_note']));
 
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$invoice_note', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$invoice_note', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
         $_SESSION['alert_message'] = "Notes added";
 
@@ -1832,21 +1843,21 @@ if(isset($_POST['save_invoice'])){
 if(isset($_GET['delete_invoice_item'])){
     $item_id = intval($_GET['delete_invoice_item']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $invoice_id = $row['invoice_id'];
     $item_subtotal = $row['item_subtotal'];
     $item_tax = $row['item_tax'];
     $item_total = $row['item_total'];
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     
     $new_invoice_amount = $row['invoice_amount'] - $item_total;
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+    mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Item deleted";
     
@@ -1874,12 +1885,12 @@ if(isset($_POST['add_payment'])){
         mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = '$amount', account_id = $account, payment_method = '$payment_method', payment_reference = '$reference', payment_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
         //Add up all the payments for the invoice and get the total amount paid to the invoice
-        $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payments_amount FROM payments WHERE invoice_id = $invoice_id");
+        $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payments_amount FROM payments WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql_total_payments_amount);
         $total_payments_amount = $row['payments_amount'];
         
         //Get the invoice total
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients WHERE invoices.client_id = clients.client_id AND invoices.invoice_id = $invoice_id");
+        $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients WHERE invoices.client_id = clients.client_id AND invoices.invoice_id = $invoice_id AND invoices.company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
         $invoice_amount = $row['invoice_amount'];
         $invoice_number = $row['invoice_number'];
@@ -1971,7 +1982,7 @@ if(isset($_POST['add_payment'])){
         }
 
         //Update Invoice Status
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
         //Add Payment to History
         mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'INVOICE payment added', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
@@ -1985,18 +1996,18 @@ if(isset($_POST['add_payment'])){
 if(isset($_GET['delete_payment'])){
     $payment_id = intval($_GET['delete_payment']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_id = $payment_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_id = $payment_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $invoice_id = $row['invoice_id'];
     $deleted_payment_amount = $row['payment_amount'];
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
-    $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_amount FROM payments WHERE invoice_id = $invoice_id");
+    $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_amount FROM payments WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql_total_payments_amount);
     $total_payments_amount = $row['total_payments_amount'];
     
     //Get the invoice total
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $invoice_amount = $row['invoice_amount'];
 
@@ -2011,12 +2022,12 @@ if(isset($_GET['delete_payment'])){
     }
 
     //Update Invoice Status
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     //Add Payment to History
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'INVOICE payment deleted', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
-    mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
+    mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Payment deleted";
     
@@ -2054,10 +2065,10 @@ if(isset($_GET['email_invoice'])){
     $client_website = $row['client_website'];
     $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
 
-    $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
+    $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id AND payments.company_id = $session_company_id ORDER BY payments.payment_id DESC");
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
-    $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE invoice_id = $invoice_id");
+    $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql_amount_paid);
     $amount_paid = $row['amount_paid'];
 
@@ -2105,7 +2116,7 @@ if(isset($_GET['email_invoice'])){
         //Don't chnage the status to sent if the status is anything but draf
         if($invoice_status == 'Draft'){
 
-            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id");
+            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
         }
 
@@ -2148,7 +2159,7 @@ if(isset($_POST['edit_revenue'])){
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
 
-    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_updated_at = NOW(), category_id = $category, account_id = $account WHERE revenue_id = $revenue_id");
+    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_updated_at = NOW(), category_id = $category, account_id = $account WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Revenue modified!";
     
@@ -2159,7 +2170,7 @@ if(isset($_POST['edit_revenue'])){
 if(isset($_GET['delete_revenue'])){
     $revenue_id = intval($_GET['delete_revenue']);
 
-    mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id");
+    mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Revenue deleted";
     
@@ -2173,7 +2184,8 @@ if(isset($_GET['pdf_invoice'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
     WHERE invoices.client_id = clients.client_id
-    AND invoices.invoice_id = $invoice_id"
+    AND invoices.invoice_id = $invoice_id
+    AND invoices.company_id = $session_company_id"
     );
 
     $row = mysqli_fetch_array($sql);
@@ -2198,16 +2210,16 @@ if(isset($_GET['pdf_invoice'])){
     }
     $client_website = $row['client_website'];
 
-    $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
+    $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id AND payments.company_id = $session_company_id ORDER BY payments.payment_id DESC");
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
-    $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE invoice_id = $invoice_id");
+    $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql_amount_paid);
     $amount_paid = $row['amount_paid'];
 
     $balance = $invoice_amount - $amount_paid;
 
-    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC");
+    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id AND company_id = $session_company_id ORDER BY item_id ASC");
 
     while($row = mysqli_fetch_array($sql_items)){
         $item_id = $row['item_id'];
@@ -2417,7 +2429,7 @@ if(isset($_POST['edit_contact'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_updated_at = NOW() WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Contact updated";
     
@@ -2428,7 +2440,7 @@ if(isset($_POST['edit_contact'])){
 if(isset($_GET['delete_contact'])){
     $contact_id = intval($_GET['delete_contact']);
 
-    mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Contact deleted";
     
@@ -2468,7 +2480,7 @@ if(isset($_POST['edit_location'])){
     $phone = preg_replace("/[^0-9]/", '',$phone);
     $hours = strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours']));
 
-    mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_updated_at = NOW() WHERE location_id = $location_id");
+    mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_updated_at = NOW() WHERE location_id = $location_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Location updated";
     
@@ -2479,7 +2491,7 @@ if(isset($_POST['edit_location'])){
 if(isset($_GET['delete_location'])){
     $location_id = intval($_GET['delete_location']);
 
-    mysqli_query($mysqli,"DELETE FROM locations WHERE location_id = $location_id");
+    mysqli_query($mysqli,"DELETE FROM locations WHERE location_id = $location_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Location deleted";
     
@@ -2554,11 +2566,11 @@ if(isset($_POST['edit_asset'])){
     $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
     $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
 
-    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_ip = '$ip', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_note = '$note', asset_updated_at = NOW(), network_id = $network WHERE asset_id = $asset_id");
+    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_ip = '$ip', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_note = '$note', asset_updated_at = NOW(), network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
 
     //If login exists then update the login
     if($login_id > 0){
-        mysqli_query($mysqli,"UPDATE logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id");
+        mysqli_query($mysqli,"UPDATE logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id AND company_id = $session_company_id");
     }else{
     //If Username is filled in then add a login
         if(!empty($username)) {
@@ -2577,7 +2589,7 @@ if(isset($_POST['edit_asset'])){
 if(isset($_GET['delete_asset'])){
     $asset_id = intval($_GET['delete_asset']);
 
-    mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
+    mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Asset deleted";
     
@@ -2617,7 +2629,7 @@ if(isset($_POST['edit_login'])){
     $asset_id = intval($_POST['asset']);
     $software_id = intval($_POST['software']);
 
-    mysqli_query($mysqli,"UPDATE logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = '$password', login_note = '$note', login_updated_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id WHERE login_id = $login_id");
+    mysqli_query($mysqli,"UPDATE logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = '$password', login_note = '$note', login_updated_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id WHERE login_id = $login_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Login updated";
     
@@ -2628,7 +2640,7 @@ if(isset($_POST['edit_login'])){
 if(isset($_GET['delete_login'])){
     $login_id = intval($_GET['delete_login']);
 
-    mysqli_query($mysqli,"DELETE FROM logins WHERE login_id = $login_id");
+    mysqli_query($mysqli,"DELETE FROM logins WHERE login_id = $login_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Login deleted";
     
@@ -2665,13 +2677,13 @@ if(isset($_POST['add_file'])){
 if(isset($_GET['delete_file'])){
     $file_id = intval($_GET['delete_file']);
 
-    $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id");
+    $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql_file);
     $file_name = $row['file_name'];
 
     unlink($file_name);
 
-    mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
+    mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "File deleted";
     
@@ -2699,7 +2711,7 @@ if(isset($_POST['edit_note'])){
     $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
 
-    mysqli_query($mysqli,"UPDATE notes SET note_subject = '$subject', note_body = '$note', note_updated_at = NOW() WHERE note_id = $note_id");
+    mysqli_query($mysqli,"UPDATE notes SET note_subject = '$subject', note_body = '$note', note_updated_at = NOW() WHERE note_id = $note_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Note updated";
     
@@ -2710,7 +2722,7 @@ if(isset($_POST['edit_note'])){
 if(isset($_GET['delete_note'])){
     $note_id = intval($_GET['delete_note']);
 
-    mysqli_query($mysqli,"DELETE FROM notes WHERE note_id = $note_id");
+    mysqli_query($mysqli,"DELETE FROM notes WHERE note_id = $note_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Note deleted";
     
@@ -2744,7 +2756,7 @@ if(isset($_POST['edit_network'])){
     $dhcp_range = strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range']));
     $location_id = intval($_POST['location']);
 
-    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_updated_at = NOW(), location_id = $location_id WHERE network_id = $network_id");
+    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_updated_at = NOW(), location_id = $location_id WHERE network_id = $network_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Network updated";
     
@@ -2755,7 +2767,7 @@ if(isset($_POST['edit_network'])){
 if(isset($_GET['delete_network'])){
     $network_id = intval($_GET['delete_network']);
 
-    mysqli_query($mysqli,"DELETE FROM networks WHERE network_id = $network_id");
+    mysqli_query($mysqli,"DELETE FROM networks WHERE network_id = $network_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Network deleted";
     
@@ -2793,7 +2805,7 @@ if(isset($_POST['edit_domain'])){
         $expire = "0000-00-00";
     }
 
-    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_updated_at = NOW() WHERE domain_id = $domain_id");
+    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_updated_at = NOW() WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Domain updated";
     
@@ -2804,7 +2816,7 @@ if(isset($_POST['edit_domain'])){
 if(isset($_GET['delete_domain'])){
     $domain_id = intval($_GET['delete_domain']);
 
-    mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id");
+    mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Domain deleted";
     
@@ -2846,11 +2858,11 @@ if(isset($_POST['edit_software'])){
     $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
     $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
 
-    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_type = '$type', software_license = '$license', software_updated_at = NOW() WHERE software_id = $software_id");
+    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_type = '$type', software_license = '$license', software_updated_at = NOW() WHERE software_id = $software_id AND company_id = $session_company_id");
 
     //If login exists then update the login
     if($login_id > 0){
-        mysqli_query($mysqli,"UPDATE logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id");
+        mysqli_query($mysqli,"UPDATE logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id AND company_id = $session_company_id");
     }else{
     //If Username is filled in then add a login
         if(!empty($username)) {
@@ -2869,7 +2881,7 @@ if(isset($_POST['edit_software'])){
 if(isset($_GET['delete_software'])){
     $software_id = intval($_GET['delete_software']);
 
-    mysqli_query($mysqli,"DELETE FROM software WHERE software_id = $software_id");
+    mysqli_query($mysqli,"DELETE FROM software WHERE software_id = $software_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Software deleted";
     
@@ -2880,7 +2892,7 @@ if(isset($_GET['delete_software'])){
 if(isset($_GET['force_recurring'])){
     $recurring_id = intval($_GET['force_recurring']);
 
-    $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring, clients WHERE clients.client_id = recurring.client_id AND recurring.recurring_id = $recurring_id");
+    $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring, clients WHERE clients.client_id = recurring.client_id AND recurring.recurring_id = $recurring_id AND recurring.company_id = $session_company_id");
 
     $row = mysqli_fetch_array($sql_recurring);
     $recurring_id = $row['recurring_id'];
@@ -2908,7 +2920,7 @@ if(isset($_GET['force_recurring'])){
     $new_invoice_id = mysqli_insert_id($mysqli);
 
     //Copy Items from original invoice to new invoice
-    $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE recurring_id = $recurring_id ORDER BY item_id ASC");
+    $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE recurring_id = $recurring_id AND company_id = $session_company_id ORDER BY item_id ASC");
 
     while($row = mysqli_fetch_array($sql_invoice_items)){
         $item_id = $row['item_id'];
@@ -2926,12 +2938,13 @@ if(isset($_GET['force_recurring'])){
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
 
     //update the recurring invoice with the new dates
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     if($config_recurring_auto_send_invoice == 1){
         $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
             WHERE invoices.client_id = clients.client_id
-            AND invoices.invoice_id = $new_invoice_id"
+            AND invoices.invoice_id = $new_invoice_id
+            AND invoices.company_id = $session_company_id"
         );
 
         $row = mysqli_fetch_array($sql);
@@ -2983,7 +2996,7 @@ if(isset($_GET['force_recurring'])){
             mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Auto Emailed Invoice!', history_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
 
             //Update Invoice Status to Sent
-            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW(), client_id = $client_id WHERE invoice_id = $new_invoice_id");
+            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW(), client_id = $client_id WHERE invoice_id = $new_invoice_id AND company_id = $session_company_id");
 
         }catch(Exception $e){
             echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";

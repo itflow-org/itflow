@@ -8,8 +8,13 @@ if(isset($_GET['invoice_id'])){
 
   $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
     WHERE invoices.client_id = clients.client_id
-    AND invoices.invoice_id = $invoice_id"
+    AND invoices.invoice_id = $invoice_id
+    AND invoices.company_id = $session_company_id"
   );
+
+  if(mysqli_num_rows($sql) == 0){
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1></center>";
+  }else{
 
   $row = mysqli_fetch_array($sql);
   $invoice_id = $row['invoice_id'];
@@ -379,7 +384,10 @@ if(isset($_GET['invoice_id'])){
 <?php include("edit_invoice_modal.php"); ?>
 <?php include("add_invoice_copy_modal.php"); ?>
 <?php include("add_invoice_recurring_modal.php"); ?>
-<?php } ?>
+<?php  
+  } 
+}
+?>
 
 <?php include("footer.php"); ?>
 
@@ -387,7 +395,7 @@ if(isset($_GET['invoice_id'])){
 
 var products = [
   <?php 
-  $sql = mysqli_query($mysqli,"SELECT product_name FROM products");
+  $sql = mysqli_query($mysqli,"SELECT product_name FROM products WHERE company_id = $session_company_id");
   while($row = mysqli_fetch_array($sql)){
     $product_name = $row['product_name'];
     echo "\"$product_name\",";
@@ -398,7 +406,7 @@ var products = [
 
 var productCosts2 = [
   <?php 
-  $sql = mysqli_query($mysqli,"SELECT product_id, product_name, product_cost FROM products");
+  $sql = mysqli_query($mysqli,"SELECT product_id, product_name, product_cost FROM products WHERE company_id = $session_company_id");
   while($row = mysqli_fetch_array($sql)){
     $product_id = $row['product_id'];
     $product_name = $row['product_name'];
@@ -412,7 +420,7 @@ var productCosts2 = [
 
 var productCosts = [
   <?php 
-  $sql = mysqli_query($mysqli,"SELECT product_id, product_name, product_cost FROM products");
+  $sql = mysqli_query($mysqli,"SELECT product_id, product_name, product_cost FROM products WHERE company_id = $session_company_id");
   while($row = mysqli_fetch_array($sql)){
     $product_id = $row['product_id'];
     $product_name = $row['product_name'];

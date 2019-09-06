@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand navbar-dark bg-primary static-top">
 
-  <a class="navbar-brand mr-1" href="index.php"><i class="fa fa-fw fa-network-wired mr-2"></i><?php echo $config_app_name; ?></a>
+  <a class="navbar-brand mr-1" href="index.php"><i class="fa fa-fw fa-network-wired mr-2"></i><?php echo $config_company_name; ?></a>
 
   <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
     <i class="fas fa-bars"></i>
@@ -40,7 +40,7 @@
           <?php }else{ ?>
           <i class="fa fa-fw fa-user mt-1"></i>
           <?php } ?>
-          <strong><?php echo "$session_name@$session_company_name"; ?></strong>
+          <strong><?php echo $session_name; ?></strong>
       </a>
       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">   
         <center>
