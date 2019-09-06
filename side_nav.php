@@ -111,6 +111,7 @@
       <a class="dropdown-item" href="categories.php">Categories</a>
       <a class="dropdown-item" href="users.php">Users</a>
       <a class="dropdown-item" href="companies.php">Companies</a>
+      <a class="dropdown-item" href="logs.php">Logs</a>
     </div>
   </li>
 </ul>

@@ -1,11 +1,17 @@
 <?php include("config.php"); ?>
+<?php include("check_login.php"); ?>
 
 <?php 
 
 if(isset($_GET['client_id'])){
   $client_id = intval($_GET['client_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
+  $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+
+  if(mysqli_num_rows($sql) == 0){
+    include("header.php");
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1></center>";
+  }else{
 
   $row = mysqli_fetch_array($sql);
   $client_name = $row['client_name'];
@@ -156,6 +162,8 @@ if(isset($_GET['client_id'])){
 <?php include("edit_client_modal.php"); ?>
 
 <?php 
+
+  }
 
 }
 

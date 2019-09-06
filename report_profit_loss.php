@@ -9,7 +9,7 @@ if(isset($_GET['year'])){
 }
 
 //GET unique years from expenses, payments and revenues
-$sql_all_years = mysqli_query($mysqli,"SELECT YEAR(expense_date) AS all_years FROM expenses UNION DISTINCT SELECT YEAR(payment_date) FROM payments UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues ORDER BY all_years DESC");
+$sql_all_years = mysqli_query($mysqli,"SELECT YEAR(expense_date) AS all_years FROM expenses WHERE company_id = $session_company_id UNION DISTINCT SELECT YEAR(payment_date) FROM payments WHERE company_id = $session_company_id UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues WHERE company_id = $session_company_id ORDER BY all_years DESC");
 
 $sql_categories_income = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND company_id = $session_company_id ORDER BY category_name ASC");
 
