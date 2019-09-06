@@ -40,7 +40,7 @@
   }
 
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM logs 
-    WHERE log_type LIKE '%$q%' OR log_description = '%$q%'
+    WHERE log_type LIKE '%$q%' OR log_action LIKE '%$q%' OR log_description LIKE '%$q%'
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -68,6 +68,7 @@
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_type&o=<?php echo $disp; ?>">Type</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_action&o=<?php echo $disp; ?>">Action</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_description&o=<?php echo $disp; ?>">Description</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_created_at&o=<?php echo $disp; ?>">Timestamp</a></th>
           </tr>
@@ -78,6 +79,7 @@
           while($row = mysqli_fetch_array($sql)){
             $log_id = $row['log_id'];
             $log_type = $row['log_type'];
+            $log_action = $row['log_action'];
             $log_description = $row['log_description'];
             $log_created_at = $row['log_created_at'];
           
@@ -85,6 +87,7 @@
           
           <tr>
             <td><?php echo $log_type; ?></td>
+            <td><?php echo $log_action; ?></td>
             <td><?php echo $log_description; ?></td>
             <td><?php echo $log_created_at; ?></td>
           </tr>

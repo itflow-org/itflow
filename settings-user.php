@@ -1,13 +1,102 @@
 <?php include("header.php"); ?>
 
+<?php
+$sql_recent_logins = mysqli_query($mysqli,"SELECT * FROM logs 
+    WHERE log_type = 'Login' AND log_action = 'Success' AND user_id = $session_user_id
+    ORDER BY log_id DESC LIMIT 5");
+?>
+
+
 <div class="card">
   <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-lock mr-2"></i>Two Factor Authentication</h6>
+    <h6 class="float-left mt-1"><i class="fa fa-fw fa-cog mr-2"></i>User Settings</h6>
   </div>
   <div class="card-body">
-    <form class="p-3" action="post.php" method="post" autocomplete="off">
+    <div class="row">
+      <div class="col-md-4">
+        <h5 class="text-secondary">User Details</h5>
 
-     <?php
+          <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+            <input type="hidden" name="current_avatar_path" value="<?php echo $session_avatar; ?>">
+            <div class="modal-body bg-white">    
+              <center class="mb-3">
+                <?php if(!empty($session_avatar)){ ?>
+                <img class="img-fluid rounded-circle" src="<?php echo $session_avatar; ?>" height="128" width="128">
+                <?php }else{ ?>
+                <span class="fa-stack fa-4x">
+                  <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                  <span class="fa fa-stack-1x text-white"><?php echo $initials; ?></span>
+                </span>
+                <?php } ?>
+              </center>
+              <div class="form-group">
+                <label>Name <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo $session_name; ?>" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Email <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                  </div>
+                  <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo $session_email; ?>" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Password <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                  </div>
+                  <input type="password" class="form-control" name="password" placeholder="Enter a password" value="<?php echo $password; ?>">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Avatar</label>
+                <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
+              </div>
+              <button type="submit" name="edit_user" class="btn btn-primary mt-3"><i class="fa fa-fw fa-check"></i> Save</button>     
+            </div>
+            
+            
+          </form>
+        </div>
+
+        <div class="col-md-8">
+          <h5 class="text-secondary">Recent Logins</h5>
+
+          <table class="table">
+            <tbody>
+            <?php
+          
+              while($row = mysqli_fetch_array($sql_recent_logins)){
+                $log_id = $row['log_id'];
+                $log_description = $row['log_description'];
+                $log_created_at = $row['log_created_at'];
+
+              ?>
+
+                <tr>
+                  <td><i class="fa fa-fw fa-sign-in-alt text-secondary"></i> <?php echo $log_description; ?></td>
+                  <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
+                </tr>
+              <?php
+              }
+              ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <form class="p-3" action="post.php" method="post" autocomplete="off">
+      <?php
         
         require_once('rfc6238.php');
 
@@ -16,7 +105,7 @@
         
         if(!empty($session_token)){ 
           //Generate QR Code based off the generated key
-          print sprintf('<img src="%s"/>',TokenAuth6238::getBarCodeUrl('','',$session_token,'PittPC-CRM'));
+          print sprintf('<img src="%s"/>',TokenAuth6238::getBarCodeUrl('','',$session_token,$config_company_name));
         }
   
       ?>
@@ -26,9 +115,9 @@
       <hr>
 
       <?php if(empty($session_token)){ ?>
-        <button type="submit" name="enable_2fa" class="btn btn-primary">Enable 2FA</button>
+        <button type="submit" name="enable_2fa" class="btn btn-primary"><i class="fa fa-fw fa-lock"></i> Enable 2FA</button>
       <?php }else{ ?>
-        <button type="submit" name="disable_2fa" class="btn btn-danger">Disable 2FA</button> 
+        <button type="submit" name="disable_2fa" class="btn btn-danger"><i class="fa fa-fw fa-unlock"></i> Disable 2FA</button> 
       <?php } ?>      
     
     </form>

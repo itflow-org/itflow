@@ -40,7 +40,7 @@ if(isset($_POST['login'])){
 
     if(empty($token)){
       $_SESSION['logged'] = TRUE;
-      mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login Successful', log_description = '$name successfully logged in from $ip using $os | $browser on a $device', log_created_at = NOW(), user_id = $user_id");
+      mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$ip - $os - $browser - $device', log_created_at = NOW(), user_id = $user_id");
          
       header("Location: dashboard.php");
     }else{
@@ -48,11 +48,11 @@ if(isset($_POST['login'])){
 
       if(TokenAuth6238::verify($token,$current_code)){
         $_SESSION['logged'] = TRUE;
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login Successful', log_description = '$name successfully logged in with 2FA from $ip using $os | $browser on a $device', log_created_at = NOW(), user_id = $user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login 2FA', log_action = 'Success', log_description = '$ip - $os - $browser - $device', log_created_at = NOW(), user_id = $user_id");
         //header("Location: $config_start_page");
         header("Location: dashboard.php");
       }else{
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = '2FA Login Failed', log_description = '$name failed 2FA from $ip using $os | $browser on a $device', log_created_at = NOW(), user_id = $user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$ip - $os - $browser - $device', log_created_at = NOW(), user_id = $user_id");
 
         $response = "
           <div class='alert alert-danger'>
@@ -64,7 +64,7 @@ if(isset($_POST['login'])){
     }
   
   }else{
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login Failed', log_description = '$email failed to login from $ip using $os | $browser on a $device', log_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = '$email - $ip - $os - $browser - $device', log_created_at = NOW()");
 
     $response = "
       <div class='alert alert-danger'>

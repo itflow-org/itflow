@@ -16,6 +16,7 @@
 	$sql = mysqli_query($mysqli,"SELECT * FROM users, companies, user_companies WHERE users.user_id = user_companies.user_id AND companies.company_id = user_companies.company_id AND users.user_id = $session_user_id");
 	$row = mysqli_fetch_array($sql);
 	$session_name = $row['name'];
+	$session_email = $row['email'];
 	$session_avatar = $row['avatar'];
 	$session_company_id = $row['company_id'];
 	$session_company_name = $row['company_name'];

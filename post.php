@@ -42,6 +42,9 @@ if(isset($_POST['add_user'])){
         }
       }
     }
+    
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Created', log_description = '$name', log_created_at = NOW()");
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> created!";
     
@@ -75,6 +78,9 @@ if(isset($_POST['edit_user'])){
     
     mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', password = '$password', avatar = '$path', updated_at = NOW() WHERE user_id = $user_id");
 
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
+
     $_SESSION['alert_message'] = "User <strong>$name</strong> updated";
     
     header("Location: users.php");
@@ -98,6 +104,9 @@ if(isset($_POST['add_company'])){
  
     mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
 
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Created', log_description = '$name', log_created_at = NOW()");
+
     $_SESSION['alert_message'] = "Company <strong>$name</strong> created!";
     
     header("Location: companies.php");
@@ -109,6 +118,9 @@ if(isset($_POST['edit_company'])){
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
 
     mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_updated_at = NOW() WHERE company_id = $company_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> updated!";
     
@@ -122,6 +134,11 @@ if(isset($_GET['delete_company'])){
     mysqli_query($mysqli,"DELETE FROM companies WHERE company_id = $company_id");
 
     mysqli_query($mysqli,"DELETE FROM settings WHERE company_id = $company_id");
+
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company Deleted', log_description = '$company_id', log_created_at = NOW()");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Deleted', log_description = '$name', log_created_at = NOW()");
 
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = "Company deleted!";
@@ -164,6 +181,9 @@ if(isset($_POST['edit_general_settings'])){
 
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_logo = '$path', config_api_key = '$config_api_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
 
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'General', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -183,6 +203,9 @@ if(isset($_POST['edit_company_settings'])){
 
     mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site' WHERE company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Company', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Company Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -200,6 +223,9 @@ if(isset($_POST['edit_mail_settings'])){
 
     mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Mail', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Mail Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -213,6 +239,9 @@ if(isset($_POST['edit_invoice_settings'])){
     $config_invoice_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer']));
 
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer' WHERE company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Invoice', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Invoice Settings updated";
 
@@ -228,6 +257,9 @@ if(isset($_POST['edit_quote_settings'])){
 
     mysqli_query($mysqli,"UPDATE settings SET config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer' WHERE company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Quote', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Quote Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -240,6 +272,9 @@ if(isset($_POST['edit_ticket_settings'])){
     $config_ticket_next_number = intval($_POST['config_ticket_next_number']);
 
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number WHERE company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Ticket', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Ticket Settings updated";
 
@@ -260,6 +295,9 @@ if(isset($_POST['edit_default_settings'])){
 
     mysqli_query($mysqli,"UPDATE settings SET config_default_expense_account = $config_default_expense_account, config_default_payment_account = $config_default_payment_account, config_default_payment_method = '$config_default_payment_method', config_default_expense_payment_method = '$config_default_expense_payment_method', config_default_transfer_from_account = $config_default_transfer_from_account, config_default_transfer_to_account = $config_default_transfer_to_account, config_default_calendar = $config_default_calendar, config_default_net_terms = $config_default_net_terms WHERE company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Defaults', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Default Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -273,6 +311,9 @@ if(isset($_POST['edit_alert_settings'])){
 
     mysqli_query($mysqli,"UPDATE settings SET config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_enable_cron = $config_enable_cron WHERE company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Alerts', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Alert Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -285,6 +326,9 @@ if(isset($_POST['enable_2fa'])){
 
     mysqli_query($mysqli,"UPDATE users SET token = '$token' WHERE user_id = $session_user_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Settings', log_action = 'Modified', log_description = '2FA Enabled', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Two Factor Authentication Enabled and Token Updated, don't lose your code you will need this additionally to login";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -294,6 +338,9 @@ if(isset($_POST['enable_2fa'])){
 if(isset($_POST['disable_2fa'])){
 
     mysqli_query($mysqli,"UPDATE users SET token = '' WHERE user_id = $session_user_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Settings', log_action = 'Modified', log_description = '2FA Disabled', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Two Factor Authentication Disabled you can now login without TOTP Code";
 
@@ -374,6 +421,9 @@ if(isset($_GET['download_database'])){
         exec('rm ' . $backup_file_name); 
     }
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Downloaded', log_description = 'Database', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
 }
 
 if(isset($_POST['add_client'])){
@@ -397,6 +447,9 @@ if(isset($_POST['add_client'])){
 
     //Should be created when files are uploaded
     mkdir("uploads/clients/$session_company_id/$client_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Client added";
     
@@ -422,6 +475,9 @@ if(isset($_POST['edit_client'])){
 
     mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_phone = '$phone', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Client $name updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -432,6 +488,9 @@ if(isset($_GET['delete_client'])){
     $client_id = intval($_GET['delete_client']);
 
     mysqli_query($mysqli,"DELETE FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Deleted', log_description = '$client_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Client deleted";
     
@@ -445,6 +504,9 @@ if(isset($_POST['add_calendar'])){
     $color = strip_tags(mysqli_real_escape_string($mysqli,$_POST['color']));
 
     mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = '$name', calendar_color = '$color', calendar_created_at = NOW(), company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Calendar created, now lets add some events!";
     
@@ -460,6 +522,9 @@ if(isset($_POST['add_event'])){
     $end = strip_tags(mysqli_real_escape_string($mysqli,$_POST['end']));
 
     mysqli_query($mysqli,"INSERT INTO events SET event_title = '$title', event_start = '$start', event_end = '$end', event_created_at = NOW(), calendar_id = $calendar_id, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Created', log_description = '$title', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Event added to the calendar";
     
@@ -477,6 +542,9 @@ if(isset($_POST['edit_event'])){
 
     mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_start = '$start', event_end = '$end', event_updated_at = NOW(), calendar_id = $calendar_id WHERE event_id = $event_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar', log_action = 'Modified', log_description = '$title', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Event modified on the calendar";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -487,6 +555,9 @@ if(isset($_GET['delete_event'])){
     $event_id = intval($_GET['delete_event']);
 
     mysqli_query($mysqli,"DELETE FROM events WHERE event_id = $event_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar', log_action = 'Deleted', log_description = '$event_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Event deleted on the calendar";
     
@@ -507,6 +578,9 @@ if(isset($_POST['add_ticket'])){
 
     mysqli_query($mysqli,"INSERT INTO tickets SET ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $session_user_id, client_id = $client_id, company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Created', log_description = '$subject', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Ticket created";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -521,6 +595,9 @@ if(isset($_POST['edit_ticket'])){
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_details = '$details' ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modified', log_description = '$subject', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Ticket updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -531,6 +608,9 @@ if(isset($_GET['delete_ticket'])){
     $ticket_id = intval($_GET['delete_ticket']);
 
     mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Deleted', log_description = '$ticket_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Ticket deleted";
     
@@ -545,6 +625,9 @@ if(isset($_POST['add_ticket_update'])){
 
     mysqli_query($mysqli,"INSERT INTO ticket_updates SET ticket_update = '$ticket_update', ticket_update_created_at = NOW(), user_id = $session_user_id, ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update', log_action = 'Created', log_description = '$ticket_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Posted an update";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -556,6 +639,9 @@ if(isset($_POST['close_ticket'])){
     $ticket_id = intval($_POST['ticket_id']);
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed', ticket_updated_at = NOW(), ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modified', log_description = '$ticket_id Closed', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Ticket Closed, this cannot not be reopened but you may start another one";
     
@@ -583,6 +669,9 @@ if(isset($_POST['add_vendor'])){
 
     $vendor_id = mysqli_insert_id($mysqli);
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Vendor added";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -607,6 +696,9 @@ if(isset($_POST['edit_vendor'])){
 
     mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_updated_at = NOW() WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Vendor modified";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -617,6 +709,9 @@ if(isset($_GET['delete_vendor'])){
     $vendor_id = intval($_GET['delete_vendor']);
 
     mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Deleted', log_description = '$vendor_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Vendor deleted";
     
@@ -631,6 +726,9 @@ if(isset($_POST['add_product'])){
     $cost = floatval($_POST['cost']);
 
     mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_created_at = NOW(), company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Product added";
     
@@ -647,6 +745,9 @@ if(isset($_POST['edit_product'])){
 
     mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_updated_at = NOW() WHERE product_id = $product_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Product modified";
     
     header("Location: products.php");
@@ -657,6 +758,9 @@ if(isset($_GET['delete_product'])){
     $product_id = intval($_GET['delete_product']);
 
     mysqli_query($mysqli,"DELETE FROM products WHERE product_id = $product_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Deleted', log_description = '$product_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Product deleted";
     
@@ -678,6 +782,9 @@ if(isset($_POST['add_trip'])){
     $vendor_id = intval($_POST['vendor']);
 
     mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_created_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Created', log_description = '$date', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Trip added";
     
@@ -701,6 +808,9 @@ if(isset($_POST['edit_trip'])){
 
     mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_updated_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id WHERE trip_id = $trip_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Modified', log_description = '$date', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Trip modified";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -711,6 +821,9 @@ if(isset($_GET['delete_trip'])){
     $trip_id = intval($_GET['delete_trip']);
 
     mysqli_query($mysqli,"DELETE FROM trips WHERE trip_id = $trip_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Deleted', log_description = '$trip_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Trip deleted";
     
@@ -725,6 +838,9 @@ if(isset($_POST['add_account'])){
 
     mysqli_query($mysqli,"INSERT INTO accounts SET account_name = '$name', opening_balance = '$opening_balance', account_created_at = NOW(), company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Account added";
     
     header("Location: accounts.php");
@@ -738,6 +854,9 @@ if(isset($_POST['edit_account'])){
 
     mysqli_query($mysqli,"UPDATE accounts SET account_name = '$name', account_updated_at = NOW() WHERE account_id = $account_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Account modified";
     
     header("Location: accounts.php");
@@ -748,6 +867,9 @@ if(isset($_GET['delete_account'])){
     $account_id = intval($_GET['delete_account']);
 
     mysqli_query($mysqli,"DELETE FROM accounts WHERE account_id = $account_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Deleted', log_description = '$account_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Account deleted";
     
@@ -762,6 +884,9 @@ if(isset($_POST['add_category'])){
     $color = strip_tags(mysqli_real_escape_string($mysqli,$_POST['color']));
 
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = '$name', category_type = '$type', category_color = '$color', category_created_at = NOW(), company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Category added";
     
@@ -778,6 +903,9 @@ if(isset($_POST['edit_category'])){
 
     mysqli_query($mysqli,"UPDATE categories SET category_name = '$name', category_type = '$type', category_color = '$color', category_updated_at = NOW() WHERE category_id = $category_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Category modified";
     
     header("Location: categories.php");
@@ -788,6 +916,9 @@ if(isset($_GET['delete_category'])){
     $category_id = intval($_GET['delete_category']);
 
     mysqli_query($mysqli,"DELETE FROM categories WHERE category_id = $category_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Deleted', log_description = '$category_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Category deleted";
     $_SESSION['alert_type'] = "danger";
@@ -801,6 +932,9 @@ if(isset($_GET['alert_ack'])){
     $alert_id = intval($_GET['alert_ack']);
 
     mysqli_query($mysqli,"UPDATE alerts SET alert_ack_date = CURDATE() WHERE alert_id = $alert_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Alerts', log_action = 'Modified', log_description = '$alert_id Acknowledged', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Alert Acknowledged";
     
@@ -820,6 +954,9 @@ if(isset($_GET['ack_all_alerts'])){
             mysqli_query($mysqli,"UPDATE alerts SET alert_ack_date = CURDATE() WHERE alert_id = $alert_id AND company_id = $session_company_id");
         }
     }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Alerts', log_action = 'Modifed', log_description = 'Acknowledged all alerts', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
     
     $_SESSION['alert_message'] = "Alerts Acknowledged";
     
@@ -845,6 +982,9 @@ if(isset($_POST['add_expense'])){
     }
 
     mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description', expense_reference = '$reference', expense_receipt = '$path', expense_created_at = NOW(), company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Created', log_description = '$description', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Expense added";
     
@@ -876,6 +1016,9 @@ if(isset($_POST['edit_expense'])){
     mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account, vendor_id = $vendor, category_id = $category, expense_description = '$description', expense_reference = '$reference', expense_receipt = '$path', expense_updated_at = NOW() WHERE expense_id = $expense_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Expense modified";
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Modified', log_description = '$description', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -891,6 +1034,9 @@ if(isset($_GET['delete_expense'])){
     unlink($expense_receipt);
 
     mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Deleted', log_description = '$epense_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Expense deleted";
     
@@ -912,6 +1058,9 @@ if(isset($_POST['add_transfer'])){
     $revenue_id = mysqli_insert_id($mysqli);
 
     mysqli_query($mysqli,"INSERT INTO transfers SET expense_id = $expense_id, revenue_id = $revenue_id, transfer_created_at = NOW(), company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Created', log_description = '$date - $amount', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Transfer added";
     
@@ -935,6 +1084,9 @@ if(isset($_POST['edit_transfer'])){
 
     mysqli_query($mysqli,"UPDATE transfers SET transfer_date = '$date', transfer_amount = '$amount', transfer_account_from = $account_from, transfer_account_to = $account_to, transfer_updated_at = NOW() WHERE transfer_id = $transfer_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Modifed', log_description = '$date - $amount', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Transfer modified";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -955,6 +1107,9 @@ if(isset($_GET['delete_transfer'])){
     mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"DELETE FROM transfers WHERE transfer_id = $transfer_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Deleted', log_description = '$transfer_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Transfer deleted";
     
@@ -984,6 +1139,10 @@ if(isset($_POST['add_invoice'])){
     $invoice_id = mysqli_insert_id($mysqli);
     
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
+    
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Created', log_description = '$invoice_number', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Invoice added";
     
     header("Location: invoice.php?invoice_id=$invoice_id");
@@ -997,6 +1156,9 @@ if(isset($_POST['edit_invoice'])){
     $category = intval($_POST['category']);
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_date = '$date', invoice_due = '$due', invoice_updated_at = NOW(), category_id = $category WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Modified', log_description = '$invoice_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Invoice modified";
     
@@ -1045,6 +1207,9 @@ if(isset($_POST['add_invoice_copy'])){
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
     }
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Created', log_description = 'Copied Invoice', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Invoice copied";
     
     header("Location: invoice.php?invoice_id=$new_invoice_id");
@@ -1084,6 +1249,9 @@ if(isset($_POST['add_invoice_recurring'])){
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), recurring_id = $recurring_id, company_id = $session_company_id");
     }
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Created', log_description = 'From recurring invoice', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Created recurring Invoice from this Invoice";
     
     header("Location: recurring.php?recurring_id=$recurring_id");
@@ -1110,6 +1278,9 @@ if(isset($_POST['add_quote'])){
     $quote_id = mysqli_insert_id($mysqli);
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote created!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Created', log_description = '$quote_number', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Quote added";
     
@@ -1153,6 +1324,9 @@ if(isset($_POST['add_quote_copy'])){
 
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), quote_id = $new_quote_id, company_id = $session_company_id");
     }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Created', log_description = 'Copied Quote', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Quote copied";
     
@@ -1199,6 +1373,9 @@ if(isset($_POST['add_quote_to_invoice'])){
 
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
     }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Created', log_description = 'Quote copied to Invoice', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Quoted copied to Invoice";
     
@@ -1257,6 +1434,9 @@ if(isset($_POST['edit_quote'])){
 
      mysqli_query($mysqli,"UPDATE quotes SET quote_date = '$date', category_id = $category, quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
+     //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modified', log_description = '$quote_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Quote modified";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -1281,6 +1461,9 @@ if(isset($_GET['delete_quote'])){
         $history_id = $row['history_id'];
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Deleted', log_description = '$quote_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Quotes deleted";
     
@@ -1307,6 +1490,9 @@ if(isset($_GET['delete_quote_item'])){
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote Item', log_action = 'Deleted', log_description = '$item_id from $quote_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Item deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -1321,6 +1507,9 @@ if(isset($_GET['approve_quote'])){
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Approved', history_description = 'Quote approved!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modified', log_description = 'Approved Quote $quote_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Quote approved";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -1334,6 +1523,9 @@ if(isset($_GET['reject_quote'])){
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Rejected', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'Quote rejected!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modified', log_description = 'Rejected Quote $quote_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Quote rejected";
     
@@ -1514,6 +1706,9 @@ if(isset($_GET['pdf_quote'])){
     $mpdf->WriteHTML($html);
     $mpdf->Output();
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Downloaded', log_description = '$quote_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
 }
 
 if(isset($_GET['email_quote'])){
@@ -1589,6 +1784,9 @@ if(isset($_GET['email_quote'])){
 
         }
 
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Emailed', log_description = '$quote_id emailed to $client_email', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
         $_SESSION['alert_message'] = "Quote has been sent";
 
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -1611,6 +1809,9 @@ if(isset($_POST['add_recurring'])){
     $recurring_id = mysqli_insert_id($mysqli);
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_description = 'Recurring Invoice created!', history_created_at = NOW(), recurring_id = $recurring_id, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Created', log_description = '$start_date - $category', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice added";
     
@@ -1637,6 +1838,9 @@ if(isset($_GET['delete_recurring'])){
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Deleted', log_description = '$recurring_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Recurring Invoice deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -1649,6 +1853,9 @@ if(isset($_GET['recurring_activate'])){
 
     mysqli_query($mysqli,"UPDATE recurring SET recurring_status = 1 WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Modified', log_description = 'Activated', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Recurring Invoice Activated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -1660,6 +1867,9 @@ if(isset($_GET['recurring_deactivate'])){
     $recurring_id = intval($_GET['recurring_deactivate']);
 
     mysqli_query($mysqli,"UPDATE recurring SET recurring_status = 0 WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Modified', log_description = 'Deactivated', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice Deactivated";
     
@@ -1728,12 +1938,14 @@ if(isset($_GET['delete_recurring_item'])){
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring Item', log_action = 'Deleted', log_description = 'Item ID $item_id from Recurring ID $recurring_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Item deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
 }
-
 
 if(isset($_GET['mark_invoice_sent'])){
 
@@ -1742,6 +1954,9 @@ if(isset($_GET['mark_invoice_sent'])){
     mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'INVOICE marked sent', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Updated', log_description = '$invoice_id marked sent', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Invoice marked sent";
     
@@ -1756,6 +1971,9 @@ if(isset($_GET['cancel_invoice'])){
     mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Cancelled', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'INVOICE cancelled!', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Modified', log_description = 'Cancelled', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Invoice cancelled";
     
@@ -1788,6 +2006,9 @@ if(isset($_GET['delete_invoice'])){
         $payment_id = $row['payment_id'];
         mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id AND company_id = $session_company_id");
     }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Deleted', log_description = '$invoice_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Invoice deleted";
     
@@ -1858,6 +2079,9 @@ if(isset($_GET['delete_invoice_item'])){
     mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice Item', log_action = 'Deleted', log_description = '$item_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Item deleted";
     
@@ -1987,6 +2211,9 @@ if(isset($_POST['add_payment'])){
         //Add Payment to History
         mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'INVOICE payment added', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Created', log_description = '$payment_amount', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
         $_SESSION['alert_message'] = "Payment added";
         
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2028,6 +2255,9 @@ if(isset($_GET['delete_payment'])){
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'INVOICE payment deleted', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
     mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Deleted', log_description = '$payment_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Payment deleted";
     
@@ -2120,6 +2350,9 @@ if(isset($_GET['email_invoice'])){
 
         }
 
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Emailed', log_description = 'Invoice $invoice_number emailed to $client_email', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
         $_SESSION['alert_message'] = "Invoice has been sent";
 
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2142,6 +2375,9 @@ if(isset($_POST['add_revenue'])){
 
     mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_created_at = NOW(), category_id = $category, account_id = $account, company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Created', log_description = '$date - $amount', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Revenue added!";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2161,6 +2397,9 @@ if(isset($_POST['edit_revenue'])){
 
     mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_updated_at = NOW(), category_id = $category, account_id = $account WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Modified', log_description = '$revenue_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Revenue modified!";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2171,6 +2410,9 @@ if(isset($_GET['delete_revenue'])){
     $revenue_id = intval($_GET['delete_revenue']);
 
     mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Deleted', log_description = '$revenue_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Revenue deleted";
     
@@ -2372,6 +2614,9 @@ if(isset($_GET['pdf_invoice'])){
     $mpdf->WriteHTML($html);
     $mpdf->Output();
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Downloaded', log_description = '$invoice_number', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
 }
 
 if(isset($_POST['add_contact'])){
@@ -2397,6 +2642,9 @@ if(isset($_POST['add_contact'])){
     }
 
     mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Contact added";
     
@@ -2431,6 +2679,9 @@ if(isset($_POST['edit_contact'])){
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Contact updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2441,6 +2692,9 @@ if(isset($_GET['delete_contact'])){
     $contact_id = intval($_GET['delete_contact']);
 
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Deleted', log_description = '$contact_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Contact deleted";
     
@@ -2462,6 +2716,9 @@ if(isset($_POST['add_location'])){
 
     mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Location added";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2482,6 +2739,9 @@ if(isset($_POST['edit_location'])){
 
     mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_updated_at = NOW() WHERE location_id = $location_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Location updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2492,6 +2752,9 @@ if(isset($_GET['delete_location'])){
     $location_id = intval($_GET['delete_location']);
 
     mysqli_query($mysqli,"DELETE FROM locations WHERE location_id = $location_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'location', log_action = 'Deleted', log_description = '$location_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Location deleted";
     
@@ -2532,6 +2795,9 @@ if(isset($_POST['add_asset'])){
         mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$description', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id, company_id = $session_company_id");
 
     }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Asset added";
     
@@ -2580,6 +2846,9 @@ if(isset($_POST['edit_asset'])){
         }
     }
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Asset updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2590,6 +2859,9 @@ if(isset($_GET['delete_asset'])){
     $asset_id = intval($_GET['delete_asset']);
 
     mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Deleted', log_description = '$asset_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Asset deleted";
     
@@ -2611,6 +2883,9 @@ if(isset($_POST['add_login'])){
 
     mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = '$password', login_note = '$note', login_created_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id, client_id = $client_id, company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Created', log_description = '$description', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Login added";
     
     header("Location: client.php?client_id=$client_id&tab=logins");
@@ -2631,6 +2906,9 @@ if(isset($_POST['edit_login'])){
 
     mysqli_query($mysqli,"UPDATE logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = '$password', login_note = '$note', login_updated_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id WHERE login_id = $login_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Modified', log_description = '$description', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Login updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2641,6 +2919,9 @@ if(isset($_GET['delete_login'])){
     $login_id = intval($_GET['delete_login']);
 
     mysqli_query($mysqli,"DELETE FROM logins WHERE login_id = $login_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Deleted', log_description = '$login_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Login deleted";
     
@@ -2668,6 +2949,9 @@ if(isset($_POST['add_file'])){
 
     mysqli_query($mysqli,"INSERT INTO files SET file_name = '$path', file_ext = '$ext', file_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Uploaded', log_description = '$path', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "File uploaded";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2685,6 +2969,9 @@ if(isset($_GET['delete_file'])){
 
     mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Deleted', log_description = '$file_name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "File deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2698,6 +2985,9 @@ if(isset($_POST['add_note'])){
     $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
 
     mysqli_query($mysqli,"INSERT INTO notes SET note_subject = '$subject', note_body = '$note', note_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Note', log_action = 'Created', log_description = '$subject', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Note added";
     
@@ -2713,6 +3003,9 @@ if(isset($_POST['edit_note'])){
 
     mysqli_query($mysqli,"UPDATE notes SET note_subject = '$subject', note_body = '$note', note_updated_at = NOW() WHERE note_id = $note_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Note', log_action = 'Modified', log_description = '$subject', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Note updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2723,6 +3016,9 @@ if(isset($_GET['delete_note'])){
     $note_id = intval($_GET['delete_note']);
 
     mysqli_query($mysqli,"DELETE FROM notes WHERE note_id = $note_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Note', log_action = 'Deleted', log_description = '$note_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Note deleted";
     
@@ -2741,6 +3037,9 @@ if(isset($_POST['add_network'])){
 
     mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_created_at = NOW(), location_id = $location_id, client_id = $client_id, company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Network added";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2758,6 +3057,9 @@ if(isset($_POST['edit_network'])){
 
     mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_updated_at = NOW(), location_id = $location_id WHERE network_id = $network_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Modifed', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Network updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2768,6 +3070,9 @@ if(isset($_GET['delete_network'])){
     $network_id = intval($_GET['delete_network']);
 
     mysqli_query($mysqli,"DELETE FROM networks WHERE network_id = $network_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Deleted', log_description = '$network_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Network deleted";
     
@@ -2788,6 +3093,9 @@ if(isset($_POST['add_domain'])){
 
     mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Domain added";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2807,6 +3115,9 @@ if(isset($_POST['edit_domain'])){
 
     mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_updated_at = NOW() WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Domain updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2817,6 +3128,9 @@ if(isset($_GET['delete_domain'])){
     $domain_id = intval($_GET['delete_domain']);
 
     mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Deleted', log_description = '$domain_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Domain deleted";
     
@@ -2841,6 +3155,9 @@ if(isset($_POST['add_software'])){
         mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$name', login_username = '$username', login_password = '$password', software_id = $software_id, login_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Software added";
     
@@ -2872,6 +3189,9 @@ if(isset($_POST['edit_software'])){
         }
     }
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Software updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2882,6 +3202,9 @@ if(isset($_GET['delete_software'])){
     $software_id = intval($_GET['delete_software']);
 
     mysqli_query($mysqli,"DELETE FROM software WHERE software_id = $software_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Deleted', log_description = '$software_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Software deleted";
     
@@ -3003,6 +3326,9 @@ if(isset($_GET['force_recurring'])){
             mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Failed to send Invoice!', history_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
         } //End Mail Try
     } //End Recurring Invoices Loop
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Created', log_description = 'Recurring Forced to an Invoice', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice Forced";
     
