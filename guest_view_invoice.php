@@ -56,6 +56,10 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     }
     $config_company_email = $row['config_company_email'];
     $config_invoice_logo = $row['config_invoice_logo'];
+    $config_stripe_enable = $row['config_stripe_enable'];
+    $config_stripe_publishable = $row['config_stripe_publishable'];
+    $config_stripe_secret = $row['config_stripe_secret'];
+
     $ip = get_ip();
     $os = get_os();
     $browser = get_web_browser();
@@ -112,9 +116,9 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
         <a class="btn btn-primary" download target="_blank" href="guest_post.php?pdf_invoice=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-download"></i> Download PDF</a>
         <?php
-        if($invoice_status != "Paid" and $invoice_status  != "Cancelled" and $invoice_status != "Draft"){
+        if($invoice_status != "Paid" and $invoice_status  != "Cancelled" and $invoice_status != "Draft" and $config_stripe_enable == 1){
         ?>
-        <a class="btn btn-success" href="guest_pay.php?invoice_id=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card"></i> Pay Online (Comming Soon)</a>
+        <a class="btn btn-success" href="guest_pay.php?invoice_id=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card"></i> Pay Online (Coming Soon)</a>
         <?php } ?>
       </div>
     </div>

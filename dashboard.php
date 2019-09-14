@@ -63,6 +63,15 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
 	ORDER BY expense_id DESC LIMIT 5"
 );
 
+//Get Total Miles Driven
+$sql_miles_driven = mysqli_query($mysqli,"SELECT SUM(trip_miles) AS total_miles FROM trips WHERE YEAR(trip_date) = $year AND company_id = $session_company_id");
+$row = mysqli_fetch_array($sql_miles_driven);
+$total_miles = $row['total_miles'];
+
+//Get Total Clients added
+$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_id') AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND company_id = $session_company_id"));
+$clients_added = $row['clients_added'];
+
 ?>
 
 <form>
@@ -280,6 +289,22 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
 		        ?>
           </tbody>
         </table>
+      </div>
+    </div>
+  </div> <!-- .col -->
+</div> <!-- row -->
+
+<div class="row mt-3">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        Fun Stats
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled">
+          <li>Miles Driven: <?php echo $total_miles; ?></li>
+          <li>Clients Added: <?php echo $clients_added; ?></li>
+        </ul>
       </div>
     </div>
   </div> <!-- .col -->

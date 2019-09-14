@@ -92,6 +92,19 @@
   </li>
   <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <i class="fas fa-fw fa-cog mx-2"></i>
+      <span>Client Listing</span>
+    </a>
+    <div class="dropdown-menu" aria-labelledby="pagesDropdown">
+      <a class="dropdown-item" href="contacts.php">Contacts</a>
+      <a class="dropdown-item" href="locations.php">Locations</a>
+      <a class="dropdown-item" href="assets.php">Assets</a>
+      <a class="dropdown-item" href="logins.php">Logins</a>
+      <a class="dropdown-item" href="domains.php">Domains</a>
+    </div>
+  </li>
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       <i class="fas fa-fw fa-chart-area mx-2"></i>
       <span>Reports</span>
     </a>

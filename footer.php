@@ -35,6 +35,7 @@
   <script src='vendor/daterangepicker/daterangepicker.js'></script>
   <script src='vendor/Inputmask/dist/inputmask.min.js'></script>
   <script src='vendor/Inputmask/dist/bindings/inputmask.binding.js'></script>
+  <script src="vendor/clipboard.js/dist/clipboard.min.js"></script>
   
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin.min.js"></script>

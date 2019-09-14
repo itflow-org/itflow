@@ -318,6 +318,22 @@ if(isset($_POST['edit_alert_settings'])){
 
 }
 
+if(isset($_POST['edit_online_payment_settings'])){
+
+    $config_stripe_enable = intval($_POST['config_stripe_enable']);
+    $config_stripe_publishable = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_stripe_publishable']));
+    $config_stripe_secret = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_stripe_secret']));
+
+    mysqli_query($mysqli,"UPDATE settings SET config_stripe_enable = $config_stripe_enable, config_stripe_publishable = '$config_stripe_publishable', config_stripe_secret = '$config_stripe_secret' WHERE company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Online Payment', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Online Payment Settings Updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if(isset($_POST['enable_2fa'])){
 
     $token = mysqli_real_escape_string($mysqli,$_POST['token']);

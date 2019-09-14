@@ -98,14 +98,14 @@ if(isset($_GET['client_id'])){
 <div class="card mb-3">
   <div class="card-body">
     <div class="row">
-      <div class="col">
+      <div class="col-md-3">
         <h4 class="text-secondary"><strong><?php echo $client_name; ?></strong></h4>
         <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$client_address $client_zip"; ?>" target="_blank">
           <div class="ml-1"><?php echo $client_address; ?></div>
           <div class="ml-1"><?php echo "$client_city $client_state $client_zip"; ?></div>
         </a>
       </div>
-      <div class="col border-left">
+      <div class="col-md-3 border-left">
         <h4 class="text-secondary">Contact</h4>
         <?php
         if(!empty($client_email)){
@@ -131,16 +131,16 @@ if(isset($_GET['client_id'])){
         }
         ?>
       </div>
-      <div class="col border-left">
+      <div class="col-md-3 border-left">
         <h4 class="text-secondary">Standings</h4>
         <h6 class="ml-1">Paid <div class="text-secondary float-right">$<?php echo number_format($amount_paid,2); ?></div></h6>
         <h6 class="ml-1">Balance <div class="text-secondary float-right">$<?php echo number_format($balance,2); ?></div></h6>
       </div>
-      <div class="col border-left">
+      <div class="col-md-2 border-left">
         <h4 class="text-secondary">Net Terms</h4>
         <h6 class="ml-1"><?php echo $client_net_terms; ?> <small class="text-secondary">Days</small></h6>
       </div>
-      <div class="col border-left">
+      <div class="col-md-1 border-left">
         <div class="dropdown dropleft text-center">
           <button class="btn btn-dark btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="fas fa-fw fa-ellipsis-v"></i>

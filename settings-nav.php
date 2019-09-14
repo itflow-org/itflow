@@ -63,6 +63,14 @@
       Alerts
     </a> 
   </li>
+
+  <li class="nav-item">
+    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-online-payment.php") { echo "active"; } ?>" 
+      href="settings-online-payment.php">
+      <i class="fa fa-fw fa-2x fa-credit-card"></i><br>
+      Online Payment
+    </a> 
+  </li>
  
   <li class="nav-item">
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-backup.php") { echo "active"; } ?>" 
