@@ -107,7 +107,7 @@
           ?>
 
           <tr>
-            <td><?php echo ucwords($recurring_frequency); ?>ly</td>
+            <td><a href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>"><?php echo ucwords($recurring_frequency); ?>ly</a></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=recurring"><?php echo $client_name; ?></a></td>
             <td><?php echo $recurring_last_sent; ?></td>
             <td><?php echo $recurring_next_date; ?></td>

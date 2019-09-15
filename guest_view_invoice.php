@@ -108,13 +108,10 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
   ?>
   
   <div class="row d-print-none">
-    <div class="col-md-6">
-      <h2><strong>Invoice <?php echo $invoice_number; ?></strong></h2>
-    </div>
-    <div class="col-md-6">
+    <div class="col-md-12">
       <div class="float-right">
         <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
-        <a class="btn btn-primary" download target="_blank" href="guest_post.php?pdf_invoice=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-download"></i> Download PDF</a>
+        <a class="btn btn-primary" download target="_blank" href="guest_post.php?pdf_invoice=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-download"></i> Download</a>
         <?php
         if($invoice_status != "Paid" and $invoice_status  != "Cancelled" and $invoice_status != "Draft" and $config_stripe_enable == 1){
         ?>
@@ -124,12 +121,15 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     </div>
   </div>
 
-  <hr>
+  <hr class="d-print-none">
 
   <div class="row mb-4">
     <div class="col-sm-2">
       <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
-    </div> 
+    </div>
+    <div class="col-sm-10">
+      <h3 class="text-right"><strong>Invoice</strong><br><small class="text-secondary"><?php echo $invoice_number; ?></small></h3>
+    </div>
   </div>
   <div class="row mb-4">
     <div class="col-sm">

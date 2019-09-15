@@ -12,16 +12,16 @@
           
           <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-basic-tab" data-toggle="pill" href="#pills-basic" role="tab" aria-controls="pills-basic" aria-selected="true">Basic</a>
+              <a class="nav-link active" id="pills-basic-tab" data-toggle="pill" href="#pills-basic">Basic</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-address-tab" data-toggle="pill" href="#pills-address" role="tab" aria-controls="pills-address" aria-selected="false">Address</a>
+              <a class="nav-link" id="pills-address-tab" data-toggle="pill" href="#pills-address">Address</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Contact</a>
+              <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact">Contact</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-more-tab" data-toggle="pill" href="#pills-more" role="tab" aria-controls="pills-more" aria-selected="false">More</a>
+              <a class="nav-link" id="pills-more-tab" data-toggle="pill" href="#pills-more">More</a>
             </li>
           </ul>
 
@@ -29,7 +29,7 @@
           
           <div class="tab-content" id="pills-tabContent">
 
-            <div class="tab-pane fade show active" id="pills-basic" role="tabpanel" aria-labelledby="pills-basic-tab">
+            <div class="tab-pane fade show active" id="pills-basic">
 
               <div class="form-group">
                 <label>Name <strong class="text-danger">*</strong></label>
@@ -58,7 +58,7 @@
 
             </div>
           
-            <div class="tab-pane fade" id="pills-address" role="tabpanel" aria-labelledby="pills-address-tab">
+            <div class="tab-pane fade" id="pills-address">
 
               <div class="form-group">
                 <label>Address</label>
@@ -110,12 +110,32 @@
             <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
 
               <div class="form-group">
+                <label>Primary Contact</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="contact" placeholder="Primary Contact Person"> 
+                </div>
+              </div>
+
+              <div class="form-group">
                 <label>Phone</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                   </div>
                   <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'"> 
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Mobile</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="mobile" placeholder="Mobile Number" data-inputmask="'mask': '999-999-9999'"> 
                 </div>
               </div>
               
@@ -128,7 +148,11 @@
                   <input type="email" class="form-control" name="email" placeholder="Email Address">
                 </div>
               </div>
-        
+            
+            </div>
+
+            <div class="tab-pane fade" id="pills-more">
+
               <div class="form-group">
                 <label>Website</label>
                 <div class="input-group">
@@ -138,10 +162,6 @@
                   <input type="text" class="form-control" name="website" placeholder="Web Address">
                 </div>
               </div>
-            
-            </div>
-
-            <div class="tab-pane fade" id="pills-more" role="tabpanel" aria-labelledby="pills-more-tab">
 
               <div class="form-group">
                 <label>Hours</label>

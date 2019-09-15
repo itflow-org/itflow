@@ -3,11 +3,11 @@
 <?php
 $sql_recent_logins = mysqli_query($mysqli,"SELECT * FROM logs 
     WHERE log_type = 'Login' AND log_action = 'Success' AND user_id = $session_user_id
-    ORDER BY log_id DESC LIMIT 8");
+    ORDER BY log_id DESC LIMIT 3");
 
 $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs 
     WHERE user_id = $session_user_id
-    ORDER BY log_id DESC LIMIT 8");
+    ORDER BY log_id DESC LIMIT 5");
 ?>
 
 
@@ -73,34 +73,6 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           </form>
         </div>
 
-        <div class="col-md-4">
-          <h5 class="text-secondary mb-4">Recent Logs</h5>
-
-          <table class="table">
-            <tbody>
-            <?php
-          
-              while($row = mysqli_fetch_array($sql_recent_logs)){
-                $log_id = $row['log_id'];
-                $log_type = $row['log_type'];
-                $log_action = $row['log_action'];
-                $log_description = $row['log_description'];
-                $log_created_at = $row['log_created_at'];
-
-              ?>
-
-                <tr>
-                  <td><i class="fa fa-fw fa-pencil-alt text-secondary"></i> <?php echo $log_type; ?></td>
-                  <td><?php echo $log_action; ?></td>
-                  <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
-                </tr>
-              <?php
-              }
-              ?>
-            </tbody>
-          </table>
-        </div>
-
         <div class="col-md-5">
           <h5 class="text-secondary mb-4">Recent Logins</h5>
 
@@ -125,6 +97,44 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
             </tbody>
           </table>
         </div>
+
+        <div class="col-md-4">
+          <h5 class="text-secondary mb-4">Recent Logs</h5>
+
+          <table class="table">
+            <tbody>
+            <?php
+          
+              while($row = mysqli_fetch_array($sql_recent_logs)){
+                $log_id = $row['log_id'];
+                $log_type = $row['log_type'];
+                $log_action = $row['log_action'];
+                $log_description = $row['log_description'];
+                $log_created_at = $row['log_created_at'];
+
+                if($log_action == 'Created'){
+                  $log_icon = "plus";
+                }elseif($log_action == 'Modified'){
+                  $log_icon = "edit";
+                }elseif($log_action == 'Deleted'){
+                  $log_icon = "trash-alt";
+                }else{
+                  $log_icon = "pencil";
+                }
+
+              ?>
+
+                <tr>
+                  <td><i class="fa fa-fw text-secondary fa-<?php echo $log_icon; ?>"></i> <?php echo $log_type; ?></td>
+                  <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
+                </tr>
+              <?php
+              }
+              ?>
+            </tbody>
+          </table>
+        </div>
+
       </div>
 
       <form class="p-3" action="post.php" method="post" autocomplete="off">

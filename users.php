@@ -72,6 +72,7 @@
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=email&o=<?php echo $disp; ?>">Email</a></th>
             <th>Type</th>
             <th>Status</th>
+            <th>Last Login</th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -86,7 +87,15 @@
             $avatar = $row['avatar'];
             $client_id = $row['client_id'];
             $initials = initials($name);
-      
+
+            $sql_last_login = mysqli_query($mysqli,"SELECT * FROM logs 
+              WHERE user_id = $user_id AND log_type = 'Login'
+              ORDER BY log_id DESC LIMIT 1"
+            );
+            $row = mysqli_fetch_array($sql_last_login);
+            $log_created_at = $row['log_created_at'];
+            $log_description = $row['log_description'];
+  
           ?>
           <tr>
             <td class="text-center">
@@ -107,6 +116,7 @@
             <td><a href="mailto:<?php echo $email; ?>"><?php echo $email; ?></a></td>
             <td>Client</td>
             <td>Status</td>
+            <td><?php echo $log_created_at; ?> <br> <small class="text-secondary"><?php echo $log_description; ?></small></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

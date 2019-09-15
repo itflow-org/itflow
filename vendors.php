@@ -39,8 +39,8 @@
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   $total_found_rows = $num_rows[0];
   $total_pages = ceil($total_found_rows / 10);
+  
   ?>
-
 
 <div class="card mb-3">
   <div class="card-header bg-dark text-white">
@@ -64,7 +64,6 @@
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_name&o=<?php echo $disp; ?>">Vendor</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_description&o=<?php echo $disp; ?>">Description</a></th>
             <th>Contact</th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_account_number&o=<?php echo $disp; ?>">Account Number</a></th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -89,7 +88,18 @@
             $vendor_website = $row['vendor_website'];
           ?>
           <tr>
-            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></a></td>
+            <td>
+              <a class="text-dark" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?><a>
+              <?php
+              if(!empty($vendor_account_number)){
+              ?>
+              <br>
+              <small class="text-secondary"><?php echo $vendor_account_number; ?></small>
+              <?php
+              }
+              ?>
+
+            </td>
             <td><?php echo $vendor_description; ?></td>
             <td>
               <?php
@@ -117,7 +127,6 @@
               }
               ?>
             </td>
-            <td><?php echo $vendor_account_number; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

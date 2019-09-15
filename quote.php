@@ -65,11 +65,11 @@ if(isset($_GET['quote_id'])){
   <span class="ml-3 p-2 badge badge-<?php echo $quote_badge_color; ?>"><?php echo $quote_status; ?></span>
 </ol>
 
-<form class="d-print-none" action="post.php" method="post">
+<form action="post.php" method="post" autocomplete="off">
   <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
   <div class="row mb-4 d-print-none">
     <div class="col-md-4">
-      <button class="btn btn-success btn-sm" type="submit" name="save_quote">Save</button>
+      <button class="btn btn-success btn-sm" type="submit" name="save_quote"><i class="fa fa-fw fa-check"></i> Save</button>
     </div>
     <div class="col-md-8">
       <div class="dropdown dropleft text-center">
@@ -91,64 +91,56 @@ if(isset($_GET['quote_id'])){
         </div>
       </div>
     </div>
-  </div>    
+  </div>
+
+  <hr class="d-print-none">
 
   <div class="row mb-4">
-    <div class="col-sm">
-      <div class="card">
-        <div class="card-header">
-          From
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
-            <li><strong><?php echo $config_company_name; ?></strong></li>
-            <li><?php echo $config_company_address; ?></li>
-            <li class="mb-3"><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
-            <li><?php echo $config_company_phone; ?></li>
-            <li><?php echo $config_company_email; ?></li>
-          </ul>
-        </div>
-      </div>
+    <div class="col-sm-2">
+      <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
     </div>
-    <div class="col-sm">
-      <div class="card">
-        <div class="card-header">
-          Quote To
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
-            <li><strong><?php echo $client_name; ?></strong></li>
-            <li><?php echo $client_address; ?></li>
-            <li class="mb-3"><?php echo "$client_city $client_state $client_zip"; ?></li>
-            <li><?php echo $client_phone; ?></li>
-            <li><?php echo $client_email; ?></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm">
-      <div class="card">
-        <div class="card-header">
-          Details
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
-            <li class="mb-1"><strong>Quote Number:</strong> <div class="float-right"><?php echo $quote_number; ?></div></li>
-            <li class="mb-1"><strong>Quote Date:</strong> <div class="float-right"><?php echo $quote_date; ?></div></li>
-          </ul>
-        </div>
-      </div>
+    <div class="col-sm-10">
+      <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo $quote_number; ?></small></h3>
     </div>
   </div>
+  <div class="row mb-4">
+    <div class="col-sm">
+      <ul class="list-unstyled">
+        <li><h4><strong><?php echo $config_company_name; ?></strong></h4></li>
+        <li><?php echo $config_company_address; ?></li>
+        <li><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
+        <li>P: <?php echo $config_company_phone; ?></li>
+        <li><?php echo $config_company_email; ?></li>
+      </ul>
+    </div>
+    <div class="col-sm">
+      <ul class="list-unstyled text-right">
+        <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
+        <li><?php echo $client_address; ?></li>
+        <li><?php echo "$client_city $client_state $client_zip"; ?></li>
+        <li>P: <?php echo $client_phone; ?></li>
+        <li>E: <?php echo $client_email; ?></li>
+      </ul>
+    </div>
+  </div>
+  <div class="row mb-4">
+    <div class="col-sm-8">
+    </div>
+    <div class="col-sm-4">
+      <table class="table">
+        <tr>
+          <td>Quote Date</td>
+          <td class="text-right"><?php echo $quote_date; ?></td>
+        </tr>
+      </table>
+    </div>
+  </div>    
 
   <?php $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id ORDER BY item_id ASC"); ?>
 
   <div class="row mb-4">
     <div class="col-md-12">
       <div class="card">
-        <div class="card-header">
-          Items
-        </div>
         
         <table class="table">
           <thead>
@@ -180,7 +172,7 @@ if(isset($_GET['quote_id'])){
             ?>
 
             <tr>
-              <td class="text-center d-print-none"><a class="btn btn-danger btn-sm" href="post.php?delete_quote_item=<?php echo $item_id; ?>"><i class="fa fa-trash"></i></a></td>
+              <td class="text-center d-print-none"><a class="text-danger" href="post.php?delete_quote_item=<?php echo $item_id; ?>"><i class="fa fa-trash-alt"></i></a></td>
               <td><?php echo $item_name; ?></td>
               <td><?php echo $item_description; ?></td>
               <td class="text-center"><?php echo $item_quantity; ?></td>
@@ -198,10 +190,10 @@ if(isset($_GET['quote_id'])){
             <tr class="d-print-none">
                 <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
                 <td></td>
-                <td><input type="text" class="form-control" name="name"></td>
-                <td><textarea class="form-control" rows="1" name="description"></textarea></td>
-                <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty"></td>
-                <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" name="price"></td>
+                <td><input type="text" class="form-control" name="name" placeholder="Product"></td>
+                <td><textarea class="form-control" rows="1" name="description" placeholder="Description"></textarea></td>
+                <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty" placeholder="Quantity"></td>
+                <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
                 <td>
                   <select dir="rtl" class="form-control" name="tax">
                     <option value="0.00">None</option>
@@ -218,15 +210,12 @@ if(isset($_GET['quote_id'])){
 
   <div class="row mb-4">
     <div class="col-7">
-      <div class="card">
-        <div class="card-header">
-          Notes
-        </div>
+      <div class="card d-none d-print-block">
         <div class="card-body">
-          <div class="d-none d-print-block"><?php echo $quote_note; ?></div>
-          <textarea rows="6" class="form-control mb-2 d-print-none" name="quote_note"><?php echo $quote_note; ?></textarea>
+          <div><?php echo $quote_note; ?></div>
         </div>
       </div>
+      <textarea rows="6" class="form-control mb-2 d-print-none" name="quote_note" placeholder="Notes"><?php echo $quote_note; ?></textarea>
     </div>
 
     <div class="col-3 offset-2">

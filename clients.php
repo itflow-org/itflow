@@ -39,7 +39,7 @@ if(isset($_GET['o'])){
   $disp = "ASC";
 }
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE (client_name LIKE '%$q%' OR client_email LIKE '%$q%') AND company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to"); 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE (client_name LIKE '%$q%' OR client_email LIKE '%$q%' OR client_contact LIKE '%$q%') AND company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to"); 
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
@@ -66,12 +66,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
-            <th class="w-40"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Name <i class="fa fa-sort-alpha<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
-            <th class="w-15"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_type&o=<?php echo $disp; ?>">Type <i class="fa fa-sort"></i></a></th>
-            <th class="w-15"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_email&o=<?php echo $disp; ?>">Email</a></th>
-            <th class="w-10">Phone</th>
-            <th class="w-10 text-right">Balance</th>
-            <th class="w-10 text-center">Action</th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Name <i class="fa fa-sort-alpha<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_type&o=<?php echo $disp; ?>">Type <i class="fa fa-sort"></i></a></th>
+            <th>Contact</th>
+            <th class="text-right">Balance</th>
+            <th class="text-center">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -85,9 +84,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_city = $row['client_city'];
             $client_state = $row['client_state'];
             $client_zip = $row['client_zip'];
+            $client_contact = $row['client_contact'];
             $client_phone = $row['client_phone'];
             if(strlen($client_phone)>2){ 
               $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+            }
+            $client_mobile = $row['client_mobile'];
+            if(strlen($client_mobile)>2){ 
+              $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
             }
             $client_email = $row['client_email'];
             $client_website = $row['client_website'];
@@ -117,8 +121,39 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a></td>
             <td><?php echo $client_type; ?></td>
-            <td><a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a></td>
-            <td><?php echo $client_phone; ?></td>
+            <td>
+              <?php
+              if(!empty($client_contact)){
+              ?>
+              <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $client_contact; ?>
+              <br>
+              <?php
+              }
+              ?>
+              <?php
+              if(!empty($client_phone)){
+              ?>
+              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $client_phone; ?>
+              <br>
+              <?php
+              }
+              ?>
+              <?php
+              if(!empty($client_mobile)){
+              ?>
+              <i class="fa fa-fw fa-mobile-alt text-secondary mr-2 mb-2"></i><?php echo $client_mobile; ?>
+              <br>
+              <?php
+              }
+              ?>
+              <?php
+              if(!empty($client_email)){
+              ?>
+              <i class="fa fa-fw fa-envelope text-secondary mr-2 mb-2"></i><a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a>
+              <?php
+              }
+              ?>
+            </td>
             <td class="text-right text-monospace <?php echo $balance_text_color; ?>">$<?php echo number_format($balance,2); ?></td>
             <td>
               <div class="dropdown dropleft text-center">

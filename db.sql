@@ -1,8 +1,8 @@
--- MariaDB dump 10.17  Distrib 10.4.7-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.17  Distrib 10.4.8-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: admin_crm
 -- ------------------------------------------------------
--- Server version	10.4.7-MariaDB-1:10.4.7+maria~bionic
+-- Server version	10.4.8-MariaDB-1:10.4.8+maria~bionic
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -43,9 +43,9 @@ DROP TABLE IF EXISTS `alerts`;
 CREATE TABLE `alerts` (
   `alert_id` int(11) NOT NULL AUTO_INCREMENT,
   `alert_type` varchar(200) NOT NULL,
-  `alert_message` varchar(200) NOT NULL,
+  `alert_message` varchar(255) NOT NULL,
   `alert_date` datetime NOT NULL,
-  `alert_ack_date` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `alert_ack_date` datetime DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`alert_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -135,7 +135,9 @@ CREATE TABLE `clients` (
   `client_city` varchar(200) DEFAULT NULL,
   `client_state` varchar(200) DEFAULT NULL,
   `client_zip` varchar(200) DEFAULT NULL,
+  `client_contact` varchar(200) DEFAULT NULL,
   `client_phone` varchar(200) DEFAULT NULL,
+  `client_mobile` varchar(200) DEFAULT NULL,
   `client_email` varchar(200) DEFAULT NULL,
   `client_website` varchar(200) DEFAULT NULL,
   `client_net_terms` int(10) NOT NULL,
@@ -334,6 +336,7 @@ DROP TABLE IF EXISTS `invoices`;
 CREATE TABLE `invoices` (
   `invoice_id` int(11) NOT NULL AUTO_INCREMENT,
   `invoice_number` varchar(20) NOT NULL,
+  `invoice_scope` varchar(255) DEFAULT NULL,
   `invoice_status` varchar(200) NOT NULL,
   `invoice_date` date NOT NULL,
   `invoice_due` date NOT NULL,
@@ -408,13 +411,14 @@ DROP TABLE IF EXISTS `logs`;
 CREATE TABLE `logs` (
   `log_id` int(11) NOT NULL AUTO_INCREMENT,
   `log_type` varchar(200) NOT NULL,
-  `log_description` varchar(200) NOT NULL,
+  `log_action` varchar(255) NOT NULL,
+  `log_description` varchar(255) NOT NULL,
   `log_created_at` datetime NOT NULL,
   `invoice_id` int(11) DEFAULT NULL,
   `quote_id` int(11) DEFAULT NULL,
   `recurring_id` int(11) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
-  `company_id` int(11) NOT NULL,
+  `company_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -512,6 +516,7 @@ DROP TABLE IF EXISTS `quotes`;
 CREATE TABLE `quotes` (
   `quote_id` int(11) NOT NULL AUTO_INCREMENT,
   `quote_number` varchar(200) NOT NULL,
+  `quote_scope` varchar(255) DEFAULT NULL,
   `quote_status` varchar(200) NOT NULL,
   `quote_date` date NOT NULL,
   `quote_amount` decimal(15,2) DEFAULT NULL,
@@ -535,6 +540,7 @@ DROP TABLE IF EXISTS `recurring`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `recurring` (
   `recurring_id` int(11) NOT NULL AUTO_INCREMENT,
+  `recurring_scope` varchar(255) DEFAULT NULL,
   `recurring_frequency` varchar(200) NOT NULL,
   `recurring_last_sent` date DEFAULT NULL,
   `recurring_next_date` date NOT NULL,
@@ -591,7 +597,6 @@ CREATE TABLE `settings` (
   `config_default_transfer_to_account` int(11) DEFAULT NULL,
   `config_default_calendar` int(11) DEFAULT NULL,
   `config_default_net_terms` int(11) DEFAULT NULL,
-  `config_start_page` varchar(200) DEFAULT NULL,
   `config_company_name` varchar(200) DEFAULT NULL,
   `config_company_address` varchar(200) DEFAULT NULL,
   `config_company_city` varchar(200) DEFAULT NULL,
@@ -609,10 +614,6 @@ CREATE TABLE `settings` (
   `config_invoice_logo` varchar(200) DEFAULT NULL,
   `config_invoice_footer` text DEFAULT NULL,
   `config_quote_footer` text DEFAULT NULL,
-  `config_invoice_email_subject` varchar(200) DEFAULT NULL,
-  `config_invoice_email_body` text DEFAULT NULL,
-  `config_quote_email_subject` varchar(200) DEFAULT NULL,
-  `config_quote_email_body` varchar(200) DEFAULT NULL,
   `config_invoice_next_number` int(11) DEFAULT NULL,
   `config_recurring_auto_send_invoice` int(1) DEFAULT NULL,
   `config_api_key` varchar(200) DEFAULT NULL,
@@ -626,6 +627,9 @@ CREATE TABLE `settings` (
   `config_enable_cron` int(1) DEFAULT NULL,
   `enable_alert_domain_expire` int(1) DEFAULT NULL,
   `enable_alert_low_balance` int(1) DEFAULT NULL,
+  `config_stripe_enable` int(1) DEFAULT NULL,
+  `config_stripe_publishable` varchar(255) DEFAULT NULL,
+  `config_stripe_secret` varchar(255) DEFAULT NULL,
   `config_base_url` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -814,4 +818,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-08-24 22:12:13
+-- Dump completed on 2019-09-14 20:38:23

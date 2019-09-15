@@ -20,10 +20,15 @@ if(isset($_GET['client_id'])){
   $client_city = $row['client_city'];
   $client_state = $row['client_state'];
   $client_zip = $row['client_zip'];
+  $client_contact = $row['client_contact'];
   $client_email = $row['client_email'];
   $client_phone = $row['client_phone'];
   if(strlen($client_phone)>2){ 
     $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+  }
+  $client_mobile = $row['client_mobile'];
+  if(strlen($client_mobile)>2){ 
+    $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
   }
   $client_website = $row['client_website'];
   $client_net_terms = $row['client_net_terms'];
@@ -108,6 +113,14 @@ if(isset($_GET['client_id'])){
       <div class="col-md-3 border-left">
         <h4 class="text-secondary">Contact</h4>
         <?php
+        if(!empty($client_contact)){
+        ?>
+        <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <?php echo $client_contact; ?>
+        <br>
+        <?php
+        }
+        ?>
+        <?php
         if(!empty($client_email)){
         ?>
         <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i> <a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a>
@@ -119,6 +132,14 @@ if(isset($_GET['client_id'])){
         if(!empty($client_phone)){
         ?>
         <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <?php echo $client_phone; ?>
+        <br>
+        <?php 
+        } 
+        ?>
+        <?php
+        if(!empty($client_mobile)){
+        ?>
+        <i class="fa fa-fw fa-mobile-alt text-secondary ml-1 mr-2 mb-2"></i> <?php echo $client_mobile; ?>
         <br>
         <?php 
         } 

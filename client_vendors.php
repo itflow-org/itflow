@@ -74,7 +74,6 @@ $total_pages = ceil($total_found_rows / 10);
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_name&o=<?php echo $disp; ?>">Vendor</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_description&o=<?php echo $disp; ?>">Description</a></th>
             <th>Contact</th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_account_number&o=<?php echo $disp; ?>">Account Number</a></th>
             <th></th>
             <th class="text-center">Action</th>
           </tr>
@@ -108,7 +107,17 @@ $total_pages = ceil($total_found_rows / 10);
               
           ?>
           <tr>
-            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></a></td>
+            <td>
+              <a class="text-dark" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></a>
+              <?php
+              if(!empty($vendor_account_number)){
+              ?>
+              <br>
+              <small class="text-secondary"><?php echo $vendor_account_number; ?></small>
+              <?php
+              }
+              ?>
+            </td>
             <td><?php echo $vendor_description; ?></td>
             <td>
               <?php
@@ -136,7 +145,6 @@ $total_pages = ceil($total_found_rows / 10);
               }
               ?>
             </td>
-            <td><?php echo $vendor_account_number; ?></td>
             <td>
               <?php
               if($vendor_id == $vendor_id_relation){

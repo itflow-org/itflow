@@ -115,12 +115,32 @@
             <div class="tab-pane fade" id="pills-contact<?php echo $client_id; ?>" role="tabpanel" aria-labelledby="pills-contact-tab<?php echo $client_id; ?>">
 
               <div class="form-group">
+                <label>Primary Contact</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="contact" placeholder="Primary contact name" value="<?php echo $client_contact; ?>"> 
+                </div>
+              </div>
+
+              <div class="form-group">
                 <label>Phone</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                   </div>
                   <input type="text" class="form-control" name="phone" placeholder="Phone Number" value="<?php echo $client_phone; ?>" data-inputmask="'mask': '999-999-9999'"> 
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Mobile</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="mobile" placeholder="Mobile Number" value="<?php echo $client_mobile; ?>" data-inputmask="'mask': '999-999-9999'"> 
                 </div>
               </div>
               
@@ -133,7 +153,11 @@
                   <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo $client_email; ?>">
                 </div>
               </div>
-        
+            
+            </div>
+
+            <div class="tab-pane fade" id="pills-more<?php echo $client_id; ?>" role="tabpanel" aria-labelledby="pills-more-tab<?php echo $client_id; ?>">
+
               <div class="form-group">
                 <label>Website</label>
                 <div class="input-group">
@@ -143,10 +167,6 @@
                   <input type="text" class="form-control" name="website" placeholder="Web Address" value="<?php echo $client_website; ?>">
                 </div>
               </div>
-            
-            </div>
-
-            <div class="tab-pane fade" id="pills-more<?php echo $client_id; ?>" role="tabpanel" aria-labelledby="pills-more-tab<?php echo $client_id; ?>">
 
               <div class="form-group">
                 <label>Hours</label>

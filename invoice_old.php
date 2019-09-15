@@ -97,7 +97,7 @@ if(isset($_GET['invoice_id'])){
   <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
   <div class="row mb-4 d-print-none">
     <div class="col-md-4">
-      <button class="btn btn-success btn-sm" type="submit" name="save_invoice"><i class="fa fa-fw fa-check"></i> Save</button>
+      <button class="btn btn-success btn-sm" type="submit" name="save_invoice">Save</button>
     </div>
     <div class="col-md-8">
       <div class="dropdown dropleft text-center">
@@ -120,52 +120,54 @@ if(isset($_GET['invoice_id'])){
         </div>
       </div>
     </div>
-  </div>
-
-  <hr class="d-print-none">
+  </div>    
 
   <div class="row mb-4">
-    <div class="col-sm-2">
-      <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
-    </div>
-    <div class="col-sm-10">
-      <h3 class="text-right"><strong>Invoice</strong><br><small class="text-secondary"><?php echo $invoice_number; ?></small></h3>
-    </div>
-  </div>
-  <div class="row mb-4">
     <div class="col-sm">
-      <ul class="list-unstyled">
-        <li><h4><strong><?php echo $config_company_name; ?></strong></h4></li>
-        <li><?php echo $config_company_address; ?></li>
-        <li><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
-        <li>P: <?php echo $config_company_phone; ?></li>
-        <li><?php echo $config_company_email; ?></li>
-      </ul>
+      <div class="card">
+        <div class="card-header">
+          From
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <li><strong><?php echo $config_company_name; ?></strong></li>
+            <li><?php echo $config_company_address; ?></li>
+            <li class="mb-3"><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
+            <li><?php echo $config_company_phone; ?></li>
+            <li><?php echo $config_company_email; ?></li>
+          </ul>
+        </div>
+      </div>
     </div>
     <div class="col-sm">
-      <ul class="list-unstyled text-right">
-        <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
-        <li><?php echo $client_address; ?></li>
-        <li><?php echo "$client_city $client_state $client_zip"; ?></li>
-        <li>P: <?php echo $client_phone; ?></li>
-        <li>E: <?php echo $client_email; ?></li>
-      </ul>
+      <div class="card">
+        <div class="card-header">
+          Bill To
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <li><strong><?php echo $client_name; ?></strong></li>
+            <li><?php echo $client_address; ?></li>
+            <li class="mb-3"><?php echo "$client_city $client_state $client_zip"; ?></li>
+            <li><?php echo $client_phone; ?></li>
+            <li><?php echo $client_email; ?></li>
+          </ul>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="row mb-4">
-    <div class="col-sm-8">
-    </div>
-    <div class="col-sm-4">
-      <table class="table">
-        <tr>
-          <td>Invoice Date</td>
-          <td class="text-right"><?php echo $invoice_date; ?></td>
-        </tr>
-        <tr>
-          <td>Due Date</td>
-          <td class="text-right"><div class="<?php echo $invoice_color; ?>"><?php echo $invoice_due; ?></div></td>
-        </tr>
-      </table>
+    <div class="col-sm">
+      <div class="card">
+        <div class="card-header">
+          Details
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <li class="mb-1"><strong>Invoice Number:</strong> <div class="float-right"><?php echo $invoice_number; ?></div></li>
+            <li class="mb-1"><strong>Invoice Date:</strong> <div class="float-right"><?php echo $invoice_date; ?></div></li>
+            <li><strong>Payment Due:</strong> <div class="float-right <?php echo $invoice_color; ?>"><?php echo $invoice_due; ?></div></li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -174,6 +176,10 @@ if(isset($_GET['invoice_id'])){
   <div class="row mb-4">
     <div class="col-md-12">
       <div class="card">
+        <div class="card-header">
+          Items
+        </div>
+        
         <table class="table">
           <thead>
             <tr>
@@ -204,7 +210,7 @@ if(isset($_GET['invoice_id'])){
             ?>
 
             <tr>
-              <td class="text-center d-print-none"><a class="text-danger" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-trash-alt"></i></a></td>
+              <td class="text-center d-print-none"><a class="btn btn-sm btn-danger" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-trash"></i></a></td>
               <td><?php echo $item_name; ?></td>
               <td><?php echo $item_description; ?></td>
               <td class="text-center"><?php echo $item_quantity; ?></td>
@@ -222,10 +228,10 @@ if(isset($_GET['invoice_id'])){
             <tr class="d-print-none">
               
                 <td></td>            
-                <td><input type="text" class="form-control typeahead" name="name" id="item" placeholder="Product"></td>
-                <td><textarea class="form-control" id="description" rows="1" name="description" placeholder="Description"></textarea></td>
-                <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty" placeholder="Quantity"></td>
-                <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" id="price" name="price" placeholder="Price"></td>
+                <td><input type="text" class="form-control typeahead" name="name" id="item"></td>
+                <td><textarea class="form-control" id="description" rows="1" name="description"></textarea></td>
+                <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty"></td>
+                <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" id="price" name="price"></td>
                 <td>
                   <select dir="rtl" class="form-control" name="tax">
                     <option value="0.00">None</option>
@@ -242,12 +248,17 @@ if(isset($_GET['invoice_id'])){
 
   <div class="row mb-4">
     <div class="col-7">
-      <div class="card d-none d-print-block">
+      <div class="card">
+        <div class="card-header">
+          Notes
+        </div>
         <div class="card-body">
-          <div><?php echo $invoice_note; ?></div>
+          <div class="d-none d-print-block"><?php echo $invoice_note; ?></div>
+            <textarea rows="6" class="form-control mb-2 d-print-none" name="invoice_note"><?php echo $invoice_note; ?></textarea>
+        
+          
         </div>
       </div>
-      <textarea rows="6" class="form-control mb-2 d-print-none" name="invoice_note" placeholder="Notes"><?php echo $invoice_note; ?></textarea>
     </div>
     <div class="col-3 offset-2">
       <table class="table table-borderless">
@@ -285,8 +296,8 @@ if(isset($_GET['invoice_id'])){
 
 </form>
 
-<div class="row d-print-none mb-3">
-  <div class="col-sm">
+<div class="row mb-3">
+  <div class="col-sm d-print-none">
     <div class="card">
       <div class="card-header">
         History

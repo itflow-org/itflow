@@ -102,40 +102,29 @@ if(isset($_POST['login'])){
 
   <div class="container">
     <div class="card card-login mx-auto mt-5 bg-dark">
-      <div class="card-header mt-2 text-white text-center"><h3>Login</h3></div>
+      <div class="card-header mt-2 text-white text-center"><h3><i class="fa fa-fw fa-network-wired mr-2"></i><?php echo $config_app_name; ?></h3></div>
       <div class="card-body bg-white">
         <?php if(isset($response)) { echo $response; } ?>
         <form method="post">
-          
           <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-              </div>
-              <input type="text" class="form-control" name="email" placeholder="Username" required autofocus>
+            <div class="form-label-group">
+              <input type="email" id="inputEmail" name="email" class="form-control" placeholder="Email address" required autofocus>
+              <label for="inputEmail">Email address</label>
             </div>
           </div>
-
           <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-              </div>
-              <input type="password" class="form-control" name="password" placeholder="Password" required>
+            <div class="form-label-group">
+              <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required>
+              <label for="inputPassword">Password</label>
             </div>
           </div>
-
           <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-              </div>
-              <input type="text" class="form-control" name="current_code" placeholder="Token">
+            <div class="form-label-group">
+              <input type="text" id="inputToken" name="current_code" class="form-control" placeholder="2FA Token if applicable">
+              <label for="inputToken">Token</label>
             </div>
           </div>
-
-          <button class="btn btn-primary btn-block" type="submit" name="login">Sign in</button>
-        
+          <button class="btn btn-lg btn-primary btn-block" type="submit" name="login">Sign In</button>
         </form>
       </div>
     </div>
