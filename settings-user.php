@@ -6,7 +6,7 @@ $sql_recent_logins = mysqli_query($mysqli,"SELECT * FROM logs
     ORDER BY log_id DESC LIMIT 3");
 
 $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs 
-    WHERE user_id = $session_user_id
+    WHERE user_id = $session_user_id AND log_type NOT LIKE 'Login'
     ORDER BY log_id DESC LIMIT 5");
 ?>
 

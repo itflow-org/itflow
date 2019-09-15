@@ -50,7 +50,6 @@
 
 ?>
 
-
 <div class="card mb-3">
   <div class="card-header bg-dark text-white">
     <h6 class="float-left mt-1"><i class="fa fa-fw fa-building mr-2"></i>Companies</h6>
@@ -79,7 +78,14 @@
           while($row = mysqli_fetch_array($sql)){
             $company_id = $row['company_id'];
             $company_name = $row['company_name'];
+            $company_address = $row['config_company_address'];
+            $company_city = $row['config_company_city'];
+            $company_state = $row['config_company_state'];
+            $company_zip = $row['config_company_zip'];
+            $company_phone = $row['config_company_phone'];
+            $company_site = $row['config_company_site'];
             $company_logo = $row['config_invoice_logo'];
+            
             $initials = initials($company_name);
       
           ?>

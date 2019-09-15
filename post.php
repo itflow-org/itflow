@@ -90,6 +90,13 @@ if(isset($_POST['edit_user'])){
 if(isset($_POST['add_company'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
+    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
+    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
+    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
+    $phone = preg_replace("/[^0-9]/", '',$phone);
+    $site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['site']));
 
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_created_at = NOW()");
 
@@ -102,7 +109,7 @@ if(isset($_POST['add_company'])){
     mkdir("uploads/settings/$company_id");
     mkdir("uploads/tmp/$company_id");
  
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1");
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_company_address = '$address', config_company_city = '$city', config_company_state = '$state', config_company_zip = '$zip', config_company_phone = '$phone', config_company_site = '$site', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Created', log_description = '$name', log_created_at = NOW()");
@@ -116,8 +123,17 @@ if(isset($_POST['add_company'])){
 if(isset($_POST['edit_company'])){
     $company_id = intval($_POST['company_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
+    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
+    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
+    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
+    $phone = preg_replace("/[^0-9]/", '',$phone);
+    $site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['site']));
 
     mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_updated_at = NOW() WHERE company_id = $company_id");
+
+     mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$name', config_company_address = '$address', config_company_city = '$city', config_company_state = '$state', config_company_zip = '$zip', config_company_phone = '$phone', config_company_site = '$site' WHERE company_id = $company_id");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
