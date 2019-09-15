@@ -102,7 +102,7 @@ if(isset($_POST['add_company'])){
     mkdir("uploads/settings/$company_id");
     mkdir("uploads/tmp/$company_id");
  
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Created', log_description = '$name', log_created_at = NOW()");
@@ -162,7 +162,6 @@ if(isset($_POST['verify'])){
 
 if(isset($_POST['edit_general_settings'])){
 
-    $config_base_url = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url']));
     $config_api_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key']));
     
     $path = "$config_invoice_logo";
@@ -177,7 +176,7 @@ if(isset($_POST['edit_general_settings'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);   
     }
 
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_logo = '$path', config_api_key = '$config_api_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_logo = '$path', config_api_key = '$config_api_key' WHERE company_id = $session_company_id");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'General', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");

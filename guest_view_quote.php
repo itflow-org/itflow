@@ -56,9 +56,18 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     }
     $config_company_email = $row['config_company_email'];
     $config_invoice_logo = $row['config_invoice_logo'];
+    $config_quote_footer = $row['config_quote_footer'];
+
+    $ip = get_ip();
+    $os = get_os();
+    $browser = get_web_browser();
+    $device = get_device();
 
     //Mark viewed in history
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$quote_status', history_description = 'Quote viewed', history_created_at = NOW(), quote_id = $quote_id, company_id = $company_id");
+    //Mark viewed in history
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser - $device', history_created_at = NOW(), quote_id = $quote_id, company_id = $company_id");
+
+    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Quote Viewed', alert_message = 'Quote $quote_number has been viewed by $client_name - $ip - $os - $browser - $device', alert_date = NOW(), company_id = $company_id");
 
     //Update status to Viewed only if invoice_status = "Sent" 
     if($quote_status == 'Sent'){
@@ -81,10 +90,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
   ?>
 
   <div class="row d-print-none">
-    <div class="col-md-6">
-      <h2>Quote <?php echo $quote_number; ?><span class="p-2 ml-2 badge badge-<?php echo $quote_badge_color; ?>"><?php echo $quote_status; ?></span></h2>
-    </div>
-    <div class="col-md-6">
+    <div class="col-md-12">
       <div class="float-right">
         <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
         <a class="btn btn-primary" download target="_blank" href="guest_post.php?pdf_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-download"></i> Download</a>
@@ -98,59 +104,52 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     </div>
   </div>
 
-  <hr>
+  <hr class="d-print-none">
 
   <div class="row mb-4">
     <div class="col-sm-2">
       <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
-    </div> 
+    </div>
+    <div class="col-sm-10">
+      <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo $quote_number; ?></small></h3>
+    </div>
   </div>
 
   <div class="row mb-4">
+    
     <div class="col-sm">
-      <div class="card">
-        <div class="card-header">
-          From
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
-            <li><strong><?php echo $company_name; ?></strong></li>
-            <li><?php echo $config_company_address; ?></li>
-            <li class="mb-3"><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
-            <li><?php echo $config_company_phone; ?></li>
-            <li><?php echo $config_company_email; ?></li>
-          </ul>
-        </div>
-      </div>
+      <ul class="list-unstyled">
+        <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
+        <li><?php echo $config_company_address; ?></li>
+        <li><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
+        <li>P: <?php echo $config_company_phone; ?></li>
+        <li><?php echo $config_company_email; ?></li>
+      </ul>
+      
     </div>
+    
     <div class="col-sm">
-      <div class="card">
-        <div class="card-header">
-          Quote To
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
-            <li><strong><?php echo $client_name; ?></strong></li>
-            <li><?php echo $client_address; ?></li>
-            <li class="mb-3"><?php echo "$client_city $client_state $client_zip"; ?></li>
-            <li><?php echo $client_phone; ?></li>
-            <li><?php echo $client_email; ?></li>
-          </ul>
-        </div>
-      </div>
+
+      <ul class="list-unstyled text-right">
+        <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
+        <li><?php echo $client_address; ?></li>
+        <li><?php echo "$client_city $client_state $client_zip"; ?></li>
+        <li>P: <?php echo $client_phone; ?></li>
+        <li>E: <?php echo $client_email; ?></li>
+      </ul>
+    
     </div>
-    <div class="col-sm">
-      <div class="card">
-        <div class="card-header">
-          Details
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
-            <li class="mb-1"><strong>Quote Number:</strong> <div class="float-right"><?php echo $quote_number; ?></div></li>
-            <li class="mb-1"><strong>Quote Date:</strong> <div class="float-right"><?php echo $quote_date; ?></div></li>
-          </ul>
-        </div>
-      </div>
+  </div>
+  <div class="row mb-4">
+    <div class="col-sm-8">
+    </div>
+    <div class="col-sm-4">
+      <table class="table">
+        <tr>
+          <td>Quote Date</td>
+          <td class="text-right"><?php echo $quote_date; ?></td>
+        </tr>
+      </table>
     </div>
   </div>
 
@@ -159,10 +158,6 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
   <div class="row mb-4">
     <div class="col-md-12">
       <div class="card">
-        <div class="card-header">
-          Items
-        </div>
-        
         <table class="table">
           <thead>
             <tr>
@@ -215,9 +210,6 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
   <div class="row mb-4">
     <div class="col-7">
       <div class="card">
-        <div class="card-header">
-          Notes
-        </div>
         <div class="card-body">
           <div><?php echo $quote_note; ?></div>
         </div>
@@ -251,6 +243,10 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
       </table>
     </div>
   </div>
+
+  <hr class="mt-5">
+
+  <center><?php echo $config_quote_footer; ?></center>
 
 <?php 
   }else{

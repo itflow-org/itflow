@@ -285,6 +285,10 @@ if(isset($_GET['invoice_id'])){
 
 </form>
 
+<hr class="d-none d-print-block mt-5">
+
+<center class="d-none d-print-block"><?php echo $config_invoice_footer; ?></center>
+
 <div class="row d-print-none mb-3">
   <div class="col-sm">
     <div class="card">

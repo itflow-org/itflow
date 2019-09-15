@@ -56,6 +56,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     }
     $config_company_email = $row['config_company_email'];
     $config_invoice_logo = $row['config_invoice_logo'];
+    $config_invoice_footer = $row['config_invoice_footer'];
     $config_stripe_enable = $row['config_stripe_enable'];
     $config_stripe_publishable = $row['config_stripe_publishable'];
     $config_stripe_secret = $row['config_stripe_secret'];
@@ -132,9 +133,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     </div>
   </div>
   <div class="row mb-4">
-    <div class="col-sm">
-      
-      
+    <div class="col-sm">    
       <ul class="list-unstyled">
         <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
         <li><?php echo $config_company_address; ?></li>
@@ -269,6 +268,9 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     </div>
   </div>
 
+  <hr class="mt-5">
+
+  <center><?php echo $config_invoice_footer; ?></center>
 
 <?php 
   }else{

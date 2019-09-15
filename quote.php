@@ -247,6 +247,10 @@ if(isset($_GET['quote_id'])){
   </div>
 </form>
 
+<hr class="d-none d-print-block mt-5">
+
+<center class="d-none d-print-block"><?php echo $config_quote_footer; ?></center>
+
 <div class="row mb-3">
   <div class="col-sm d-print-none">
     <div class="card">
