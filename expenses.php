@@ -44,7 +44,7 @@
     AND expenses.vendor_id = vendors.vendor_id
     AND expenses.account_id = accounts.account_id
     AND expenses.company_id = $session_company_id
-    AND (vendor_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%')
+    AND (vendor_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));

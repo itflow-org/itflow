@@ -24,6 +24,7 @@ while($row = mysqli_fetch_array($sql)){
   $calendar_id = $row['calendar_id'];
   $calendar_name = $row['calendar_name'];
   $calendar_color = $row['calendar_color'];
+  $client_id = $row['client_id'];
 
   include("edit_calendar_event_modal.php");
 

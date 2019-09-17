@@ -221,18 +221,18 @@ if(isset($_GET['invoice_id'])){
 
             <tr class="d-print-none">
               
-                <td></td>            
-                <td><input type="text" class="form-control typeahead" name="name" id="item" placeholder="Product"></td>
-                <td><textarea class="form-control" id="description" rows="1" name="description" placeholder="Description"></textarea></td>
-                <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty" placeholder="Quantity"></td>
-                <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" id="price" name="price" placeholder="Price"></td>
-                <td>
-                  <select dir="rtl" class="form-control" name="tax">
-                    <option value="0.00">None</option>
-                    <option value="0.07">State Tax 7%</option>
-                  </select>
-                </td>
-                <td></td>  
+              <td></td>            
+              <td><input type="text" class="form-control" name="name"  placeholder="Product"></td>
+              <td><textarea class="form-control"  rows="1" name="description" placeholder="Description"></textarea></td>
+              <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty" placeholder="Quantity"></td>
+              <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
+              <td>
+                <select dir="rtl" class="form-control" name="tax">
+                  <option value="0.00">None</option>
+                  <option value="0.07">State Tax 7%</option>
+                </select>
+              </td>
+              <td></td>  
             </tr>
           </tbody>
         </table>

@@ -42,26 +42,57 @@
               </select>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group col">
-              <label>Starts <strong class="text-danger">*</strong></label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                </div>
-                <input type="datetime-local" class="form-control" name="start" required>
+          
+          <div class="form-group">
+            <label>Starts <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
               </div>
-            </div>
-            <div class="form-group col">
-              <label>Ends <strong class="text-danger">*</strong></label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
-                </div>
-                <input type="datetime-local" class="form-control" name="end" required>
-              </div>
+              <input type="datetime-local" class="form-control" name="start" required>
             </div>
           </div>
+          
+          <div class="form-group">
+            <label>Ends <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
+              </div>
+              <input type="datetime-local" class="form-control" name="end" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Client</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+              </div>
+              <select class="form-control selectpicker show-tick" data-live-search="true" name="client">
+                <option value="">- Client -</option>
+                <?php 
+                
+                $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id"); 
+                while($row = mysqli_fetch_array($sql)){
+                  $client_id = $row['client_id'];
+                  $client_name = $row['client_name'];
+                  $client_email = $row['client_email'];
+                ?>
+                  <option value="<?php echo $client_id; ?>"><?php echo "$client_name - $client_email"; ?></option>
+                
+                <?php
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_event" value="1" >
+            <label class="custom-control-label" for="customControlAutosizing">Email Event</label>
+          </div>
+
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

@@ -13,8 +13,6 @@ require_once $mpdf_path . '/vendor/autoload.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-$todays_date = date('Y-m-d');
-
 if(isset($_POST['add_user'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
@@ -555,8 +553,53 @@ if(isset($_POST['add_event'])){
     $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
     $start = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start']));
     $end = strip_tags(mysqli_real_escape_string($mysqli,$_POST['end']));
+    $client = intval($_POST['client']);
+    $email_event = intval($_POST['email_event']);
 
-    mysqli_query($mysqli,"INSERT INTO events SET event_title = '$title', event_start = '$start', event_end = '$end', event_created_at = NOW(), calendar_id = $calendar_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO events SET event_title = '$title', event_start = '$start', event_end = '$end', event_created_at = NOW(), calendar_id = $calendar_id, client_id = $client, company_id = $session_company_id");
+
+    //If email is checked
+    if($email_event == 1){
+
+        $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client AND company_id = $session_company_id");
+        $row = mysqli_fetch_array($sql);
+        $client_name = $row['client_name'];
+        $client_email = $row['client_email'];
+
+        $mail = new PHPMailer(true);
+
+        try {
+
+            //Mail Server Settings
+
+            //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+            $mail->isSMTP();                                            // Set mailer to use SMTP
+            $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+            $mail->Username   = $config_smtp_username;                     // SMTP username
+            $mail->Password   = $config_smtp_password;                               // SMTP password
+            $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+            $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+
+            //Recipients
+            $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+            $mail->addAddress("$client_email", "$client_name");     // Add a recipient
+
+            // Content
+            $mail->isHTML(true);                                  // Set email format to HTML
+            $mail->Subject = "New Calendar Event";
+            $mail->Body    = "Hello $client_name,<br><br>A calendar event has been scheduled: $title at $start<br><br><br>~<br>$config_company_name<br>$config_company_phone";
+
+            $mail->send();
+            echo 'Message has been sent';
+
+        } catch (Exception $e) {
+            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+
+        //Logging of email sent
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Emailed', log_description = 'Emailed $client_name to email $client_email - $title', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Created', log_description = '$title', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -574,8 +617,53 @@ if(isset($_POST['edit_event'])){
     $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
     $start = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start']));
     $end = strip_tags(mysqli_real_escape_string($mysqli,$_POST['end']));
+    $client = intval($_POST['client']);
+    $email_event = intval($_POST['email_event']);
 
-    mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_start = '$start', event_end = '$end', event_updated_at = NOW(), calendar_id = $calendar_id WHERE event_id = $event_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_start = '$start', event_end = '$end', event_updated_at = NOW(), calendar_id = $calendar_id, client_id = $client WHERE event_id = $event_id AND company_id = $session_company_id");
+
+    //If email is checked
+    if($email_event == 1){
+
+        $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client AND company_id = $session_company_id");
+        $row = mysqli_fetch_array($sql);
+        $client_name = $row['client_name'];
+        $client_email = $row['client_email'];
+
+        $mail = new PHPMailer(true);
+
+        try {
+
+            //Mail Server Settings
+
+            //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+            $mail->isSMTP();                                            // Set mailer to use SMTP
+            $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+            $mail->Username   = $config_smtp_username;                     // SMTP username
+            $mail->Password   = $config_smtp_password;                               // SMTP password
+            $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+            $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+
+            //Recipients
+            $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+            $mail->addAddress("$client_email", "$client_name");     // Add a recipient
+
+            // Content
+            $mail->isHTML(true);                                  // Set email format to HTML
+            $mail->Subject = "Calendar Event Rescheduled";
+            $mail->Body    = "Hello $client_name,<br><br>A calendar event has been rescheduled: $title at $start<br><br><br>~<br>$config_company_name<br>$config_company_phone";
+
+            $mail->send();
+            echo 'Message has been sent';
+
+        } catch (Exception $e) {
+            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+
+        //Logging of email sent
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Emailed', log_description = 'Emailed $client_name to email $client_email - $title', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar', log_action = 'Modified', log_description = '$title', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -1389,7 +1477,7 @@ if(isset($_POST['add_quote_to_invoice'])){
     //Generate a unique URL key for clients to access
     $url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -1422,7 +1510,7 @@ if(isset($_POST['save_quote'])){
 
     $quote_id = intval($_POST['quote_id']);
     
-    if(isset($_POST['name'])){
+    if(!empty($_POST['name'])){
         $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
         $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
         $qty = floatval($_POST['qty']);
@@ -2055,12 +2143,12 @@ if(isset($_POST['save_invoice'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     
-    if(isset($_POST['name'])){
+    if(!empty($_POST['name'])){
         $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
         $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-        $qty = $_POST['qty'];
-        $price = $_POST['price'];
-        $tax = $_POST['tax'];
+        $qty = floatval($_POST['qty']);
+        $price = floatval($_POST['price']);
+        $tax = floatval($_POST['tax']);
         
         $subtotal = $price * $qty;
         $tax = $subtotal * $tax;
@@ -2080,7 +2168,6 @@ if(isset($_POST['save_invoice'])){
         $_SESSION['alert_message'] = "Item added";
 
     }
-
 
     if(isset($_POST['invoice_note'])){
 
@@ -2190,7 +2277,7 @@ if(isset($_POST['add_payment'])){
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
                   $mail->Subject = "Payment Recieved - Invoice $invoice_number";
-                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment in the amount of $$formatted_amount for invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$config_company_name<br>$config_company_phone";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment in the amount of $$formatted_amount for invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $$formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$config_company_name<br>$config_company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';
@@ -2226,7 +2313,7 @@ if(isset($_POST['add_payment'])){
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
                   $mail->Subject = "Partial Payment Recieved - Invoice $invoice_number";
-                  $mail->Body    = "Hello $client_name,<br><br>We have recieved partial payment in the amount of $$formatted_amount and it has been applied to invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$config_company_name<br>$config_company_phone";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved partial payment in the amount of $$formatted_amount and it has been applied to invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $$formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$config_company_name<br>$config_company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';

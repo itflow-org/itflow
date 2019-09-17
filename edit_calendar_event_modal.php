@@ -43,26 +43,55 @@
               </select>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group col">
-              <label>Starts <strong class="text-danger">*</strong></label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                </div>
-                <input type="datetime-local" class="form-control" name="start" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_start)); ?>" required>
+          <div class="form-group">
+            <label>Starts <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
               </div>
-            </div>
-            <div class="form-group col">
-              <label>Ends <strong class="text-danger">*</strong></label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
-                </div>
-                <input type="datetime-local" class="form-control" name="end" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_end)); ?>" required>
-              </div>
+              <input type="datetime-local" class="form-control" name="start" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_start)); ?>" required>
             </div>
           </div>
+          <div class="form-group">
+            <label>Ends <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
+              </div>
+              <input type="datetime-local" class="form-control" name="end" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_end)); ?>" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Client</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+              </div>
+              <select class="form-control selectpicker show-tick" data-live-search="true" name="client">
+                <option value="">- Client -</option>
+                <?php 
+                
+                $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id"); 
+                while($row = mysqli_fetch_array($sql_clients)){
+                  $client_id_select = $row['client_id'];
+                  $client_name_select = $row['client_name'];
+                  $client_email_select = $row['client_email'];
+                ?>
+                  <option <?php if($client_id == $client_id_select){ echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo "$client_name_select - $client_email_select"; ?></option>
+                
+                <?php
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="customControlAutosizing<?php echo $event_id; ?>" name="email_event" value="1" >
+            <label class="custom-control-label" for="customControlAutosizing<?php echo $event_id; ?>">Email Event</label>
+          </div>
+
         </div>
         <div class="modal-footer bg-white">
           <a href="post.php?delete_event=<?php echo $event_id; ?>" class="btn btn-outline-danger mr-auto">Delete</a>
