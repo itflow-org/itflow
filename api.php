@@ -22,6 +22,10 @@ if(isset($_GET['api_key'])){
 
             echo "$name - $cid";
 
+            mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Inbound Call', alert_message = 'Inbound call from $name - $cid', alert_date = NOW(), company_id = $company_id");
+
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Call', log_action = 'Inbound', log_description = 'Inbound call from $name - $cid', log_created_at = NOW(), company_id = $company_id");
+
         }
 
         if(isset($_GET['incoming_call'])){

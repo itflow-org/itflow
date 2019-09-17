@@ -204,7 +204,10 @@ if(isset($_GET['invoice_id'])){
             ?>
 
             <tr>
-              <td class="text-center d-print-none"><a class="text-danger" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-trash-alt"></i></a></td>
+              <td class="text-center d-print-none">
+                <a class="text-secondary" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit"></i></a>
+                <a class="text-danger" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash-alt"></i></a>
+              </td>
               <td><?php echo $item_name; ?></td>
               <td><?php echo $item_description; ?></td>
               <td class="text-center"><?php echo $item_quantity; ?></td>
@@ -214,6 +217,8 @@ if(isset($_GET['invoice_id'])){
             </tr>
 
             <?php 
+
+            include("edit_item_modal.php");
 
             }
 
@@ -228,8 +233,8 @@ if(isset($_GET['invoice_id'])){
               <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
               <td>
                 <select dir="rtl" class="form-control" name="tax">
-                  <option value="0.00">None</option>
-                  <option value="0.07">State Tax 7%</option>
+                  <option <?php if($item_tax == '0.00'){ echo "selected"; } ?> value="0.00">None</option>
+                  <option <?php if($item_tax == '0.07'){ echo "selected"; } ?> value="0.07">State Tax 7%</option>
                 </select>
               </td>
               <td></td>  
