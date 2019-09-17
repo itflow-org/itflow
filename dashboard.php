@@ -505,7 +505,7 @@ var myPieChart = new Chart(ctx, {
   data: {
     labels: [
       <?php
-        $sql_vendors = mysqli_query($mysqli,"SELECT DISTINCT vendor_name, vendors.vendor_id FROM vendors, expenses WHERE expenses.vendor_id = vendors.vendor_id AND YEAR(expense_date) = $year AND vendors.company_id = $session_company_id");
+        $sql_vendors = mysqli_query($mysqli,"SELECT DISTINCT vendor_name, vendors.vendor_id FROM vendors, expenses WHERE expenses.vendor_id = vendors.vendor_id AND expenses.vendor_id > 0 AND YEAR(expense_date) = $year AND vendors.company_id = $session_company_id");
         while($row = mysqli_fetch_array($sql_vendors)){
           $vendor_name = $row['vendor_name'];
           echo "\"$vendor_name\",";
@@ -517,7 +517,7 @@ var myPieChart = new Chart(ctx, {
     datasets: [{
       data: [
         <?php
-          $sql_vendors = mysqli_query($mysqli,"SELECT DISTINCT vendor_name, vendors.vendor_id FROM vendors, expenses WHERE expenses.vendor_id = vendors.vendor_id AND YEAR(expense_date) = $year AND vendors.company_id = $session_company_id");
+          $sql_vendors = mysqli_query($mysqli,"SELECT DISTINCT vendor_name, vendors.vendor_id FROM vendors, expenses WHERE expenses.vendor_id = vendors.vendor_id AND expenses.vendor_id > 0 AND YEAR(expense_date) = $year AND vendors.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql_vendors)){
             $vendor_id = $row['vendor_id'];
 
@@ -532,7 +532,7 @@ var myPieChart = new Chart(ctx, {
       ],
       backgroundColor: [
         <?php
-          $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expenses.category_id = categories.category_id AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
+          $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expenses.category_id = categories.category_id AND expenses.vendor_id > 0 AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql_categories)){
             $category_color = $row['category_color'];
             echo "\"$category_color\",";
