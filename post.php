@@ -1348,7 +1348,7 @@ if(isset($_POST['add_invoice_recurring'])){
     $row = mysqli_fetch_array($sql);
     $invoice_date = $row['invoice_date'];
     $invoice_amount = $row['invoice_amount'];
-    $invoice_note = $row['invoice_note'];
+    $invoice_note = mysqli_real_escape_string($mysqli,$row['invoice_note']); //SQL Escape in case notes have , them
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 

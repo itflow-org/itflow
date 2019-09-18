@@ -130,10 +130,10 @@ while($row = mysqli_fetch_array($sql_companies)){
       $recurring_last_sent = $row['recurring_last_sent'];
       $recurring_next_date = $row['recurring_next_date'];
       $recurring_amount = $row['recurring_amount'];
-      $recurring_note = $row['recurring_note'];
+      $recurring_note = mysqli_real_escape_string($mysqli,$row['recurring_note']); //Escape SQL
       $category_id = $row['category_id'];
       $client_id = $row['client_id'];
-      $client_name = $row['client_name'];
+      $client_name = mysqli_real_escape_string($mysqli,$row['client_name']); //Escape SQL just in case a name is like Safran's etc
       $client_net_terms = $row['client_net_terms'];
 
       //Get the last Invoice Number and add 1 for the new invoice number
@@ -153,8 +153,8 @@ while($row = mysqli_fetch_array($sql_companies)){
 
       while($row = mysqli_fetch_array($sql_invoice_items)){
         $item_id = $row['item_id'];
-        $item_name = $row['item_name'];
-        $item_description = $row['item_description'];
+        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']); //SQL Escape incase of ,
+        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']); //SQL Escape incase of ,
         $item_quantity = $row['item_quantity'];
         $item_price = $row['item_price'];
         $item_subtotal = $row['item_price'];
