@@ -2004,7 +2004,7 @@ if(isset($_POST['save_recurring'])){
 
     $recurring_id = intval($_POST['recurring_id']);
     
-    if(isset($_POST['name'])){
+    if(!empty($_POST['name'])){
         $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
         $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
         $qty = floatval($_POST['qty']);
