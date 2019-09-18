@@ -36,7 +36,7 @@
   $row = mysqli_fetch_array($sql_total_cancelled);
   $total_cancelled = $row['total_cancelled'];
   
-  $sql_total_partial = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_partial FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.invoice_status = 'Partial' AND invoices.company_id = $session_company_id");
+  $sql_total_partial = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS total_partial FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.invoice_status = 'Partial' AND invoices.company_id = $session_company_id");
   $row = mysqli_fetch_array($sql_total_partial);
   $total_partial = $row['total_partial'];
   $total_partial_count = mysqli_num_rows($sql_total_partial);
