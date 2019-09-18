@@ -1295,7 +1295,7 @@ if(isset($_POST['add_invoice_copy'])){
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
 
     //Get Net Terms
-    $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients, invoices WHERE clients.client_id = invoices.client_id AND invoices.invoice_id = $invoice_id AND company_id = $session_company_id");
+    $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients, invoices WHERE clients.client_id = invoices.client_id AND invoices.invoice_id = $invoice_id AND invoices.company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $client_net_terms = $row['client_net_terms'];
 
