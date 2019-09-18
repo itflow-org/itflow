@@ -73,6 +73,7 @@ $total_pages = ceil($total_found_rows / 10);
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_frequency&o=<?php echo $disp; ?>">Frequency</a></th>
+            <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_amount&o=<?php echo $disp; ?>">Amount</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_last_sent&o=<?php echo $disp; ?>">Last Sent</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_next_date&o=<?php echo $disp; ?>">Next Date</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Category</a></th>
@@ -92,6 +93,7 @@ $total_pages = ceil($total_found_rows / 10);
                   $recurring_last_sent = "-";
                 }
                 $recurring_next_date = $row['recurring_next_date'];
+                $recurring_amount = $row['recurring_amount'];
                 $category_id = $row['category_id'];
                 $category_name = $row['category_name'];
                 if($recurring_status == 1){
@@ -106,6 +108,7 @@ $total_pages = ceil($total_found_rows / 10);
 
               <tr>
                 <td><?php echo ucwords($recurring_frequency); ?>ly</td>
+                <td class="text-right text-monospace">$<?php echo number_format($recurring_amount,2); ?></td>
                 <td><?php echo $recurring_last_sent; ?></td>
                 <td><?php echo $recurring_next_date; ?></td>
                 <td><?php echo $category_name; ?></td>

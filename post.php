@@ -479,7 +479,7 @@ if(isset($_POST['add_client'])){
     mkdir("uploads/clients/$session_company_id/$client_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Created', log_description = '$name', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Client added";
     
@@ -509,7 +509,7 @@ if(isset($_POST['edit_client'])){
     mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Client $name updated";
     
@@ -598,11 +598,11 @@ if(isset($_POST['add_event'])){
         }
 
         //Logging of email sent
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Emailed', log_description = 'Emailed $client_name to email $client_email - $title', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Emailed', log_description = 'Emailed $client_name to email $client_email - $title', log_created_at = NOW(), client_id = $client, company_id = $session_company_id, user_id = $session_user_id");
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Created', log_description = '$title', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Created', log_description = '$title', log_created_at = NOW(), client_id = $client, company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Event added to the calendar";
     
@@ -662,11 +662,11 @@ if(isset($_POST['edit_event'])){
         }
 
         //Logging of email sent
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Emailed', log_description = 'Emailed $client_name to email $client_email - $title', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Emailed', log_description = 'Emailed $client_name to email $client_email - $title', log_created_at = NOW(), client_id = $client, company_id = $session_company_id, user_id = $session_user_id");
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar', log_action = 'Modified', log_description = '$title', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar', log_action = 'Modified', log_description = '$title', log_created_at = NOW(), client_id = $client, company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Event modified on the calendar";
     
@@ -702,7 +702,7 @@ if(isset($_POST['add_ticket'])){
     mysqli_query($mysqli,"INSERT INTO tickets SET ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $session_user_id, client_id = $client_id, company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Created', log_description = '$subject', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Created', log_description = '$subject', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Ticket created";
     

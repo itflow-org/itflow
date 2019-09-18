@@ -21,9 +21,9 @@ if(isset($_GET['api_key'])){
             $name = $row['name'];
 
             echo "$name - $cid";
-
+            //Alert whern call comes through
             mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Inbound Call', alert_message = 'Inbound call from $name - $cid', alert_date = NOW(), company_id = $company_id");
-
+            //Log When call comes through
             mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Call', log_action = 'Inbound', log_description = 'Inbound call from $name - $cid', log_created_at = NOW(), company_id = $company_id");
 
         }
@@ -44,6 +44,9 @@ if(isset($_GET['api_key'])){
 
                 echo "$client_name - $client_phone<br>";
             }
+
+            //Log
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Client Numbers', log_description = 'Client Phone Numbers were pulled', log_created_at = NOW(), company_id = $company_id");
 
         }
 
@@ -117,6 +120,10 @@ if(isset($_GET['api_key'])){
 
             echo '</AddressBook>';
 
+            //Log
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Phonebook', log_description = 'XML Phonebook Downloaded', log_created_at = NOW(), company_id = $company_id");
+
+
         }
 
         if(isset($_GET['client_emails'])){
@@ -129,6 +136,10 @@ if(isset($_GET['api_key'])){
 
                 echo "$client_name - $client_email<br>";
             }
+
+            //Log
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Client Emails', log_description = 'Client Emails were pulled', log_created_at = NOW(), company_id = $company_id");
+
 
         }
 
@@ -151,14 +162,22 @@ if(isset($_GET['api_key'])){
 
             echo $balance;
 
+            //Log
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Account Balance', log_description = 'Client $client_id checked their balance which had a balance of $balance', log_created_at = NOW(), company_id = $company_id");
+
+
         }
 
     }else{
         echo "Incorrect API Key";
+
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Incorrect Key', log_description = 'Failed', log_created_at = NOW()");
     }
    
 }else{
     echo "Missing the API Key";
+
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'No Key', log_description = 'No API Key specified', log_created_at = NOW()");
 }
 
 ?>
