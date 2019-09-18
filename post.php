@@ -1306,7 +1306,7 @@ if(isset($_POST['add_invoice_copy'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $invoice_amount = $row['invoice_amount'];
-    $invoice_note = $row['invoice_note'];
+    $invoice_note = mysqli_real_escape_string($mysqli,$row['invoice_note']);
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
@@ -1319,8 +1319,8 @@ if(isset($_POST['add_invoice_copy'])){
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id");
     while($row = mysqli_fetch_array($sql_items)){
         $item_id = $row['item_id'];
-        $item_name = $row['item_name'];
-        $item_description = $row['item_description'];
+        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
+        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
         $item_quantity = $row['item_quantity'];
         $item_price = $row['item_price'];
         $item_subtotal = $row['item_subtotal'];
@@ -1361,8 +1361,8 @@ if(isset($_POST['add_invoice_recurring'])){
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql_items)){
         $item_id = $row['item_id'];
-        $item_name = $row['item_name'];
-        $item_description = $row['item_description'];
+        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
+        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
         $item_quantity = $row['item_quantity'];
         $item_price = $row['item_price'];
         $item_subtotal = $row['item_subtotal'];
@@ -1424,7 +1424,7 @@ if(isset($_POST['add_quote_copy'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $quote_amount = $row['quote_amount'];
-    $quote_note = $row['quote_note'];
+    $quote_note = mysqli_real_escape_string($mysqli,$row['quote_note']);
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
@@ -1437,8 +1437,8 @@ if(isset($_POST['add_quote_copy'])){
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
     while($row = mysqli_fetch_array($sql_items)){
         $item_id = $row['item_id'];
-        $item_name = $row['item_name'];
-        $item_description = $row['item_description'];
+        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
+        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
         $item_quantity = $row['item_quantity'];
         $item_price = $row['item_price'];
         $item_subtotal = $row['item_subtotal'];
@@ -1470,7 +1470,7 @@ if(isset($_POST['add_quote_to_invoice'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $quote_amount = $row['quote_amount'];
-    $quote_note = $row['quote_note'];
+    $quote_note = mysqli_real_escape_string($mysqli,$row['quote_note']);
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
@@ -1486,8 +1486,8 @@ if(isset($_POST['add_quote_to_invoice'])){
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id");
     while($row = mysqli_fetch_array($sql_items)){
         $item_id = $row['item_id'];
-        $item_name = $row['item_name'];
-        $item_description = $row['item_description'];
+        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
+        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
         $item_quantity = $row['item_quantity'];
         $item_price = $row['item_price'];
         $item_subtotal = $row['item_subtotal'];
@@ -2007,9 +2007,9 @@ if(isset($_POST['save_recurring'])){
     if(isset($_POST['name'])){
         $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
         $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-        $qty = $_POST['qty'];
-        $price = $_POST['price'];
-        $tax = $_POST['tax'];
+        $qty = floatval($_POST['qty']);
+        $price = floatval($_POST['price']);
+        $tax = floatval($_POST['tax']);
         
         $subtotal = $price * $qty;
         $tax = $subtotal * $tax;
@@ -2488,7 +2488,7 @@ if(isset($_GET['email_invoice'])){
 if(isset($_POST['add_revenue'])){
 
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $amount = $_POST['amount'];
+    $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
     $category = intval($_POST['category']);
     $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
@@ -2510,7 +2510,7 @@ if(isset($_POST['edit_revenue'])){
 
     $revenue_id = intval($_POST['revenue_id']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $amount = $_POST['amount'];
+    $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
     $category = intval($_POST['category']);
     $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
@@ -3346,10 +3346,9 @@ if(isset($_GET['force_recurring'])){
     $recurring_last_sent = $row['recurring_last_sent'];
     $recurring_next_date = $row['recurring_next_date'];
     $recurring_amount = $row['recurring_amount'];
-    $recurring_note = $row['recurring_note'];
+    $recurring_note = mysqli_real_escape_string($mysqli,$row['recurring_note']);
     $category_id = $row['category_id'];
     $client_id = $row['client_id'];
-    $client_name = $row['client_name'];
     $client_net_terms = $row['client_net_terms'];
 
     //Get the last Invoice Number and add 1 for the new invoice number
@@ -3369,8 +3368,8 @@ if(isset($_GET['force_recurring'])){
 
     while($row = mysqli_fetch_array($sql_invoice_items)){
         $item_id = $row['item_id'];
-        $item_name = $row['item_name'];
-        $item_description = $row['item_description'];
+        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
+        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
         $item_quantity = $row['item_quantity'];
         $item_price = $row['item_price'];
         $item_subtotal = $row['item_price'];
