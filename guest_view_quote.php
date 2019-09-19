@@ -63,15 +63,15 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     $browser = get_web_browser();
     $device = get_device();
 
-    //Mark viewed in history
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser - $device', history_created_at = NOW(), quote_id = $quote_id, company_id = $company_id");
-
-    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Quote Viewed', alert_message = 'Quote $quote_number has been viewed by $client_name - $ip - $os - $browser - $device', alert_date = NOW(), company_id = $company_id");
-
     //Update status to Viewed only if invoice_status = "Sent" 
     if($quote_status == 'Sent'){
       mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Viewed' WHERE quote_id = $quote_id");
     }
+
+    //Mark viewed in history
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser - $device', history_created_at = NOW(), quote_id = $quote_id, company_id = $company_id");
+
+    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Quote Viewed', alert_message = 'Quote $quote_number has been viewed by $client_name - $ip - $os - $browser - $device', alert_date = NOW(), company_id = $company_id");
 
     //Set Badge color based off of quote status
     if($quote_status == "Sent"){

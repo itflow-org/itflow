@@ -66,15 +66,15 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     $browser = get_web_browser();
     $device = get_device();
 
-    //Mark viewed in history
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed - $ip - $os - $browser - $device', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $company_id");
-
-    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice Viewed', alert_message = 'Invoice $invoice_number has been viewed by $client_name - $ip - $os - $browser - $device', alert_date = NOW(), company_id = $company_id");
-
     //Update status to Viewed only if invoice_status = "Sent" 
     if($invoice_status == 'Sent'){
       mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Viewed' WHERE invoice_id = $invoice_id");
     }
+
+    //Mark viewed in history
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed - $ip - $os - $browser - $device', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $company_id");
+
+    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice Viewed', alert_message = 'Invoice $invoice_number has been viewed by $client_name - $ip - $os - $browser - $device', alert_date = NOW(), company_id = $company_id");
 
     $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
