@@ -2028,7 +2028,7 @@ if(isset($_POST['save_recurring'])){
 
     }
 
-    if(!empty($_POST['recurring_note'])){
+    if(isset($_POST['recurring_note'])){
 
         $recurring_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['recurring_note']));
 

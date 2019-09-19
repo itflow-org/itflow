@@ -8,7 +8,7 @@
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-        <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+        <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
         <input type="hidden" name="balance" value="<?php echo $balance; ?>">
         <div class="modal-body bg-white">
           
@@ -65,7 +65,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_payment" class="btn btn-primary">Save</button>
+          <button type="submit" name="edit_item" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>
