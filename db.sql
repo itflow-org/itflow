@@ -414,6 +414,7 @@ CREATE TABLE `logs` (
   `log_action` varchar(255) NOT NULL,
   `log_description` varchar(255) NOT NULL,
   `log_created_at` datetime NOT NULL,
+  `client_id` int(11) DEFAULT NULL,
   `invoice_id` int(11) DEFAULT NULL,
   `quote_id` int(11) DEFAULT NULL,
   `recurring_id` int(11) DEFAULT NULL,
@@ -564,7 +565,7 @@ DROP TABLE IF EXISTS `revenues`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `revenues` (
-  `revenue_id` int(11) NOT NULL AUTO_INCREMENT,
+  `revenue_id` int(11) NOT NULL,
   `revenue_date` date NOT NULL,
   `revenue_amount` decimal(15,2) NOT NULL,
   `revenue_payment_method` varchar(200) DEFAULT NULL,
@@ -630,7 +631,6 @@ CREATE TABLE `settings` (
   `config_stripe_enable` int(1) DEFAULT NULL,
   `config_stripe_publishable` varchar(255) DEFAULT NULL,
   `config_stripe_secret` varchar(255) DEFAULT NULL,
-  `config_base_url` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -818,4 +818,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-09-14 20:38:23
+-- Dump completed on 2019-09-23 22:16:00
