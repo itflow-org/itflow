@@ -565,7 +565,7 @@ DROP TABLE IF EXISTS `revenues`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `revenues` (
-  `revenue_id` int(11) NOT NULL,
+  `revenue_id` int(11) NOT NULL AUTO_INCREMENT,
   `revenue_date` date NOT NULL,
   `revenue_amount` decimal(15,2) NOT NULL,
   `revenue_payment_method` varchar(200) DEFAULT NULL,
@@ -589,7 +589,7 @@ DROP TABLE IF EXISTS `settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `settings` (
-  `company_id` int(11) NOT NULL AUTO_INCREMENT,
+  `company_id` int(11) NOT NULL,
   `config_default_expense_account` int(11) DEFAULT NULL,
   `config_default_payment_account` int(11) DEFAULT NULL,
   `config_default_payment_method` varchar(200) DEFAULT NULL,
@@ -818,4 +818,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-09-23 22:16:00
+-- Dump completed on 2019-09-23 22:21:26
