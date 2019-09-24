@@ -25,7 +25,7 @@ session_start();
 if(isset($_POST['login'])){
   
   $email = mysqli_real_escape_string($mysqli,$_POST['email']);
-  $password = md5(mysqli_real_escape_string($mysqli,$_POST['password']));
+  $password = md5($_POST['password']);
   $current_code = mysqli_real_escape_string($mysqli,$_POST['current_code']);
 
   $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE email = '$email' AND password = '$password'");

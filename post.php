@@ -17,7 +17,7 @@ if(isset($_POST['add_user'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $password = md5(mysqli_real_escape_string($mysqli,$_POST['password']));
+    $password = md5($_POST['password']);
     $client_id = intval($_POST['client']);
 
     mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW(), client_id = $client_id");
@@ -55,8 +55,8 @@ if(isset($_POST['edit_user'])){
     $user_id = intval($_POST['user_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $current_password_hash = mysqli_real_escape_string($mysqli,$_POST['current_password_hash']);
-    $password = mysqli_real_escape_string($mysqli,$_POST['password']);
+    $current_password_hash = $_POST['current_password_hash'];
+    $password = $_POST['password'];
     if($current_password_hash == $password){
         $password = $current_password_hash;
     }else{
