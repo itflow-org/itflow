@@ -39,7 +39,7 @@
     $disp = "ASC";
   }
 
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM products WHERE product_name LIKE '%$q%' AND company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to");
+  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM products, categories WHERE products.category_id = categories.category_id AND products.company_id = $session_company_id AND (product_name LIKE '%$q%' OR category_name LIKE '%$q%') ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   $total_found_rows = $num_rows[0];
@@ -68,6 +68,7 @@
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=product_name&o=<?php echo $disp; ?>">Name</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Category</a></th>
             <th>Description</th>
             <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=product_cost&o=<?php echo $disp; ?>">Cost</a></th>
             <th class="text-center">Action</th>
@@ -81,10 +82,13 @@
             $product_name = $row['product_name'];
             $product_description = $row['product_description'];
             $product_cost = $row['product_cost'];
+            $category_id = $row['category_id'];
+            $category_name = $row['category_name'];
 
           ?>
           <tr>
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>"><?php echo $product_name; ?></a></td>
+            <td><?php echo $category_name; ?></td>
             <td><?php echo $product_description; ?></td>
             <td class="text-right text-monospace">$<?php echo number_format($product_cost,2); ?></td>
             <td>

@@ -502,6 +502,7 @@ CREATE TABLE `products` (
   `product_cost` decimal(15,2) NOT NULL,
   `product_created_at` datetime NOT NULL,
   `product_updated_at` datetime DEFAULT NULL,
+  `category_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -818,4 +819,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-09-23 22:21:26
+-- Dump completed on 2019-09-28 14:15:08

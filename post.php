@@ -847,8 +847,9 @@ if(isset($_POST['add_product'])){
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $cost = floatval($_POST['cost']);
+    $category = intval($_POST['category']);
 
-    mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_created_at = NOW(), category_id = $category, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -865,8 +866,9 @@ if(isset($_POST['edit_product'])){
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $cost = floatval($_POST['cost']);
+    $category = intval($_POST['category']);
 
-    mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_updated_at = NOW() WHERE product_id = $product_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_updated_at = NOW(), category_id = $category WHERE product_id = $product_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");

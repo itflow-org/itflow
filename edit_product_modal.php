@@ -14,6 +14,30 @@
             <label>Name <strong class="text-danger">*</strong></label>
             <input type="text" class="form-control" name="name" value="<?php echo $product_name; ?>" required>
           </div>
+          
+          <div class="form-group">
+            <label>Category <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+              </div>
+              <select class="form-control selectpicker show-tick" name="category" required>
+                <?php 
+                
+                $sql_select = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND company_id = $session_company_id"); 
+                while($row = mysqli_fetch_array($sql_select)){
+                  $category_id_select = $row['category_id'];
+                  $category_name_select = $row['category_name'];
+                ?>
+                <option <?php if($category_id == $category_id_select){ ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
+                <?php
+                }
+                
+                ?>
+              </select>
+            </div>
+          </div>
+
           <div class="form-group">
             <label>Description</label>
             <input type="text" class="form-control" name="description" value="<?php echo $product_description; ?>">
