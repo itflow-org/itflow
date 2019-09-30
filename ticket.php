@@ -6,7 +6,7 @@
 if(isset($_GET['ticket_id'])){
   $ticket_id = intval($_GET['ticket_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM tickets, clients WHERE tickets.client_id = clients.client_id AND ticket_id = $ticket_id AND tickets.company_id = $session_company_id");
+  $sql = mysqli_query($mysqli,"SELECT * FROM tickets, clients, users WHERE tickets.client_id = clients.client_id AND tickets.ticket_created_by = users.user_id AND ticket_id = $ticket_id AND tickets.company_id = $session_company_id");
 
   if(mysqli_num_rows($sql) == 0){
     echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='tickets.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
@@ -42,6 +42,7 @@ if(isset($_GET['ticket_id'])){
   $ticket_updated_at = $row['ticket_updated_at'];
   $ticket_closed_at = $row['ticket_closed_at'];
   $ticket_created_by = $row['ticket_created_by'];
+  $name = $row['name'];
 
   if($ticket_status == "Open"){
     $ticket_badge_color = "primary";
@@ -102,7 +103,7 @@ if(isset($_GET['ticket_id'])){
         </div>
   
         <h4 class="text-secondary">Details</h4>
-        <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_by; ?></div>
+        <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $name; ?></div>
         <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_at; ?></div>
         
       </div>

@@ -6,16 +6,16 @@
   * Locations
   * Vendors
   * Assets
-  * Licenses
-  * Logins
+  * Application Licenses
+  * Logins Password Manager
   * Domains
   * Apps
   * Networks
   * Files
   * Documentation
 * Invoicing
-  * Email Past Due Reminders
-  * Auto Email Receipts upon payments
+  * Automatically Emails Past Due Invoices to clients
+  * Auto Email Receipts upon receiving payments
   * Recurring Invoices
 * Quotes / Estimates
   * Automated customer approval
@@ -38,14 +38,20 @@
   * Schedule Jobs
   * Overview of Invoices Domains
   * Schedule Events
+  * Automatic Email Reminders of upcomming calendar events to customers
 * Dashboard
-  * Gives a clear overview of your business
+  * Gives a clear overview of your business financials using graphs and such
 
 * API
   * XML Phonebook download for VOIP Phones
-  * FreePBX Integrated called ID (When call comes in it queries the Database and displays the company name on your caller ID)
+  * FreePBX Integrated called ID (When call comes in it queries the Database and displays the company name on your caller ID as well as alerts you in the CRM)
   * Pull Email Lists
   * Check account Balances using FreePBX IVR
+
+* Multi-Tenant - One Instance Multiple Companies and Users
+* Audit Logging - Logs actions of users on the system
+
+
 
 ### Installation Instructions
 
@@ -82,10 +88,10 @@
 * XML Phonebook Download - /api.php?api_key=[API_KEY]&phonebook
 * Client Email (Returns Client Name - Email Address) - /api.php?api_key=[API_KEY]&client_emails
 * Account Balance for Client (Returns Account Balance) - /api.php?api_key=[API_KEY]&client_id=[CLIENT_ID]
-NOTE: [API_KEY] - is auto generated when a company is created and shows up in General Settings.
+NOTE: [API_KEY] - is auto generated when a company is created and shows up in General Settings, this can also be changed manually.
 
 ### Future Todo
-* MeshCentral Integation to assign devices and easily access remote desktop within the app
+* MeshCentral Integation to assign devices to assets and easily access remote desktop within the app, as well as pull vital information such as Operating System, 
 * HestiaCP Integration for intergrating domains and webclients
 * CalDAV to integrate with 3rd party calendars
 * CardDAV to integrate with 3rd party Address books

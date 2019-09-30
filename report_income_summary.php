@@ -35,7 +35,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
       </select>
     </form>
     <div class="table-responsive">
-      <table class="table table-striped table-sm">
+      <table class="table table-striped">
         <thead class="text-dark">
           <tr>
             <th>Category</th>
@@ -83,7 +83,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
 
               
               ?>
-                <td class="text-right text-monospace">$<?php echo number_format($payment_amount_for_month,2); ?></td>
+                <td class="text-right">$<?php echo number_format($payment_amount_for_month,2); ?></td>
               
               <?php
               
@@ -91,7 +91,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
               
               ?>
               
-              <td class="text-right text-monospace">$<?php echo number_format($total_payment_for_all_months,2); ?></td>
+              <td class="text-right">$<?php echo number_format($total_payment_for_all_months,2); ?></td>
             </tr>
           
           <?php 
@@ -122,14 +122,14 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
               
             ?>
 
-              <th class="text-right text-monospace">$<?php echo number_format($payment_total_amount_for_month,2); ?></th>
+              <th class="text-right">$<?php echo number_format($payment_total_amount_for_month,2); ?></th>
             <?php
 
             }
 
             ?>
 
-            <th class="text-right text-monospace">$<?php echo number_format($total_payment_for_all_months,2); ?></th>
+            <th class="text-right">$<?php echo number_format($total_payment_for_all_months,2); ?></th>
           </tr>
         </tbody>
       </table>
