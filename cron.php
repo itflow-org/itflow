@@ -20,7 +20,6 @@ while($row = mysqli_fetch_array($sql_companies)){
   $config_enable_cron = $row['config_enable_cron'];
   $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
   $config_invoice_prefix = $row['config_invoice_prefix'];
-  $config_invoice_next_number = $row['config_invoice_next_number'];
   $config_smtp_host = $row['config_smtp_host'];
   $config_smtp_username = $row['config_smtp_username'];
   $config_smtp_password = $row['config_smtp_password'];
@@ -137,6 +136,10 @@ while($row = mysqli_fetch_array($sql_companies)){
       $client_net_terms = $row['client_net_terms'];
 
       //Get the last Invoice Number and add 1 for the new invoice number
+      $sql_invoice_number = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $company_id");
+      $row = mysqli_fetch_array($sql_invoice_number)){
+      $config_invoice_next_number = $row['config_invoice_next_number'];
+      
       $new_invoice_number = "$config_invoice_prefix$config_invoice_next_number";
       $new_config_invoice_next_number = $config_invoice_next_number + 1;
       mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $company_id");

@@ -12,6 +12,7 @@ if(isset($_GET['ticket_id'])){
     echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='tickets.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
     include("footer.php");
+  
   }else{
 
   $row = mysqli_fetch_array($sql);

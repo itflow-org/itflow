@@ -6,13 +6,13 @@
   * Locations
   * Vendors
   * Assets
-  * Application Licenses
-  * Logins Password Manager
-  * Domains
-  * Apps
+  * Password Manager
+  * Domain Names 
+  * Applications
   * Networks
   * Files
   * Documentation
+  * Tickets
 * Invoicing
   * Automatically Emails Past Due Invoices to clients
   * Auto Email Receipts upon receiving payments
@@ -36,7 +36,7 @@
   * Software License Expiring
 * Calendar Integration
   * Schedule Jobs
-  * Overview of Invoices Domains
+  * Overview of Invoices Domains that are expiring
   * Schedule Events
   * Automatic Email Reminders of upcomming calendar events to customers
 * Dashboard
@@ -50,6 +50,7 @@
 
 * Multi-Tenant - One Instance Multiple Companies and Users
 * Audit Logging - Logs actions of users on the system
+* 2 Factor Authentication (TOTP)
 
 
 
@@ -97,3 +98,6 @@ NOTE: [API_KEY] - is auto generated when a company is created and shows up in Ge
 * CardDAV to integrate with 3rd party Address books
 * Unifi and UNMS integration
 * Stripe Integration for online payments
+* Client Portal
+* Toast Alerts with recent caller that matches caller ID in database which allows you to click on the toast alerts and bring up the clients account right away.
+* Built-in mailing list used for alerts and marketing
