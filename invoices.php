@@ -105,7 +105,7 @@
 
 <div class="row">
   <div class="col-xl-3 col-sm-6 mb-3">
-    <a class="text-white" href="?q=Draft">
+    <a class="text-white text-decoration-none" href="?q=Draft">
       <div class="card text-white bg-secondary o-hidden">
         <div class="card-body">
           <div class="card-body-icon">
@@ -118,7 +118,7 @@
   </div>
 
   <div class="col-xl-3 col-sm-6 mb-3">
-    <a class="text-white" href="?q=Sent">
+    <a class="text-white text-decoration-none" href="?q=Sent">
       <div class="card text-white bg-warning o-hidden">
         <div class="card-body">
           <div class="card-body-icon">
@@ -131,7 +131,7 @@
   </div>
 
   <div class="col-xl-3 col-sm-6 mb-3">
-    <a class="text-white" href="?q=Viewed">
+    <a class="text-white text-decoration-none" href="?q=Viewed">
       <div class="card text-white bg-info o-hidden">
         <div class="card-body">
           <div class="card-body-icon">
@@ -144,7 +144,7 @@
   </div>
   
   <div class="col-xl-3 col-sm-6 mb-3">
-    <a class="text-white" href="?q=Partial">
+    <a class="text-white text-decoration-none" href="?q=Partial">
       <div class="card text-white bg-primary o-hidden">
         <div class="card-body">
           <div class="card-body-icon">
