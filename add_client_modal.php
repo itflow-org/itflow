@@ -107,7 +107,7 @@
             
             </div>
 
-            <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+            <div class="tab-pane fade" id="pills-contact">
 
               <div class="form-group">
                 <label>Primary Contact</label>
@@ -125,7 +125,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'"> 
+                  <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" data-mask> 
                 </div>
               </div>
 

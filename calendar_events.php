@@ -8,7 +8,9 @@ if(isset($_GET['calendar_id'])){
 
 ?>
 
-<div id='calendar'></div>
+<div class="card">
+  <div id='calendar'></div>
+</div>
 
 <?php include("add_calendar_event_modal.php"); ?>
 <?php include("add_calendar_modal.php"); ?>

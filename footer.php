@@ -1,59 +1,32 @@
-      </div>
-      <!-- /.container-fluid -->
+			</div><!-- /.container-fluid -->
+		  </div>
+		  <!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+	</div>
+	<!-- ./wrapper -->
 
-    </div>
-    <!-- /.content-wrapper -->
+	<!-- REQUIRED SCRIPTS -->
 
-  </div>
-  <!-- /#wrapper -->
+	<!-- jQuery -->
+	<script src="plugins/jquery/jquery.min.js"></script>
+	<!-- Bootstrap 4 -->
+	<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<!-- Custom js-->
+	<script src="plugins/chart.js/Chart.min.js"></script>
+	<script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+	<script src="plugins/moment/moment.min.js"></script>
+	<script src='plugins/fullcalendar/main.min.js'></script>
+	<script src='plugins/fullcalendar-bootstrap/main.min.js'></script>
+	<script src='plugins/fullcalendar-daygrid/main.min.js'></script>
+	<script src='plugins/fullcalendar-timegrid/main.min.js'></script>
+	<script src='plugins/daterangepicker/daterangepicker.js'></script>
+	<script src='plugins/select2/js/select2.min.js'></script>
+	<script src='plugins/inputmask/min/jquery.inputmask.bundle.min.js'></script>
+	<script src='plugins/inputmask/min/inputmask/bindings/inputmask.binding.min.js'></script>
+	<!-- AdminLTE App -->
+	<script src="dist/js/adminlte.min.js"></script>
+	<script src="js/app.js"></script>
 
-  <!-- Scroll to Top Button-->
-  <a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-  </a>
-
-  <!-- Bootstrap core JavaScript-->
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Core plugin JavaScript-->
-  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-  <!-- Page level plugin JavaScript-->
-  <script src="vendor/chart.js/Chart.min.js"></script>
-  <script src="vendor/easy-markdown-editor/js/easymde.js"></script>
-  <script src="vendor/Bootstrap-3-Typeahead/bootstrap3-typeahead.min.js"></script>
-  <script src="vendor/moment/moment.min.js"></script>
-  <script src="vendor/datepicker/js/tempusdominus-bootstrap-4.min.js"></script>
-  <script src='vendor/fullcalendar/core/main.min.js'></script>
-  <script src='vendor/fullcalendar/bootstrap/main.min.js'></script>
-  <script src='vendor/fullcalendar/daygrid/main.min.js'></script>
-  <script src='vendor/fullcalendar/timegrid/main.min.js'></script>
-  <script src='vendor/fullcalendar/list/main.min.js'></script>
-  <script src='vendor/bootstrap-select/js/bootstrap-select.min.js'></script>
-  <script src='vendor/bootstrap-showpassword/bootstrap-show-password.min.js'></script>
-  <script src='vendor/daterangepicker/daterangepicker.js'></script>
-  <script src='vendor/Inputmask/dist/inputmask.min.js'></script>
-  <script src='vendor/Inputmask/dist/bindings/inputmask.binding.js'></script>
-  <script src="vendor/clipboard.js/dist/clipboard.min.js"></script>
-  
-  <!-- Custom scripts for all pages-->
-  <script src="js/sb-admin.min.js"></script>
-
-  <!-- Custom js-->
-  <script src="js/app.js"></script>
-
-</body>
-
+	</body>
 </html>
-
-<?php
-  //Debug - Page Load time
-
-  $time = microtime();
-  $time = explode(' ', $time);
-  $time = $time[1] + $time[0];
-  $finish = $time;
-  $total_time = round(($finish - $start), 4);
-  echo 'Page generated in '.$total_time.' seconds.';
-?>

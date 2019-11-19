@@ -1,65 +1,61 @@
-<nav class="navbar navbar-expand navbar-dark bg-primary static-top">
+<!-- Navbar -->
+<nav class="main-header navbar navbar-expand navbar-primary navbar-dark">
 
-  <a class="navbar-brand mr-1" href="index.php"><i class="fa fa-fw fa-network-wired mr-2"></i><?php echo $config_company_name; ?></a>
-
-  <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
-    <i class="fas fa-bars"></i>
-  </button>
-
-  <!-- Navbar Search -->
-  <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0" action="global_search.php">
-    <div class="input-group">
-      <input type="text" class="form-control" placeholder="Search for..." name="query" value="<?php if(isset($_GET['query'])){ echo $_GET['query']; } ?>">
+  <!-- Left navbar links -->
+  <ul class="navbar-nav">
+    <li class="nav-item">
+      <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+    </li>
+  </ul>
+  
+  <!-- SEARCH FORM -->
+  <form class="form-inline ml-auto mr-5" action="global_search.php">
+    <div class="input-group input-group-sm">
+      <input class="form-control form-control-navbar" type="search" placeholder="Search" name="query" value="<?php if(isset($_GET['query'])){ echo $_GET['query']; } ?>">
       <div class="input-group-append">
-        <button class="btn btn-dark" type="button">
+        <button class="btn btn-navbar" type="submit">
           <i class="fas fa-search"></i>
         </button>
       </div>
     </div>
   </form>
 
-  <!-- Navbar -->
-  <ul class="navbar-nav ml-auto ml-md-0">
-    <li class="nav-item dropdown no-arrow mx-2">
-      <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <?php if($num_alerts > 0){ ?> <span class="badge badge-danger"><?php echo $num_alerts; ?></span> <?php } ?>
-        <i class="fas fa-fw fa-bell mt-1"></i>
-        
+  <!-- Right navbar links -->
+  <ul class="navbar-nav">
+    <!-- Notifications -->
+    <li class="nav-item">
+      <a class="nav-link" href="alerts.php">
+        <i class="fas fa-bell"></i>
+        <?php if($num_alerts > 0){ ?>
+        <span class="badge badge-danger navbar-badge"><?php echo $num_alerts; ?></span>
+        <?php } ?>
       </a>
-      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="alertsDropdown">
-        <a class="dropdown-item" href="alerts.php">New Alerts</a>
-        <a class="dropdown-item" href="alerts.php">Acknowledged</a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="post.php?ack_all_alerts">Acknowledge All</a>
-      </div>
     </li>
-    <li class="nav-item dropdown no-arrow">
-      <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <?php if(!empty($session_avatar)){ ?>
-          <img height="28" width="28" src="<?php echo "$session_avatar"; ?>" class="img-fluid rounded-circle">
-          <?php }else{ ?>
-          <i class="fa fa-fw fa-user mt-1"></i>
-          <?php } ?>
-          <strong><?php echo $session_name; ?></strong>
+    
+    <li class="nav-item dropdown user-menu">
+      <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+        <img src="<?php echo $session_avatar; ?>" class="user-image img-circle elevation-2" alt="User Image">
+        <span class="d-none d-md-inline"><?php echo $session_name; ?></span>
       </a>
-      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">   
-        <center>
-          <?php if(!empty($session_avatar)){ ?>
-          <img class="img-fluid rounded-circle" src="<?php echo $session_avatar; ?>" height="128" width="128">
-          <?php }else{ ?>
-          <span class="fa-stack fa-4x">
-            <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-            <span class="fa fa-stack-1x text-white"><?php echo initials($session_name); ?></span>
-          </span>
-          <?php } ?>
-          <?php echo $session_company_name; ?>
-        </center>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="settings-user.php"><i class="fa fa-fw fa-cog"></i> Settings</a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="logout.php"><i class="fa fa-fw fa-sign-out-alt"></i> Logout</a>
-      </div>
-    </li>
-  </ul>
+      <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+        <!-- User image -->
+        <li class="user-header bg-gray-dark">
+          <img src="<?php echo "$session_avatar"; ?>" class="img-circle elevation-2" alt="User Image">
 
+          <p>
+            <?php echo $session_name; ?>
+            <small><?php echo $session_company_name; ?></small>
+          </p>
+        </li>
+        
+        <!-- Menu Footer-->
+        <li class="user-footer">
+          <a href="settings-user.php" class="btn btn-default btn-flat">Profile</a>
+          <a href="logout.php" class="btn btn-default btn-flat float-right">Sign out</a>
+        </li>
+      </ul>
+    </li>
+    
+  </ul>
 </nav>
+<!-- /.navbar -->

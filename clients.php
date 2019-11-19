@@ -45,12 +45,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card mb-3">
-  <div class="card-header bg-dark text-white">
-   
-    <h6 class="float-left mt-2"><i class="fa fa-users mr-2"></i>Clients</h6>
-    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-plus"></i></button>
-      
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Simple Full Width Table</h3>
+
+    <div class="card-tools">
+      <ul class="pagination pagination-sm float-right">
+        <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
+        <li class="page-item"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="card-header bg-gray-dark border-0">
+    <h3 class="card-title">Clients</h3>
+    <div class="card-tools">   
+      <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addClientModal">add</button>
+    </div>   
   </div>
   <div class="card-body">
     <form autocomplete="off">

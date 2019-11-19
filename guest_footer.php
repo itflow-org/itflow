@@ -1,30 +1,27 @@
+        </div><!-- /.container-fluid -->
       </div>
-      <!-- /.container-fluid -->
-
+      <!-- /.content -->
     </div>
     <!-- /.content-wrapper -->
-
   </div>
-  <!-- /#wrapper -->
+  <!-- ./wrapper -->
 
-  <!-- Scroll to Top Button-->
-  <a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-  </a>
+  <!-- REQUIRED SCRIPTS -->
 
-  <!-- Bootstrap core JavaScript-->
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Core plugin JavaScript-->
-  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-  
-  <!-- Custom scripts for all pages-->
-  <script src="js/sb-admin.min.js"></script>
-
+  <!-- jQuery -->
+  <script src="plugins/jquery/jquery.min.js"></script>
+  <!-- Bootstrap 4 -->
+  <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- AdminLTE App -->
+  <script src="dist/js/adminlte.min.js"></script>
   <!-- Custom js-->
+  <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+  <script src="plugins/moment/moment.min.js"></script>>
+  <script src='plugins/daterangepicker/daterangepicker.js'></script>
+  <script src='plugins/select2/js/select2.min.js'></script>
+  <script src='plugins/inputmask/min/inputmask/inputmask.min.js'></script>
+
   <script src="js/app.js"></script>
 
-</body>
-
+  </body>
 </html>

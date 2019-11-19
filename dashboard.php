@@ -72,6 +72,11 @@ $total_miles = $row['total_miles'];
 $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_id') AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND company_id = $session_company_id"));
 $clients_added = $row['clients_added'];
 
+//Get Total of Recurring Invoices
+$sql_total_recurring_invoice_amount = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS total_recurring_invoice_amount FROM recurring WHERE YEAR(payment_date) = $year AND company_id = $session_company_id");
+$row = mysqli_fetch_array($sql_total_recurring_invoice_amount);
+$total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
+
 ?>
 
 <form>
@@ -92,38 +97,77 @@ $clients_added = $row['clients_added'];
 
 <!-- Icon Cards-->
 <div class="row">
-  <div class="col-xl-4 col-sm-6 mb-3">
-    <div class="card text-white bg-primary o-hidden h-100">
-      <div class="card-body">
-        <div class="card-body-icon">
-          <i class="fas fa-fw fa-money-check"></i>
-        </div>
-        <div class="mr-5">Total Incomes <h1>$<?php echo number_format($total_income,2); ?></h1></div>
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-primary">
+      <div class="inner">
+        <h3>$<?php echo number_format($total_income,2); ?></h3>
+        <p>Total Incomes</p>
         <hr>
-        Recievables: $<?php echo number_format($recievables,2); ?>
+        <small>Recievables: $<?php echo number_format($recievables,2); ?></small>
+      </div>
+      <div class="icon">
+        <i class="fa fa-money-check"></i>
       </div>
     </div>
   </div>
-  <div class="col-xl-4 col-sm-6 mb-3">
-    <div class="card text-white bg-danger o-hidden h-100">
-      <div class="card-body">
-        <div class="card-body-icon">
-          <i class="fas fa-fw fa-shopping-cart"></i>
-        </div>
-        <div class="mr-5">Total Expenses <h1>$<?php echo number_format($total_expenses,2); ?></h1></div>
-      </div>      
-    </div>
-  </div>
-  <div class="col-xl-4 col-sm-6 mb-3">
-    <div class="card text-white bg-success o-hidden h-100">
-      <div class="card-body">
-        <div class="card-body-icon">
-          <i class="fas fa-fw fa-heart"></i>
-        </div>
-        <div class="mr-5">Total Profit <h1>$<?php echo number_format($profit,2); ?></h1></div>
+  <!-- ./col -->
+
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-danger">
+      <div class="inner">
+        <h3>$<?php echo number_format($total_expenses,2); ?></h3>
+        <p>Total Expenses</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-shopping-cart"></i>
       </div>
     </div>
-  </div> 
+  </div>
+  <!-- ./col -->
+
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-success">
+      <div class="inner">
+        <h3>$<?php echo number_format($profit,2); ?></h3>
+        <p>Profit</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-heart"></i>
+      </div>
+    </div>
+  </div>
+  <!-- ./col -->
+
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3><?php echo $total_miles; ?></h3>
+        <p>Miles Driven</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-bicycle"></i>
+      </div>
+    </div>
+  </div>
+  <!-- ./col -->
+
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-secondary">
+      <div class="inner">
+        <h3><?php echo $clients_added; ?></h3>
+        <p>New Clients</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-users"></i>
+      </div>
+    </div>
+  </div>
+  <!-- ./col -->
 
   <div class="col-md-12">
     <div class="card mb-3">
@@ -293,24 +337,6 @@ $clients_added = $row['clients_added'];
     </div>
   </div> <!-- .col -->
 </div> <!-- row -->
-
-<div class="row mt-3">
-  <div class="col-md-6">
-    <div class="card">
-      <div class="card-header">
-        Fun Stats
-      </div>
-      <div class="card-body">
-        <ul class="list-unstyled">
-          <li>Miles Driven: <?php echo $total_miles; ?></li>
-          <li>Clients Added: <?php echo $clients_added; ?></li>
-        </ul>
-      </div>
-    </div>
-  </div> <!-- .col -->
-</div> <!-- row -->
-
-
 
 <?php include("footer.php"); ?>
 <script>

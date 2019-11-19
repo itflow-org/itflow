@@ -104,57 +104,61 @@
 ?>
 
 <div class="row">
-  <div class="col-xl-3 col-sm-6 mb-3">
-    <a class="text-white text-decoration-none" href="?q=Draft">
-      <div class="card text-white bg-secondary o-hidden">
-        <div class="card-body">
-          <div class="card-body-icon">
-            <i class="fas fa-fw fa-pencil-ruler"></i>
-          </div>
-          <div class="mr-5"><?php echo $draft_count; ?> Draft <h1>$<?php echo number_format($total_draft,2); ?></h1></div>
-        </div>
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <a href="?q=Draft" class="small-box bg-secondary">
+      <div class="inner">
+        <h3>$<?php echo number_format($total_draft,2); ?></h3>
+        <p><?php echo $draft_count; ?> Draft</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-pencil-ruler"></i>
       </div>
     </a>
   </div>
+  <!-- ./col -->
 
-  <div class="col-xl-3 col-sm-6 mb-3">
-    <a class="text-white text-decoration-none" href="?q=Sent">
-      <div class="card text-white bg-warning o-hidden">
-        <div class="card-body">
-          <div class="card-body-icon">
-            <i class="fas fa-fw fa-paper-plane"></i>
-          </div>
-          <div class="mr-5"><?php echo $sent_count; ?> Sent <h1>$<?php echo number_format($total_sent,2); ?></h1></div>
-        </div>
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <a href="?q=Sent" class="small-box bg-warning">
+      <div class="inner text-white">
+        <h3>$<?php echo number_format($total_sent,2); ?></h3>
+        <p><?php echo $sent_count; ?> Sent</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-paper-plane"></i>
       </div>
     </a>
   </div>
+  <!-- ./col -->
 
-  <div class="col-xl-3 col-sm-6 mb-3">
-    <a class="text-white text-decoration-none" href="?q=Viewed">
-      <div class="card text-white bg-info o-hidden">
-        <div class="card-body">
-          <div class="card-body-icon">
-            <i class="fas fa-fw fa-eye"></i>
-          </div>
-          <div class="mr-5"><?php echo $viewed_count; ?> Viewed <h1>$<?php echo number_format($total_viewed,2); ?></h1></div>
-        </div>
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <a href="?q=Viewed" class="small-box bg-info">
+      <div class="inner">
+        <h3>$<?php echo number_format($total_viewed,2); ?></h3>
+        <p><?php echo $viewed_count; ?> Viewed</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-eye"></i>
       </div>
     </a>
   </div>
-  
-  <div class="col-xl-3 col-sm-6 mb-3">
-    <a class="text-white text-decoration-none" href="?q=Partial">
-      <div class="card text-white bg-primary o-hidden">
-        <div class="card-body">
-          <div class="card-body-icon">
-            <i class="fas fa-fw fa-wine-glass-alt"></i>
-          </div>
-          <div class="mr-5"><?php echo $partial_count; ?> Partial <h1>$<?php echo number_format($total_partial,2); ?></h1></div>        
-        </div>      
+  <!-- ./col -->
+
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <a href="?q=Partial" class="small-box bg-primary">
+      <div class="inner">
+        <h3>$<?php echo number_format($total_partial,2); ?></h3>
+        <p><?php echo $partial_count; ?> Partial</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-wine-glass-alt"></i>
       </div>
     </a>
   </div>
+  <!-- ./col -->
 
 </div>
 

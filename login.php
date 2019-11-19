@@ -78,85 +78,82 @@ if(isset($_POST['login'])){
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title><?php echo $config_app_name; ?> | Login</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<head>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="dist/css/adminlte.min.css">
+    <!-- Google Font: Source Sans Pro -->
+    <!-- <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet"> -->
+  </head>
+  <body class="hold-transition login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <b><?php echo $config_app_name; ?></b> Login
+    </div>
+    <!-- /.login-logo -->
+    <div class="card">
+      <div class="card-body login-card-body">
+        <p class="login-box-msg"><?php if(isset($response)) { echo $response; } ?></p>
 
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <title><?php echo $config_app_name; ?> | Login</title>
-
-  <!-- Custom fonts for this template-->
-  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-
-  <!-- Custom styles for this template-->
-  <link href="css/sb-admin.css" rel="stylesheet">
-
-  <link href="css/style.css" rel="stylesheet">
-
-</head>
-
-<body class="bg-secondary">
-
-  <div class="container">
-    <div class="card card-login mx-auto mt-5 bg-dark">
-      <div class="card-header mt-2 text-white text-center"><h3>Login</h3></div>
-      <div class="card-body bg-white">
-        <?php if(isset($response)) { echo $response; } ?>
         <form method="post">
+          <div class="input-group mb-3">
+            <input type="email" class="form-control" placeholder="Email" name="email" required autofocus>
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <span class="fas fa-envelope"></span>
+              </div>
+            </div>
+          </div>
+          <div class="input-group mb-3">
+            <input type="password" class="form-control" placeholder="Password" name="password" required>
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <span class="fas fa-lock"></span>
+              </div>
+            </div>
+          </div>
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Token" name="current_code">
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <span class="fas fa-key"></span>
+              </div>
+            </div>
+          </div>
           
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-              </div>
-              <input type="text" class="form-control" name="email" placeholder="Username" required autofocus>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-              </div>
-              <input type="password" class="form-control" name="password" placeholder="Password" required>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-              </div>
-              <input type="text" class="form-control" name="current_code" placeholder="Token">
-            </div>
-          </div>
-
-          <button class="btn btn-primary btn-block" type="submit" name="login">Sign in</button>
+          <button type="submit" class="btn btn-primary btn-block" name="login">Sign In</button>
         
         </form>
+
       </div>
+      <!-- /.login-card-body -->
     </div>
   </div>
+  <!-- /.login-box -->
 
-  <!-- Bootstrap core JavaScript-->
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Core plugin JavaScript-->
-  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+  <!-- jQuery -->
+  <script src="plugins/jquery/jquery.min.js"></script>
+  <!-- Bootstrap 4 -->
+  <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- AdminLTE App -->
+  <script src="dist/js/adminlte.min.js"></script>
 
   <!-- Prevents resubmit on refresh or back -->
   <script>
   
-  if ( window.history.replaceState ) {
-    window.history.replaceState( null, null, window.location.href );
-  }
-  
+    if(window.history.replaceState){
+      window.history.replaceState(null,null,window.location.href);
+    }
+
   </script>
 
-</body>
-
+  </body>
 </html>

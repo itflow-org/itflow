@@ -1,130 +1,188 @@
-<!-- Sidebar -->
-<ul class="sidebar navbar-nav d-print-none">
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4 d-print-none">
+  
+  <!-- Brand Logo -->
+  <a href="index3.html" class="brand-link">
+    <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+         style="opacity: .8">
+    <span class="brand-text font-weight-light"><?php echo $config_app_name; ?></span>
+  </a>
 
-  <li class="nav-item mt-4 <?php if(basename($_SERVER["REQUEST_URI"]) == "dashboard.php") { echo "active"; } ?>">
-    <a class="nav-link" href="dashboard.php">
-      <i class="fas fa-fw fa-tachometer-alt mx-2"></i>
-      <span>Dashboard</span>
-    </a>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "clients.php") { echo "active"; } ?>">
-    <a class="nav-link" href="clients.php">
-      <i class="fas fa-fw fa-users mx-2"></i>
-      <span>Clients</span>
-    </a>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "tickets.php") { echo "active"; } ?>">
-    <a class="nav-link" href="tickets.php">
-      <i class="fas fa-fw fa-tags mx-2"></i>
-      <span>Tickets</span>
-    </a>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "products.php") { echo "active"; } ?>">
-    <a class="nav-link" href="products.php">
-      <i class="fas fa-fw fa-box mx-2"></i>
-      <span>Products</span></a>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "vendors.php") { echo "active"; } ?>">
-    <a class="nav-link" href="vendors.php">
-      <i class="fas fa-fw fa-building mx-2"></i>
-      <span>Vendors</span>
-    </a>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "calendar_events.php") { echo "active"; } ?>">
-    <a class="nav-link" href="calendar_events.php">
-      <i class="fas fa-fw fa-calendar mx-2"></i>
-      <span>Calendar</span>
-    </a>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "quotes.php") { echo "active"; } ?>">
-    <a class="nav-link" href="quotes.php">
-      <i class="fas fa-fw fa-file-invoice mx-2"></i>
-      <span>Quotes</span>
-    </a>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "revenues.php") { echo "active"; } ?>">
-    <a class="nav-link" href="revenues.php">
-      <i class="fas fa-fw fa-credit-card mx-2"></i>
-      <span>Revenues</span>
-    </a>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "invoices.php") { echo "active"; } ?>">
-    <a class="nav-link" href="invoices.php">
-      <i class="fas fa-fw fa-file-invoice-dollar mx-2"></i>
-      <span>Invoices</span>
-    </a>
-  </li>
-   <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "recurring.php") { echo "active"; } ?>">
-    <a class="nav-link" href="recurring.php">
-      <i class="fas fa-fw fa-copy mx-2"></i>
-      <span>Recurring</span>
-    </a>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "payments.php") { echo "active"; } ?>">
-    <a class="nav-link" href="payments.php">
-      <i class="fas fa-fw fa-credit-card mx-2"></i>
-      <span>Payments</span>
-    </a>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "expenses.php") { echo "active"; } ?>">
-    <a class="nav-link" href="expenses.php">
-      <i class="fas fa-fw fa-shopping-cart mx-2"></i>
-      <span>Expenses</span>
-    </a>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "trips.php") { echo "active"; } ?>">
-    <a class="nav-link" href="trips.php">
-      <i class="fas fa-fw fa-bicycle mx-2"></i>
-      <span>Trips</span>
-    </a>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "accounts.php") { echo "active"; } ?>">
-    <a class="nav-link" href="accounts.php">
-      <i class="fas fa-fw fa-piggy-bank mx-2"></i>
-      <span>Accounts</span>
-    </a>
-  </li>
-  <li class="nav-item <?php if(basename($_SERVER["REQUEST_URI"]) == "transfers.php") { echo "active"; } ?>">
-    <a class="nav-link" href="transfers.php">
-      <i class="fas fa-fw fa-exchange-alt mx-2"></i>
-      <span>Transfers</span>
-    </a>
-  </li>
-  <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      <i class="fas fa-fw fa-cog mx-2"></i>
-      <span>Client Listing</span>
-    </a>
-    <div class="dropdown-menu" aria-labelledby="pagesDropdown">
-      <a class="dropdown-item" href="contacts.php">Contacts</a>
-      <a class="dropdown-item" href="locations.php">Locations</a>
-      <a class="dropdown-item" href="assets.php">Assets</a>
-      <a class="dropdown-item" href="logins.php">Logins</a>
-      <a class="dropdown-item" href="domains.php">Domains</a>
-    </div>
-  </li>
-  <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      <i class="fas fa-fw fa-chart-area mx-2"></i>
-      <span>Reports</span>
-    </a>
-    <div class="dropdown-menu" aria-labelledby="pagesDropdown">
-      <a class="dropdown-item" href="report_income_summary.php">Income Summary</a>
-      <a class="dropdown-item" href="report_expense_summary.php">Expense Summary</a>
-      <a class="dropdown-item" href="report_profit_loss.php">Profit & Loss</a>
-    </div>
-  </li>
-  <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      <i class="fas fa-fw fa-cog mx-2"></i>
-      <span>Settings</span>
-    </a>
-    <div class="dropdown-menu" aria-labelledby="pagesDropdown">
-      <a class="dropdown-item" href="settings-general.php">General</a>
-      <a class="dropdown-item" href="categories.php">Categories</a>
-      <a class="dropdown-item" href="users.php">Users</a>
-      <a class="dropdown-item" href="companies.php">Companies</a>
-      <a class="dropdown-item" href="logs.php">Logs</a>
-    </div>
-  </li>
-</ul>
+  <!-- Sidebar -->
+  <div class="sidebar">
+
+    <!-- Sidebar Menu -->
+    <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        <li class="nav-item">
+          <a href="dashboard.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "dashboard.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-tachometer-alt"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+        <li class="nav-header">CLIENT</li>
+        <li class="nav-item">
+          <a href="clients.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "clients.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-users"></i>
+            <p>Clients</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="tickets.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "tickets.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-tags"></i>
+            <p>Tickets</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="products.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "products.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-box"></i>
+            <p>Products</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="vendors.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "vendors.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-building"></i>
+            <p>Vendors</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="calendar_events.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "calendar_events.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-calendar"></i>
+            <p>Calendar</p>
+          </a>
+        </li>
+        <li class="nav-header">INCOME</li>
+        <li class="nav-item">
+          <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "quotes.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-file-invoice"></i>
+            <p>Quotes</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="revenues.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "revenues.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-credit-card"></i>
+            <p>Revenues</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="invoices.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "invoices.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-file-invoice-dollar"></i>
+            <p>Invoices</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="recurring.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "recurring.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-tags"></i>
+            <p>Recurring</p>
+          </a>
+        </li>
+        <li class="nav-header">ACCOUNTING</li>
+        <li class="nav-item">
+          <a href="payments.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "payments.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-credit-card"></i>
+            <p>Payments</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="expenses.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "expenses.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-shopping-cart"></i>
+            <p>Expenses</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="trips.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "trips.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-bicycle"></i>
+            <p>Trips</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="accounts.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "accounts.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-piggy-bank"></i>
+            <p>Accounts</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="transfers.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "transfers.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-exchange-alt"></i>
+            <p>Transfers</p>
+          </a>
+        </li>
+        <li class="nav-header">MORE</li>
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-chart-area"></i>
+            <p>
+              Reports
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="report_income_summary.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "report_income_summary.php") { echo "active"; } ?>">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Income</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="report_expense_summary.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "report_expense_summary.php") { echo "active"; } ?>">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Expense</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="report_profit_loss.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "report_profit_loss.php") { echo "active"; } ?>">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Profit & Loss</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-cog"></i>
+            <p>
+              Settings
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="settings-general.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-general.php") { echo "active"; } ?>">
+                <i class="far fa-circle nav-icon"></i>
+                <p>General</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="categories.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "categories.php") { echo "active"; } ?>">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Categories</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="users.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "users.php") { echo "active"; } ?>">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Users</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="companies.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "companies.php") { echo "active"; } ?>">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Companies</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="logs.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "logs.php") { echo "active"; } ?>">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Logs</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+      </ul>
+    </nav>
+    <!-- /.sidebar-menu -->
+  </div>
+  <!-- /.sidebar -->
+</aside>

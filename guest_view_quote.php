@@ -88,8 +88,9 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
 
   ?>
 
-  <div class="row d-print-none">
-    <div class="col-md-12">
+  <div class="card">
+
+    <div class="card-header d-print-none">
       <div class="float-right">
         <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
         <a class="btn btn-primary" download target="_blank" href="guest_post.php?pdf_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-download"></i> Download</a>
@@ -101,151 +102,151 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
         <?php } ?>
       </div>
     </div>
-  </div>
+    <div class="card-body">
 
-  <hr class="d-print-none">
-
-  <div class="row mb-4">
-    <div class="col-sm-2">
-      <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
-    </div>
-    <div class="col-sm-10">
-      <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo $quote_number; ?></small></h3>
-    </div>
-  </div>
-
-  <div class="row mb-4">
-    
-    <div class="col-sm">
-      <ul class="list-unstyled">
-        <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
-        <li><?php echo $config_company_address; ?></li>
-        <li><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
-        <li>P: <?php echo $config_company_phone; ?></li>
-        <li><?php echo $config_company_email; ?></li>
-      </ul>
-      
-    </div>
-    
-    <div class="col-sm">
-
-      <ul class="list-unstyled text-right">
-        <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
-        <li><?php echo $client_address; ?></li>
-        <li><?php echo "$client_city $client_state $client_zip"; ?></li>
-        <li>P: <?php echo $client_phone; ?></li>
-        <li>E: <?php echo $client_email; ?></li>
-      </ul>
-    
-    </div>
-  </div>
-  <div class="row mb-4">
-    <div class="col-sm-8">
-    </div>
-    <div class="col-sm-4">
-      <table class="table">
-        <tr>
-          <td>Quote Date</td>
-          <td class="text-right"><?php echo $quote_date; ?></td>
-        </tr>
-      </table>
-    </div>
-  </div>
-
-  <?php $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id ORDER BY item_id ASC"); ?>
-
-  <div class="row mb-4">
-    <div class="col-md-12">
-      <div class="card">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Description</th>
-              <th class="text-center">Qty</th>
-              <th class="text-right">Price</th>
-              <th class="text-right">Tax</th>
-              <th class="text-right">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php
-      
-            while($row = mysqli_fetch_array($sql_items)){
-              $item_id = $row['item_id'];
-              $item_name = $row['item_name'];
-              $item_description = $row['item_description'];
-              $item_quantity = $row['item_quantity'];
-              $item_price = $row['item_price'];
-              $item_subtotal = $row['item_price'];
-              $item_tax = $row['item_tax'];
-              $item_total = $row['item_total'];
-              $total_tax = $item_tax + $total_tax;
-              $sub_total = $item_price * $item_quantity + $sub_total;
-
-            ?>
-
-            <tr>
-              <td><?php echo $item_name; ?></td>
-              <td><?php echo $item_description; ?></td>
-              <td class="text-center"><?php echo $item_quantity; ?></td>
-              <td class="text-right">$<?php echo number_format($item_price,2); ?></td>
-              <td class="text-right">$<?php echo number_format($item_tax,2); ?></td>
-              <td class="text-right">$<?php echo number_format($item_total,2); ?></td>  
-            </tr>
-
-            <?php 
-
-            }
-
-            ?>
-
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="row mb-4">
-    <div class="col-7">
-      <div class="card">
-        <div class="card-body">
-          <div><?php echo $quote_note; ?></div>
+      <div class="row mb-4">
+        <div class="col-sm-2">
+          <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
+        </div>
+        <div class="col-sm-10">
+          <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo $quote_number; ?></small></h3>
         </div>
       </div>
-    </div>
 
-    <div class="col-3 offset-2">
-      <table class="table table-borderless">
-        <tbody>    
-          <tr class="border-bottom">
-            <td>Subtotal</td>
-            <td class="text-right">$<?php echo number_format($sub_total,2); ?></td>
-          </tr>
-          <?php if($discount > 0){ ?>
-          <tr class="border-bottom">
-            <td>Discount</td>
-            <td class="text-right">$<?php echo number_format($quote_discount,2); ?></td>          
-          </tr>
-          <?php } ?>
-          <?php if($total_tax > 0){ ?>
-          <tr class="border-bottom">
-            <td>Tax</td>
-            <td class="text-right">$<?php echo number_format($total_tax,2); ?></td>        
-          </tr>
-          <?php } ?>
-          <tr class="border-bottom">
-            <td><strong>Total</strong></td>
-            <td class="text-right"><strong>$<?php echo number_format($quote_amount,2); ?></strong></td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="row mb-4">
+        
+        <div class="col-sm">
+          <ul class="list-unstyled">
+            <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
+            <li><?php echo $config_company_address; ?></li>
+            <li><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
+            <li>P: <?php echo $config_company_phone; ?></li>
+            <li><?php echo $config_company_email; ?></li>
+          </ul>
+          
+        </div>
+        
+        <div class="col-sm">
+
+          <ul class="list-unstyled text-right">
+            <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
+            <li><?php echo $client_address; ?></li>
+            <li><?php echo "$client_city $client_state $client_zip"; ?></li>
+            <li>P: <?php echo $client_phone; ?></li>
+            <li>E: <?php echo $client_email; ?></li>
+          </ul>
+        
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-sm-8">
+        </div>
+        <div class="col-sm-4">
+          <table class="table">
+            <tr>
+              <td>Quote Date</td>
+              <td class="text-right"><?php echo $quote_date; ?></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <?php $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id ORDER BY item_id ASC"); ?>
+
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Description</th>
+                  <th class="text-center">Qty</th>
+                  <th class="text-right">Price</th>
+                  <th class="text-right">Tax</th>
+                  <th class="text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php
+          
+                while($row = mysqli_fetch_array($sql_items)){
+                  $item_id = $row['item_id'];
+                  $item_name = $row['item_name'];
+                  $item_description = $row['item_description'];
+                  $item_quantity = $row['item_quantity'];
+                  $item_price = $row['item_price'];
+                  $item_subtotal = $row['item_price'];
+                  $item_tax = $row['item_tax'];
+                  $item_total = $row['item_total'];
+                  $total_tax = $item_tax + $total_tax;
+                  $sub_total = $item_price * $item_quantity + $sub_total;
+
+                ?>
+
+                <tr>
+                  <td><?php echo $item_name; ?></td>
+                  <td><?php echo $item_description; ?></td>
+                  <td class="text-center"><?php echo $item_quantity; ?></td>
+                  <td class="text-right">$<?php echo number_format($item_price,2); ?></td>
+                  <td class="text-right">$<?php echo number_format($item_tax,2); ?></td>
+                  <td class="text-right">$<?php echo number_format($item_total,2); ?></td>  
+                </tr>
+
+                <?php 
+
+                }
+
+                ?>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-7">
+          <div class="card">
+            <div class="card-body">
+              <div><?php echo $quote_note; ?></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-3 offset-2">
+          <table class="table table-borderless">
+            <tbody>    
+              <tr class="border-bottom">
+                <td>Subtotal</td>
+                <td class="text-right">$<?php echo number_format($sub_total,2); ?></td>
+              </tr>
+              <?php if($discount > 0){ ?>
+              <tr class="border-bottom">
+                <td>Discount</td>
+                <td class="text-right">$<?php echo number_format($quote_discount,2); ?></td>          
+              </tr>
+              <?php } ?>
+              <?php if($total_tax > 0){ ?>
+              <tr class="border-bottom">
+                <td>Tax</td>
+                <td class="text-right">$<?php echo number_format($total_tax,2); ?></td>        
+              </tr>
+              <?php } ?>
+              <tr class="border-bottom">
+                <td><strong>Total</strong></td>
+                <td class="text-right"><strong>$<?php echo number_format($quote_amount,2); ?></strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <hr class="mt-5">
+
+      <center><?php echo $config_quote_footer; ?></center>
     </div>
   </div>
-
-  <hr class="mt-5">
-
-  <center><?php echo $config_quote_footer; ?></center>
 
 <?php 
   }else{

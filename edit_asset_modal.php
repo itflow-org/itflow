@@ -173,7 +173,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="ip" value="<?php echo $asset_ip; ?>" placeholder="IP Address">
+                  <input type="text" class="form-control" name="ip" value="<?php echo $asset_ip; ?>" placeholder="IP Address" data-inputmask="'alias': 'ip'">
                 </div>
               </div>
             
