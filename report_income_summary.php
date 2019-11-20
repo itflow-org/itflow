@@ -18,8 +18,8 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
     <h6 class="float-left mt-1"><i class="fa fa-fw fa-coins mr-2"></i>Income Summary</h6>
     <button type="button" class="btn btn-primary btn-sm float-right d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
   </div>
-  <div class="card-body">
-    <form class="mb-3">
+  <div class="card-body p-0">
+    <form class="p-3">
       <select onchange="this.form.submit()" class="form-control" name="year">
         <?php 
                 

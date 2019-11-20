@@ -72,6 +72,10 @@ $total_miles = $row['total_miles'];
 $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_id') AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND company_id = $session_company_id"));
 $clients_added = $row['clients_added'];
 
+//Get Total Vendors added
+$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND client_id = 0 AND company_id = $session_company_id"));
+$vendors_added = $row['vendors_added'];
+
 //Get Total of Recurring Invoices
 $sql_total_recurring_invoice_amount = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS total_recurring_invoice_amount FROM recurring WHERE YEAR(payment_date) = $year AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_recurring_invoice_amount);
@@ -164,6 +168,20 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
       </div>
       <div class="icon">
         <i class="fa fa-users"></i>
+      </div>
+    </div>
+  </div>
+  <!-- ./col -->
+
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-secondary">
+      <div class="inner">
+        <h3><?php echo $vendors_added; ?></h3>
+        <p>New Vendors</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-building"></i>
       </div>
     </div>
   </div>

@@ -137,7 +137,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
       //Get the last Invoice Number and add 1 for the new invoice number
       $sql_invoice_number = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $company_id");
-      $row = mysqli_fetch_array($sql_invoice_number)){
+      $row = mysqli_fetch_array($sql_invoice_number);
       $config_invoice_next_number = $row['config_invoice_next_number'];
       
       $new_invoice_number = "$config_invoice_prefix$config_invoice_next_number";
@@ -235,6 +235,8 @@ while($row = mysqli_fetch_array($sql_companies)){
         } //End Mail Try
       } //End if Autosend is on
     } //End Recurring Invoices Loop
+    //Send Alert to inform Cron was run
+    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Cron', alert_message = 'Cron.php successfully executed', alert_date = NOW(), company_id = $company_id");
   } //End Cron Check
 } //End Company Loop through
 

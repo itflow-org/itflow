@@ -65,8 +65,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addClientModal">add</button>
     </div>   
   </div>
-  <div class="card-body">
-    <form autocomplete="off">
+  <div class="card-body p-0">
+    <form class="p-3 bg-light" autocomplete="off">
       <div class="input-group">
         <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Clients">
         <div class="input-group-append">
@@ -74,10 +74,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </div>
       </div>
     </form>
-    <hr>
+   
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Name <i class="fa fa-sort-alpha<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_type&o=<?php echo $disp; ?>">Type <i class="fa fa-sort"></i></a></th>
