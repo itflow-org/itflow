@@ -221,72 +221,88 @@ if(isset($_POST['add_company_settings'])){
 <html lang="en">
 
 <head>
-
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <meta name="author" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
 
   <title>Install IT CRM</title>
 
-  <!-- Custom fonts for this template-->
-  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-
-  <!-- Custom styles for this template-->
-  <link href="css/sb-admin.css" rel="stylesheet">
-
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="dist/css/adminlte.min.css">
   <!-- Custom Style Sheet -->
-  <link href="css/style.css" rel="stylesheet">
   <link href="vendor/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css">
   
 </head>
 
-<body id="page-top">
+<body class="hold-transition sidebar-mini">
 
-  <!-- Top Nav -->
-  <nav class="navbar navbar-expand navbar-dark bg-primary static-top">
+  <div class="wrapper text-sm">
 
-    <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
-      <i class="fas fa-bars"></i>
-    </button>
 
-    <!-- Navbar -->
-    <ul class="navbar-nav ml-auto ml-md-0">
-    </ul>
+       <!-- Navbar -->
+    <nav class="main-header navbar navbar-expand navbar-primary navbar-dark">
 
-  </nav>
-
-  <div id="wrapper">
-    
-    <!-- Sidebar -->
-    <ul class="sidebar navbar-nav">
-      <li class="nav-item">
-        <h2 class="text-white text-center my-3">Setup</h2>
-      </li>
-      <li class="nav-item <?php if(isset($_GET['database'])) { echo "active"; } ?>">
-        <a class="nav-link" href="?database">
-          <i class="fas fa-fw fa-database mx-2"></i>
-          <span>Database</span>
-        </a>
-      </li>
-      <li class="nav-item <?php if(isset($_GET['user'])) { echo "active"; } ?>">
-        <a class="nav-link" href="?user">
-          <i class="fas fa-fw fa-user mx-2"></i>
-          <span>User</span>
-        </a>
-      </li>
-      <li class="nav-item <?php if(isset($_GET['company'])) { echo "active"; } ?>">
-        <a class="nav-link" href="?company">
-          <i class="fas fa-fw fa-building mx-2"></i>
-          <span>Company</span>
-        </a>
-      </li>
-    </ul>
-    
-    <div id="content-wrapper">
+      <!-- Left navbar links -->
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+        </li>
+      </ul>
       
-      <div class="container">
+      <!-- Right navbar links -->
+      <ul class="navbar-nav">
+      </ul>
+    </nav>
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    <aside class="main-sidebar sidebar-dark-primary elevation-4 d-print-none">
+      
+      <!-- Brand Logo -->
+      <a href="index3.html" class="brand-link">
+        <img src="dist/img/AdminLTELogo.png" alt="Logo" class="brand-image img-circle elevation-3"
+             style="opacity: .8">
+        <span class="brand-text font-weight-light">Setup</span>
+      </a>
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <li class="nav-item">
+              <a href="?database" class="nav-link <?php if(isset($_GET['database'])) { echo "active"; } ?>">
+                <i class="nav-icon fas fa-database"></i>
+                <p>Database</p>
+              </a>
+            </li>
+    
+            <li class="nav-item">
+              <a href="?user" class="nav-link <?php if(isset($_GET['user'])) { echo "active"; } ?>">
+                <i class="nav-icon fas fa-user"></i>
+                <p>User</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="?company" class="nav-link <?php if(isset($_GET['company'])) { echo "active"; } ?>">
+                <i class="nav-icon fas fa-building"></i>
+                <p>Company</p>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+
+      <!-- Main content -->
+      <div class="content mt-3">
+        <div class="container-fluid">
         
         <?php 
         //Alert Feedback
@@ -543,32 +559,25 @@ if(isset($_POST['add_company_settings'])){
 
         <?php } ?>
 
+      </div><!-- /.container-fluid -->
       </div>
-      <!-- /.container-fluid -->
-
+      <!-- /.content -->
     </div>
     <!-- /.content-wrapper -->
-
   </div>
-  <!-- /#wrapper -->
+  <!-- ./wrapper -->
 
-  <!-- Scroll to Top Button-->
-  <a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-  </a>
+  <!-- REQUIRED SCRIPTS -->
 
-  <!-- Bootstrap core JavaScript-->
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Core plugin JavaScript-->
-  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-  <!-- Custom scripts for all pages-->
-  <script src="js/sb-admin.min.js"></script>
-  <script src='vendor/bootstrap-select/js/bootstrap-select.min.js'></script>
-  <script src='vendor/Inputmask/dist/inputmask.min.js'></script>
-  <script src='vendor/Inputmask/dist/bindings/inputmask.binding.js'></script>
+  <!-- jQuery -->
+  <script src="plugins/jquery/jquery.min.js"></script>
+  <!-- Bootstrap 4 -->
+  <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom js-->
+  <script src='plugins/inputmask/min/jquery.inputmask.bundle.min.js'></script>
+  <script src='plugins/inputmask/min/inputmask/bindings/inputmask.binding.min.js'></script>
+  <!-- AdminLTE App -->
+  <script src="dist/js/adminlte.min.js"></script>
 
   <!-- Custom js-->
   <script src="js/app.js"></script>
