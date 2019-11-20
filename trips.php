@@ -39,8 +39,18 @@
     $disp = "ASC";
   }
 
+  //Date From and Date To Filter
+  if(isset($_GET['dtf'])){
+    $dtf = $_GET['dtf'];
+    $dtt = $_GET['dtt'];
+  }else{
+    $dtf = "0000-00-00";
+    $dtt = "9999-00-00";
+  }
+
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips  
     WHERE (trip_purpose LIKE '%$q%' OR trip_starting_location LIKE '%$q%' OR trip_destination LIKE '%$q%')
+    AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
     AND company_id = $session_company_id
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 

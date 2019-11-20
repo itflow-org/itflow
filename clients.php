@@ -4,6 +4,7 @@
 
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
+//Paging
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
   $record_from = (($p)-1)*10;
@@ -14,18 +15,21 @@ if(isset($_GET['p'])){
   $p = 1;
 }
   
+//Custom Query Filter  
 if(isset($_GET['q'])){
   $q = mysqli_real_escape_string($mysqli,$_GET['q']);
 }else{
   $q = "";
 }
 
+//Column Filter
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
   $sb = "client_id";
 }
 
+//Column Order Filter
 if(isset($_GET['o'])){
   if($_GET['o'] == 'ASC'){
     $o = "ASC";
@@ -39,7 +43,16 @@ if(isset($_GET['o'])){
   $disp = "ASC";
 }
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE (client_name LIKE '%$q%' OR client_email LIKE '%$q%' OR client_contact LIKE '%$q%') AND company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to"); 
+//Date From and Date To Filter
+if(isset($_GET['dtf'])){
+  $dtf = $_GET['dtf'];
+  $dtt = $_GET['dtt'];
+}else{
+  $dtf = "0000-00-00";
+  $dtt = "9999-00-00";
+}
+
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE (client_name LIKE '%$q%' OR client_email LIKE '%$q%' OR client_contact LIKE '%$q%') AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt' AND company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to"); 
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 

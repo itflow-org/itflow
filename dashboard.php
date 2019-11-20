@@ -103,7 +103,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
 <div class="row">
   <div class="col-lg-3 col-6">
     <!-- small box -->
-    <div class="small-box bg-primary">
+    <a class="small-box bg-primary" href="payments.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3>$<?php echo number_format($total_income,2); ?></h3>
         <p>Total Incomes</p>
@@ -113,13 +113,13 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
       <div class="icon">
         <i class="fa fa-money-check"></i>
       </div>
-    </div>
+    </a>
   </div>
   <!-- ./col -->
 
   <div class="col-lg-3 col-6">
     <!-- small box -->
-    <div class="small-box bg-danger">
+    <a class="small-box bg-danger" href="expenses.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3>$<?php echo number_format($total_expenses,2); ?></h3>
         <p>Total Expenses</p>
@@ -127,7 +127,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
       <div class="icon">
         <i class="fa fa-shopping-cart"></i>
       </div>
-    </div>
+    </a>
   </div>
   <!-- ./col -->
 
@@ -147,7 +147,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
 
   <div class="col-lg-3 col-6">
     <!-- small box -->
-    <div class="small-box bg-info">
+    <a class="small-box bg-info" href="trips.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3><?php echo $total_miles; ?></h3>
         <p>Miles Driven</p>
@@ -155,13 +155,13 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
       <div class="icon">
         <i class="fa fa-bicycle"></i>
       </div>
-    </div>
+    </a>
   </div>
   <!-- ./col -->
 
   <div class="col-lg-3 col-6">
     <!-- small box -->
-    <div class="small-box bg-secondary">
+    <a class="small-box bg-secondary" href="clients.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3><?php echo $clients_added; ?></h3>
         <p>New Clients</p>
@@ -169,13 +169,13 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
       <div class="icon">
         <i class="fa fa-users"></i>
       </div>
-    </div>
+    </a>
   </div>
   <!-- ./col -->
 
   <div class="col-lg-3 col-6">
     <!-- small box -->
-    <div class="small-box bg-secondary">
+    <a class="small-box bg-secondary" href="vendors.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3><?php echo $vendors_added; ?></h3>
         <p>New Vendors</p>
@@ -183,7 +183,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
       <div class="icon">
         <i class="fa fa-building"></i>
       </div>
-    </div>
+    </a>
   </div>
   <!-- ./col -->
 

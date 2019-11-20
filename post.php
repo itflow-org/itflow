@@ -2996,11 +2996,11 @@ if(isset($_GET['delete_asset'])){
 if(isset($_POST['add_login'])){
 
     $client_id = intval($_POST['client_id']);
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $web_link = strip_tags(mysqli_real_escape_string($mysqli,$_POST['web_link']));
-    $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
+    $web_link = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['web_link'])));
+    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
     $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
-    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+    $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
     $software_id = intval($_POST['software']);

@@ -39,11 +39,21 @@
     $disp = "ASC";
   }
 
+  //Date From and Date To Filter
+  if(isset($_GET['dtf'])){
+    $dtf = $_GET['dtf'];
+    $dtt = $_GET['dtt'];
+  }else{
+    $dtf = "0000-00-00";
+    $dtt = "9999-00-00";
+  }
+
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM expenses, categories, vendors, accounts
     WHERE expenses.category_id = categories.category_id
     AND expenses.vendor_id = vendors.vendor_id
     AND expenses.account_id = accounts.account_id
     AND expenses.company_id = $session_company_id
+    AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
     AND (vendor_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 

@@ -35,7 +35,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
       </select>
     </form>
     <div class="table-responsive">
-      <table class="table table-striped table-sm">
+      <table class="table table-striped">
         <thead class="text-dark">
           <tr>
             <th>Category</th>
@@ -74,7 +74,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
 
               
               ?>
-                <td class="text-right text-monospace">$<?php echo number_format($expense_amount_for_month,2); ?></td>
+                <td class="text-right text-monospace"><a class="text-dark" href="expenses.php?q=<?php echo $category_name; ?>&dtf=<?php echo "$year-$month"; ?>-01&dtt=<?php echo "$year-$month"; ?>-31">$<?php echo number_format($expense_amount_for_month,2); ?></a></td>
               
               <?php
               
@@ -82,7 +82,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
               
               ?>
               
-              <td class="text-right text-monospace">$<?php echo number_format($total_expense_for_all_months,2); ?></td>
+              <td class="text-right text-monospace"><a class="text-dark" href="expenses.php?q=<?php echo $category_name; ?>&dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">$<?php echo number_format($total_expense_for_all_months,2); ?></a></td>
             </tr>
           
           <?php 
@@ -106,14 +106,14 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
             
             ?>
 
-              <th class="text-right text-monospace">$<?php echo number_format($expense_total_amount_for_month,2); ?></th>
+              <th class="text-right text-monospace"><a class="text-dark" href="expenses.php?dtf=<?php echo "$year-$month"; ?>-01&dtt=<?php echo "$year-$month"; ?>-31">$<?php echo number_format($expense_total_amount_for_month,2); ?></a></th>
             <?php
 
             }
 
             ?>
 
-            <th class="text-right text-monospace">$<?php echo number_format($total_expense_for_all_months,2); ?></th>
+            <th class="text-right text-monospace"><a class="text-dark" href="expenses.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">$<?php echo number_format($total_expense_for_all_months,2); ?></th>
           </tr>
         </tbody>
       </table>

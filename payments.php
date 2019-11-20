@@ -39,12 +39,22 @@
     $disp = "ASC";
   }
 
+  //Date From and Date To Filter
+  if(isset($_GET['dtf'])){
+    $dtf = $_GET['dtf'];
+    $dtt = $_GET['dtt'];
+  }else{
+    $dtf = "0000-00-00";
+    $dtt = "9999-00-00";
+  }
+
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM payments, invoices, clients, accounts
     WHERE invoices.client_id = clients.client_id
     AND payments.invoice_id = invoices.invoice_id
     AND payments.account_id = accounts.account_id
     AND payments.company_id = $session_company_id
-    AND (invoice_number LIKE '%$q%' OR client_name LIKE '%$q%' OR account_name LIKE '%$q%' OR payment_method LIKE '%$q%')
+    AND DATE(payment_date) BETWEEN '$dtf' AND '$dtt'
+    AND (invoice_number LIKE '%$q%' OR client_name LIKE '%$q%' OR account_name LIKE '%$q%' OR payment_method LIKE '%$q%' OR payment_reference LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -77,6 +87,7 @@
             <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=payment_amount&o=<?php echo $disp; ?>">Amount</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=account_name&o=<?php echo $disp; ?>">Account</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=payment_method&o=<?php echo $disp; ?>">Method</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=payment_reference&o=<?php echo $disp; ?>">Reference</a></th>
           </tr>
         </thead>
         <tbody>
@@ -89,6 +100,7 @@
             $payment_date = $row['payment_date'];
             $payment_method = $row['payment_method'];
             $payment_amount = $row['payment_amount'];
+            $payment_reference = $row['payment_reference'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
             $account_name = $row['account_name'];
@@ -103,6 +115,7 @@
             
             <td><?php echo $account_name; ?></td>
             <td><?php echo $payment_method; ?></td>
+            <td><?php echo $payment_reference; ?></td>
           </tr>
 
           <?php

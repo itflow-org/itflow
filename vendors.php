@@ -34,7 +34,20 @@
     $o = "DESC";
     $disp = "ASC";
   }
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM vendors WHERE client_id = 0 AND company_id = $session_company_id AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%')
+
+  //Date From and Date To Filter
+  if(isset($_GET['dtf'])){
+    $dtf = $_GET['dtf'];
+    $dtt = $_GET['dtt'];
+  }else{
+    $dtf = "0000-00-00";
+    $dtt = "9999-00-00";
+  }
+
+  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM vendors WHERE client_id = 0 
+    AND company_id = $session_company_id 
+    AND DATE(vendor_created_at) BETWEEN '$dtf' AND '$dtt'
+    AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   $total_found_rows = $num_rows[0];
