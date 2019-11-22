@@ -90,10 +90,20 @@
     $disp = "ASC";
   }
 
+  //Date From and Date To Filter
+  if(isset($_GET['dtf'])){
+    $dtf = $_GET['dtf'];
+    $dtt = $_GET['dtt'];
+  }else{
+    $dtf = "0000-00-00";
+    $dtt = "9999-00-00";
+  }
+
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM invoices, clients, categories
     WHERE invoices.client_id = clients.client_id
     AND invoices.category_id = categories.category_id
     AND invoices.company_id = $session_company_id
+    AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
     AND (invoice_number LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 

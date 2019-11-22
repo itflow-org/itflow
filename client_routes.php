@@ -40,6 +40,12 @@ if(isset($_GET['tab'])){
   elseif($_GET['tab'] == "quotes"){
     include("client_quotes.php");
   }
+  elseif($_GET['tab'] == "trips"){
+    include("client_trips.php");
+  }
+  elseif($_GET['tab'] == "events"){
+    include("client_events.php");
+  }
   elseif($_GET['tab'] == "files"){
     include("client_files.php");
   }

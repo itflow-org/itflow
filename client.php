@@ -96,6 +96,12 @@ if(isset($_GET['client_id'])){
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('note_id') AS num FROM notes WHERE client_id = $client_id"));
   $num_notes = $row['num'];
 
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('event_id') AS num FROM events WHERE client_id = $client_id"));
+  $num_events = $row['num'];
+
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('trip_id') AS num FROM trips WHERE client_id = $client_id"));
+  $num_trips = $row['num'];
+
 ?>
 
 <?php include("header.php"); ?>

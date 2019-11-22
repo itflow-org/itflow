@@ -198,6 +198,32 @@
         <li class="nav-header">MORE</li>
 
         <li class="nav-item">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=trips" class="nav-link <?php if($_GET['tab'] == "trips") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-bicycle"></i>
+            <p>
+              Trips
+              <?php 
+              if($num_trips > 0){ ?>
+              <span class="right badge badge-light"><?php echo $num_trips; ?></span>
+              <?php } ?>
+            </p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=events" class="nav-link <?php if($_GET['tab'] == "events") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-calendar"></i>
+            <p>
+              Events
+              <?php 
+              if($num_events > 0){ ?>
+              <span class="right badge badge-light"><?php echo $num_events; ?></span>
+              <?php } ?>
+            </p>
+          </a>
+        </li>
+
+        <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=files" class="nav-link <?php if($_GET['tab'] == "files") { echo "active"; } ?>">
             <i class="nav-icon fas fa-paperclip"></i>
             <p>
