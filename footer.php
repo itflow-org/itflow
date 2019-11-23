@@ -24,7 +24,6 @@
 	<script src='plugins/select2/js/select2.min.js'></script>
 	<script src='plugins/inputmask/min/jquery.inputmask.bundle.min.js'></script>
 	<script src='plugins/inputmask/min/inputmask/bindings/inputmask.binding.min.js'></script>
-	<script src='plugins/bootstrap-select/js/bootstrap-select.min.js'></script>
 	<script src="plugins/summernote/summernote-bs4.min.js"></script>
 	<!-- AdminLTE App -->
 	<script src="dist/js/adminlte.min.js"></script>

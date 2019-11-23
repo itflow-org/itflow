@@ -42,7 +42,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                   </div>
-                  <select class="form-control selectpicker show-tick" name="type" required>
+                  <select class="form-control select2" name="type" required>
                     <option value="">- Type -</option>
                     <?php foreach($software_types_array as $software_type) { ?>
                     <option><?php echo $software_type; ?></option>

@@ -25,7 +25,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
               </div>
-              <select class="form-control selectpicker show-tick" name="calendar" required>
+              <select class="form-control select2" name="calendar" required>
                 <option value="">- Calendar -</option>
                 <?php 
                 

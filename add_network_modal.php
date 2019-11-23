@@ -56,7 +56,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
               </div>
-              <select class="form-control selectpicker show-tick" data-live-search="true" name="location">
+              <select class="form-control select2" name="location">
                 <option value="">- Location -</option>
                 <?php 
                 

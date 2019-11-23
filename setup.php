@@ -232,7 +232,8 @@ if(isset($_POST['add_company_settings'])){
   <!-- Theme style -->
   <link rel="stylesheet" href="dist/css/adminlte.min.css">
   <!-- Custom Style Sheet -->
-  <link href="vendor/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css">
+  <link href="plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
+  <link href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
   
 </head>
 
@@ -482,7 +483,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                     </div>
-                    <select class="form-control selectpicker show-tick" data-live-search="true" name="config_company_state">
+                    <select class="form-control select2" name="config_company_state">
                       <option value="">Select a state...</option>
                         <?php foreach($states_array as $state_abbr => $state_name) { ?>
                         <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
@@ -576,6 +577,7 @@ if(isset($_POST['add_company_settings'])){
   <!-- Custom js-->
   <script src='plugins/inputmask/min/jquery.inputmask.bundle.min.js'></script>
   <script src='plugins/inputmask/min/inputmask/bindings/inputmask.binding.min.js'></script>
+  <script src='plugins/select2/js/select2.min.js'></script>
   <!-- AdminLTE App -->
   <script src="dist/js/adminlte.min.js"></script>
 

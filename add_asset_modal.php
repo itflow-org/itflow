@@ -45,10 +45,10 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                   </div>
-                  <select class="form-control selectpicker show-tick" data-live-search="true" name="type" required>
+                  <select class="form-control select2" name="type" required>
                     <option value="">- Type -</option>
                     <?php foreach($asset_types_array as $asset_type => $asset_icon) { ?>
-                    <option data-icon="text-secondary fa fa-fw <?php echo $asset_icon; ?>"><?php echo $asset_type; ?></option>
+                    <option><?php echo $asset_type; ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -93,7 +93,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                   </div>
-                  <select class="form-control selectpicker show-tick" data-live-search="true" name="location">
+                  <select class="form-control select2" name="location">
                     <option value="">- Location -</option>
                     <?php 
                     
@@ -117,7 +117,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                   </div>
-                  <select class="form-control selectpicker show-tick" data-live-search="true" name="contact">
+                  <select class="form-control select2" name="contact">
                     <option value="">- Contact -</option>
                     <?php 
                     
@@ -141,7 +141,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
                   </div>
-                  <select class="form-control selectpicker show-tick" data-live-search="true" name="network">
+                  <select class="form-control select2" name="network">
                     <option value="">- Network -</option>
                     <?php 
                     
@@ -181,7 +181,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                   </div>
-                  <select class="form-control selectpicker show-tick" data-live-search="true" name="vendor">
+                  <select class="form-control select2" name="vendor">
                     <option value="">- Vendor -</option>
                     <?php 
                     

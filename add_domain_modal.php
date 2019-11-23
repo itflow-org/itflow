@@ -26,7 +26,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
               </div>
-              <select class="form-control selectpicker show-tick" data-live-search="true" name="registrar">
+              <select class="form-control select2" name="registrar">
                 <option value="">- Vendor -</option>
                 <?php 
                 
@@ -50,7 +50,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
               </div>
-              <select class="form-control selectpicker show-tick" data-live-search="true" name="webhost">
+              <select class="form-control select2" name="webhost">
                 <option value="">- Vendor -</option>
                 <?php 
                 

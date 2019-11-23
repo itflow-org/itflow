@@ -76,7 +76,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                   </div>
-                  <select class="form-control" name="vendor">
+                  <select class="form-control select2" name="vendor">
                     <option value="0">- None -</option>
                     <?php 
                     
@@ -100,7 +100,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                   </div>
-                  <select class="form-control" name="asset">
+                  <select class="form-control select2" name="asset">
                     <option value="0">- None -</option>
                     <?php 
                     
@@ -124,7 +124,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
                   </div>
-                  <select class="form-control" name="software">
+                  <select class="form-control select2" name="software">
                     <option value="0">- None -</option>
                     <?php 
                     

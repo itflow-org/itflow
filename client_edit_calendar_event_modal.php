@@ -27,7 +27,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-calendar"></i></span>
               </div>
-              <select class="form-control selectpicker show-tick" name="calendar" required>
+              <select class="form-control select2" name="calendar" required>
                 <?php 
                 
                 $sql_calendars_select = mysqli_query($mysqli,"SELECT * FROM calendars WHERE company_id = $session_company_id"); 
