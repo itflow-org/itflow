@@ -44,7 +44,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
           </div>
-          <select class="form-control selectpicker show-tick" data-live-search="true" name="config_company_state">
+          <select class="form-control select2" name="config_company_state">
             <option value="">Select a state...</option>
               <?php foreach($states_array as $state_abbr => $state_name) { ?>
               <option <?php if($config_company_state == $state_abbr) { echo "selected"; } ?> value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>

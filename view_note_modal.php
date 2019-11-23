@@ -8,10 +8,7 @@
         </button>
       </div>
       <div class="modal-body bg-white">
-        <?php
-          $Parsedown = new Parsedown();
-          echo $Parsedown->text("$note_body");
-        ?>
+        <?php echo $note_body; ?>
       </div>
     </div>
   </div>

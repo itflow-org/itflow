@@ -45,7 +45,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
               </div>
-              <select class="form-control selectpicker show-tick" data-live-search="true" name="state" required>
+              <select class="form-control select2" name="state" required>
                 <option value="">- State -</option>
                 <?php foreach($states_array as $state_abbr => $state_name) { ?>
                 <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>

@@ -21,7 +21,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
               </div>
-              <select class="form-control selectpicker show-tick" data-live-search="true" name="client" required>
+              <select class="form-control select2" name="client" required>
                 <option value="">- Client -</option>
                 <?php 
                 
@@ -56,7 +56,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
               </div>
-              <select class="form-control selectpicker show-tick" name="category" required>
+              <select class="form-control select2" name="category" required>
                 <option value="">- Category -</option>
                 <?php 
                 

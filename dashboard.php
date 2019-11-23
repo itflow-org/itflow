@@ -83,8 +83,8 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
 
 ?>
 
-<form>
-  <select onchange="this.form.submit()" class="form-control selectpicker mb-3" name="year">
+<form class="mb-3">
+  <select onchange="this.form.submit()" class="form-control" name="year">
     <?php 
             
     while($row = mysqli_fetch_array($sql_payment_years)){
@@ -98,6 +98,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
 
   </select>
 </form>
+
 
 <!-- Icon Cards-->
 <div class="row">

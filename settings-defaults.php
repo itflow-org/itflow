@@ -14,7 +14,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
           </div>
-          <select class="form-control selectpicker show-tick" name="config_default_transfer_from_account">
+          <select class="form-control select2" name="config_default_transfer_from_account">
             <option value="0">- None -</option>
             <?php 
             
@@ -39,7 +39,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
           </div>
-          <select class="form-control selectpicker show-tick" name="config_default_transfer_to_account">
+          <select class="form-control select2" name="config_default_transfer_to_account">
             <option value="0">- None -</option>
             <?php 
             
@@ -64,7 +64,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
           </div>
-          <select class="form-control selectpicker show-tick" name="config_default_payment_account">
+          <select class="form-control select2" name="config_default_payment_account">
             <option value="0">- None -</option>
             <?php 
             
@@ -89,7 +89,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
           </div>
-          <select class="form-control selectpicker show-tick" name="config_default_expense_account">
+          <select class="form-control select2" name="config_default_expense_account">
             <option value="0">- None -</option>
             <?php 
             
@@ -114,7 +114,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
           </div>
-          <select class="form-control selectpicker show-tick" name="config_default_payment_method">
+          <select class="form-control select2" name="config_default_payment_method">
             <option value="">- None -</option>
             <?php 
             
@@ -138,7 +138,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
           </div>
-          <select class="form-control selectpicker show-tick" name="config_default_expense_payment_method">
+          <select class="form-control select2" name="config_default_expense_payment_method">
             <option value="">- None -</option>
             <?php 
             
@@ -162,7 +162,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
           </div>
-          <select class="form-control selectpicker show-tick" name="config_default_calendar">
+          <select class="form-control select2" name="config_default_calendar">
             <option value="0">- None -</option>
             <?php 
             
@@ -187,7 +187,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
           </div>
-          <select class="form-control selectpicker show-tick" name="config_default_net_terms">
+          <select class="form-control select2" name="config_default_net_terms">
             <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
             <option <?php if($config_default_net_terms == $net_term_value){ echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
             <?php } ?>

@@ -68,48 +68,7 @@ if(isset($_GET['ticket_id'])){
   <li class="breadcrumb-item active">Ticket Details</li>
 </ol>
 <div class="row">
-  <div class="col-md-3">
-    <div class="card mb-3">
-      <div class="card-header">
-        <h2>
-          Ticket <?php echo $ticket_number; ?>
-        </h2>
-        <span class="p-2 badge badge-<?php echo $ticket_badge_color; ?>">
-          <?php echo $ticket_status; ?>
-          </span>
 
-      </div>
-      <div class="card-body">
-  
-        <div class="mb-4">  
-          <h4 class="text-secondary">Client</h4>
-          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <?php echo $client_name; ?>
-          <br>
-          <?php
-          if(!empty($client_email)){
-          ?>
-          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i> <a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a>
-          <br>
-          <?php
-          }
-          ?>
-          <?php
-          if(!empty($client_phone)){
-          ?>
-          <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <?php echo $client_phone; ?>
-          <br>
-          <?php 
-          } 
-          ?>
-        </div>
-  
-        <h4 class="text-secondary">Details</h4>
-        <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $name; ?></div>
-        <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_at; ?></div>
-        
-      </div>
-    </div>
-  </div>
   <div class="col-md-9">
 
     <div class="card mb-3">
@@ -163,6 +122,49 @@ if(isset($_GET['ticket_id'])){
     }
     ?>
   
+  </div>
+
+  <div class="col-md-3">
+    <div class="card mb-3">
+      <div class="card-header">
+        <h2>
+          Ticket <?php echo $ticket_number; ?>
+        </h2>
+        <span class="p-2 badge badge-<?php echo $ticket_badge_color; ?>">
+          <?php echo $ticket_status; ?>
+          </span>
+
+      </div>
+      <div class="card-body">
+  
+        <div class="mb-4">  
+          <h4 class="text-secondary">Client</h4>
+          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <?php echo $client_name; ?>
+          <br>
+          <?php
+          if(!empty($client_email)){
+          ?>
+          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i> <a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a>
+          <br>
+          <?php
+          }
+          ?>
+          <?php
+          if(!empty($client_phone)){
+          ?>
+          <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <?php echo $client_phone; ?>
+          <br>
+          <?php 
+          } 
+          ?>
+        </div>
+  
+        <h4 class="text-secondary">Details</h4>
+        <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $name; ?></div>
+        <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_at; ?></div>
+        
+      </div>
+    </div>
   </div>
 
 </div>

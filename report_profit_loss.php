@@ -23,8 +23,8 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
     <h6 class="float-left mt-1"><i class="fa fw-fw fa-balance-scale mr-2"></i>Profit & Loss</h6>
     <button type="button" class="btn btn-primary btn-sm float-right d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
   </div>
-  <div class="card-body">
-    <form class="mb-3">
+  <div class="card-body p-0">
+    <form class="p-3">
       <select onchange="this.form.submit()" class="form-control" name="year">
         <?php 
                 
@@ -40,7 +40,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
       </select>
     </form>
     <div class="table-responsive">
-      <table class="table table-striped table-sm">
+      <table class="table table-sm">
         <thead class="text-dark">
           <tr>
             <th></th>

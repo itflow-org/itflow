@@ -8,14 +8,12 @@ $("#alert").fadeTo(2000, 500).slideUp(500, function(){
   $("#alert").slideUp(500);
 });
 
-new EasyMDE({
-  autoDownloadFontAwesome: false,
-  element: document.getElementById('addClientNote')
-});
+//Initialize Select2 Elements
+$('.select2').select2({
+  theme: 'bootstrap4'
+})
 
-new EasyMDE({
-  autoDownloadFontAwesome: false,
-  autofocus: true,
-  forceSync: true,
-  element: document.getElementById('editClientNote')    
+// Summernote
+$('.summernote').summernote({
+	height: 300
 });

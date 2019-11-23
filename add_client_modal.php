@@ -47,7 +47,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                   </div>
-                  <select class="form-control selectpicker show-tick" data-live-search="true" name="type" required>
+                  <select class="form-control select2" name="type" required>
                     <option value="">- Type -</option>
                     <?php foreach($client_types_array as $client_type) { ?>
                     <option><?php echo $client_type; ?></option>
@@ -86,7 +86,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                   </div>
-                  <select class="form-control selectpicker show-tick" data-live-search="true" name="state">
+                  <select class="form-control select2" name="state">
                     <option value="">- State -</option>
                     <?php foreach($states_array as $state_abbr => $state_name) { ?>
                     <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
@@ -179,7 +179,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                   </div>
-                  <select class="form-control selectpicker show-tick" name="net_terms">
+                  <select class="form-control select2" name="net_terms">
                     <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
                     <option <?php if($config_default_net_terms == $net_term_value){ echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
                     <?php } ?>

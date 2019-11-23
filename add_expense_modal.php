@@ -39,7 +39,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                 </div>
-                <select class="form-control selectpicker show-tick" name="account" required>
+                <select class="form-control select2" name="account" required>
                   <option value="">- Account -</option>
                   <?php 
                   
@@ -79,7 +79,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                 </div>
-                <select class="form-control selectpicker show-tick" data-live-search="true" name="vendor" required>
+                <select class="form-control select2" name="vendor" required>
                   <option value="">- Vendor -</option>
                   <?php 
                   
@@ -111,7 +111,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                 </div>
-                <select class="form-control selectpicker show-tick" name="category" required>
+                <select class="form-control select2" name="category" required>
                   <option value="">- Category -</option>
                   <?php 
                   

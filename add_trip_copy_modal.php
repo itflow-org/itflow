@@ -88,7 +88,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-file"></i></span>
                   </div>
-                  <select class="form-control selectpicker show-tick" data-live-search="true" name="invoice">
+                  <select class="form-control select2" name="invoice">
                     <option value="">- Invoice -</option>
                     <?php 
                     
@@ -116,7 +116,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                   </div>
-                  <select class="form-control selectpicker show-tick" data-live-search="true" name="client">
+                  <select class="form-control select2" name="client">
                     <option value="">- Client -</option>
                     <?php 
                     
@@ -140,7 +140,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                   </div>
-                  <select class="form-control selectpicker show-tick" data-live-search="true" name="location">
+                  <select class="form-control select2" name="location">
                     <option value="">- Location -</option>
                     <?php 
                     
@@ -165,7 +165,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                   </div>
-                  <select class="form-control selectpicker show-tick" data-live-search="true" name="vendor">
+                  <select class="form-control select2" name="vendor">
                     <option value="">- Vendor -</option>
                     <?php 
                     

@@ -21,7 +21,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
               </div>
-              <select class="form-control selectpicker show-tick" name="category" required>
+              <select class="form-control select2" name="category" required>
                 <?php 
                 
                 $sql_select = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND company_id = $session_company_id"); 

@@ -27,6 +27,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <!-- <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet"> -->
 
   <!-- Custom Style Sheet -->
+  <link href="plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css">
   <link href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
   <link href="plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
   <link href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
@@ -35,6 +36,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link href='plugins/fullcalendar-timegrid/main.min.css' rel='stylesheet' />
   <link href='plugins/fullcalendar-bootstrap/main.min.css' rel='stylesheet' />
   <link href='plugins/daterangepicker/daterangepicker.css' rel='stylesheet' />
+  <link href="plugins/summernote/summernote-bs4.css" rel="stylesheet">
 
 </head>
 <body class="hold-transition sidebar-mini">

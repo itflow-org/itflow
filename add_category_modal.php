@@ -15,7 +15,7 @@
           </div>
           <div class="form-group">
             <label>Type <strong class="text-danger">*</strong></label>
-            <select class="form-control selectpicker" name="type" required>
+            <select class="form-control select2" name="type" required>
               <option value="">- Type -</option>
               <?php foreach($category_types_array as $category_type) { ?>
               <option><?php echo $category_type; ?></option>

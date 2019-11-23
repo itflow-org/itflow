@@ -3106,7 +3106,7 @@ if(isset($_POST['add_note'])){
 
     $client_id = intval($_POST['client_id']);
     $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
-    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+    $note = mysqli_real_escape_string($mysqli,$_POST['note']);
 
     mysqli_query($mysqli,"INSERT INTO notes SET note_subject = '$subject', note_body = '$note', note_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
@@ -3123,7 +3123,7 @@ if(isset($_POST['edit_note'])){
 
     $note_id = intval($_POST['note_id']);
     $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
-    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+    $note = mysqli_real_escape_string($mysqli,$_POST['note']);
 
     mysqli_query($mysqli,"UPDATE notes SET note_subject = '$subject', note_body = '$note', note_updated_at = NOW() WHERE note_id = $note_id AND company_id = $session_company_id");
 

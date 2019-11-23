@@ -38,7 +38,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
               </div> 
-              <select class="form-control selectpicker show-tick" name="account_from" required>
+              <select class="form-control select2" name="account_from" required>
                 <?php 
                 
                 $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 
@@ -75,7 +75,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-arrow-right"></i></span>
               </div>
-              <select class="form-control selectpicker show-tick" name="account_to" required>
+              <select class="form-control select2" name="account_to" required>
                 <?php 
                 
                 $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 

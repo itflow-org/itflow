@@ -16,7 +16,7 @@
           </div>
           <div class="form-group">
             <label>Note <strong class="text-danger">*</strong></label>
-            <textarea rows="8" class="form-control" id="editClientNote" name="note"><?php echo $note_body; ?></textarea>
+            <textarea class="form-control summernote" name="note"><?php echo $note_body; ?></textarea>
           </div>
         </div>
         <div class="modal-footer bg-white">

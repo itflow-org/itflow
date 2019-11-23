@@ -58,38 +58,42 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 ?>
 
+<section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Clients</h1>
+          </div>
+          <div class="col-sm-6">
+            <button class="btn btn-primary float-right">Add</button>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
 <div class="card">
   <div class="card-header">
-    <h3 class="card-title">Simple Full Width Table</h3>
-
-    <div class="card-tools">
-      <ul class="pagination pagination-sm float-right">
-        <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="card-header bg-gray-dark border-0">
-    <h3 class="card-title">Clients</h3>
     <div class="card-tools">   
-      <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addClientModal">add</button>
+      <form class="form-inline" autocomplete="off">
+        <div class="input-group">
+          <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Clients">
+          <div class="input-group-append">
+            <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+          </div>
+        </div>
+        
+          <select class="form-control" name="type">
+            <option>Poop</option>
+            <option>soup</option>
+          </select>
+          
+       
+      </form>
     </div>   
   </div>
   <div class="card-body p-0">
-    <form class="p-3 bg-light" autocomplete="off">
-      <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Clients">
-        <div class="input-group-append">
-          <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-        </div>
-      </div>
-    </form>
-   
     <div class="table-responsive">
-      <table class="table table-striped table-borderless table-hover">
+      <table class="table table-hover">
         <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Name <i class="fa fa-sort-alpha<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
@@ -205,9 +209,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
         </tbody>
       </table>
-
-      <?php include("pagination.php"); ?>
-
+      <div class="mr-3">
+        <?php include("pagination.php"); ?>
+      </div>
     </div>
   </div>
 </div>
