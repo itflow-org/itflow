@@ -17,6 +17,10 @@ $sql_companies = mysqli_query($mysqli,"SELECT * FROM companies, settings WHERE c
 while($row = mysqli_fetch_array($sql_companies)){
   $company_id = $row['company_id'];
   $company_name = $row['company_name'];
+  $config_company_phone = $row['config_company_phone'];
+  if(strlen($config_company_phone)>2){ 
+    $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
+  }
   $config_enable_cron = $row['config_enable_cron'];
   $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
   $config_invoice_prefix = $row['config_invoice_prefix'];
@@ -61,7 +65,8 @@ while($row = mysqli_fetch_array($sql_companies)){
     }
 
     //PAST DUE INVOICE ALERTS
-    $invoiceAlertArray = [$config_invoice_overdue_reminders];
+    //$invoiceAlertArray = [$config_invoice_overdue_reminders];
+    $invoiceAlertArray = [3,8,14,30,60,90,120];
 
     foreach($invoiceAlertArray as $day){
 
@@ -81,11 +86,51 @@ while($row = mysqli_fetch_array($sql_companies)){
         $invoice_status = $row['invoice_status'];
         $invoice_date = $row['invoice_date'];
         $invoice_due = $row['invoice_due'];
+        $invoice_url_key = $row['invoice_url_key'];
         $invoice_amount = $row['invoice_amount'];
         $client_id = $row['client_id'];
         $client_name = $row['client_name'];
+        $client_email = $row['client_email'];
+
 
         mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice', alert_message = 'Invoice $invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', alert_date = NOW(), company_id = $company_id");
+
+        $mail = new PHPMailer(true);
+
+        try{
+
+          //Mail Server Settings
+
+          $mail->SMTPDebug = 2;                                       // Enable verbose debug output
+          $mail->isSMTP();                                            // Set mailer to use SMTP
+          $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+          $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+          $mail->Username   = $config_smtp_username;                     // SMTP username
+          $mail->Password   = $config_smtp_password;                               // SMTP password
+          $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+          $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+
+          //Recipients
+          $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+          $mail->addAddress("$client_email", "$client_name");     // Add a recipient
+
+          // Content
+          $mail->isHTML(true);                                  // Set email format to HTML
+
+          $mail->Subject = "Overdue Invoice $invoice_number";
+          $mail->Body    = "Hello $client_name,<br><br>According to our records, we have not received payment for invoice $invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $config_company_phone.
+            <br><br>
+            Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$config_company_phone";
+          
+          $mail->send();
+
+          mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice!', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $company_id");
+
+        }catch (Exception $e) {
+            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice!', history_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $company_id");
+        } //End Mail Try
+
       }
 
     }
