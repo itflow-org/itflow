@@ -57,24 +57,38 @@
     <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i></button>
   </div>
   <div class="card-body">
-    <form autocomplete="off">
-      <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Tickets">
-        <div class="input-group-append">
-          <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+    <div class="row">
+      <div class="col-md-6">
+        <form autocomplete="off">
+          <div class="input-group">
+            <input type="search" class="form-control col-md-6" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Tickets">
+            <div class="input-group-append">
+              <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-6">
+        <div class="float-right">
+          <a href="?status=New" class="btn btn-secondary">New</a>
+          <a href="?status=In-Progress" class="btn btn-secondary">In-Progress</a>
+          <a href="?status=On-Hold" class="btn btn-secondary">On-Hold</a>
+          <a href="?status=Resolved" class="btn btn-secondary">Resolved</a>
+          <a href="?status=Closed" class="btn btn-secondary">Closed</a>
         </div>
       </div>
-    </form>
+    </div>
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_id&o=<?php echo $disp; ?>">Number</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_status&o=<?php echo $disp; ?>">Status</a>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_created_at&o=<?php echo $disp; ?>">Created</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_subject&o=<?php echo $disp; ?>">Subject</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_created_at&o=<?php echo $disp; ?>">Date Opened</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_status&o=<?php echo $disp; ?>">Status</a></th>
+            <th>Last Response</th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -105,15 +119,18 @@
           ?>
 
           <tr>
-            <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo $ticket_id; ?></span></a></td>
-            <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></td>
-            <td><?php echo $ticket_subject; ?></td>
-            <td><?php echo $ticket_created_at; ?></td>
+            <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_id; ?></a></td>
             <td>
               <span class="p-2 badge badge-<?php echo $ticket_badge_color; ?>">
                 <?php echo $ticket_status; ?>
               </span>
             </td>
+            <td><?php echo $ticket_created_at; ?></td>
+            <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></td>
+            <td><?php echo $ticket_subject; ?></td>
+            <td>Never</td>
+            
+            
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

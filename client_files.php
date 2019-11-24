@@ -1,6 +1,12 @@
-<?php $sql_files_images = mysqli_query($mysqli,"SELECT * FROM files WHERE client_id = $client_id AND (file_ext LIKE 'JPG' OR file_ext LIKE 'jpg' OR file_ext LIKE 'JPEG' OR file_ext LIKE 'jpeg' OR file_ext LIKE 'png' OR file_ext LIKE 'PNG') ORDER BY file_id DESC"); ?>
+<?php 
 
-<?php $sql_files_other = mysqli_query($mysqli,"SELECT * FROM files WHERE client_id = $client_id AND file_ext NOT LIKE 'JPG' AND file_ext NOT LIKE 'jpg' AND file_ext NOT LIKE 'png' AND file_ext NOT LIKE 'PNG' ORDER BY file_id DESC"); ?>
+$sql_files_images = mysqli_query($mysqli,"SELECT * FROM files WHERE client_id = $client_id AND (file_ext LIKE 'JPG' OR file_ext LIKE 'jpg' OR file_ext LIKE 'JPEG' OR file_ext LIKE 'jpeg' OR file_ext LIKE 'png' OR file_ext LIKE 'PNG') ORDER BY file_id DESC");
+
+$sql_files_other = mysqli_query($mysqli,"SELECT * FROM files WHERE client_id = $client_id AND file_ext NOT LIKE 'JPG' AND file_ext NOT LIKE 'jpg' AND file_ext NOT LIKE 'png' AND file_ext NOT LIKE 'PNG' ORDER BY file_id DESC"); 
+
+$num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_other);
+
+?>
 
 <div class="card">
   <div class="card-header bg-dark text-white">
@@ -9,7 +15,15 @@
   </div>
   <div class="card-body">
 
-    <div class="row mb-5">
+    <?php
+      if($num_of_files == 0){
+        
+        echo "<center><h3 class='text-secondary'>No Records Here</h3></center>";
+      }
+
+    ?>
+
+    <div class="row">
       
         <?php
         
@@ -69,7 +83,7 @@
           ?>
 
           <tr>
-            <td><a href="<?php echo $file_name; ?>" class="text-secondary"><i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> mr-3"></i> <?php echo basename($file_name); ?></a></td>
+            <td><a href="<?php echo $file_name; ?>" target="_blank" class="text-secondary"><i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> mr-3"></i> <?php echo basename($file_name); ?></a></td>
             <td>
               <a href="<?php echo $file_name; ?>" download="<?php echo $file_name; ?>" class="text-secondary float-left ml-1"><i class="fa fa-cloud-download-alt"></i></a>
               <a href="post.php?delete_file=<?php echo $file_id; ?>" class="text-secondary float-right mr-1"><i class="fa fa-times"></i></a>

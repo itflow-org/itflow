@@ -190,7 +190,14 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
 
   <div class="col-md-12">
     <div class="card mb-3">
-      <div class="card-header"><i class="fas fa-fw fa-chart-area"></i> Cash Flow</div>
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-fw fa-chart-area"></i> Cash Flow</h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
       <div class="card-body">
         <canvas id="cashFlow" width="100%" height="20"></canvas>
       </div>
@@ -200,8 +207,12 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   <div class="col-lg-6">
     <div class="card mb-3">
       <div class="card-header">
-        <i class="fas fa-chart-pie"></i>
-        Income By Category
+        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Income By Category</h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>       
       </div>
       <div class="card-body">
         <canvas id="incomeByCategoryPieChart" width="100%" height="60"></canvas>
@@ -212,8 +223,12 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   <div class="col-lg-6">
     <div class="card mb-3">
       <div class="card-header">
-        <i class="fas fa-chart-pie"></i>
-        Expense By Category
+        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Expense By Category</h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
       <div class="card-body">
         <canvas id="expenseByCategoryPieChart" width="100%" height="60"></canvas>
@@ -224,8 +239,12 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   <div class="col-lg-6">
     <div class="card mb-3">
       <div class="card-header">
-        <i class="fas fa-chart-pie"></i>
-        Expense By Vendor
+        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Expense By Vendor</h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
       <div class="card-body">
         <canvas id="expenseByVendorPieChart" width="100%" height="60"></canvas>
@@ -236,7 +255,12 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   <div class="col-md-6">
     <div class="card">
       <div class="card-header">
-        Account Balance
+        <h3 class="card-title">Account Balance</h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
       <div class="table-responsive">
         <table class="table table-borderless">
@@ -283,7 +307,12 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   <div class="col-md-6">
     <div class="card">
       <div class="card-header">
-        Latest Invoice Payments
+        <h3 class="card-title"><i class="fas fa-credit-card"></i> Latest Invoice Payments</h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
       <div class="table-responsive">
         <table class="table table-borderless">
@@ -320,7 +349,12 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   <div class="col-md-6">
     <div class="card">
       <div class="card-header">
-        Latest Expenses
+        <h3 class="card-title"><i class="fas fa-shopping-cart"></i> Latest Expenses</h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
       <div class="table-responsive">
         <table class="table table-borderless">
