@@ -18,6 +18,9 @@
 	$session_name = $row['name'];
 	$session_email = $row['email'];
 	$session_avatar = $row['avatar'];
+	if(empty($session_avatar)){
+		$session_avatar = "dist/img/noone.png";
+	}
 	$session_company_id = $row['company_id'];
 	$session_company_name = $row['company_name'];
 	$session_token = $row['token'];

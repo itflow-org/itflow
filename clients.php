@@ -58,40 +58,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 ?>
 
-<section class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1>Clients</h1>
-          </div>
-          <div class="col-sm-6">
-            <button class="btn btn-primary float-right">Add</button>
-          </div>
-        </div>
-      </div><!-- /.container-fluid -->
-    </section>
-
-<div class="card">
-  <div class="card-header">
-    <div class="card-tools">   
-      <form class="form-inline" autocomplete="off">
-        <div class="input-group">
-          <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Clients">
-          <div class="input-group-append">
-            <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-          </div>
-        </div>
-        
-          <select class="form-control" name="type">
-            <option>Poop</option>
-            <option>soup</option>
-          </select>
-          
-       
-      </form>
-    </div>   
+<div class="card mb-3">
+  <div class="card-header bg-dark text-white">
+    <h6 class="float-left mt-1"><i class="fa fa-fw fa-users mr-2"></i>Clients</h6>
+    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-plus"></i></button>
   </div>
-  <div class="card-body p-0">
+  <div class="card-body">
+    <form class="mb-4" autocomplete="off">
+      <div class="input-group">
+        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Clients">
+        <div class="input-group-append">
+          <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+        </div>
+      </div>
+    </form>
     <div class="table-responsive">
       <table class="table table-hover">
         <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
