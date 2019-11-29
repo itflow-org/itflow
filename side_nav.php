@@ -15,94 +15,94 @@
     <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
         <li class="nav-item">
-          <a href="dashboard.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "dashboard.php") { echo "active"; } ?>">
+          <a href="dashboard.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "dashboard.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tachometer-alt"></i>
             <p>Dashboard</p>
           </a>
         </li>
         <li class="nav-header">CLIENT</li>
         <li class="nav-item">
-          <a href="clients.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "clients.php") { echo "active"; } ?>">
+          <a href="clients.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "clients.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-users"></i>
             <p>Clients</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="tickets.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "tickets.php") { echo "active"; } ?>">
+          <a href="tickets.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tickets.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tags"></i>
             <p>Tickets</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="products.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "products.php") { echo "active"; } ?>">
+          <a href="products.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "products.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-box"></i>
             <p>Products</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="vendors.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "vendors.php") { echo "active"; } ?>">
+          <a href="vendors.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "vendors.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-building"></i>
             <p>Vendors</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="calendar_events.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "calendar_events.php") { echo "active"; } ?>">
+          <a href="calendar_events.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "calendar_events.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-calendar"></i>
             <p>Calendar</p>
           </a>
         </li>
         <li class="nav-header">INCOME</li>
         <li class="nav-item">
-          <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "quotes.php") { echo "active"; } ?>">
+          <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "quotes.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-file-invoice"></i>
             <p>Quotes</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="revenues.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "revenues.php") { echo "active"; } ?>">
+          <a href="revenues.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "revenues.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-credit-card"></i>
             <p>Revenues</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="invoices.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "invoices.php") { echo "active"; } ?>">
+          <a href="invoices.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "invoices.php" OR basename($_SERVER["PHP_SELF"]) == "invoice.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-file-invoice-dollar"></i>
             <p>Invoices</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="recurring.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "recurring.php") { echo "active"; } ?>">
+          <a href="recurring.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "recurring.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tags"></i>
             <p>Recurring</p>
           </a>
         </li>
         <li class="nav-header">ACCOUNTING</li>
         <li class="nav-item">
-          <a href="payments.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "payments.php") { echo "active"; } ?>">
+          <a href="payments.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "payments.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-credit-card"></i>
             <p>Payments</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="expenses.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "expenses.php") { echo "active"; } ?>">
+          <a href="expenses.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "expenses.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-shopping-cart"></i>
             <p>Expenses</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="trips.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "trips.php") { echo "active"; } ?>">
+          <a href="trips.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-bicycle"></i>
             <p>Trips</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="accounts.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "accounts.php") { echo "active"; } ?>">
+          <a href="accounts.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "accounts.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-piggy-bank"></i>
             <p>Accounts</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="transfers.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "transfers.php") { echo "active"; } ?>">
+          <a href="transfers.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "transfers.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-exchange-alt"></i>
             <p>Transfers</p>
           </a>
@@ -118,19 +118,19 @@
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="report_income_summary.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "report_income_summary.php") { echo "active"; } ?>">
+              <a href="report_income_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Income</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="report_expense_summary.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "report_expense_summary.php") { echo "active"; } ?>">
+              <a href="report_expense_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_expense_summary.php") { echo "active"; } ?>">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Expense</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="report_profit_loss.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "report_profit_loss.php") { echo "active"; } ?>">
+              <a href="report_profit_loss.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_profit_loss.php") { echo "active"; } ?>">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Profit & Loss</p>
               </a>
@@ -148,31 +148,31 @@
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="settings-general.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-general.php") { echo "active"; } ?>">
+              <a href="settings-general.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-general.php") { echo "active"; } ?>">
                 <i class="far fa-circle nav-icon"></i>
                 <p>General</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="categories.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "categories.php") { echo "active"; } ?>">
+              <a href="categories.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "categories.php") { echo "active"; } ?>">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Categories</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="users.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "users.php") { echo "active"; } ?>">
+              <a href="users.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "users.php") { echo "active"; } ?>">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Users</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="companies.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "companies.php") { echo "active"; } ?>">
+              <a href="companies.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "companies.php") { echo "active"; } ?>">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Companies</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="logs.php" class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "logs.php") { echo "active"; } ?>">
+              <a href="logs.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "active"; } ?>">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Logs</p>
               </a>
