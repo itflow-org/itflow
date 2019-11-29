@@ -23,7 +23,7 @@
   if(!empty($_GET['sb'])){
     $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
   }else{
-    $sb = "trip_id";
+    $sb = "trip_date";
   }
 
   if(isset($_GET['o'])){

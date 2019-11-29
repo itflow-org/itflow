@@ -70,7 +70,7 @@
 
 ### Technologies Used
 * PHP/MySQL
-* SB Admin Bootstrap CSS Framework
+* AdminLTE3
 * fontawesome
 * chart.js
 * moments.js
@@ -78,11 +78,10 @@
 * PHPmailer
 * mPDF
 * FullCalendar.io
-* bootstrap-select
+* Select2
 * Date Range Picker
 * Bootstrap Typeahead
-* EasyMDE forked from SimpleMDE
-* parsedown
+* SummerNote
 
 ### API Calls
 * Caller ID lookup (Returns a Name) - /api.php?api_key=[API_KEY]&cid=[PHONE_NUMBER]

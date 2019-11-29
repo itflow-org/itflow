@@ -31,8 +31,8 @@
       $disp = "ASC";
     }
   }else{
-    $o = "DESC";
-    $disp = "ASC";
+    $o = "ASC";
+    $disp = "DESC";
   }
 
   //Date From and Date To Filter

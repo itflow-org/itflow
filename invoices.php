@@ -74,7 +74,7 @@
   if(!empty($_GET['sb'])){
     $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
   }else{
-    $sb = "invoice_id";
+    $sb = "invoice_number";
   }
 
   if(isset($_GET['o'])){

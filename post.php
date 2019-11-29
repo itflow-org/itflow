@@ -177,6 +177,7 @@ if(isset($_POST['verify'])){
 if(isset($_POST['edit_general_settings'])){
 
     $config_api_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key']));
+    $config_base_url = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url']));
     
     $path = "$config_invoice_logo";
 
@@ -190,7 +191,7 @@ if(isset($_POST['edit_general_settings'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);   
     }
 
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_logo = '$path', config_api_key = '$config_api_key' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_logo = '$path', config_api_key = '$config_api_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'General', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");

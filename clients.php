@@ -26,7 +26,7 @@ if(isset($_GET['q'])){
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
-  $sb = "client_id";
+  $sb = "client_name";
 }
 
 //Column Order Filter
@@ -39,8 +39,8 @@ if(isset($_GET['o'])){
     $disp = "ASC";
   }
 }else{
-  $o = "DESC";
-  $disp = "ASC";
+  $o = "ASC";
+  $disp = "DESC";
 }
 
 //Date From and Date To Filter

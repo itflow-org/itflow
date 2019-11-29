@@ -66,7 +66,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
     //PAST DUE INVOICE ALERTS
     //$invoiceAlertArray = [$config_invoice_overdue_reminders];
-    $invoiceAlertArray = [3,8,14,30,45,60,90,120];
+    $invoiceAlertArray = [30,60,90,120,150];
 
     foreach($invoiceAlertArray as $day){
 

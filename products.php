@@ -35,8 +35,8 @@
       $disp = "ASC";
     }
   }else{
-    $o = "DESC";
-    $disp = "ASC";
+    $o = "ASC";
+    $disp = "DESC";
   }
 
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM products, categories WHERE products.category_id = categories.category_id AND products.company_id = $session_company_id AND (product_name LIKE '%$q%' OR category_name LIKE '%$q%') ORDER BY $sb $o LIMIT $record_from, $record_to");
