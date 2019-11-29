@@ -23,7 +23,7 @@ if(isset($_GET['q'])){
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
-  $sb = "note_id";
+  $sb = "note_subject";
 }
 
 if(isset($_GET['o'])){
@@ -35,8 +35,8 @@ if(isset($_GET['o'])){
     $disp = "ASC";
   }
 }else{
-  $o = "DESC";
-  $disp = "ASC";
+  $o = "ASC";
+  $disp = "DESC";
 }
  
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM notes 

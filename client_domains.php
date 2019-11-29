@@ -23,7 +23,7 @@ if(isset($_GET['q'])){
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
-  $sb = "domain_id";
+  $sb = "domain_name";
 }
 
 if(isset($_GET['o'])){

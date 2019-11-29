@@ -23,7 +23,7 @@ if(isset($_GET['q'])){
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
-  $sb = "login_id";
+  $sb = "login_description";
 }
 
 if(isset($_GET['o'])){

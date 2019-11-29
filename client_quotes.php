@@ -23,7 +23,7 @@ if(isset($_GET['q'])){
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
-  $sb = "quote_id";
+  $sb = "quote_number";
 }
 
 if(isset($_GET['o'])){
@@ -35,8 +35,8 @@ if(isset($_GET['o'])){
     $disp = "ASC";
   }
 }else{
-  $o = "ASC";
-  $disp = "DESC";
+  $o = "DESC";
+  $disp = "ASC";
 }
  
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM quotes, categories 
