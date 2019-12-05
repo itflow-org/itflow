@@ -82,7 +82,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
               
               ?>
               
-              <td class="text-right text-monospace"><a class="text-dark" href="expenses.php?q=<?php echo $category_name; ?>&dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">$<?php echo number_format($total_expense_for_all_months,2); ?></a></td>
+              <th class="text-right text-monospace"><a class="text-dark" href="expenses.php?q=<?php echo $category_name; ?>&dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">$<?php echo number_format($total_expense_for_all_months,2); ?></a></th>
             </tr>
           
           <?php 

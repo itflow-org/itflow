@@ -15,8 +15,8 @@ use PHPMailer\PHPMailer\Exception;
 
 if(isset($_POST['add_user'])){
 
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $password = md5($_POST['password']);
     $client_id = intval($_POST['client']);
 
@@ -53,8 +53,8 @@ if(isset($_POST['add_user'])){
 if(isset($_POST['edit_user'])){
 
     $user_id = intval($_POST['user_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $current_password_hash = $_POST['current_password_hash'];
     $password = $_POST['password'];
     if($current_password_hash == $password){
@@ -87,14 +87,14 @@ if(isset($_POST['edit_user'])){
 
 if(isset($_POST['add_company'])){
 
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
-    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
-    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
-    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
+    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
+    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
+    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
     $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
     $phone = preg_replace("/[^0-9]/", '',$phone);
-    $site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['site']));
+    $site = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['site'])));
 
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_created_at = NOW()");
 

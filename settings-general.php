@@ -35,7 +35,12 @@
         <input type="file" class="form-control-file" name="file">
       </div>
 
-      <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
+      <div class="card col-md-2">
+        <div class="card-body">
+          <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
+        </div>
+        
+      </div>
       
       <hr>
       

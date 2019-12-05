@@ -44,7 +44,7 @@ if(isset($_GET['o'])){
 }
 
 //Date From and Date To Filter
-if(isset($_GET['dtf'])){
+if(!empty($_GET['dtf'])){
   $dtf = $_GET['dtf'];
   $dtt = $_GET['dtt'];
 }else{
@@ -65,11 +65,34 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
-      <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Clients">
-        <div class="input-group-append">
-          <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="input-group">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Clients">
+            <div class="input-group-append">
+              <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+            </div>
+          </div>
         </div>
+        <div class="col-sm-8">
+          <button class="btn btn-primary float-right" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+        </div>
+      </div>
+      <div class="collapse mt-3 <?php if(isset($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
+        <div class="row">
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Date From</label>
+              <input type="date" class="form-control" name="dtf" value="<?php echo $dtf; ?>">
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Date To</label>
+              <input type="date" class="form-control" name="dtt" value="<?php echo $dtt; ?>">
+            </div>
+          </div>
+        </div>    
       </div>
     </form>
     <div class="table-responsive">
@@ -77,7 +100,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Name <i class="fa fa-sort-alpha<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_type&o=<?php echo $disp; ?>">Type <i class="fa fa-sort"></i></a></th>
             <th>Contact</th>
             <th class="text-right">Balance</th>
             <th class="text-center">Action</th>
@@ -129,8 +151,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           ?>
           <tr>
-            <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a></td>
-            <td><?php echo $client_type; ?></td>
+            <td>
+              <a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a>
+              <br>
+              <small class="text-secondary"><?php echo $client_type; ?></small>
+            </td>
             <td>
               <?php
               if(!empty($client_contact)){
@@ -164,7 +189,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               }
               ?>
             </td>
-            <td class="text-right text-monospace <?php echo $balance_text_color; ?>">$<?php echo number_format($balance,2); ?></td>
+            <td class="text-right <?php echo $balance_text_color; ?>">$<?php echo number_format($balance,2); ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

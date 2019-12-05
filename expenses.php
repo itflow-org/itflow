@@ -39,8 +39,14 @@
     $disp = "ASC";
   }
 
+  if(isset($_GET['category'])){
+    $category = $_GET['category'];
+  }else{
+    $category = '%';
+  }
+
   //Date From and Date To Filter
-  if(isset($_GET['dtf'])){
+  if(!empty($_GET['dtf'])){
     $dtf = $_GET['dtf'];
     $dtt = $_GET['dtt'];
   }else{
@@ -70,11 +76,34 @@
   </div>
   <div class="card-body">
     <form autocomplete="off">
-      <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Expenses">
-        <div class="input-group-append">
-          <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="input-group">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Expenses">
+            <div class="input-group-append">
+              <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+            </div>
+          </div>
         </div>
+        <div class="col-md-8">
+          <button class="btn btn-primary float-right" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+        </div>
+      </div>
+      <div class="collapse mt-3 <?php if(isset($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
+        <div class="row">
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Date From</label>
+              <input type="date" class="form-control" name="dtf" value="<?php if(isset($dtf)){echo $dtf;} ?>">
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Date To</label>
+              <input type="date" class="form-control" name="dtt" value="<?php if(isset($dtt)){echo $dtt;} ?>">
+            </div>
+          </div>
+        </div>    
       </div>
     </form>
     <hr>

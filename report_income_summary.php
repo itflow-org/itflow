@@ -91,7 +91,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
               
               ?>
               
-              <td class="text-right">$<?php echo number_format($total_payment_for_all_months,2); ?></td>
+              <th class="text-right">$<?php echo number_format($total_payment_for_all_months,2); ?></th>
             </tr>
           
           <?php 

@@ -90,7 +90,7 @@
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>"><?php echo $product_name; ?></a></td>
             <td><?php echo $category_name; ?></td>
             <td><?php echo $product_description; ?></td>
-            <td class="text-right text-monospace">$<?php echo number_format($product_cost,2); ?></td>
+            <td class="text-right">$<?php echo number_format($product_cost,2); ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
