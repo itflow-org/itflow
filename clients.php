@@ -1,5 +1,9 @@
 <?php include("header.php");
 
+//Rebuild URL
+
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+
 //Paging
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
@@ -10,8 +14,8 @@ if(isset($_GET['p'])){
   $record_to = 10;
   $p = 1;
 }
-
-//Custom Query Filter
+  
+//Custom Query Filter  
 if(isset($_GET['q'])){
   $q = mysqli_real_escape_string($mysqli,$_GET['q']);
 }else{
@@ -44,17 +48,11 @@ if(!empty($_GET['dtf'])){
   $dtf = $_GET['dtf'];
   $dtt = $_GET['dtt'];
 }else{
-  $dtf = "1000-01-01";
-  $dtt = "9999-01-01";
+  $dtf = "0000-00-00";
+  $dtt = "9999-00-00";
 }
 
-
-//Rebuild URL
-
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
-
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE (client_name LIKE '%$q%' OR client_email LIKE '%$q%' OR client_contact LIKE '%$q%') AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt' AND company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to");
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE (client_name LIKE '%$q%' OR client_email LIKE '%$q%' OR client_contact LIKE '%$q%') AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt' AND company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to"); 
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
@@ -62,7 +60,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card mb-3">
   <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-users mr-2"></i>Clients <?phg echo $session_company_id;  ?></h6>
+    <h6 class="float-left mt-1"><i class="fa fa-fw fa-users mr-2"></i>Clients</h6>
     <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-plus"></i></button>
   </div>
   <div class="card-body">
@@ -94,7 +92,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <input type="date" class="form-control" name="dtt" value="<?php echo $dtt; ?>">
             </div>
           </div>
-        </div>
+        </div>    
       </div>
     </form>
     <div class="table-responsive">
@@ -109,7 +107,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </thead>
         <tbody>
           <?php
-
+      
           while($row = mysqli_fetch_array($sql)){
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
@@ -120,11 +118,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_zip = $row['client_zip'];
             $client_contact = $row['client_contact'];
             $client_phone = $row['client_phone'];
-            if(strlen($client_phone)>2){
+            if(strlen($client_phone)>2){ 
               $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
             }
             $client_mobile = $row['client_mobile'];
-            if(strlen($client_mobile)>2){
+            if(strlen($client_mobile)>2){ 
               $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
             }
             $client_email = $row['client_email'];
@@ -140,7 +138,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
             $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.client_id = $client_id");
             $row = mysqli_fetch_array($sql_amount_paid);
-
+            
             $amount_paid = $row['amount_paid'];
 
             $balance = $invoice_amounts - $amount_paid;
@@ -201,17 +199,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
                 </div>
-              </div>
+              </div>  
 
               <?php include("edit_client_modal.php"); ?>
-
+            
             </td>
           </tr>
 
           <?php
-
+          
           }
-
+          
           ?>
 
         </tbody>

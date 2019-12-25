@@ -1,4 +1,4 @@
-<?php
+<?php 
 
   include("config.php");
   include("check_login.php");
@@ -42,18 +42,18 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <div class="wrapper text-sm">
     <?php include("top_nav.php"); ?>
 
-    <?php
-
+    <?php 
+    
     if(basename(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)) == "client.php"){
       include("client_side_nav.php");
     }elseif(basename(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)) == "client_print.php"){
 
     }else{
       include("side_nav.php");
-    }
-
+    } 
+    
     ?>
-
+    
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
 
@@ -70,7 +70,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
           <button class='close' data-dismiss='alert'>&times;</button>
         </div>
       <?php
-
+      
       $_SESSION['alert_type'] = '';
       $_SESSION['alert_message'] = '';
 
