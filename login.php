@@ -24,11 +24,12 @@ session_start();
 
 if(isset($_POST['login'])){
   
-  $email = mysqli_real_escape_string($mysqli,$_POST['email']);
+  $username = mysqli_real_escape_string($mysqli,$_POST['username']);
+  $plain_password = $_POST['password'];
   $password = md5($_POST['password']);
   $current_code = mysqli_real_escape_string($mysqli,$_POST['current_code']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE email = '$email' AND password = '$password'");
+  $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE email = '$username' AND password = '$password'");
   
   if(mysqli_num_rows($sql) == 1){
     $row = mysqli_fetch_array($sql);
@@ -44,6 +45,15 @@ if(isset($_POST['login'])){
          
       header("Location: dashboard.php");
     }else{
+      $token_field = "<div class='input-group mb-3'>
+            <input type='text' class='form-control' placeholder='Token' name='current_code' autofocus>
+            <div class='input-group-append'>
+              <div class='input-group-text'>
+                <span class='fas fa-key'></span>
+              </div>
+            </div>
+          </div>";
+
       require_once("rfc6238.php");
 
       if(TokenAuth6238::verify($token,$current_code)){
@@ -55,8 +65,8 @@ if(isset($_POST['login'])){
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$ip - $os - $browser - $device', log_created_at = NOW(), user_id = $user_id");
 
         $response = "
-          <div class='alert alert-danger'>
-            Invalid Code.
+          <div class='alert alert-primary'>
+            Please Enter 2FA Key!
             <button class='close' data-dismiss='alert'>&times;</button>
           </div>
         ";
@@ -64,11 +74,11 @@ if(isset($_POST['login'])){
     }
   
   }else{
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = '$email - $ip - $os - $browser - $device', log_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = '$username - $ip - $os - $browser - $device', log_created_at = NOW()");
 
     $response = "
       <div class='alert alert-danger'>
-        Incorrect email or password.
+        Incorrect username or password.
         <button class='close' data-dismiss='alert'>&times;</button>
       </div>
     ";
@@ -95,41 +105,31 @@ if(isset($_POST['login'])){
   </head>
   <body class="hold-transition login-page">
   <div class="login-box">
-    <div class="login-logo">
-      <b><?php echo $config_app_name; ?></b> Login
-    </div>
+    
     <!-- /.login-logo -->
     <div class="card">
       <div class="card-body login-card-body">
         <p class="login-box-msg"><?php if(isset($response)) { echo $response; } ?></p>
-
         <form method="post">
           <div class="input-group mb-3">
-            <input type="email" class="form-control" placeholder="Email" name="email" required autofocus>
+            <input type="text" class="form-control" placeholder="Username" name="username" value="<?php if(!empty($token_field)){ echo $username; }?>" required <?php if(empty($token_field)){ echo "autofocus"; } ?> >
             <div class="input-group-append">
               <div class="input-group-text">
-                <span class="fas fa-envelope"></span>
+                <span class="fas fa-user"></span>
               </div>
             </div>
           </div>
           <div class="input-group mb-3">
-            <input type="password" class="form-control" placeholder="Password" name="password" required>
+            <input type="password" class="form-control" placeholder="Password" name="password" value="<?php if(!empty($token_field)){ echo $plain_password; } ?>" required>
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-lock"></span>
               </div>
             </div>
           </div>
-          <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Token" name="current_code">
-            <div class="input-group-append">
-              <div class="input-group-text">
-                <span class="fas fa-key"></span>
-              </div>
-            </div>
-          </div>
+          <?php echo $token_field; ?>
           
-          <button type="submit" class="btn btn-primary btn-block" name="login">Sign In</button>
+          <button type="submit" class="btn btn-dark btn-block mb-3" name="login">Sign In</button>
         
         </form>
 

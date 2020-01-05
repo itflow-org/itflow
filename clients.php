@@ -2,7 +2,7 @@
 
 //Rebuild URL
 
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+//$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 //Paging
 if(isset($_GET['p'])){
@@ -48,9 +48,13 @@ if(!empty($_GET['dtf'])){
   $dtf = $_GET['dtf'];
   $dtt = $_GET['dtt'];
 }else{
-  $dtf = "0000-00-00";
-  $dtt = "9999-00-00";
+  $dtf = "1000-01-01";
+  $dtt = "9999-01-01";
 }
+
+//Rebuild URL
+
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE (client_name LIKE '%$q%' OR client_email LIKE '%$q%' OR client_contact LIKE '%$q%') AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt' AND company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to"); 
 

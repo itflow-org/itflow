@@ -6,7 +6,7 @@
   * Locations
   * Vendors
   * Assets
-  * Password Manager
+  * Password Manager (AES Encrypted in DB)
   * Domain Names 
   * Applications
   * Networks
