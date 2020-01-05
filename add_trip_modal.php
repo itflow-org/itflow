@@ -76,34 +76,6 @@
             <div class="tab-pane fade" id="pills-link" role="tabpanel" aria-labelledby="pills-link-tab">
 
               <div class="form-group">
-                <label>Invoice</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-file"></i></span>
-                  </div>
-                  <select class="form-control select2" name="invoice">
-                    <option value="">- Invoice -</option>
-                    <?php 
-                    
-                    $sql = mysqli_query($mysqli,"SELECT * FROM clients, invoices WHERE invoices.client_id = clients.client_id AND invoices.company_id = $session_company_id ORDER BY invoice_number DESC"); 
-                    while($row = mysqli_fetch_array($sql)){
-                      $client_id = $row['client_id'];
-                      $client_name = $row['client_name'];
-                      $invoice_id = $row['invoice_id'];
-                      $invoice_number = $row['invoice_number'];
-                      $invoice_status = $row['invoice_status'];
-
-                    ?>
-                      <option value="<?php echo $invoice_id; ?>"><?php echo "$invoice_number - $invoice_status - $client_name"; ?></option>
-                    
-                    <?php
-                    }
-                    ?>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-group">
                 <label>Client</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
@@ -119,55 +91,6 @@
                       $client_name = $row['client_name'];
                     ?>
                       <option <?php if($_GET['client_id'] == $client_id) { echo "selected"; } ?> value="<?php echo "$client_id"; ?>"><?php echo "$client_name"; ?></option>
-                    
-                    <?php
-                    }
-                    ?>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Location</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                  </div>
-                  <select class="form-control select2" name="location">
-                    <option value="">- Location -</option>
-                    <?php 
-                    
-                    $sql = mysqli_query($mysqli,"SELECT * FROM locations, clients WHERE locations.client_id = clients.client_id AND locations.company_id = $session_company_id ORDER BY clients.client_id DESC");
-                    while($row = mysqli_fetch_array($sql)){
-                      $location_id = $row['location_id'];
-                      $location_name = $row['location_name'];
-                      $client_name = $row['client_name'];
-                    ?>
-                    <option value="<?php echo $location_id; ?>"><?php echo "$client_name - $location_name"; ?></option>
-                    
-                    <?php
-                    }
-                    ?>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Vendor</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                  </div>
-                  <select class="form-control select2" name="vendor">
-                    <option value="">- Vendor -</option>
-                    <?php 
-                    
-                    $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 AND company_id = $session_company_id ORDER BY vendor_name ASC"); 
-                    while($row = mysqli_fetch_array($sql)){
-                      $vendor_id = $row['vendor_id'];
-                      $vendor_name = $row['vendor_name'];
-                    ?>
-                    <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
                     
                     <?php
                     }

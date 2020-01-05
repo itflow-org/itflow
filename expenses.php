@@ -39,12 +39,6 @@
     $disp = "ASC";
   }
 
-  if(isset($_GET['category'])){
-    $category = $_GET['category'];
-  }else{
-    $category = '%';
-  }
-
   //Date From and Date To Filter
   if(!empty($_GET['dtf'])){
     $dtf = $_GET['dtf'];
@@ -89,7 +83,7 @@
           <button class="btn btn-primary float-right" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
         </div>
       </div>
-      <div class="collapse mt-3 <?php if(isset($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
+      <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
         <div class="row">
           <div class="col-md-2">
             <div class="form-group">

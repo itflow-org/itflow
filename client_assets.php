@@ -126,7 +126,7 @@ $total_pages = ceil($total_found_rows / 10);
               $device_icon = "tag";
             }
 
-            $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE asset_id = $asset_id");
+            $sql_logins = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE asset_id = $asset_id");
             $row = mysqli_fetch_array($sql_logins);
             $login_id = $row['login_id'];
             $login_username = $row['login_username'];

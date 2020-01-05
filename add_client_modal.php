@@ -42,17 +42,12 @@
               </div>
 
               <div class="form-group">
-                <label>Type <strong class="text-danger">*</strong></label>
+                <label>Type</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                   </div>
-                  <select class="form-control select2" name="type" required>
-                    <option value="">- Type -</option>
-                    <?php foreach($client_types_array as $client_type) { ?>
-                    <option><?php echo $client_type; ?></option>
-                    <?php } ?>
-                  </select> 
+                  <input type="text" class="form-control" name="type" placeholder="Company Type">
                 </div>
               </div>
 

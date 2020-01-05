@@ -79,7 +79,7 @@
                   $client_name = $row['client_name'];
                   $client_email = $row['client_email'];
                 ?>
-                  <option value="<?php echo $client_id; ?>"><?php echo "$client_name - $client_email"; ?></option>
+                  <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
                 
                 <?php
                 }

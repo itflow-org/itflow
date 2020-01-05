@@ -76,9 +76,8 @@
                 while($row = mysqli_fetch_array($sql_clients)){
                   $client_id_select = $row['client_id'];
                   $client_name_select = $row['client_name'];
-                  $client_email_select = $row['client_email'];
                 ?>
-                  <option <?php if($client_id == $client_id_select){ echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo "$client_name_select - $client_email_select"; ?></option>
+                  <option <?php if($client_id == $client_id_select){ echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
                 
                 <?php
                 }
@@ -94,7 +93,7 @@
 
         </div>
         <div class="modal-footer bg-white">
-          <a href="post.php?delete_event=<?php echo $event_id; ?>" class="btn btn-outline-danger mr-auto">Delete</a>
+          <a href="post.php?delete_event=<?php echo $event_id; ?>" class="btn btn-danger mr-auto"><i class="fa fa-trash"></i></a>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="edit_event" class="btn btn-primary">Save</button>
         </div>

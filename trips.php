@@ -99,9 +99,6 @@
             $trip_miles = $row['trip_miles'];
             $round_trip = $row['round_trip'];
             $client_id = $row['client_id'];
-            $invoice_id = $row['invoice_id'];
-            $location_id = $row['location_id'];
-            $vendor_id = $row['vendor_id'];
 
             if($round_trip == 1){
               $round_tip_display = "<i class='fa fa-fw fa-sync-alt text-secondary'></i>";

@@ -40,9 +40,9 @@ if(isset($_GET['o'])){
 }
 
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM logins 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins 
   WHERE client_id = $client_id 
-  AND (login_description LIKE '%$q%' OR login_username LIKE '%$q%' OR login_password LIKE '%$q%') 
+  AND (login_description LIKE '%$q%' OR login_username LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -74,7 +74,7 @@ $total_pages = ceil($total_found_rows / 10);
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_description&o=<?php echo $disp; ?>">Description</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_username&o=<?php echo $disp; ?>">Username</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_password&o=<?php echo $disp; ?>">Password</a></th>
+            <th>Password</th>
             <th class="text-center">Action</th>
           </tr>
         </thead>

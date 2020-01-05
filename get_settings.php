@@ -57,28 +57,9 @@ $config_stripe_publishable = $row['config_stripe_publishable'];
 $config_stripe_secret = $row['config_stripe_secret'];
 
 $config_api_key = $row['config_api_key'];
+$config_aes_key = $row['config_aes_key'];
 $config_base_url = $row['config_base_url'];
 $config_enable_cron = $row['config_enable_cron'];
-
-$client_types_array = array(
-    'Residential',
-   	'Law',
-    'Tax and Accounting',
-    'General Contractor',
-    'Medical',
-    'Non Profit',
-    'Industrial',
-    'Automotive',
-    'Retail',
-    'Staffing Agency',
-    'Photography',
-    'Restaurant',
-    'Bar',
-    'Real Estate',
-    'Dental',
-    'Farm',
-    'Other'
-);
 
 $net_terms_array = array(
     '0'=>'On Reciept',
@@ -177,4 +158,5 @@ $software_types_array = array(
 	'Desktop App',
 	'Other'
 );
+
 ?>

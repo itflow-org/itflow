@@ -64,7 +64,7 @@ if ($total_found_rows > 10) {
 }
           
 if($total_found_rows == 0){
-echo "<center><h3 class='text-secondary'>No Records Here</h3></center>";
+	echo "<center><h3 class='text-secondary'>No Records Here</h3></center>";
 }else{
 	echo "<div class='justify-content-start'><br><strong>Records:</strong> $total_found_rows</div>";
 }

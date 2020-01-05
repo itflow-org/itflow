@@ -226,6 +226,25 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     </div>
   </div>
 
+  <div class="col-md-12">
+    <div class="card mb-3">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-fw fa-chart-area"></i> Trip Flow</h3>
+        <div class="card-tools">
+          <a href="trips.php" class="btn btn-tool">
+            <i class="fas fa-eye"></i>
+          </a>
+          <button type="button" class="btn btn-tool" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <canvas id="tripFlow" width="100%" height="20"></canvas>
+      </div>
+    </div>
+  </div>
+
   <div class="col-lg-6">
     <div class="card mb-3">
       <div class="card-header">
@@ -510,8 +529,8 @@ var myLineChart = new Chart(ctx, {
     datasets: [{
       label: "Expense",
       lineTension: 0.3,
-      backgroundColor: "rgba(2,117,216,0.2)",
-      borderColor: "rgba(2,117,216,1)",
+      backgroundColor: "rgba(2,2,216,0.2)",
+      borderColor: "rgba(2,2,216,1)",
       pointRadius: 5,
       pointBackgroundColor: "rgba(2,117,216,1)",
       pointBorderColor: "rgba(255,255,255,0.8)",
@@ -573,7 +592,81 @@ var myLineChart = new Chart(ctx, {
   }
 });
 
+// Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#292b2c';
 
+// Area Chart Example
+var ctx = document.getElementById("tripFlow");
+var myLineChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    datasets: [{
+      label: "Trip",
+      lineTension: 0.3,
+      backgroundColor: "red",
+      borderColor: "darkred",
+      pointRadius: 5,
+      pointBackgroundColor: "red",
+      pointBorderColor: "red",
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: "darkred",
+      pointHitRadius: 50,
+      pointBorderWidth: 2,
+      data: [
+      <?php
+      for($month = 1; $month<=12; $month++) {
+          $sql_trips = mysqli_query($mysqli,"SELECT SUM(trip_miles) AS trip_miles_for_month FROM trips WHERE YEAR(trip_date) = $year AND MONTH(trip_date) = $month AND trips.company_id = $session_company_id");
+          $row = mysqli_fetch_array($sql_trips);
+          $trip_miles_for_month = $row['trip_miles_for_month'];
+          
+          if($trip_miles_for_month > 0 AND $trip_miles_for_month > $largest_trip_miles_month){
+            $largest_trip_miles_month = $trip_miles_for_month;
+          }
+          
+
+        ?>
+          <?php echo "$trip_miles_for_month,"; ?>
+        
+        <?php
+        
+        }
+
+        ?>
+
+      ],
+    }],
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'date'
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          maxTicksLimit: 12
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: <?php echo roundUpToNearestMultiple($largest_trip_miles_month); ?>,
+          maxTicksLimit: 5
+        },
+        gridLines: {
+          color: "rgba(0, 0, 0, .125)",
+        }
+      }],
+    },
+    legend: {
+      display: false
+    }
+  }
+});
 
 // Set new default font family and font color to mimic Bootstrap's default styling
 Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';

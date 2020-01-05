@@ -78,7 +78,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <button class="btn btn-primary float-right" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
         </div>
       </div>
-      <div class="collapse mt-3 <?php if(isset($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
+      <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
         <div class="row">
           <div class="col-md-2">
             <div class="form-group">

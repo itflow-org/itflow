@@ -1,8 +1,8 @@
--- MariaDB dump 10.17  Distrib 10.4.8-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.17  Distrib 10.4.10-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: admin_crm
+-- Host: 127.0.0.1    Database: admin_crm
 -- ------------------------------------------------------
--- Server version	10.4.8-MariaDB-1:10.4.8+maria~bionic
+-- Server version	10.4.10-MariaDB-1:10.4.10+maria~bionic
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -388,7 +388,7 @@ CREATE TABLE `logins` (
   `login_description` varchar(200) NOT NULL,
   `login_web_link` varchar(200) DEFAULT NULL,
   `login_username` varchar(200) NOT NULL,
-  `login_password` varchar(200) NOT NULL,
+  `login_password` varbinary(200) DEFAULT NULL,
   `login_note` text DEFAULT NULL,
   `login_created_at` datetime NOT NULL,
   `login_updated_at` datetime DEFAULT NULL,
@@ -619,6 +619,7 @@ CREATE TABLE `settings` (
   `config_invoice_next_number` int(11) DEFAULT NULL,
   `config_recurring_auto_send_invoice` int(1) DEFAULT NULL,
   `config_api_key` varchar(200) DEFAULT NULL,
+  `config_aes_key` varchar(250) DEFAULT NULL,
   `config_invoice_prefix` varchar(200) DEFAULT NULL,
   `config_send_invoice_reminders` int(1) DEFAULT NULL,
   `config_invoice_overdue_reminders` varchar(200) DEFAULT NULL,
@@ -632,6 +633,7 @@ CREATE TABLE `settings` (
   `config_stripe_enable` int(1) DEFAULT NULL,
   `config_stripe_publishable` varchar(255) DEFAULT NULL,
   `config_stripe_secret` varchar(255) DEFAULT NULL,
+  `config_base_url` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -740,9 +742,6 @@ CREATE TABLE `trips` (
   `trip_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `trip_updated_at` datetime DEFAULT NULL,
   `client_id` int(11) DEFAULT NULL,
-  `invoice_id` int(11) DEFAULT NULL,
-  `location_id` int(11) DEFAULT NULL,
-  `vendor_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`trip_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -777,7 +776,6 @@ CREATE TABLE `users` (
   `avatar` varchar(200) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime DEFAULT NULL,
-  `client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -819,4 +817,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-09-28 14:15:08
+-- Dump completed on 2020-01-04 19:47:01

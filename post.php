@@ -177,6 +177,8 @@ if(isset($_POST['verify'])){
 if(isset($_POST['edit_general_settings'])){
 
     $config_api_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key']));
+    $old_aes_key = $config_aes_key;
+    $config_aes_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_aes_key']));
     $config_base_url = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url']));
     
     $path = "$config_invoice_logo";
@@ -191,7 +193,20 @@ if(isset($_POST['edit_general_settings'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);   
     }
 
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_logo = '$path', config_api_key = '$config_api_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_logo = '$path', config_api_key = '$config_api_key', config_aes_key = '$config_aes_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
+
+    //Update AES key on client_logins if changed
+    if($old_aes_key != $config_aes_key){
+        $sql = mysqli_query($mysqli,"SELECT login_id, AES_DECRYPT(login_password, '$old_aes_key') AS old_login_password FROM logins 
+          WHERE company_id = $session_company_id");
+
+        while($row = mysqli_fetch_array($sql)){
+            $login_id = $row['login_id'];
+            $old_login_password = $row['old_login_password'];
+          
+            mysqli_query($mysqli,"UPDATE logins SET login_password = AES_ENCRYPT('$old_login_password','$config_aes_key') WHERE login_id = $login_id");
+        }
+    }
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'General', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -903,11 +918,8 @@ if(isset($_POST['add_trip'])){
     $roundtrip = intval($_POST['roundtrip']);
     $purpose = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose']));
     $client_id = intval($_POST['client']);
-    $invoice_id = intval($_POST['invoice']);
-    $location_id = intval($_POST['location']);
-    $vendor_id = intval($_POST['vendor']);
 
-    mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_created_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Created', log_description = '$date', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -928,11 +940,8 @@ if(isset($_POST['edit_trip'])){
     $roundtrip = intval($_POST['roundtrip']);
     $purpose = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose']));
     $client_id = intval($_POST['client']);
-    $invoice_id = intval($_POST['invoice']);
-    $location_id = intval($_POST['location']);
-    $vendor_id = intval($_POST['vendor']);
 
-    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_updated_at = NOW(), client_id = $client_id, invoice_id = $invoice_id, location_id = $location_id, vendor_id = $vendor_id WHERE trip_id = $trip_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_updated_at = NOW(), client_id = $client_id WHERE trip_id = $trip_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Modified', log_description = '$date', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -3009,7 +3018,7 @@ if(isset($_POST['add_login'])){
     $asset_id = intval($_POST['asset']);
     $software_id = intval($_POST['software']);
 
-    mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = '$password', login_note = '$note', login_created_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id, client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_note = '$note', login_created_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id, client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Created', log_description = '$description', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -3032,7 +3041,7 @@ if(isset($_POST['edit_login'])){
     $asset_id = intval($_POST['asset']);
     $software_id = intval($_POST['software']);
 
-    mysqli_query($mysqli,"UPDATE logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = '$password', login_note = '$note', login_updated_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id WHERE login_id = $login_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE logins SET login_description = '$description', login_web_link = '$web_link', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_note = '$note', login_updated_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id WHERE login_id = $login_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Modified', log_description = '$description', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");

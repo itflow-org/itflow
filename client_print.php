@@ -538,10 +538,12 @@ if(isset($_GET['client_id'])){
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
-      <th>Date</th>
+      <th>Date Recieved</th>
+      <th>Date Due</th>
       <th>Invoice</th>
-      <th class="text-right">Amount</th>
-      <th>Account</th>
+      <th class="text-right">initial Invoice Amount</th>
+      <th class="text-right">Amount Payed</th>
+      <th class="text-right">Invoice Balance</th>
       <th>Method</th>
       <th>Check #</th>
     </tr>
@@ -553,19 +555,24 @@ if(isset($_GET['client_id'])){
       $invoice_id = $row['invoice_id'];
       $invoice_number = $row['invoice_number'];
       $invoice_status = $row['invoice_status'];
+      $invoice_amount = $row['invoice_amount'];
+      $invoice_due = $row['invoice_due'];
       $payment_date = $row['payment_date'];
-      $payment_method = $row['payment_method'];
       $payment_amount = $row['payment_amount'];
+      $payment_method = $row['payment_method'];
       $payment_reference = $row['payment_reference'];
       $account_name = $row['account_name'];
+      $invoice_balance = $invoice_amount - $payment_amount;
 
     ?>
 
     <tr>
       <td><?php echo $payment_date; ?></td>
+      <td><?php echo $invoice_due; ?></td>
       <td><?php echo $invoice_number; ?></td>
+      <td class="text-right text-monospace">$<?php echo number_format($invoice_amount,2); ?></td>
       <td class="text-right text-monospace">$<?php echo number_format($payment_amount,2); ?></td>
-      <td><?php echo $account_name; ?></td>
+      <td class="text-right text-monospace">$<?php echo number_format($invoice_balance,2); ?></td>
       <td><?php echo $payment_method; ?></td>
       <td><?php echo $payment_reference; ?></td>
     </tr>
