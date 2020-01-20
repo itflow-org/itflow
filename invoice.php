@@ -239,7 +239,7 @@ if(isset($_GET['invoice_id'])){
                   <td><input type="text" class="form-control" name="name"  placeholder="Product"></td>
                   <td><textarea class="form-control"  rows="1" name="description" placeholder="Description"></textarea></td>
                   <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty" placeholder="Quantity"></td>
-                  <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
+                  <td><input type="number" step="0.01" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
                   <td>
                     <select dir="rtl" class="form-control" name="tax">
                       <option <?php if($item_tax == '0.00'){ echo "selected"; } ?> value="0.00">None</option>

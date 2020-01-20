@@ -41,14 +41,21 @@
               <input type="text" class="form-control" name="title" placeholder="Title" value="<?php echo $contact_title; ?>" required>
             </div>
           </div>
-        
-          <div class="form-group">
-            <label>Phone</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-phone"></i></span>
+
+          <label>Phone</label>
+          <div class="form-row">
+            <div class="col-8">
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" value="<?php echo $contact_phone; ?>"> 
+                </div>
               </div>
-              <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" value="<?php echo $contact_phone; ?>"> 
+            </div>
+            <div class="col-4">
+              <input type="text" class="form-control" name="extension" placeholder="Extension" value="<?php echo $contact_extension; ?>">
             </div>
           </div>
 

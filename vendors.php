@@ -97,6 +97,7 @@
             if(strlen($vendor_phone)>2){ 
               $vendor_phone = substr($row['vendor_phone'],0,3)."-".substr($row['vendor_phone'],3,3)."-".substr($row['vendor_phone'],6,4);
             }
+            $vendor_extension = $row['vendor_extension'];
             $vendor_email = $row['vendor_email'];
             $vendor_website = $row['vendor_website'];
           ?>
@@ -126,7 +127,7 @@
               <?php
               if(!empty($vendor_phone)){
               ?>
-              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $vendor_phone; ?>
+              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $vendor_phone; ?> <?php if(!empty($vendor_extension)){ echo "x$vendor_extension"; } ?>
               <br>
               <?php
               }

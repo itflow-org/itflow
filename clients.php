@@ -48,8 +48,8 @@ if(!empty($_GET['dtf'])){
   $dtf = $_GET['dtf'];
   $dtt = $_GET['dtt'];
 }else{
-  $dtf = "1000-01-01";
-  $dtt = "9999-01-01";
+  $dtf = "0000-00-00";
+  $dtt = "9999-00-00";
 }
 
 //Rebuild URL
@@ -125,6 +125,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             if(strlen($client_phone)>2){ 
               $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
             }
+            $client_extension = $row['client_extension'];
             $client_mobile = $row['client_mobile'];
             if(strlen($client_mobile)>2){ 
               $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
@@ -172,7 +173,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <?php
               if(!empty($client_phone)){
               ?>
-              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $client_phone; ?>
+              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $client_phone; ?> <?php if(!empty($client_extension)){ echo "x$client_extension"; } ?>
               <br>
               <?php
               }

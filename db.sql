@@ -1,8 +1,8 @@
--- MariaDB dump 10.17  Distrib 10.4.10-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.17  Distrib 10.4.11-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: 127.0.0.1    Database: admin_crm
+-- Host: localhost    Database: admin_crm
 -- ------------------------------------------------------
--- Server version	10.4.10-MariaDB-1:10.4.10+maria~bionic
+-- Server version	10.4.11-MariaDB-1:10.4.11+maria~bionic
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -137,6 +137,7 @@ CREATE TABLE `clients` (
   `client_zip` varchar(200) DEFAULT NULL,
   `client_contact` varchar(200) DEFAULT NULL,
   `client_phone` varchar(200) DEFAULT NULL,
+  `client_extension` varchar(200) DEFAULT NULL,
   `client_mobile` varchar(200) DEFAULT NULL,
   `client_email` varchar(200) DEFAULT NULL,
   `client_website` varchar(200) DEFAULT NULL,
@@ -178,6 +179,7 @@ CREATE TABLE `contacts` (
   `contact_title` varchar(200) DEFAULT NULL,
   `contact_email` varchar(200) DEFAULT NULL,
   `contact_phone` varchar(200) DEFAULT NULL,
+  `contact_extension` varchar(200) DEFAULT NULL,
   `contact_mobile` varchar(200) DEFAULT 'NULL',
   `contact_primary` tinyint(1) DEFAULT NULL,
   `contact_recieve_invoices` tinyint(1) DEFAULT NULL,
@@ -797,6 +799,7 @@ CREATE TABLE `vendors` (
   `vendor_zip` varchar(200) DEFAULT NULL,
   `vendor_contact_name` varchar(200) DEFAULT NULL,
   `vendor_phone` varchar(200) DEFAULT NULL,
+  `vendor_extension` varchar(200) DEFAULT NULL,
   `vendor_email` varchar(200) DEFAULT NULL,
   `vendor_website` varchar(200) DEFAULT NULL,
   `vendor_account_number` varchar(200) DEFAULT NULL,
@@ -817,4 +820,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-01-04 19:47:01
+-- Dump completed on 2020-01-20 17:04:20

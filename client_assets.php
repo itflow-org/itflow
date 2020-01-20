@@ -73,7 +73,6 @@ $total_pages = ceil($total_found_rows / 10);
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_type&o=<?php echo $disp; ?>">Type</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_name&o=<?php echo $disp; ?>">Name</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_ip&o=<?php echo $disp; ?>">IP</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_make&o=<?php echo $disp; ?>">Make</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_model&o=<?php echo $disp; ?>">Model</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_serial&o=<?php echo $disp; ?>">Serial</a></th>
@@ -183,7 +182,6 @@ $total_pages = ceil($total_found_rows / 10);
               ?>
               
             </td>
-            <td><?php echo $asset_ip; ?></td>
             <td><?php echo $asset_make; ?></td>
             <td><?php echo $asset_model; ?></td>
             <td><?php echo $asset_serial; ?></td>

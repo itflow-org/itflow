@@ -480,6 +480,7 @@ if(isset($_POST['add_client'])){
     $contact = strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact']));
     $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
     $phone = preg_replace("/[^0-9]/", '',$phone);
+    $extension = strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension']));
     $mobile = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mobile']));
     $mobile = preg_replace("/[^0-9]/", '',$mobile);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
@@ -487,7 +488,7 @@ if(isset($_POST['add_client'])){
     $net_terms = intval($_POST['net_terms']);
     $hours = strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours']));
 
-    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_created_at = NOW(), company_id = $session_company_id");
 
     $client_id = mysqli_insert_id($mysqli);
 
@@ -515,6 +516,7 @@ if(isset($_POST['edit_client'])){
     $contact = strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact']));
     $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
     $phone = preg_replace("/[^0-9]/", '',$phone);
+    $extension = strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension']));
     $mobile = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mobile']));
     $mobile = preg_replace("/[^0-9]/", '',$mobile);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
@@ -522,7 +524,7 @@ if(isset($_POST['edit_client'])){
     $net_terms = intval($_POST['net_terms']);
     $hours = strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours']));
 
-    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, user_id = $session_user_id");
@@ -801,10 +803,11 @@ if(isset($_POST['add_vendor'])){
     $contact_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name']));
     $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
     $phone = preg_replace("/[^0-9]/", '',$phone);
+    $extension = strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension']));
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
     
-    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $vendor_id = mysqli_insert_id($mysqli);
 
@@ -830,10 +833,11 @@ if(isset($_POST['edit_vendor'])){
     $contact_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name']));
     $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
     $phone = preg_replace("/[^0-9]/", '',$phone);
+    $extension = strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension']));
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
 
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_updated_at = NOW() WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_updated_at = NOW() WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -2763,6 +2767,7 @@ if(isset($_POST['add_contact'])){
     $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
     $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
     $phone = preg_replace("/[^0-9]/", '',$phone);
+    $extension = strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension']));
     $mobile = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mobile']));
     $mobile = preg_replace("/[^0-9]/", '',$mobile);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
@@ -2778,7 +2783,7 @@ if(isset($_POST['add_contact'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -2797,6 +2802,7 @@ if(isset($_POST['edit_contact'])){
     $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
     $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
     $phone = preg_replace("/[^0-9]/", '',$phone);
+    $extension = strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension']));
     $mobile = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mobile']));
     $mobile = preg_replace("/[^0-9]/", '',$mobile);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
@@ -2814,7 +2820,7 @@ if(isset($_POST['edit_contact'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");

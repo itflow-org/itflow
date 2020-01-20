@@ -73,7 +73,7 @@ $total_pages = ceil($total_found_rows / 10);
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_title&o=<?php echo $disp; ?>">Title</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_email&o=<?php echo $disp; ?>">Email</a></th>
             <th>Phone</th>
-            <th class="text-center">Action</th>
+            <th class="text-center">Actionl</th>
           </tr>
         </thead>
         <tbody>
@@ -87,6 +87,7 @@ $total_pages = ceil($total_found_rows / 10);
             if(strlen($contact_phone)>2){ 
               $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
             }
+            $contact_extension = $row['contact_extension '];
             $contact_mobile = $row['contact_mobile'];
             if(strlen($contact_mobile)>2){ 
               $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
@@ -96,6 +97,7 @@ $total_pages = ceil($total_found_rows / 10);
             $contact_initials = initials($contact_name);
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
+
       
           ?>
           <tr>
@@ -124,7 +126,7 @@ $total_pages = ceil($total_found_rows / 10);
               <?php
               if(!empty($contact_phone)){
               ?>
-              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $contact_phone; ?>
+              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $contact_phone; ?> <?php echo $contact_extension; ?>
               <br>
               <?php
               }
