@@ -1,9 +1,9 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-primary elevation-4 d-print-none">
+<aside class="main-sidebar sidebar-dark-primary d-print-none">
   
   <!-- Brand Logo -->
-  <a href="index.php" class="brand-link text-center">
-    <span class="brand-text font-weight-light"><i class="fa fa-network-wired"></i> <?php echo $config_app_name; ?></span>
+  <a href="index.php" class="brand-link bg-primary">
+    <span class="ml-3"><i class="fa fa-network-wired"></i> <?php echo $config_app_name; ?></span>
   </a>
 
   <!-- Sidebar -->
