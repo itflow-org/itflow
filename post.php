@@ -4,8 +4,8 @@ include("config.php");
 include("check_login.php");
 include("functions.php");
 
-require("vendor/PHPMailer-6.0.7/src/PHPMailer.php");
-require("vendor/PHPMailer-6.0.7/src/SMTP.php");
+require("vendor/PHPMailer-6.1.4/src/PHPMailer.php");
+require("vendor/PHPMailer-6.1.4/src/SMTP.php");
 
 $mpdf_path = (getenv('MPDF_ROOT')) ? getenv('MPDF_ROOT') : __DIR__;
 require_once $mpdf_path . '/vendor/autoload.php';

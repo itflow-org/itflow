@@ -73,7 +73,7 @@ $total_pages = ceil($total_found_rows / 10);
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_title&o=<?php echo $disp; ?>">Title</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_email&o=<?php echo $disp; ?>">Email</a></th>
             <th>Phone</th>
-            <th class="text-center">Actionl</th>
+            <th class="text-center">Action</th>
           </tr>
         </thead>
         <tbody>
