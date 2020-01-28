@@ -387,8 +387,8 @@ DROP TABLE IF EXISTS `logins`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `logins` (
   `login_id` int(11) NOT NULL AUTO_INCREMENT,
-  `login_description` varchar(200) NOT NULL,
-  `login_web_link` varchar(200) DEFAULT NULL,
+  `login_name` varchar(200) NOT NULL,
+  `login_uri` varchar(200) DEFAULT NULL,
   `login_username` varchar(200) NOT NULL,
   `login_password` varbinary(200) DEFAULT NULL,
   `login_note` text DEFAULT NULL,
@@ -820,4 +820,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-01-20 17:04:20
+-- Dump completed on 2020-01-28  9:47:23

@@ -16,7 +16,10 @@
               <a class="nav-link active" id="pills-login-tab" data-toggle="pill" href="#pills-login">Login</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-link-tab" data-toggle="pill" href="#pills-link">Link</a>
+              <a class="nav-link" id="pills-notes-tab" data-toggle="pill" href="#pills-notes">Notes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="pills-relation-tab" data-toggle="pill" href="#pills-relation">Relation</a>
             </li>
           </ul>
 
@@ -27,12 +30,12 @@
             <div class="tab-pane fade show active" id="pills-login">
 
               <div class="form-group">
-                <label>Description <strong class="text-danger">*</strong></label>
+                <label>Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="description" placeholder="Description of the login" required autofocus>
+                  <input type="text" class="form-control" name="name" placeholder="Name of Login" required autofocus>
                 </div>
               </div>
             
@@ -53,22 +56,34 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                   </div>
                   <input type="text" class="form-control" name="password" placeholder="Password" required>
+                  <div class="input-group-append">
+                    <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>URI</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                  </div>
+                  <input type="url" class="form-control" name="uri" placeholder="ex. https://google.com">
                 </div>
               </div>
 
             </div>
 
-            <div class="tab-pane fade" id="pills-link">
-  
+            <div class="tab-pane fade" id="pills-notes">
+
               <div class="form-group">
-                <label>Web Link</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                  </div>
-                  <input type="url" class="form-control" name="web_link" placeholder="Please include http://">
-                </div>
+                <label>Notes</label>
+                <textarea class="form-control" rows="5" name="note"></textarea>
               </div>
+
+            </div>
+
+            <div class="tab-pane fade" id="pills-relation">
 
               <div class="form-group">
                 <label>Vendor</label>

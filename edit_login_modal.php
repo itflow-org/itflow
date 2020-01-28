@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-lock mr-2"></i><?php echo $login_description; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-lock mr-2"></i><?php echo $login_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -16,7 +16,10 @@
               <a class="nav-link active" id="pills-login-tab<?php echo $login_id; ?>" data-toggle="pill" href="#pills-login<?php echo $login_id; ?>">Login</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-link-tab<?php echo $login_id; ?>" data-toggle="pill" href="#pills-link<?php echo $login_id; ?>">Link</a>
+              <a class="nav-link" id="pills-notes-tab" data-toggle="pill" href="#pills-notes<?php echo $login_id; ?>">Notes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="pills-relation-tab<?php echo $login_id; ?>" data-toggle="pill" href="#pills-relation<?php echo $login_id; ?>">Relation</a>
             </li>
           </ul>
 
@@ -27,12 +30,12 @@
             <div class="tab-pane fade show active" id="pills-login<?php echo $login_id; ?>">
 
               <div class="form-group">
-                <label>Description <strong class="text-danger">*</strong></label>
+                <label>Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="description" placeholder="Description of the login" value="<?php echo $login_description; ?>" required>
+                  <input type="text" class="form-control" name="name" placeholder="Name of Login" value="<?php echo $login_name; ?>" required>
                 </div>
               </div>
             
@@ -53,22 +56,43 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                   </div>
                   <input type="text" class="form-control" name="password" placeholder="Password" value="<?php echo $login_password; ?>" required>
+                  <div class="input-group-append">
+                    <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                  </div>
+                  <div class="input-group-append">
+                    <span class="input-group-text"><i class="fa fa-fw fa-copy"></i></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>URI</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                  </div>
+                  <input type="url" class="form-control" name="uri" placeholder="ex. https://google.com" value="<?php echo $login_uri; ?>">
+                  <div class="input-group-append">
+                    <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                  </div>
+                  <div class="input-group-append">
+                    <span class="input-group-text"><i class="fa fa-fw fa-copy"></i></span>
+                  </div>
                 </div>
               </div>
 
             </div>
 
-            <div class="tab-pane fade" id="pills-link<?php echo $login_id; ?>">
-  
+            <div class="tab-pane fade" id="pills-notes<?php echo $login_id; ?>">
+
               <div class="form-group">
-                <label>Web Link</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                  </div>
-                  <input type="url" class="form-control" name="web_link" placeholder="Please include http://" value="<?php echo $login_web_link; ?>">
-                </div>
+                <label>Notes</label>
+                <textarea class="form-control" rows="5" name="note"><?php echo $login_note; ?></textarea>
               </div>
+
+            </div>
+
+            <div class="tab-pane fade" id="pills-relation<?php echo $login_id; ?>">
 
               <div class="form-group">
                 <label>Vendor</label>

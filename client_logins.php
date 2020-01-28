@@ -23,7 +23,7 @@ if(isset($_GET['q'])){
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
-  $sb = "login_description";
+  $sb = "login_name";
 }
 
 if(isset($_GET['o'])){
@@ -42,7 +42,7 @@ if(isset($_GET['o'])){
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins 
   WHERE client_id = $client_id 
-  AND (login_description LIKE '%$q%' OR login_username LIKE '%$q%') 
+  AND (login_name LIKE '%$q%' OR login_username LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -72,7 +72,7 @@ $total_pages = ceil($total_found_rows / 10);
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_description&o=<?php echo $disp; ?>">Description</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_username&o=<?php echo $disp; ?>">Username</a></th>
             <th>Password</th>
             <th class="text-center">Action</th>
@@ -83,22 +83,23 @@ $total_pages = ceil($total_found_rows / 10);
       
           while($row = mysqli_fetch_array($sql)){
             $login_id = $row['login_id'];
-            $login_description = $row['login_description'];
-            $login_web_link = $row['login_web_link'];
-            if(!empty($login_web_link)){
-              $login_description_td = "<a href='$login_web_link' target='_blank'>$login_description <i class='fa fa-link'></i></a>";
-            }else{
-              $login_description_td = $row['login_description'];
-            }
+            $login_name = $row['login_name'];
+            $login_uri = $row['login_uri'];
             $login_username = $row['login_username'];
             $login_password = $row['login_password'];
+            $login_note = $row['login_note'];
             $vendor_id = $row['vendor_id'];
             $asset_id = $row['asset_id'];
             $software_id = $row['software_id'];
       
           ?>
           <tr>
-            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>"><?php echo $login_description_td; ?></a></td>
+            <td>
+              <a class="text-dark" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>"><?php echo $login_name; ?></a>
+              <br>
+              <small class="text-secondary"><?php echo $login_uri; ?></small>
+
+            </td>
             <td><?php echo $login_username; ?></td>
             <td><?php echo $login_password; ?></td>
             <td>
@@ -107,6 +108,7 @@ $total_pages = ceil($total_found_rows / 10);
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <?php if(!empty($login_uri)){ ?> <a class="dropdown-item" href="<?php echo $login_uri; ?>" target='_blank'><i class="fa fa-link"></i> Open URI</a> <?php } ?>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_login=<?php echo $login_id; ?>">Delete</a>
                 </div>

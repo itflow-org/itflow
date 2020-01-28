@@ -34,13 +34,13 @@
     
     <li class="nav-item dropdown user-menu">
       <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-        <img src="<?php echo $session_avatar; ?>" class="user-image img-circle elevation-2" alt="User Image">
+        <img src="<?php echo $session_avatar; ?>" class="user-image img-circle" alt="User Image">
         <span class="d-none d-md-inline"><?php echo $session_name; ?></span>
       </a>
       <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
         <!-- User image -->
         <li class="user-header bg-gray-dark">
-          <img src="<?php echo "$session_avatar"; ?>" class="img-circle elevation-2" alt="User Image">
+          <img src="<?php echo "$session_avatar"; ?>" class="img-circle" alt="User Image">
 
           <p>
             <?php echo $session_name; ?>
