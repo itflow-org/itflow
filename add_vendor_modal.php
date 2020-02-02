@@ -11,15 +11,18 @@
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="modal-body bg-white">
 
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
+          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-basic-tab" data-toggle="pill" href="#pills-basic" role="tab" aria-controls="pills-basic" aria-selected="true">Basic</a>
+              <a class="nav-link active" id="pills-details-tab" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-address-tab" data-toggle="pill" href="#pills-address" role="tab" aria-controls="pills-address" aria-selected="false">Address</a>
+              <a class="nav-link" id="pills-address-tab" data-toggle="pill" href="#pills-address">Address</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Contact</a>
+              <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact">Contact</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="pills-notes-tab" data-toggle="pill" href="#pills-notes">Notes</a>
             </li>
           </ul>
 
@@ -27,7 +30,7 @@
           
           <div class="tab-content" id="pills-tabContent">
 
-            <div class="tab-pane fade show active" id="pills-basic" role="tabpanel" aria-labelledby="pills-basic-tab">
+            <div class="tab-pane fade show active" id="pills-details">
 
               <div class="form-group">
                 <label>Name <strong class="text-danger">*</strong></label>
@@ -61,7 +64,7 @@
 
             </div>
 
-            <div class="tab-pane fade" id="pills-address" role="tabpanel" aria-labelledby="pills-address-tab">
+            <div class="tab-pane fade" id="pills-address">
 
               <div class="form-group">
                 <label>Address</label>
@@ -110,7 +113,7 @@
 
             </div>
             
-            <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+            <div class="tab-pane fade" id="pills-contact">
 
               <div class="form-group">
                 <label>Contact Name</label>
@@ -159,6 +162,14 @@
                 </div>
               </div>
             
+            </div>
+
+            <div class="tab-pane fade" id="pills-notes">
+              
+              <div class="form-group">
+                <textarea class="form-control" rows="8" name="notes"></textarea>
+              </div>
+
             </div>
 
           </div>

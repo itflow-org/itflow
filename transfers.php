@@ -40,7 +40,7 @@
   }
  
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS expenses.expense_date AS transfer_date, expenses.expense_amount AS transfer_amount, expenses.account_id AS transfer_account_from, revenues.account_id AS transfer_account_to, transfers.expense_id, transfers.revenue_id , transfers.transfer_id FROM transfers, expenses, revenues WHERE transfers.expense_id = expenses.expense_id AND transfers.revenue_id = revenues.revenue_id AND transfers.company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to");
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS expenses.expense_date AS transfer_date, expenses.expense_amount AS transfer_amount, expenses.account_id AS transfer_account_from, revenues.account_id AS transfer_account_to, transfers.expense_id, transfers.revenue_id , transfers.transfer_id, transfers.transfer_notes AS transfer_notes FROM transfers, expenses, revenues WHERE transfers.expense_id = expenses.expense_id AND transfers.revenue_id = revenues.revenue_id AND transfers.company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 $total_found_rows = $num_rows[0];
@@ -83,9 +83,10 @@ $total_pages = ceil($total_found_rows / 10);
             $transfer_account_from = $row['transfer_account_from'];
             $transfer_account_to = $row['transfer_account_to'];
             $transfer_amount = $row['transfer_amount'];
+            $transfer_notes = $row['transfer_notes'];
             $expense_id = $row['expense_id'];
             $revenue_id = $row['revenue_id'];
-            
+   
             $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_id = $transfer_account_from");
             $row = mysqli_fetch_array($sql2);
             $account_name_from = $row['account_name'];

@@ -26,6 +26,7 @@ CREATE TABLE `accounts` (
   `account_id` int(11) NOT NULL AUTO_INCREMENT,
   `account_name` varchar(200) NOT NULL,
   `opening_balance` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `account_notes` text DEFAULT NULL,
   `account_created_at` datetime NOT NULL,
   `account_updated_at` datetime DEFAULT NULL,
   `company_id` int(11) NOT NULL,
@@ -143,6 +144,8 @@ CREATE TABLE `clients` (
   `client_website` varchar(200) DEFAULT NULL,
   `client_net_terms` int(10) NOT NULL,
   `client_hours` varchar(200) DEFAULT NULL,
+  `client_company_size` varchar(200) DEFAULT NULL,
+  `client_notes` text DEFAULT NULL,
   `client_created_at` datetime NOT NULL,
   `client_updated_at` datetime DEFAULT NULL,
   `company_id` int(11) NOT NULL,
@@ -182,8 +185,9 @@ CREATE TABLE `contacts` (
   `contact_extension` varchar(200) DEFAULT NULL,
   `contact_mobile` varchar(200) DEFAULT 'NULL',
   `contact_primary` tinyint(1) DEFAULT NULL,
-  `contact_recieve_invoices` tinyint(1) DEFAULT NULL,
+  `contact_billing` tinyint(1) DEFAULT NULL,
   `contact_photo` varchar(200) DEFAULT NULL,
+  `contact_notes` text DEFAULT NULL,
   `contact_created_at` datetime NOT NULL,
   `contact_updated_at` datetime DEFAULT NULL,
   `location_id` int(11) DEFAULT NULL,
@@ -370,8 +374,12 @@ CREATE TABLE `locations` (
   `location_zip` varchar(200) DEFAULT NULL,
   `location_phone` varchar(200) DEFAULT NULL,
   `location_hours` varchar(200) DEFAULT NULL,
+  `location_photo` varchar(200) DEFAULT NULL,
+  `location_notes` text DEFAULT NULL,
+  `location_primary` tinyint(1) DEFAULT NULL,
   `location_created_at` datetime NOT NULL,
   `location_updated_at` datetime DEFAULT NULL,
+  `contact_id` int(11) DEFAULT NULL,
   `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`location_id`)
@@ -715,6 +723,7 @@ DROP TABLE IF EXISTS `transfers`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `transfers` (
   `transfer_id` int(11) NOT NULL AUTO_INCREMENT,
+  `transfer_notes` text DEFAULT NULL,
   `transfer_created_at` datetime NOT NULL,
   `transfer_updated_at` datetime DEFAULT NULL,
   `expense_id` int(11) NOT NULL,
@@ -803,6 +812,7 @@ CREATE TABLE `vendors` (
   `vendor_email` varchar(200) DEFAULT NULL,
   `vendor_website` varchar(200) DEFAULT NULL,
   `vendor_account_number` varchar(200) DEFAULT NULL,
+  `vendor_notes` text DEFAULT NULL,
   `vendor_created_at` datetime NOT NULL,
   `vendor_updated_at` datetime DEFAULT NULL,
   `client_id` int(11) NOT NULL,
@@ -820,4 +830,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-01-28  9:47:23
+-- Dump completed on 2020-02-02  1:06:01

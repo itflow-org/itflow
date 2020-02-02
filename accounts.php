@@ -80,6 +80,7 @@
             $account_id = $row['account_id'];
             $account_name = $row['account_name'];
             $opening_balance = $row['opening_balance'];
+            $account_notes = $row['account_notes'];
 
             $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
             $row = mysqli_fetch_array($sql_payments);

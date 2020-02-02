@@ -96,10 +96,14 @@ $total_pages = ceil($total_found_rows / 10);
             if(empty($location_hours)){
               $location_hours = '-';
             }
+            $location_photo = $row['location_photo'];
+            $location_notes = $row['location_notes'];
+            $location_primary = $row['location_primary'];
+            $contact_id = $row['contact_id'];
       
           ?>
           <tr>
-            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>"><?php echo $location_name; ?></a></td>
+            <td><i class="fa fa-fw fa-map-marker-alt text-secondary"></i> <a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>"><?php echo $location_name; ?></a></td>
             <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo $location_address; ?></a></td>
             <td><?php echo $location_phone; ?></td>
             <td><?php echo $location_hours; ?></td>

@@ -95,6 +95,7 @@ $total_pages = ceil($total_found_rows / 10);
             $contact_email = $row['contact_email'];
             $contact_photo = $row['contact_photo'];
             $contact_initials = initials($contact_name);
+            $contact_notes = $row['contact_notes'];
       
           ?>
           <tr>

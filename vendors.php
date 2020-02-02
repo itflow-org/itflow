@@ -100,6 +100,8 @@
             $vendor_extension = $row['vendor_extension'];
             $vendor_email = $row['vendor_email'];
             $vendor_website = $row['vendor_website'];
+            $vendor_notes = $row['vendor_notes']
+            
           ?>
           <tr>
             <td>

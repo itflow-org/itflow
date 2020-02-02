@@ -134,6 +134,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_website = $row['client_website'];
             $client_net_terms = $row['client_net_terms'];
             $client_hours = $row['client_hours'];
+            $client_company_size = $row['client_company_size'];
+            $client_notes = $row['client_notes'];
 
             //Add up all the payments for the invoice and get the total amount paid to the invoice
             $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' ");

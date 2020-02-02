@@ -97,6 +97,7 @@ $total_pages = ceil($total_found_rows / 10);
             }
             $vendor_email = $row['vendor_email'];
             $vendor_website = $row['vendor_website'];
+            $vendor_notes = $row['vendor_notes'];
 
             $sql2 = mysqli_query($mysqli,"SELECT * FROM client_logins WHERE vendor_id = $vendor_id");
             $row = mysqli_fetch_array($sql2);
@@ -108,6 +109,7 @@ $total_pages = ceil($total_found_rows / 10);
           ?>
           <tr>
             <td>
+              <i class="fa fa-fw fa-building text-secondary"></i> 
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></a>
               <?php
               if(!empty($vendor_account_number)){

@@ -97,6 +97,7 @@ $total_pages = ceil($total_found_rows / 10);
             $contact_initials = initials($contact_name);
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
+            $contact_notes = $row['contact_notes'];
 
       
           ?>

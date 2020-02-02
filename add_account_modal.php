@@ -9,6 +9,7 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
+          
           <div class="form-group">
             <label>Account Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -18,6 +19,7 @@
               <input type="text" class="form-control" name="name" placeholder="Account name" required autofocus>
             </div>
           </div>
+          
           <div class="form-group">
             <label>Opening Balance</label>
             <div class="input-group">
@@ -27,6 +29,12 @@
               <input type="number" class="form-control" step="0.01" min="0" name="opening_balance" placeholder="Opening Balance" required>
             </div>
           </div>
+
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea class="form-control" rows="5" name="notes"></textarea>
+          </div>
+        
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

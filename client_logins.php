@@ -95,6 +95,7 @@ $total_pages = ceil($total_found_rows / 10);
           ?>
           <tr>
             <td>
+              <i class="fa fa-fw fa-key text-secondary"></i> 
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>"><?php echo $login_name; ?></a>
               <br>
               <small class="text-secondary"><?php echo $login_uri; ?></small>

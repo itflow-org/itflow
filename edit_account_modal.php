@@ -10,6 +10,7 @@
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="account_id" value="<?php echo $account_id; ?>">
         <div class="modal-body bg-white">
+          
           <div class="form-group">
             <label>Account Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -19,6 +20,12 @@
               <input type="text" class="form-control" name="name" value="<?php echo $account_name; ?>" placeholder="Account name" required>
             </div>
           </div>
+        
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea class="form-control" rows="5" name="notes"><?php echo $account_notes; ?></textarea>
+          </div>
+
         </div>
         <div class="modal-footer bg-white">
           <button type="submit" name="delete_acount" class="btn btn-outline-danger mr-auto">Delete</button>

@@ -13,16 +13,19 @@
           
           <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $client_id; ?>" role="tablist">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-basic-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-basic<?php echo $client_id; ?>" role="tab" aria-controls="pills-basic<?php echo $client_id; ?>" aria-selected="true">Basic</a>
+              <a class="nav-link active" id="pills-details-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-details<?php echo $client_id; ?>">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-address-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-address<?php echo $client_id; ?>" role="tab" aria-controls="pills-address<?php echo $client_id; ?>" aria-selected="false">Address</a>
+              <a class="nav-link" id="pills-address-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-address<?php echo $client_id; ?>">Address</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-contact-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-contact<?php echo $client_id; ?>" role="tab" aria-controls="pills-contact<?php echo $client_id; ?>" aria-selected="false">Contact</a>
+              <a class="nav-link" id="pills-contact-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-contact<?php echo $client_id; ?>">Contact</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-more-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-more<?php echo $client_id; ?>" role="tab" aria-controls="pills-more<?php echo $client_id; ?>" aria-selected="false">More</a>
+              <a class="nav-link" id="pills-more-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-more<?php echo $client_id; ?>">More</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="pills-notes-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-notes<?php echo $client_id; ?>">Notes</a>
             </li>
           </ul>
 
@@ -30,7 +33,7 @@
           
           <div class="tab-content" id="pills-tabContent<?php echo $client_id; ?>">
 
-            <div class="tab-pane fade show active" id="pills-basic<?php echo $client_id; ?>" role="tabpanel" aria-labelledby="pills-basic-tab<?php echo $client_id; ?>">
+            <div class="tab-pane fade show active" id="pills-details<?php echo $client_id; ?>">
 
               <div class="form-group">
                 <label>Name <strong class="text-danger">*</strong></label>
@@ -52,9 +55,29 @@
                 </div>
               </div>
 
+              <label>Phone</label>
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" value="<?php echo $client_phone; ?>"> 
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Website</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                  </div>
+                  <input type="url" class="form-control" name="website" placeholder="ex. https://google.com" value="<?php echo $client_website; ?>">
+                </div>
+              </div>
+
             </div>
           
-            <div class="tab-pane fade" id="pills-address<?php echo $client_id; ?>" role="tabpanel" aria-labelledby="pills-address-tab<?php echo $client_id; ?>">
+            <div class="tab-pane fade" id="pills-address<?php echo $client_id; ?>">
 
               <div class="form-group">
                 <label>Address</label>
@@ -103,7 +126,7 @@
             
             </div>
 
-            <div class="tab-pane fade" id="pills-contact<?php echo $client_id; ?>" role="tabpanel" aria-labelledby="pills-contact-tab<?php echo $client_id; ?>">
+            <div class="tab-pane fade" id="pills-contact<?php echo $client_id; ?>">
 
               <div class="form-group">
                 <label>Primary Contact</label>
@@ -123,7 +146,7 @@
                       <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                       </div>
-                      <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" value="<?php echo $client_phone; ?>"> 
+                      <input type="text" class="form-control" name="phone" placeholder="Phone Number" value="<?php echo $client_phone; ?>" data-inputmask="'mask': '999-999-9999'" data-mask> 
                     </div>
                   </div>
                 </div>
@@ -154,17 +177,7 @@
             
             </div>
 
-            <div class="tab-pane fade" id="pills-more<?php echo $client_id; ?>" role="tabpanel" aria-labelledby="pills-more-tab<?php echo $client_id; ?>">
-
-              <div class="form-group">
-                <label>Website</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="website" placeholder="Web Address" value="<?php echo $client_website; ?>">
-                </div>
-              </div>
+            <div class="tab-pane fade" id="pills-more<?php echo $client_id; ?>">
 
               <div class="form-group">
                 <label>Hours</label>
@@ -189,6 +202,31 @@
                     <?php } ?>
                   </select>
                 </div>
+              </div>
+
+              <div class="form-group">
+                <label>Company Size</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                  </div>
+                  <select class="form-control select2" name="company_size">
+                    <option <?php if($client_company_size == "1 - 3"){ echo "selected"; } ?>>1 - 3</option>
+                    <option <?php if($client_company_size == "4 - 10"){ echo "selected"; } ?>>4 - 10</option>
+                    <option <?php if($client_company_size == "11 - 50"){ echo "selected"; } ?>>11 - 50</option>
+                    <option <?php if($client_company_size == "51 - 100"){ echo "selected"; } ?>>51 - 100</option>
+                    <option <?php if($client_company_size == "101 - 500"){ echo "selected"; } ?>>101 - 500</option>
+                    <option <?php if($client_company_size == "500+"){ echo "selected"; } ?>>500+</option>
+                  </select>
+                </div>
+              </div>
+            
+            </div>
+
+            <div class="tab-pane fade" id="pills-notes<?php echo $client_id; ?>">
+
+              <div class="form-group">
+                <textarea class="form-control" rows="8" name="notes"><?php echo $client_notes; ?></textarea>
               </div>
             
             </div>

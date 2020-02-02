@@ -23,7 +23,7 @@
   if(!empty($_GET['sb'])){
     $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
   }else{
-    $sb = "recurring_id";
+    $sb = "recurring_next_date";
   }
 
   if(isset($_GET['o'])){
@@ -35,8 +35,8 @@
       $disp = "ASC";
     }
   }else{
-    $o = "DESC";
-    $disp = "ASC";
+    $o = "ASC";
+    $disp = "DESC";
   }
  
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM recurring, clients, categories
@@ -71,11 +71,12 @@
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_next_date&o=<?php echo $disp; ?>">Next Date</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_frequency&o=<?php echo $disp; ?>">Frequency</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
             <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_amount&o=<?php echo $disp; ?>">Amount</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_last_sent&o=<?php echo $disp; ?>">Last Sent</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_next_date&o=<?php echo $disp; ?>">Next Date</a></th>
+            
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Category</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_status&o=<?php echo $disp; ?>">Status</a></th>
             <th class="text-center">Action</th>
@@ -109,11 +110,11 @@
           ?>
 
           <tr>
-            <td><a href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>"><?php echo ucwords($recurring_frequency); ?>ly</a></td>
+            <td><a href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>"><?php echo $recurring_next_date; ?></a></td>
+            <td><?php echo ucwords($recurring_frequency); ?>ly</td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=recurring"><?php echo $client_name; ?></a></td>
             <td class="text-right text-monospace">$<?php echo number_format($recurring_amount,2); ?></td>
             <td><?php echo $recurring_last_sent; ?></td>
-            <td><?php echo $recurring_next_date; ?></td>
             <td><?php echo $category_name; ?></td>
             <td>
                <span class="p-2 badge badge-<?php echo $status_badge_color; ?>">

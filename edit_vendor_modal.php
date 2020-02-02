@@ -11,15 +11,18 @@
         <input type="hidden" name="vendor_id" value="<?php echo $vendor_id; ?>">
         <div class="modal-body bg-white">
 
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $vendor_id; ?>" role="tablist">
+          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $vendor_id; ?>">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-basic-tab<?php echo $vendor_id; ?>" data-toggle="pill" href="#pills-basic<?php echo $vendor_id; ?>" role="tab" aria-controls="pills-basic<?php echo $vendor_id; ?>" aria-selected="true">Basic</a>
+              <a class="nav-link active" id="pills-details-tab<?php echo $vendor_id; ?>" data-toggle="pill" href="#pills-details<?php echo $vendor_id; ?>">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-address-tab<?php echo $vendor_id; ?>" data-toggle="pill" href="#pills-address<?php echo $vendor_id; ?>" role="tab" aria-controls="pills-address<?php echo $vendor_id; ?>" aria-selected="false">Address</a>
+              <a class="nav-link" id="pills-address-tab<?php echo $vendor_id; ?>" data-toggle="pill" href="#pills-address<?php echo $vendor_id; ?>">Address</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-contact-tab<?php echo $vendor_id; ?>" data-toggle="pill" href="#pills-contact<?php echo $vendor_id; ?>" role="tab" aria-controls="pills-contact<?php echo $vendor_id; ?>" aria-selected="false">Contact</a>
+              <a class="nav-link" id="pills-contact-tab<?php echo $vendor_id; ?>" data-toggle="pill" href="#pills-contact<?php echo $vendor_id; ?>">Contact</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="pills-notes-tab<?php echo $vendor_id; ?>" data-toggle="pill" href="#pills-notes<?php echo $vendor_id; ?>">Notes</a>
             </li>
           </ul>
 
@@ -27,7 +30,7 @@
           
           <div class="tab-content" id="pills-tabContent<?php echo $vendor_id; ?>">
 
-            <div class="tab-pane fade show active" id="pills-basic<?php echo $vendor_id; ?>" role="tabpanel" aria-labelledby="pills-basic-tab<?php echo $vendor_id; ?>">
+            <div class="tab-pane fade show active" id="pills-details<?php echo $vendor_id; ?>">
 
               <div class="form-group">
                 <label>Name <strong class="text-danger">*</strong></label>
@@ -110,7 +113,7 @@
 
             </div>
             
-            <div class="tab-pane fade" id="pills-contact<?php echo $vendor_id; ?>" role="tabpanel" aria-labelledby="pills-contact-tab<?php echo $vendor_id; ?>">
+            <div class="tab-pane fade" id="pills-contact<?php echo $vendor_id; ?>">
 
               <div class="form-group">
                 <label>Contact Name</label>
@@ -159,6 +162,14 @@
                 </div>
               </div>
             
+            </div>
+
+            <div class="tab-pane fade" id="pills-notes<?php echo $vendor_id; ?>">
+              
+              <div class="form-group">
+                <textarea class="form-control" rows="8" name="notes"><?php echo $vendor_notes; ?></textarea>
+              </div>
+
             </div>
 
           </div>

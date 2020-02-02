@@ -1,22 +1,16 @@
 <?php include("header.php"); ?>
 
-<?php
-if($_GET['status'] == "archived"){
-  $where_clause = "IS NOT NULL";
-}else{
-  $where_clause = "IS NULL";
-}
+<?php 
+
+$sql = mysqli_query($mysqli,"SELECT * FROM alerts WHERE alert_ack_date IS NULL AND company_id = $session_company_id ORDER BY alert_id DESC"); 
 
 ?>
 
-<?php $sql = mysqli_query($mysqli,"SELECT * FROM alerts WHERE alert_ack_date $where_clause AND company_id = $session_company_id ORDER BY alert_id DESC"); ?>
-
-
 <div class="card mb-3">
-  <div class="card-header">
+  <div class="card-header bg-dark text-white">
     <h6 class="float-left mt-1"><i class="fa fa-exclamation-triangle"></i> Alerts</h6>
-    <a href="?status=new" class="btn btn-primary btn-sm badge-pill float-right">New</a>
-    <a href="?status=archived" class="btn btn-primary btn-sm badge-pill float-right mr-2">Archived</a>
+    <a href="post.php?ack_all_alerts" class="btn btn-success btn-sm badge-pill float-right mr-2"> <i class="fa fa-check"></i> Acknowledge All</a>
+    <a href="alerts_archived.php" class="btn btn-secondary btn-sm badge-pill float-right mr-2">Archived</a>
   </div>
   <div class="card-body">
     <div class="table-responsive">
@@ -37,20 +31,13 @@ if($_GET['status'] == "archived"){
             $alert_type = $row['alert_type'];
             $alert_message = $row['alert_message'];
             $alert_date = $row['alert_date'];
-            $alert_ack_date = $row['alert_ack_date'];
 
           ?>
           <tr class="row-danger">
             <td><?php echo $alert_date; ?></td>
             <td><?php echo $alert_type; ?></td>
             <td><?php echo $alert_message; ?></td>
-            <td class="text-center">
-              <?php if($alert_ack_date == 0){ ?>
-                <a class="btn btn-success btn-sm" href="post.php?alert_ack=<?php echo $alert_id; ?>"><i class="fa fa-check"></i></a>
-              <?php }else{ ?>
-                <?php echo $alert_ack_date; ?>
-              <?php } ?>
-            </td>
+            <td class="text-center"><a class="btn btn-success btn-sm" href="post.php?alert_ack=<?php echo $alert_id; ?>"><i class="fa fa-check"></a></td>
           </tr>
 
           <?php

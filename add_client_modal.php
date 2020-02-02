@@ -12,7 +12,7 @@
           
           <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-basic-tab" data-toggle="pill" href="#pills-basic">Basic</a>
+              <a class="nav-link active" id="pills-details-tab" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" id="pills-address-tab" data-toggle="pill" href="#pills-address">Address</a>
@@ -23,13 +23,16 @@
             <li class="nav-item">
               <a class="nav-link" id="pills-more-tab" data-toggle="pill" href="#pills-more">More</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" id="pills-notes-tab" data-toggle="pill" href="#pills-notes">Notes</a>
+            </li>
           </ul>
 
           <hr>
           
           <div class="tab-content" id="pills-tabContent">
 
-            <div class="tab-pane fade show active" id="pills-basic">
+            <div class="tab-pane fade show active" id="pills-details">
 
               <div class="form-group">
                 <label>Name <strong class="text-danger">*</strong></label>
@@ -48,6 +51,27 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                   </div>
                   <input type="text" class="form-control" name="type" placeholder="Company Type">
+                </div>
+              </div>
+
+              <label>Phone</label>
+             
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" data-mask> 
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Website</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                  </div>
+                  <input type="url" class="form-control" name="website" placeholder="ex. https://google.com">
                 </div>
               </div>
 
@@ -130,14 +154,15 @@
                   <input type="text" class="form-control" name="extension" placeholder="Extension">
                 </div>
               </div>
-              
+
+              <label>Mobile</label>
+          
               <div class="form-group">
-                <label>Mobile</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="mobile" placeholder="Mobile Number" data-inputmask="'mask': '999-999-9999'"> 
+                  <input type="text" class="form-control" name="mobile" placeholder="Mobile Number" data-inputmask="'mask': '999-999-9999'" data-mask> 
                 </div>
               </div>
               
@@ -154,16 +179,6 @@
             </div>
 
             <div class="tab-pane fade" id="pills-more">
-
-              <div class="form-group">
-                <label>Website</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="website" placeholder="Web Address">
-                </div>
-              </div>
 
               <div class="form-group">
                 <label>Hours</label>
@@ -188,9 +203,34 @@
                   </select>
                 </div>
               </div>
+
+              <div class="form-group">
+                <label>Company Size</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                  </div>
+                  <select class="form-control select2" name="company_size">
+                    <option>1 - 3</option>
+                    <option>4 - 10</option>
+                    <option>11 - 50</option>
+                    <option>51 - 100</option>
+                    <option>101 - 500</option>
+                    <option>500+</option>
+                  </select>
+                </div>
+              </div>
             
             </div>
-          
+
+            <div class="tab-pane fade" id="pills-notes">
+
+              <div class="form-group">
+                <textarea class="form-control" rows="8" name="notes"></textarea>
+              </div>
+            
+            </div>
+
           </div>    
         </div>
         <div class="modal-footer bg-white">
