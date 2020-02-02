@@ -11,20 +11,20 @@
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="modal-body bg-white">
 
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab">
+          <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-software-tab" data-toggle="pill" href="#pills-software">Software</a>
+              <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-login-tab" data-toggle="pill" href="#pills-login">Login</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-login">Login</a>
             </li>
           </ul>
 
           <hr>
           
-          <div class="tab-content" id="pills-tabContent">
+          <div class="tab-content">
 
-            <div class="tab-pane fade show active" id="pills-software">
+            <div class="tab-pane fade show active" id="pills-details">
           
               <div class="form-group">
                 <label>Software Name <strong class="text-danger">*</strong></label>

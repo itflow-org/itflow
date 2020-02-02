@@ -142,10 +142,10 @@ $total_pages = ceil($total_found_rows / 10);
             </td>
             <td>
               <div class="dropdown dropleft text-center">
-                <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-secondary btn-sm" data-toggle="dropdown">
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_software=<?php echo $software_id; ?>">Delete</a>
                 </div>

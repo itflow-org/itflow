@@ -4,28 +4,28 @@
       <div class="modal-header text-white">
         <h5 class="modal-title"><i class="fa fa-fw fa-lock mr-2"></i><?php echo $login_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="login_id" value="<?php echo $login_id; ?>">
         <div class="modal-body bg-white">  
 
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $login_id; ?>">
+          <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-details-tab<?php echo $login_id; ?>" data-toggle="pill" href="#pills-details<?php echo $login_id; ?>">Details</a>
+              <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $login_id; ?>">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-relation-tab<?php echo $login_id; ?>" data-toggle="pill" href="#pills-relation<?php echo $login_id; ?>">Relation</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-relation<?php echo $login_id; ?>">Relation</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-notes-tab" data-toggle="pill" href="#pills-notes<?php echo $login_id; ?>">Notes</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $login_id; ?>">Notes</a>
             </li>
           </ul>
 
           <hr>
           
-          <div class="tab-content" id="pills-tabContent<?php echo $login_id; ?>">
+          <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-details<?php echo $login_id; ?>">
 
