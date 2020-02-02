@@ -41,7 +41,7 @@ if(isset($_GET['o'])){
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM networks 
   WHERE client_id = $client_id 
-  AND (network_name LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_dhcp_range LIKE '%$q%') 
+  AND (network_name LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_dhcp_range LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -72,6 +72,7 @@ $total_pages = ceil($total_found_rows / 10);
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=network_name&o=<?php echo $disp; ?>">Name</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=network_vlan&o=<?php echo $disp; ?>">vLAN</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=network&o=<?php echo $disp; ?>">Network</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=network_gateway&o=<?php echo $disp; ?>">Gateway</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=network_dhcp_range&o=<?php echo $disp; ?>">DHCP Range</a></th>
@@ -84,6 +85,7 @@ $total_pages = ceil($total_found_rows / 10);
           while($row = mysqli_fetch_array($sql)){
             $network_id = $row['network_id'];
             $network_name = $row['network_name'];
+            $network_vlan = $row['network_vlan'];
             $network = $row['network'];
             $network_gateway = $row['network_gateway'];
             $network_dhcp_range = $row['network_dhcp_range'];
@@ -92,6 +94,7 @@ $total_pages = ceil($total_found_rows / 10);
           ?>
           <tr>
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editNetworkModal<?php echo $network_id; ?>"><?php echo $network_name; ?></a></td>
+            <td><?php echo $network_vlan; ?></td>
             <td><?php echo $network; ?></td>
             <td><?php echo $network_gateway; ?></td>
             <td><?php echo $network_dhcp_range; ?></td>

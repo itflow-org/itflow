@@ -10,24 +10,24 @@
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="modal-body bg-white">
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
+          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-basic-tab" data-toggle="pill" href="#pills-basic" role="tab" aria-controls="pills-home" aria-selected="true">Basic</a>
+              <a class="nav-link active" id="pills-details-tab" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-assignment-tab" data-toggle="pill" href="#pills-assignment" role="tab" aria-controls="pills-assignment" aria-selected="false">Assignment</a>
+              <a class="nav-link" id="pills-assignment-tab" data-toggle="pill" href="#pills-assignment">Assignment</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-purchase-tab" data-toggle="pill" href="#pills-purchase" role="tab" aria-controls="pills-purchase" aria-selected="false">Purchase</a>
+              <a class="nav-link" id="pills-purchase-tab" data-toggle="pill" href="#pills-purchase">Purchase</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-login-tab" data-toggle="pill" href="#pills-login" role="tab" aria-controls="pills-login" aria-selected="false">Login</a>
+              <a class="nav-link" id="pills-login-tab" data-toggle="pill" href="#pills-login">Login</a>
             </li>
           </ul>
           <hr>
           <div class="tab-content" id="pills-tabContent">
             
-            <div class="tab-pane fade show active" id="pills-basic" role="tabpanel" aria-labelledby="pills-basic-tab">
+            <div class="tab-pane fade show active" id="pills-details">
               
               <div class="form-group">
                 <label>Asset Name <strong class="text-danger">*</strong></label>
@@ -85,7 +85,7 @@
               </div>
             </div>
 
-            <div class="tab-pane fade" id="pills-assignment" role="tabpanel" aria-labelledby="pills-assignment-tab">
+            <div class="tab-pane fade" id="pills-assignment">
               
               <div class="form-group">
                 <label>Location</label>
@@ -173,7 +173,7 @@
             
             </div>
             
-            <div class="tab-pane fade" id="pills-purchase" role="tabpanel" aria-labelledby="pills-purchase-tab">
+            <div class="tab-pane fade" id="pills-purchase">
               
               <div class="form-group">
                 <label>Vendor</label>
@@ -220,7 +220,7 @@
 
             </div>
 
-            <div class="tab-pane fade" id="pills-login" role="tabpanel" aria-labelledby="pills-login-tab">
+            <div class="tab-pane fade" id="pills-login">
 
               <div class="form-group">
                 <label>Username</label>

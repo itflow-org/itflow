@@ -19,6 +19,16 @@
               <input type="text" class="form-control" name="name" placeholder="Network name (VLAN, WAN, LAN2 etc)" required autofocus>
             </div>
           </div>
+
+          <div class="form-group">
+            <label>vLAN</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+              </div>
+              <input type="number" class="form-control" name="vlan" placeholder="ex. 20" data-inputmask="'mask': '9999'">
+            </div>
+          </div>
           
           <div class="form-group">
             <label>Network <strong class="text-danger">*</strong></label>

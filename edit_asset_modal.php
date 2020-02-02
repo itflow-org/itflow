@@ -14,9 +14,9 @@
         
         <div class="modal-body bg-white">
           
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $asset_id; ?>" role="tablist">
+          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $asset_id; ?>">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-basic-tab<?php echo $asset_id; ?>" data-toggle="pill" href="#pills-basic<?php echo $asset_id; ?>" role="tab" aria-controls="pills-home<?php echo $asset_id; ?>" aria-selected="true">Basic</a>
+              <a class="nav-link active" id="pills-details-tab<?php echo $asset_id; ?>" data-toggle="pill" href="#pills-details<?php echo $asset_id; ?>" >Details</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" id="pills-assignment-tab<?php echo $asset_id; ?>" data-toggle="pill" href="#pills-assignment<?php echo $asset_id; ?>" role="tab" aria-controls="pills-assignment<?php echo $asset_id; ?>" aria-selected="false">Assignment</a>
@@ -33,7 +33,7 @@
           
           <div class="tab-content" id="pills-tabContent<?php echo $asset_id; ?>">
 
-            <div class="tab-pane fade show active" id="pills-basic<?php echo $asset_id; ?>" role="tabpanel" aria-labelledby="pills-basic-tab<?php echo $asset_id; ?>">
+            <div class="tab-pane fade show active" id="pills-details<?php echo $asset_id; ?>">
           
               <div class="form-group">
                 <label>Asset Name <strong class="text-danger">*</strong></label>
@@ -91,7 +91,7 @@
             
             </div>
 
-            <div class="tab-pane fade" id="pills-assignment<?php echo $asset_id; ?>" role="tabpanel" aria-labelledby="pills-assignment-tab<?php echo $asset_id; ?>">
+            <div class="tab-pane fade" id="pills-assignment<?php echo $asset_id; ?>">
 
               <div class="form-group">
                 <label>Location</label>
@@ -179,7 +179,7 @@
             
             </div>
 
-            <div class="tab-pane fade" id="pills-purchase<?php echo $asset_id; ?>" role="tabpanel" aria-labelledby="pills-purchase-tab<?php echo $asset_id; ?>">
+            <div class="tab-pane fade" id="pills-purchase<?php echo $asset_id; ?>">
 
               <div class="form-group">
                 <label>Vendor</label>

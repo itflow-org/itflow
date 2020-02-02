@@ -13,13 +13,13 @@
 
           <ul class="nav nav-pills nav-justified mb-3" id="pills-tab">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-login-tab" data-toggle="pill" href="#pills-login">Login</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="pills-notes-tab" data-toggle="pill" href="#pills-notes">Notes</a>
+              <a class="nav-link active" id="pills-details-tab" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" id="pills-relation-tab" data-toggle="pill" href="#pills-relation">Relation</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="pills-notes-tab" data-toggle="pill" href="#pills-notes">Notes</a>
             </li>
           </ul>
 
@@ -27,7 +27,7 @@
           
           <div class="tab-content" id="pills-tabContent">
 
-            <div class="tab-pane fade show active" id="pills-login">
+            <div class="tab-pane fade show active" id="pills-details">
 
               <div class="form-group">
                 <label>Name <strong class="text-danger">*</strong></label>
@@ -70,15 +70,6 @@
                   </div>
                   <input type="url" class="form-control" name="uri" placeholder="ex. https://google.com">
                 </div>
-              </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-notes">
-
-              <div class="form-group">
-                <label>Notes</label>
-                <textarea class="form-control" rows="5" name="note"></textarea>
               </div>
 
             </div>
@@ -158,6 +149,16 @@
               </div>
 
             </div>
+
+            <div class="tab-pane fade" id="pills-notes">
+
+              <div class="form-group">
+                <label>Notes</label>
+                <textarea class="form-control" rows="5" name="note"></textarea>
+              </div>
+
+            </div>
+            
           </div>
         </div>
         <div class="modal-footer bg-white">

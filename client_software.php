@@ -87,7 +87,7 @@ $total_pages = ceil($total_found_rows / 10);
             $software_type = $row['software_type'];
             $software_license = $row['software_license'];
 
-            $sql_login = mysqli_query($mysqli,"SELECT * FROM logins WHERE software_id = $software_id");
+            $sql_login = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE software_id = $software_id");
             $row = mysqli_fetch_array($sql_login);
             $login_id = $row['login_id'];
             $login_username = $row['login_username'];
@@ -106,7 +106,7 @@ $total_pages = ceil($total_found_rows / 10);
               <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $login_id; ?>"><i class="fas fa-key"></i></button>
 
               <div class="modal" id="viewPasswordModal<?php echo $login_id; ?>" tabindex="-1">
-                <div class="modal-dialog modal-sm">
+                <div class="modal-dialog">
                   <div class="modal-content bg-dark">
                     <div class="modal-header text-white">
                       <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i><?php echo $software_name; ?></h5>

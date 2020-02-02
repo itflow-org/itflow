@@ -2991,7 +2991,7 @@ if(isset($_POST['add_asset'])){
         $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
         $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
 
-        mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$description', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id, company_id = $session_company_id");
 
     }
 
@@ -3035,12 +3035,12 @@ if(isset($_POST['edit_asset'])){
 
     //If login exists then update the login
     if($login_id > 0){
-        mysqli_query($mysqli,"UPDATE logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id AND company_id = $session_company_id");
+        mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_updated_at = NOW() WHERE login_id = $login_id AND company_id = $session_company_id");
     }else{
     //If Username is filled in then add a login
         if(!empty($username)) {
             
-            mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id, company_id = $session_company_id");
+            mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id, company_id = $session_company_id");
 
         }
     }
@@ -3229,12 +3229,13 @@ if(isset($_POST['add_network'])){
 
     $client_id = intval($_POST['client_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $vlan = intval($_POST['vlan']);
     $network = strip_tags(mysqli_real_escape_string($mysqli,$_POST['network']));
     $gateway = strip_tags(mysqli_real_escape_string($mysqli,$_POST['gateway']));
     $dhcp_range = strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range']));
     $location_id = intval($_POST['location']);
 
-    mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_created_at = NOW(), location_id = $location_id, client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_created_at = NOW(), location_id = $location_id, client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -3249,12 +3250,13 @@ if(isset($_POST['edit_network'])){
 
     $network_id = intval($_POST['network_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $vlan = intval($_POST['vlan']);
     $network = strip_tags(mysqli_real_escape_string($mysqli,$_POST['network']));
     $gateway = strip_tags(mysqli_real_escape_string($mysqli,$_POST['gateway']));
     $dhcp_range = strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range']));
     $location_id = intval($_POST['location']);
 
-    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_updated_at = NOW(), location_id = $location_id WHERE network_id = $network_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_updated_at = NOW(), location_id = $location_id WHERE network_id = $network_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Modifed', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -3351,7 +3353,7 @@ if(isset($_POST['add_software'])){
         $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
         $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
 
-        mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$name', login_username = '$username', login_password = '$password', software_id = $software_id, login_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), software_id = $software_id, login_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     }
 
@@ -3383,7 +3385,7 @@ if(isset($_POST['edit_software'])){
     //If Username is filled in then add a login
         if(!empty($username)) {
             
-            mysqli_query($mysqli,"INSERT INTO logins SET login_description = '$name', login_username = '$username', login_password = '$password', login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id, company_id = $session_company_id");
+            mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id, company_id = $session_company_id");
 
         }
     }

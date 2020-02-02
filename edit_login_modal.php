@@ -13,13 +13,13 @@
 
           <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $login_id; ?>">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-login-tab<?php echo $login_id; ?>" data-toggle="pill" href="#pills-login<?php echo $login_id; ?>">Login</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="pills-notes-tab" data-toggle="pill" href="#pills-notes<?php echo $login_id; ?>">Notes</a>
+              <a class="nav-link active" id="pills-details-tab<?php echo $login_id; ?>" data-toggle="pill" href="#pills-details<?php echo $login_id; ?>">Details</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" id="pills-relation-tab<?php echo $login_id; ?>" data-toggle="pill" href="#pills-relation<?php echo $login_id; ?>">Relation</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="pills-notes-tab" data-toggle="pill" href="#pills-notes<?php echo $login_id; ?>">Notes</a>
             </li>
           </ul>
 
@@ -27,7 +27,7 @@
           
           <div class="tab-content" id="pills-tabContent<?php echo $login_id; ?>">
 
-            <div class="tab-pane fade show active" id="pills-login<?php echo $login_id; ?>">
+            <div class="tab-pane fade show active" id="pills-details<?php echo $login_id; ?>">
 
               <div class="form-group">
                 <label>Name <strong class="text-danger">*</strong></label>
@@ -79,15 +79,6 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-copy"></i></span>
                   </div>
                 </div>
-              </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-notes<?php echo $login_id; ?>">
-
-              <div class="form-group">
-                <label>Notes</label>
-                <textarea class="form-control" rows="5" name="note"><?php echo $login_note; ?></textarea>
               </div>
 
             </div>
@@ -167,6 +158,16 @@
               </div>
 
             </div>
+
+            <div class="tab-pane fade" id="pills-notes<?php echo $login_id; ?>">
+
+              <div class="form-group">
+                <label>Notes</label>
+                <textarea class="form-control" rows="5" name="note"><?php echo $login_note; ?></textarea>
+              </div>
+
+            </div>
+
           </div>
         </div>
         <div class="modal-footer bg-white">
