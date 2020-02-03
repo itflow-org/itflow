@@ -14,18 +14,21 @@
         
         <div class="modal-body bg-white">
           
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $asset_id; ?>">
+          <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-details-tab<?php echo $asset_id; ?>" data-toggle="pill" href="#pills-details<?php echo $asset_id; ?>" >Details</a>
+              <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $asset_id; ?>">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-assignment-tab<?php echo $asset_id; ?>" data-toggle="pill" href="#pills-assignment<?php echo $asset_id; ?>" role="tab" aria-controls="pills-assignment<?php echo $asset_id; ?>" aria-selected="false">Assignment</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-assignment<?php echo $asset_id; ?>">Assignment</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-purchase-tab<?php echo $asset_id; ?>" data-toggle="pill" href="#pills-purchase<?php echo $asset_id; ?>" role="tab" aria-controls="pills-purchase<?php echo $asset_id; ?>" aria-selected="false">Purchase</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-purchase<?php echo $asset_id; ?>">Purchase</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-login-tab<?php echo $asset_id; ?>" data-toggle="pill" href="#pills-login<?php echo $asset_id; ?>" role="tab" aria-controls="pills-login<?php echo $asset_id; ?>" aria-selected="false">Login</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-login<?php echo $asset_id; ?>">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $asset_id; ?>">Notes</a>
             </li>
           </ul>
           
@@ -70,22 +73,32 @@
               </div>
               
               <div class="form-group">
-                <label>Model <strong class="text-danger">*</strong></label>
+                <label>Model</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="model" placeholder="Model Number" value="<?php echo $asset_model; ?>" required>
+                  <input type="text" class="form-control" name="model" placeholder="Model Number" value="<?php echo $asset_model; ?>">
                 </div>
               </div>
               
               <div class="form-group">
-                <label>Serial Number <strong class="text-danger">*</strong></label>
+                <label>Serial Number</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="serial" placeholder="Serial number" value="<?php echo $asset_serial; ?>" required>
+                  <input type="text" class="form-control" name="serial" placeholder="Serial number" value="<?php echo $asset_serial; ?>">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Operating System</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro" value="<?php echo $asset_os; ?>">
                 </div>
               </div>
             
@@ -176,6 +189,16 @@
                   <input type="text" class="form-control" name="ip" value="<?php echo $asset_ip; ?>" placeholder="IP Address" data-inputmask="'alias': 'ip'">
                 </div>
               </div>
+
+              <div class="form-group">
+                <label>MAC Address</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="mac" value="<?php echo $asset_mac; ?>" placeholder="MAC Address" data-inputmask="'alias': 'mac'">
+                </div>
+              </div>
             
             </div>
 
@@ -227,7 +250,8 @@
             
             </div>
 
-            <div class="tab-pane fade" id="pills-login<?php echo $asset_id; ?>" role="tabpanel" aria-labelledby="pills-login-tab<?php echo $asset_id; ?>">
+            <div class="tab-pane fade" id="pills-login<?php echo $asset_id; ?>">
+              
               <div class="form-group">
                 <label>Username</label>
                 <div class="input-group">
@@ -237,6 +261,7 @@
                   <input type="text" class="form-control" name="username" placeholder="Username" value="<?php echo $login_username; ?>">
                 </div>
               </div>
+              
               <div class="form-group">
                 <label>Password</label>
                 <div class="input-group">
@@ -245,6 +270,14 @@
                   </div>
                   <input type="text" class="form-control" name="password" placeholder="Password" value="<?php echo $login_password; ?>">
                 </div>
+              </div>
+
+            </div>
+
+            <div class="tab-pane fade" id="pills-notes<?php echo $asset_id; ?>">
+
+              <div class="form-group">
+                <textarea class="form-control" rows="8" name="notes"><?php echo $asset_notes; ?></textarea>
               </div>
 
             </div>

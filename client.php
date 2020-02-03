@@ -35,6 +35,8 @@ if(isset($_GET['client_id'])){
   if($client_net_terms == 0){
     $client_net_terms = $config_default_net_terms;
   }
+  $client_company_size = $row['client_company_size'];
+  $client_notes = $row['client_notes'];
 
   //Add up all the payments for the invoice and get the total amount paid to the invoice
   $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled'");

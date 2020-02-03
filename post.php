@@ -2969,7 +2969,9 @@ if(isset($_POST['add_asset'])){
     $make = strip_tags(mysqli_real_escape_string($mysqli,$_POST['make']));
     $model = strip_tags(mysqli_real_escape_string($mysqli,$_POST['model']));
     $serial = strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial']));
+    $os = strip_tags(mysqli_real_escape_string($mysqli,$_POST['os']));
     $ip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['ip']));
+    $mac = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mac']));
     $location = intval($_POST['location']);
     $vendor = intval($_POST['vendor']);
     $contact = intval($_POST['contact']);
@@ -2982,9 +2984,9 @@ if(isset($_POST['add_asset'])){
     if(empty($warranty_expire)){
         $warranty_expire = "0000-00-00";
     }
-    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
 
-    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_ip = '$ip', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_note = '$note', asset_created_at = NOW(), network_id = $network, client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_notes = '$notes', asset_created_at = NOW(), network_id = $network, client_id = $client_id, company_id = $session_company_id");
 
     if(!empty($_POST['username'])) {
         $asset_id = mysqli_insert_id($mysqli);
@@ -3014,7 +3016,9 @@ if(isset($_POST['edit_asset'])){
     $make = strip_tags(mysqli_real_escape_string($mysqli,$_POST['make']));
     $model = strip_tags(mysqli_real_escape_string($mysqli,$_POST['model']));
     $serial = strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial']));
+    $os = strip_tags(mysqli_real_escape_string($mysqli,$_POST['os']));
     $ip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['ip']));
+    $mac = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mac']));
     $location = intval($_POST['location']);
     $vendor = intval($_POST['vendor']);
     $contact = intval($_POST['contact']);
@@ -3027,11 +3031,11 @@ if(isset($_POST['edit_asset'])){
     if(empty($warranty_expire)){
         $warranty_expire = "0000-00-00";
     }
-    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
     $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
     $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
 
-    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_ip = '$ip', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_note = '$note', asset_updated_at = NOW(), network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_notes = '$notes', asset_updated_at = NOW(), network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
 
     //If login exists then update the login
     if($login_id > 0){
@@ -3072,6 +3076,7 @@ if(isset($_POST['add_login'])){
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $category = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['category'])));
     $uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['uri'])));
     $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
     $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
@@ -3080,7 +3085,7 @@ if(isset($_POST['add_login'])){
     $asset_id = intval($_POST['asset']);
     $software_id = intval($_POST['software']);
 
-    mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_uri = '$uri', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_note = '$note', login_created_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id, client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_category = '$category', login_uri = '$uri', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_note = '$note', login_created_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id, client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -3095,6 +3100,7 @@ if(isset($_POST['edit_login'])){
 
     $login_id = intval($_POST['login_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $category = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['category'])));
     $uri = strip_tags(mysqli_real_escape_string($mysqli,$_POST['uri']));
     $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
     $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
@@ -3103,7 +3109,7 @@ if(isset($_POST['edit_login'])){
     $asset_id = intval($_POST['asset']);
     $software_id = intval($_POST['software']);
 
-    mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_uri = '$uri', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_note = '$note', login_updated_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id WHERE login_id = $login_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_category = '$category', login_uri = '$uri', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_note = '$note', login_updated_at = NOW(), vendor_id = $vendor_id, asset_id = $asset_id, software_id = $software_id WHERE login_id = $login_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -3188,7 +3194,16 @@ if(isset($_POST['add_note'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Note', log_action = 'Created', log_description = '$subject', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Note added";
+    //$_SESSION['alert_message'] = "Note added";
+
+    $_SESSION['bean'] = "
+    
+      <div class='toast'>
+        <div class='toast-body'>
+          Hello, world! This is a toast message.
+        </div>
+      </div>
+    ";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

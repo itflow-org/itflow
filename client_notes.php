@@ -68,6 +68,7 @@ $total_pages = ceil($total_found_rows / 10);
       </div>
     </form>
     <hr>
+    <?php echo $_SESSION['bean']; ?>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">

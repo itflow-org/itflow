@@ -146,12 +146,12 @@
                       <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                       </div>
-                      <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" data-mask> 
+                      <input type="text" class="form-control" name="contact_phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" data-mask> 
                     </div>
                   </div>
                 </div>
                 <div class="col-4">
-                  <input type="text" class="form-control" name="extension" placeholder="Extension">
+                  <input type="text" class="form-control" name="contact_extension" placeholder="Extension">
                 </div>
               </div>
 
@@ -162,7 +162,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="mobile" placeholder="Mobile Number" data-inputmask="'mask': '999-999-9999'" data-mask> 
+                  <input type="text" class="form-control" name="contact_mobile" placeholder="Mobile Number" data-inputmask="'mask': '999-999-9999'" data-mask> 
                 </div>
               </div>
               

@@ -103,7 +103,10 @@ $total_pages = ceil($total_found_rows / 10);
       
           ?>
           <tr>
-            <td><i class="fa fa-fw fa-map-marker-alt text-secondary"></i> <a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>"><?php echo $location_name; ?></a></td>
+            <th>
+              <i class="fa fa-fw fa-map-marker-alt text-secondary"></i> 
+              <a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>"><?php echo $location_name; ?></a>
+            </th>
             <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo $location_address; ?></a></td>
             <td><?php echo $location_phone; ?></td>
             <td><?php echo $location_hours; ?></td>

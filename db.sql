@@ -64,13 +64,15 @@ CREATE TABLE `assets` (
   `asset_type` varchar(200) NOT NULL,
   `asset_name` varchar(200) NOT NULL,
   `asset_make` varchar(200) NOT NULL,
-  `asset_model` varchar(200) NOT NULL,
-  `asset_serial` varchar(200) NOT NULL,
+  `asset_model` varchar(200) DEFAULT NULL,
+  `asset_serial` varchar(200) DEFAULT NULL,
+  `asset_os` varchar(200) DEFAULT NULL,
   `asset_ip` varchar(20) DEFAULT NULL,
+  `asset_mac` varchar(200) DEFAULT NULL,
   `asset_purchase_date` date DEFAULT NULL,
   `asset_warranty_expire` date DEFAULT NULL,
   `asset_reciept` varchar(200) DEFAULT NULL,
-  `asset_note` varchar(200) DEFAULT NULL,
+  `asset_notes` text DEFAULT NULL,
   `asset_created_at` datetime NOT NULL,
   `asset_updated_at` datetime DEFAULT NULL,
   `login_id` int(11) DEFAULT NULL,
@@ -396,6 +398,7 @@ DROP TABLE IF EXISTS `logins`;
 CREATE TABLE `logins` (
   `login_id` int(11) NOT NULL AUTO_INCREMENT,
   `login_name` varchar(200) NOT NULL,
+  `login_category` varchar(200) DEFAULT NULL,
   `login_uri` varchar(200) DEFAULT NULL,
   `login_username` varchar(200) NOT NULL,
   `login_password` varbinary(200) DEFAULT NULL,
@@ -444,6 +447,7 @@ DROP TABLE IF EXISTS `networks`;
 CREATE TABLE `networks` (
   `network_id` int(11) NOT NULL AUTO_INCREMENT,
   `network_name` varchar(200) NOT NULL,
+  `network_vlan` int(11) DEFAULT NULL,
   `network` varchar(200) NOT NULL,
   `network_gateway` varchar(200) NOT NULL,
   `network_dhcp_range` varchar(200) DEFAULT NULL,
@@ -541,6 +545,27 @@ CREATE TABLE `quotes` (
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`quote_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `records`
+--
+
+DROP TABLE IF EXISTS `records`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `records` (
+  `record_id` int(11) NOT NULL AUTO_INCREMENT,
+  `record_type` varchar(200) NOT NULL,
+  `record` varchar(200) NOT NULL,
+  `record_value` varchar(200) NOT NULL,
+  `record_priority` int(11) DEFAULT NULL,
+  `record_created_at` datetime NOT NULL,
+  `record_updated_at` datetime NOT NULL,
+  `domain_id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`record_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -830,4 +855,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-02-02  1:06:01
+-- Dump completed on 2020-02-03 13:54:11

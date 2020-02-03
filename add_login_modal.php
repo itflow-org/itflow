@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-lock mr-2"></i>New Login</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i>New Login</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -33,9 +33,19 @@
                 <label>Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
+                    <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                   </div>
                   <input type="text" class="form-control" name="name" placeholder="Name of Login" required autofocus>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Category <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="category" placeholder="Category" required>
                 </div>
               </div>
             
@@ -153,8 +163,7 @@
             <div class="tab-pane fade" id="pills-notes">
 
               <div class="form-group">
-                <label>Notes</label>
-                <textarea class="form-control" rows="5" name="note"></textarea>
+                <textarea class="form-control" rows="8" name="note"></textarea>
               </div>
 
             </div>

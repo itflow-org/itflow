@@ -21,6 +21,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+
   <!-- Theme style -->
   <link rel="stylesheet" href="dist/css/adminlte.min.css">
   <!-- Google Font: Source Sans Pro -->
@@ -36,6 +37,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link href='plugins/fullcalendar-bootstrap/main.min.css' rel='stylesheet' />
   <link href='plugins/daterangepicker/daterangepicker.css' rel='stylesheet' />
   <link href="plugins/summernote/summernote-bs4.css" rel="stylesheet">
+  <link href="plugins/toastr/toastr.min.css" rel="stylesheet">
 
 </head>
 <body class="hold-transition sidebar-mini">

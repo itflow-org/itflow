@@ -7,25 +7,34 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+      
       <form action="post.php" method="post" autocomplete="off">
+        
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+        
         <div class="modal-body bg-white">
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab">
+          
+          <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-details-tab" data-toggle="pill" href="#pills-details">Details</a>
+              <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-assignment-tab" data-toggle="pill" href="#pills-assignment">Assignment</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-assignment">Assignment</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-purchase-tab" data-toggle="pill" href="#pills-purchase">Purchase</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-purchase">Purchase</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-login-tab" data-toggle="pill" href="#pills-login">Login</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-login">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
             </li>
           </ul>
+          
           <hr>
-          <div class="tab-content" id="pills-tabContent">
+          
+          <div class="tab-content">
             
             <div class="tab-pane fade show active" id="pills-details">
               
@@ -65,24 +74,35 @@
               </div>
               
               <div class="form-group">
-                <label>Model <strong class="text-danger">*</strong></label>
+                <label>Model</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="model" placeholder="Model Number" required>
+                  <input type="text" class="form-control" name="model" placeholder="Model Number">
                 </div>
               </div>
               
               <div class="form-group">
-                <label>Serial Number <strong class="text-danger">*</strong></label>
+                <label>Serial Number</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="serial" placeholder="Serial number" required>
+                  <input type="text" class="form-control" name="serial" placeholder="Serial number">
                 </div>
               </div>
+
+              <div class="form-group">
+                <label>Operating System</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro">
+                </div>
+              </div>
+
             </div>
 
             <div class="tab-pane fade" id="pills-assignment">
@@ -170,6 +190,16 @@
                   <input type="text" class="form-control" name="ip" placeholder="IP Address" data-inputmask="'alias': 'ip'">
                 </div>
               </div>
+
+              <div class="form-group">
+                <label>MAC Address</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'">
+                </div>
+              </div>
             
             </div>
             
@@ -231,6 +261,7 @@
                   <input type="text" class="form-control" name="username" placeholder="Username">
                 </div>
               </div>
+              
               <div class="form-group">
                 <label>Password</label>
                 <div class="input-group">
@@ -242,6 +273,15 @@
               </div>
 
             </div>
+          
+            <div class="tab-pane fade" id="pills-notes">
+
+              <div class="form-group">
+                <textarea class="form-control" rows="8" name="notes"></textarea>
+              </div>
+
+            </div>
+              
           </div>
         </div>
         <div class="modal-footer bg-white">

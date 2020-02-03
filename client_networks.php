@@ -93,7 +93,9 @@ $total_pages = ceil($total_found_rows / 10);
       
           ?>
           <tr>
-            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editNetworkModal<?php echo $network_id; ?>"><?php echo $network_name; ?></a></td>
+            <th>
+              <i class="fa fa-fw fa-network-wired text-secondary"></i> 
+              <a class="text-dark" href="#" data-toggle="modal" data-target="#editNetworkModal<?php echo $network_id; ?>"><?php echo $network_name; ?></a></th>
             <td><?php echo $network_vlan; ?></td>
             <td><?php echo $network; ?></td>
             <td><?php echo $network_gateway; ?></td>

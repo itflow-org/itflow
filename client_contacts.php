@@ -99,7 +99,7 @@ $total_pages = ceil($total_found_rows / 10);
       
           ?>
           <tr>
-            <td class="text-center">
+            <th class="text-center">
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
                 <?php if(!empty($contact_photo)){ ?>
               
@@ -114,9 +114,9 @@ $total_pages = ceil($total_found_rows / 10);
                 <br>
                 
                 <?php } ?>
-                <div class="text-secondary"><?php echo $contact_name; ?></div>
+                <div class="text-dark"><?php echo $contact_name; ?></div>
               </a>
-            </td>
+            </th>
             
             <td><?php echo $contact_title; ?></td>
             <td><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a></td>

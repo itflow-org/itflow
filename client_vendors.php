@@ -108,7 +108,7 @@ $total_pages = ceil($total_found_rows / 10);
               
           ?>
           <tr>
-            <td>
+            <th>
               <i class="fa fa-fw fa-building text-secondary"></i> 
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></a>
               <?php
@@ -119,7 +119,7 @@ $total_pages = ceil($total_found_rows / 10);
               <?php
               }
               ?>
-            </td>
+            </th>
             <td><?php echo $vendor_description; ?></td>
             <td>
               <?php

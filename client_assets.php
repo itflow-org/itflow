@@ -89,9 +89,12 @@ $total_pages = ceil($total_found_rows / 10);
             $asset_make = $row['asset_make'];
             $asset_model = $row['asset_model'];
             $asset_serial = $row['asset_serial'];
+            $asset_os = $row['asset_os'];
             $asset_ip = $row['asset_ip'];
+            $asset_mac = $row['asset_mac'];
             $asset_purchase_date = $row['asset_purchase_date'];
             $asset_warranty_expire = $row['asset_warranty_expire'];
+            $asset_notes = $row['asset_notes'];
             $vendor_id = $row['vendor_id'];
             $location_id = $row['location_id'];
             $contact_id = $row['contact_id'];
@@ -134,11 +137,11 @@ $total_pages = ceil($total_found_rows / 10);
       
           ?>
           <tr>
-            <td>
+            <th>
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
                 <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_type; ?>
               </a>
-            </td>
+            </th>
             <td>
               <?php
               if($asset_id == $asset_id_relation){
@@ -151,7 +154,7 @@ $total_pages = ceil($total_found_rows / 10);
                     <div class="modal-header text-white">
                       <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i><?php echo $asset_name; ?></h5>
                       <button type="button" class="close text-white" data-dismiss="modal">
-                        <span aria-hidden="true">&times;</span>
+                        <span>&times;</span>
                       </button>
                     </div>
                     <div class="modal-body bg-white">
@@ -187,10 +190,10 @@ $total_pages = ceil($total_found_rows / 10);
             <td><?php echo $asset_serial; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
-                <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_asset=<?php echo $asset_id; ?>">Delete</a>
                 </div>
