@@ -2228,6 +2228,36 @@ if(isset($_POST['save_invoice'])){
 
 }
 
+if(isset($_POST['edit_item'])){
+
+    $invoice_id = intval($_POST['invoice_id']);
+    $item_id = intval($_POST['item_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $qty = floatval($_POST['qty']);
+    $price = floatval($_POST['price']);
+    $tax = floatval($_POST['tax']);
+     
+    $subtotal = $price * $qty;
+    $tax = $subtotal * $tax;
+    $total = $subtotal + $tax;
+
+    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total' WHERE item_id = $item_id");
+
+    //Update Invoice Balances by tallying up invoice items
+
+    $sql_invoice_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS invoice_total FROM invoice_items WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql_invoice_total);
+    $new_invoice_amount = $row['invoice_total'];
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Item updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_GET['delete_invoice_item'])){
     $item_id = intval($_GET['delete_invoice_item']);
 

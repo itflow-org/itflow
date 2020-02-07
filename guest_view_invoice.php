@@ -111,6 +111,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
   <div class="card">
     <div class="card-header d-print-none">
       <div class="float-right">
+        <a class="btn btn-secondary" data-toggle="collapse" href="#collapsePreviousInvoices"><i class="fa fa-fw fa-history"></i> Invoice History</a>
         <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
         <a class="btn btn-primary" download target="_blank" href="guest_post.php?pdf_invoice=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-download"></i> Download</a>
         <?php
@@ -270,6 +271,159 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
       <center><?php echo $config_invoice_footer; ?></center>
     </div>
   </div>
+
+  <?php
+
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id AND invoice_id <> $invoice_id AND (invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
+
+  if(mysqli_num_rows($sql) > 1){
+
+  ?>
+
+
+    <div class="card d-print-none card-danger">
+      <div class="card-header">
+        <strong><i class="fa fa-fw fa-exclamation-triangle"></i> Previous Unpaid Invoices</strong>
+      </div>
+      <div card="card-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="text-center">Invoice #</th>
+              <th>Date</th>
+              <th>Due Date</th>
+              <th class="text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+      
+            while($row = mysqli_fetch_array($sql)){
+              $invoice_id = $row['invoice_id'];
+              $invoice_number = $row['invoice_number'];
+              $invoice_date = $row['invoice_date'];
+              $invoice_due = $row['invoice_due'];
+              $invoice_amount = $row['invoice_amount'];
+              $invoice_url_key = $row['invoice_url_key'];
+              $invoice_tally_total = $invoice_amount + $invoice_tally_total;
+              $difference = time() - strtotime($invoice_due);
+              $days = floor($difference / (60*60*24) );
+
+            ?>
+
+              <tr>
+                <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo $invoice_number; ?></a></th>
+                <td><?php echo $invoice_date; ?></td>
+                <td class="text-danger text-bold"><?php echo $invoice_due; ?> (<?php echo $days; ?> Days)</td>
+                <td class="text-right text-monospace">$<?php echo $invoice_amount; ?></td>
+              </tr>
+
+            <?php 
+            } 
+            ?>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <?php
+  }
+  ?>
+
+  <?php
+
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id AND invoice_status = 'Paid' ORDER BY invoice_date DESC");
+
+  if(mysqli_num_rows($sql) > 1){
+
+  ?>
+
+
+    <div class="card d-print-none collapse" id="collapsePreviousInvoices">
+      <div class="card-header bg-dark">
+        <strong><i class="fa fa-fw fa-history"></i> Previous Invoices Paid</strong>
+      </div>
+      <div card="card-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="text-center">Invoice #</th>
+              <th>Date</th>
+              <th>Due Date</th>
+              <th class="text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+      
+            while($row = mysqli_fetch_array($sql)){
+              $invoice_id = $row['invoice_id'];
+              $invoice_number = $row['invoice_number'];
+              $invoice_date = $row['invoice_date'];
+              $invoice_due = $row['invoice_due'];
+              $invoice_amount = $row['invoice_amount'];
+              $invoice_url_key = $row['invoice_url_key'];
+              $invoice_tally_total = $invoice_amount + $invoice_tally_total;
+
+            ?>
+
+              <tr class="bg-light">
+                <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo $invoice_number; ?></a></th>
+                <td><?php echo $invoice_date; ?></td>
+                <td><?php echo $invoice_due; ?></td>
+                <td class="text-right text-monospace">$<?php echo $invoice_amount; ?></td>
+              </tr>
+
+              <tr>
+                <th colspan="4">Payments</th>
+              </tr>
+              
+              <?php
+              
+              $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments WHERE invoice_id = $invoice_id ORDER BY payment_date DESC");
+
+              while($row = mysqli_fetch_array($sql_payments)){
+                $payment_id = $row['payment_id'];
+                $payment_date = $row['payment_date'];
+                $payment_amount = $row['payment_amount'];
+                $payment_method = $row['payment_method'];
+                $payment_reference = $row['payment_reference'];
+                if(strtotime($payment_date) > strtotime($invoice_due)){
+                  $payment_note = "Late";
+                  $difference = strtotime($payment_date) - strtotime($invoice_due);
+                  $days = floor($difference / (60*60*24) ) . " Days";
+                }else{
+                  $payment_note = "";
+                  $days = "";
+                }
+                
+
+                $invoice_tally_total = $invoice_amount + $invoice_tally_total;
+
+              ?>
+
+                <tr>
+                  <td colspan="4"><?php echo $payment_date; ?> - $<?php echo $payment_amount; ?> - <?php echo $payment_method; ?> - <?php echo $payment_reference; ?> - <?php echo $days; ?> <?php echo $payment_note; ?></td>
+                </tr>
+              <?php
+
+              }
+
+              ?>
+
+            <?php 
+            } 
+            ?>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <?php
+  }
+  ?>
+
+
 
 <?php 
   }else{

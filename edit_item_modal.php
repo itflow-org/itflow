@@ -8,8 +8,9 @@
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-        <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
-        <input type="hidden" name="balance" value="<?php echo $balance; ?>">
+        <input type="text" name="invoice_id" value="<?php echo $invoice_id; ?>">
+        <input type="text" name="item_id" value="<?php echo $item_id; ?>">
+        <input type="text" name="balance" value="<?php echo $balance; ?>">
         <div class="modal-body bg-white">
           
           <div class="form-group">
@@ -51,14 +52,11 @@
 
           <div class="form-group">
             <label>Tax <strong class="text-danger">*</strong></label>
-            <div class="input-group"> 
+            <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-              </div> 
-              <select class="form-control" name="tax">
-                <option value="0.00">None</option>
-                <option value="0.07">State Tax 7%</option>
-              </select>
+              </div>
+              <input type="number" class="form-control" step="0.01" min="0" name="tax" value="<?php echo $item_tax; ?>" required>
             </div>
           </div>
           

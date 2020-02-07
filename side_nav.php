@@ -20,7 +20,7 @@
             <p>Dashboard</p>
           </a>
         </li>
-        <li class="nav-header">CLIENT</li>
+        <li class="nav-header">MAIN</li>
         <li class="nav-item">
           <a href="clients.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "clients.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-users"></i>
