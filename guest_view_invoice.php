@@ -66,6 +66,21 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     $browser = get_web_browser();
     $device = get_device();
 
+    //Set Badge color based off of invoice status
+    if($invoice_status == "Sent"){
+      $invoice_badge_color = "warning text-white";
+    }elseif($invoice_status == "Viewed"){
+      $invoice_badge_color = "info";
+    }elseif($invoice_status == "Partial"){
+      $invoice_badge_color = "primary";
+    }elseif($invoice_status == "Paid"){
+      $invoice_badge_color = "success";
+    }elseif($invoice_status == "Cancelled"){
+      $invoice_badge_color = "danger";
+    }else{
+      $invoice_badge_color = "secondary";
+    }
+
     //Update status to Viewed only if invoice_status = "Sent" 
     if($invoice_status == 'Sent'){
       mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Viewed' WHERE invoice_id = $invoice_id");
@@ -92,19 +107,6 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         $invoice_color = "text-danger";
       }
     }
-    
-    //Set Badge color based off of invoice status
-    if($invoice_status == "Sent"){
-      $invoice_badge_color = "warning text-white";
-    }elseif($invoice_status == "Partial"){
-      $invoice_badge_color = "primary";
-    }elseif($invoice_status == "Paid"){
-      $invoice_badge_color = "success";
-    }elseif($invoice_status == "Cancelled"){
-      $invoice_badge_color = "danger";
-    }else{
-      $invoice_badge_color = "secondary";
-    }
 
   ?>
 
@@ -127,7 +129,14 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
           <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
         </div>
         <div class="col-sm-10">
-          <h3 class="text-right"><strong>Invoice</strong><br><small class="text-secondary"><?php echo $invoice_number; ?></small></h3>
+          <?php if($invoice_status == "Paid"){ ?>
+          <div class="ribbon-wrapper">
+            <div class="ribbon bg-success">
+              <?php echo $invoice_status; ?>
+            </div>
+          </div>
+          <?php } ?>
+          <h3 class="text-right mt-5"><strong>Invoice</strong><br><small class="text-secondary"><?php echo $invoice_number; ?></small></h3>
         </div>
       </div>
       <div class="row mb-4">
@@ -314,7 +323,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
               <tr>
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo $invoice_number; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
-                <td class="text-danger text-bold"><?php echo $invoice_due; ?> (<?php echo $days; ?> Days)</td>
+                <td class="text-danger text-bold"><?php echo $invoice_due; ?> (<?php echo $days; ?> Days Late)</td>
                 <td class="text-right text-monospace">$<?php echo $invoice_amount; ?></td>
               </tr>
 
