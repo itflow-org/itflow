@@ -72,7 +72,7 @@ if(isset($_GET['quote_id'])){
 
       <div class="row">
         <div class="col-md-4">
-          <button class="btn btn-success btn-sm" type="submit" name="save_quote"><i class="fa fa-fw fa-check"></i> Save</button>
+          <a class="btn btn-success btn-sm" href="post.php?approve_quote=<?php echo $quote_id; ?>"><i class="fa fa-fw fa-check"></i> Approve</a>
         </div>
         <div class="col-md-8">
           <div class="dropdown dropleft text-center">

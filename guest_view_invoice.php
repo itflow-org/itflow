@@ -184,7 +184,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
       <div class="row mb-4">
         <div class="col-md-12">
           <div class="card">
-            <table class="table table-striped">
+            <table class="table">
               <thead>
                 <tr>
                   <th>Product</th>

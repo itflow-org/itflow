@@ -2184,45 +2184,45 @@ if(isset($_GET['delete_invoice'])){
   
 }
 
-if(isset($_POST['save_invoice'])){
+if(isset($_POST['add_invoice_line_item'])){
 
     $invoice_id = intval($_POST['invoice_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $qty = floatval($_POST['qty']);
+    $price = floatval($_POST['price']);
+    $tax = floatval($_POST['tax']);
     
-    if(!empty($_POST['name'])){
-        $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-        $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-        $qty = floatval($_POST['qty']);
-        $price = floatval($_POST['price']);
-        $tax = floatval($_POST['tax']);
-        
-        $subtotal = $price * $qty;
-        $tax = $subtotal * $tax;
-        $total = $subtotal + $tax;
+    $subtotal = $price * $qty;
+    $tax = $subtotal * $tax;
+    $total = $subtotal + $tax;
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
-        //Update Invoice Balances
+    //Update Invoice Balances
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
-        $row = mysqli_fetch_array($sql);
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
 
-        $new_invoice_amount = $row['invoice_amount'] + $total;
+    $new_invoice_amount = $row['invoice_amount'] + $total;
 
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
-        $_SESSION['alert_message'] = "Item added";
+    $_SESSION['alert_message'] = "Item added";
 
-    }
 
-    if(isset($_POST['invoice_note'])){
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
-        $invoice_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['invoice_note']));
+}
 
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$invoice_note', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+if(isset($_POST['invoice_note'])){
 
-        $_SESSION['alert_message'] = "Notes added";
+    $invoice_id = intval($_POST['invoice_id']);
+    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
 
-    }
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$note', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Notes added";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

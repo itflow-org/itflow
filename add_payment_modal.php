@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-money-bill-alt mr-2"></i>Add Payment</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-credit-card mr-2"></i><?php echo $invoice_number; ?>: Add Payment</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -12,24 +12,35 @@
         <input type="hidden" name="balance" value="<?php echo $balance; ?>">
         <div class="modal-body bg-white">
           
-          <div class="form-group">
-            <label>Date <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+          <div class="form-row">
+            <div class="col">
+
+              <div class="form-group">
+                <label>Date <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                  </div>
+                  <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
+                </div>
               </div>
-              <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
+
             </div>
-          </div>
-          
-          <div class="form-group">
-            <label>Amount <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+
+            <div class="col">
+            
+              <div class="form-group">
+                <label>Amount <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                  </div>
+                  <input type="number" class="form-control" step="0.01" min="0" name="amount" value="<?php echo $balance; ?>" required>
+                </div>
               </div>
-              <input type="number" class="form-control" step="0.01" min="0" name="amount" value="<?php echo $balance; ?>" required>
+
             </div>
+
           </div>
 
           <div class="form-group">
@@ -104,11 +115,17 @@
               <input type="text" class="form-control" name="reference" placeholder="Enter a reference">
             </div>
           </div>
-          <div class="custom-control custom-checkbox">
-            <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_receipt" value="1" >
-            <label class="custom-control-label" for="customControlAutosizing">Email Reciept</label>
+          
+          <div class="form-group">
+            <label>Email Receipt</label>
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_receipt" value="1" >
+              <label class="custom-control-label" for="customControlAutosizing"><?php echo $client_email; ?></label>
+            </div>
           </div>
+
         </div>
+        
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="add_payment" class="btn btn-primary">Save</button>
