@@ -3,28 +3,31 @@
 <?php
 $sql_recent_logins = mysqli_query($mysqli,"SELECT * FROM logs 
     WHERE log_type = 'Login' AND log_action = 'Success' AND user_id = $session_user_id
-    ORDER BY log_id DESC LIMIT 3");
+    ORDER BY log_id DESC LIMIT 5");
 
 $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs 
     WHERE user_id = $session_user_id AND log_type NOT LIKE 'Login'
-    ORDER BY log_id DESC LIMIT 5");
+    ORDER BY log_id DESC LIMIT 10");
 ?>
 
 
 
 <div class="row">
-  <div class="col-md-3">
+  <div class="col-md-4">
     <div class="card">
-      <div class="card-header">
+      <div class="card-header bg-dark text-white">
         <h3 class="card-title">User Details</h3>
       </div>
       <div class="card-body">
 
         <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
           <input type="hidden" name="current_avatar_path" value="<?php echo $session_avatar; ?>"> 
-          <center class="mb-3">
-            <img src="<?php echo "$session_avatar"; ?>" class="img-circle img-fluid elevation-2" alt="User Image">
+          <center class="mb-3 p-4">
+            <img src="<?php echo "$session_avatar"; ?>" class="img-circle img-fluid elevation-2">
           </center>
+
+          <hr>
+
           <div class="form-group">
             <label>Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -108,9 +111,9 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
     </div>
   </div>
 
-  <div class="col-md-5">
+  <div class="col-md-8">
     <div class="card">
-      <div class="card-header">
+      <div class="card-header bg-dark text-white">
         <h3 class="card-title">Recent Logins</h3>
       </div>
       <table class="table">
@@ -134,11 +137,9 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
         </tbody>
       </table>
     </div>
-  </div>
 
-  <div class="col-md-4">
     <div class="card">
-      <div class="card-header">
+      <div class="card-header bg-dark text-white">
         <h3 class="card-title">Recent Logs</h3>
       </div>
 
