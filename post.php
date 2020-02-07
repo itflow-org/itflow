@@ -1551,44 +1551,77 @@ if(isset($_POST['add_quote_to_invoice'])){
 
 }
 
-if(isset($_POST['save_quote'])){
+if(isset($_POST['add_quote_line_item'])){
 
     $quote_id = intval($_POST['quote_id']);
     
-    if(!empty($_POST['name'])){
-        $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-        $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-        $qty = floatval($_POST['qty']);
-        $price = floatval($_POST['price']);
-        $tax = floatval($_POST['tax']);
-        
-        $subtotal = $price * $qty;
-        $tax = $subtotal * $tax;
-        $total = $subtotal + $tax;
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $qty = floatval($_POST['qty']);
+    $price = floatval($_POST['price']);
+    $tax = floatval($_POST['tax']);
+    
+    $subtotal = $price * $qty;
+    $tax = $subtotal * $tax;
+    $total = $subtotal + $tax;
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
 
-        //Update Invoice Balances
+    //Update Invoice Balances
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
-        $row = mysqli_fetch_array($sql);
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
 
-        $new_quote_amount = $row['quote_amount'] + $total;
+    $new_quote_amount = $row['quote_amount'] + $total;
 
-        mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
-        $_SESSION['alert_message'] = "Item added";
+    $_SESSION['alert_message'] = "Item added";
 
-    }
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
 
-    if(isset($_POST['quote_note'])){
-        $quote_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['quote_note']));
+if(isset($_POST['quote_note'])){
+    
+    $quote_id = intval($_POST['quote_id']);
+    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
 
-        mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$quote_note', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$note', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
-        $_SESSION['alert_message'] = "Notes added";
-    }
+    $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> <strong>Notes added</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+if(isset($_POST['edit_quote_item'])){
+
+    $quote_id = intval($_POST['quote_id']);
+    $item_id = intval($_POST['item_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $qty = floatval($_POST['qty']);
+    $price = floatval($_POST['price']);
+    $tax = floatval($_POST['tax']);
+     
+    $subtotal = $price * $qty;
+    $tax = $subtotal * $tax;
+    $total = $subtotal + $tax;
+
+    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total' WHERE item_id = $item_id");
+
+    //Update Invoice Balances by tallying up invoice items
+
+    $sql_quote_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS quote_total FROM invoice_items WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql_quote_total);
+    $new_quote_amount = $row['quote_total'];
+
+    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> Item updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -1667,6 +1700,23 @@ if(isset($_GET['delete_quote_item'])){
   
 }
 
+if(isset($_GET['mark_quote_sent'])){
+
+    $quote_id = intval($_GET['mark_quote_sent']);
+
+    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'QUOTE marked sent', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Updated', log_description = '$quote_id marked sent', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> Quote marked sent";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_GET['approve_quote'])){
 
     $quote_id = intval($_GET['approve_quote']);
@@ -1678,7 +1728,7 @@ if(isset($_GET['approve_quote'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modified', log_description = 'Approved Quote $quote_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Quote approved";
+    $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> Quote approved";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -2045,43 +2095,74 @@ if(isset($_GET['recurring_deactivate'])){
 
 }
 
-if(isset($_POST['save_recurring'])){
+if(isset($_POST['add_recurring_line_item'])){
 
     $recurring_id = intval($_POST['recurring_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $qty = floatval($_POST['qty']);
+    $price = floatval($_POST['price']);
+    $tax = floatval($_POST['tax']);
     
-    if(!empty($_POST['name'])){
-        $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-        $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-        $qty = floatval($_POST['qty']);
-        $price = floatval($_POST['price']);
-        $tax = floatval($_POST['tax']);
-        
-        $subtotal = $price * $qty;
-        $tax = $subtotal * $tax;
-        $total = $subtotal + $tax;
+    $subtotal = $price * $qty;
+    $tax = $subtotal * $tax;
+    $total = $subtotal + $tax;
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), recurring_id = $recurring_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), recurring_id = $recurring_id, company_id = $session_company_id");
 
-        //Update Invoice Balances
+    //Update Invoice Balances
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
-        $row = mysqli_fetch_array($sql);
+    $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
 
-        $new_recurring_amount = $row['recurring_amount'] + $total;
+    $new_recurring_amount = $row['recurring_amount'] + $total;
 
-        mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
-
-    }
-
-    if(isset($_POST['recurring_note'])){
-
-        $recurring_note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['recurring_note']));
-
-        mysqli_query($mysqli,"UPDATE recurring SET recurring_note = '$recurring_note', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
-
-    }
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice Updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['recurring_note'])){
+    
+    $recurring_id = intval($_POST['recurring_id']);
+    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_note = '$note', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> <strong>Notes added</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_recurring_item'])){
+
+    $recurring_id = intval($_POST['recurring_id']);
+    $item_id = intval($_POST['item_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $qty = floatval($_POST['qty']);
+    $price = floatval($_POST['price']);
+    $tax = floatval($_POST['tax']);
+     
+    $subtotal = $price * $qty;
+    $tax = $subtotal * $tax;
+    $total = $subtotal + $tax;
+
+    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total' WHERE item_id = $item_id");
+
+    //Update Invoice Balances by tallying up invoice items
+
+    $sql_recurring_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS recurring_total FROM invoice_items WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql_recurring_total);
+    $new_recurring_amount = $row['recurring_total'];
+
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Item updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -2184,7 +2265,7 @@ if(isset($_GET['delete_invoice'])){
   
 }
 
-if(isset($_POST['add_invoice_line_item'])){
+if(isset($_POST['add_invoice_item'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
@@ -2228,7 +2309,7 @@ if(isset($_POST['invoice_note'])){
 
 }
 
-if(isset($_POST['edit_item'])){
+if(isset($_POST['edit_invoice_item'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $item_id = intval($_POST['item_id']);

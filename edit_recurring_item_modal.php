@@ -1,14 +1,14 @@
-<div class="modal" id="editInvoiceItemModal<?php echo $item_id; ?>" tabindex="-1">
+<div class="modal" id="editRecurringItemModal<?php echo $item_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
         <h5 class="modal-title"><i class="fa fa-fw fa-edit mr-2"></i>Edit Line Item: <?php echo $item_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-        <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+        <input type="hidden" name="recurring_id" value="<?php echo $recurring_id; ?>">
         <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
         <div class="modal-body bg-white">
           
@@ -30,6 +30,7 @@
           </div>
           
           <div class="form-row">
+            
             <div class="col">
 
               <div class="form-group">
@@ -76,7 +77,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="edit_invoice_item" class="btn btn-primary">Save</button>
+          <button type="submit" name="edit_recurring_item" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

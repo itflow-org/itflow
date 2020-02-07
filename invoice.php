@@ -232,7 +232,7 @@ if(isset($_GET['invoice_id'])){
 
               <tr>
                 <td class="text-center d-print-none">
-                  <a class="text-secondary" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit"></i></a>
+                  <a class="text-secondary" href="#" data-toggle="modal" data-target="#editInvoiceItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit"></i></a>
                   <a class="text-danger" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash-alt"></i></a>
                 </td>
                 <td><?php echo $item_name; ?></td>
@@ -245,7 +245,7 @@ if(isset($_GET['invoice_id'])){
 
               <?php 
 
-              include("edit_item_modal.php");
+              include("edit_invoice_item_modal.php");
 
               }
 
@@ -433,7 +433,6 @@ if(isset($_GET['invoice_id'])){
 </div>
 
 <?php include("add_payment_modal.php"); ?>
-<?php include("edit_invoice_item_modal.php"); ?>
 <?php include("add_invoice_copy_modal.php"); ?>
 <?php include("add_invoice_recurring_modal.php"); ?>
 <?php include("invoice_note_modal.php"); ?>
