@@ -1551,7 +1551,7 @@ if(isset($_POST['add_quote_to_invoice'])){
 
 }
 
-if(isset($_POST['add_quote_line_item'])){
+if(isset($_POST['add_quote_item'])){
 
     $quote_id = intval($_POST['quote_id']);
     
@@ -2095,7 +2095,7 @@ if(isset($_GET['recurring_deactivate'])){
 
 }
 
-if(isset($_POST['add_recurring_line_item'])){
+if(isset($_POST['add_recurring_item'])){
 
     $recurring_id = intval($_POST['recurring_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));

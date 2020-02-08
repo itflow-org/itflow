@@ -211,7 +211,7 @@ if(isset($_GET['recurring_id'])){
                     </select>
                   </td>
                   <td>
-                    <button class="btn btn-link text-success" type="submit" name="add_recurring_line_item">
+                    <button class="btn btn-link text-success" type="submit" name="add_recurring_item">
                       <i class="fa fa-fw fa-check"></i>
                     </button>
                   </td>

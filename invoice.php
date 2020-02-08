@@ -266,7 +266,7 @@ if(isset($_GET['invoice_id'])){
                     </select>
                   </td>
                   <td>
-                    <button class="btn btn-link text-success" type="submit" name="add_invoice_line_item">
+                    <button class="btn btn-link text-success" type="submit" name="add_invoice_item">
                       <i class="fa fa-fw fa-check"></i>
                     </button>
                   </td>

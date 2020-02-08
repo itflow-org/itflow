@@ -233,7 +233,7 @@ if(isset($_GET['quote_id'])){
                     </select>
                   </td>
                   <td>
-                    <button class="btn btn-link text-success" type="submit" name="add_quote_line_item">
+                    <button class="btn btn-link text-success" type="submit" name="add_quote_item">
                       <i class="fa fa-fw fa-check"></i>
                     </button>
                   </td>
