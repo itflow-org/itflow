@@ -14,10 +14,13 @@
           
           <ul class="nav nav-pills nav-justified mb-3" id="pills-tab">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-software-tab<?php echo $software_id; ?>" data-toggle="pill" href="#pills-software<?php echo $software_id; ?>">Software</a>
+              <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $software_id; ?>">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-login-tab<?php echo $software_id; ?>" data-toggle="pill" href="#pills-login<?php echo $software_id; ?>">Login</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $software_id; ?>">Notes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-login<?php echo $software_id; ?>">Login</a>
             </li>
           </ul>
 
@@ -25,10 +28,10 @@
           
           <div class="tab-content" id="pills-tabContent<?php echo $software_id; ?>">
 
-            <div class="tab-pane fade show active" id="pills-software<?php echo $software_id; ?>">
+            <div class="tab-pane fade show active" id="pills-details<?php echo $software_id; ?>">
 
               <div class="form-group">
-                <label>Application Name <strong class="text-danger">*</strong></label>
+                <label>Software Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
@@ -60,6 +63,12 @@
                   <input type="text" class="form-control" name="license" placeholder="License key" value="<?php echo $software_license; ?>" required> 
                 </div>
               </div>
+
+            </div>
+
+            <div class="tab-pane fade" id="pills-notes<?php echo $software_id; ?>">
+              
+              <textarea class="form-control" rows="8" name="notes"><?php echo $software_notes; ?></textarea>
 
             </div>
 

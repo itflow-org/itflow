@@ -111,7 +111,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
   ?>
 
   <div class="card">
-    <div class="card-header d-print-none">
+    <div class="card-header bg-light d-print-none">
       <div class="float-right">
         <a class="btn btn-secondary" data-toggle="collapse" href="#collapsePreviousInvoices"><i class="fa fa-fw fa-history"></i> Invoice History</a>
         <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
@@ -283,7 +283,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
 
   <?php
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id AND invoice_id <> $invoice_id AND (invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id AND invoice_due < CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
 
   if(mysqli_num_rows($sql) > 1){
 
@@ -338,6 +338,65 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
   <?php
   }
   ?>
+
+  <?php
+
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
+
+  if(mysqli_num_rows($sql) > 1){
+
+  ?>
+
+
+    <div class="card d-print-none card-light">
+      <div class="card-header">
+        <strong><i class="fa fa-fw fa-clock"></i> Current Invoices</strong>
+      </div>
+      <div card="card-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="text-center">Invoice #</th>
+              <th>Date</th>
+              <th>Due</th>
+              <th class="text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+      
+            while($row = mysqli_fetch_array($sql)){
+              $invoice_id = $row['invoice_id'];
+              $invoice_number = $row['invoice_number'];
+              $invoice_date = $row['invoice_date'];
+              $invoice_due = $row['invoice_due'];
+              $invoice_amount = $row['invoice_amount'];
+              $invoice_url_key = $row['invoice_url_key'];
+              $invoice_tally_total = $invoice_amount + $invoice_tally_total;
+              $difference = strtotime($invoice_due) - time();
+              $days = floor($difference / (60*60*24) );
+
+            ?>
+
+              <tr>
+                <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo $invoice_number; ?></a></th>
+                <td><?php echo $invoice_date; ?></td>
+                <td><?php echo $invoice_due; ?> (Due in <?php echo $days; ?> Days)</td>
+                <td class="text-right text-monospace">$<?php echo $invoice_amount; ?></td>
+              </tr>
+
+            <?php 
+            } 
+            ?>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <?php
+  }
+  ?>
+
 
   <?php
 

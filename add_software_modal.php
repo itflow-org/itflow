@@ -16,6 +16,9 @@
               <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" data-toggle="pill" href="#pills-login">Login</a>
             </li>
           </ul>
@@ -63,6 +66,12 @@
 
             </div>
 
+            <div class="tab-pane fade" id="pills-notes">
+              
+              <textarea class="form-control" rows="8" name="notes"></textarea>
+
+            </div>
+            
             <div class="tab-pane fade" id="pills-login">
 
               <div class="form-group">

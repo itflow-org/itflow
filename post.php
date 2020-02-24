@@ -3471,8 +3471,9 @@ if(isset($_POST['add_software'])){
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
     $license = strip_tags(mysqli_real_escape_string($mysqli,$_POST['license']));
+    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
 
-    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_type = '$type', software_license = '$license', software_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_type = '$type', software_license = '$license', software_notes = '$notes', software_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     if(!empty($_POST['username'])) {
         $software_id = mysqli_insert_id($mysqli);
@@ -3499,10 +3500,11 @@ if(isset($_POST['edit_software'])){
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
     $license = strip_tags(mysqli_real_escape_string($mysqli,$_POST['license']));
+    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
     $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
     $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
 
-    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_type = '$type', software_license = '$license', software_updated_at = NOW() WHERE software_id = $software_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_type = '$type', software_license = '$license', software_notes = '$notes', software_updated_at = NOW() WHERE software_id = $software_id AND company_id = $session_company_id");
 
     //If login exists then update the login
     if($login_id > 0){

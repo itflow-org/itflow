@@ -435,6 +435,7 @@ if(isset($_GET['invoice_id'])){
 <?php include("add_payment_modal.php"); ?>
 <?php include("add_invoice_copy_modal.php"); ?>
 <?php include("add_invoice_recurring_modal.php"); ?>
+<?php include("edit_invoice_modal.php"); ?>
 <?php include("invoice_note_modal.php"); ?>
 <?php  
   } 

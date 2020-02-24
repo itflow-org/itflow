@@ -86,6 +86,7 @@ $total_pages = ceil($total_found_rows / 10);
             $software_name = $row['software_name'];
             $software_type = $row['software_type'];
             $software_license = $row['software_license'];
+            $software_notes = $row['software_notes'];
 
             $sql_login = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE software_id = $software_id");
             $row = mysqli_fetch_array($sql_login);

@@ -685,6 +685,7 @@ CREATE TABLE `software` (
   `software_name` varchar(200) NOT NULL,
   `software_type` varchar(200) NOT NULL,
   `software_license` varchar(200) DEFAULT NULL,
+  `software_notes` text DEFAULT NULL,
   `software_created_at` datetime NOT NULL,
   `software_updated_at` datetime DEFAULT NULL,
   `login_id` int(11) DEFAULT NULL,
@@ -838,6 +839,7 @@ CREATE TABLE `vendors` (
   `vendor_website` varchar(200) DEFAULT NULL,
   `vendor_account_number` varchar(200) DEFAULT NULL,
   `vendor_notes` text DEFAULT NULL,
+  `vendor_global` tinyint(1) DEFAULT NULL,
   `vendor_created_at` datetime NOT NULL,
   `vendor_updated_at` datetime DEFAULT NULL,
   `client_id` int(11) NOT NULL,
@@ -855,4 +857,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-02-03 13:54:11
+-- Dump completed on 2020-02-24 16:59:52
