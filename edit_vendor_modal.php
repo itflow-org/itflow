@@ -4,7 +4,7 @@
       <div class="modal-header text-white">
         <h5 class="modal-title"><i class="fa fa-fw fa-building mr-2"></i><?php echo $vendor_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
@@ -13,16 +13,16 @@
 
           <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $vendor_id; ?>">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-details-tab<?php echo $vendor_id; ?>" data-toggle="pill" href="#pills-details<?php echo $vendor_id; ?>">Details</a>
+              <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $vendor_id; ?>">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-address-tab<?php echo $vendor_id; ?>" data-toggle="pill" href="#pills-address<?php echo $vendor_id; ?>">Address</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-address<?php echo $vendor_id; ?>">Address</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-contact-tab<?php echo $vendor_id; ?>" data-toggle="pill" href="#pills-contact<?php echo $vendor_id; ?>">Contact</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-contact<?php echo $vendor_id; ?>">Contact</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-notes-tab<?php echo $vendor_id; ?>" data-toggle="pill" href="#pills-notes<?php echo $vendor_id; ?>">Notes</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $vendor_id; ?>">Notes</a>
             </li>
           </ul>
 
@@ -176,6 +176,7 @@
           
         </div>
         <div class="modal-footer bg-white">
+          <a href="post.php?delete_vendor=<?php echo $vendor_id; ?>" class="btn btn-danger mr-auto"><i class="fa fa-trash text-white"></i></a>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="edit_vendor" class="btn btn-primary">Save</button>
         </div>

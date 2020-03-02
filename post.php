@@ -1595,8 +1595,6 @@ if(isset($_POST['quote_note'])){
 
 }
 
-header("Location: " . $_SERVER["HTTP_REFERER"]);
-
 if(isset($_POST['edit_quote_item'])){
 
     $quote_id = intval($_POST['quote_id']);

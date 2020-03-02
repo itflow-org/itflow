@@ -108,7 +108,7 @@
           </div>
         
         </div>
-        <div class="modal-footer bg-white">
+        <div class="modal-footer bg-light">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="add_contact" class="btn btn-primary">Save</button>
         </div>

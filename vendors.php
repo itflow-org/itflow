@@ -103,6 +103,10 @@
             $vendor_notes = $row['vendor_notes']
             
           ?>
+
+       
+          <?php include("edit_vendor_modal.php"); ?>
+
           <tr>
             <td>
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?><a>
@@ -152,18 +156,18 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_vendor=<?php echo $vendor_id; ?>">Delete</a>
                 </div>
-              </div>
-              <?php include("edit_vendor_modal.php"); ?>      
+              </div>      
             </td>
           </tr>
 
           <?php
-          
+  
           }
           
           ?>
 
         </tbody>
+
       </table>
 
       <?php include("pagination.php"); ?>

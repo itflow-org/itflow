@@ -4,7 +4,7 @@
       <div class="modal-header text-white">
         <h5 class="modal-title"><i class="fa fa-fw fa-file mr-2"></i>New Invoice</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">

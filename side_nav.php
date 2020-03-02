@@ -90,6 +90,12 @@
           </a>
         </li>
         <li class="nav-item">
+          <a href="assets.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "assets.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-laptop"></i>
+            <p>Assets</p>
+          </a>
+        </li>
+        <li class="nav-item">
           <a href="trips.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-bicycle"></i>
             <p>Trips</p>

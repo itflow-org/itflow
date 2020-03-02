@@ -57,23 +57,22 @@ $total_pages = ceil($total_found_rows / 10);
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
       <input type="hidden" name="tab" value="<?php echo $_GET['tab']; ?>">
-      <div class="input-group">
+      <div class="input-group mb-3">
         <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php echo ucwords($_GET['tab']); ?>">
         <div class="input-group-append">
           <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
         </div>
       </div>
     </form>
-    <hr>
+    
     <div class="table-responsive">
-      <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+      <table class="table border">
+        <thead class="thead-light <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th class="text-center"><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_title&o=<?php echo $disp; ?>">Title</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_email&o=<?php echo $disp; ?>">Email</a></th>
             <th>Phone</th>
-            <th class="text-center">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -139,23 +138,12 @@ $total_pages = ceil($total_found_rows / 10);
               ?>
             </td>
             
-            
-            <td>
-              <div class="dropdown dropleft text-center">
-                <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="fas fa-ellipsis-h"></i>
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="post.php?delete_contact=<?php echo $contact_id; ?>">Delete</a>
-                </div>
-              </div>
-              <?php include("edit_contact_modal.php"); ?>      
-            </td>
           </tr>
 
           <?php
           
+          include("edit_contact_modal.php");
+
           }
           
           ?>

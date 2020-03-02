@@ -22,15 +22,15 @@ if(isset($_GET['client_id'])){
   $client_net_terms = $row['client_net_terms'];
 
   //Query each table and store them in their array
-  $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_id DESC");
+  $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_name ASC");
   $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE client_id = $client_id ORDER BY location_id DESC");
-  $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE client_id = $client_id ORDER BY asset_id DESC");
-  $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id ORDER BY vendor_id DESC");
-  $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE client_id = $client_id ORDER BY login_id DESC");
-  $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE client_id = $client_id ORDER BY network_id DESC");
-  $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE client_id = $client_id ORDER BY domain_id DESC");
-  $sql_applications = mysqli_query($mysqli,"SELECT * FROM applications WHERE client_id = $client_id ORDER BY application_id DESC");
-  $sql_invoices = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id ORDER BY invoice_id DESC");
+  $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE client_id = $client_id ORDER BY asset_type ASC");
+  $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id ORDER BY vendor_name ASC");
+  $sql_logins = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE client_id = $client_id ORDER BY login_name ASC");
+  $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE client_id = $client_id ORDER BY network_name ASC");
+  $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE client_id = $client_id ORDER BY domain_name ASC");
+  $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE client_id = $client_id ORDER BY software_name ASC");
+  $sql_invoices = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id ORDER BY invoice_number DESC");
 
   $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, invoices, accounts
     WHERE invoices.client_id = $client_id
@@ -38,14 +38,14 @@ if(isset($_GET['client_id'])){
     AND payments.account_id = accounts.account_id
     ORDER BY payments.payment_id DESC"); 
   
-  $sql_quotes = mysqli_query($mysqli,"SELECT * FROM quotes WHERE client_id = $client_id ORDER BY quote_id DESC");
+  $sql_quotes = mysqli_query($mysqli,"SELECT * FROM quotes WHERE client_id = $client_id ORDER BY quote_number DESC");
 
   $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring_invoices, invoices
     WHERE invoices.invoice_id = recurring_invoices.invoice_id
     AND invoices.client_id = $client_id
     ORDER BY recurring_invoices.recurring_invoice_id DESC");
 
-  $sql_notes = mysqli_query($mysqli,"SELECT * FROM notes WHERE client_id = $client_id ORDER BY note_id DESC");
+  $sql_notes = mysqli_query($mysqli,"SELECT * FROM notes WHERE client_id = $client_id ORDER BY note_created_at DESC");
 
   //Get Counts
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('contact_id') AS num FROM contacts WHERE client_id = $client_id"));
@@ -62,8 +62,8 @@ if(isset($_GET['client_id'])){
   $num_networks = $row['num'];
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('domain_id') AS num FROM domains WHERE client_id = $client_id"));
   $num_domains = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('application_id') AS num FROM applications WHERE client_id = $client_id"));
-  $num_applications = $row['num'];
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('software_id') AS num FROM software WHERE client_id = $client_id"));
+  $num_software = $row['num'];
   
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE client_id = $client_id"));
   $num_invoices = $row['num'];
@@ -132,20 +132,20 @@ if(isset($_GET['client_id'])){
       </div>
       <div class="card-body">
         <ul class="list-unstyled">
-          <?php if($num_contacts > 0){ ?> <li>Contacts</li> <?php } ?>
-          <?php if($num_locations > 0){ ?> <li>Locations</li> <?php } ?>
-          <?php if($num_assets > 0){ ?> <li>Assets</li> <?php } ?>
-          <?php if($num_vendors > 0){ ?> <li>Vendors</li> <?php } ?>
-          <?php if($num_logins > 0){ ?> <li>Logins</li> <?php } ?>
-          <?php if($num_networks > 0){ ?> <li>Networks</li> <?php } ?> 
-          <?php if($num_domains > 0){ ?> <li>Domains</li> <?php } ?>
-          <?php if($num_applications > 0){ ?> <li>Applications</li> <?php } ?>
-          <?php if($num_invoices > 0){ ?> <li>Invoices</li> <?php } ?>
-          <?php if($num_payments > 0){ ?> <li>Payments</li> <?php } ?>
-          <?php if($num_quotes > 0){ ?> <li>Quotes</li> <?php } ?>
-          <?php if($num_recurring > 0){ ?> <li>Recurring</li> <?php } ?>
-          <?php if($num_attachments > 0){ ?> <li>Attachments</li> <?php } ?>
-          <?php if($num_notes > 0){ ?> <li>Notes</li> <?php } ?>
+          <?php if($num_contacts > 0){ ?> <li><a href="#contacts">Contacts</a></li> <?php } ?>
+          <?php if($num_locations > 0){ ?> <li><a href="#locations">Locations</a></li> <?php } ?>
+          <?php if($num_assets > 0){ ?> <li><a href="#assets">Assets</a></li> <?php } ?>
+          <?php if($num_vendors > 0){ ?> <li><a href="#vendors">Vendors</a></li> <?php } ?>
+          <?php if($num_logins > 0){ ?> <li><a href="#logins">Logins</a></li> <?php } ?>
+          <?php if($num_networks > 0){ ?> <li><a href="#networks">Networks</a></li> <?php } ?> 
+          <?php if($num_domains > 0){ ?> <li><a href="#domains">Domains</a></li> <?php } ?>
+          <?php if($num_software > 0){ ?> <li><a href="#software">Software</a></li> <?php } ?>
+          <?php if($num_invoices > 0){ ?> <li><a href="#invoices">Invoices</a></li> <?php } ?>
+          <?php if($num_payments > 0){ ?> <li><a href="#payments">Payments</a></li> <?php } ?>
+          <?php if($num_quotes > 0){ ?> <li><a href="#quotes">Quotes</a></li> <?php } ?>
+          <?php if($num_recurring > 0){ ?> <li><a href="#recurring">Recurring</a></li> <?php } ?>
+          <?php if($num_attachments > 0){ ?> <li><a href="#attachments">Attachments</a></li> <?php } ?>
+          <?php if($num_notes > 0){ ?> <li><a href="#notes">Notes</a></li> <?php } ?>
         </ul>
       </div>
     </div>
@@ -154,13 +154,14 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_contacts > 0){ ?>
-<h4>Contacts</h4>
+<h4 id="contacts">Contacts</h4>
 <table class="table table-bordered table-compact table-sm mb-4">
   <thead>
     <tr>
       <th>Name</th>
       <th>Title</th>
       <th>Phone</th>
+      <th>Ext</th>
       <th>Mobile</th>
       <th>Email</th>
     </tr>
@@ -176,6 +177,7 @@ if(isset($_GET['client_id'])){
       if(strlen($contact_phone)>2){ 
         $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
       }
+      $contact_extension = $row['contact_extension'];
       $contact_mobile = $row['contact_mobile'];
       if(strlen($contact_mobile)>2){ 
         $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
@@ -187,6 +189,7 @@ if(isset($_GET['client_id'])){
       <td><?php echo $contact_name; ?></td>
       <td><?php echo $contact_title; ?></td>
       <td><?php echo $contact_phone; ?></td>
+      <td><?php echo $contact_extension; ?></td>
       <td><?php echo $contact_mobile; ?></td>
       <td><?php echo $contact_email; ?></td>
     </tr>
@@ -201,7 +204,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_locations > 0){ ?>
-<h4>Locations</h4>
+<h4 id="locations">Locations</h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -244,7 +247,7 @@ if(isset($_GET['client_id'])){
  
 
 <?php if($num_assets > 0){ ?>
-<h4>Assets</h4>
+<h4 id="assets">Assets</h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -253,6 +256,11 @@ if(isset($_GET['client_id'])){
       <th>Make</th>
       <th>Model</th>
       <th>Serial</th>
+      <th>OS</th>
+      <th>IP</th>
+      <th>MAC</th>
+      <th>Purchase Date</th>
+      <th>Warranty Expire</th>
     </tr>
   </thead>
   <tbody>
@@ -265,6 +273,11 @@ if(isset($_GET['client_id'])){
       $asset_make = $row['asset_make'];
       $asset_model = $row['asset_model'];
       $asset_serial = $row['asset_serial'];
+      $asset_os = $row['asset_os'];
+      $asset_ip = $row['asset_ip'];
+      $asset_mac = $row['asset_mac'];
+      $asset_purchase = $row['asset_purchase'];
+      $asset_warranty = $row['asset_warranty'];
 
     ?>
     <tr>
@@ -273,6 +286,11 @@ if(isset($_GET['client_id'])){
       <td><?php echo $asset_make; ?></td>
       <td><?php echo $asset_model; ?></td>
       <td><?php echo $asset_serial; ?></td>
+      <td><?php echo $asset_os; ?></td>
+      <td><?php echo $asset_ip; ?></td>
+      <td><?php echo $asset_mac; ?></td>
+      <td><?php echo $asset_purchase; ?></td>
+      <td><?php echo $asset_warranty; ?></td>
     </tr>
 
     <?php
@@ -285,7 +303,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_vendors > 0){ ?>
-<h4>Vendors</h4>
+<h4 id="vendors">Vendors</h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -294,6 +312,7 @@ if(isset($_GET['client_id'])){
       <th>Contact Name</th>
       <th>Phone</th>
       <th>Email</th>
+      <th>Website</th>
       <th>Account Number</th>
     </tr>
   </thead>
@@ -311,6 +330,7 @@ if(isset($_GET['client_id'])){
         $vendor_phone = substr($row['vendor_phone'],0,3)."-".substr($row['vendor_phone'],3,3)."-".substr($row['vendor_phone'],6,4);
       }
       $vendor_email = $row['vendor_email'];
+      $vendor_website = $row['vendor_website'];
 
     ?>
     <tr>
@@ -319,6 +339,7 @@ if(isset($_GET['client_id'])){
       <td><?php echo $vendor_contact_name; ?></td>
       <td><?php echo $vendor_phone; ?></td>
       <td><?php echo $vendor_email; ?></td>
+      <td><?php echo $vendor_website; ?></td>
       <td><?php echo $vendor_account_number; ?></td>
     </tr>
 
@@ -332,13 +353,15 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_logins > 0){ ?>
-<h4>Logins</h4>
+<h4 id="logins">Logins</h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
-      <th>Description</th>
+      <th>Category</th>
+      <th>Name</th>
       <th>Username</th>
       <th>Password</th>
+      <th>URL</th>
     </tr>
   </thead>
   <tbody>
@@ -346,15 +369,19 @@ if(isset($_GET['client_id'])){
 
     while($row = mysqli_fetch_array($sql_logins)){
       $login_id = $row['login_id'];
-      $login_description = $row['login_description'];
+      $login_name = $row['login_name'];
+      $login_category = $row['login_category'];
       $login_username = $row['login_username'];
       $login_password = $row['login_password'];
+      $login_uri = $row['login_uri'];
 
     ?>
     <tr>
-      <td><?php echo $login_description; ?></td>
+      <td><?php echo $login_category; ?></td>
+      <td><?php echo $login_name; ?></td>
       <td><?php echo $login_username; ?></td>
       <td><?php echo $login_password; ?></td>
+      <td><?php echo $login_uri; ?></td>
     </tr>
 
     <?php
@@ -367,11 +394,12 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_networks > 0){ ?>
-<h4>Networks</h4>
+<h4 id="networks">Networks</h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
       <th>Name</th>
+      <th>vLAN</th>
       <th>Network</th>
       <th>Gateway</th>
       <th>DHCP Range</th>
@@ -383,6 +411,7 @@ if(isset($_GET['client_id'])){
     while($row = mysqli_fetch_array($sql_networks)){
       $network_id = $row['network_id'];
       $network_name = $row['network_name'];
+      $network_vlan = $row['network_vlan'];
       $network = $row['network'];
       $network_gateway = $row['network_gateway'];
       $network_dhcp_range = $row['network_dhcp_range'];
@@ -391,6 +420,7 @@ if(isset($_GET['client_id'])){
     ?>
     <tr>
       <td><?php echo $network_name; ?></td>
+      <td><?php echo $network_vlan; ?></td>
       <td><?php echo $network; ?></td>
       <td><?php echo $network_gateway; ?></td>
       <td><?php echo $network_dhcp_range; ?></td>
@@ -406,7 +436,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_domains > 0){ ?>
-<h4>Domains</h4>
+<h4 id="domains">Domains</h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -454,12 +484,12 @@ if(isset($_GET['client_id'])){
 <?php } ?>
 
 
-<?php if($num_applications > 0){ ?>
-<h4>Applications</h4>
+<?php if($num_software > 0){ ?>
+<h4 id="software">Software</h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
-      <th>Application</th>
+      <th>Software</th>
       <th>Type</th>
       <th>License</th>
     </tr>
@@ -467,17 +497,17 @@ if(isset($_GET['client_id'])){
   <tbody>
     <?php
 
-    while($row = mysqli_fetch_array($sql_applications)){
-      $application_id = $row['application_id'];
-      $application_name = $row['application_name'];
-      $application_type = $row['application_type'];
-      $application_license = $row['application_license'];
+    while($row = mysqli_fetch_array($sql_software)){
+      $software_id = $row['software_id'];
+      $software_name = $row['software_name'];
+      $software_type = $row['software_type'];
+      $software_license = $row['software_license'];
 
     ?>
     <tr>
-      <td><?php echo $application_name; ?></td>
-      <td><?php echo $application_type; ?></td>
-      <td><?php echo $application_license; ?></td>
+      <td><?php echo $software_name; ?></td>
+      <td><?php echo $software_type; ?></td>
+      <td><?php echo $software_license; ?></td>
     </tr>
 
     <?php
@@ -490,7 +520,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_invoices > 0){ ?>
-<h4>Invoices</h4>
+<h4 id="invoices">Invoices</h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -534,7 +564,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_payments > 0){ ?>
-<h4>Payments</h4>
+<h4 id="payments">Payments</h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -589,7 +619,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_quotes > 0){ ?>
-<h4>Quotes</h4>
+<h4 id="quotes">Quotes</h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -612,7 +642,7 @@ if(isset($_GET['client_id'])){
     ?>
 
     <tr>
-      <td>QUO-<?php echo $quote_number; ?></td>
+      <td><?php echo $quote_number; ?></td>
       <td class="text-right text-monospace">$<?php echo number_format($quote_amount,2); ?></td>
       <td><?php echo $quote_date; ?></td>
       <td><?php echo $quote_status; ?></td>
@@ -630,7 +660,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_recurring > 0){ ?>
-<h4>Recurring Invoices</h4>
+<h4 id="recurring">Recurring Invoices</h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -683,7 +713,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_notes > 0){ ?>
-<h4>Notes</h4>
+<h4 id="notes">Notes</h4>
 <hr>
 
 <?php

@@ -99,10 +99,9 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   </select>
 </form>
 
-
 <!-- Icon Cards-->
 <div class="row">
-  <div class="col-lg-3 col-6">
+  <div class="col-lg-3 col-md-6 col-sm-12">
     <!-- small box -->
     <a class="small-box bg-primary" href="payments.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
@@ -118,7 +117,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   </div>
   <!-- ./col -->
 
-  <div class="col-lg-3 col-6">
+  <div class="col-lg-3 col-md-6 col-sm-12">
     <!-- small box -->
     <a class="small-box bg-danger" href="expenses.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
@@ -132,7 +131,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   </div>
   <!-- ./col -->
 
-  <div class="col-lg-3 col-6">
+  <div class="col-lg-3 col-md-6 col-sm-12">
     <!-- small box -->
     <div class="small-box bg-success">
       <div class="inner">
@@ -146,7 +145,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   </div>
   <!-- ./col -->
 
-  <div class="col-lg-3 col-6">
+  <div class="col-lg-3 col-md-6 col-sm-12">
     <!-- small box -->
     <a class="small-box bg-info" href="trips.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
