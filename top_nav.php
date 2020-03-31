@@ -47,7 +47,20 @@
             <small><?php echo $session_company_name; ?></small>
           </p>
         </li>
-        
+        <div class="form-group">
+          <label>Country</label>
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+            </div>
+            <select class="form-control" name="country">
+              <option value="">- Country -</option>
+              <?php foreach($countries_array as $country_name) { ?>
+              <option><?php echo $country_name; ?></option>
+              <?php } ?>
+            </select>
+          </div>
+        </div>
         <!-- Menu Footer-->
         <li class="user-footer">
           <a href="settings-user.php" class="btn btn-default btn-flat">Profile</a>

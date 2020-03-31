@@ -101,10 +101,13 @@ if(isset($_POST['login'])){
     <!-- Theme style -->
     <link rel="stylesheet" href="dist/css/adminlte.min.css">
     <!-- Google Font: Source Sans Pro -->
-    <!-- <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet"> -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
   </head>
   <body class="hold-transition login-page">
   <div class="login-box">
+    <div class="login-logo">
+      <b>IT</b>Flow
+    </div>
     
     <!-- /.login-logo -->
     <div class="card">
@@ -112,10 +115,10 @@ if(isset($_POST['login'])){
         <p class="login-box-msg"><?php if(isset($response)) { echo $response; } ?></p>
         <form method="post">
           <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Username" name="username" value="<?php if(!empty($token_field)){ echo $username; }?>" required <?php if(empty($token_field)){ echo "autofocus"; } ?> >
+            <input type="text" class="form-control" placeholder="Email" name="username" value="<?php if(!empty($token_field)){ echo $username; }?>" required <?php if(empty($token_field)){ echo "autofocus"; } ?> >
             <div class="input-group-append">
               <div class="input-group-text">
-                <span class="fas fa-user"></span>
+                <span class="fas fa-envelope"></span>
               </div>
             </div>
           </div>
@@ -129,7 +132,7 @@ if(isset($_POST['login'])){
           </div>
           <?php echo $token_field; ?>
           
-          <button type="submit" class="btn btn-dark btn-block mb-3" name="login">Sign In</button>
+          <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
         
         </form>
 
