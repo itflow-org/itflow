@@ -1,8 +1,8 @@
--- MariaDB dump 10.17  Distrib 10.4.11-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.17  Distrib 10.4.12-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: admin_crm
 -- ------------------------------------------------------
--- Server version	10.4.11-MariaDB-1:10.4.11+maria~bionic
+-- Server version	10.4.12-MariaDB-1:10.4.12+maria~bionic
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -134,6 +134,7 @@ CREATE TABLE `clients` (
   `client_id` int(11) NOT NULL AUTO_INCREMENT,
   `client_name` varchar(200) NOT NULL,
   `client_type` varchar(200) DEFAULT NULL,
+  `client_country` varchar(200) DEFAULT NULL,
   `client_address` varchar(200) DEFAULT NULL,
   `client_city` varchar(200) DEFAULT NULL,
   `client_state` varchar(200) DEFAULT NULL,
@@ -370,6 +371,7 @@ DROP TABLE IF EXISTS `locations`;
 CREATE TABLE `locations` (
   `location_id` int(11) NOT NULL AUTO_INCREMENT,
   `location_name` varchar(200) NOT NULL,
+  `location_country` varchar(200) DEFAULT NULL,
   `location_address` varchar(200) DEFAULT NULL,
   `location_city` varchar(200) DEFAULT NULL,
   `location_state` varchar(200) DEFAULT NULL,
@@ -635,6 +637,7 @@ CREATE TABLE `settings` (
   `config_default_calendar` int(11) DEFAULT NULL,
   `config_default_net_terms` int(11) DEFAULT NULL,
   `config_company_name` varchar(200) DEFAULT NULL,
+  `config_company_country` varchar(200) DEFAULT NULL,
   `config_company_address` varchar(200) DEFAULT NULL,
   `config_company_city` varchar(200) DEFAULT NULL,
   `config_company_state` varchar(200) DEFAULT NULL,
@@ -828,6 +831,7 @@ CREATE TABLE `vendors` (
   `vendor_id` int(11) NOT NULL AUTO_INCREMENT,
   `vendor_name` varchar(200) NOT NULL,
   `vendor_description` varchar(200) DEFAULT NULL,
+  `vendor_country` varchar(200) DEFAULT NULL,
   `vendor_address` varchar(200) DEFAULT NULL,
   `vendor_city` varchar(200) DEFAULT NULL,
   `vendor_state` varchar(200) DEFAULT NULL,
@@ -857,4 +861,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-02-24 16:59:52
+-- Dump completed on 2020-03-30 20:01:15

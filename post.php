@@ -88,6 +88,7 @@ if(isset($_POST['edit_user'])){
 if(isset($_POST['add_company'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
     $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
     $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
     $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
@@ -107,7 +108,7 @@ if(isset($_POST['add_company'])){
     mkdir("uploads/settings/$company_id");
     mkdir("uploads/tmp/$company_id");
  
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_company_address = '$address', config_company_city = '$city', config_company_state = '$state', config_company_zip = '$zip', config_company_phone = '$phone', config_company_site = '$site', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1");
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_company_country = '$country', config_company_address = '$address', config_company_city = '$city', config_company_state = '$state', config_company_zip = '$zip', config_company_phone = '$phone', config_company_site = '$site', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Created', log_description = '$name', log_created_at = NOW()");
@@ -121,6 +122,7 @@ if(isset($_POST['add_company'])){
 if(isset($_POST['edit_company'])){
     $company_id = intval($_POST['company_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
     $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
     $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
@@ -131,7 +133,7 @@ if(isset($_POST['edit_company'])){
 
     mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_updated_at = NOW() WHERE company_id = $company_id");
 
-     mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$name', config_company_address = '$address', config_company_city = '$city', config_company_state = '$state', config_company_zip = '$zip', config_company_phone = '$phone', config_company_site = '$site' WHERE company_id = $company_id");
+     mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$name', config_company_country = '$country', config_company_address = '$address', config_company_city = '$city', config_company_state = '$state', config_company_zip = '$zip', config_company_phone = '$phone', config_company_site = '$site' WHERE company_id = $company_id");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
@@ -220,6 +222,7 @@ if(isset($_POST['edit_general_settings'])){
 if(isset($_POST['edit_company_settings'])){
 
     $config_company_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_name']));
+    $config_company_country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_country']));
     $config_company_address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_address']));
     $config_company_city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_city']));
     $config_company_state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_state']));
@@ -228,7 +231,7 @@ if(isset($_POST['edit_company_settings'])){
     $config_company_phone = preg_replace("/[^0-9]/", '',$config_company_phone);
     $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_country = '$config_company_country', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site' WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Company', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -473,6 +476,7 @@ if(isset($_POST['add_client'])){
 
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
+    $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
     $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
     $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
@@ -490,7 +494,7 @@ if(isset($_POST['add_client'])){
     $company_size = strip_tags(mysqli_real_escape_string($mysqli,$_POST['company_size']));
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
 
-    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_company_size = '$company_size', client_notes = '$notes', client_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_country = '$country', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_company_size = '$company_size', client_notes = '$notes', client_created_at = NOW(), company_id = $session_company_id");
 
     $client_id = mysqli_insert_id($mysqli);
 
@@ -526,6 +530,7 @@ if(isset($_POST['edit_client'])){
     $client_id = intval($_POST['client_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
+    $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
     $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
     $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
@@ -543,7 +548,7 @@ if(isset($_POST['edit_client'])){
     $company_size = strip_tags(mysqli_real_escape_string($mysqli,$_POST['company_size']));
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
 
-    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_company_size = '$company_size', client_notes = '$notes', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_country = '$country', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_company_size = '$company_size', client_notes = '$notes', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, user_id = $session_user_id");
@@ -815,6 +820,7 @@ if(isset($_POST['add_vendor'])){
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $account_number = strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number']));
+    $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
     $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
     $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
@@ -827,7 +833,7 @@ if(isset($_POST['add_vendor'])){
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
     
-    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_country = '$country', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $vendor_id = mysqli_insert_id($mysqli);
 
@@ -846,6 +852,7 @@ if(isset($_POST['edit_vendor'])){
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $account_number = strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number']));
+    $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
     $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
     $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
@@ -858,7 +865,7 @@ if(isset($_POST['edit_vendor'])){
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
 
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_updated_at = NOW() WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_country = '$country', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_updated_at = NOW() WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -2986,6 +2993,7 @@ if(isset($_POST['add_location'])){
 
     $client_id = intval($_POST['client_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
     $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
     $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
@@ -3007,7 +3015,7 @@ if(isset($_POST['add_location'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
     }
 
-    mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_photo = '$path', location_notes = '$notes', contact_id = $contact, location_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_photo = '$path', location_notes = '$notes', contact_id = $contact, location_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -3022,6 +3030,7 @@ if(isset($_POST['edit_location'])){
 
     $location_id = intval($_POST['location_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
     $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
     $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
@@ -3045,7 +3054,7 @@ if(isset($_POST['edit_location'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
     }
 
-    mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_photo = '$path', location_notes = '$notes', contact_id = $contact, location_updated_at = NOW() WHERE location_id = $location_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_photo = '$path', location_notes = '$notes', contact_id = $contact, location_updated_at = NOW() WHERE location_id = $location_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");

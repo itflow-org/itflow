@@ -152,6 +152,7 @@ $total_pages = ceil($total_found_rows / 10);
       </table>
 
       <?php include("pagination.php"); ?>
+      <?php include("delete_confirm_modal.php"); ?>
 
     </div>
   </div>

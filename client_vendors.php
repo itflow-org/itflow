@@ -86,6 +86,7 @@ $total_pages = ceil($total_found_rows / 10);
             $vendor_name = $row['vendor_name'];
             $vendor_description = $row['vendor_description'];
             $vendor_account_number = $row['vendor_account_number'];
+            $vendor_country = $row['vendor_country'];
             $vendor_address = $row['vendor_address'];
             $vendor_city = $row['vendor_city'];
             $vendor_state = $row['vendor_state'];

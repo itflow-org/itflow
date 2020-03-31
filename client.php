@@ -16,6 +16,7 @@ if(isset($_GET['client_id'])){
   $row = mysqli_fetch_array($sql);
   $client_name = $row['client_name'];
   $client_type = $row['client_type'];
+  $client_country = $row['client_country'];
   $client_address = $row['client_address'];
   $client_city = $row['client_city'];
   $client_state = $row['client_state'];

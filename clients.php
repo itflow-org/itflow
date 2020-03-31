@@ -116,6 +116,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
             $client_type = $row['client_type'];
+            $client_country = $row['client_country'];
             $client_address = $row['client_address'];
             $client_city = $row['client_city'];
             $client_state = $row['client_state'];

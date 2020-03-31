@@ -67,6 +67,21 @@
             <div class="tab-pane fade" id="pills-address<?php echo $vendor_id; ?>" role="tabpanel" aria-labelledby="pills-address-tab<?php echo $vendor_id; ?>">
 
               <div class="form-group">
+                <label>Country</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                  </div>
+                  <select class="form-control select2" name="country">
+                    <option value="">- Country -</option>
+                    <?php foreach($countries_array as $country_name) { ?>
+                    <option <?php if($vendor_country == $country_name) { echo "selected"; } ?>><?php echo $country_name; ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
                 <label>Address</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
@@ -107,7 +122,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="zip" placeholder="Zip code" value="<?php echo $vendor_zip; ?>" data-inputmask="'mask': '99999'">
+                  <input type="text" class="form-control" name="zip" placeholder="Postal Code" value="<?php echo $vendor_zip; ?>">
                 </div>
               </div>
 

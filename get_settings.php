@@ -6,6 +6,7 @@ $sql_settings = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = 
 $row = mysqli_fetch_array($sql_settings);
 
 $config_company_name = $row['config_company_name'];
+$config_company_country = $row['config_company_country'];
 $config_company_address = $row['config_company_address'];
 $config_company_city = $row['config_company_city'];
 $config_company_state = $row['config_company_state'];
@@ -119,7 +120,35 @@ $states_array = array(
     'WA'=>'Washington',
     'WV'=>'West Virginia',
     'WI'=>'Wisconsin',
-    'WY'=>'Wyoming'
+    'WY'=>'Wyoming',
+    'ON'=>'Ontario',
+    'QC'=>'Quebec',
+    'NS'=>'Nova Scotia',
+    'NB'=>'New Brunswick',
+    'MB'=>'Manitoba',
+    'BC'=>'British Columbia',
+    'PE'=>'Prince Edward Island',
+    'SK'=>'Saskatchewan',
+    'AB'=>'Alberta',
+    'NL'=>'Newfoundland and Labrador'
+);
+
+$canada_provinces_array = array(
+    'ON'=>'Ontario',
+    'QC'=>'Quebec',
+    'NS'=>'Nova Scotia',
+    'NB'=>'New Brunswick',
+    'MB'=>'Manitoba',
+    'BC'=>'British Columbia',
+    'PE'=>'Prince Edward Island',
+    'SK'=>'Saskatchewan',
+    'AB'=>'Alberta',
+    'NL'=>'Newfoundland and Labrador'
+);
+
+$countries_array = array(
+    'USA',
+    'Canada'
 );
 
 $timezones_array = array(

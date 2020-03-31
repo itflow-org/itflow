@@ -84,6 +84,7 @@ $total_pages = ceil($total_found_rows / 10);
           while($row = mysqli_fetch_array($sql)){
             $location_id = $row['location_id'];
             $location_name = $row['location_name'];
+            $location_country = $row['location_country'];
             $location_address = $row['location_address'];
             $location_city = $row['location_city'];
             $location_state = $row['location_state'];
