@@ -81,8 +81,28 @@ if(isset($_POST['edit_user'])){
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> updated";
     
-    header("Location: users.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if(isset($_GET['delete_user'])){
+    $user_id = intval($_GET['delete_user']);
+
+    mysqli_query($mysqli,"DELETE FROM users WHERE user_id = $user_id");
+    mysqli_query($mysqli,"DELETE FROM user_companies WHERE user_id = $user_id");
+    mysqli_query($mysqli,"DELETE FROM logs WHERE user_id = $user_id");
+    mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_created_by = $user_id");
+    mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_closed_by = $user_id");
+    mysqli_query($mysqli,"DELETE FROM ticket_update WHERE user_id = $user_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Deleted', log_description = '$user_id', log_created_at = NOW()");
+
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "User deleted!";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
 }
 
 if(isset($_POST['add_company'])){

@@ -1,6 +1,7 @@
 <?php include("header.php"); ?>
 
 <?php
+
 $sql_recent_logins = mysqli_query($mysqli,"SELECT * FROM logs 
     WHERE log_type = 'Login' AND log_action = 'Success' AND user_id = $session_user_id
     ORDER BY log_id DESC LIMIT 5");
@@ -8,9 +9,13 @@ $sql_recent_logins = mysqli_query($mysqli,"SELECT * FROM logs
 $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs 
     WHERE user_id = $session_user_id AND log_type NOT LIKE 'Login'
     ORDER BY log_id DESC LIMIT 10");
+
+$sql_user = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $session_user_id");
+  
+$row = mysqli_fetch_array($sql_user);
+$password = $row['password'];
+
 ?>
-
-
 
 <div class="row">
   <div class="col-md-4">
@@ -21,7 +26,10 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
       <div class="card-body">
 
         <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-          <input type="hidden" name="current_avatar_path" value="<?php echo $session_avatar; ?>"> 
+          <input type="hidden" name="user_id" value="<?php echo $session_user_id; ?>">
+          <input type="hidden" name="current_avatar_path" value="<?php echo $session_avatar; ?>">
+          <input type="hidden" name="current_password_hash" value="<?php echo $password; ?>">
+
           <center class="mb-3 p-4">
             <img src="<?php echo "$session_avatar"; ?>" class="img-circle img-fluid elevation-2">
           </center>
