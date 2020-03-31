@@ -62,7 +62,7 @@ $password = $row['password'];
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
               </div>
-              <input type="password" class="form-control" name="password" placeholder="Enter a password" value="<?php echo $password; ?>">
+              <input type="password" class="form-control" name="password" placeholder="Enter a password" value="<?php echo $password; ?>" autocomplete="new-password">
             </div>
           </div>
           <div class="form-group">

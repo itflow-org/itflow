@@ -10,7 +10,7 @@
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <div class="modal-body bg-white">
 
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
+          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab">
             <li class="nav-item">
               <a class="nav-link active" id="pills-user-tab" data-toggle="pill" href="#pills-user">User</a>
             </li>
@@ -51,7 +51,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                   </div>
-                  <input type="password" class="form-control" name="password" placeholder="Enter a Password" required>
+                  <input type="password" class="form-control" name="password" placeholder="Enter a Password" autocomplete="new-password" required>
                 </div>
               </div>
               <div class="form-group">

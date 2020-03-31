@@ -20,9 +20,13 @@ if(isset($_POST['add_user'])){
     $password = md5($_POST['password']);
     $client_id = intval($_POST['client']);
 
-    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', avatar = '$path', created_at = NOW(), client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', created_at = NOW()");
 
     $user_id = mysqli_insert_id($mysqli);
+
+    if(!file_exists("uploads/users/$user_id/")) {
+        mkdir("uploads/users/$user_id");
+    }
 
     if($_FILES['file']['tmp_name']!='') {
         $path = "uploads/users/$user_id/";
