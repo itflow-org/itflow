@@ -29,7 +29,7 @@
               <select class="form-control select2" name="calendar" required>
                 <?php 
                 
-                $sql_calendars_select = mysqli_query($mysqli,"SELECT * FROM calendars WHERE company_id = $session_company_id"); 
+                $sql_calendars_select = mysqli_query($mysqli,"SELECT * FROM calendars WHERE company_id = $session_company_id ORDER BY calendar_name ASC"); 
                 while($row = mysqli_fetch_array($sql_calendars_select)){
                   $calendar_id_select = $row['calendar_id'];
                   $calendar_name_select = $row['calendar_name'];
@@ -72,7 +72,7 @@
                 <option value="">- Client -</option>
                 <?php 
                 
-                $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id"); 
+                $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC"); 
                 while($row = mysqli_fetch_array($sql_clients)){
                   $client_id_select = $row['client_id'];
                   $client_name_select = $row['client_name'];
@@ -93,7 +93,7 @@
 
         </div>
         <div class="modal-footer bg-white">
-          <a href="post.php?delete_event=<?php echo $event_id; ?>" class="btn btn-danger mr-auto"><i class="fa fa-trash"></i></a>
+          <a href="post.php?delete_event=<?php echo $event_id; ?>" class="btn btn-danger mr-auto"><i class="fa fa-trash text-white"></i></a>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="edit_event" class="btn btn-primary">Save</button>
         </div>
