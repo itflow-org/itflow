@@ -70,7 +70,7 @@
                 <option value="">- Location -</option>
                 <?php 
                 
-                $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE client_id = $client_id"); 
+                $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE client_id = $client_id ORDER BY location_name ASC"); 
                 while($row = mysqli_fetch_array($sql_locations)){
                   $location_id_select = $row['location_id'];
                   $location_name_select = $row['location_name'];

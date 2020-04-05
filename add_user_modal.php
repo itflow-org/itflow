@@ -64,7 +64,7 @@
             <div class="tab-pane fade" id="pills-assign">
 
               <?php
-              $sql = mysqli_query($mysqli,"SELECT * FROM companies");
+              $sql = mysqli_query($mysqli,"SELECT * FROM companies ORDER BY company_name ASC");
 
               while($row = mysqli_fetch_array($sql)){
                 $company_id = $row['company_id'];
@@ -90,7 +90,7 @@
                     <option value="0">No Client Assignment</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM clients"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM clients ORDER BY client_name ASC"); 
                     while($row = mysqli_fetch_array($sql)){
                       $client_id = $row['client_id'];
                       $client_name = $row['client_name'];

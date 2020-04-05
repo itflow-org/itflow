@@ -105,7 +105,7 @@
                     <option value="0">- None -</option>
                     <?php 
                     
-                    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id"); 
+                    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id ORDER BY vendor_name ASC"); 
                     while($row = mysqli_fetch_array($sql_vendors)){
                       $vendor_id_select = $row['vendor_id'];
                       $vendor_name_select = $row['vendor_name'];
@@ -129,7 +129,7 @@
                     <option value="0">- None -</option>
                     <?php 
                     
-                    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE client_id = $client_id"); 
+                    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE client_id = $client_id ORDER BY asset_name ASC"); 
                     while($row = mysqli_fetch_array($sql_assets)){
                       $asset_id_select = $row['asset_id'];
                       $asset_name_select = $row['asset_name'];
@@ -153,7 +153,7 @@
                     <option value="0">- None -</option>
                     <?php 
                     
-                    $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE client_id = $client_id"); 
+                    $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE client_id = $client_id ORDER BY software_name ASC"); 
                     while($row = mysqli_fetch_array($sql_applications)){
                       $software_id_select = $row['software_id'];
                       $software_name_select = $row['software_name'];
