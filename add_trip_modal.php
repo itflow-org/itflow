@@ -85,7 +85,7 @@
                     <option value="">- Client -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC"); 
                     while($row = mysqli_fetch_array($sql)){
                       $client_id = $row['client_id'];
                       $client_name = $row['client_name'];
