@@ -1,5 +1,5 @@
 <div class="modal" id="addTicketModal" tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
         <h5 class="modal-title"><i class="fa fa-fw fa-tag mr-2"></i>New Ticket</h5>
@@ -49,7 +49,7 @@
           
           <div class="form-group">
             <label>Details <strong class="text-danger">*</strong></label>
-            <textarea class="form-control" rows="8" name="details"></textarea>
+            <textarea class="form-control summernote" rows="8" name="details"></textarea>
           </div>
 
         </div>

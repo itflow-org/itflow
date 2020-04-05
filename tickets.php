@@ -20,6 +20,12 @@
     $q = "";
   }
 
+  if(isset($_GET['status'])){
+    $status = mysqli_real_escape_string($mysqli,$_GET['status']);
+  }else{
+    $status = "";
+  }
+
   if(!empty($_GET['sb'])){
     $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
   }else{
@@ -42,7 +48,8 @@
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM tickets, clients
     WHERE tickets.client_id = clients.client_id
     AND tickets.company_id = $session_company_id
-    AND (ticket_id LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%')
+    AND ticket_status LIKE '%$status%'
+    AND (ticket_id LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -70,11 +77,11 @@
       </div>
       <div class="col-md-6">
         <div class="float-right">
-          <a href="?status=New" class="btn btn-secondary">New</a>
-          <a href="?status=In-Progress" class="btn btn-secondary">In-Progress</a>
-          <a href="?status=On-Hold" class="btn btn-secondary">On-Hold</a>
-          <a href="?status=Resolved" class="btn btn-secondary">Resolved</a>
-          <a href="?status=Closed" class="btn btn-secondary">Closed</a>
+          <a href="?status=Open" class="btn <?php if($status == 'Open'){ echo 'btn-primary'; }else{ echo 'btn-secondary'; } ?>">Open</a>
+          <a href="?status=In-Progress" class="btn <?php if($status == 'In-Progress'){ echo 'btn-primary'; }else{ echo 'btn-secondary'; } ?>">In-Progress</a>
+          <a href="?status=On-Hold" class="btn <?php if($status == 'On-Hold'){ echo 'btn-primary'; }else{ echo 'btn-secondary'; } ?>">On-Hold</a>
+          <a href="?status=Resolved" class="btn <?php if($status == 'Resolved'){ echo 'btn-primary'; }else{ echo 'btn-secondary'; } ?>">Resolved</a>
+          <a href="?status=Closed" class="btn <?php if($status == 'Closed'){ echo 'btn-primary'; }else{ echo 'btn-secondary'; } ?>">Closed</a>
         </div>
       </div>
     </div>

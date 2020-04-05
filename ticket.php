@@ -67,27 +67,40 @@ if(isset($_GET['ticket_id'])){
   </li>
   <li class="breadcrumb-item active">Ticket Details</li>
 </ol>
+
+<div class="row mb-3">
+  <div class="col-9">
+
+    <h3>
+      Ticket <?php echo $ticket_number; ?>
+      <span class="p-2 badge badge-<?php echo $ticket_badge_color; ?>">
+        <?php echo $ticket_status; ?>
+      </span>
+    </h3>
+  </div>
+  <div class="col-3">
+
+    <div class="dropdown dropleft text-center">
+      <button class="btn btn-secondary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+        <i class="fas fa-fw fa-ellipsis-v"></i>
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a class="dropdown-item" href="client_print.php?client_id=<?php echo $client_id; ?>">Print</a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
+        <a class="dropdown-item" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="row">
 
   <div class="col-md-9">
 
-    <button class="btn btn-primary">Responses (0)</button>
-    <button class="btn btn-primary">Internal (2)</button>
-
-    <div class="card mb-3 mt-3">
-      <div class="card-header">
+    <div class="card mb-3">
+      <div class="card-header bg-dark">
         <h6 class="float-left mt-1"><?php echo $ticket_subject; ?></h6>
-        <div class="dropdown dropleft text-center">
-          <button class="btn btn-dark btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="fas fa-fw fa-ellipsis-v"></i>
-          </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item" href="client_print.php?client_id=<?php echo $client_id; ?>">Print</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
-            <a class="dropdown-item" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
-          </div>
-        </div>
       </div>
       <div class="card-body">
         <p><?php echo $ticket_details; ?></p>
@@ -97,10 +110,10 @@ if(isset($_GET['ticket_id'])){
     <form class="mb-3" action="post.php" method="post" autocomplete="off">
       <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
       <div class="form-group">
-        <textarea rows="5" class="form-control" name="ticket_update"></textarea>
+        <textarea class="form-control summernote" name="ticket_update"></textarea>
       </div>
       <button type="submit" name="add_ticket_update" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save</button>
-      <button type="submit" name="close_ticket" class="btn btn-secondary float-right">Close Ticket</button> 
+       
     </form>
 
     <?php
@@ -130,21 +143,6 @@ if(isset($_GET['ticket_id'])){
   <div class="col-md-3">
 
     <div class="card mb-3">
-      <div class="card-header">
-        <div class="row">
-          <div class="col-md-6">
-            <h2>
-              Ticket <?php echo $ticket_number; ?>
-            </h2>
-          </div>
-          <div class="col-md-6">
-            <span class="p-2 badge badge-<?php echo $ticket_badge_color; ?>">
-              <?php echo $ticket_status; ?>
-            </span>
-          </div>
-        </div>
-
-      </div>
       <div class="card-body">
   
         <div>  
@@ -176,6 +174,8 @@ if(isset($_GET['ticket_id'])){
       <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $name; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_at; ?></div>
     </div>
+
+    <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block">Close Ticket</a>
 
   </div>
 

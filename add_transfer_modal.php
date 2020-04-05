@@ -15,6 +15,9 @@
               <a class="nav-link active" id="pills-details-tab" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" id="pills-assign-tab" data-toggle="pill" href="#pills-assign">Assign</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" id="pills-notes-tab" data-toggle="pill" href="#pills-notes">Notes</a>
             </li>
           </ul>
@@ -123,6 +126,28 @@
                   </select>
                 </div>
               </div>
+            </div>
+
+            <div class="tab-pane fade" id="pills-assign">
+
+              <?php
+              $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, transfers WHERE account_id = 1 AND ");
+
+              while($row = mysqli_fetch_array($sql_payments)){
+                $payment_id = $row['payment_id'];
+                $payment_method = $row['payment_method'];
+                $payment_amount = $row['payment_amount'];
+              ?>
+
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" name="payments[]" value="<?php echo $payment_id; ?>">
+                  <label class="form-check-label"><?php echo $payment_method - $payment_amount; ?></label>
+                </div>
+
+              <?php
+              }
+              ?>
+
             </div>
 
             <div class="tab-pane fade" id="pills-notes">
