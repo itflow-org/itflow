@@ -114,7 +114,7 @@
 ?>
 
 <div class="row">
-  <div class="col-lg-3 col-6">
+  <div class="col-lg-3">
     <!-- small box -->
     <a href="?q=Draft" class="small-box bg-secondary">
       <div class="inner">
@@ -128,7 +128,7 @@
   </div>
   <!-- ./col -->
 
-  <div class="col-lg-3 col-6">
+  <div class="col-lg-3">
     <!-- small box -->
     <a href="?q=Sent" class="small-box bg-warning">
       <div class="inner text-white">
@@ -142,7 +142,7 @@
   </div>
   <!-- ./col -->
 
-  <div class="col-lg-3 col-6">
+  <div class="col-lg-3">
     <!-- small box -->
     <a href="?q=Viewed" class="small-box bg-info">
       <div class="inner">
@@ -156,7 +156,7 @@
   </div>
   <!-- ./col -->
 
-  <div class="col-lg-3 col-6">
+  <div class="col-lg-3">
     <!-- small box -->
     <a href="?q=Partial" class="small-box bg-primary">
       <div class="inner">

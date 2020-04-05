@@ -46,7 +46,7 @@
                 <select class="form-control select2" name="account" required>
                   <?php 
                   
-                  $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id"); 
+                  $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC"); 
                   while($row = mysqli_fetch_array($sql_accounts)){
                     $account_id_select = $row['account_id'];
                     $account_name_select = $row['account_name'];
@@ -117,7 +117,7 @@
                 <select class="form-control select2" name="category" required>
                   <?php 
                   
-                  $sql_select = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense' AND company_id = $session_company_id"); 
+                  $sql_select = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense' AND company_id = $session_company_id ORDER BY category_name ASC"); 
                   while($row = mysqli_fetch_array($sql_select)){
                     $category_id_select = $row['category_id'];
                     $category_name_select = $row['category_name'];
