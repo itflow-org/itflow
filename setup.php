@@ -98,11 +98,11 @@ if(isset($_POST['add_database'])){
 
   fwrite($myfile, $txt);
 
-  $txt = "\$mysqli = mysqli_connect(\$dbhost, \$dbusername, \$dbpassword, \$database);\n\n";
+  $txt = "\$mysqli = mysqli_connect(\$dbhost, \$dbusername, \$dbpassword, \$database) or die('Database Connection Failed');\n\n";
 
   fwrite($myfile, $txt);
 
-  $txt = "\$config_app_name = 'IT CRM';\n";
+  $txt = "\$config_app_name = 'ITFlow';\n";
 
   fwrite($myfile, $txt);
 

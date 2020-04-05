@@ -13,6 +13,18 @@ require_once $mpdf_path . '/vendor/autoload.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+if(isset($_GET['switch_company'])){
+    $company_id = intval($_GET['switch_company']);
+
+    $session_company_id = $company_id;
+
+    $_SESSION['alert_type'] = "info";
+    $_SESSION['alert_message'] = "Switched Companies!";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST['add_user'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));

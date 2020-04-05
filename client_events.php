@@ -6,7 +6,7 @@ if(isset($_GET['calendar_id'])){
 
 ?>
 
-<div class="card"><?php echo $client_id; ?>
+<div class="card">
   <div id='calendar'></div>
 </div>
 
