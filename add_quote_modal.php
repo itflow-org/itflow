@@ -25,7 +25,7 @@
                 <option value="">- Client -</option>
                 <?php 
                 
-                $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id"); 
+                $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC"); 
                 while($row = mysqli_fetch_array($sql)){
                   $client_id = $row['client_id'];
                   $client_name = $row['client_name'];
@@ -60,7 +60,7 @@
                 <option value="">- Category -</option>
                 <?php 
                 
-                $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND company_id = $session_company_id"); 
+                $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND company_id = $session_company_id ORDER BY category_name ASC"); 
                 while($row = mysqli_fetch_array($sql)){
                   $category_id = $row['category_id'];
                   $category_name = $row['category_name'];
