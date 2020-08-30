@@ -95,7 +95,7 @@ if(isset($_GET['quote_id'])){
 
         <?php if($quote_status == 'Approved'){ ?>
           <a class="btn btn-success btn-sm" href="#" data-toggle="modal" data-target="#addQuoteToInvoiceModal<?php echo $quote_id; ?>"><i class="fas fa-fw fa-check"></i> Invoice</a>
-        <? } ?>
+        <?php } ?>
 
       </div>
 

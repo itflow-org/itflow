@@ -49,7 +49,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
               </div>
-              <input type="datetime-local" class="form-control" name="start" required>
+              <input type="datetime" class="form-control" name="start" required>
             </div>
           </div>
           

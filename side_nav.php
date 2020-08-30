@@ -14,36 +14,6 @@
 
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
 
-        <form class="form-inline mb-3" action="clients.php">
-        
-          <div class="input-group">
-            <input class="form-control form-control-sidebar" type="search" name="q" placeholder="Client Search">
-            <div class="input-group-append">
-              <button class="btn btn-sidebar" type="submit">
-                <i class="fas fa-search"></i>
-              </button>
-            </div>
-          </div>
-        </form>
-
-        <li class="nav-item dropdown text-md">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" data-toggle="dropdown">
-            <i class="fas fa-building mr-2"></i><?php echo $config_company_name; ?>
-          </a>
-          <div class="dropdown-menu">
-            <?php
-            $sql = mysqli_query($mysqli,"SELECT * FROM companies");
-            while($row = mysqli_fetch_array($sql)){
-              $company_id = $row['company_id'];
-              $company_name = $row['company_name'];
-            ?>
-            <a class="dropdown-item text-dark" href="post.php?switch_company=<?php echo $company_id; ?>"><?php if($config_company_name == $company_name){ echo "<i class='fa fa-check mr-2'></i>"; } echo $company_name ?></a>
-            <?php
-            }
-            ?>
-          </div>
-        </li>
-
         <li class="nav-header">MAIN</li>
 
         <li class="nav-item">

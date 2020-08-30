@@ -835,9 +835,9 @@ if(isset($_POST['add_ticket_update'])){
     
 }
 
-if(isset($_POST['close_ticket'])){
+if(isset($_GET['close_ticket'])){
 
-    $ticket_id = intval($_POST['ticket_id']);
+    $ticket_id = intval($_GET['close_ticket']);
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed', ticket_updated_at = NOW(), ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
