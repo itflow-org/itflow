@@ -67,7 +67,7 @@
 #### Requirements
 * Webserver (Apache, NGINX)
 * PHP7+
-* Mysql or MariaDB
+* MySQL or MariaDB
 
 ### Technologies Used
 * PHP/MySQL
@@ -85,19 +85,18 @@
 * SummerNote
 
 ### API Calls
-* Caller ID lookup (Returns a Name) - /api.php?api_key=[API_KEY]&cid=[PHONE_NUMBER]
-* XML Phonebook Download - /api.php?api_key=[API_KEY]&phonebook
-* Client Email (Returns Client Name - Email Address) - /api.php?api_key=[API_KEY]&client_emails
-* Account Balance for Client (Returns Account Balance) - /api.php?api_key=[API_KEY]&client_id=[CLIENT_ID]
+* Caller ID lookup (Great for integrating with your phone system like FreePBX) - /api.php?api_key=[API_KEY]&cid=[PHONE_NUMBER] - Returns a name
+* XML Phonebook Download (Great for using with VOIP Phones so phpnes have an up to date directory) - /api.php?api_key=[API_KEY]&phonebook 
+* Client Email (great for mailing lists) - /api.php?api_key=[API_KEY]&client_emails - Returns Client Name - Email Address
+* Account Balance for Client (can be integrated into multiple places for example in FreePBX Press 3 to check account balance, please enter your client ID your blanace is) - /api.php?api_key=[API_KEY]&client_id=[CLIENT_ID] - Returns Account Balance
 NOTE: [API_KEY] - is auto generated when a company is created and shows up in General Settings, this can also be changed manually.
 
 ### Future Todo
-* MeshCentral Integation to assign devices to assets and easily access remote desktop within the app, as well as pull vital information such as Operating System, 
-* HestiaCP Integration for intergrating domains and webclients
+* MeshCentral Integation to assign devices to assets and easily access remote desktop within the app, as well as pull vital information such as asset make, model, serial, hostname, Operating System, 
 * CalDAV to integrate with 3rd party calendars
 * CardDAV to integrate with 3rd party Address books
-* Unifi and UNMS integration
 * Stripe Integration for online payments
 * Client Portal
 * Toast Alerts with recent caller that matches caller ID in database which allows you to click on the toast alerts and bring up the clients account right away.
 * Built-in mailing list used for alerts and marketing
+* WebAuthn Support for passwordless auth (TPM Fingerprint), (USB Hardware keys such as Yubikey)
