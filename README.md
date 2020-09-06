@@ -85,7 +85,7 @@
 * SummerNote
 
 ### API Calls
-* Caller ID lookup (Great for integrating with your phone system like FreePBX) - /api.php?api_key=[API_KEY]&cid=[PHONE_NUMBER] - Returns a name
+* Caller ID lookup (Great for integrating with your phone system like FreePBX, and having your VOIP phone return the client thats calling) - /api.php?api_key=[API_KEY]&cid=[PHONE_NUMBER] - Returns a name
 * XML Phonebook Download (Great for using with VOIP Phones so phpnes have an up to date directory) - /api.php?api_key=[API_KEY]&phonebook 
 * Client Email (great for mailing lists) - /api.php?api_key=[API_KEY]&client_emails - Returns Client Name - Email Address
 * Account Balance for Client (can be integrated into multiple places for example in FreePBX Press 3 to check account balance, please enter your client ID your blanace is) - /api.php?api_key=[API_KEY]&client_id=[CLIENT_ID] - Returns Account Balance
