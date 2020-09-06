@@ -5,7 +5,7 @@
   * Contacts
   * Locations
   * Vendors
-  * Assets
+  * Assets (Laptop, Workstations, Routers, Switches, Access Points, phones, etc)
   * Password Manager (AES Encrypted in DB)
   * Domain Names 
   * Applications
@@ -13,6 +13,7 @@
   * Files
   * Documentation
   * Tickets
+  * Single Downloadable PDF of all documentation for a client to give them.
 * Invoicing
   * Automatically Emails Past Due Invoices to clients
   * Auto Email Receipts upon receiving payments
@@ -22,12 +23,12 @@
   * Turn Quotes into invoices with a click
 * Vendors
 * Accounting
-  * Track Business Expenses
-  * P&L Reports
+  * Expense Tracking
+  * Profit and Loss Reports (Quarterly and Annually)
   * Income/Expense Summary
-  * Mileage Tracking
-  * Account Transfers
-  * Bank Accounts
+  * Travel Mileage Tracking
+  * Account Transfers / Deposits
+  * Accounts
 * Alerting/Notifications
   * Low Account Balances
   * Domains to expire
@@ -38,7 +39,7 @@
   * Schedule Jobs
   * Overview of Invoices Domains that are expiring
   * Schedule Events
-  * Automatic Email Reminders of upcomming calendar events to customers
+  * Automatic Email Reminders of upcoming calendar events to customers
 * Dashboard
   * Gives a clear overview of your business financials using graphs and such
 
