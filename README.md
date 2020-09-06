@@ -56,12 +56,13 @@
 
 ### Installation Instructions
 
-* Clone this repo
-* Create a Mysql database
-* Point your browser to the URL where you downloaded the crm
+* Change directory to your webroot
+* git clone https://github.com/johnnyq/pittpc_crm.git .
+* Create a MySQL database
+* Point your browser to your web Server
 * Go through the Setup Process
 * Login
-* Start inputting some data
+* Start inputing some data
 
 #### Requirements
 * Webserver (Apache, NGINX)
