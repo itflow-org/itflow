@@ -298,35 +298,21 @@ if(isset($_POST['edit_mail_settings'])){
 
 }
 
-if(isset($_POST['edit_invoice_settings'])){
+if(isset($_POST['edit_invoice_quote_settings'])){
 
     $config_invoice_prefix = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_prefix']));
     $config_invoice_next_number = intval($_POST['config_invoice_next_number']);
     $config_invoice_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer']));
-
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer' WHERE company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Invoice', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
-
-    $_SESSION['alert_message'] = "Invoice Settings updated";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_POST['edit_quote_settings'])){
-
     $config_quote_prefix = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_prefix']));
     $config_quote_next_number = intval($_POST['config_quote_next_number']);
     $config_quote_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_footer']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer', config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer' WHERE company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Quote', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Invoice', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Quote Settings updated";
+    $_SESSION['alert_message'] = "Invoice / Quote Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
