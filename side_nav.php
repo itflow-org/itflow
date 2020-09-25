@@ -1,10 +1,5 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary d-print-none">
-  
-  <!-- Brand Logo -->
-  <a href="index.php" class="brand-link">
-    <span class="brand-text text-xl ml-3"><b>IT</b>Flow</span>
-  </a>
 
   <!-- Sidebar -->
   <div class="sidebar">
