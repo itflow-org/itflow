@@ -99,8 +99,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </div>    
       </div>
     </form>
+    <hr>
     <div class="table-responsive">
-      <table class="table table-hover">
+      <table class="table table-striped table-hover table-borderless">
         <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Name <i class="fa fa-sort-alpha<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
