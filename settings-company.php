@@ -7,7 +7,7 @@
     <h6 class="float-left mt-1"><i class="fa fa-fw fa-building mr-2"></i>Company Settings</h6>
   </div>
   <div class="card-body">
-    <form class="p-3" action="post.php" method="post"  autocomplete="off">
+    <form class="p-3" action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
       <div class="form-group">
         <label>Company Name</label>
         <div class="input-group">
@@ -88,7 +88,7 @@
         </div>
       </div>
 
-      <div class="form-group mb-5">
+      <div class="form-group">
         <label>Website</label>
         <div class="input-group">
           <div class="input-group-prepend">
@@ -96,6 +96,18 @@
           </div>
           <input type="text" class="form-control" name="config_company_site" placeholder="Website address https://" value="<?php echo $config_company_site; ?>" >
         </div>
+      </div>
+
+      <div class="form-group mb-4">
+        <label>Logo</label>
+        <input type="file" class="form-control-file" name="file">
+      </div>
+
+      <div class="card col-md-2">
+        <div class="card-body">
+          <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
+        </div>
+        
       </div>
       
       <hr>

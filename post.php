@@ -218,20 +218,8 @@ if(isset($_POST['edit_general_settings'])){
     $old_aes_key = $config_aes_key;
     $config_aes_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_aes_key']));
     $config_base_url = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url']));
-    
-    $path = "$config_invoice_logo";
 
-    if($_FILES['file']['tmp_name']!='') {
-        //delete old avatar file
-        unlink($path);
-        //Update with new path
-        $path = "uploads/settings/$session_company_id/";
-        $path = $path . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);   
-    }
-
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_logo = '$path', config_api_key = '$config_api_key', config_aes_key = '$config_aes_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_api_key = '$config_api_key', config_aes_key = '$config_aes_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
 
     //Update AES key on client_logins if changed
     if($old_aes_key != $config_aes_key){
@@ -267,7 +255,19 @@ if(isset($_POST['edit_company_settings'])){
     $config_company_phone = preg_replace("/[^0-9]/", '',$config_company_phone);
     $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_country = '$config_company_country', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site' WHERE company_id = $session_company_id");
+    $path = "$config_invoice_logo";
+
+    if($_FILES['file']['tmp_name']!='') {
+        //delete old avatar file
+        unlink($path);
+        //Update with new path
+        $path = "uploads/settings/$session_company_id/";
+        $path = $path . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);   
+    }
+
+    mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_country = '$config_company_country', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site', config_invoice_logo = '$path' WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Company', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");

@@ -7,7 +7,7 @@
     <h6 class="float-left mt-1"><i class="fa fa-cog mr-2"></i>General Settings</h6>
   </div>
   <div class="card-body">
-    <form class="p-3" action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+    <form class="p-3" action="post.php" method="post" autocomplete="off">
 
       <div class="form-group">
         <label>API Key</label>
@@ -39,18 +39,6 @@
           <input type="text" class="form-control" name="config_base_url" placeholder="ex host.domain.ext" value="<?php echo $config_base_url; ?>">
         </div>
         <small class="form-text text-muted">This is used by cron to send the correct url for invoice guest views</small>
-      </div>
-
-      <div class="form-group mb-4">
-        <label>Logo</label>
-        <input type="file" class="form-control-file" name="file">
-      </div>
-
-      <div class="card col-md-2">
-        <div class="card-body">
-          <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
-        </div>
-        
       </div>
       
       <hr>
