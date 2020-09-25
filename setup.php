@@ -367,7 +367,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-database"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="database" placeholder="Name of the database" required>
+                    <input type="text" class="form-control" name="database" placeholder="Name of the database" autofocus required>
                   </div>
                 </div>
 
@@ -422,7 +422,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="name" placeholder="Full Name" required>
+                    <input type="text" class="form-control" name="name" placeholder="Full Name" autofocus required>
                   </div>
                 </div>
 
@@ -469,7 +469,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="config_company_name" placeholder="Company Name" required>  
+                    <input type="text" class="form-control" name="config_company_name" placeholder="Company Name" autofocus required>  
                   </div>
                 </div>
 
