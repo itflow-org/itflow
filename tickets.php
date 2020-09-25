@@ -65,17 +65,17 @@
   </div>
   <div class="card-body">
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-4">
         <form autocomplete="off">
           <div class="input-group">
-            <input type="search" class="form-control col-md-6" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Tickets">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Tickets">
             <div class="input-group-append">
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>
           </div>
         </form>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-8">
         <div class="float-right">
           <a href="?status=Open" class="btn <?php if($status == 'Open'){ echo 'btn-primary'; }else{ echo 'btn-secondary'; } ?>">Open</a>
           <a href="?status=In-Progress" class="btn <?php if($status == 'In-Progress'){ echo 'btn-primary'; }else{ echo 'btn-secondary'; } ?>">In-Progress</a>
