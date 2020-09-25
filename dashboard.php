@@ -149,7 +149,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     <!-- small box -->
     <a class="small-box bg-info" href="trips.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
-        <h3><?php echo $total_miles; ?></h3>
+        <h3><?php echo number_format($total_miles,2); ?></h3>
         <p>Miles Driven</p>
       </div>
       <div class="icon">
