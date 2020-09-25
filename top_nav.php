@@ -25,7 +25,7 @@
     <!-- Notifications -->
     <li class="nav-item">
       <a class="nav-link" href="alerts.php">
-        <i class="fas fa-bell"></i>
+        <i class="fas fa-bell mr-2"></i>
         <?php if($num_alerts > 0){ ?>
         <span class="badge badge-danger navbar-badge"><?php echo $num_alerts; ?></span>
         <?php } ?>
