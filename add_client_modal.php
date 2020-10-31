@@ -10,7 +10,7 @@
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
           
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
+          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab">
             <li class="nav-item">
               <a class="nav-link active" id="pills-details-tab" data-toggle="pill" href="#pills-details">Details</a>
             </li>
@@ -54,45 +54,9 @@
                 </div>
               </div>
 
-              <label>Phone</label>
-             
-              <div class="form-group">
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" data-mask> 
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Website</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                  </div>
-                  <input type="url" class="form-control" name="website" placeholder="ex. https://google.com">
-                </div>
-              </div>
-
             </div>
           
             <div class="tab-pane fade" id="pills-address">
-
-              <div class="form-group">
-                <label>Country</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                  </div>
-                  <select class="form-control select2" name="country">
-                    <option value="">- Country -</option>
-                    <?php foreach($countries_array as $country_name) { ?>
-                    <option><?php echo $country_name; ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
 
               <div class="form-group">
                 <label>Address</label>
@@ -100,7 +64,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="address" placeholder="Address">
+                  <input type="text" class="form-control" name="address" placeholder="Street Address">
                 </div>
               </div>
           
@@ -138,6 +102,21 @@
                   <input type="text" class="form-control" name="zip" placeholder="Postal Code">
                 </div>
               </div>
+
+              <div class="form-group">
+                <label>Country</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                  </div>
+                  <select class="form-control select2" name="country">
+                    <option value="">- Country -</option>
+                    <?php foreach($countries_array as $country_name) { ?>
+                    <option><?php echo $country_name; ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
             
             </div>
 
@@ -161,12 +140,12 @@
                       <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                       </div>
-                      <input type="text" class="form-control" name="contact_phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" data-mask> 
+                      <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" data-mask> 
                     </div>
                   </div>
                 </div>
                 <div class="col-4">
-                  <input type="text" class="form-control" name="contact_extension" placeholder="Extension">
+                  <input type="text" class="form-control" name="extension" placeholder="Extension">
                 </div>
               </div>
 
@@ -177,7 +156,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="contact_mobile" placeholder="Mobile Number" data-inputmask="'mask': '999-999-9999'" data-mask> 
+                  <input type="text" class="form-control" name="mobile" placeholder="Mobile Number" data-inputmask="'mask': '999-999-9999'" data-mask> 
                 </div>
               </div>
               
@@ -216,6 +195,16 @@
                     <option <?php if($config_default_net_terms == $net_term_value){ echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
                     <?php } ?>
                   </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Website</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                  </div>
+                  <input type="url" class="form-control" name="website" placeholder="ex. https://google.com">
                 </div>
               </div>
 

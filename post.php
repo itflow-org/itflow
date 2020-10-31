@@ -524,20 +524,6 @@ if(isset($_POST['add_client'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    //Add Primary Contact
-
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$contact', contact_title = 'Main Contact', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_primary = 1, contact_billing = 1, contact_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
-
-    //Log Add Primary Contact
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
-
-    //Add Primary Location
-
-    mysqli_query($mysqli,"INSERT INTO locations SET location_name = 'Main Location', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_primary = 1, location_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
-
-    //Log Add Primary Location
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
-
     //Log Add Client
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Created', log_description = '$name', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, user_id = $session_user_id");
 

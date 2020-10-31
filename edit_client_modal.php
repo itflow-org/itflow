@@ -11,7 +11,7 @@
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="modal-body bg-white">
           
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $client_id; ?>" role="tablist">
+          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $client_id; ?>">
             <li class="nav-item">
               <a class="nav-link active" id="pills-details-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-details<?php echo $client_id; ?>">Details</a>
             </li>
@@ -55,44 +55,9 @@
                 </div>
               </div>
 
-              <label>Phone</label>
-              <div class="form-group">
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" value="<?php echo $client_phone; ?>"> 
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Website</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="website" placeholder="ex. https://google.com" value="<?php echo $client_website; ?>">
-                </div>
-              </div>
-
             </div>
           
             <div class="tab-pane fade" id="pills-address<?php echo $client_id; ?>">
-
-              <div class="form-group">
-                <label>Country</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                  </div>
-                  <select class="form-control select2" name="country">
-                    <option value="">- Country -</option>
-                    <?php foreach($countries_array as $country_name) { ?>
-                    <option <?php if($client_country == $country_name) { echo "selected"; } ?>><?php echo $country_name; ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
 
               <div class="form-group">
                 <label>Address</label>
@@ -138,6 +103,21 @@
                   <input type="text" class="form-control" name="zip" placeholder="Postal Code" value="<?php echo $client_zip; ?>">
                 </div>
               </div>
+
+              <div class="form-group">
+                <label>Country</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                  </div>
+                  <select class="form-control select2" name="country">
+                    <option value="">- Country -</option>
+                    <?php foreach($countries_array as $country_name) { ?>
+                    <option <?php if($client_country == $country_name) { echo "selected"; } ?>><?php echo $country_name; ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
             
             </div>
 
@@ -161,12 +141,12 @@
                       <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                       </div>
-                      <input type="text" class="form-control" name="contact_phone" placeholder="Phone Number" value="<?php echo $client_phone; ?>" data-inputmask="'mask': '999-999-9999'" data-mask> 
+                      <input type="text" class="form-control" name="phone" placeholder="Phone Number" value="<?php echo $client_phone; ?>" data-inputmask="'mask': '999-999-9999'" data-mask> 
                     </div>
                   </div>
                 </div>
                 <div class="col-4">
-                  <input type="text" class="form-control" name="contact_extension" placeholder="Extension" value="<?php echo $client_extension; ?>">
+                  <input type="text" class="form-control" name="extension" placeholder="Extension" value="<?php echo $client_extension; ?>">
                 </div>
               </div>
 
@@ -216,6 +196,16 @@
                     <option <?php if($net_term_value == $client_net_terms) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
                     <?php } ?>
                   </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Website</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="website" placeholder="ex. https://google.com" value="<?php echo $client_website; ?>">
                 </div>
               </div>
 
