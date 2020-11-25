@@ -113,7 +113,7 @@ if(isset($_GET['client_id'])){
   <div class="card-body">
     <div class="row">
       <div class="col-md-3">
-        <h4 class="text-secondary"><strong><?php echo $client_name; ?></strong></h4>
+        <h4><strong><?php echo $client_name; ?></strong></h4>
         <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$client_address $client_zip"; ?>" target="_blank">
           <div class="ml-1"><?php echo $client_address; ?></div>
           <div class="ml-1"><?php echo "$client_city $client_state $client_zip"; ?></div>
@@ -163,9 +163,9 @@ if(isset($_GET['client_id'])){
       </div>
       <div class="col-md-3 border-left">
         <h4 class="text-secondary">Billing</h4>
-        <h6 class="ml-1">Paid <div class="text-secondary float-right">$<?php echo number_format($amount_paid,2); ?></div></h6>
-        <h6 class="ml-1">Balance <div class="text-secondary float-right">$<?php echo number_format($balance,2); ?></div></h6>
-        <h6 class="ml-1">Net Terms <div class="text-secondary float-right"><?php echo $client_net_terms; ?> <small>Days</small></div></h6>
+        <h6 class="ml-1 text-secondary">Paid <div class="text-dark float-right">$<?php echo number_format($amount_paid,2); ?></div></h6>
+        <h6 class="ml-1 text-secondary">Balance <div class="text-dark float-right">$<?php echo number_format($balance,2); ?></div></h6>
+        <h6 class="ml-1 text-secondary">Net Terms <div class="text-dark float-right"><?php echo $client_net_terms; ?> <small class="text-secondary">Days</small></div></h6>
       </div>
       <div class="col-md-2 border-left">
         <h4 class="text-secondary">Services</h4>
