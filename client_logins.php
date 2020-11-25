@@ -42,7 +42,7 @@ if(isset($_GET['o'])){
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins 
   WHERE client_id = $client_id 
-  AND (login_name LIKE '%$q%' OR login_username LIKE '%$q%' OR login_category LIKE '%$q%' OR login_uri LIKE '%$q%') 
+  AND (login_name LIKE '%$q%' OR login_username LIKE '%$q%' OR login_uri LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -73,7 +73,6 @@ $total_pages = ceil($total_found_rows / 10);
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_name&o=<?php echo $disp; ?>">Name</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_category&o=<?php echo $disp; ?>">Category</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_username&o=<?php echo $disp; ?>">Username</a></th>
             <th>Password</th>
             <th class="text-center">Action</th>
@@ -85,7 +84,6 @@ $total_pages = ceil($total_found_rows / 10);
           while($row = mysqli_fetch_array($sql)){
             $login_id = $row['login_id'];
             $login_name = $row['login_name'];
-            $login_category = $row['login_category'];
             $login_uri = $row['login_uri'];
             $login_username = $row['login_username'];
             $login_password = $row['login_password'];
@@ -103,7 +101,6 @@ $total_pages = ceil($total_found_rows / 10);
               <small class="text-secondary"><?php echo $login_uri; ?></small>
 
             </td>
-            <td><?php echo $login_category; ?></td>
             <td><?php echo $login_username; ?></td>
             <td><?php echo $login_password; ?></td>
             <td>
