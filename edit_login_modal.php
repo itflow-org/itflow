@@ -38,16 +38,6 @@
                   <input type="text" class="form-control" name="name" placeholder="Name of Login" value="<?php echo $login_name; ?>" required>
                 </div>
               </div>
-
-              <div class="form-group">
-                <label>Category <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="category" placeholder="Category" value="<?php echo $login_category; ?>" required>
-                </div>
-              </div>
             
               <div class="form-group">
                 <label>Username <strong class="text-danger">*</strong></label>
