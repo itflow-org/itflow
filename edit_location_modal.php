@@ -60,21 +60,6 @@
             </div>
 
             <div class="tab-pane fade" id="pills-address<?php echo $location_id; ?>">
-             
-              <div class="form-group">
-                <label>Country</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                  </div>
-                  <select class="form-control select2" name="country">
-                    <option value="">- Country -</option>
-                    <?php foreach($countries_array as $country_name) { ?>
-                    <option <?php if($location_country == $country_name) { echo "selected"; } ?>><?php echo $country_name; ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
 
               <div class="form-group">
                 <label>Address</label>
@@ -117,6 +102,21 @@
                     <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                   </div>
                   <input type="text" class="form-control" name="zip" placeholder="Postal Code" value="<?php echo $location_zip; ?>">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Country</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                  </div>
+                  <select class="form-control select2" name="country">
+                    <option value="">- Country -</option>
+                    <?php foreach($countries_array as $country_name) { ?>
+                    <option <?php if($location_country == $country_name) { echo "selected"; } ?>><?php echo $country_name; ?></option>
+                    <?php } ?>
+                  </select>
                 </div>
               </div>
 
