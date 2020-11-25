@@ -88,9 +88,9 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                   </div>
                   <select class="form-control select2" name="state">
-                      <?php foreach($states_array as $state_abbr => $state_name) { ?>
-                      <option <?php if($location_state == $state_abbr) { echo "selected"; } ?> value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
-                      <?php } ?>
+                    <?php foreach($states_array as $state_abbr => $state_name) { ?>
+                    <option <?php if($location_state == $state_abbr) { echo "selected"; } ?> value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
+                    <?php } ?>
                   </select>
                 </div>
               </div>
