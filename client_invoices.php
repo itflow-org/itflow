@@ -95,7 +95,7 @@ $total_pages = ceil($total_found_rows / 10);
             $category_name = $row['category_name'];
             $now = time();
 
-            if(($invoice_status == "Sent" or $invoice_status == "Partial") and strtotime($invoice_due) < $now ){
+            if(($invoice_status == "Sent" or $invoice_status == "Partial" or $invoice_status == "Viewed") and strtotime($invoice_due) < $now ){
                 $overdue_color = "text-danger font-weight-bold";
               }else{
                 $overdue_color = "";
