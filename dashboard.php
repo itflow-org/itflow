@@ -43,7 +43,15 @@ $sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoic
 $row = mysqli_fetch_array($sql_invoice_totals);
 $invoice_totals = $row['invoice_totals'];
 
-$recievables = $invoice_totals - $total_payments_to_invoices; 
+$sql_total_payments_to_invoices_all_years = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_to_invoices FROM payments WHERE company_id = $session_company_id");
+$row = mysqli_fetch_array($sql_total_payments_to_invoices);
+$total_payments_to_invoices_all_years = $row['total_payments_to_invoices'];
+
+$sql_invoice_totals_all_years = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' AND company_id = $session_company_id");
+$row = mysqli_fetch_array($sql_invoice_totals);
+$invoice_totals_all_years = $row['invoice_totals'];
+
+$recievables = $invoice_totals_all_years - $total_payments_to_invoices_all_years; 
 
 $profit = $total_income - $total_expenses;
 
