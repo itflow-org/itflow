@@ -43,6 +43,7 @@ $sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoic
 $row = mysqli_fetch_array($sql_invoice_totals);
 $invoice_totals = $row['invoice_totals'];
 
+//Quaeries from Recievables
 $sql_total_payments_to_invoices_all_years = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_to_invoices_all_years FROM payments WHERE company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_payments_to_invoices_all_years);
 $total_payments_to_invoices_all_years = $row['total_payments_to_invoices_all_years'];

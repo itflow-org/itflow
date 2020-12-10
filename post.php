@@ -2500,7 +2500,7 @@ if(isset($_POST['add_payment'])){
         mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
         //Add Payment to History
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'INVOICE payment added', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Payment added', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Created', log_description = '$payment_amount', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -2543,7 +2543,7 @@ if(isset($_GET['delete_payment'])){
     mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     //Add Payment to History
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'INVOICE payment deleted', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Payment deleted', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
     mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id AND company_id = $session_company_id");
 

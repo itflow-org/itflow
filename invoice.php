@@ -111,7 +111,7 @@ if(isset($_GET['invoice_id'])){
         <?php } ?>
 
         <?php if($invoice_status !== 'Paid' and $invoice_status !== 'Cancelled' and $invoice_status !== 'Draft'){ ?>
-        <a class="btn btn-success btn-sm" href="#" data-toggle="modal" data-target="#addPaymentModal"><i class="fa fa-fw fa-credit-card"></i> Pay</a>
+        <a class="btn btn-success btn-sm" href="#" data-toggle="modal" data-target="#addPaymentModal"><i class="fa fa-fw fa-credit-card"></i> Add Payment</a>
         <?php } ?>
       </div>
       
