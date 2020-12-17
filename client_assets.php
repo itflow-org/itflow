@@ -194,7 +194,7 @@ $total_pages = ceil($total_found_rows / 10);
             <td><?php echo $asset_make; ?></td>
             <td><?php echo $asset_model; ?></td>
             <td><?php echo $asset_serial; ?></td>
-            <tc><?php echo $contact_name; ?></tc>
+            <td><?php echo $contact_name; ?></td>
           </tr>
           <?php include("edit_asset_modal.php"); ?>
           <?php
