@@ -138,7 +138,7 @@ $total_pages = ceil($total_found_rows / 10);
             $row = mysqli_fetch_array($sql_assigned);
             $contact_name = $row['contact_name'];
             if(empty($contact_name)){
-              $contact_name = "<button class='btn btn-secodary'>assign</button>";
+              $contact_name = "<button class='btn btn-sm btn-secondary'>assign</button>";
             }
       
           ?>
