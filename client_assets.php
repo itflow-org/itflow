@@ -75,6 +75,7 @@ $total_pages = ceil($total_found_rows / 10);
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_make&o=<?php echo $disp; ?>">Make</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_model&o=<?php echo $disp; ?>">Model</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_serial&o=<?php echo $disp; ?>">Serial</a></th>
+            <th>Assigned</th>
           </tr>
         </thead>
         <tbody>
@@ -132,6 +133,13 @@ $total_pages = ceil($total_found_rows / 10);
             $login_username = $row['login_username'];
             $login_password = $row['login_password'];
             $asset_id_relation = $row['asset_id'];
+
+            $sql_assigned = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_id = $contact_id");
+            $row = mysqli_fetch_array($sql_assigned);
+            $contact_name = $row['contact_name'];
+            if(empty($contact_name)){
+              $contact_name = "<button class='btn btn-secodary'>assign</button>";
+            }
       
           ?>
           <tr>
@@ -186,6 +194,7 @@ $total_pages = ceil($total_found_rows / 10);
             <td><?php echo $asset_make; ?></td>
             <td><?php echo $asset_model; ?></td>
             <td><?php echo $asset_serial; ?></td>
+            <tc><?php echo $contact_name; ?></tc>
           </tr>
           <?php include("edit_asset_modal.php"); ?>
           <?php
