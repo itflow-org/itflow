@@ -436,7 +436,7 @@ var myLineChart = new Chart(ctx, {
     datasets: [{
       label: "Income",
       lineTension: 0.3,
-      backgroundColor: "rgba(2,117,216,0.2)",
+      
       borderColor: "rgba(2,117,216,1)",
       pointRadius: 5,
       pointBackgroundColor: "rgba(2,117,216,1)",
@@ -476,7 +476,7 @@ var myLineChart = new Chart(ctx, {
     }, {
       label: "Expense",
       lineTension: 0.3,
-      backgroundColor: "rgba(2,2,216,0.2)",
+      
       borderColor: "rgba(2,2,216,1)",
       pointRadius: 5,
       pointBackgroundColor: "rgba(2,117,216,1)",
