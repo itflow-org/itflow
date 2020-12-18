@@ -108,60 +108,6 @@
           </a>
         </li>
 
-        <li class="nav-header">SALES</li>
-
-        <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=invoices" class="nav-link <?php if($_GET['tab'] == "invoices") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-file"></i>
-            <p>
-              Invoices
-              <?php 
-              if($num_invoices > 0){ ?>
-              <span class="right badge badge-light"><?php echo $num_invoices; ?></span>
-              <?php } ?>
-            </p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=recurring" class="nav-link <?php if($_GET['tab'] == "recurring") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-copy"></i>
-            <p>
-              Recurring
-              <?php 
-              if($num_recurring > 0){ ?>
-              <span class="right badge badge-light"><?php echo $num_recurring; ?></span>
-              <?php } ?>
-            </p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=quotes" class="nav-link <?php if($_GET['tab'] == "quotes") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-file"></i>
-            <p>
-              Quotes
-              <?php 
-              if($num_quotes > 0){ ?>
-              <span class="right badge badge-light"><?php echo $num_quotes; ?></span>
-              <?php } ?>
-            </p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=payments" class="nav-link <?php if($_GET['tab'] == "payments") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-credit-card"></i>
-            <p>
-              Payments
-              <?php 
-              if($num_payments > 0){ ?>
-              <span class="right badge badge-light"><?php echo $num_payments; ?></span>
-              <?php } ?>
-            </p>
-          </a>
-        </li>
-
         <li class="nav-header">SUPPORT</li>
 
         <li class="nav-item">
@@ -237,6 +183,60 @@
               <?php 
               if($num_notes > 0){ ?>
               <span class="right badge badge-light"><?php echo $num_notes; ?></span>
+              <?php } ?>
+            </p>
+          </a>
+        </li>
+
+        <li class="nav-header">SALES</li>
+
+        <li class="nav-item">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=invoices" class="nav-link <?php if($_GET['tab'] == "invoices") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-file"></i>
+            <p>
+              Invoices
+              <?php 
+              if($num_invoices > 0){ ?>
+              <span class="right badge badge-light"><?php echo $num_invoices; ?></span>
+              <?php } ?>
+            </p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=recurring" class="nav-link <?php if($_GET['tab'] == "recurring") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-copy"></i>
+            <p>
+              Recurring
+              <?php 
+              if($num_recurring > 0){ ?>
+              <span class="right badge badge-light"><?php echo $num_recurring; ?></span>
+              <?php } ?>
+            </p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=quotes" class="nav-link <?php if($_GET['tab'] == "quotes") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-file"></i>
+            <p>
+              Quotes
+              <?php 
+              if($num_quotes > 0){ ?>
+              <span class="right badge badge-light"><?php echo $num_quotes; ?></span>
+              <?php } ?>
+            </p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=payments" class="nav-link <?php if($_GET['tab'] == "payments") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-credit-card"></i>
+            <p>
+              Payments
+              <?php 
+              if($num_payments > 0){ ?>
+              <span class="right badge badge-light"><?php echo $num_payments; ?></span>
               <?php } ?>
             </p>
           </a>
