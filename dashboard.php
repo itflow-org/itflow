@@ -218,25 +218,6 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   <div class="col-md-12">
     <div class="card mb-3">
       <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-fw fa-chart-area"></i> Expense Flow</h3>
-        <div class="card-tools">
-          <a href="report_expense_summary.php" class="btn btn-tool">
-            <i class="fas fa-eye"></i>
-          </a>
-          <button type="button" class="btn btn-tool" data-card-widget="remove">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-      </div>
-      <div class="card-body">
-        <canvas id="expenseFlow" width="100%" height="20"></canvas>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-12">
-    <div class="card mb-3">
-      <div class="card-header">
         <h3 class="card-title"><i class="fas fa-fw fa-chart-area"></i> Trip Flow</h3>
         <div class="card-tools">
           <a href="trips.php" class="btn btn-tool">
@@ -495,13 +476,13 @@ var myLineChart = new Chart(ctx, {
     }, {
       label: "Expense",
       lineTension: 0.3,
-      backgroundColor: "red",
-      borderColor: "darkred",
+      backgroundColor: "rgba(2,2,216,0.2)",
+      borderColor: "rgba(2,2,216,1)",
       pointRadius: 5,
-      pointBackgroundColor: "red",
-      pointBorderColor: "red",
+      pointBackgroundColor: "rgba(2,117,216,1)",
+      pointBorderColor: "rgba(255,255,255,0.8)",
       pointHoverRadius: 5,
-      pointHoverBackgroundColor: "darkred",
+      pointHoverBackgroundColor: "rgba(2,117,216,1)",
       pointHitRadius: 50,
       pointBorderWidth: 2,
       data: [
@@ -544,7 +525,7 @@ var myLineChart = new Chart(ctx, {
       yAxes: [{
         ticks: {
           min: 0,
-          max: <?php echo roundUpToNearestMultiple($largest_income_month); ?>,
+          max: <?php $max = max($largest_expense_month, $largest_income_month); echo roundUpToNearestMultiple($max); ?>,
           maxTicksLimit: 5
         },
         gridLines: {
