@@ -622,7 +622,7 @@ Chart.defaults.global.defaultFontColor = '#292b2c';
 // Pie Chart Example
 var ctx = document.getElementById("incomeByCategoryPieChart");
 var myPieChart = new Chart(ctx, {
-  type: 'pie',
+  type: 'doughnut',
   data: {
     labels: [
       <?php
@@ -673,7 +673,7 @@ Chart.defaults.global.defaultFontColor = '#292b2c';
 // Pie Chart Example
 var ctx = document.getElementById("expenseByCategoryPieChart");
 var myPieChart = new Chart(ctx, {
-  type: 'pie',
+  type: 'doughnut',
   data: {
     labels: [
       <?php
@@ -720,7 +720,7 @@ var myPieChart = new Chart(ctx, {
 // Pie Chart Example
 var ctx = document.getElementById("expenseByVendorPieChart");
 var myPieChart = new Chart(ctx, {
-  type: 'pie',
+  type: 'doughnut',
   data: {
     labels: [
       <?php
