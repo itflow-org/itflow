@@ -137,19 +137,6 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=trips" class="nav-link <?php if($_GET['tab'] == "trips") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-bicycle"></i>
-            <p>
-              Trips
-              <?php 
-              if($num_trips > 0){ ?>
-              <span class="right badge badge-light"><?php echo $num_trips; ?></span>
-              <?php } ?>
-            </p>
-          </a>
-        </li>
-
-        <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=events" class="nav-link <?php if($_GET['tab'] == "events") { echo "active"; } ?>">
             <i class="nav-icon fas fa-calendar"></i>
             <p>
@@ -188,7 +175,7 @@
           </a>
         </li>
 
-        <li class="nav-header">SALES</li>
+        <li class="nav-header">SALES AND ACCOUNTING</li>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=invoices" class="nav-link <?php if($_GET['tab'] == "invoices") { echo "active"; } ?>">
@@ -237,6 +224,19 @@
               <?php 
               if($num_payments > 0){ ?>
               <span class="right badge badge-light"><?php echo $num_payments; ?></span>
+              <?php } ?>
+            </p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=trips" class="nav-link <?php if($_GET['tab'] == "trips") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-bicycle"></i>
+            <p>
+              Trips
+              <?php 
+              if($num_trips > 0){ ?>
+              <span class="right badge badge-light"><?php echo $num_trips; ?></span>
               <?php } ?>
             </p>
           </a>

@@ -492,6 +492,40 @@ var myLineChart = new Chart(ctx, {
         ?>
 
       ],
+    },
+    label: "Expense",
+      lineTension: 0.3,
+      backgroundColor: "rgba(2,2,216,0.2)",
+      borderColor: "rgba(2,2,216,1)",
+      pointRadius: 5,
+      pointBackgroundColor: "rgba(2,117,216,1)",
+      pointBorderColor: "rgba(255,255,255,0.8)",
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: "rgba(2,117,216,1)",
+      pointHitRadius: 50,
+      pointBorderWidth: 2,
+      data: [
+      <?php
+      for($month = 1; $month<=12; $month++) {
+          $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND vendor_id > 0 AND expenses.company_id = $session_company_id");
+          $row = mysqli_fetch_array($sql_expenses);
+          $expenses_for_month = $row['expense_amount_for_month'];
+          
+          if($expenses_for_month > 0 AND $expenses_for_month > $largest_expense_month){
+            $largest_expense_month = $expenses_for_month;
+          }
+          
+
+        ?>
+          <?php echo "$expenses_for_month,"; ?>
+        
+        <?php
+        
+        }
+
+        ?>
+
+      ],
     }],
   },
   options: {
