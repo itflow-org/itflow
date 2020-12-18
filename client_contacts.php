@@ -99,7 +99,7 @@ $total_pages = ceil($total_found_rows / 10);
           ?>
           <tr>
             <th class="text-center">
-              <a class="text-dark" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
+              <a class="text-dark" href="#" data-toggle="modal" data-target="#contactDetailsModal<?php echo $contact_id; ?>">
                 <?php if(!empty($contact_photo)){ ?>
               
                 <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $contact_photo; ?>">
@@ -142,7 +142,7 @@ $total_pages = ceil($total_found_rows / 10);
 
           <?php
           
-          include("edit_contact_modal.php");
+          include("client_contact_details_modal.php");
 
           }
           
