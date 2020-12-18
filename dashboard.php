@@ -492,8 +492,8 @@ var myLineChart = new Chart(ctx, {
         ?>
 
       ],
-    },
-    label: "Expense",
+    }, {
+      label: "Expense",
       lineTension: 0.3,
       backgroundColor: "rgba(2,2,216,0.2)",
       borderColor: "rgba(2,2,216,1)",
