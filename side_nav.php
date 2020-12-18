@@ -109,16 +109,15 @@
             <p>Transfers</p>
           </a>
         </li>
-        <a href="#" class="nav-link">
-          <i class="nav-icon fas fa-chart-area"></i>
-          <p>
-            Reports
-            <i class="right fas fa-angle-left"></i>
-          </p>
-        </a>
-        <li class="nav-header">SETTINGS</li>
+
         <li class="nav-item has-treeview">
-          
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-chart-area"></i>
+            <p>
+              Reports
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
               <a href="report_income_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
@@ -141,6 +140,8 @@
           </ul>
         </li>
 
+        <li class="nav-header">SETTINGS</li>
+        
         <li class="nav-item has-treeview">
           <a href="#" class="nav-link">
             <i class="nav-icon fas fa-cog"></i>
