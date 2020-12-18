@@ -9,8 +9,6 @@
 
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
 
-        <li class="nav-header">MAIN</li>
-
         <li class="nav-item">
           <a href="dashboard.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "dashboard.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -24,16 +22,11 @@
             <p>Clients</p>
           </a>
         </li>
+        <li class="nav-header">SUPPORT</li>
         <li class="nav-item">
           <a href="tickets.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tickets.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tags"></i>
             <p>Tickets</p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="products.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "products.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-box"></i>
-            <p>Products</p>
           </a>
         </li>
         <li class="nav-item">
@@ -48,7 +41,7 @@
             <p>Calendar</p>
           </a>
         </li>
-        <li class="nav-header">INCOME</li>
+        <li class="nav-header">SALES</li>
         <li class="nav-item">
           <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "quotes.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-file-invoice"></i>
@@ -71,6 +64,12 @@
           <a href="recurring.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "recurring.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tags"></i>
             <p>Recurring</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="products.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "products.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-box"></i>
+            <p>Products</p>
           </a>
         </li>
         <li class="nav-header">ACCOUNTING</li>
@@ -110,15 +109,16 @@
             <p>Transfers</p>
           </a>
         </li>
-        <li class="nav-header">MORE</li>
+        <a href="#" class="nav-link">
+          <i class="nav-icon fas fa-chart-area"></i>
+          <p>
+            Reports
+            <i class="right fas fa-angle-left"></i>
+          </p>
+        </a>
+        <li class="nav-header">SETTINGS</li>
         <li class="nav-item has-treeview">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-chart-area"></i>
-            <p>
-              Reports
-              <i class="right fas fa-angle-left"></i>
-            </p>
-          </a>
+          
           <ul class="nav nav-treeview">
             <li class="nav-item">
               <a href="report_income_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">

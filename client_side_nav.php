@@ -41,6 +41,8 @@
           </a>
         </li>
 
+        <li class="nav-header">ASSETS</li>
+
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=assets" class="nav-link <?php if($_GET['tab'] == "assets") { echo "active"; } ?>">
             <i class="nav-icon fas fa-laptop"></i>
@@ -55,32 +57,17 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=tickets" class="nav-link <?php if($_GET['tab'] == "tickets") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-tags"></i>
+          <a href="?client_id=<?php echo $client_id; ?>&tab=software" class="nav-link <?php if($_GET['tab'] == "software") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-rocket"></i>
             <p>
-              Tickets
+              Software
               <?php 
-              if($num_tickets > 0){ ?>
-              <span class="right badge badge-light"><?php echo $num_tickets; ?></span>
+              if($num_software > 0){ ?>
+              <span class="right badge badge-light"><?php echo $num_software; ?></span>
               <?php } ?>
             </p>
           </a>
         </li>
-
-        <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=vendors" class="nav-link <?php if($_GET['tab'] == "vendors") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-building"></i>
-            <p>
-              Vendors
-              <?php 
-              if($num_vendors > 0){ ?>
-              <span class="right badge badge-light"><?php echo $num_vendors; ?></span>
-              <?php } ?>
-            </p>
-          </a>
-        </li>
-
-        <li class="nav-header">ASSETS</li>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=logins" class="nav-link <?php if($_GET['tab'] == "logins") { echo "active"; } ?>">
@@ -121,20 +108,7 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=software" class="nav-link <?php if($_GET['tab'] == "software") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-rocket"></i>
-            <p>
-              Software
-              <?php 
-              if($num_software > 0){ ?>
-              <span class="right badge badge-light"><?php echo $num_software; ?></span>
-              <?php } ?>
-            </p>
-          </a>
-        </li>
-
-        <li class="nav-header">PAYMENTS</li>
+        <li class="nav-header">SALES</li>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=invoices" class="nav-link <?php if($_GET['tab'] == "invoices") { echo "active"; } ?>">
@@ -188,7 +162,33 @@
           </a>
         </li>
 
-        <li class="nav-header">MORE</li>
+        <li class="nav-header">SUPPORT</li>
+
+        <li class="nav-item">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=tickets" class="nav-link <?php if($_GET['tab'] == "tickets") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-tags"></i>
+            <p>
+              Tickets
+              <?php 
+              if($num_tickets > 0){ ?>
+              <span class="right badge badge-light"><?php echo $num_tickets; ?></span>
+              <?php } ?>
+            </p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=vendors" class="nav-link <?php if($_GET['tab'] == "vendors") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-building"></i>
+            <p>
+              Vendors
+              <?php 
+              if($num_vendors > 0){ ?>
+              <span class="right badge badge-light"><?php echo $num_vendors; ?></span>
+              <?php } ?>
+            </p>
+          </a>
+        </li>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=trips" class="nav-link <?php if($_GET['tab'] == "trips") { echo "active"; } ?>">

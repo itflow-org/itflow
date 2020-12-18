@@ -127,19 +127,12 @@ $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE contact_id = 
 
                 <?php
 
-                while($row = mysqli_fetch_array($sql_logins)){
+                while($row = mysqli_fetch_array($sql_software)){
                   $software_id = $row['software_id'];
                   $software_name = $row['software_name'];
                   $software_type = $row['software_type'];
                   $software_license = $row['software_license'];
                   $software_notes = $row['software_notes'];
-
-                  $sql_login = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE software_id = $software_id");
-                  $row = mysqli_fetch_array($sql_login);
-                  $login_id = $row['login_id'];
-                  $login_username = $row['login_username'];
-                  $login_password = $row['login_password'];
-                  $software_id_relation = $row['software_id'];
 
                 ?>
                 
@@ -160,11 +153,7 @@ $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE contact_id = 
         </div>
 
       </div>
-      <div class="modal-footer bg-white">
-        <a href="post.php?delete_contact=<?php echo $contact_id; ?>" class="btn btn-danger mr-auto"><i class="fa fa-trash text-white"></i></a>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button type="submit" name="edit_contact" class="btn btn-primary">Save</button>
-      </div>
+
     </div>
   </div>
 </div>
