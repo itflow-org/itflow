@@ -495,13 +495,13 @@ var myLineChart = new Chart(ctx, {
     }, {
       label: "Expense",
       lineTension: 0.3,
-      backgroundColor: "rgba(2,2,216,0.2)",
-      borderColor: "rgba(2,2,216,1)",
+      backgroundColor: "red",
+      borderColor: "darkred",
       pointRadius: 5,
-      pointBackgroundColor: "rgba(2,117,216,1)",
-      pointBorderColor: "rgba(255,255,255,0.8)",
+      pointBackgroundColor: "red",
+      pointBorderColor: "red",
       pointHoverRadius: 5,
-      pointHoverBackgroundColor: "rgba(2,117,216,1)",
+      pointHoverBackgroundColor: "darkred",
       pointHitRadius: 50,
       pointBorderWidth: 2,
       data: [
