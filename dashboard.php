@@ -115,7 +115,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     <a class="small-box bg-primary" href="payments.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3>$<?php echo number_format($total_income,2); ?></h3>
-        <p>Total Incomes</p>
+        <p>TOTAL INCOME</p>
         <hr>
         <small>Recievables: $<?php echo number_format($recievables,2); ?></small>
       </div>
@@ -131,7 +131,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     <a class="small-box bg-danger" href="expenses.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3>$<?php echo number_format($total_expenses,2); ?></h3>
-        <p>Total Expenses</p>
+        <p>TOTAL EXPENSES</p>
       </div>
       <div class="icon">
         <i class="fa fa-shopping-cart"></i>
@@ -145,7 +145,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     <div class="small-box bg-success">
       <div class="inner">
         <h3>$<?php echo number_format($profit,2); ?></h3>
-        <p>Profit</p>
+        <p>TOTAL PROFIT</p>
       </div>
       <div class="icon">
         <i class="fa fa-heart"></i>
@@ -156,10 +156,10 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
 
   <div class="col-lg-4 col-md-6 col-sm-12">
     <!-- small box -->
-    <a class="small-box bg-info" href="trips.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
+    <a class="small-box bg-secondary" href="trips.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3><?php echo number_format($total_miles,2); ?></h3>
-        <p>Miles Driven</p>
+        <p>MILE TRAVELED</p>
       </div>
       <div class="icon">
         <i class="fa fa-bicycle"></i>
@@ -173,7 +173,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     <a class="small-box bg-secondary" href="clients.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3><?php echo $clients_added; ?></h3>
-        <p>New Clients</p>
+        <p>NEW CLIENT</p>
       </div>
       <div class="icon">
         <i class="fa fa-users"></i>
@@ -187,7 +187,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     <a class="small-box bg-secondary" href="vendors.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3><?php echo $vendors_added; ?></h3>
-        <p>New Vendors</p>
+        <p>NEW VENDORS</p>
       </div>
       <div class="icon">
         <i class="fa fa-building"></i>
@@ -253,7 +253,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   <div class="col-lg-6">
     <div class="card mb-3">
       <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Expense By Category</h3>
+        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Expenses By Category</h3>
         <div class="card-tools">
           <button type="button" class="btn btn-tool" data-card-widget="remove">
             <i class="fas fa-times"></i>
@@ -269,7 +269,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   <div class="col-lg-6">
     <div class="card mb-3">
       <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Expense By Vendor</h3>
+        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Expenses By Vendor</h3>
         <div class="card-tools">
           <button type="button" class="btn btn-tool" data-card-widget="remove">
             <i class="fas fa-times"></i>
@@ -337,7 +337,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   <div class="col-md-6">
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-credit-card"></i> Latest Invoice Payments</h3>
+        <h3 class="card-title"><i class="fas fa-credit-card"></i> Latest Income</h3>
         <div class="card-tools">
           <button type="button" class="btn btn-tool" data-card-widget="remove">
             <i class="fas fa-times"></i>
