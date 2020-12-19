@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-bicycle mr-2"></i>New Trip</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-route mr-2"></i>New Trip</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -10,9 +10,9 @@
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
           
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
+          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-basic-tab" data-toggle="pill" href="#pills-basic" role="tab" aria-controls="pills-basic" aria-selected="true">Basic</a>
+              <a class="nav-link active" id="pills-basic-tab" data-toggle="pill" href="#pills-basic">Basic</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" id="pills-link-tab" data-toggle="pill" href="#pills-link" role="tab" aria-controls="pills-link" aria-selected="false">Link</a>

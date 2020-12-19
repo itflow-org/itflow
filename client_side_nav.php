@@ -231,7 +231,7 @@
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=trips" class="nav-link <?php if($_GET['tab'] == "trips") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-bicycle"></i>
+            <i class="nav-icon fas fa-route"></i>
             <p>
               Trips
               <?php 

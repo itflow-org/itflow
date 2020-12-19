@@ -115,7 +115,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     <a class="small-box bg-primary" href="payments.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3>$<?php echo number_format($total_income,2); ?></h3>
-        <p>TOTAL INCOME</p>
+        <p>Total Income</p>
         <hr>
         <small>Recievables: $<?php echo number_format($recievables,2); ?></small>
       </div>
@@ -131,7 +131,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     <a class="small-box bg-danger" href="expenses.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3>$<?php echo number_format($total_expenses,2); ?></h3>
-        <p>TOTAL EXPENSES</p>
+        <p>Total Expenses</p>
       </div>
       <div class="icon">
         <i class="fa fa-shopping-cart"></i>
@@ -145,7 +145,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     <div class="small-box bg-success">
       <div class="inner">
         <h3>$<?php echo number_format($profit,2); ?></h3>
-        <p>TOTAL PROFIT</p>
+        <p>Total Profit</p>
       </div>
       <div class="icon">
         <i class="fa fa-heart"></i>
@@ -159,10 +159,10 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     <a class="small-box bg-secondary" href="trips.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3><?php echo number_format($total_miles,2); ?></h3>
-        <p>MILE TRAVELED</p>
+        <p>Miles Traveled</p>
       </div>
       <div class="icon">
-        <i class="fa fa-bicycle"></i>
+        <i class="fa fa-route"></i>
       </div>
     </a>
   </div>
@@ -173,7 +173,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     <a class="small-box bg-secondary" href="clients.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3><?php echo $clients_added; ?></h3>
-        <p>NEW CLIENT</p>
+        <p>New Clients</p>
       </div>
       <div class="icon">
         <i class="fa fa-users"></i>
@@ -187,7 +187,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     <a class="small-box bg-secondary" href="vendors.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3><?php echo $vendors_added; ?></h3>
-        <p>NEW VENDORS</p>
+        <p>New Vendors</p>
       </div>
       <div class="icon">
         <i class="fa fa-building"></i>
@@ -218,7 +218,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   <div class="col-md-12">
     <div class="card mb-3">
       <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-fw fa-chart-area"></i> Trip Flow</h3>
+        <h3 class="card-title"><i class="fas fa-fw fa-route"></i> Trip Flow</h3>
         <div class="card-tools">
           <a href="trips.php" class="btn btn-tool">
             <i class="fas fa-eye"></i>
@@ -435,14 +435,13 @@ var myLineChart = new Chart(ctx, {
     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     datasets: [{
       label: "Income",
-      lineTension: 0.3,
+     
       fill: false,
-      borderColor: "rgba(2,117,216,1)",
-      pointRadius: 5,
-      pointBackgroundColor: "rgba(2,117,216,1)",
-      pointBorderColor: "rgba(255,255,255,0.8)",
+      borderColor: "#007bff",
+      pointBackgroundColor: "#007bff",
+      pointBorderColor: "#007bff",
       pointHoverRadius: 5,
-      pointHoverBackgroundColor: "rgba(2,117,216,1)",
+      pointHoverBackgroundColor: "#007bff",
       pointHitRadius: 50,
       pointBorderWidth: 2,
       data: [
@@ -478,7 +477,6 @@ var myLineChart = new Chart(ctx, {
       lineTension: 0.3,
       fill: false,
       borderColor: "#dc3545",
-      pointRadius: 5,
       pointBackgroundColor: "#dc3545",
       pointBorderColor: "#dc3545",
       pointHoverRadius: 5,
