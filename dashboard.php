@@ -479,10 +479,10 @@ var myLineChart = new Chart(ctx, {
       fill: false,
       borderColor: "#dc3545",
       pointRadius: 5,
-      pointBackgroundColor: "rgba(2,117,216,1)",
+      pointBackgroundColor: "#dc3545",
       pointBorderColor: "#dc3545",
       pointHoverRadius: 5,
-      pointHoverBackgroundColor: "rgba(2,117,216,1)",
+      pointHoverBackgroundColor: "#dc3545",
       pointHitRadius: 50,
       pointBorderWidth: 2,
       data: [
@@ -534,7 +534,7 @@ var myLineChart = new Chart(ctx, {
       }],
     },
     legend: {
-      display: false
+      display: true
     }
   }
 });
