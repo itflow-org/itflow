@@ -93,7 +93,7 @@ if(isset($_GET['client_id'])){
   <li class="breadcrumb-item active">Print</li>
 </ol>
 
-<button class="btn btn-primary btn-sm d-print-none mb-2" onclick="window.print();"><i class="fa fa-print"></i> Print</button>
+<button class="btn btn-primary btn-sm d-print-none mb-3" onclick="window.print();"><i class="fa fa-print"></i> Print</button>
 
 <div class="row">
   <div class="col-9">
