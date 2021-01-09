@@ -175,7 +175,13 @@ if(isset($_GET['ticket_id'])){
       <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_at; ?></div>
     </div>
 
-    <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block">Close Ticket</a>
+    <?php
+    if($ticket_status !== "Closed"){
+    ?>
+      <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block">Close Ticket</a>
+    <?php
+    }
+    ?>
 
   </div>
 

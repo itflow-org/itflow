@@ -1,31 +1,39 @@
 ## IT Documentation Accounting and Invoicing System for Small Managed IT Companies
 
+Online Demo Available
+
+https://demo.itflow.org
+USERNAME: demo@demo
+PASSWORD: demo
+
 ### Features
-* Manage Clients
+* Client Documentation
   * Contacts
-  * Locations
-  * Vendors
+  * Locations (Head Quarters, Satellite locaitons)
+  * Vendors (ISP, WebHost, MailHost etc)
   * Assets (Laptop, Workstations, Routers, Switches, Access Points, phones, etc)
   * Password Manager (AES Encrypted in DB)
-  * Domain Names 
-  * Applications
+  * Domain Names  
+  * Applications Licenses
   * Networks
   * Files
-  * Documentation
+  * Notes
   * Tickets
   * Single Downloadable PDF of all documentation for a client to give them.
+* Client Portal
+  * Invoice and Payment information
+  * More to come soon...
 * Invoicing
   * Automatically Emails Past Due Invoices to clients
   * Auto Email Receipts upon receiving payments
   * Recurring Invoices
-* Quotes / Estimates
-  * Automated customer approval
-  * Turn Quotes into invoices with a click
-* Vendors
+* Quotes
+  * Automated customer approval process using email
+  * Turn Quotes into invoices with a signle click
 * Accounting
   * Expense Tracking
-  * Profit and Loss Reports (Quarterly and Annually)
-  * Income/Expense Summary
+  * Profit and Loss Reports
+  * Income/Expense Summaries
   * Travel Mileage Tracking
   * Account Transfers / Deposits
   * Accounts
@@ -35,30 +43,30 @@
   * Password reset reminder for customers
   * Past Due Invoices
   * Software License Expiring
-* Calendar Integration
+* Calendar
   * Schedule Jobs
-  * Overview of Invoices Domains that are expiring
+  * Overview of Invoices, Domains that are expiring, etc
   * Schedule Events
   * Automatic Email Reminders of upcoming calendar events to customers
 * Dashboard
-  * Gives a clear overview of your business financials using graphs and such
+  * Gives a clear overview of your business financials using graphs
 
 * API
   * XML Phonebook download for VOIP Phones
   * FreePBX Integrated called ID (When call comes in it queries the Database and displays the company name on your caller ID as well as alerts you in the CRM)
-  * Pull Email Lists
+  * Pull Emails for Mailing list Integration
   * Check account Balances using FreePBX IVR
 
 * Multi-Tenant - One Instance Multiple Companies and Users
 * Audit Logging - Logs actions of users on the system
-* 2 Factor Authentication (TOTP)
+* 2FA Login Support (TOTP)
 
 
 
 ### Installation Instructions
 
 * Change directory to your webroot
-* git clone https://github.com/johnnyq/pittpc_crm.git .
+* git clone https://github.com/johnnyq/itflow.git .
 * Create a MySQL database
 * Point your browser to your web Server
 * Go through the Setup Process
@@ -93,11 +101,10 @@
 NOTE: [API_KEY] - is auto generated when a company is created and shows up in General Settings, this can also be changed manually.
 
 ### Future Todo
-* MeshCentral Integation to assign devices to assets and easily access remote desktop within the app, as well as pull vital information such as asset make, model, serial, hostname, Operating System, 
+* MeshCentral / TacticalRMM Integation to assign devices to assets and easily access remote desktop within the app, as well as pull vital information such as asset make, model, serial, hostname, Operating System, 
 * CalDAV to integrate with 3rd party calendars
 * CardDAV to integrate with 3rd party Address books
 * Stripe Integration for online payments
-* Client Portal
 * Toast Alerts with recent caller that matches caller ID in database which allows you to click on the toast alerts and bring up the clients account right away.
 * Built-in mailing list used for alerts and marketing
 * WebAuthn Support for passwordless auth (TPM Fingerprint), (USB Hardware keys such as Yubikey)
