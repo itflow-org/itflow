@@ -1,10 +1,10 @@
-## IT Documentation Accounting and Invoicing System for Small Managed IT Companies
+## IT Documentation Accounting and Invoicing System for Small MSPs.
 
-Online Demo Available
+### Online Demo
 
-https://demo.itflow.org
-USERNAME: demo@demo
-PASSWORD: demo
+* https://demo.itflow.org
+* USERNAME: demo@demo
+* PASSWORD: demo
 
 ### Features
 * Client Documentation
