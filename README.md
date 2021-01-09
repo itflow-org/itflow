@@ -9,7 +9,7 @@
 ### Features
 * Client Documentation
   * Contacts
-  * Locations (Head Quarters, Satellite locaitons)
+  * Locations (Head Quarters, Satellite locations)
   * Vendors (ISP, WebHost, MailHost etc)
   * Assets (Laptop, Workstations, Routers, Switches, Access Points, phones, etc)
   * Password Manager (AES Encrypted in DB)
