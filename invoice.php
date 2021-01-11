@@ -261,8 +261,7 @@ if(isset($_GET['invoice_id'])){
                   <td><input type="number" step="0.01" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
                   <td>
                     <select class="form-control select2" name="tax">
-                      <option <?php if($item_tax == '0.00'){ echo "selected"; } ?> value="0.00">None</option>
-                      <option <?php if($item_tax == '0.07'){ echo "selected"; } ?> value="0.07">State Tax 7%</option>
+                      <?php include"taxes.php"; ?>
                     </select>
                   </td>
                   <td>
