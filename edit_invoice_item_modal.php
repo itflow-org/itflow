@@ -67,8 +67,7 @@
                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
               </div>
               <select class="form-control select2" name="tax">
-                <option <?php if($item_tax == '0.00'){ echo "selected"; } ?> value="0.00">None</option>
-                <option <?php if($item_tax == '0.07'){ echo "selected"; } ?> value="0.07">State Tax 7%</option>
+                <?php include"taxes.php"; ?>
               </select>
             </div>
           </div>
