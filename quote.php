@@ -228,8 +228,7 @@ if(isset($_GET['quote_id'])){
                   <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
                   <td>
                     <select class="form-control select2" name="tax">
-                      <option value="0.00">None</option>
-                      <option value="0.07">State Tax 7%</option>
+                      <?php include"taxes.php"; ?>
                     </select>
                   </td>
                   <td>
