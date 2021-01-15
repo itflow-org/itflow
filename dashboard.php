@@ -435,7 +435,6 @@ var myLineChart = new Chart(ctx, {
     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     datasets: [{
       label: "Income",
-     
       fill: false,
       borderColor: "#007bff",
       pointBackgroundColor: "#007bff",
@@ -472,7 +471,41 @@ var myLineChart = new Chart(ctx, {
         ?>
 
       ],
-    }, {
+    },
+    {
+    label: "Projected",
+      fill: false,
+      borderColor: "black",
+      pointBackgroundColor: "black",
+      pointBorderColor: "black",
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: "black",
+      pointHitRadius: 50,
+      pointBorderWidth: 2,
+      data: [
+      <?php
+      for($month = 1; $month<=12; $month++) {
+          $sql_projected = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amount_for_month FROM invoices WHERE YEAR(invoice_due) = $year AND MONTH(invoice_due) = $month AND company_id = $session_company_id");
+          $row = mysqli_fetch_array($sql_projected);
+          $invoice_for_month = $row['invoice_amount_for_month'];
+          
+          if($invoice_for_month > 0 AND $invoice_for_month > $largest_invoice_month){
+            $largest_invoice_month = $invoice_for_month;
+          }
+          
+
+        ?>
+          <?php echo "$invoice_for_month,"; ?>
+        
+        <?php
+        
+        }
+
+        ?>
+
+      ],
+    }, 
+    {
       label: "Expense",
       lineTension: 0.3,
       fill: false,
