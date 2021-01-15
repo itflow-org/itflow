@@ -1629,7 +1629,7 @@ if(isset($_POST['add_quote_item'])){
     $tax = floatval($_POST['tax']);
     
     $subtotal = $price * $qty;
-    $tax = $subtotal * $tax;
+    $tax = $subtotal * $tax / 100;
     $total = $subtotal + $tax;
 
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
@@ -1673,7 +1673,7 @@ if(isset($_POST['edit_quote_item'])){
     $tax = floatval($_POST['tax']);
      
     $subtotal = $price * $qty;
-    $tax = $subtotal * $tax;
+    $tax = $subtotal * $tax / 100;
     $total = $subtotal + $tax;
 
     mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total' WHERE item_id = $item_id");
@@ -2170,7 +2170,7 @@ if(isset($_POST['add_recurring_item'])){
     $tax = floatval($_POST['tax']);
     
     $subtotal = $price * $qty;
-    $tax = $subtotal * $tax;
+    $tax = $subtotal * $tax / 100;
     $total = $subtotal + $tax;
 
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), recurring_id = $recurring_id, company_id = $session_company_id");
@@ -2214,7 +2214,7 @@ if(isset($_POST['edit_recurring_item'])){
     $tax = floatval($_POST['tax']);
      
     $subtotal = $price * $qty;
-    $tax = $subtotal * $tax;
+    $tax = $subtotal * $tax / 100;
     $total = $subtotal + $tax;
 
     mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total' WHERE item_id = $item_id");
@@ -2385,7 +2385,7 @@ if(isset($_POST['edit_invoice_item'])){
     $tax = floatval($_POST['tax']);
      
     $subtotal = $price * $qty;
-    $tax = $subtotal * $tax;
+    $tax = $subtotal * $tax / 100;
     $total = $subtotal + $tax;
 
     mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total' WHERE item_id = $item_id");

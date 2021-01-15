@@ -67,9 +67,21 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
               </div>
-              <select class="form-control select2" name="tax">
-                <option <?php if($item_tax == '0.00'){ echo "selected"; } ?> value="0.00">None</option>
-                <option <?php if($item_tax == '0.07'){ echo "selected"; } ?> value="0.07">State Tax 7%</option>
+              <select class="form-control select2" name="tax" required>
+                <option value="0.00">None</option>
+                <?php 
+                
+                $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
+                while($row = mysqli_fetch_array($taxes_sql)){
+                  $tax_id = $row['tax_id'];
+                  $tax_name = $row['tax_name'];
+                  $tax_percent = $row['tax_percent'];
+                ?>
+                  <option value="<?php echo "$tax_percent"; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                
+                <?php
+                }
+                ?>
               </select>
             </div>
           </div>

@@ -227,9 +227,21 @@ if(isset($_GET['quote_id'])){
                   <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty" placeholder="QTY"></td>
                   <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
                   <td>
-                    <select class="form-control select2" name="tax">
+                    <select class="form-control select2" name="tax" required>
                       <option value="0.00">None</option>
-                      <option value="0.07">State Tax 7%</option>
+                      <?php 
+                      
+                      $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
+                      while($row = mysqli_fetch_array($taxes_sql)){
+                        $tax_id = $row['tax_id'];
+                        $tax_name = $row['tax_name'];
+                        $tax_percent = $row['tax_percent'];
+                      ?>
+                        <option value="<?php echo "$tax_percent"; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                      
+                      <?php
+                      }
+                      ?>
                     </select>
                   </td>
                   <td>
