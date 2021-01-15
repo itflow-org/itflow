@@ -485,7 +485,7 @@ var myLineChart = new Chart(ctx, {
       data: [
       <?php
       for($month = 1; $month<=12; $month++) {
-          $sql_projected = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amount_for_month FROM invoices WHERE YEAR(invoice_due) = $year AND MONTH(invoice_due) = $month AND company_id = $session_company_id");
+          $sql_projected = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amount_for_month FROM invoices WHERE YEAR(invoice_due) = $year AND MONTH(invoice_due) = $month AND invoice_status NOT LIKE 'Cancelled' AND invoice_status NOT LIKE 'Draft' AND company_id = $session_company_id");
           $row = mysqli_fetch_array($sql_projected);
           $invoice_for_month = $row['invoice_amount_for_month'];
           
