@@ -742,7 +742,7 @@ if(isset($_POST['add_ticket'])){
 
     $client_id = intval($_POST['client']);
     $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
-    $details = strip_tags(mysqli_real_escape_string($mysqli,$_POST['details']));
+    $details = mysqli_real_escape_string($mysqli,$_POST['details']);
 
     //Get the next Ticket Number and add 1 for the new ticket number
     $ticket_number = $config_ticket_next_number;
@@ -764,7 +764,7 @@ if(isset($_POST['edit_ticket'])){
 
     $ticket_id = intval($_POST['ticket_id']);
     $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
-    $details = strip_tags(mysqli_real_escape_string($mysqli,$_POST['details']));
+    $details = mysqli_real_escape_string($mysqli,$_POST['details']);
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_details = '$details' ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
@@ -794,7 +794,7 @@ if(isset($_GET['delete_ticket'])){
 if(isset($_POST['add_ticket_update'])){
 
     $ticket_id = intval($_POST['ticket_id']);
-    $ticket_update = strip_tags(mysqli_real_escape_string($mysqli,$_POST['ticket_update']));
+    $ticket_update = mysqli_real_escape_string($mysqli,$_POST['ticket_update']);
 
     mysqli_query($mysqli,"INSERT INTO ticket_updates SET ticket_update = '$ticket_update', ticket_update_created_at = NOW(), user_id = $session_user_id, ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
