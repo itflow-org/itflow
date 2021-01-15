@@ -161,6 +161,7 @@ $timezones_array = array(
 $category_types_array = array(
 	'Expense',
 	'Income',
+    'Tax',
 	'Payment Method'
 );
 
