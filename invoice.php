@@ -261,7 +261,7 @@ if(isset($_GET['invoice_id'])){
                   <td><input type="number" step="0.01" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
                   <td>
                     
-                    <select class="form-control select2" name="client" required>
+                    <select class="form-control select2" name="tax" required>
                       <option value="0.00">None</option>
                       <?php 
                       
