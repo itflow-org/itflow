@@ -1,8 +1,8 @@
--- MariaDB dump 10.17  Distrib 10.4.12-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.18  Distrib 10.5.8-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: admin_crm
 -- ------------------------------------------------------
--- Server version	10.4.12-MariaDB-1:10.4.12+maria~bionic
+-- Server version	10.5.8-MariaDB-1:10.5.8+maria~focal
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -134,11 +134,11 @@ CREATE TABLE `clients` (
   `client_id` int(11) NOT NULL AUTO_INCREMENT,
   `client_name` varchar(200) NOT NULL,
   `client_type` varchar(200) DEFAULT NULL,
-  `client_country` varchar(200) DEFAULT NULL,
   `client_address` varchar(200) DEFAULT NULL,
   `client_city` varchar(200) DEFAULT NULL,
   `client_state` varchar(200) DEFAULT NULL,
   `client_zip` varchar(200) DEFAULT NULL,
+  `client_country` varchar(200) DEFAULT NULL,
   `client_contact` varchar(200) DEFAULT NULL,
   `client_phone` varchar(200) DEFAULT NULL,
   `client_extension` varchar(200) DEFAULT NULL,
@@ -191,6 +191,7 @@ CREATE TABLE `contacts` (
   `contact_billing` tinyint(1) DEFAULT NULL,
   `contact_photo` varchar(200) DEFAULT NULL,
   `contact_notes` text DEFAULT NULL,
+  `contact_inactive` tinyint(1) NOT NULL DEFAULT 0,
   `contact_created_at` datetime NOT NULL,
   `contact_updated_at` datetime DEFAULT NULL,
   `location_id` int(11) DEFAULT NULL,
@@ -261,6 +262,8 @@ CREATE TABLE `expenses` (
   `expense_created_at` datetime NOT NULL,
   `expense_updated_at` datetime DEFAULT NULL,
   `vendor_id` int(11) DEFAULT NULL,
+  `client_id` int(11) DEFAULT NULL,
+  `asset_id` int(11) DEFAULT NULL,
   `category_id` int(11) DEFAULT NULL,
   `account_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
@@ -699,6 +702,24 @@ CREATE TABLE `software` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `taxes`
+--
+
+DROP TABLE IF EXISTS `taxes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `taxes` (
+  `tax_id` int(11) NOT NULL AUTO_INCREMENT,
+  `tax_name` varchar(200) NOT NULL,
+  `tax_percent` float NOT NULL,
+  `tax_created_at` datetime NOT NULL,
+  `tax_updated_at` datetime DEFAULT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`tax_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `ticket_updates`
 --
 
@@ -861,4 +882,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-03-30 20:01:15
+-- Dump completed on 2021-01-15 15:05:00

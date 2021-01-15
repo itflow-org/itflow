@@ -1104,6 +1104,58 @@ if(isset($_GET['delete_category'])){
   
 }
 
+//Tax
+
+if(isset($_POST['add_tax'])){
+
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $percent = floatval($_POST['percent']);
+
+    mysqli_query($mysqli,"INSERT INTO taxes SET tax_name = '$name', tax_percent = $percent, tax_created_at = NOW(), company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Created', log_description = '$name - $percent', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Tax added";
+    
+    header("Location: taxes.php");
+
+}
+
+if(isset($_POST['edit_tax'])){
+
+    $tax_id = intval($_POST['tax_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $percent = floatval($_POST['percent']);
+
+    mysqli_query($mysqli,"UPDATE taxes SET tax_name = '$name', tax_percent = $percent, tax_updated_at = NOW() WHERE tax_id = $tax_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Modified', log_description = '$name - $percent', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Tax modified";
+    
+    header("Location: taxes.php");
+
+}
+
+if(isset($_GET['delete_tax'])){
+    $tax_id = intval($_GET['delete_tax']);
+
+    mysqli_query($mysqli,"DELETE FROM taxes WHERE tax_id = $tax_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Deleted', log_description = '$tax_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Tax deleted";
+    $_SESSION['alert_type'] = "danger";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
+//End Tax
+
 if(isset($_GET['alert_ack'])){
 
     $alert_id = intval($_GET['alert_ack']);

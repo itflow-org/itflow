@@ -164,6 +164,12 @@
               </a>
             </li>
             <li class="nav-item">
+              <a href="taxes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "taxes.php") { echo "active"; } ?>">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Taxes</p>
+              </a>
+            </li>
+            <li class="nav-item">
               <a href="users.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "users.php") { echo "active"; } ?>">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Users</p>
