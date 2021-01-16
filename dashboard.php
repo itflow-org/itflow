@@ -556,7 +556,7 @@ var myLineChart = new Chart(ctx, {
       yAxes: [{
         ticks: {
           min: 0,
-          max: <?php $max = max($largest_expense_month, $largest_income_month); echo roundUpToNearestMultiple($max); ?>,
+          max: <?php $max = max($largest_expense_month, $largest_income_month, $largest_invoice_month); echo roundUpToNearestMultiple($max); ?>,
           maxTicksLimit: 5
         },
         gridLines: {
