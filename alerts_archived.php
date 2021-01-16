@@ -3,11 +3,11 @@
 //Paging
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
-  $record_from = (($p)-1)*10;
-  $record_to =  10;
+  $record_from = (($p)-1)*$config_records_per_page;
+  $record_to = $config_records_per_page;
 }else{
   $record_from = 0;
-  $record_to = 10;
+  $record_to = $config_records_per_page;
   $p = 1;
 }
   

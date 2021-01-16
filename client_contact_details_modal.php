@@ -6,9 +6,6 @@ $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE contact_id = 
 
 ?>
 
-
-
-
 <div class="modal" id="contactDetailsModal<?php echo $contact_id; ?>" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
