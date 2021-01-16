@@ -1,7 +1,7 @@
 <?php
 
 $total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / 10);
+$total_pages = ceil($total_found_rows / $config_records_per_page);
 
 if ($total_found_rows > 10) {
 	$i=0;

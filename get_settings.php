@@ -62,6 +62,8 @@ $config_aes_key = $row['config_aes_key'];
 $config_base_url = $row['config_base_url'];
 $config_enable_cron = $row['config_enable_cron'];
 
+$config_records_per_page = 20;
+
 $net_terms_array = array(
     '0'=>'On Reciept',
     '7'=>'7 Days',

@@ -7,11 +7,11 @@
 //Paging
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
-  $record_from = (($p)-1)*10;
-  $record_to =  10;
+  $record_from = (($p)-1)*$config_records_per_page;
+  $record_to = $config_records_per_page;
 }else{
   $record_from = 0;
-  $record_to = 10;
+  $record_to = $config_records_per_page;
   $p = 1;
 }
   
@@ -56,7 +56,7 @@ if(!empty($_GET['dtf'])){
 
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM assets WHERE (asset_name LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_mac LIKE '%$q%') AND DATE(asset_created_at) BETWEEN '$dtf' AND '$dtt' AND client_id = 0 AND company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to"); 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM assets, clients WHERE (asset_name LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_mac LIKE '%$q%' OR client_name LIKE '%$q%') AND DATE(asset_created_at) BETWEEN '$dtf' AND '$dtt' AND  assets.client_id = clients.client_id AND assets.company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to"); 
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
@@ -65,7 +65,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 <div class="card">
   <div class="card-header bg-dark text-white">
     <h6 class="float-left mt-1"><i class="fa fa-laptop"></i> Assets</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addAssetModal"><i class="fa fa-plus"></i></button>
   </div>
   <div class="card-body">
     <form autocomplete="off">
@@ -81,12 +80,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_type&o=<?php echo $disp; ?>">Type</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_name&o=<?php echo $disp; ?>">Name</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_type&o=<?php echo $disp; ?>">Type</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_make&o=<?php echo $disp; ?>">Make</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_model&o=<?php echo $disp; ?>">Model</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_serial&o=<?php echo $disp; ?>">Serial</a></th>
-            <th class="text-center">Action</th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
           </tr>
         </thead>
         <tbody>
@@ -105,6 +104,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $asset_purchase_date = $row['asset_purchase_date'];
             $asset_warranty_expire = $row['asset_warranty_expire'];
             $asset_notes = $row['asset_notes'];
+            $client_id = $row['client_id'];
+            $client_name = $row['client_name'];
             $vendor_id = $row['vendor_id'];
             $location_id = $row['location_id'];
             $contact_id = $row['contact_id'];
@@ -137,79 +138,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $device_icon = "tag";
             }
-
-            $sql_logins = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE asset_id = $asset_id");
-            $row = mysqli_fetch_array($sql_logins);
-            $login_id = $row['login_id'];
-            $login_username = $row['login_username'];
-            $login_password = $row['login_password'];
-            $asset_id_relation = $row['asset_id'];
       
           ?>
           <tr>
-            <th>
-              <a class="text-dark" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
-                <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_type; ?>
-              </a>
-            </th>
-            <td>
-              <?php
-              if($asset_id == $asset_id_relation){
-              ?>  
-              <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $login_id; ?>"><i class="fas fa-key text-dark"></i></button>
-
-              <div class="modal" id="viewPasswordModal<?php echo $login_id; ?>" tabindex="-1">
-                <div class="modal-dialog modal-sm">
-                  <div class="modal-content bg-dark">
-                    <div class="modal-header text-white">
-                      <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i><?php echo $asset_name; ?></h5>
-                      <button type="button" class="close text-white" data-dismiss="modal">
-                        <span>&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body bg-white">
-                      <div class="form-group">
-                        <div class="input-group">
-                          <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-user"></i></span>
-                          </div>
-                          <input type="text" class="form-control" value="<?php echo $login_username; ?>" readonly>
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <div class="input-group">
-                          <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-lock"></i></span>
-                          </div>
-                          <input type="text" class="form-control" value="<?php echo $login_password; ?>" readonly>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <?php
-              }
-              echo $asset_name;
-              ?>
-              
-            </td>
+            
+            <td><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_name; ?></td>
+            <td><?php echo $asset_type; ?></td>
             <td><?php echo $asset_make; ?></td>
             <td><?php echo $asset_model; ?></td>
             <td><?php echo $asset_serial; ?></td>
-            <td>
-              <div class="dropdown dropleft text-center">
-                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                  <i class="fas fa-ellipsis-h"></i>
-                </button>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="post.php?delete_asset=<?php echo $asset_id; ?>">Delete</a>
-                </div>
-              </div>
-              <?php include("edit_asset_modal.php"); ?>      
-            </td>
+            <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=assets"><?php echo $client_name; ?></a></td>
           </tr>
 
           <?php
