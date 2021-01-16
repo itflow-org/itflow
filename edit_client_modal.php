@@ -22,9 +22,6 @@
               <a class="nav-link" id="pills-contact-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-contact<?php echo $client_id; ?>">Contact</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-more-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-more<?php echo $client_id; ?>">More</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link" id="pills-notes-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-notes<?php echo $client_id; ?>">Notes</a>
             </li>
           </ul>
@@ -52,6 +49,44 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                   </div>
                   <input type="text" class="form-control" name="type" placeholder="Company Type" value="<?php echo $client_type; ?>">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Referral</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-smile-wink"></i></span>
+                  </div>
+                  <select class="form-control select2" name="referral">
+                    <option value="">N/A</option>
+                    <?php 
+                    
+                    $referral_sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Referral' AND company_id = $session_company_id ORDER BY category_name ASC"); 
+                    while($row = mysqli_fetch_array($referral_sql)){
+                      $referral = $row['category_name'];
+                    ?>
+                      <option <?php if($client_referral == $referral){ echo "selected"; } ?> > <?php echo $referral; ?></option>
+                    
+                    <?php
+                    }
+                    ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Invoice Net Terms</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                  </div>
+                  <select class="form-control select2" name="net_terms">
+                    <option value="">- Net Terms -</option>
+                    <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
+                    <option <?php if($net_term_value == $client_net_terms) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+                    <?php } ?>
+                  </select>
                 </div>
               </div>
 
@@ -169,35 +204,6 @@
                   <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo $client_email; ?>">
                 </div>
               </div>
-            
-            </div>
-
-            <div class="tab-pane fade" id="pills-more<?php echo $client_id; ?>">
-
-              <div class="form-group">
-                <label>Hours</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="hours" placeholder="Hours of operation" value="<?php echo $client_hours; ?>">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Invoice Net Terms</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                  </div>
-                  <select class="form-control select2" name="net_terms">
-                    <option value="">- Net Terms -</option>
-                    <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
-                    <option <?php if($net_term_value == $client_net_terms) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
 
               <div class="form-group">
                 <label>Website</label>
@@ -206,23 +212,6 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                   </div>
                   <input type="text" class="form-control" name="website" placeholder="ex. https://google.com" value="<?php echo $client_website; ?>">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Company Size</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                  </div>
-                  <select class="form-control select2" name="company_size">
-                    <option <?php if($client_company_size == "1 - 3"){ echo "selected"; } ?>>1 - 3</option>
-                    <option <?php if($client_company_size == "4 - 10"){ echo "selected"; } ?>>4 - 10</option>
-                    <option <?php if($client_company_size == "11 - 50"){ echo "selected"; } ?>>11 - 50</option>
-                    <option <?php if($client_company_size == "51 - 100"){ echo "selected"; } ?>>51 - 100</option>
-                    <option <?php if($client_company_size == "101 - 500"){ echo "selected"; } ?>>101 - 500</option>
-                    <option <?php if($client_company_size == "500+"){ echo "selected"; } ?>>500+</option>
-                  </select>
                 </div>
               </div>
             

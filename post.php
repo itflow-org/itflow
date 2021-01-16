@@ -511,12 +511,11 @@ if(isset($_POST['add_client'])){
     $mobile = preg_replace("/[^0-9]/", '',$mobile);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
+    $referral = strip_tags(mysqli_real_escape_string($mysqli,$_POST['referral']));
     $net_terms = intval($_POST['net_terms']);
-    $hours = strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours']));
-    $company_size = strip_tags(mysqli_real_escape_string($mysqli,$_POST['company_size']));
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
 
-    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_country = '$country', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_company_size = '$company_size', client_notes = '$notes', client_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_country = '$country', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_referral = '$referral', client_net_terms = $net_terms, client_notes = '$notes', client_created_at = NOW(), company_id = $session_company_id");
 
     $client_id = mysqli_insert_id($mysqli);
 
@@ -551,12 +550,11 @@ if(isset($_POST['edit_client'])){
     $mobile = preg_replace("/[^0-9]/", '',$mobile);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
+    $referral = strip_tags(mysqli_real_escape_string($mysqli,$_POST['referral']));
     $net_terms = intval($_POST['net_terms']);
-    $hours = strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours']));
-    $company_size = strip_tags(mysqli_real_escape_string($mysqli,$_POST['company_size']));
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
 
-    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_country = '$country', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_net_terms = $net_terms, client_hours = '$hours', client_company_size = '$company_size', client_notes = '$notes', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_country = '$country', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_referral = '$referral', client_net_terms = $net_terms, client_notes = '$notes', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, user_id = $session_user_id");

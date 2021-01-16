@@ -161,7 +161,8 @@ $timezones_array = array(
 $category_types_array = array(
 	'Expense',
 	'Income',
-	'Payment Method'
+	'Payment Method',
+    'Referral'
 );
 
 $asset_types_array = array(

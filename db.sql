@@ -145,9 +145,8 @@ CREATE TABLE `clients` (
   `client_mobile` varchar(200) DEFAULT NULL,
   `client_email` varchar(200) DEFAULT NULL,
   `client_website` varchar(200) DEFAULT NULL,
+  `client_referral` varchar(200) DEFAULT NULL,
   `client_net_terms` int(10) NOT NULL,
-  `client_hours` varchar(200) DEFAULT NULL,
-  `client_company_size` varchar(200) DEFAULT NULL,
   `client_notes` text DEFAULT NULL,
   `client_created_at` datetime NOT NULL,
   `client_updated_at` datetime DEFAULT NULL,
@@ -882,4 +881,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-15 15:05:00
+-- Dump completed on 2021-01-15 19:01:39

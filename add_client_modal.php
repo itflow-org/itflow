@@ -21,9 +21,6 @@
               <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact">Contact</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-more-tab" data-toggle="pill" href="#pills-more">More</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link" id="pills-notes-tab" data-toggle="pill" href="#pills-notes">Notes</a>
             </li>
           </ul>
@@ -51,6 +48,43 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                   </div>
                   <input type="text" class="form-control" name="type" placeholder="Company Type">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Referral</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-smile-wink"></i></span>
+                  </div>
+                  <select class="form-control select2" name="referral">
+                    <option value="">N/A</option>
+                    <?php 
+                    
+                    $referral_sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Referral' AND company_id = $session_company_id ORDER BY category_name ASC"); 
+                    while($row = mysqli_fetch_array($referral_sql)){
+                      $referral = $row['category_name'];
+                    ?>
+                      <option><?php echo $referral; ?></option>
+                    
+                    <?php
+                    }
+                    ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Invoice Net Terms</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                  </div>
+                  <select class="form-control select2" name="net_terms">
+                    <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
+                    <option <?php if($config_default_net_terms == $net_term_value){ echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+                    <?php } ?>
+                  </select>
                 </div>
               </div>
 
@@ -169,34 +203,6 @@
                   <input type="email" class="form-control" name="email" placeholder="Email Address">
                 </div>
               </div>
-            
-            </div>
-
-            <div class="tab-pane fade" id="pills-more">
-
-              <div class="form-group">
-                <label>Hours</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="hours" placeholder="Hours of operation">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Invoice Net Terms</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                  </div>
-                  <select class="form-control select2" name="net_terms">
-                    <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
-                    <option <?php if($config_default_net_terms == $net_term_value){ echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
 
               <div class="form-group">
                 <label>Website</label>
@@ -205,23 +211,6 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                   </div>
                   <input type="url" class="form-control" name="website" placeholder="ex. https://google.com">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Company Size</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                  </div>
-                  <select class="form-control select2" name="company_size">
-                    <option>1 - 3</option>
-                    <option>4 - 10</option>
-                    <option>11 - 50</option>
-                    <option>51 - 100</option>
-                    <option>101 - 500</option>
-                    <option>500+</option>
-                  </select>
                 </div>
               </div>
             

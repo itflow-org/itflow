@@ -16,11 +16,11 @@ if(isset($_GET['client_id'])){
   $row = mysqli_fetch_array($sql);
   $client_name = $row['client_name'];
   $client_type = $row['client_type'];
-  $client_country = $row['client_country'];
   $client_address = $row['client_address'];
   $client_city = $row['client_city'];
   $client_state = $row['client_state'];
   $client_zip = $row['client_zip'];
+  $client_country = $row['client_country'];
   $client_contact = $row['client_contact'];
   $client_email = $row['client_email'];
   $client_phone = $row['client_phone'];
@@ -32,11 +32,11 @@ if(isset($_GET['client_id'])){
     $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
   }
   $client_website = $row['client_website'];
+  $client_referral = $row['client_referral'];
   $client_net_terms = $row['client_net_terms'];
   if($client_net_terms == 0){
     $client_net_terms = $config_default_net_terms;
   }
-  $client_company_size = $row['client_company_size'];
   $client_notes = $row['client_notes'];
 
   //Add up all the payments for the invoice and get the total amount paid to the invoice
