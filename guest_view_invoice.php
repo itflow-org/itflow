@@ -35,6 +35,11 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     if(strlen($client_phone)>2){ 
       $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
     }
+    $client_extension = $row['client_extension'];
+    $client_mobile = $row['client_mobile'];
+    if(strlen($client_mobile)>2){ 
+      $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
+    }
     $client_website = $row['client_website'];
     $client_net_terms = $row['client_net_terms'];
     if($client_net_terms == 0){
@@ -145,7 +150,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
             <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
             <li><?php echo $config_company_address; ?></li>
             <li><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
-            <li>P: <?php echo $config_company_phone; ?></li>
+            <li><?php echo $config_company_phone; ?></li>
             <li><?php echo $config_company_email; ?></li>
           </ul>
           
@@ -156,8 +161,9 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
             <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
             <li><?php echo $client_address; ?></li>
             <li><?php echo "$client_city $client_state $client_zip"; ?></li>
-            <li>P: <?php echo $client_phone; ?></li>
-            <li>E: <?php echo $client_email; ?></li>
+            <li><?php echo "$client_phone $client_extension"; ?></li>
+            <li><?php echo $client_mobile; ?></li>
+            <li><?php echo $client_email; ?></li>
           </ul>
         
         </div>
