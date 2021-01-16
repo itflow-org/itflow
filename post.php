@@ -144,7 +144,7 @@ if(isset($_POST['add_company'])){
     mkdir("uploads/settings/$company_id");
     mkdir("uploads/tmp/$company_id");
  
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_company_country = '$country', config_company_address = '$address', config_company_city = '$city', config_company_state = '$state', config_company_zip = '$zip', config_company_phone = '$phone', config_company_site = '$site', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1");
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_company_country = '$country', config_company_address = '$address', config_company_city = '$city', config_company_state = '$state', config_company_zip = '$zip', config_company_phone = '$phone', config_company_site = '$site', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_records_per_page = 10, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Created', log_description = '$name', log_created_at = NOW()");
@@ -344,8 +344,9 @@ if(isset($_POST['edit_default_settings'])){
     $config_default_transfer_to_account = intval($_POST['config_default_transfer_to_account']);
     $config_default_calendar = intval($_POST['config_default_calendar']);
     $config_default_net_terms = intval($_POST['config_default_net_terms']);
+    $config_records_per_page = intval($_POST['config_records_per_page']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_default_expense_account = $config_default_expense_account, config_default_payment_account = $config_default_payment_account, config_default_payment_method = '$config_default_payment_method', config_default_expense_payment_method = '$config_default_expense_payment_method', config_default_transfer_from_account = $config_default_transfer_from_account, config_default_transfer_to_account = $config_default_transfer_to_account, config_default_calendar = $config_default_calendar, config_default_net_terms = $config_default_net_terms WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_default_expense_account = $config_default_expense_account, config_default_payment_account = $config_default_payment_account, config_default_payment_method = '$config_default_payment_method', config_default_expense_payment_method = '$config_default_expense_payment_method', config_default_transfer_from_account = $config_default_transfer_from_account, config_default_transfer_to_account = $config_default_transfer_to_account, config_default_calendar = $config_default_calendar, config_default_net_terms = $config_default_net_terms, config_records_per_page = $config_records_per_page WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Defaults', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");

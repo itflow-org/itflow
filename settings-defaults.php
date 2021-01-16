@@ -181,7 +181,7 @@
         </div>
       </div>
 
-      <div class="form-group mb-5">
+      <div class="form-group">
         <label>Net Terms</label>
         <div class="input-group">
           <div class="input-group-prepend">
@@ -190,6 +190,20 @@
           <select class="form-control select2" name="config_default_net_terms">
             <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
             <option <?php if($config_default_net_terms == $net_term_value){ echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+            <?php } ?>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group mb-5">
+        <label>Records per Page</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-sort"></i></span>
+          </div>
+          <select class="form-control select2" name="config_records_per_page">
+            <?php foreach($records_per_page_array as $records_per_page) { ?>
+            <option <?php if($config_records_per_page == $records_per_page){ echo "selected"; } ?> ><?php echo $records_per_page; ?></option>
             <?php } ?>
           </select>
         </div>

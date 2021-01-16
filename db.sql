@@ -638,6 +638,7 @@ CREATE TABLE `settings` (
   `config_default_transfer_to_account` int(11) DEFAULT NULL,
   `config_default_calendar` int(11) DEFAULT NULL,
   `config_default_net_terms` int(11) DEFAULT NULL,
+  `config_records_per_page` int(10) NOT NULL,
   `config_company_name` varchar(200) DEFAULT NULL,
   `config_company_country` varchar(200) DEFAULT NULL,
   `config_company_address` varchar(200) DEFAULT NULL,
@@ -881,4 +882,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-15 19:01:39
+-- Dump completed on 2021-01-15 20:10:13

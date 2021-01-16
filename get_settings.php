@@ -50,6 +50,7 @@ $config_default_calendar = $row['config_default_calendar'];
 $config_default_payment_method = $row['config_default_payment_method'];
 $config_default_expense_payment_method = $row['config_default_expense_payment_method'];
 $config_default_net_terms = $row['config_default_net_terms'];
+$config_records_per_page = $row['config_records_per_page'];
 
 $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
 
@@ -62,7 +63,7 @@ $config_aes_key = $row['config_aes_key'];
 $config_base_url = $row['config_base_url'];
 $config_enable_cron = $row['config_enable_cron'];
 
-$config_records_per_page = 20;
+
 
 $net_terms_array = array(
     '0'=>'On Reciept',
@@ -70,6 +71,8 @@ $net_terms_array = array(
     '14'=>'14 Days',
     '30'=>'30 Days'    
 );
+
+$records_per_page_array = array('5','10','15','20','30','50','100');
 
 $states_array = array(
     'AL'=>'Alabama',
