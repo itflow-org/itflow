@@ -210,7 +210,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                   </div>
-                  <input type="url" class="form-control" name="website" placeholder="ex. https://google.com">
+                  <input type="text" class="form-control" name="website" placeholder="ex. google.com">
                 </div>
               </div>
             

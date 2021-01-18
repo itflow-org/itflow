@@ -74,6 +74,7 @@ $total_pages = ceil($total_found_rows / 10);
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_name&o=<?php echo $disp; ?>">Name</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_uri&o=<?php echo $disp; ?>">URL/Host</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_username&o=<?php echo $disp; ?>">Username</a></th>
             <th>Password</th>
             <th class="text-center">Action</th>
@@ -86,6 +87,9 @@ $total_pages = ceil($total_found_rows / 10);
             $login_id = $row['login_id'];
             $login_name = $row['login_name'];
             $login_uri = $row['login_uri'];
+            if(empty($login_uri)){
+              $login_uri = "N/A";
+            }
             $login_username = $row['login_username'];
             $login_password = $row['login_password'];
             $login_note = $row['login_note'];
@@ -97,11 +101,11 @@ $total_pages = ceil($total_found_rows / 10);
           <tr>
             <td>
               <i class="fa fa-fw fa-key text-secondary"></i> 
-              <a class="text-dark" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>"><?php echo $login_name; ?></a>
-              <br>
-              <small class="text-secondary"><?php echo $login_uri; ?></small>
-
+              <a class="text-dark" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">
+                <?php echo $login_name; ?>
+              </a>
             </td>
+            <td><?php echo $login_uri; ?>
             <td><?php echo $login_username; ?></td>
             <td><?php echo $login_password; ?></td>
             <td>
@@ -110,7 +114,6 @@ $total_pages = ceil($total_found_rows / 10);
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <?php if(!empty($login_uri)){ ?> <a class="dropdown-item" href="<?php echo $login_uri; ?>" target='_blank'><i class="fa fa-link"></i> Open URI</a> <?php } ?>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">Edit</a>
                   <a class="dropdown-item" href="post.php?delete_login=<?php echo $login_id; ?>">Delete</a>
                 </div>

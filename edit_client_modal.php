@@ -211,7 +211,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="website" placeholder="ex. https://google.com" value="<?php echo $client_website; ?>">
+                  <input type="text" class="form-control" name="website" placeholder="ex. google.com" value="<?php echo $client_website; ?>">
                 </div>
               </div>
             

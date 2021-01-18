@@ -63,12 +63,12 @@
               </div>
 
               <div class="form-group">
-                <label>URI</label>
+                <label>URL/Host</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                    <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                   </div>
-                  <input type="url" class="form-control" name="uri" placeholder="ex. https://google.com">
+                  <input type="text" class="form-control" name="uri" placeholder="ex. google.com">
                 </div>
               </div>
 
