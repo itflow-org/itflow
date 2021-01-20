@@ -98,6 +98,9 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
             
     while($row = mysqli_fetch_array($sql_payment_years)){
       $payment_year = $row['all_years'];
+      if(empty($payment_year)){
+        $payment_year = date('Y');
+      }
     ?>
     <option <?php if($year == $payment_year){ ?> selected <?php } ?> > <?php echo $payment_year; ?></option>
     
