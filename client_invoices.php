@@ -121,7 +121,7 @@ $total_pages = ceil($total_found_rows / 10);
 
           <tr>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo $invoice_number; ?></a></td>
-            <td class="text-right text-monospace">$<?php echo number_format($invoice_amount,2); ?></td>
+            <td class="text-right">$<?php echo number_format($invoice_amount,2); ?></td>
             <td><?php echo $invoice_date; ?></td>
             <td><div class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></div></td>
             <td><?php echo $category_name; ?></td>

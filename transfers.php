@@ -101,7 +101,7 @@ $total_pages = ceil($total_found_rows / 10);
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTransferModal<?php echo $transfer_id; ?>"><?php echo $transfer_date; ?></a></td>
             <td><?php echo $account_name_from; ?></td>
             <td><?php echo $account_name_to; ?></td>
-            <td class="text-right text-monospace">$<?php echo number_format($transfer_amount,2); ?></td>
+            <td class="text-right">$<?php echo number_format($transfer_amount,2); ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

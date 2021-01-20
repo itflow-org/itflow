@@ -100,7 +100,7 @@
           
           <tr>
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>"><?php echo $account_name; ?></a></td>
-            <td class="text-right text-monospace">$<?php echo number_format($balance,2); ?></td>
+            <td class="text-right">$<?php echo number_format($balance,2); ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -109,7 +109,7 @@ $total_pages = ceil($total_found_rows / 10);
 
               <tr>
                 <td><?php echo ucwords($recurring_frequency); ?>ly</td>
-                <td class="text-right text-monospace">$<?php echo number_format($recurring_amount,2); ?></td>
+                <td class="text-right">$<?php echo number_format($recurring_amount,2); ?></td>
                 <td><?php echo $recurring_last_sent; ?></td>
                 <td><?php echo $recurring_next_date; ?></td>
                 <td><?php echo $category_name; ?></td>

@@ -112,7 +112,7 @@
             <td><?php echo $payment_date; ?></td>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo $invoice_number; ?></a></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=payments"><?php echo $client_name; ?></a></td>
-            <td class="text-right text-monospace">$<?php echo number_format($payment_amount,2); ?></td>
+            <td class="text-right">$<?php echo number_format($payment_amount,2); ?></td>
             
             <td><?php echo $account_name; ?></td>
             <td><?php echo $payment_method; ?></td>

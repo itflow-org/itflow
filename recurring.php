@@ -114,7 +114,7 @@
             <td><a href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>"><?php echo $recurring_next_date; ?></a></td>
             <td><?php echo ucwords($recurring_frequency); ?>ly</td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=recurring"><?php echo $client_name; ?></a></td>
-            <td class="text-right text-monospace">$<?php echo number_format($recurring_amount,2); ?></td>
+            <td class="text-right">$<?php echo number_format($recurring_amount,2); ?></td>
             <td><?php echo $recurring_last_sent; ?></td>
             <td><?php echo $category_name; ?></td>
             <td>

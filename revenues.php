@@ -100,7 +100,7 @@
           <tr>
             <td><a href="#" data-toggle="modal" data-target="#editRevenueModal<?php echo $revenue_id; ?>"><?php echo $revenue_date; ?></a></td>
             <td><?php echo $category_name; ?></td>
-            <td class="text-right text-monospace">$<?php echo number_format($revenue_amount,2); ?></td>
+            <td class="text-right">$<?php echo number_format($revenue_amount,2); ?></td>
             <td><?php echo $account_name; ?></td>
             <td><?php echo $revenue_payment_method; ?></td>
             <td><?php echo $revenue_reference; ?></td>
