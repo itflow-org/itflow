@@ -17,21 +17,6 @@
           <input type="text" class="form-control" name="config_company_name" placeholder="Company Name" value="<?php echo $config_company_name; ?>" required>  
         </div>
       </div>
-      
-      <div class="form-group">
-        <label>Country</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-          </div>
-          <select class="form-control select2" name="config_company_country">
-            <option value="">- Country -</option>
-            <?php foreach($countries_array as $country_name) { ?>
-            <option <?php if($config_company_country == $country_name) { echo "selected"; } ?>><?php echo $country_name; ?></option>
-            <?php } ?>
-          </select>
-        </div>
-      </div>
 
       <div class="form-group">
         <label>Address</label>
@@ -85,6 +70,21 @@
             <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
           </div>
           <input type="text" class="form-control" name="config_company_phone" placeholder="Phone Number" value="<?php echo $config_company_phone; ?>" data-inputmask="'mask': '999-999-9999'" > 
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Country</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+          </div>
+          <select class="form-control select2" name="config_company_country">
+            <option value="">- Country -</option>
+            <?php foreach($countries_array as $country_name) { ?>
+            <option <?php if($config_company_country == $country_name) { echo "selected"; } ?>><?php echo $country_name; ?></option>
+            <?php } ?>
+          </select>
         </div>
       </div>
 

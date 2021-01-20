@@ -15,6 +15,7 @@ $config_company_phone = $row['config_company_phone'];
 if(strlen($config_company_phone)>2){ 
   $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
 }
+$config_company_country = $row['config_company_country'];
 $config_company_site = $row['config_company_site'];
 
 $config_quote_footer = $row['config_quote_footer'];
