@@ -27,6 +27,7 @@ if(isset($_GET['client_id'])){
   if(strlen($client_phone)>2){ 
     $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
   }
+  $client_extension = $row['client_extension'];
   $client_mobile = $row['client_mobile'];
   if(strlen($client_mobile)>2){ 
     $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
