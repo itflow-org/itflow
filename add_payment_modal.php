@@ -119,7 +119,7 @@
           <div class="form-group">
             <label>Email Receipt</label>
             <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_receipt" value="1" >
+              <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_receipt" value="1" <?php if(!empty($config_smtp_host)) echo "checked"; ?>>
               <label class="custom-control-label" for="customControlAutosizing"><?php echo $client_email; ?></label>
             </div>
           </div>
