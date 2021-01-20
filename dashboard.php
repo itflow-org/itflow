@@ -326,7 +326,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
 	              $balance = '0.00'; 
 	            }
 	            ?>
-	            <td class="text-right text-monospace">$<?php echo number_format($balance,2); ?></td>
+	            <td class="text-right">$<?php echo number_format($balance,2); ?></td>
 	          </tr>
 	          <?php
 	        	}
@@ -369,7 +369,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
               <td><?php echo $payment_date; ?></td>
               <td><?php echo $client_name; ?></td>
               <td><?php echo $invoice_number; ?></td>
-              <td class="text-right text-monospace">$<?php echo number_format($payment_amount,2); ?></td>
+              <td class="text-right">$<?php echo number_format($payment_amount,2); ?></td>
             </tr>
             <?php
 		        }
@@ -412,7 +412,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
               <td><?php echo $expense_date; ?></td>
               <td><?php echo $vendor_name; ?></td>
               <td><?php echo $category_name; ?></td>
-              <td class="text-right text-monospace">$<?php echo number_format($expense_amount,2); ?></td>
+              <td class="text-right">$<?php echo number_format($expense_amount,2); ?></td>
             </tr>
            	<?php
 		        }
