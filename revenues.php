@@ -75,9 +75,9 @@
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=revenue_date&o=<?php echo $disp; ?>">Date</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Category</a></th>
             <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=revenue_amount&o=<?php echo $disp; ?>">Amount</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=account_name&o=<?php echo $disp; ?>">Account</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=revenue_payment_method&o=<?php echo $disp; ?>">Method</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=revenue_reference&o=<?php echo $disp; ?>">Reference</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=account_name&o=<?php echo $disp; ?>">Account</a></th>
           </tr>
         </thead>
         <tbody>
@@ -101,9 +101,9 @@
             <td><a href="#" data-toggle="modal" data-target="#editRevenueModal<?php echo $revenue_id; ?>"><?php echo $revenue_date; ?></a></td>
             <td><?php echo $category_name; ?></td>
             <td class="text-right">$<?php echo number_format($revenue_amount,2); ?></td>
-            <td><?php echo $account_name; ?></td>
             <td><?php echo $revenue_payment_method; ?></td>
             <td><?php echo $revenue_reference; ?></td>
+            <td><?php echo $account_name; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">

@@ -82,13 +82,14 @@
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=payment_date&o=<?php echo $disp; ?>">Date</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=payment_date&o=<?php echo $disp; ?>">Payment Date</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_date&o=<?php echo $disp; ?>">Invoice Date</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_number&o=<?php echo $disp; ?>">Invoice</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
             <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=payment_amount&o=<?php echo $disp; ?>">Amount</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=account_name&o=<?php echo $disp; ?>">Account</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=payment_method&o=<?php echo $disp; ?>">Method</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=payment_method&o=<?php echo $disp; ?>">Payment Method</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=payment_reference&o=<?php echo $disp; ?>">Reference</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=account_name&o=<?php echo $disp; ?>">Account</a></th>
           </tr>
         </thead>
         <tbody>
@@ -98,6 +99,7 @@
             $invoice_id = $row['invoice_id'];
             $invoice_number = $row['invoice_number'];
             $invoice_status = $row['invoice_status'];
+            $invoice_date = $row['invoice_date'];
             $payment_date = $row['payment_date'];
             $payment_method = $row['payment_method'];
             $payment_amount = $row['payment_amount'];
@@ -110,13 +112,13 @@
 
           <tr>
             <td><?php echo $payment_date; ?></td>
+            <td><?php echo $invoice_date; ?></td>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo $invoice_number; ?></a></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=payments"><?php echo $client_name; ?></a></td>
             <td class="text-right">$<?php echo number_format($payment_amount,2); ?></td>
-            
-            <td><?php echo $account_name; ?></td>
             <td><?php echo $payment_method; ?></td>
             <td><?php echo $payment_reference; ?></td>
+            <td><?php echo $account_name; ?></td>
           </tr>
 
           <?php
