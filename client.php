@@ -180,13 +180,14 @@ if(isset($_GET['client_id'])){
       </div>
       <div class="col-md-1 border-left">
         <div class="dropdown dropleft text-center">
-          <button class="btn btn-dark btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button class="btn btn-dark btn-sm float-right" type="button" data-toggle="dropdown">
             <i class="fas fa-fw fa-ellipsis-v"></i>
           </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <div class="dropdown-menu">
             <a class="dropdown-item" href="client_print.php?client_id=<?php echo $client_id; ?>">Print</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
+            <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
           </div>
         </div>

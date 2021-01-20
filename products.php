@@ -72,6 +72,7 @@
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Category</a></th>
             <th>Description</th>
             <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=product_cost&o=<?php echo $disp; ?>">Cost</a></th>
+            <th class="text-center">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -90,7 +91,19 @@
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>"><?php echo $product_name; ?></a></td>
             <td><?php echo $category_name; ?></td>
             <td><?php echo $product_description; ?></td>
-            <td class="text-right">$<?php echo number_format($product_cost,2); ?></td>      
+            <td class="text-right">$<?php echo number_format($product_cost,2); ?></td>
+            <td>
+              <div class="dropdown dropleft text-center">
+                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                  <i class="fas fa-ellipsis-h"></i>
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>">Edit</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="post.php?delete_product=<?php echo $product_id; ?>">Delete</a>
+                </div>
+              </div>      
+            </td>   
           </tr>
 
           <?php include("edit_product_modal.php"); ?>

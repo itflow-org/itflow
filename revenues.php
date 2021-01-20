@@ -78,6 +78,7 @@
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=revenue_payment_method&o=<?php echo $disp; ?>">Method</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=revenue_reference&o=<?php echo $disp; ?>">Reference</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=account_name&o=<?php echo $disp; ?>">Account</a></th>
+            <th class="text-center">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -106,12 +107,13 @@
             <td><?php echo $account_name; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
-                <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRevenueModal<?php echo $revenue_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="post.php?delete_revenue=<?php echo $revenue_id; ?>"><i class="fa fa-fw fa-trash"></i> Delete</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="post.php?delete_revenue=<?php echo $revenue_id; ?>">Delete</a>
                 </div>
               </div>
               <?php

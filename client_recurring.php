@@ -120,16 +120,18 @@ $total_pages = ceil($total_found_rows / 10);
                 </td>
                 <td>
                   <div class="dropdown dropleft text-center">
-                    <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                       <i class="fas fa-ellipsis-h"></i>
                     </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <div class="dropdown-menu">
                       <a class="dropdown-item" href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>">Edit</a>
+                      <div class="dropdown-divider"></div>
                       <?php if($recurring_status == 1){ ?>
                         <a class="dropdown-item" href="post.php?recurring_deactivate=<?php echo $recurring_id; ?>">Deactivate</a>
                       <?php }else{ ?>
                         <a class="dropdown-item" href="post.php?recurring_activate=<?php echo $recurring_id; ?>">Activate</a>
                       <?php } ?>
+                      <div class="dropdown-divider"></div>
                       <a class="dropdown-item" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">Delete</a>
                     </div>
                   </div>      
