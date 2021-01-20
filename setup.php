@@ -472,21 +472,6 @@ if(isset($_POST['add_company_settings'])){
                     <input type="text" class="form-control" name="config_company_name" placeholder="Company Name" autofocus required>  
                   </div>
                 </div>
-
-                <div class="form-group">
-                  <label>Country</label>
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                    </div>
-                    <select class="form-control select2" name="country">
-                      <option value="">- Country -</option>
-                      <?php foreach($countries_array as $country_name) { ?>
-                      <option><?php echo $country_name; ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
                 
                 <div class="form-group">
                   <label>Address</label>
@@ -540,6 +525,21 @@ if(isset($_POST['add_company_settings'])){
                       <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                     </div>
                     <input type="text" class="form-control" name="config_company_phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'"> 
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Country</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                    </div>
+                    <select class="form-control select2" name="country">
+                      <option value="">- Country -</option>
+                      <?php foreach($countries_array as $country_name) { ?>
+                      <option><?php echo $country_name; ?></option>
+                      <?php } ?>
+                    </select>
                   </div>
                 </div>
 
