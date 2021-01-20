@@ -632,7 +632,7 @@ var myLineChart = new Chart(ctx, {
       yAxes: [{
         ticks: {
           min: 0,
-          max: <?php echo roundUpToNearestMultiple($largest_trip_miles_month); ?>,
+          max: <?php $max = max(1000, $largest_trip_miles_month); echo roundUpToNearestMultiple($max); ?>,
           maxTicksLimit: 5
         },
         gridLines: {
