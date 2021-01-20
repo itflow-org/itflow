@@ -67,8 +67,9 @@
 
 * Change directory to your webroot
 * git clone https://github.com/johnnyq/itflow.git .
+* Set web owner on public web directory usually chown -R www-data:www-data /var/www
 * Create a MySQL database
-* Point your browser to your web Server
+* Point your browser to your Web Server
 * Go through the Setup Process
 * Login
 * Start inputing some data
