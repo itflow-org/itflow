@@ -122,7 +122,7 @@ $total_pages = ceil($total_found_rows / 10);
             <td><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a></td>
             <td>
               <?php
-              if(!empty($contact_phone)){
+              if(!empty($contact_phone) OR !empty($contact_extension)){
               ?>
               <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $contact_phone; ?> <?php if(!empty($contact_extension)){ echo "x$contact_extension"; } ?>
               <br>
