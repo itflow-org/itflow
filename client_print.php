@@ -97,7 +97,7 @@ if(isset($_GET['client_id'])){
 
 <div class="row">
   <div class="col-9">
-    <h2><?php echo $client_name; ?></h2>
+    <h2><?php echo $client_name; ?> <small><?php echo date('Y-m-d'); ?></small></h2>
     <table class="table">
       <tr>
         <th>Address</th>
