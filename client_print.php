@@ -23,7 +23,7 @@ if(isset($_GET['client_id'])){
 
   //Query each table and store them in their array
   $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_name ASC");
-  $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE client_id = $client_id ORDER BY location_id DESC");
+  $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE client_id = $client_id ORDER BY location_name ASC");
   $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE client_id = $client_id ORDER BY asset_type ASC");
   $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id ORDER BY vendor_name ASC");
   $sql_logins = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE client_id = $client_id ORDER BY login_name ASC");
@@ -96,16 +96,34 @@ if(isset($_GET['client_id'])){
 <button class="btn btn-primary btn-sm d-print-none mb-3" onclick="window.print();"><i class="fa fa-print"></i> Print</button>
 
 <div class="row">
+  <div class="col-12">
+    <table class="table table-bordered mb-5">
+      <tr>
+        <th>Document</th>
+        <td>IT Documentation</td>
+        <th>Date</th>
+        <td><?php echo date('Y-m-d'); ?></td>
+      </tr>
+      <tr>
+        <th>Prepared By</th>
+        <td><?php echo $session_name; ?></td>
+        <th></th>
+        <th>Confidential</th>
+      </tr>
+    </table>
+  </div>
+</div>
+<div class="row">
   <div class="col-9">
-    <h2><?php echo $client_name; ?> <small><?php echo date('Y-m-d'); ?></small></h2>
+    <h2><?php echo $client_name; ?></h2>
     <table class="table">
       <tr>
         <th>Address</th>
-        <td><?php echo $client_address; ?></td>
-      </tr>
-      <tr>
-        <th>City State Zip</th>
-        <td><?php echo "$client_city $client_state $client_zip"; ?></td>
+        <td>
+          <?php echo $client_address; ?>
+          <br>
+          <?php echo "$client_city $client_state $client_zip"; ?>
+        </td>
       </tr>
       <tr>
         <th>Phone</th>
@@ -154,7 +172,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_contacts > 0){ ?>
-<h4 id="contacts">Contacts</h4>
+<h4 id="contacts">Contacts <small>(<?php echo $num_contacts; ?>)</small></h4>
 <table class="table table-bordered table-compact table-sm mb-4">
   <thead>
     <tr>
@@ -205,7 +223,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_locations > 0){ ?>
-<h4 id="locations">Locations</h4>
+<h4 id="locations">Locations <small>(<?php echo $num_locations; ?>)</small></h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -232,7 +250,7 @@ if(isset($_GET['client_id'])){
     ?>
     <tr>
       <td><?php echo $location_name; ?></td>
-      <td><?php echo "$location_address $location_city $location_state $location_zip"; ?></td>
+      <td><?php echo "$location_address<br>$location_city $location_state $location_zip"; ?></td>
       <td><?php echo $location_phone; ?></td>
     </tr>
 
@@ -248,7 +266,7 @@ if(isset($_GET['client_id'])){
  
 
 <?php if($num_assets > 0){ ?>
-<h4 id="assets">Assets</h4>
+<h4 id="assets">Assets <small>(<?php echo $num_assets; ?>)</small></h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -304,7 +322,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_vendors > 0){ ?>
-<h4 id="vendors">Vendors</h4>
+<h4 id="vendors">Vendors <small>(<?php echo $num_vendors; ?>)</small></h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -354,15 +372,15 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_logins > 0){ ?>
-<h4 id="logins">Logins</h4>
+<h4 id="logins">Logins <small>(<?php echo $num_logins; ?>)</small></h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
-      <th>Category</th>
       <th>Name</th>
+      <th>URL/Host</th>
       <th>Username</th>
       <th>Password</th>
-      <th>URL</th>
+      
     </tr>
   </thead>
   <tbody>
@@ -378,11 +396,10 @@ if(isset($_GET['client_id'])){
 
     ?>
     <tr>
-      <td><?php echo $login_category; ?></td>
       <td><?php echo $login_name; ?></td>
+      <td><?php echo $login_uri; ?></td>
       <td><?php echo $login_username; ?></td>
       <td><?php echo $login_password; ?></td>
-      <td><?php echo $login_uri; ?></td>
     </tr>
 
     <?php
@@ -395,7 +412,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_networks > 0){ ?>
-<h4 id="networks">Networks</h4>
+<h4 id="networks">Networks <small>(<?php echo $num_networks; ?>)</small></h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -437,7 +454,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_domains > 0){ ?>
-<h4 id="domains">Domains</h4>
+<h4 id="domains">Web Domains <small>(<?php echo $num_domains; ?>)</small></h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -486,7 +503,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_software > 0){ ?>
-<h4 id="software">Software</h4>
+<h4 id="software">Software <small>(<?php echo $num_software; ?>)</small></h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -521,7 +538,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_invoices > 0){ ?>
-<h4 id="invoices">Invoices</h4>
+<h4 id="invoices">Invoices <small>(<?php echo $num_invoices; ?>)</small></h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -565,17 +582,17 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_payments > 0){ ?>
-<h4 id="payments">Payments</h4>
+<h4 id="payments">Payments <small>(<?php echo $num_payments; ?>)</small></h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
-      <th>Date Recieved</th>
+      <th>Date Received</th>
       <th>Date Due</th>
       <th>Invoice</th>
-      <th class="text-right">initial Invoice Amount</th>
+      <th class="text-right">Invoice Amount</th>
       <th class="text-right">Amount Payed</th>
       <th class="text-right">Invoice Balance</th>
-      <th>Method</th>
+      <th>Payment Method</th>
       <th>Check #</th>
     </tr>
   </thead>
@@ -620,7 +637,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_quotes > 0){ ?>
-<h4 id="quotes">Quotes</h4>
+<h4 id="quotes">Quotes <small>(<?php echo $num_quotes; ?>)</small></h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -661,7 +678,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_recurring > 0){ ?>
-<h4 id="recurring">Recurring Invoices</h4>
+<h4 id="recurring">Recurring Invoices <small>(<?php echo $num_recurring; ?>)</small></h4>
 <table class="table table-bordered table-sm mb-4">
   <thead>
     <tr>
@@ -714,7 +731,7 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_notes > 0){ ?>
-<h4 id="notes">Notes</h4>
+<h4 id="notes">Notes <small>(<?php echo $num_notes; ?>)</small></h4>
 <hr>
 
 <?php
