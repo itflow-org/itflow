@@ -178,7 +178,7 @@ if(isset($_GET['client_id'])){
       }
       $contact_extension = $row['contact_extension'];
       if(!empty($contact_extension)){
-        $contact_extension = "x $contact_extension";
+        $contact_extension = "x$contact_extension";
       }
       $contact_mobile = $row['contact_mobile'];
       if(strlen($contact_mobile)>2){ 
