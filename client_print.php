@@ -160,10 +160,9 @@ if(isset($_GET['client_id'])){
     <tr>
       <th>Name</th>
       <th>Title</th>
-      <th>Phone</th>
-      <th>Ext</th>
-      <th>Mobile</th>
       <th>Email</th>
+      <th>Phone</th>
+      <th>Mobile</th>
     </tr>
   </thead>
   <tbody>
@@ -178,6 +177,9 @@ if(isset($_GET['client_id'])){
         $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
       }
       $contact_extension = $row['contact_extension'];
+      if(!empty($contact_extension)){
+        $contact_extension = "x $contact_extension";
+      }
       $contact_mobile = $row['contact_mobile'];
       if(strlen($contact_mobile)>2){ 
         $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
@@ -188,10 +190,9 @@ if(isset($_GET['client_id'])){
     <tr>
       <td><?php echo $contact_name; ?></td>
       <td><?php echo $contact_title; ?></td>
-      <td><?php echo $contact_phone; ?></td>
-      <td><?php echo $contact_extension; ?></td>
-      <td><?php echo $contact_mobile; ?></td>
       <td><?php echo $contact_email; ?></td>
+      <td><?php echo "$contact_phone $contact_extension"; ?></td>
+      <td><?php echo $contact_mobile; ?></td>
     </tr>
 
     <?php
