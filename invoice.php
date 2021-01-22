@@ -19,6 +19,7 @@ if(isset($_GET['invoice_id'])){
   $row = mysqli_fetch_array($sql);
   $invoice_id = $row['invoice_id'];
   $invoice_number = $row['invoice_number'];
+  $invoice_scope = $row['invoice_scope'];
   $invoice_status = $row['invoice_status'];
   $invoice_date = $row['invoice_date'];
   $invoice_due = $row['invoice_due'];

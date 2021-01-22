@@ -105,7 +105,7 @@
     AND invoices.category_id = categories.category_id
     AND invoices.company_id = $session_company_id
     AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
-    AND (invoice_number LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%')
+    AND (invoice_number LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR category_name LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -193,6 +193,7 @@
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_number&o=<?php echo $disp; ?>">Number</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_scope&o=<?php echo $disp; ?>">Scope</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
             <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_amount&o=<?php echo $disp; ?>">Amount</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_date&o=<?php echo $disp; ?>">Invoice Date</a></th>
@@ -208,6 +209,7 @@
           while($row = mysqli_fetch_array($sql)){
             $invoice_id = $row['invoice_id'];
             $invoice_number = $row['invoice_number'];
+            $invoice_scope = $row['invoice_scope'];
             $invoice_status = $row['invoice_status'];
             $invoice_date = $row['invoice_date'];
             $invoice_due = $row['invoice_due'];
@@ -247,6 +249,7 @@
 
           <tr>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo $invoice_number; ?></a></td>
+            <td><?php echo $invoice_scope; ?></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=invoices"><?php echo $client_name; ?></a></td>
             <td class="text-right">$<?php echo number_format($invoice_amount,2); ?></td>
             <td><?php echo $invoice_date; ?></td>

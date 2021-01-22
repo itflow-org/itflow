@@ -43,7 +43,7 @@ if(isset($_GET['o'])){
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM invoices, categories 
   WHERE invoices.client_id = $client_id 
   AND invoices.category_id = categories.category_id 
-  AND (invoice_number LIKE '%$q%' OR category_name LIKE '%$q%' OR invoice_status LIKE '%$q%') 
+  AND (invoice_number LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR invoice_status LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -74,6 +74,7 @@ $total_pages = ceil($total_found_rows / 10);
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_number&o=<?php echo $disp; ?>">Number</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_scope&o=<?php echo $disp; ?>">Scope</a></th>
             <th class="text-right"><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_amount&o=<?php echo $disp; ?>">Amount</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_date&o=<?php echo $disp; ?>">Date</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_due&o=<?php echo $disp; ?>">Due</a></th>
@@ -88,6 +89,7 @@ $total_pages = ceil($total_found_rows / 10);
           while($row = mysqli_fetch_array($sql)){
             $invoice_id = $row['invoice_id'];
             $invoice_number = $row['invoice_number'];
+            $invoice_scope = $row['invoice_scope'];
             $invoice_status = $row['invoice_status'];
             $invoice_date = $row['invoice_date'];
             $invoice_due = $row['invoice_due'];
@@ -121,6 +123,7 @@ $total_pages = ceil($total_found_rows / 10);
 
           <tr>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo $invoice_number; ?></a></td>
+            <td><?php echo $invoice_scope; ?></td>
             <td class="text-right">$<?php echo number_format($invoice_amount,2); ?></td>
             <td><?php echo $invoice_date; ?></td>
             <td><div class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></div></td>

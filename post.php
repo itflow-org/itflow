@@ -1352,6 +1352,7 @@ if(isset($_POST['add_invoice'])){
     $client = intval($_POST['client']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $category = intval($_POST['category']);
+    $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
     
     //Get Net Terms
     $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients WHERE client_id = $client AND company_id = $session_company_id"); 
@@ -1366,7 +1367,7 @@ if(isset($_POST['add_invoice'])){
     //Generate a unique URL key for clients to access
     $url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_scope = '$scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client, company_id = $session_company_id");
     $invoice_id = mysqli_insert_id($mysqli);
     
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
@@ -1385,8 +1386,9 @@ if(isset($_POST['edit_invoice'])){
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $due = strip_tags(mysqli_real_escape_string($mysqli,$_POST['due']));
     $category = intval($_POST['category']);
+    $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_date = '$date', invoice_due = '$due', invoice_updated_at = NOW(), category_id = $category WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_scope = '$scope', invoice_date = '$date', invoice_due = '$due', invoice_updated_at = NOW(), category_id = $category WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Modified', log_description = '$invoice_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -1413,6 +1415,7 @@ if(isset($_POST['add_invoice_copy'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
+    $invoice_scope = $row['invoice_scope'];
     $invoice_amount = $row['invoice_amount'];
     $invoice_note = mysqli_real_escape_string($mysqli,$row['invoice_note']);
     $client_id = $row['client_id'];
@@ -1421,7 +1424,7 @@ if(isset($_POST['add_invoice_copy'])){
     //Generate a unique URL key for clients to access
     $url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id") or die(mysql_error());
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_scope = '$invoice_scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id") or die(mysql_error());
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
