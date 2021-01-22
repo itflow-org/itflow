@@ -54,6 +54,16 @@ if(isset($_GET['ticket_id'])){
     $ticket_badge_color = "secondary";
   }
 
+  if($ticket_priority == "High"){
+    $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
+  }elseif($ticket_priority == "Medium"){
+    $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
+  }elseif($ticket_priority == "Low"){
+    $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
+  }else{
+    $ticket_priority_display = "-";
+  }
+
 ?>
 
 <!-- Breadcrumbs-->
@@ -169,7 +179,7 @@ if(isset($_GET['ticket_id'])){
 
     <div class="card card-body mb-3"> 
       <h4 class="text-secondary">Details</h4>
-      <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i> <?php echo $ticket_priority; ?></div>
+      <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i> <?php echo $ticket_priority_display; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $name; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_at; ?></div>
     </div>

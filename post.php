@@ -767,7 +767,7 @@ if(isset($_POST['edit_ticket'])){
     $priority = strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority']));
     $details = mysqli_real_escape_string($mysqli,$_POST['details']);
 
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details' ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modified', log_description = '$subject', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");

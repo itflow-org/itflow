@@ -76,7 +76,7 @@ $total_pages = ceil($total_found_rows / 10);
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_subject&o=<?php echo $disp; ?>">Subject</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_created_at&o=<?php echo $disp; ?>">Date Opened</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_status&o=<?php echo $disp; ?>">Status</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_priority&o=<?php echo $disp; ?>">Priority</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_priority&o=<?php echo $disp; ?>">Priority</a></th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -104,6 +104,16 @@ $total_pages = ceil($total_found_rows / 10);
               $ticket_badge_color = "info";
             }
 
+            if($ticket_priority == "High"){
+              $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
+            }elseif($ticket_priority == "Medium"){
+              $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
+            }elseif($ticket_priority == "Low"){
+              $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
+            }else{
+              $ticket_priority_display = "-";
+            }
+
           ?>
 
           <tr>
@@ -115,7 +125,7 @@ $total_pages = ceil($total_found_rows / 10);
                 <?php echo $ticket_status; ?>
               </span>
             </td>
-            <td><?php echo $ticket_priority; ?></td>
+            <td><?php echo $ticket_priority_display; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

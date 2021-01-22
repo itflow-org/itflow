@@ -126,6 +126,16 @@
               $ticket_badge_color = "info";
             }
 
+            if($ticket_priority == "High"){
+              $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
+            }elseif($ticket_priority == "Medium"){
+              $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
+            }elseif($ticket_priority == "Low"){
+              $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
+            }else{
+              $ticket_priority_display = "-";
+            }
+
           ?>
 
           <tr>
@@ -139,7 +149,7 @@
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></td>
             <td><?php echo $ticket_subject; ?></td>
             <td>Never</td>
-            <td><?php echo $ticket_priority; ?></td>
+            <td><?php echo $ticket_priority_display; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
