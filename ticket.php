@@ -47,11 +47,11 @@ if(isset($_GET['ticket_id'])){
   $name = $row['name'];
 
   if($ticket_status == "Open"){
-    $ticket_badge_color = "primary";
+    $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
   }elseif($ticket_status == "Working"){
-    $ticket_badge_color = "success";
+    $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
   }else{
-    $ticket_badge_color = "secondary";
+    $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
   }
 
   if($ticket_priority == "High"){
@@ -79,13 +79,7 @@ if(isset($_GET['ticket_id'])){
 
 <div class="row mb-3">
   <div class="col-9">
-
-    <h3>
-      Ticket <?php echo $ticket_number; ?>
-      <span class="p-2 badge badge-<?php echo $ticket_badge_color; ?>">
-        <?php echo $ticket_status; ?>
-      </span>
-    </h3>
+    <h3>Ticket <?php echo $ticket_number; ?> <?php echo $ticket_status_display; ?></h3>
   </div>
   <div class="col-3">
 
