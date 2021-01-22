@@ -117,13 +117,11 @@
             $client_name = $row['client_name'];
 
             if($ticket_status == "Open"){
-              $ticket_badge_color = "primary";
-            }elseif($ticket_status == "Resolved"){
-              $ticket_badge_color = "success";
-            }elseif($ticket_status == "Closed"){
-              $ticket_badge_color = "secondary";
+              $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
+            }elseif($ticket_status == "Working"){
+              $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
             }else{
-              $ticket_badge_color = "info";
+              $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
             }
 
             if($ticket_priority == "High"){
@@ -140,11 +138,7 @@
 
           <tr>
             <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_id; ?></a></td>
-            <td>
-              <span class="p-2 badge badge-<?php echo $ticket_badge_color; ?>">
-                <?php echo $ticket_status; ?>
-              </span>
-            </td>
+            <td><?php echo $ticket_status_display; ?></td>
             <td><?php echo $ticket_created_at; ?></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></td>
             <td><?php echo $ticket_subject; ?></td>
