@@ -12,6 +12,20 @@
         <div class="modal-body bg-white">
         
           <div class="form-group">
+            <label>Priority <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+              </div>
+              <select class="form-control select2" name="priority" required>
+                <option <?php if($ticket_priority == 'Low'){ echo "selected"; } ?> >Low</option>
+                <option <?php if($ticket_priority == 'Medium'){ echo "selected"; } ?> >Medium</option>
+                <option <?php if($ticket_priority == 'High'){ echo "selected"; } ?> >High</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
             <label>Subject <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">

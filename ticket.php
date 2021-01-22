@@ -38,6 +38,7 @@ if(isset($_GET['ticket_id'])){
   $ticket_category = $row['ticket_category'];
   $ticket_subject = $row['ticket_subject'];
   $ticket_details = $row['ticket_details'];
+  $ticket_priority = $row['ticket_priority'];
   $ticket_status = $row['ticket_status'];
   $ticket_created_at = $row['ticket_created_at'];
   $ticket_updated_at = $row['ticket_updated_at'];
@@ -83,8 +84,6 @@ if(isset($_GET['ticket_id'])){
         <i class="fas fa-fw fa-ellipsis-v"></i>
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="client_print.php?client_id=<?php echo $client_id; ?>">Print</a>
-        <div class="dropdown-divider"></div>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
@@ -170,6 +169,7 @@ if(isset($_GET['ticket_id'])){
 
     <div class="card card-body mb-3"> 
       <h4 class="text-secondary">Details</h4>
+      <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i> <?php echo $ticket_priority; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $name; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_at; ?></div>
     </div>

@@ -751,6 +751,7 @@ CREATE TABLE `tickets` (
   `ticket_category` varchar(200) DEFAULT NULL,
   `ticket_subject` varchar(200) NOT NULL,
   `ticket_details` text NOT NULL,
+  `ticket_priority` varchar(200) DEFAULT NULL,
   `ticket_status` varchar(200) NOT NULL,
   `ticket_created_at` datetime NOT NULL,
   `ticket_updated_at` datetime DEFAULT NULL,
@@ -882,4 +883,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-15 20:10:13
+-- Dump completed on 2021-01-22 18:05:30

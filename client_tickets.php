@@ -42,7 +42,7 @@ if(isset($_GET['o'])){
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM tickets 
   WHERE client_id = $client_id 
-  AND (ticket_id LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%')
+  AND (ticket_number LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%')
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -76,6 +76,7 @@ $total_pages = ceil($total_found_rows / 10);
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_subject&o=<?php echo $disp; ?>">Subject</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_created_at&o=<?php echo $disp; ?>">Date Opened</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_status&o=<?php echo $disp; ?>">Status</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_priority&o=<?php echo $disp; ?>">Priority</a></th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -87,6 +88,7 @@ $total_pages = ceil($total_found_rows / 10);
             $ticket_number = $row['ticket_number'];
             $ticket_subject = $row['ticket_subject'];
             $ticket_details = $row['ticket_details'];
+            $ticket_priority = $row['ticket_priority'];
             $ticket_status = $row['ticket_status'];
             $ticket_created_at = $row['ticket_created_at'];
             $ticket_updated_at = $row['ticket_updated_at'];
@@ -113,6 +115,7 @@ $total_pages = ceil($total_found_rows / 10);
                 <?php echo $ticket_status; ?>
               </span>
             </td>
+            <td><?php echo $ticket_priority; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

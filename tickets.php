@@ -50,7 +50,7 @@
     WHERE tickets.client_id = clients.client_id
     AND tickets.company_id = $session_company_id
     AND ticket_status LIKE '%$status%'
-    AND (ticket_id LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%')
+    AND (ticket_number LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_priority LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -97,6 +97,7 @@
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_subject&o=<?php echo $disp; ?>">Subject</a></th>
             <th>Last Response</th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_priority&o=<?php echo $disp; ?>">Priority</a></th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -107,6 +108,7 @@
             $ticket_id = $row['ticket_id'];
             $ticket_subject = $row['ticket_subject'];
             $ticket_details = $row['ticket_details'];
+            $ticket_priority = $row['ticket_priority'];
             $ticket_status = $row['ticket_status'];
             $ticket_created_at = $row['ticket_created_at'];
             $ticket_updated_at = $row['ticket_updated_at'];
@@ -137,8 +139,7 @@
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></td>
             <td><?php echo $ticket_subject; ?></td>
             <td>Never</td>
-            
-            
+            <td><?php echo $ticket_priority; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
