@@ -43,7 +43,7 @@ if(isset($_GET['o'])){
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM quotes, categories 
   WHERE client_id = $client_id 
   AND categories.category_id = quotes.category_id 
-  AND (quote_id LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%') 
+  AND (quote_number LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -74,6 +74,7 @@ $total_pages = ceil($total_found_rows / 10);
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=quote_number&o=<?php echo $disp; ?>">Number</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=quote_scope&o=<?php echo $disp; ?>">Scope</a></th>
             <th class="text-right"><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=quote_amount&o=<?php echo $disp; ?>">Amount</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=quote_date&o=<?php echo $disp; ?>">Date</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Category</a></th>
@@ -87,6 +88,7 @@ $total_pages = ceil($total_found_rows / 10);
           while($row = mysqli_fetch_array($sql)){
             $quote_id = $row['quote_id'];
             $quote_number = $row['quote_number'];
+            $quote_scope = $row['quote_scope'];
             $quote_status = $row['quote_status'];
             $quote_date = $row['quote_date'];
             $quote_amount = $row['quote_amount'];
@@ -109,6 +111,7 @@ $total_pages = ceil($total_found_rows / 10);
 
           <tr>
             <td><a href="quote.php?quote_id=<?php echo $quote_id; ?>"><?php echo $quote_number; ?></a></td>
+            <td><?php echo $quote_scope; ?></td>
             <td class="text-right">$<?php echo number_format($quote_amount,2); ?></td>
             <td><?php echo $quote_date; ?></td>
             <td><?php echo $category_name; ?></td>

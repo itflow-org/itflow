@@ -73,6 +73,7 @@
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=quote_number&o=<?php echo $disp; ?>">Number</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=quote_scope&o=<?php echo $disp; ?>">Scope</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
             <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=quote_amount&o=<?php echo $disp; ?>">Amount</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=quote_date&o=<?php echo $disp; ?>">Date</a></th>
@@ -87,6 +88,7 @@
           while($row = mysqli_fetch_array($sql)){
             $quote_id = $row['quote_id'];
             $quote_number = $row['quote_number'];
+            $quote_scope = $row['quote_scope'];
             $quote_status = $row['quote_status'];
             $quote_date = $row['quote_date'];
             $quote_amount = $row['quote_amount'];
@@ -115,6 +117,7 @@
 
           <tr>
             <td><a href="quote.php?quote_id=<?php echo $quote_id; ?>"><?php echo $quote_number; ?></a></td>
+            <td><?php echo $quote_scope; ?></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=quotes"><?php echo $client_name; ?></a></td>
             <td class="text-right">$<?php echo number_format($quote_amount,2); ?></td>
             <td><?php echo $quote_date; ?></td>

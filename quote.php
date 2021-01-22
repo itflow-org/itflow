@@ -14,6 +14,7 @@ if(isset($_GET['quote_id'])){
   $row = mysqli_fetch_array($sql);
   $quote_id = $row['quote_id'];
   $quote_number = $row['quote_number'];
+  $quote_scope = $row['quote_scope'];
   $quote_status = $row['quote_status'];
   $quote_date = $row['quote_date'];
   $quote_amount = $row['quote_amount'];

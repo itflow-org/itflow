@@ -45,6 +45,17 @@
               </select>
             </div>
           </div>
+
+          <div class="form-group">
+            <label>Scope</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+              </div>
+              <input type="text" class="form-control" name="scope" placeholder="Quick description" value="<?php echo $quote_scope; ?>">
+            </div>
+          </div>
+
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

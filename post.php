@@ -1500,6 +1500,7 @@ if(isset($_POST['add_quote'])){
     $client = intval($_POST['client']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $category = intval($_POST['category']);
+    $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
     
     //Get the last Invoice Number and add 1 for the new invoice number
     $quote_number = "$config_quote_prefix$config_quote_next_number";
@@ -1509,8 +1510,7 @@ if(isset($_POST['add_quote'])){
     //Generate a unique URL key for clients to access
     $quote_url_key = keygen();
 
-
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = '$quote_number', quote_date = '$date', category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_created_at = NOW(), client_id = $client, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = '$quote_number', quote_scope = '$scope', quote_date = '$date', category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_created_at = NOW(), client_id = $client, company_id = $session_company_id");
 
     $quote_id = mysqli_insert_id($mysqli);
 
@@ -1538,11 +1538,12 @@ if(isset($_POST['add_quote_copy'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $quote_amount = $row['quote_amount'];
+    $quote_scope = mysqli_real_escape_string($mysqli,$row['quote_scope']);
     $quote_note = mysqli_real_escape_string($mysqli,$row['quote_note']);
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = '$quote_number', quote_date = '$date', category_id = $category_id, quote_status = 'Draft', quote_amount = '$quote_amount', quote_note = '$quote_note', quote_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = '$quote_number', quote_scope = '$quote_scope', quote_date = '$date', category_id = $category_id, quote_status = 'Draft', quote_amount = '$quote_amount', quote_note = '$quote_note', quote_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $new_quote_id = mysqli_insert_id($mysqli);
 
@@ -1584,14 +1585,16 @@ if(isset($_POST['add_quote_to_invoice'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $quote_amount = $row['quote_amount'];
+    $quote_scope = mysqli_real_escape_string($mysqli,$row['quote_scope']);
     $quote_note = mysqli_real_escape_string($mysqli,$row['quote_note']);
+    
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
     //Generate a unique URL key for clients to access
     $url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_scope = '$quote_scope', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -1699,8 +1702,9 @@ if(isset($_POST['edit_quote'])){
     $quote_id = intval($_POST['quote_id']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $category = intval($_POST['category']);
+    $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
 
-     mysqli_query($mysqli,"UPDATE quotes SET quote_date = '$date', category_id = $category, quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+     mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', category_id = $category, quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
      //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modified', log_description = '$quote_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
