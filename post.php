@@ -2115,6 +2115,27 @@ if(isset($_POST['add_recurring'])){
 
 }
 
+if(isset($_POST['edit_recurring'])){
+
+    $recurring_id = intval($_POST['recurring_id']);
+    $frequency = strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency']));
+    $category = intval($_POST['category']);
+    $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
+    $status = intval($_POST['status']);
+
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_scope = '$scope', recurring_frequency = '$frequency', category_id = $category, recurring_status = $status, recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_description = 'Recurring modified', history_created_at = NOW(), recurring_id = $recurring_id, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Modified', log_description = '$recurring_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Recurring Invoice modified";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_GET['delete_recurring'])){
     $recurring_id = intval($_GET['delete_recurring']);
 

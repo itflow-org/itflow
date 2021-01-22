@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-copy mr-2"></i>New Recurring Invoice</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-sync-alt mr-2"></i>New Recurring Invoice</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -99,7 +99,7 @@
               <input type="text" class="form-control" name="scope" placeholder="Quick description">
             </div>
           </div>
-          
+
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

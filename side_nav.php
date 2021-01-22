@@ -62,7 +62,7 @@
         </li>
         <li class="nav-item">
           <a href="recurring.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "recurring.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-tags"></i>
+            <i class="nav-icon fas fa-sync-alt"></i>
             <p>Recurring</p>
           </a>
         </li>

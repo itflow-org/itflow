@@ -54,7 +54,7 @@ $total_pages = ceil($total_found_rows / 10);
 
 <div class="card">
   <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-copy"></i> Recurring Invoices</h6>
+    <h6 class="float-left mt-1"><i class="fa fa-sync-alt"></i> Recurring Invoices</h6>
     <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addRecurringModal"><i class="fa fa-plus"></i></button>
   </div>
   <div class="card-body">

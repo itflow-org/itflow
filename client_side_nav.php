@@ -192,7 +192,7 @@
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=recurring" class="nav-link <?php if($_GET['tab'] == "recurring") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-copy"></i>
+            <i class="nav-icon fas fa-sync-alt"></i>
             <p>
               Recurring
               <?php 

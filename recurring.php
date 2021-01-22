@@ -55,7 +55,7 @@
 
 <div class="card mb-3">
   <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-copy mr-2"></i>Recurring Invoices</h6>
+    <h6 class="float-left mt-1"><i class="fa fa-fw fa-sync-alt mr-2"></i>Recurring Invoices</h6>
     <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addRecurringModal"><i class="fas fa-plus"></i></button>
   </div>
   <div class="card-body">
@@ -132,7 +132,7 @@
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringModal<?php echo $recurring_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="post.php?force_recurring=<?php echo $recurring_id; ?>">Force</a>
                   <?php if($recurring_status == 1){ ?>
@@ -148,6 +148,8 @@
           </tr>
           
           <?php
+          include("edit_recurring_modal.php");
+
           }
           ?>
 
