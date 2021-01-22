@@ -1,5 +1,5 @@
 <div class="modal" id="editTicketModal<?php echo $ticket_id; ?>" tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
         <h5 class="modal-title"><i class="fa fa-fw fa-tag mr-2"></i>Ticket # <?php echo $ticket_id; ?> for <?php echo $client_name; ?></h5>
@@ -23,7 +23,7 @@
           
           <div class="form-group">
             <label>Details <strong class="text-danger">*</strong></label>
-            <textarea class="form-control" rows="8" name="details" required><?php echo $ticket_details; ?></textarea>
+            <textarea class="form-control summernote" rows="8" name="details" required><?php echo $ticket_details; ?></textarea>
           </div>
 
         </div>
