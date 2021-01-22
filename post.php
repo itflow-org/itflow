@@ -1462,11 +1462,12 @@ if(isset($_POST['add_invoice_recurring'])){
     $row = mysqli_fetch_array($sql);
     $invoice_date = $row['invoice_date'];
     $invoice_amount = $row['invoice_amount'];
+    $invoice_scope = mysqli_real_escape_string($mysqli,$row['invoice_scope']);
     $invoice_note = mysqli_real_escape_string($mysqli,$row['invoice_note']); //SQL Escape in case notes have , them
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_frequency = '$recurring_frequency', recurring_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_status = 1, recurring_amount = '$invoice_amount', recurring_note = '$invoice_note', recurring_created_at = NOW(), category_id = $category_id, client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_scope = '$invoice_scope', recurring_frequency = '$recurring_frequency', recurring_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_status = 1, recurring_amount = '$invoice_amount', recurring_note = '$invoice_note', recurring_created_at = NOW(), category_id = $category_id, client_id = $client_id, company_id = $session_company_id");
 
     $recurring_id = mysqli_insert_id($mysqli);
 
@@ -2097,8 +2098,9 @@ if(isset($_POST['add_recurring'])){
     $frequency = strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency']));
     $start_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date']));
     $category = intval($_POST['category']);
+    $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
 
-    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_frequency = '$frequency', recurring_next_date = '$start_date', category_id = $category, recurring_status = 1, recurring_created_at = NOW(), client_id = $client, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_scope = '$scope', recurring_frequency = '$frequency', recurring_next_date = '$start_date', category_id = $category, recurring_status = 1, recurring_created_at = NOW(), client_id = $client, company_id = $session_company_id");
 
     $recurring_id = mysqli_insert_id($mysqli);
 
@@ -3624,6 +3626,7 @@ if(isset($_GET['force_recurring'])){
 
     $row = mysqli_fetch_array($sql_recurring);
     $recurring_id = $row['recurring_id'];
+    $recurring_scope = $row['recurring_scope'];
     $recurring_frequency = $row['recurring_frequency'];
     $recurring_status = $row['recurring_status'];
     $recurring_last_sent = $row['recurring_last_sent'];
@@ -3642,7 +3645,7 @@ if(isset($_GET['force_recurring'])){
     //Generate a unique URL key for clients to access
     $url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$new_invoice_number', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$new_invoice_number', invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -3676,6 +3679,7 @@ if(isset($_GET['force_recurring'])){
 
         $row = mysqli_fetch_array($sql);
         $invoice_number = $row['invoice_number'];
+        $invoice_scope = $row['invoice_scope'];
         $invoice_date = $row['invoice_date'];
         $invoice_due = $row['invoice_due'];
         $invoice_amount = $row['invoice_amount'];

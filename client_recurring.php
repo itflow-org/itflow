@@ -43,7 +43,7 @@ if(isset($_GET['o'])){
 $sql = mysqli_query($mysqli,"SELECT * FROM recurring, categories
   WHERE recurring.client_id = $client_id
   AND recurring.category_id = categories.category_id
-  AND (recurring_frequency LIKE '%$q%' OR category_name LIKE '%$q%') 
+  AND (recurring_frequency LIKE '%$q%' OR recurring_scope LIKE '%$q%' OR category_name LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -73,6 +73,7 @@ $total_pages = ceil($total_found_rows / 10);
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_scope&o=<?php echo $disp; ?>">Scope</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_frequency&o=<?php echo $disp; ?>">Frequency</a></th>
             <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_amount&o=<?php echo $disp; ?>">Amount</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_last_sent&o=<?php echo $disp; ?>">Last Sent</a></th>
@@ -87,6 +88,7 @@ $total_pages = ceil($total_found_rows / 10);
       
            while($row = mysqli_fetch_array($sql)){
                 $recurring_id = $row['recurring_id'];
+                $recurring_scope = $row['recurring_scope'];
                 $recurring_frequency = $row['recurring_frequency'];
                 $recurring_status = $row['recurring_status'];
                 $recurring_last_sent = $row['recurring_last_sent'];
@@ -108,6 +110,7 @@ $total_pages = ceil($total_found_rows / 10);
               ?>
 
               <tr>
+                <td><?php echo $recurring_scope; ?></td>
                 <td><?php echo ucwords($recurring_frequency); ?>ly</td>
                 <td class="text-right">$<?php echo number_format($recurring_amount,2); ?></td>
                 <td><?php echo $recurring_last_sent; ?></td>

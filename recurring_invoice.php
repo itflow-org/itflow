@@ -13,6 +13,7 @@ if(isset($_GET['recurring_id'])){
 
   $row = mysqli_fetch_array($sql);
   $recurring_id = $row['recurring_id'];
+  $recurring_scope = $row['recurring_scope'];
   $recurring_frequency = $row['recurring_frequency'];
   $recurring_status = $row['recurring_status'];
   $recurring_start_date = $row['recurring_start_date'];
