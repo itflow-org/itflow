@@ -56,7 +56,7 @@ if(!empty($_GET['dtf'])){
 
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE (client_name LIKE '%$q%' OR client_email LIKE '%$q%' OR client_contact LIKE '%$q%') AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt' AND company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to"); 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE (client_name LIKE '%$q%' OR client_type LIKE '%$q%' OR client_email LIKE '%$q%' OR client_contact LIKE '%$q%' OR client_phone LIKE '%$q%' OR client_mobile LIKE '%$q%' OR client_address LIKE '%$q%' OR client_city LIKE '%$q%' OR client_state LIKE '%$q%' OR client_zip LIKE '%$q%') AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt' AND company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to"); 
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
@@ -106,6 +106,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Name <i class="fa fa-sort-alpha<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
+            <th>Address</th>
             <th>Contact</th>
             <th class="text-right">Balance</th>
             <th class="text-center">Action</th>
@@ -164,6 +165,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a>
               <br>
               <small class="text-secondary"><?php echo $client_type; ?></small>
+            </td>
+            <td>
+              <?php echo "$client_address<br>$client_city $client_state $client_zip"; ?>
             </td>
             <td>
               <?php
