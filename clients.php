@@ -64,9 +64,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card mb-3">
   <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-users mr-2"></i>Clients</h6>
-    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-plus"></i></button>
+    <h3 class="card-title mt-2"><i class="fa fa-users"></i> Clients</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-plus"></i> New Client</button>
+    </div>
   </div>
+
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
       <div class="row">
@@ -74,12 +77,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <div class="input-group">
             <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Clients">
             <div class="input-group-append">
+              <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>
           </div>
-        </div>
-        <div class="col-sm-8">
-          <button class="btn btn-primary float-right" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
         </div>
       </div>
       <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
