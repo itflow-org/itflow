@@ -96,6 +96,19 @@
         </li>
 
         <li class="nav-item">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=certificates" class="nav-link <?php if($_GET['tab'] == "certificates") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-lock"></i>
+            <p>
+              Certificates
+              <?php 
+              if($num_certificates > 0){ ?>
+              <span class="right badge badge-light"><?php echo $num_certificates; ?></span>
+              <?php } ?>
+            </p>
+          </a>
+        </li>
+
+        <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=domains" class="nav-link <?php if($_GET['tab'] == "domains") { echo "active"; } ?>">
             <i class="nav-icon fas fa-globe"></i>
             <p>

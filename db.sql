@@ -124,6 +124,27 @@ CREATE TABLE `categories` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `certificates`
+--
+
+DROP TABLE IF EXISTS `certificates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `certificates` (
+  `certificate_id` int(11) NOT NULL AUTO_INCREMENT,
+  `certificate_name` varchar(200) NOT NULL,
+  `certificate_issued_by` varchar(200) NOT NULL,
+  `certificate_expire` date DEFAULT NULL,
+  `certificate_notes` text DEFAULT NULL,
+  `certificate_created_at` datetime NOT NULL,
+  `certificate_updated_at` datetime DEFAULT NULL,
+  `client_id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`certificate_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `clients`
 --
 
@@ -215,7 +236,7 @@ CREATE TABLE `domains` (
   `domain_updated_at` datetime DEFAULT NULL,
   `domain_registrar` int(11) DEFAULT NULL,
   `domain_webhost` int(11) DEFAULT NULL,
-  `client_id` int(11) DEFAULT NULL,
+  `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`domain_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -823,6 +844,22 @@ CREATE TABLE `user_companies` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `user_keys`
+--
+
+DROP TABLE IF EXISTS `user_keys`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_keys` (
+  `user_key_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_key_name` varchar(200) DEFAULT NULL,
+  `user_public_key` varchar(250) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY (`user_key_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `users`
 --
 
@@ -883,4 +920,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-22 18:05:30
+-- Dump completed on 2021-01-26 16:07:08

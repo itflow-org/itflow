@@ -78,6 +78,9 @@ if(isset($_GET['client_id'])){
   
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('domain_id') AS num FROM domains WHERE client_id = $client_id"));
   $num_domains = $row['num'];
+
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('certificate_id') AS num FROM certificates WHERE client_id = $client_id"));
+  $num_certificates = $row['num'];
   
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('software_id') AS num FROM software WHERE client_id = $client_id"));
   $num_software = $row['num'];
