@@ -102,7 +102,9 @@
             $client_id = $row['client_id'];
 
             if($round_trip == 1){
-              $round_tip_display = "<i class='fa fa-fw fa-sync-alt text-secondary'></i>";
+              $round_trip_display = "<i class='fa fa-fw fa-sync-alt text-secondary'></i>";
+            }else{
+              $round_trip_display = "";
             }
 
           ?>
@@ -111,7 +113,7 @@
             <td><?php echo $trip_purpose; ?></td>
             <td><?php echo $trip_starting_location; ?></td>
             <td><?php echo $trip_destination; ?></td>
-            <td><?php echo "$trip_miles $round_tip_display"; ?></td>
+            <td><?php echo "$trip_miles $round_trip_display"; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
