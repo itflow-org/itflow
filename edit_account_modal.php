@@ -28,7 +28,6 @@
 
         </div>
         <div class="modal-footer bg-white">
-          <button type="submit" name="delete_acount" class="btn btn-outline-danger mr-auto">Delete</button>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="edit_account" class="btn btn-primary">Save</button>
         </div>

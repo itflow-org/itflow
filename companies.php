@@ -114,6 +114,7 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editCompanyModal<?php echo $company_id; ?>">Edit</a>
+                  <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="post.php?delete_company=<?php echo $company_id; ?>">Delete</a>
                 </div>
               </div>
