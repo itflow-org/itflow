@@ -75,7 +75,7 @@
               </div>
 
               <div class="custom-control custom-checkbox">
-                <input type="checkbox" <?php if($round_trip == 1){ echo "checked"; } ?> class="custom-control-input" id="customControlAutosizing<?php echo $trip_id; ?>" name="roundtrip" value="1" >
+                <input type="checkbox" <?php if($round_trip == 1){ echo "checked"; } ?> class="custom-control-input" id="customControlAutosizingEdit<?php echo $trip_id; ?>" name="roundtrip" value="1" >
                 <label class="custom-control-label" for="customControlAutosizingEdit<?php echo $trip_id; ?>">Round Trip</label>
               </div>
 
