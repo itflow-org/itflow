@@ -53,7 +53,7 @@ $total_pages = ceil($total_found_rows / 10);
 
 <div class="card">
   <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-laptop"></i> Assets</h6>
+    <h6 class="float-left mt-1"><i class="fa fa-desktop"></i> Assets</h6>
     <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addAssetModal"><i class="fa fa-plus"></i></button>
   </div>
   <div class="card-body">

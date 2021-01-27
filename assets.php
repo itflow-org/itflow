@@ -64,7 +64,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card">
   <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-laptop"></i> Assets</h6>
+    <h6 class="float-left mt-1"><i class="fa fa-desktop"></i> Assets</h6>
   </div>
   <div class="card-body">
     <form autocomplete="off">

@@ -45,7 +45,7 @@
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=assets" class="nav-link <?php if($_GET['tab'] == "assets") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-laptop"></i>
+            <i class="nav-icon fas fa-desktop"></i>
             <p>
               Assets
               <?php 
