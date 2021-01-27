@@ -41,7 +41,7 @@ if(isset($_GET['o'])){
 }
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM certificates 
-  WHERE client_id = $client_id AND (certificate_name LIKE '%$q%' OR certificate_issued_by LIKE '%$q%') 
+  WHERE client_id = $client_id AND (certificate_name LIKE '%$q%' OR certificate_domain LIKE '%$q%' OR certificate_issued_by LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -72,6 +72,7 @@ $total_pages = ceil($total_found_rows / 10);
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_name&o=<?php echo $disp; ?>">Name</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_domain&o=<?php echo $disp; ?>">Domain</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_issued_by&o=<?php echo $disp; ?>">Issued By</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_expire&o=<?php echo $disp; ?>">Expire</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_updated_at&o=<?php echo $disp; ?>">Updated</a></th>
@@ -84,6 +85,7 @@ $total_pages = ceil($total_found_rows / 10);
           while($row = mysqli_fetch_array($sql)){
             $certificate_id = $row['certificate_id'];
             $certificate_name = $row['certificate_name'];
+            $certificate_domain = $row['certificate_domain'];
             $certificate_issued_by = $row['certificate_issued_by'];
             $certificate_expire = $row['certificate_expire'];
             $certificate_updated_at = $row['certificate_updated_at'];
@@ -91,6 +93,7 @@ $total_pages = ceil($total_found_rows / 10);
           ?>
           <tr>
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editCertificateModal<?php echo $certificate_id; ?>"><?php echo $certificate_name; ?></a></td>
+            <td><?php echo $certificate_domain; ?></td>
             <td><?php echo $certificate_issued_by; ?></td>
             <td><?php echo $certificate_expire; ?></td>
             <td><?php echo $certificate_updated_at; ?></td>

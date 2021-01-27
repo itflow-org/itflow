@@ -19,6 +19,16 @@
               <input type="text" class="form-control" name="name" placeholder="Certificate name" required autofocus>
             </div>
           </div>
+
+          <div class="form-group">
+            <label>Domain</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+              </div>
+              <input type="text" class="form-control" name="domain" placeholder="Domain name">
+            </div>
+          </div>
           
           <div class="form-group">
             <label>Issued By <strong class="text-danger">*</strong></label>
