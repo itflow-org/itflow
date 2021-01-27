@@ -502,7 +502,7 @@ if(isset($_POST['add_client'])){
     $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
     $contact = strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact']));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $extensipon = preg_replace("/[^0-9]/", '',$_POST['extensipon']);
+    $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
