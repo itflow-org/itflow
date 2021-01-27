@@ -1,9 +1,5 @@
 <?php include("header.php"); 
 
-  //Rebuild URL
-
-  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
   //Paging
   if(isset($_GET['p'])){
     $p = intval($_GET['p']);
@@ -46,10 +42,24 @@
     $disp = "ASC";
   }
 
+  //Date From and Date To Filter
+  if(!empty($_GET['dtf'])){
+    $dtf = $_GET['dtf'];
+    $dtt = $_GET['dtt'];
+  }else{
+    $dtf = "0000-00-00";
+    $dtt = "9999-00-00";
+  }
+
+  //Rebuild URL
+
+  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM tickets, clients
     WHERE tickets.client_id = clients.client_id
     AND tickets.company_id = $session_company_id
     AND ticket_status LIKE '%$status%'
+    AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (ticket_number LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_priority LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
@@ -61,31 +71,52 @@
 
 <div class="card mb-3">
   <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-2"><i class="fa fa-fw fa-tags mr-2"></i>Tickets</h6>
-    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i></button>
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> Tickets</h3>
+    <div class='card-tools'>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i> New Ticket</button>
+    </div>
   </div>
   <div class="card-body">
-    <div class="row">
-      <div class="col-md-4">
-        <form autocomplete="off">
+    <form class="mb-4" autocomplete="off">
+      <div class="row">
+        <div class="col-sm-4">
           <div class="input-group">
             <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Tickets">
             <div class="input-group-append">
+              <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>
           </div>
-        </form>
-      </div>
-      <div class="col-md-8">
-        <div class="float-right">
-          <a href="?status=Open" class="btn <?php if($status == 'Open'){ echo 'btn-primary'; }else{ echo 'btn-secondary'; } ?>">Open</a>
-          <a href="?status=In-Progress" class="btn <?php if($status == 'In-Progress'){ echo 'btn-primary'; }else{ echo 'btn-secondary'; } ?>">In-Progress</a>
-          <a href="?status=On-Hold" class="btn <?php if($status == 'On-Hold'){ echo 'btn-primary'; }else{ echo 'btn-secondary'; } ?>">On-Hold</a>
-          <a href="?status=Resolved" class="btn <?php if($status == 'Resolved'){ echo 'btn-primary'; }else{ echo 'btn-secondary'; } ?>">Resolved</a>
-          <a href="?status=Closed" class="btn <?php if($status == 'Closed'){ echo 'btn-primary'; }else{ echo 'btn-secondary'; } ?>">Closed</a>
+        
+        </div>
+        <div class="col-sm-8">
+          <div class="btn-group float-right">
+            <a href="?status=%" class="btn <?php if($status == '%'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All</a>
+            <a href="?status=Open" class="btn <?php if($status == 'Open'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Open</a>
+            <a href="?status=In-Progress" class="btn <?php if($status == 'In-Progress'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">In-Progress</a>
+            <a href="?status=On-Hold" class="btn <?php if($status == 'On-Hold'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">On-Hold</a>
+            <a href="?status=Resolved" class="btn <?php if($status == 'Resolved'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Resolved</a>
+            <a href="?status=Closed" class="btn <?php if($status == 'Closed'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Closed</a>
+          </div>
         </div>
       </div>
-    </div>
+      <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
+        <div class="row">
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Date From</label>
+              <input type="date" class="form-control" name="dtf" value="<?php echo $dtf; ?>">
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Date To</label>
+              <input type="date" class="form-control" name="dtt" value="<?php echo $dtt; ?>">
+            </div>
+          </div>
+        </div>    
+      </div>
+    </form>
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
