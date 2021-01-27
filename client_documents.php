@@ -24,7 +24,7 @@ if(isset($_GET['q'])){
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
-  $sb = "note_subject";
+  $sb = "document_name";
 }
 
 if(isset($_GET['o'])){
@@ -40,10 +40,10 @@ if(isset($_GET['o'])){
   $disp = "DESC";
 }
  
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM notes 
-  WHERE notes.client_id = $client_id
-  AND notes.company_id = $session_company_id
-  AND (note_subject LIKE '%$q%') 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM documents 
+  WHERE documents.client_id = $client_id
+  AND documents.company_id = $session_company_id
+  AND (document_name LIKE '%$q%' OR document_details LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -54,8 +54,8 @@ $total_pages = ceil($total_found_rows / 10);
 
 <div class="card">
   <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-edit"></i> Notes</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addNoteModal"><i class="fa fa-plus"></i></button>
+    <h6 class="float-left mt-1"><i class="fa fa-file-alt"></i> Documents</h6>
+    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addDocumentModal"><i class="fa fa-plus"></i></button>
   </div>
   <div class="card-body">
     <form autocomplete="off">
@@ -69,19 +69,19 @@ $total_pages = ceil($total_found_rows / 10);
       </div>
     </form>
     <hr>
-    <?php echo $_SESSION['bean']; ?>
+
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th>
-              <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=note_subject&o=<?php echo $disp; ?>">Note</a>
+              <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=document_name&o=<?php echo $disp; ?>">Name</a>
             </th>
             <th>
-              <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=note_created_at&o=<?php echo $disp; ?>">Created</a>
+              <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=document_created_at&o=<?php echo $disp; ?>">Created</a>
             </th>
             <th>
-              <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=note_updated_at&o=<?php echo $disp; ?>">Updated</a>
+              <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=document_updated_at&o=<?php echo $disp; ?>">Updated</a>
             </th>
             <th class="text-center">
               Action
@@ -92,34 +92,34 @@ $total_pages = ceil($total_found_rows / 10);
           <?php
       
           while($row = mysqli_fetch_array($sql)){
-            $note_id = $row['note_id'];
-            $note_subject = $row['note_subject'];
-            $note_body = $row['note_body'];
-            $note_created_at = $row['note_created_at'];
-            $note_updated_at = $row['note_updated_at'];
+            $document_id = $row['document_id'];
+            $document_name = $row['document_name'];
+            $document_details = $row['document_details'];
+            $document_created_at = $row['document_created_at'];
+            $document_updated_at = $row['document_updated_at'];
 
           ?>
 
           <tr>
             <td>
-              <a href="#" data-toggle="modal" data-target="#viewNoteModal<?php echo $note_id; ?>"><?php echo $note_subject; ?></a>
+              <a href="#" data-toggle="modal" data-target="#viewDocumentModal<?php echo $document_id; ?>"><?php echo $document_name; ?></a>
             </td>
-            <td><?php echo $note_created_at; ?></td>
-            <td><?php echo $note_updated_at; ?></td>
+            <td><?php echo $document_created_at; ?></td>
+            <td><?php echo $document_updated_at; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editNoteModal<?php echo $note_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="post.php?delete_note=<?php echo $note_id; ?>">Delete</a>
+                  <a class="dropdown-item" href="post.php?delete_document=<?php echo $document_id; ?>">Delete</a>
                 </div>
               </div>
               <?php
-              include("edit_note_modal.php");
-              include("view_note_modal.php");
+              include("edit_document_modal.php");
+              include("view_document_modal.php");
               ?>      
             </td>
           </tr>
@@ -139,4 +139,4 @@ $total_pages = ceil($total_found_rows / 10);
   </div>
 </div>
 
-<?php include("add_note_modal.php"); ?>
+<?php include("add_document_modal.php"); ?>

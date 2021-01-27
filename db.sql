@@ -222,6 +222,25 @@ CREATE TABLE `contacts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `documents`
+--
+
+DROP TABLE IF EXISTS `documents`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `documents` (
+  `document_id` int(11) NOT NULL AUTO_INCREMENT,
+  `document_name` varchar(200) NOT NULL,
+  `document_details` text NOT NULL,
+  `document_created_at` datetime NOT NULL,
+  `document_updated_at` datetime DEFAULT NULL,
+  `client_id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`document_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `domains`
 --
 
@@ -483,25 +502,6 @@ CREATE TABLE `networks` (
   `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`network_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `notes`
---
-
-DROP TABLE IF EXISTS `notes`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `notes` (
-  `note_id` int(11) NOT NULL AUTO_INCREMENT,
-  `note_subject` varchar(200) NOT NULL,
-  `note_body` text NOT NULL,
-  `note_created_at` datetime NOT NULL,
-  `note_updated_at` datetime DEFAULT NULL,
-  `client_id` int(11) NOT NULL,
-  `company_id` int(11) NOT NULL,
-  PRIMARY KEY (`note_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -920,4 +920,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-26 16:07:08
+-- Dump completed on 2021-01-26 19:16:25

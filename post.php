@@ -3395,58 +3395,49 @@ if(isset($_GET['delete_file'])){
   
 }
 
-if(isset($_POST['add_note'])){
+if(isset($_POST['add_document'])){
 
     $client_id = intval($_POST['client_id']);
-    $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
-    $note = mysqli_real_escape_string($mysqli,$_POST['note']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $details = mysqli_real_escape_string($mysqli,$_POST['details']);
 
-    mysqli_query($mysqli,"INSERT INTO notes SET note_subject = '$subject', note_body = '$note', note_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_details = '$details', document_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Note', log_action = 'Created', log_description = '$subject', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Created', log_description = '$details', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
-    //$_SESSION['alert_message'] = "Note added";
-
-    $_SESSION['bean'] = "
-    
-      <div class='toast'>
-        <div class='toast-body'>
-          Hello, world! This is a toast message.
-        </div>
-      </div>
-    ";
+    $_SESSION['alert_message'] = "Document added";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if(isset($_POST['edit_note'])){
+if(isset($_POST['edit_document'])){
 
-    $note_id = intval($_POST['note_id']);
-    $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
-    $note = mysqli_real_escape_string($mysqli,$_POST['note']);
+    $document_id = intval($_POST['document_id']);
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $details = mysqli_real_escape_string($mysqli,$_POST['details']);
 
-    mysqli_query($mysqli,"UPDATE notes SET note_subject = '$subject', note_body = '$note', note_updated_at = NOW() WHERE note_id = $note_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_details = '$details', document_updated_at = NOW() WHERE document_id = $document_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Note', log_action = 'Modified', log_description = '$subject', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Note', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Note updated";
+    $_SESSION['alert_message'] = "Document updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if(isset($_GET['delete_note'])){
-    $note_id = intval($_GET['delete_note']);
+if(isset($_GET['delete_document'])){
+    $document_id = intval($_GET['delete_document']);
 
-    mysqli_query($mysqli,"DELETE FROM notes WHERE note_id = $note_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Note', log_action = 'Deleted', log_description = '$note_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Deleted', log_description = '$document_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Note deleted";
+    $_SESSION['alert_message'] = "Document deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   

@@ -176,13 +176,13 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=notes" class="nav-link <?php if($_GET['tab'] == "notes") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-edit"></i>
+          <a href="?client_id=<?php echo $client_id; ?>&tab=documents" class="nav-link <?php if($_GET['tab'] == "documents") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-file-alt"></i>
             <p>
-              Notes
+              Documents
               <?php 
-              if($num_notes > 0){ ?>
-              <span class="right badge badge-light"><?php echo $num_notes; ?></span>
+              if($num_documents > 0){ ?>
+              <span class="right badge badge-light"><?php echo $num_documents; ?></span>
               <?php } ?>
             </p>
           </a>
