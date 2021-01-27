@@ -24,7 +24,7 @@ if(isset($_GET['q'])){
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
-  $sb = "asset_type";
+  $sb = "asset_name";
 }
 
 if(isset($_GET['o'])){
