@@ -129,8 +129,7 @@ if(isset($_POST['add_company'])){
     $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
     $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
     $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
-    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
-    $phone = preg_replace("/[^0-9]/", '',$phone);
+    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $site = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['site'])));
 
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_created_at = NOW()");
@@ -163,8 +162,7 @@ if(isset($_POST['edit_company'])){
     $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
     $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
-    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
-    $phone = preg_replace("/[^0-9]/", '',$phone);
+    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['site']));
 
     mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_updated_at = NOW() WHERE company_id = $company_id");
@@ -251,8 +249,7 @@ if(isset($_POST['edit_company_settings'])){
     $config_company_city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_city']));
     $config_company_state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_state']));
     $config_company_zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_zip']));
-    $config_company_phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_phone']));
-    $config_company_phone = preg_replace("/[^0-9]/", '',$config_company_phone);
+    $config_company_phone = preg_replace("/[^0-9]/", '',$_POST['config_company_phone']);
     $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
 
     $path = "$config_invoice_logo";
@@ -492,7 +489,6 @@ if(isset($_GET['download_database'])){
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Downloaded', log_description = 'Database', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
-
 }
 
 if(isset($_POST['add_client'])){
@@ -505,11 +501,9 @@ if(isset($_POST['add_client'])){
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
     $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
     $contact = strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact']));
-    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
-    $phone = preg_replace("/[^0-9]/", '',$phone);
-    $extension = strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension']));
-    $mobile = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mobile']));
-    $mobile = preg_replace("/[^0-9]/", '',$mobile);
+    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
+    $extensipon = preg_replace("/[^0-9]/", '',$_POST['extensipon']);
+    $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
     $referral = strip_tags(mysqli_real_escape_string($mysqli,$_POST['referral']));
@@ -544,11 +538,9 @@ if(isset($_POST['edit_client'])){
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
     $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
     $contact = strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact']));
-    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
-    $phone = preg_replace("/[^0-9]/", '',$phone);
-    $extension = strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension']));
-    $mobile = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mobile']));
-    $mobile = preg_replace("/[^0-9]/", '',$mobile);
+    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
+    $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
+    $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
     $referral = strip_tags(mysqli_real_escape_string($mysqli,$_POST['referral']));
@@ -835,9 +827,8 @@ if(isset($_POST['add_vendor'])){
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
     $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
     $contact_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name']));
-    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
-    $phone = preg_replace("/[^0-9]/", '',$phone);
-    $extension = strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension']));
+    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
+    $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
@@ -867,9 +858,8 @@ if(isset($_POST['edit_vendor'])){
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
     $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
     $contact_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name']));
-    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
-    $phone = preg_replace("/[^0-9]/", '',$phone);
-    $extension = strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension']));
+    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
+    $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
@@ -3003,11 +2993,9 @@ if(isset($_POST['add_contact'])){
     $client_id = intval($_POST['client_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
-    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
-    $phone = preg_replace("/[^0-9]/", '',$phone);
-    $extension = strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension']));
-    $mobile = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mobile']));
-    $mobile = preg_replace("/[^0-9]/", '',$mobile);
+    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
+    $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
+    $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
 
@@ -3039,11 +3027,9 @@ if(isset($_POST['edit_contact'])){
     $client_id = intval($_POST['client_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
-    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
-    $phone = preg_replace("/[^0-9]/", '',$phone);
-    $extension = strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension']));
-    $mobile = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mobile']));
-    $mobile = preg_replace("/[^0-9]/", '',$mobile);
+    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
+    $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
+    $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
 
@@ -3094,8 +3080,7 @@ if(isset($_POST['add_location'])){
     $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
     $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
-    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
-    $phone = preg_replace("/[^0-9]/", '',$phone);
+    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $hours = strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours']));
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
     $contact = intval($_POST['contact']);
@@ -3131,8 +3116,7 @@ if(isset($_POST['edit_location'])){
     $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
     $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
-    $phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['phone']));
-    $phone = preg_replace("/[^0-9]/", '',$phone);
+    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $hours = strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours']));
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
     $contact = intval($_POST['contact']);
