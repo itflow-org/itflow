@@ -40,7 +40,7 @@ if(isset($_GET['o'])){
   $disp = "DESC";
 }
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM assets 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM assets
   WHERE client_id = $client_id 
   AND (asset_name LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
@@ -71,12 +71,14 @@ $total_pages = ceil($total_found_rows / 10);
       <table class="table border table-hover">
         <thead class="thead-light <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_type&o=<?php echo $disp; ?>">Type</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_name&o=<?php echo $disp; ?>">Name</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_make&o=<?php echo $disp; ?>">Make</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_model&o=<?php echo $disp; ?>">Model</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_serial&o=<?php echo $disp; ?>">Serial</a></th>
-            <th>Assigned</th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_type&o=<?php echo $disp; ?>">Type</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_make&o=<?php echo $disp; ?>">Make/Model</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_ip&o=<?php echo $disp; ?>">Primary IP</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_serial&o=<?php echo $disp; ?>">Serial Number</a></th>
+            <th>Contact</th>
+            <th>Location</th>
+            <th class="text-center">Action</th>  
           </tr>
         </thead>
         <tbody>
@@ -135,22 +137,26 @@ $total_pages = ceil($total_found_rows / 10);
             $login_password = $row['login_password'];
             $asset_id_relation = $row['asset_id'];
 
-            $sql_assigned = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_id = $contact_id");
-            $row = mysqli_fetch_array($sql_assigned);
+            $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_id = $contact_id");
+            $row = mysqli_fetch_array($sql_contact);
             $contact_name = $row['contact_name'];
             if(empty($contact_name)){
-              $contact_name = "<button class='btn btn-sm btn-secondary'>assign</button>";
+              $contact_name = "-";
+            }
+
+            $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_id = $location_id");
+            $row = mysqli_fetch_array($sql_location);
+            $location_name = $row['location_name'];
+            if(empty($location_name)){
+              $location_name = "-";
             }
       
           ?>
           <tr>
             <th>
-              <a class="text-dark" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
-                <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_type; ?>
-              </a>
-            </th>
-            <td>
               <?php
+              echo $asset_name;
+
               if($asset_id == $asset_id_relation){
               ?>  
               <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $login_id; ?>"><i class="fas fa-key text-dark"></i></button>
@@ -188,14 +194,28 @@ $total_pages = ceil($total_found_rows / 10);
               
               <?php
               }
-              echo $asset_name;
               ?>
               
-            </td>
-            <td><?php echo $asset_make; ?></td>
-            <td><?php echo $asset_model; ?></td>
+            </th>
+            <td><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_type; ?></td>
+            <td><?php echo "$asset_make $asset_model"; ?></td>
+            <td><?php echo $asset_ip; ?></td>
             <td><?php echo $asset_serial; ?></td>
             <td><?php echo $contact_name; ?></td>
+            <td><?php echo $location_name; ?></td>
+            <td>
+              <div class="dropdown dropleft text-center">
+                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                  <i class="fas fa-ellipsis-h"></i>
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">Edit</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="post.php?delete_asset=<?php echo $asset_id; ?>">Delete</a>
+                </div>
+              </div>
+              <?php include("edit_domain_modal.php"); ?>     
+            </td>
           </tr>
           <?php include("edit_asset_modal.php"); ?>
           <?php
