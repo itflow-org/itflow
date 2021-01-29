@@ -80,6 +80,10 @@ if(isset($_POST['edit_user'])){
     }
     $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
 
+    if(!file_exists("uploads/users/$user_id")) {
+        mkdir("uploads/users/$user_id");
+    }
+
     if($_FILES['file']['tmp_name']!='') {
         //delete old avatar file
         unlink($path);
