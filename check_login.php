@@ -1,19 +1,23 @@
 <?php
 	//Check to see if setup is enabled
 	if(!isset($config_enable_setup) or $config_enable_setup == 1){
-    	header("Location: setup.php");
-  	}
+  	header("Location: setup.php");
+	}
 
 	session_start();
 	
 	if(!$_SESSION['logged']){
-	    header("Location: logout.php");
-	    die;
+    header("Location: logout.php");
+    die;
 	}
 
 	$session_user_id = $_SESSION['user_id'];
 
-	$sql = mysqli_query($mysqli,"SELECT * FROM users, companies, user_companies WHERE users.user_id = user_companies.user_id AND companies.company_id = user_companies.company_id AND users.user_id = $session_user_id");
+	$sql = mysqli_query($mysqli,"SELECT * FROM users, companies, permissions 
+		WHERE permissions.permission_default_company = companies.company_id 
+		AND users.user_id = $session_user_id"
+	);
+	
 	$row = mysqli_fetch_array($sql);
 	$session_name = $row['name'];
 	$session_email = $row['email'];
@@ -24,6 +28,9 @@
 	$session_company_id = $row['company_id'];
 	$session_company_name = $row['company_name'];
 	$session_token = $row['token'];
+
+	$session_permission_companies = $row['permission_companies'];
+	$session_permission_clients = $row['permission_clients'];
 
 	include("get_settings.php");
 
@@ -40,6 +47,6 @@
 
 	//Get unAcked Alert Count for the badge on the top nav
 	$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('alert_id') AS num FROM alerts WHERE alert_ack_date IS NULL AND company_id = $session_company_id"));
-  	$num_alerts = $row['num'];
+  $num_alerts = $row['num'];
 
 ?>

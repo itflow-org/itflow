@@ -16,7 +16,7 @@ use PHPMailer\PHPMailer\Exception;
 if(isset($_GET['switch_company'])){
     $company_id = intval($_GET['switch_company']);
 
-    $session_company_id = $company_id;
+    mysqli_query($mysqli,"UPDATE permissions SET permission_default_company = $company_id WHERE user_id = $session_user_id");
 
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "Switched Companies!";
@@ -30,9 +30,11 @@ if(isset($_POST['add_user'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $password = md5($_POST['password']);
+    $company = intval($_POST['company']);
+    $level = intval($_POST['level']);
     $client_id = intval($_POST['client']);
 
-    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', default_company = $company, created_at = NOW()");
 
     $user_id = mysqli_insert_id($mysqli);
 
@@ -46,16 +48,11 @@ if(isset($_POST['add_user'])){
         $file_name = basename($path);
         move_uploaded_file($_FILES['file']['tmp_name'], $path);
     }
-
+    //Set Avatar
     mysqli_query($mysqli,"UPDATE users SET avatar = '$path' WHERE user_id = $user_id");
 
-    if(isset($_POST['company'])){
-      if(is_array($_POST['company'])) {
-        foreach($_POST['company'] as $company_id){
-          mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company_id");
-        }
-      }
-    }
+    //Create Permissions
+    mysqli_query($mysqli,"INSERT INTO permissions SET permission_level = $level, permission_default_company = $company, permission_companies = $company, user_id = $user_id");
     
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Created', log_description = '$name', log_created_at = NOW()");
@@ -78,11 +75,9 @@ if(isset($_POST['edit_user'])){
     }else{
         $password = md5($password);
     }
+    $company = intval($_POST['company']);
+    $level = intval($_POST['level']);
     $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
-
-    if(!file_exists("uploads/users/$user_id")) {
-        mkdir("uploads/users/$user_id");
-    }
 
     if($_FILES['file']['tmp_name']!='') {
         //delete old avatar file
@@ -96,6 +91,9 @@ if(isset($_POST['edit_user'])){
     
     mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', password = '$password', avatar = '$path', updated_at = NOW() WHERE user_id = $user_id");
 
+    //Create Permissions
+    mysqli_query($mysqli,"UPDATE permissions SET permission_level = $level, permission_default_company = $company WHERE user_id = $user_id");
+
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
 
@@ -105,11 +103,30 @@ if(isset($_POST['edit_user'])){
 
 }
 
+if(isset($_POST['edit_user_companies'])){
+
+    $user_id = intval($_POST['user_id']);
+    $companies = $_POST['companies'];
+    
+    //Turn the Array into a string with , seperation
+    $companies_imploded = implode(",",$companies);
+
+    mysqli_query($mysqli,"UPDATE permissions SET permission_companies = '$companies_imploded' WHERE user_id = $user_id");
+    
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
+
+    $_SESSION['alert_message'] = "Companies <strong>$company</strong> added to user $user_id!";
+    
+    header("Location: users.php");
+
+}
+
 if(isset($_GET['delete_user'])){
     $user_id = intval($_GET['delete_user']);
 
     mysqli_query($mysqli,"DELETE FROM users WHERE user_id = $user_id");
-    mysqli_query($mysqli,"DELETE FROM user_companies WHERE user_id = $user_id");
+    mysqli_query($mysqli,"DELETE FROM permissions WHERE user_id = $user_id");
     mysqli_query($mysqli,"DELETE FROM logs WHERE user_id = $user_id");
     mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_created_by = $user_id");
     mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_closed_by = $user_id");

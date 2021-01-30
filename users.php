@@ -40,8 +40,9 @@
     $disp = "DESC";
   }
 
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM users 
-    WHERE  name LIKE '%$q%' OR email LIKE '%$q%'
+  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM users, permissions
+    WHERE  users.user_id = permissions.user_id
+    AND (name LIKE '%$q%' OR email LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -71,7 +72,7 @@
           <tr>
             <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=email&o=<?php echo $disp; ?>">Email</a></th>
-            <th>Type</th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=Permission_level&o=<?php echo $disp; ?>">Access Level</a></th>
             <th>Status</th>
             <th>Last Login</th>
             <th class="text-center">Action</th>
@@ -86,7 +87,24 @@
             $email = $row['email'];
             $password = $row['password'];
             $avatar = $row['avatar'];
-            $client_id = $row['client_id'];
+            $permission_default_company = $row['permission_default_company'];
+            $permission_level = $row['permission_level'];
+            if($permission_level == 5){
+              $permission_level_display = "Global Administrator";
+            }elseif($permission_level == 4){
+              $permission_level_display = "Administrator";
+            }elseif($permission_level == 3){
+              $permission_level_display = "Technician";
+            }elseif($permission_level == 2){
+              $permission_level_display = "IT Contractor";
+            }else{
+              $permission_level_display = "Accounting";  
+            }
+            $permission_companies = $row['permission_companies'];
+            $permission_companies_array = explode(",",$permission_companies); 
+            $permission_clients = $row['permission_clients'];
+            $permission_clients_array = explode(",",$permission_clients);
+            $permission_actions = $row['permission_actions'];
             $initials = initials($name);
 
             $sql_last_login = mysqli_query($mysqli,"SELECT * FROM logs 
@@ -109,14 +127,14 @@
                   <span class="fa fa-stack-1x text-white"><?php echo $initials; ?></span>
                 </span>
                 <br>
-              <?php } ?>
+                <?php } ?>
 
                 <div class="text-secondary"><?php echo $name; ?></div>
               </a>
             </td>
             <td><a href="mailto:<?php echo $email; ?>"><?php echo $email; ?></a></td>
-            <td>Client</td>
-            <td>Status</td>
+            <td><?php echo $permission_level_display; ?></td>
+            <td>-</td>
             <td><?php echo $log_created_at; ?> <br> <small class="text-secondary"><?php echo $log_description; ?></small></td>
             <td>
               <div class="dropdown dropleft text-center">
@@ -125,17 +143,20 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserCompaniesModal<?php echo $user_id; ?>">Companies</a>
+                  <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="post.php?delete_user=<?php echo $user_id; ?>">Delete</a>
                 </div>
               </div>
-              <?php include("edit_user_modal.php"); ?>      
+              <?php include("edit_user_modal.php"); ?>
+              <?php include("user_companies_modal.php"); ?>     
             </td>
           </tr>
 
           <?php
           
           }
-          
+      
           ?>
 
         </tbody>

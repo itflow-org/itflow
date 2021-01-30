@@ -196,7 +196,8 @@ if(isset($_POST['add_company_settings'])){
   mkdir("uploads/settings/$company_id");
   mkdir("uploads/tmp/$company_id");
 
-  mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company_id");
+  //Create Permissions
+  mysqli_query($mysqli,"INSERT INTO permissions SET permission_level = 5, permission_default_company = $company_id, permission_companies = $company_id, user_id = $user_id");
  
   mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$config_company_name', config_company_country = '$config_company_country', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_records_per_page = 10, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1");
 
