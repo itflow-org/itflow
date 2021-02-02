@@ -5,7 +5,35 @@
   <div class="sidebar">
 
     <!-- Sidebar Menu -->
-    <nav class="mt-2">
+    <nav class="mt-3">
+
+      <div class="dropdown mb-4 ml-3">
+        <a class="" href="#" data-toggle="dropdown">
+          <h3><?php echo $session_company_name; ?> <small><i class="fa fa-caret-down"></i></small></h3>
+        </a>
+
+        <ul class="dropdown-menu">
+          
+          <?php
+          
+          $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id IN ($session_permission_companies)");
+          while($row = mysqli_fetch_array($sql)){
+
+            $company_id = $row['company_id'];
+            $company_name = $row['company_name'];
+
+          ?>
+          
+            <li><a class="dropdown-item text-dark" href="post.php?switch_company=<?php echo $company_id; ?>"><?php echo $company_name; ?><?php if($company_id == $session_company_id){ echo "<i class='fa fa-check text-secondary ml-2'></i>"; } ?></a></li>
+
+          <?php
+
+          }
+          
+          ?>
+
+        </ul>
+      </div>
 
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
 
@@ -22,6 +50,9 @@
             <p>Clients</p>
           </a>
         </li>
+        
+        <?php if($session_permission_level > 2){ ?>
+
         <li class="nav-header">SUPPORT</li>
         <li class="nav-item">
           <a href="tickets.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tickets.php") { echo "active"; } ?>">
@@ -41,6 +72,11 @@
             <p>Calendar</p>
           </a>
         </li>
+
+        <?php } ?>
+
+        <?php if($session_permission_level == 1 OR $session_permission_level > 3){ ?> 
+
         <li class="nav-header">SALES</li>
         <li class="nav-item">
           <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "quotes.php") { echo "active"; } ?>">
@@ -140,6 +176,10 @@
           </ul>
         </li>
 
+        <?php } ?>
+
+        <?php if($session_permission_level > 3){ ?>
+
         <li class="nav-header">SETTINGS</li>
         
         <li class="nav-item has-treeview">
@@ -189,6 +229,8 @@
             </li>
           </ul>
         </li>
+
+        <?php } ?>
 
       </ul>
     </nav>

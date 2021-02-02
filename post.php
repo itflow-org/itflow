@@ -122,6 +122,25 @@ if(isset($_POST['edit_user_companies'])){
 
 }
 
+if(isset($_POST['edit_user_clients'])){
+
+    $user_id = intval($_POST['user_id']);
+    $clients = $_POST['clients'];
+    
+    //Turn the Array into a string with , seperation
+    $clients_imploded = implode(",",$clients);
+
+    mysqli_query($mysqli,"UPDATE permissions SET permission_clients = '$clients_imploded' WHERE user_id = $user_id");
+    
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
+
+    $_SESSION['alert_message'] = "Client <strong>$client_imploded</strong> added to user $user_id!";
+    
+    header("Location: users.php");
+
+}
+
 if(isset($_GET['delete_user'])){
     $user_id = intval($_GET['delete_user']);
 
@@ -167,7 +186,7 @@ if(isset($_POST['add_company'])){
     mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_company_country = '$country', config_company_address = '$address', config_company_city = '$city', config_company_state = '$state', config_company_zip = '$zip', config_company_phone = '$phone', config_company_site = '$site', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_records_per_page = 10, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1");
 
     //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Created', log_description = '$name', log_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Create', log_description = '$name', log_created_at = NOW()");
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> created!";
     
@@ -765,7 +784,7 @@ if(isset($_POST['add_ticket'])){
     mysqli_query($mysqli,"INSERT INTO tickets SET ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $session_user_id, client_id = $client_id, company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Created', log_description = '$subject', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$subject', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Ticket created";
     

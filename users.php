@@ -143,13 +143,16 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserCompaniesModal<?php echo $user_id; ?>">Companies</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserCompaniesModal<?php echo $user_id; ?>">Company Access</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserClientsModal<?php echo $user_id; ?>">Client Access</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="post.php?delete_user=<?php echo $user_id; ?>">Delete</a>
                 </div>
               </div>
               <?php include("edit_user_modal.php"); ?>
-              <?php include("user_companies_modal.php"); ?>     
+              <?php include("user_companies_modal.php"); ?>
+              <?php include("user_clients_modal.php"); ?>  
             </td>
           </tr>
 

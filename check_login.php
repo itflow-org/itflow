@@ -13,10 +13,7 @@
 
 	$session_user_id = $_SESSION['user_id'];
 
-	$sql = mysqli_query($mysqli,"SELECT * FROM users, companies, permissions 
-		WHERE permissions.permission_default_company = companies.company_id 
-		AND users.user_id = $session_user_id"
-	);
+	$sql = mysqli_query($mysqli,"SELECT * FROM users, permissions  WHERE users.user_id = permissions.user_id AND users.user_id = $session_user_id");
 	
 	$row = mysqli_fetch_array($sql);
 	$session_name = $row['name'];
@@ -25,12 +22,30 @@
 	if(empty($session_avatar)){
 		$session_avatar = "dist/img/noone.png";
 	}
-	$session_company_id = $row['company_id'];
-	$session_company_name = $row['company_name'];
+	$session_company_id = $row['permission_default_company'];
 	$session_token = $row['token'];
 
+	$session_permission_level = $row['permission_level'];
+  if($session_permission_level == 5){
+    $session_permission_level_display = "Global Administrator";
+  }elseif($session_permission_level == 4){
+    $session_permission_level_display = "Administrator";
+  }elseif($session_permission_level == 3){
+    $session_permission_level_display = "Technician";
+  }elseif($session_permission_level == 2){
+    $session_permission_level_display = "IT Contractor";
+  }else{
+    $session_permission_level_display = "Accounting";  
+  }
+	$session_permission_companies_array = explode(",",$row['permission_companies']);
 	$session_permission_companies = $row['permission_companies'];
+	$session_permission_clients_array = explode(",",$row['permission_clients']);
 	$session_permission_clients = $row['permission_clients'];
+
+	$sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $session_company_id");
+	$row = mysqli_fetch_array($sql);
+
+	$session_company_name = $row['company_name'];
 
 	include("get_settings.php");
 

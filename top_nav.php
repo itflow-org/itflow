@@ -44,7 +44,7 @@
 
           <p>
             <?php echo $session_name; ?>
-            <small><?php echo $session_company_name; ?></small>
+            <small><?php echo $session_permission_level_display; ?></small>
           </p>
         </li>
         <!-- Menu Footer-->

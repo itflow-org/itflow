@@ -13,4 +13,12 @@
 <hr>
 <p>This is a great starting point for new custom pages.</p>
 
+<?php 
+
+echo "$session_permission_companies";
+print_r($session_permission_companies_array); 
+
+
+?>
+
 <?php include("footer.php"); ?>
