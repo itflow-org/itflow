@@ -32,6 +32,7 @@ $password = $row['password'];
 
           <center class="mb-3 p-4">
             <img src="<?php echo "$session_avatar"; ?>" class="img-circle img-fluid elevation-2">
+            <h4 class="text-secondary mt-2"><?php echo $session_permission_level_display; ?></h4>
           </center>
 
           <hr>
@@ -144,11 +145,14 @@ $password = $row['password'];
           ?>
         </tbody>
       </table>
+      <div class="card-footer">
+        <a href="#">See More...</a>
+      </div>
     </div>
 
     <div class="card">
       <div class="card-header bg-dark text-white">
-        <h3 class="card-title"><i class="fa fa-fw fa-history"></i> Recent Logs</h3>
+        <h3 class="card-title"><i class="fa fa-fw fa-history"></i> Your Recent Activity</h3>
       </div>
 
 
@@ -184,6 +188,9 @@ $password = $row['password'];
           ?>
         </tbody>
       </table>
+      <div class="card-footer">
+        <a href="#">See More...</a>
+      </div>
     </div>
   </div>
 

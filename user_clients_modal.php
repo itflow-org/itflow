@@ -19,7 +19,7 @@
           <ul class="list-group">
 
             <?php
-            $sql_clients_select = mysqli_query($mysqli,"SELECT * FROM clients, companies WHERE clients.company_id = companies.company_id ORDER BY client_name ASC");
+            $sql_clients_select = mysqli_query($mysqli,"SELECT * FROM clients, companies WHERE clients.company_id = companies.company_id AND companies.company_id IN ($permission_companies) ORDER BY client_name ASC");
 
             while($row = mysqli_fetch_array($sql_clients_select)){
               $client_id_select = $row['client_id'];

@@ -188,6 +188,8 @@
           </a>
         </li>
 
+        <?php if($session_permission_level == 1 OR $session_permission_level > 3){ ?>
+
         <li class="nav-header">SALES AND ACCOUNTING</li>
 
         <li class="nav-item">
@@ -254,6 +256,8 @@
             </p>
           </a>
         </li>
+
+        <?php } ?>
 
       </ul>
     </nav>
