@@ -55,7 +55,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-map-marker-alt"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="starting_location" value="<?php echo $trip_starting_location; ?>" required>
+                  <input type="text" class="form-control" name="source" value="<?php echo $trip_starting_location; ?>" required>
                 </div>
               </div>
               

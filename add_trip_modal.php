@@ -51,7 +51,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="starting_location" placeholder="Enter your starting location" required>
+                  <input type="text" class="form-control" name="source" placeholder="Enter your starting location" required>
                 </div>
               </div>
               <div class="form-group">

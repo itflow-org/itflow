@@ -50,7 +50,7 @@
   }
 
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips  
-    WHERE (trip_purpose LIKE '%$q%' OR trip_starting_location LIKE '%$q%' OR trip_destination LIKE '%$q%')
+    WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%')
     AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
     AND company_id = $session_company_id
     ORDER BY $sb $o LIMIT $record_from, $record_to");
@@ -82,8 +82,8 @@
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_date&o=<?php echo $disp; ?>">Date</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_purpose&o=<?php echo $disp; ?>">Purpose</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_starting_location&o=<?php echo $disp; ?>">From</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_destination&o=<?php echo $disp; ?>">To</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_source&o=<?php echo $disp; ?>">Source</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_destination&o=<?php echo $disp; ?>">Destination</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_miles&o=<?php echo $disp; ?>">Miles</a></th>
             <th class="text-center">Action</th>
           </tr>
@@ -95,7 +95,7 @@
             $trip_id = $row['trip_id'];
             $trip_date = $row['trip_date'];
             $trip_purpose = $row['trip_purpose'];
-            $trip_starting_location = $row['trip_starting_location'];
+            $trip_source = $row['trip_source'];
             $trip_destination = $row['trip_destination'];
             $trip_miles = $row['trip_miles'];
             $round_trip = $row['round_trip'];
@@ -111,7 +111,7 @@
           <tr>
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>"><?php echo $trip_date; ?></a></td>
             <td><?php echo $trip_purpose; ?></td>
-            <td><?php echo $trip_starting_location; ?></td>
+            <td><?php echo $trip_source; ?></td>
             <td><?php echo $trip_destination; ?></td>
             <td><?php echo "$trip_miles $round_trip_display"; ?></td>
             <td>
@@ -120,7 +120,7 @@
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="//maps.google.com?q=<?php echo $trip_starting_location; ?> to <?php echo $trip_destination; ?>" target="_blank">Map it</a>
+                  <a class="dropdown-item" href="//maps.google.com?q=<?php echo $trip_source; ?> to <?php echo $trip_destination; ?>" target="_blank">Map it</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTripCopyModal<?php echo $trip_id; ?>">Copy</a>

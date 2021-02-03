@@ -836,7 +836,7 @@ CREATE TABLE `trips` (
   `trip_id` int(11) NOT NULL AUTO_INCREMENT,
   `trip_date` date NOT NULL,
   `trip_purpose` varchar(200) NOT NULL,
-  `trip_starting_location` varchar(200) NOT NULL,
+  `trip_source` varchar(200) NOT NULL,
   `trip_destination` varchar(200) NOT NULL,
   `trip_start_odometer` int(11) DEFAULT NULL,
   `trip_end_odmeter` int(11) DEFAULT NULL,
@@ -927,4 +927,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-29 21:26:58
+-- Dump completed on 2021-02-02 19:10:13

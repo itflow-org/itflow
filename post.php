@@ -983,14 +983,14 @@ if(isset($_GET['delete_product'])){
 if(isset($_POST['add_trip'])){
 
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $starting_location = strip_tags(mysqli_real_escape_string($mysqli,$_POST['starting_location']));
+    $source = strip_tags(mysqli_real_escape_string($mysqli,$_POST['source']));
     $destination = strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination']));
     $miles = floatval($_POST['miles']);
     $roundtrip = intval($_POST['roundtrip']);
     $purpose = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose']));
     $client_id = intval($_POST['client']);
 
-    mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Created', log_description = '$date', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -1005,14 +1005,14 @@ if(isset($_POST['edit_trip'])){
 
     $trip_id = intval($_POST['trip_id']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $starting_location = strip_tags(mysqli_real_escape_string($mysqli,$_POST['starting_location']));
+    $source = strip_tags(mysqli_real_escape_string($mysqli,$_POST['source']));
     $destination = strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination']));
     $miles = floatval($_POST['miles']);
     $roundtrip = intval($_POST['roundtrip']);
     $purpose = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose']));
     $client_id = intval($_POST['client']);
 
-    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_starting_location = '$starting_location', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_updated_at = NOW(), client_id = $client_id WHERE trip_id = $trip_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_updated_at = NOW(), client_id = $client_id WHERE trip_id = $trip_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Modified', log_description = '$date', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -3839,5 +3839,40 @@ if(isset($_GET['force_recurring'])){
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 } //End Force Recurring
+
+if(isset($_GET['export_trips_csv'])){
+    //get records from database
+    $query = $db->query("SELECT * FROM trips ORDER BY trip_date DESC");
+
+    if($query->num_rows > 0){
+        $delimiter = ",";
+        $filename = "trips_" . date('Y-m-d') . ".csv";
+        
+        //create a file pointer
+        $f = fopen('php://memory', 'w');
+        
+        //set column headers
+        $fields = array('Date', 'Purpose', 'Source', 'Destination', 'Miles');
+        fputcsv($f, $fields, $delimiter);
+        
+        //output each row of the data, format line as csv and write to file pointer
+        while($row = $query->fetch_assoc()){
+            $lineData = array($row['trip_date'], $row['trip_purpose'], $row['trip_source'], $row['trip_destination'], $row['trip_miles']);
+            fputcsv($f, $lineData, $delimiter);
+        }
+        
+        //move back to beginning of file
+        fseek($f, 0);
+        
+        //set headers to download file rather than displayed
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+        
+        //output all remaining data on a file pointer
+        fpassthru($f);
+    }
+    exit;
+  
+}
 
 ?>
