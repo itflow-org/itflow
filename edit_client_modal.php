@@ -1,34 +1,34 @@
 <div class="modal" id="editClientModal<?php echo $client_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
+      <div class="modal-header">
         <h5 class="modal-title"><i class="fa fa-fw fa-user mr-2"></i><?php echo $client_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="modal-body bg-white">
           
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $client_id; ?>">
+          <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-details-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-details<?php echo $client_id; ?>">Details</a>
+              <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $client_id; ?>">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-address-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-address<?php echo $client_id; ?>">Address</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-address<?php echo $client_id; ?>">Address</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-contact-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-contact<?php echo $client_id; ?>">Contact</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-contact<?php echo $client_id; ?>">Contact</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-notes-tab<?php echo $client_id; ?>" data-toggle="pill" href="#pills-notes<?php echo $client_id; ?>">Notes</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $client_id; ?>">Notes</a>
             </li>
           </ul>
 
           <hr>
           
-          <div class="tab-content" id="pills-tabContent<?php echo $client_id; ?>">
+          <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-details<?php echo $client_id; ?>">
 
