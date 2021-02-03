@@ -3,6 +3,8 @@
 //Permission check
 if($session_permission_level == 2){
   $permission_sql = "AND client_id IN ($session_permission_clients)";
+}else{
+  $permission_sql = "";
 }
 
 //Rebuild URL
