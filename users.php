@@ -1,9 +1,5 @@
 <?php include("header.php");
 
-  //Rebuild URL
-
-  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
   //Paging
   if(isset($_GET['p'])){
     $p = intval($_GET['p']);
@@ -39,6 +35,10 @@
     $o = "ASC";
     $disp = "DESC";
   }
+
+  //Rebuild URL
+
+  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM users, permissions
     WHERE  users.user_id = permissions.user_id

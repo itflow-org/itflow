@@ -27,7 +27,7 @@
                   $client_id = $row['client_id'];
                   $client_name = $row['client_name'];
                 ?>
-                  <option <?php if($_GET['client_id'] == $client_id) { echo "selected"; } ?> value="<?php echo "$client_id"; ?>"><?php echo "$client_name"; ?></option>
+                  <option value="<?php echo $client_id; ?>"><?php echo "$client_name"; ?></option>
                 
                 <?php
                 }
