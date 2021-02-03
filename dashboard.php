@@ -200,7 +200,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   <!-- ./col -->
 
   <div class="col-md-12">
-    <div class="card mb-3">
+    <div class="card card-dark mb-3">
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-fw fa-chart-area"></i> Cash Flow</h3>
         <div class="card-tools">
@@ -219,7 +219,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   </div>
 
   <div class="col-md-12">
-    <div class="card mb-3">
+    <div class="card card-dark mb-3">
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-fw fa-route"></i> Trip Flow</h3>
         <div class="card-tools">
@@ -238,7 +238,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   </div>
 
   <div class="col-lg-6">
-    <div class="card mb-3">
+    <div class="card card-dark mb-3">
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-chart-pie"></i> Income By Category</h3>
         <div class="card-tools">
@@ -254,7 +254,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   </div>
 
   <div class="col-lg-6">
-    <div class="card mb-3">
+    <div class="card card-dark mb-3">
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-chart-pie"></i> Expenses By Category</h3>
         <div class="card-tools">
@@ -270,7 +270,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   </div>
 
   <div class="col-lg-6">
-    <div class="card mb-3">
+    <div class="card card-dark mb-3">
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-chart-pie"></i> Expenses By Vendor</h3>
         <div class="card-tools">
@@ -286,7 +286,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
   </div>
 
   <div class="col-md-6">
-    <div class="card">
+    <div class="card card-dark mb-3">
       <div class="card-header">
         <h3 class="card-title">Account Balance</h3>
         <div class="card-tools">
@@ -338,7 +338,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     </div>
   </div> <!-- .col -->
   <div class="col-md-6">
-    <div class="card">
+    <div class="card card-dark mb-3">
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-credit-card"></i> Latest Income</h3>
         <div class="card-tools">
@@ -380,7 +380,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
     </div>
   </div> <!-- .col -->
   <div class="col-md-6">
-    <div class="card">
+    <div class="card card-dark mb-3">
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-shopping-cart"></i> Latest Expenses</h3>
         <div class="card-tools">
