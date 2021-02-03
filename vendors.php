@@ -39,7 +39,7 @@ if(isset($_GET['o'])){
 }
 
 //Date From and Date To Filter
-if(isset($_GET['dtf'])){
+if(!empty($_GET['dtf'])){
   $dtf = $_GET['dtf'];
   $dtt = $_GET['dtt'];
 }else{
@@ -60,28 +60,52 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card mb-3">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-2"><i class="fa fa-fw fa-building mr-2"></i>Vendors</h6>
-    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addVendorModal"><i class="fas fa-fw fa-plus"></i></button>
+<div class="card card-dark mb-3">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-building"></i> Vendors</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addVendorModal"><i class="fas fa-fw fa-plus"></i> New Vendor</button>
+    </div>
   </div>
+  
   <div class="card-body">
-    <form autocomplete="off">
-      <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Invoices">
-        <div class="input-group-append">
-          <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+    <form class="mb-4" autocomplete="off">
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="input-group">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Vendors">
+            <div class="input-group-append">
+              <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+              <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
+        <div class="row">
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Date From</label>
+              <input type="date" class="form-control" name="dtf" value="<?php echo $dtf; ?>">
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Date To</label>
+              <input type="date" class="form-control" name="dtt" value="<?php echo $dtt; ?>">
+            </div>
+          </div>
+        </div>    
       </div>
     </form>
     <hr>
     <div class="table-responsive">
-      <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+      <table class="table table-striped table-hover table-borderless">
+        <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_name&o=<?php echo $disp; ?>">Vendor</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_description&o=<?php echo $disp; ?>">Description</a></th>
-            <th>Contact</th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_contact&o=<?php echo $disp; ?>">Contact</a></th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -109,9 +133,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $vendor_notes = $row['vendor_notes']
             
           ?>
-
-       
-          <?php include("edit_vendor_modal.php"); ?>
 
           <tr>
             <td>
@@ -168,13 +189,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           </tr>
 
           <?php
+
+            include("edit_vendor_modal.php");
   
           }
           
           ?>
 
         </tbody>
-
       </table>
 
       <?php include("pagination.php"); ?>

@@ -1,34 +1,36 @@
 <div class="modal" id="addVendorModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-building mr-2"></i>New Vendor</h5>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa fa-fw fa-building"></i> New Vendor</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+       
+        <input type="hidden" name="client_id" value="<?php if(isset($_GET['client_id'])){ echo $client_id; }else{ echo 0; } ?>">
+
         <div class="modal-body bg-white">
 
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab">
+          <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-details-tab" data-toggle="pill" href="#pills-details">Details</a>
+              <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-address-tab" data-toggle="pill" href="#pills-address">Address</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-address">Address</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact">Contact</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-contact">Contact</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-notes-tab" data-toggle="pill" href="#pills-notes">Notes</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
             </li>
           </ul>
 
           <hr>
           
-          <div class="tab-content" id="pills-tabContent">
+          <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-details">
 

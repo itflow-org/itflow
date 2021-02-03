@@ -1,8 +1,8 @@
 <div class="modal" id="editVendorModal<?php echo $vendor_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-building mr-2"></i><?php echo $vendor_name; ?></h5>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa fa-fw fa-building"></i> <?php echo $vendor_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -11,7 +11,7 @@
         <input type="hidden" name="vendor_id" value="<?php echo $vendor_id; ?>">
         <div class="modal-body bg-white">
 
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $vendor_id; ?>">
+          <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
               <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $vendor_id; ?>">Details</a>
             </li>
@@ -28,7 +28,7 @@
 
           <hr>
           
-          <div class="tab-content" id="pills-tabContent<?php echo $vendor_id; ?>">
+          <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-details<?php echo $vendor_id; ?>">
 
@@ -64,7 +64,7 @@
 
             </div>
 
-            <div class="tab-pane fade" id="pills-address<?php echo $vendor_id; ?>" role="tabpanel" aria-labelledby="pills-address-tab<?php echo $vendor_id; ?>">
+            <div class="tab-pane fade" id="pills-address<?php echo $vendor_id; ?>">
 
               <div class="form-group">
                 <label>Address</label>
