@@ -1,8 +1,4 @@
-<?php 
-
-//Rebuild URL
-
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+<?php
 
 //Paging
 if(isset($_GET['p'])){
@@ -40,14 +36,16 @@ if(isset($_GET['o'])){
   $disp = "DESC";
 }
 
+//Rebuild URL
+
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM vendors 
   WHERE client_id = $client_id 
   AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' ) 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-$total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / 10);
 
 ?>
 
@@ -75,7 +73,6 @@ $total_pages = ceil($total_found_rows / 10);
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_name&o=<?php echo $disp; ?>">Vendor</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_description&o=<?php echo $disp; ?>">Description</a></th>
             <th>Contact</th>
-            <th></th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -97,16 +94,10 @@ $total_pages = ceil($total_found_rows / 10);
             if(strlen($vendor_phone)>2){ 
               $vendor_phone = substr($row['vendor_phone'],0,3)."-".substr($row['vendor_phone'],3,3)."-".substr($row['vendor_phone'],6,4);
             }
+            $vendor_extension = $row['vendor_extension'];
             $vendor_email = $row['vendor_email'];
             $vendor_website = $row['vendor_website'];
             $vendor_notes = $row['vendor_notes'];
-
-            $sql2 = mysqli_query($mysqli,"SELECT * FROM client_logins WHERE vendor_id = $vendor_id");
-            $row = mysqli_fetch_array($sql2);
-            $client_login_id = $row['client_login_id'];
-            $client_login_username = $row['client_login_username'];
-            $client_login_password = $row['client_login_password'];
-            $vendor_id_relation = $row['vendor_id'];
               
           ?>
           <tr>
@@ -149,47 +140,6 @@ $total_pages = ceil($total_found_rows / 10);
               }
               ?>
             </td>
-            <td>
-              <?php
-              if($vendor_id == $vendor_id_relation){
-              ?>  
-              <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $client_login_id; ?>"><i class="fas fa-key"></i></button>
-
-              <div class="modal" id="viewPasswordModal<?php echo $client_login_id; ?>" tabindex="-1">
-                <div class="modal-dialog modal-sm">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title"><i class="fa fa-key"></i> <?php echo $vendor_name; ?> Login</h5>
-                      <button type="button" class="close" data-dismiss="modal">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body">
-                      <div class="form-group">
-                        <div class="input-group">
-                          <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-user"></i></span>
-                          </div>
-                          <input type="text" class="form-control" value="<?php echo $client_login_username; ?>" readonly>
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <div class="input-group">
-                          <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-lock"></i></span>
-                          </div>
-                          <input type="text" class="form-control" value="<?php echo $client_login_password; ?>" readonly>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <?php
-              }
-              ?>
-            </td>
-
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

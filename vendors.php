@@ -16,11 +16,15 @@ if(isset($_GET['q'])){
 }else{
   $q = "";
 }
+
+//Column Filter
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
   $sb = "vendor_name";
 }
+
+//Column Order
 if(isset($_GET['o'])){
   if($_GET['o'] == 'ASC'){
     $o = "ASC";
