@@ -86,7 +86,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS ven
 $vendors_added = $row['vendors_added'];
 
 //Get Total of Recurring Invoices
-$sql_total_recurring_invoice_amount = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS total_recurring_invoice_amount FROM recurring WHERE YEAR(payment_date) = $year AND company_id = $session_company_id");
+$sql_total_recurring_invoice_amount = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS total_recurring_invoice_amount FROM recurring WHERE YEAR(recurring_next_date) = $year AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_recurring_invoice_amount);
 $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
 
@@ -491,6 +491,7 @@ var myLineChart = new Chart(ctx, {
           $sql_projected = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amount_for_month FROM invoices WHERE YEAR(invoice_due) = $year AND MONTH(invoice_due) = $month AND invoice_status NOT LIKE 'Cancelled' AND invoice_status NOT LIKE 'Draft' AND company_id = $session_company_id");
           $row = mysqli_fetch_array($sql_projected);
           $invoice_for_month = $row['invoice_amount_for_month'];
+          $largest_invoice_month = 0;
           
           if($invoice_for_month > 0 AND $invoice_for_month > $largest_invoice_month){
             $largest_invoice_month = $invoice_for_month;
@@ -525,6 +526,7 @@ var myLineChart = new Chart(ctx, {
           $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND vendor_id > 0 AND expenses.company_id = $session_company_id");
           $row = mysqli_fetch_array($sql_expenses);
           $expenses_for_month = $row['expense_amount_for_month'];
+          $largest_expense_month = 0;
           
           if($expenses_for_month > 0 AND $expenses_for_month > $largest_expense_month){
             $largest_expense_month = $expenses_for_month;
@@ -601,6 +603,7 @@ var myLineChart = new Chart(ctx, {
           $sql_trips = mysqli_query($mysqli,"SELECT SUM(trip_miles) AS trip_miles_for_month FROM trips WHERE YEAR(trip_date) = $year AND MONTH(trip_date) = $month AND trips.company_id = $session_company_id");
           $row = mysqli_fetch_array($sql_trips);
           $trip_miles_for_month = $row['trip_miles_for_month'];
+          $largest_trip_miles_month = 0;
           
           if($trip_miles_for_month > 0 AND $trip_miles_for_month > $largest_trip_miles_month){
             $largest_trip_miles_month = $trip_miles_for_month;
