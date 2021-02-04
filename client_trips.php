@@ -135,8 +135,8 @@ $total_pages = ceil($total_found_rows / 10);
   
               <?php 
               
-              include("client_add_trip_copy_modal.php");
-              include("client_edit_trip_modal.php");
+              include("add_trip_copy_modal.php");
+              include("edit_trip_modal.php");
 
               ?>
               
@@ -158,4 +158,4 @@ $total_pages = ceil($total_found_rows / 10);
   </div>
 </div>
 
-<?php include("client_add_trip_modal.php"); ?>
+<?php include("add_trip_modal.php"); ?>

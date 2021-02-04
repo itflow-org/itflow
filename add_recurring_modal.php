@@ -1,10 +1,10 @@
 <div class="modal" id="addRecurringModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-sync-alt mr-2"></i>New Recurring Invoice</h5>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa fa-fw fa-sync-alt"></i> New Recurring Invoice</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
@@ -29,7 +29,7 @@
                   $client_id = $row['client_id'];
                   $client_name = $row['client_name'];
                 ?>
-                  <option <?php if($_GET['client_id'] == $client_id) { echo "selected"; } ?> value="<?php echo "$client_id"; ?>"><?php echo "$client_name"; ?></option>
+                  <option value="<?php echo $client_id; ?>"><?php echo "$client_name"; ?></option>
                 
                 <?php
                 }

@@ -1,66 +1,101 @@
 <?php include("header.php"); 
+
+//Paging
+if(isset($_GET['p'])){
+  $p = intval($_GET['p']);
+  $record_from = (($p)-1)*$config_records_per_page;
+  $record_to = $config_records_per_page;
+}else{
+  $record_from = 0;
+  $record_to = $config_records_per_page;
+  $p = 1;
+}
   
-  //Rebuild URL
+if(isset($_GET['q'])){
+  $q = mysqli_real_escape_string($mysqli,$_GET['q']);
+}else{
+  $q = "";
+}
 
-  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+if(!empty($_GET['sb'])){
+  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+}else{
+  $sb = "transfer_date";
+}
 
-  //Paging
-  if(isset($_GET['p'])){
-    $p = intval($_GET['p']);
-    $record_from = (($p)-1)*$config_records_per_page;
-    $record_to = $config_records_per_page;
-  }else{
-    $record_from = 0;
-    $record_to = $config_records_per_page;
-    $p = 1;
-  }
-    
-  if(isset($_GET['q'])){
-    $q = mysqli_real_escape_string($mysqli,$_GET['q']);
-  }else{
-    $q = "";
-  }
-
-  if(!empty($_GET['sb'])){
-    $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
-  }else{
-    $sb = "transfer_date";
-  }
-
-  if(isset($_GET['o'])){
-    if($_GET['o'] == 'ASC'){
-      $o = "ASC";
-      $disp = "DESC";
-    }else{
-      $o = "DESC";
-      $disp = "ASC";
-    }
+if(isset($_GET['o'])){
+  if($_GET['o'] == 'ASC'){
+    $o = "ASC";
+    $disp = "DESC";
   }else{
     $o = "DESC";
     $disp = "ASC";
   }
- 
+}else{
+  $o = "DESC";
+  $disp = "ASC";
+}
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS expenses.expense_date AS transfer_date, expenses.expense_amount AS transfer_amount, expenses.account_id AS transfer_account_from, revenues.account_id AS transfer_account_to, transfers.expense_id, transfers.revenue_id , transfers.transfer_id, transfers.transfer_notes AS transfer_notes FROM transfers, expenses, revenues WHERE transfers.expense_id = expenses.expense_id AND transfers.revenue_id = revenues.revenue_id AND transfers.company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to");
+//Date From and Date To Filter
+if(!empty($_GET['dtf'])){
+  $dtf = $_GET['dtf'];
+  $dtt = $_GET['dtt'];
+}else{
+  $dtf = "0000-00-00";
+  $dtt = "9999-00-00";
+}
+
+//Rebuild URL
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+ 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS expenses.expense_date AS transfer_date, expenses.expense_amount AS transfer_amount, expenses.account_id AS transfer_account_from, revenues.account_id AS transfer_account_to, transfers.expense_id, transfers.revenue_id , transfers.transfer_id, transfers.transfer_notes AS transfer_notes FROM transfers, expenses, revenues 
+  WHERE transfers.expense_id = expenses.expense_id 
+  AND transfers.revenue_id = revenues.revenue_id 
+  AND transfers.company_id = $session_company_id
+  AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
+  ORDER BY $sb $o LIMIT $record_from, $record_to"
+);
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-$total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / 10);
 
 ?>
 
-<div class="card mb-3">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-exchange-alt mr-2"></i>Transfers</h6>
-    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addTransferModal"><i class="fas fa-plus"></i></button>
+<div class="card card-dark mb-3">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-exchange-alt"></i> Transfers</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTransferModal"><i class="fas fa-fw fa-plus"></i> New Transfer</button>
+    </div>
   </div>
+
   <div class="card-body">
-    <form autocomplete="off">
-      <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Transfers">
-        <div class="input-group-append">
-          <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+    <form class="mb-4" autocomplete="off">
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="input-group">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Transfers">
+            <div class="input-group-append">
+              <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+              <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
+        <div class="row">
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Date From</label>
+              <input type="date" class="form-control" name="dtf" value="<?php echo $dtf; ?>">
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Date To</label>
+              <input type="date" class="form-control" name="dtt" value="<?php echo $dtt; ?>">
+            </div>
+          </div>
+        </div>    
       </div>
     </form>
     <hr>
@@ -112,12 +147,13 @@ $total_pages = ceil($total_found_rows / 10);
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="post.php?delete_transfer=<?php echo $transfer_id; ?>">Delete</a>
                 </div>
-              </div>
-              <?php include("edit_transfer_modal.php"); ?>      
+              </div>      
             </td>
           </tr>
 
           <?php
+
+          include("edit_transfer_modal.php");
         
           }
           

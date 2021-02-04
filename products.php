@@ -1,65 +1,72 @@
 <?php include("header.php");
 
-  //Rebuild URL
+//Paging
+if(isset($_GET['p'])){
+  $p = intval($_GET['p']);
+  $record_from = (($p)-1)*$config_records_per_page;
+  $record_to = $config_records_per_page;
+}else{
+  $record_from = 0;
+  $record_to = $config_records_per_page;
+  $p = 1;
+}
+  
+if(isset($_GET['q'])){
+  $q = mysqli_real_escape_string($mysqli,$_GET['q']);
+}else{
+  $q = "";
+}
 
-  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+if(!empty($_GET['sb'])){
+  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+}else{
+  $sb = "product_name";
+}
 
-  //Paging
-  if(isset($_GET['p'])){
-    $p = intval($_GET['p']);
-    $record_from = (($p)-1)*$config_records_per_page;
-    $record_to = $config_records_per_page;
-  }else{
-    $record_from = 0;
-    $record_to = $config_records_per_page;
-    $p = 1;
-  }
-    
-  if(isset($_GET['q'])){
-    $q = mysqli_real_escape_string($mysqli,$_GET['q']);
-  }else{
-    $q = "";
-  }
-
-  if(!empty($_GET['sb'])){
-    $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
-  }else{
-    $sb = "product_name";
-  }
-
-  if(isset($_GET['o'])){
-    if($_GET['o'] == 'ASC'){
-      $o = "ASC";
-      $disp = "DESC";
-    }else{
-      $o = "DESC";
-      $disp = "ASC";
-    }
-  }else{
+if(isset($_GET['o'])){
+  if($_GET['o'] == 'ASC'){
     $o = "ASC";
     $disp = "DESC";
+  }else{
+    $o = "DESC";
+    $disp = "ASC";
   }
+}else{
+  $o = "ASC";
+  $disp = "DESC";
+}
 
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM products, categories WHERE products.category_id = categories.category_id AND products.company_id = $session_company_id AND (product_name LIKE '%$q%' OR category_name LIKE '%$q%') ORDER BY $sb $o LIMIT $record_from, $record_to");
+//Rebuild URL
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-  $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-  $total_found_rows = $num_rows[0];
-  $total_pages = ceil($total_found_rows / 10);
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM products, categories 
+  WHERE products.category_id = categories.category_id 
+  AND products.company_id = $session_company_id 
+  AND (product_name LIKE '%$q%' OR product_description LIKE '%$q%' OR category_name LIKE '%$q%' OR product_cost LIKE '%$q%') 
+  ORDER BY $sb $o LIMIT $record_from, $record_to");
+
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 ?>
 
-
-<div class="card mb-3">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-2"><i class="fa fa-fw fa-box mr-2"></i>Products</h6>
-    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addProductModal"><i class="fas fa-fw fa-plus"></i></button>
+<div class="card card-dark mb-3">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-box"></i> Products</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProductModal"><i class="fas fa-fw fa-plus"></i> New Product</button>
+    </div>
   </div>
+
   <div class="card-body">
-    <form autocomplete="off">
-      <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Products">
-        <div class="input-group-append">
-          <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+    <form class="mb-4" autocomplete="off">
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="input-group">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Products">
+            <div class="input-group-append">
+              <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+            </div>
+          </div>
         </div>
       </div>
     </form>
@@ -70,7 +77,7 @@
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=product_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Category</a></th>
-            <th>Description</th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=product_description&o=<?php echo $disp; ?>">Description</a></th>
             <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=product_cost&o=<?php echo $disp; ?>">Cost</a></th>
             <th class="text-center">Action</th>
           </tr>
@@ -106,9 +113,9 @@
             </td>   
           </tr>
 
-          <?php include("edit_product_modal.php"); ?>
-
           <?php
+
+          include("edit_product_modal.php");
           
           }
           

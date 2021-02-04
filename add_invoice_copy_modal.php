@@ -1,10 +1,10 @@
 <div class="modal" id="addInvoiceCopyModal<?php echo $invoice_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-copy mr-2"></i>Copying <?php echo $invoice_number; ?></h5>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa fa-fw fa-copy"></i> Copying <?php echo $invoice_number; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">

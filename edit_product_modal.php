@@ -2,9 +2,9 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-box mr-2"></i><?php echo $product_name; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-box"></i> <?php echo $product_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
@@ -29,7 +29,7 @@
                   $category_id_select = $row['category_id'];
                   $category_name_select = $row['category_name'];
                 ?>
-                <option <?php if($category_id == $category_id_select){ ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
+                <option <?php if($category_id == $category_id_select){ echo "selected"; } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
                 <?php
                 }
                 
@@ -42,11 +42,14 @@
             <label>Description</label>
             <input type="text" class="form-control" name="description" value="<?php echo $product_description; ?>">
           </div>
+          
           <div class="form-group">
             <label>Cost <strong class="text-danger">*</strong></label>
             <input type="number" step="0.01" min="0" class="form-control" name="cost" value="<?php echo $product_cost; ?>" required>
           </div>
+        
         </div>
+        
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="edit_product" class="btn btn-primary">Save</button>

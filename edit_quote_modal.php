@@ -2,15 +2,25 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-file mr-2"></i><?php echo $quote_number; ?></h5>
+        <h5 class="modal-title text-white"><i class="fa fa-fw fa-file"></i> <?php echo $quote_number; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
 
         <div class="modal-body bg-white">
+
+          <div class="form-group">
+            <label>Scope</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+              </div>
+              <input type="text" class="form-control" name="scope" placeholder="Quick description" value="<?php echo $quote_scope; ?>">
+            </div>
+          </div>
 
           <div class="form-group">
             <label>Quote Date</label>
@@ -37,7 +47,7 @@
                   $category_id_select = $row['category_id'];
                   $category_name_select = $row['category_name'];
                 ?>
-                <option <?php if($category_id_select == $category_id){ ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
+                <option <?php if($category_id_select == $category_id){ echo "selected"; } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
                 
                 <?php
                 }

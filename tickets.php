@@ -90,7 +90,7 @@
         
         </div>
         <div class="col-sm-8">
-          <div class="btn-group">
+          <div class="btn-group float-right">
             <a href="?status=%" class="btn <?php if($status == '%'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All</a>
             <a href="?status=Open" class="btn <?php if($status == 'Open'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Open</a>
             <a href="?status=In-Progress" class="btn <?php if($status == 'In-Progress'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">In-Progress</a>

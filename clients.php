@@ -58,7 +58,13 @@ if(!empty($_GET['dtf'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients WHERE (client_name LIKE '%$q%' OR client_type LIKE '%$q%' OR client_email LIKE '%$q%' OR client_contact LIKE '%$q%' OR client_phone LIKE '%$q%' OR client_mobile LIKE '%$q%' OR client_address LIKE '%$q%' OR client_city LIKE '%$q%' OR client_state LIKE '%$q%' OR client_zip LIKE '%$q%') AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt' AND company_id = $session_company_id $permission_sql ORDER BY $sb $o LIMIT $record_from, $record_to"); 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients 
+  WHERE (client_name LIKE '%$q%' OR client_type LIKE '%$q%' OR client_email LIKE '%$q%' OR client_contact LIKE '%$q%' OR client_phone LIKE '%$q%' 
+  OR client_mobile LIKE '%$q%' OR client_address LIKE '%$q%' OR client_city LIKE '%$q%' OR client_state LIKE '%$q%' OR client_zip LIKE '%$q%') 
+  AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt' 
+  AND company_id = $session_company_id $permission_sql 
+  ORDER BY $sb $o LIMIT $record_from, $record_to"
+); 
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
@@ -66,7 +72,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card card-dark mb-3">
   <div class="card-header">
-    <h3 class="card-title mt-2"><i class="fa fa-users"></i> Clients</h3>
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-users"></i> Clients</h3>
     <div class="card-tools">
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-plus"></i> New Client</button>
     </div>

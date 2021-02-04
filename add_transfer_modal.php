@@ -1,34 +1,35 @@
 <div class="modal" id="addTransferModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-exchange-alt mr-2"></i>Transfer Money</h5>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa fa-fw fa-exchange-alt"></i> Transfer Money</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
 
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
+          <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-details-tab" data-toggle="pill" href="#pills-details">Details</a>
+              <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-assign-tab" data-toggle="pill" href="#pills-assign">Assign</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-assign">Assign</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-notes-tab" data-toggle="pill" href="#pills-notes">Notes</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
             </li>
           </ul>
 
           <hr>
 
-          <div class="tab-content" id="pills-tabContent">
+          <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-details">
 
               <div class="form-row">
+                
                 <div class="form-group col">
                   <label>Date <strong class="text-danger">*</strong></label>
                   <div class="input-group">
@@ -38,6 +39,7 @@
                     <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
                   </div>
                 </div>
+                
                 <div class="form-group col">
                   <label>Amount <strong class="text-danger">*</strong></label>
                   <div class="input-group">
@@ -47,6 +49,7 @@
                     <input type="number" class="form-control" step="0.01" min="0" name="amount" placeholder="Amount to transfer" required autofocus>
                   </div>
                 </div>
+              
               </div>
            
               <div class="form-group">
@@ -88,6 +91,7 @@
                   </select>
                 </div>
               </div>
+
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-prepend">
@@ -131,7 +135,10 @@
             <div class="tab-pane fade" id="pills-assign">
 
               <?php
-              $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, transfers WHERE account_id = 1 AND ");
+
+              //UNFINISHED BUSINESS (The goal is to select checks that need deposited and autocalculate)
+
+              $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments WHERE account_id = 1");
 
               while($row = mysqli_fetch_array($sql_payments)){
                 $payment_id = $row['payment_id'];
@@ -141,7 +148,7 @@
 
                 <div class="form-check">
                   <input type="checkbox" class="form-check-input" name="payments[]" value="<?php echo $payment_id; ?>">
-                  <label class="form-check-label"><?php echo $payment_method - $payment_amount; ?></label>
+                  <label class="form-check-label"><?php echo "$payment_method - $payment_amount"; ?></label>
                 </div>
 
               <?php

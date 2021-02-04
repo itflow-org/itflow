@@ -1,14 +1,15 @@
 <div class="modal" id="addExpenseModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-cart-plus mr-2"></i>New Expense</h5>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa fa-fw fa-cart-plus"></i> New Expense</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <div class="modal-body bg-white">
+          
           <div class="form-row"> 
             <div class="form-group col-md">
               <label>Date <strong class="text-danger">*</strong></label>
@@ -29,7 +30,6 @@
                 <input type="number" class="form-control" step="0.01" name="amount" placeholder="Enter amount" autofocus required>
               </div>
             </div>
-
           </div>
 
           <div class="form-row">
@@ -145,6 +145,7 @@
             <label>Receipt</label>
             <input type="file" class="form-control-file" name="file">
           </div>
+          
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

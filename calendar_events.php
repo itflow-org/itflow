@@ -8,10 +8,9 @@ if(isset($_GET['calendar_id'])){
 
 ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <i class="fa fa-fw fa-calendar-alt"></i>
-    Calendar
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title py-2"><i class="fa fa-fw fa-calendar-alt"></i> Calendar</h3>
   </div>
   <div class="card-body pt-0">
     <div id='calendar'></div>

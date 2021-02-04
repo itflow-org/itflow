@@ -1,14 +1,15 @@
 <div class="modal" id="addCalendarEventModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-calendar-plus mr-2"></i>New Event</h5>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa fa-fw fa-calendar-plus"></i> New Event</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
+          
           <div class="form-group">
             <label>Title <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -18,6 +19,7 @@
               <input type="text" class="form-control" name="title" placeholder="Title of the event" required autofocus>
             </div>
           </div>
+          
           <div class="form-group">
             <label>Calendar <strong class="text-danger">*</strong></label>
             <div class="input-group">

@@ -2,15 +2,17 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-calendar mr-2"></i><?php echo $event_title; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-calendar"></i> <?php echo $event_title; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
+      
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="event_id" value="<?php echo $event_id; ?>">
+        
         <div class="modal-body bg-white">
-          <p></p>
+
           <div class="form-group">
             <label>Title <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -20,6 +22,7 @@
               <input type="text" class="form-control" name="title" value="<?php echo $event_title; ?>" placeholder="Title of the event" required>
             </div>
           </div>
+          
           <div class="form-group">
             <label>Calendar <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -43,6 +46,7 @@
               </select>
             </div>
           </div>
+          
           <div class="form-group">
             <label>Starts <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -52,6 +56,7 @@
               <input type="datetime-local" class="form-control" name="start" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_start)); ?>" required>
             </div>
           </div>
+          
           <div class="form-group">
             <label>Ends <strong class="text-danger">*</strong></label>
             <div class="input-group">

@@ -1,9 +1,5 @@
 <?php include("header.php");
   
-  //Rebuild URL
-
-  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
   //Paging
   if(isset($_GET['p'])){
     $p = intval($_GET['p']);
@@ -40,20 +36,23 @@
     $disp = "DESC";
   }
 
+  //Rebuild URL
+  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM accounts 
     WHERE account_name LIKE '%$q%' AND company_id = $session_company_id
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-  $total_found_rows = $num_rows[0];
-  $total_pages = ceil($total_found_rows / 10);
 
 ?>
 
-<div class="card mb-3">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-piggy-bank mr-2"></i>Accounts</h6>
-    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addAccountModal"><i class="fas fa-plus"></i></button>
+<div class="card card-dark mb-3">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-piggy-bank"></i> Accounts</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAccountModal"><i class="fas fa-fw fa-plus"></i> New Account</button>
+    </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
@@ -111,12 +110,12 @@
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="post.php?delete_account=<?php echo $account_id; ?>">Delete</a>
                 </div>
-              </div>
-              <?php include("edit_account_modal.php"); ?>      
+              </div>      
             </td>
           </tr>
 
           <?php
+          include("edit_account_modal.php");
           }
           ?>
 
