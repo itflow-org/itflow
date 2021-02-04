@@ -699,20 +699,20 @@ CREATE TABLE `settings` (
   `config_invoice_footer` text DEFAULT NULL,
   `config_quote_footer` text DEFAULT NULL,
   `config_invoice_next_number` int(11) DEFAULT NULL,
-  `config_recurring_auto_send_invoice` int(1) DEFAULT NULL,
+  `config_recurring_auto_send_invoice` tinyint(1) DEFAULT NULL,
   `config_api_key` varchar(200) DEFAULT NULL,
   `config_aes_key` varchar(250) DEFAULT NULL,
   `config_invoice_prefix` varchar(200) DEFAULT NULL,
-  `config_send_invoice_reminders` int(1) DEFAULT NULL,
+  `config_send_invoice_reminders` tinyint(1) DEFAULT NULL,
   `config_invoice_overdue_reminders` varchar(200) DEFAULT NULL,
   `config_quote_next_number` int(11) DEFAULT NULL,
   `config_quote_prefix` varchar(200) DEFAULT NULL,
   `config_ticket_prefix` varchar(200) DEFAULT NULL,
   `config_ticket_next_number` int(11) DEFAULT NULL,
-  `config_enable_cron` int(1) DEFAULT NULL,
-  `enable_alert_domain_expire` int(1) DEFAULT NULL,
-  `enable_alert_low_balance` int(1) DEFAULT NULL,
-  `config_stripe_enable` int(1) DEFAULT NULL,
+  `config_enable_cron` tinyint(1) DEFAULT NULL,
+  `config_enable_alert_domain_expire` tinyint(1) DEFAULT NULL,
+  `config_enable_alert_low_balance` tinyint(1) DEFAULT NULL,
+  `config_stripe_enable` tinyint(1) DEFAULT NULL,
   `config_stripe_publishable` varchar(255) DEFAULT NULL,
   `config_stripe_secret` varchar(255) DEFAULT NULL,
   `config_base_url` varchar(200) DEFAULT NULL,
@@ -927,4 +927,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-02 19:10:13
+-- Dump completed on 2021-02-04 12:41:19

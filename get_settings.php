@@ -1,10 +1,15 @@
 <?php
 
-//General Settings
-
+//Query Settings
 $sql_settings = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_settings);
 
+//General
+$config_api_key = $row['config_api_key'];
+$config_aes_key = $row['config_aes_key'];
+$config_base_url = $row['config_base_url'];
+
+//Company Info
 $config_company_name = $row['config_company_name'];
 $config_company_country = $row['config_company_country'];
 $config_company_address = $row['config_company_address'];
@@ -18,29 +23,13 @@ if(strlen($config_company_phone)>2){
 $config_company_country = $row['config_company_country'];
 $config_company_site = $row['config_company_site'];
 
-$config_quote_footer = $row['config_quote_footer'];
-$config_quote_next_number = $row['config_quote_next_number'];
-$config_quote_prefix = $row['config_quote_prefix'];
-
-
+//Mail
 $config_smtp_host = $row['config_smtp_host'];
 $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
 $config_smtp_port = $row['config_smtp_port'];
 $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
-
-$config_account_balance_threshold = $row['config_account_balance_threshold'];
-
-$config_send_invoice_reminders = $row['config_send_invoice_reminders'];
-$config_invoice_logo = $row['config_invoice_logo'];
-$config_invoice_footer = $row['config_invoice_footer'];
-$config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
-$config_invoice_next_number = $row['config_invoice_next_number'];
-$config_invoice_prefix = $row['config_invoice_prefix'];
-
-$config_ticket_next_number = $row['config_ticket_next_number'];
-$config_ticket_prefix = $row['config_ticket_prefix'];
 
 //Defaults
 $config_default_expense_account = $row['config_default_expense_account'];
@@ -53,18 +42,33 @@ $config_default_expense_payment_method = $row['config_default_expense_payment_me
 $config_default_net_terms = $row['config_default_net_terms'];
 $config_records_per_page = $row['config_records_per_page'];
 
-$config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
+//Invoice/Quote
+$config_invoice_logo = $row['config_invoice_logo'];
+$config_invoice_footer = $row['config_invoice_footer'];
+$config_invoice_next_number = $row['config_invoice_next_number'];
+$config_invoice_prefix = $row['config_invoice_prefix'];
 
+$config_quote_footer = $row['config_quote_footer'];
+$config_quote_next_number = $row['config_quote_next_number'];
+$config_quote_prefix = $row['config_quote_prefix'];
+
+//Tickets
+$config_ticket_next_number = $row['config_ticket_next_number'];
+$config_ticket_prefix = $row['config_ticket_prefix'];
+
+//Alerts
+$config_enable_cron = $row['config_enable_cron'];
+$config_account_balance_threshold = $row['config_account_balance_threshold'];
+$config_send_invoice_reminders = $row['config_send_invoice_reminders'];
+$config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
+$config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
+$config_enable_alert_domain_expire = $row['config_enable_alert_domain_expire'];
+$config_enable_alert_low_balance = $row['config_enable_alert_low_balance'];
+
+//Online Payment
 $config_stripe_enable = $row['config_stripe_enable'];
 $config_stripe_publishable = $row['config_stripe_publishable'];
 $config_stripe_secret = $row['config_stripe_secret'];
-
-$config_api_key = $row['config_api_key'];
-$config_aes_key = $row['config_aes_key'];
-$config_base_url = $row['config_base_url'];
-$config_enable_cron = $row['config_enable_cron'];
-
-
 
 $net_terms_array = array(
     '0'=>'On Reciept',

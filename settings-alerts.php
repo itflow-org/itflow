@@ -15,11 +15,11 @@
       </div>
 
       <div class="custom-control custom-switch mb-2">
-        <input type="checkbox" class="custom-control-input" name="config_alerts_domains" <?php if($config_alerts_low_balance == 1){ echo "checked"; } ?> value="1" id="customSwitch2">
+        <input type="checkbox" class="custom-control-input" name="config_enable_alert_low_balance" <?php if($config_enable_alert_low_balance == 1){ echo "checked"; } ?> value="1" id="customSwitch2">
         <label class="custom-control-label" for="customSwitch2">Enable Low Balance Alerts</label>
       </div>
 
-      <?php if($config_alert_low_balance == 1){ ?>
+      <?php if($config_enable_alert_low_balance == 1){ ?>
 
       <div class="form-group">
         <label>Threshold</label>
@@ -34,7 +34,7 @@
       <?php } ?>
 
       <div class="custom-control custom-switch mb-2">
-        <input type="checkbox" class="custom-control-input" name="config_alerts_domains" <?php if($config_alert_domain_expire == 1){ echo "checked"; } ?> value="1" id="customSwitch3">
+        <input type="checkbox" class="custom-control-input" name="config_enable_alert_domain_expire" <?php if($config_enable_alert_domain_expire == 1){ echo "checked"; } ?> value="1" id="customSwitch3">
         <label class="custom-control-label" for="customSwitch3">Enable Domain Expiration Alerts</label>
       </div>
 
