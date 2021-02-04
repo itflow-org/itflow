@@ -1,9 +1,5 @@
 <?php 
 
-//Rebuild URL
-
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
 //Paging
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
@@ -40,12 +36,12 @@ if(isset($_GET['o'])){
   $disp = "DESC";
 }
 
+//Rebuild URL
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM contacts WHERE client_id = $client_id AND (contact_name LIKE '%$q%') ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-$total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / 10);
-
 
 ?>
 
@@ -74,6 +70,7 @@ $total_pages = ceil($total_found_rows / 10);
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_title&o=<?php echo $disp; ?>">Title</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_email&o=<?php echo $disp; ?>">Email</a></th>
             <th>Phone</th>
+            <th class="text-center">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -138,6 +135,18 @@ $total_pages = ceil($total_found_rows / 10);
               }
               ?>
             </td>
+            <td>
+              <div class="dropdown dropleft text-center">
+                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                  <i class="fas fa-ellipsis-h"></i>
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">Edit</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="post.php?delete_contact=<?php echo $contact_id; ?>">Delete</a>
+                </div>
+              </div> 
+            </td>
             
           </tr>
 
@@ -153,7 +162,6 @@ $total_pages = ceil($total_found_rows / 10);
       </table>
 
       <?php include("pagination.php"); ?>
-      <?php include("delete_confirm_modal.php"); ?>
 
     </div>
   </div>

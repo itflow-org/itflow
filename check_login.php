@@ -4,7 +4,9 @@
   	header("Location: setup.php");
 	}
 
-	session_start();
+	if(!isset($_SESSION)){
+    session_start();
+	}
 	
 	if(!$_SESSION['logged']){
     header("Location: logout.php");
