@@ -687,6 +687,7 @@ CREATE TABLE `settings` (
   `config_company_state` varchar(200) DEFAULT NULL,
   `config_company_zip` varchar(200) DEFAULT NULL,
   `config_company_phone` varchar(200) DEFAULT NULL,
+  `config_company_email` varchar(200) DEFAULT NULL,
   `config_company_site` varchar(200) DEFAULT NULL,
   `config_smtp_host` varchar(200) DEFAULT NULL,
   `config_smtp_username` varchar(200) DEFAULT NULL,
@@ -927,4 +928,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-04 12:41:19
+-- Dump completed on 2021-02-04 17:43:24
