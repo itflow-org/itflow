@@ -2,12 +2,12 @@
 
 <?php include("settings-nav.php"); ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-credit-card mr-2"></i>Online Payment</h6>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title"><i class="fa fa-fw fa-credit-card"></i> Online Payment</h3>
   </div>
   <div class="card-body">
-    <form class="p-3" action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+    <form action="post.php" method="post" autocomplete="off">
 
       <div class="custom-control custom-switch mb-2">
         <input type="checkbox" class="custom-control-input" name="config_stripe_enable" <?php if($config_stripe_enable == 1){ echo "checked"; } ?> value="1" id="customSwitch1">

@@ -2,12 +2,12 @@
 
 <?php include("settings-nav.php"); ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-cog mr-2"></i>General Settings</h6>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title"><i class="fa fa-fw fa-cog"></i> General Settings</h3>
   </div>
   <div class="card-body">
-    <form class="p-3" action="post.php" method="post" autocomplete="off">
+    <form action="post.php" method="post" autocomplete="off">
 
       <div class="form-group">
         <label>API Key</label>

@@ -2,12 +2,12 @@
 
 <?php include("settings-nav.php"); ?>
 
-<div class="card mb-3">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-bell mr-2"></i>Alerts</h6>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title"><i class="fa fa-fw fa-bell"></i> Alerts</h3>
   </div>
   <div class="card-body">
-    <form class="p-3" action="post.php" method="post" autocomplete="off">
+    <form action="post.php" method="post" autocomplete="off">
 
       <div class="custom-control custom-switch mb-2">
         <input type="checkbox" class="custom-control-input" name="config_enable_cron" <?php if($config_enable_cron == 1){ echo "checked"; } ?> value="1" id="customSwitch1">
@@ -49,7 +49,7 @@
         <label>Overdue Reminders</label>
         <div class="input-group">
           <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
+            <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
           </div>
           <input type="text" class="form-control" name="config_invoice_overdue_reminders" placeholder="Send After Due Days" value="<?php echo $config_invoice_overdue_reminders; ?>">
         </div>
@@ -57,7 +57,8 @@
 
       <?php } ?>
 
-      <hr class="mt-5">
+      <hr>
+
       <button type="submit" name="edit_alert_settings" class="btn btn-primary">Save</button>
         
     </form>

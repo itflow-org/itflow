@@ -2,13 +2,13 @@
 
 <?php include("settings-nav.php"); ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-database mr-2"></i>Backup</h6>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title"><i class="fa fa-fw fa-database"></i> Backup</h3>
   </div>
-  <div class="card-body p-5">
+  <div class="card-body">
     <center>
-      <a class="btn btn-primary btn-lg" href="post.php?download_database"><i class="fa fa-download"></i> Download Database</a>
+      <a class="btn btn-primary btn-lg p-3" href="post.php?download_database"><i class="fa fa-fw fa-4x fa-download"></i><br><br>Download Database</a>
     </center>
   </div>
 </div>

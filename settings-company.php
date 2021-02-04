@@ -2,12 +2,12 @@
 
 <?php include("settings-nav.php"); ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-building mr-2"></i>Company Settings</h6>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title"><i class="fa fa-fw fa-building"></i> Company Settings</h3>
   </div>
   <div class="card-body">
-    <form class="p-3" action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+    <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
       <div class="form-group">
         <label>Company Name</label>
         <div class="input-group">
