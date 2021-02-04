@@ -45,10 +45,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-users mr-2"></i>Contacts</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addContactModal"><i class="fa fa-plus"></i></button>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-users"></i> Contacts</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addContactModal"><i class="fas fa-fw fa-plus"></i> New Contact</button>
+    </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
@@ -61,7 +63,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </div>
       </div>
     </form>
-    
+    <hr>
     <div class="table-responsive">
       <table class="table border">
         <thead class="thead-light <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">

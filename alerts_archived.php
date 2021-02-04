@@ -58,14 +58,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card mb-3">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-exclamation-triangle mr-2"></i>Archived Alerts</h6>
-    <a href="post.php?ack_all_alerts" class="btn btn-success btn-sm badge-pill float-right mr-2"> <i class="fa fa-check"></i> Acknowledge All</a>
-    <?php if($num_new_alerts > 0){ ?>
-    <a href="new_alerts.php" class="btn btn-info btn-sm badge-pill float-right mr-2">New</a>
-    <?php } ?>
-    <a href="archive_alerts.php" class="btn btn-secondary btn-sm badge-pill float-right mr-2">Archived</a>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title"><i class="fa fa-fw fa-exclamation-triangle"></i> Archived Alerts</h3>
   </div>
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
@@ -134,9 +129,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
         </tbody>
       </table>
-      <div class="mr-3">
-        <?php include("pagination.php"); ?>
-      </div>
+     
+      <?php include("pagination.php"); ?>
+      
     </div>
   </div>
 </div>

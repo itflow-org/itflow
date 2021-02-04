@@ -1,9 +1,5 @@
 <?php
 
-//Rebuild URL
-
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
 //Paging
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
@@ -49,6 +45,9 @@ if(isset($_GET['dtf'])){
   $dtt = "9999-00-00";
 }
 
+//Rebuild URL
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips  
   WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%')
   AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
@@ -57,15 +56,15 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-$total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / 10);
 
 ?>
 
-<div class="card mb-3">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-route mr-2"></i>Trips</h6>
-    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addTripModal"><i class="fas fa-plus"></i></button>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-route"></i> Trips</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTripModal"><i class="fas fa-fw fa-plus"></i> New Trip</button>
+    </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
@@ -101,9 +100,6 @@ $total_pages = ceil($total_found_rows / 10);
             $trip_miles = $row['trip_miles'];
             $round_trip = $row['round_trip'];
             $client_id = $row['client_id'];
-            $invoice_id = $row['invoice_id'];
-            $location_id = $row['location_id'];
-            $vendor_id = $row['vendor_id'];
 
             if($round_trip == 1){
               $round_trip_display = "<i class='fa fa-fw fa-sync-alt text-secondary'></i>";
@@ -132,19 +128,13 @@ $total_pages = ceil($total_found_rows / 10);
                   <a class="dropdown-item" href="post.php?delete_trip=<?php echo $trip_id; ?>">Delete</a>
                 </div>
               </div>
-  
-              <?php 
-              
-              include("add_trip_copy_modal.php");
-              include("edit_trip_modal.php");
-
-              ?>
-              
             </td>
           </tr>
 
           <?php
-          
+
+          include("add_trip_copy_modal.php");
+          include("edit_trip_modal.php");
           }
           
           ?>

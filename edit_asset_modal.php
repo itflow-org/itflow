@@ -2,9 +2,9 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_name; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-<?php echo $device_icon; ?>"></i> <?php echo $asset_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
@@ -34,7 +34,7 @@
           
           <hr>
           
-          <div class="tab-content" id="pills-tabContent<?php echo $asset_id; ?>">
+          <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-details<?php echo $asset_id; ?>">
           

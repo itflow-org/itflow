@@ -70,7 +70,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card card-dark mb-3">
+<div class="card card-dark">
   <div class="card-header">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-users"></i> Clients</h3>
     <div class="card-tools">

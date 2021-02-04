@@ -1,8 +1,8 @@
 <div class="modal" id="editLoginModal<?php echo $login_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i><?php echo $login_name; ?></h5>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa fa-fw fa-key"></i> <?php echo $login_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -144,7 +144,7 @@
                     <?php 
                     
                     $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE client_id = $client_id ORDER BY software_name ASC"); 
-                    while($row = mysqli_fetch_array($sql_applications)){
+                    while($row = mysqli_fetch_array($sql_software)){
                       $software_id_select = $row['software_id'];
                       $software_name_select = $row['software_name'];
                     ?>

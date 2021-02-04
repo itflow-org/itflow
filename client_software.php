@@ -1,9 +1,5 @@
 <?php 
 
-//Rebuild URL
-
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
 //Paging
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
@@ -40,21 +36,24 @@ if(isset($_GET['o'])){
   $disp = "DESC";
 }
 
+//Rebuild URL
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM software 
   WHERE client_id = $client_id 
   AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_license LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-$total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / 10);
 
 ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-rocket mr-2"></i>Software</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addSoftwareModal"><i class="fa fa-plus"></i></button>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-rocket"></i> Software</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSoftwareModal"><i class="fas fa-fw fa-plus"></i> New Software</button>
+    </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
@@ -110,10 +109,10 @@ $total_pages = ceil($total_found_rows / 10);
               <div class="modal" id="viewPasswordModal<?php echo $login_id; ?>" tabindex="-1">
                 <div class="modal-dialog">
                   <div class="modal-content bg-dark">
-                    <div class="modal-header text-white">
-                      <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i><?php echo $software_name; ?></h5>
+                    <div class="modal-header">
+                      <h5 class="modal-title"><i class="fa fa-fw fa-key"></i> <?php echo $software_name; ?></h5>
                       <button type="button" class="close text-white" data-dismiss="modal">
-                        <span aria-hidden="true">&times;</span>
+                        <span>&times;</span>
                       </button>
                     </div>
                     <div class="modal-body bg-white">
@@ -152,13 +151,13 @@ $total_pages = ceil($total_found_rows / 10);
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="post.php?delete_software=<?php echo $software_id; ?>">Delete</a>
                 </div>
-              </div>
-              <?php include("edit_software_modal.php"); ?>      
+              </div> 
             </td>
           </tr>
 
           <?php
-          
+
+          include("edit_software_modal.php");
           }
           
           ?>

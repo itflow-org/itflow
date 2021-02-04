@@ -2,9 +2,9 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-rocket mr-2"></i><?php echo $software_name; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-rocket"></i> <?php echo $software_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
@@ -12,7 +12,7 @@
         <input type="hidden" name="login_id" value="<?php echo $login_id; ?>">
         <div class="modal-body bg-white">    
           
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab">
+          <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
               <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $software_id; ?>">Details</a>
             </li>
@@ -26,7 +26,7 @@
 
           <hr>
           
-          <div class="tab-content" id="pills-tabContent<?php echo $software_id; ?>">
+          <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-details<?php echo $software_id; ?>">
 

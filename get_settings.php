@@ -11,16 +11,16 @@ $config_base_url = $row['config_base_url'];
 
 //Company Info
 $config_company_name = $row['config_company_name'];
-$config_company_country = $row['config_company_country'];
 $config_company_address = $row['config_company_address'];
 $config_company_city = $row['config_company_city'];
 $config_company_state = $row['config_company_state'];
 $config_company_zip = $row['config_company_zip'];
+$config_company_country = $row['config_company_country'];
 $config_company_phone = $row['config_company_phone'];
 if(strlen($config_company_phone)>2){ 
   $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
 }
-$config_company_country = $row['config_company_country'];
+$config_company_email = $row['config_company_email'];
 $config_company_site = $row['config_company_site'];
 
 //Mail

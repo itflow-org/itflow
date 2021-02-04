@@ -6,16 +6,18 @@ $sql = mysqli_query($mysqli,"SELECT * FROM alerts WHERE alert_ack_date IS NULL A
 
 ?>
 
-<div class="card mb-3">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-exclamation-triangle"></i> Alerts</h6>
-    <a href="post.php?ack_all_alerts" class="btn btn-success btn-sm badge-pill float-right mr-2"> <i class="fa fa-check"></i> Acknowledge All</a>
-    <a href="alerts_archived.php" class="btn btn-secondary btn-sm badge-pill float-right mr-2">Archived</a>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-exclamation-triangle"></i> Alerts</h3>
+    <div class="card-tools">
+      <a href="post.php?ack_all_alerts" class="btn btn-success"> <i class="fa fa-check"></i> Acknowledge All</a>
+      <a href="alerts_archived.php" class="btn btn-secondary">Archived</a>
+    </div>
   </div>
   <div class="card-body">
     <div class="table-responsive">
-      <table class="table table-striped table-borderless table-hover" id="dataTable" width="100%" cellspacing="0">
-        <thead class="thead-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+      <table class="table table-striped table-borderless table-hover">
+        <thead>
           <tr>
             <th>Date</th>
             <th>Type</th>

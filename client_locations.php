@@ -1,8 +1,4 @@
 <?php 
-  
-//Rebuild URL
-
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 //Paging
 if(isset($_GET['p'])){
@@ -40,21 +36,24 @@ if(isset($_GET['o'])){
   $disp = "DESC";
 }
 
+//Rebuild URL
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM locations 
   WHERE client_id = $client_id 
   AND (location_name LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-$total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / 10);
 
 ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-map-marker-alt"></i> Locations</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addLocationModal"><i class="fa fa-plus"></i></button>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-map-marker-alt"></i> Locations</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLocationModal"><i class="fas fa-fw fa-plus"></i> New Location</button>
+    </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
@@ -74,7 +73,7 @@ $total_pages = ceil($total_found_rows / 10);
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_address&o=<?php echo $disp; ?>">Address</a></th>
-            <th>Phone</th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_phone&o=<?php echo $disp; ?>">Phone</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_hours&o=<?php echo $disp; ?>">Hours</a></th>
             <th class="text-center">Action</th>
           </tr>

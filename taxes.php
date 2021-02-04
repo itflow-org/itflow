@@ -1,38 +1,39 @@
 <?php include("header.php"); 
 
-  //Rebuild URL
+if(!empty($_GET['sb'])){
+  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+}else{
+  $sb = "tax_name";
+}
 
-  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
-  if(!empty($_GET['sb'])){
-    $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
-  }else{
-    $sb = "tax_name";
-  }
-
-  if(isset($_GET['o'])){
-    if($_GET['o'] == 'ASC'){
-      $o = "ASC";
-      $disp = "DESC";
-    }else{
-      $o = "DESC";
-      $disp = "ASC";
-    }
-  }else{
+if(isset($_GET['o'])){
+  if($_GET['o'] == 'ASC'){
     $o = "ASC";
     $disp = "DESC";
+  }else{
+    $o = "DESC";
+    $disp = "ASC";
   }
+}else{
+  $o = "ASC";
+  $disp = "DESC";
+}
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY $sb $o");
+//Rebuild URL
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-  $num_rows = mysqli_num_rows($sql);
+$sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY $sb $o");
 
-  ?>
+$num_rows = mysqli_num_rows($sql);
 
-<div class="card mb-3">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-balance-scale mr-2"></i>Taxes</h6>
-    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addTaxModal"><i class="fas fa-plus"></i></button>
+?>
+
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-balance-scale"></i> Taxes</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTaxModal"><i class="fas fa-fw fa-plus"></i> New Tax</button>
+    </div>
   </div>
   <div class="card-body">
     <div class="table-responsive">
@@ -58,20 +59,23 @@
             <td><?php echo "$tax_percent%"; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
-                <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaxModal<?php echo $tax_id; ?>">Edit</a>
+                  <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="post.php?delete_tax=<?php echo $tax_id; ?>">Delete</a>
                 </div>
               </div>
-              <?php include("edit_tax_modal.php"); ?> 
             </td>
           </tr>
 
           <?php
+
+          include("edit_tax_modal.php");
           }
+          
           ?>
 
           <?php

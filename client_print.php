@@ -40,12 +40,9 @@ if(isset($_GET['client_id'])){
   
   $sql_quotes = mysqli_query($mysqli,"SELECT * FROM quotes WHERE client_id = $client_id ORDER BY quote_number DESC");
 
-  $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring_invoices, invoices
-    WHERE invoices.invoice_id = recurring_invoices.invoice_id
-    AND invoices.client_id = $client_id
-    ORDER BY recurring_invoices.recurring_invoice_id DESC");
+  $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring WHERE client_id = $client_id ORDER BY recurring_id DESC");
 
-  $sql_notes = mysqli_query($mysqli,"SELECT * FROM notes WHERE client_id = $client_id ORDER BY note_created_at DESC");
+  $sql_documents = mysqli_query($mysqli,"SELECT * FROM documents WHERE client_id = $client_id ORDER BY document_created_at DESC");
 
   //Get Counts
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('contact_id') AS num FROM contacts WHERE client_id = $client_id"));
@@ -74,11 +71,11 @@ if(isset($_GET['client_id'])){
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('quote_id') AS num FROM quotes WHERE client_id = $client_id"));
   $num_quotes = $row['num'];
 
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_invoice_id') AS num FROM recurring_invoices, invoices WHERE recurring_invoices.invoice_id = invoices.invoice_id AND invoices.client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM recurring WHERE client_id = $client_id"));
   $num_recurring = $row['num'];
 
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('note_id') AS num FROM notes WHERE client_id = $client_id"));
-  $num_notes = $row['num'];
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_id') AS num FROM documents WHERE client_id = $client_id"));
+  $num_documents = $row['num'];
 
 ?>
 
@@ -162,8 +159,7 @@ if(isset($_GET['client_id'])){
           <?php if($num_payments > 0){ ?> <li><a href="#payments">Payments</a></li> <?php } ?>
           <?php if($num_quotes > 0){ ?> <li><a href="#quotes">Quotes</a></li> <?php } ?>
           <?php if($num_recurring > 0){ ?> <li><a href="#recurring">Recurring</a></li> <?php } ?>
-          <?php if($num_attachments > 0){ ?> <li><a href="#attachments">Attachments</a></li> <?php } ?>
-          <?php if($num_notes > 0){ ?> <li><a href="#notes">Notes</a></li> <?php } ?>
+          <?php if($num_documents > 0){ ?> <li><a href="#documents">Documents</a></li> <?php } ?>
         </ul>
       </div>
     </div>
@@ -475,13 +471,21 @@ if(isset($_GET['client_id'])){
       $domain_webhost = $row['domain_webhost'];
       $domain_expire = $row['domain_expire'];
 
-      $sql_domain_registrar = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $domain_registrar");
-      $row = mysqli_fetch_array($sql_domain_registrar);
-      $domain_registrar = $row['vendor_name'];
+      if(!empty($domain_registrar)){
+        $sql_domain_registrar = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $domain_registrar");
+        $row = mysqli_fetch_array($sql_domain_registrar);
+        $domain_registrar = $row['vendor_name'];
+      }else{
+        $domain_registrar = "-";
+      }
 
-      $sql_domain_webhost = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $domain_webhost");
-      $row = mysqli_fetch_array($sql_domain_webhost);
-      $domain_webhost = $row['vendor_name'];
+      if(!empty($domain_webhost)){
+        $sql_domain_webhost = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $domain_webhost");
+        $row = mysqli_fetch_array($sql_domain_webhost);
+        $domain_webhost = $row['vendor_name'];
+      }else{
+        $domain_webhost = "-";
+      }
       
 
     ?>
@@ -683,7 +687,7 @@ if(isset($_GET['client_id'])){
   <thead>
     <tr>
       <th>Frequency</th>
-      <th>Start Date</th>
+      <th>Created</th>
       <th>Last Sent</th>
       <th>Next Date</th>
       <th>Status</th>
@@ -693,30 +697,29 @@ if(isset($_GET['client_id'])){
     <?php
 
     while($row = mysqli_fetch_array($sql_recurring)){
-      $recurring_invoice_id = $row['recurring_invoice_id'];
-      $recurring_invoice_frequency = $row['recurring_invoice_frequency'];
-      $recurring_invoice_status = $row['recurring_invoice_status'];
-      $recurring_invoice_start_date = $row['recurring_invoice_start_date'];
-      $recurring_invoice_last_sent = $row['recurring_invoice_last_sent'];
-      if($recurring_invoice_last_sent == 0){
-        $recurring_invoice_last_sent = "-";
+      $recurring_id = $row['recurring_id'];
+      $recurring_frequency = $row['recurring_frequency'];
+      $recurring_status = $row['recurring_status'];
+      $recurring_created_at = $row['recurring_created_at'];
+      $recurring_last_sent = $row['recurring_last_sent'];
+      if($recurring_last_sent == 0){
+        $recurring_last_sent = "-";
       }
-      $recurring_invoice_next_date = $row['recurring_invoice_next_date'];
-      $invoice_id = $row['invoice_id'];
-      if($recurring_invoice_status == 1){
-        $status = "Active";
+      $recurring_next_date = $row['recurring_next_date'];
+      if($recurring_status == 1){
+        $status_display = "Active";
       }else{
-        $status = "Inactive";
+        $status_display = "Inactive";
       }
 
     ?>
 
     <tr>
-      <td><?php echo ucwords($recurring_invoice_frequency); ?>ly</td>
-      <td><?php echo $recurring_invoice_start_date; ?></td>
-      <td><?php echo $recurring_invoice_last_sent; ?></td>
-      <td><?php echo $recurring_invoice_next_date; ?></td>
-      <td><?php echo $status; ?></td>
+      <td><?php echo ucwords($recurring_frequency); ?>ly</td>
+      <td><?php echo $recurring_created_at; ?></td>
+      <td><?php echo $recurring_last_sent; ?></td>
+      <td><?php echo $recurring_next_date; ?></td>
+      <td><?php echo $status_display; ?></td>
     </tr>
 
     <?php
@@ -730,21 +733,21 @@ if(isset($_GET['client_id'])){
 <?php } ?>
 
 
-<?php if($num_notes > 0){ ?>
-<h4 id="notes">Notes <small>(<?php echo $num_notes; ?>)</small></h4>
+<?php if($num_documents > 0){ ?>
+<h4 id="documents">Documents <small>(<?php echo $num_documents; ?>)</small></h4>
 <hr>
 
 <?php
 
-while($row = mysqli_fetch_array($sql_notes)){
-  $note_id = $row['note_id'];
-  $note_subject = $row['note_subject'];
-  $note_body = $row['note_body'];
+while($row = mysqli_fetch_array($sql_documents)){
+  $document_id = $row['document_id'];
+  $document_name = $row['document_name'];
+  $document_details = $row['document_details'];
 
 ?>
-<h6><?php echo $note_subject; ?></h6>
+<h6><?php echo $document_name; ?></h6>
 <hr>
-<p class="mb-4"><?php echo $note_body; ?></p>
+<p class="mb-4"><?php echo $document_details; ?></p>
 
 <?php } ?>
 

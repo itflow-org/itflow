@@ -18,7 +18,7 @@ function keygen()
 
 function key32gen()
 {
-    $chars .= "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     $chars .= "234567";
     while (1) {
         $key = '';

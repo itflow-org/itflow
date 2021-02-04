@@ -1,9 +1,5 @@
 <?php 
 
-//Rebuild URL
-
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
 //Paging
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
@@ -40,6 +36,8 @@ if(isset($_GET['o'])){
   $disp = "DESC";
 }
 
+//Rebuild URL
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins 
   WHERE client_id = $client_id 
@@ -47,15 +45,15 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS *, AES_DECRYPT(login_pas
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-$total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / 10);
 
 ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-key"></i> Logins</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addLoginModal"><i class="fa fa-plus"></i></button>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-key"></i> Logins</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLoginModal"><i class="fas fa-fw fa-plus"></i> New Login</button>
+    </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
@@ -119,12 +117,12 @@ $total_pages = ceil($total_found_rows / 10);
                   <a class="dropdown-item" href="post.php?delete_login=<?php echo $login_id; ?>">Delete</a>
                 </div>
               </div> 
-              <?php include("edit_login_modal.php"); ?>     
             </td>
           </tr>
 
           <?php
           
+          include("edit_login_modal.php");
           }
           
           ?>

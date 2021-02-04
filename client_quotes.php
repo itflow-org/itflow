@@ -1,9 +1,5 @@
 <?php
 
-//Rebuild URL
-
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
 //Paging
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
@@ -39,7 +35,10 @@ if(isset($_GET['o'])){
   $o = "DESC";
   $disp = "ASC";
 }
- 
+
+//Rebuild URL
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM quotes, categories 
   WHERE client_id = $client_id 
   AND categories.category_id = quotes.category_id 
@@ -47,15 +46,15 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM quotes, categorie
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-$total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / 10);
 
 ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-file"></i> Quotes</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addQuoteModal"><i class="fa fa-plus"></i></button>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-file"></i> Quotes</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuoteModal"><i class="fas fa-fw fa-plus"></i> New Quote</button>
+    </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
@@ -135,18 +134,14 @@ $total_pages = ceil($total_found_rows / 10);
                   <div class="dropdown-divider"></div>     
                   <a class="dropdown-item" href="post.php?delete_quote=<?php echo $quote_id; ?>">Delete</a>
                 </div>
-              </div>
-              <?php
-          
-              include("edit_quote_modal.php");
-              include("add_quote_copy_modal.php");
-
-              ?>      
+              </div>    
             </td>
           </tr>
 
           <?php
-          
+
+          include("edit_quote_modal.php");
+          include("add_quote_copy_modal.php");
           }
 
           ?>
@@ -161,5 +156,3 @@ $total_pages = ceil($total_found_rows / 10);
 </div>
 
 <?php include("add_quote_modal.php"); ?>
-
-<?php include("add_client_quote_modal.php"); ?>

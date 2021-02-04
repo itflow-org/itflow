@@ -2,9 +2,9 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-user mr-2"></i><?php echo $name; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-user"></i> <?php echo $name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -12,6 +12,7 @@
         <input type="hidden" name="current_password_hash" value="<?php echo $password; ?>">
         <input type="hidden" name="current_avatar_path" value="<?php echo $avatar; ?>">
         <div class="modal-body bg-white">    
+          
           <center class="mb-3">
             <?php if(!empty($avatar)){ ?>
             <img class="img-fluid rounded-circle" src="<?php echo $avatar; ?>" height="128" width="128">
@@ -22,6 +23,7 @@
             </span>
             <?php } ?>
           </center>
+          
           <div class="form-group">
             <label>Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -96,7 +98,8 @@
           <div class="form-group">
             <label>Avatar</label>
             <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
-          </div>         
+          </div>
+                   
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

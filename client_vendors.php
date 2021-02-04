@@ -37,7 +37,6 @@ if(isset($_GET['o'])){
 }
 
 //Rebuild URL
-
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM vendors 
@@ -49,10 +48,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-building mr-2"></i>Vendors</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addVendorModal"><i class="fa fa-plus"></i></button>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-building"></i> Vendors</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addVendorModal"><i class="fas fa-fw fa-plus"></i> New Vendor</button>
+    </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
@@ -151,12 +152,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <a class="dropdown-item" href="post.php?delete_vendor=<?php echo $vendor_id; ?>">Delete</a>
                 </div>
               </div>
-              <?php include("edit_vendor_modal.php"); ?>      
             </td>
           </tr>
 
           <?php
           
+          include("edit_vendor_modal.php");
           }
           
           ?>

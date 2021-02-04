@@ -1,10 +1,10 @@
 <div class="modal" id="addAssetModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-desktop mr-2"></i>New Asset</h5>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa fa-fw fa-desktop"></i> New Asset</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       

@@ -1,9 +1,5 @@
 <?php
 
-//Rebuild URL
-
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
 //Paging
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
@@ -39,7 +35,10 @@ if(isset($_GET['o'])){
   $o = "DESC";
   $disp = "ASC";
 }
- 
+
+//Rebuild URL
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM invoices, categories 
   WHERE invoices.client_id = $client_id 
   AND invoices.category_id = categories.category_id 
@@ -47,15 +46,15 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM invoices, categor
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-$total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / 10);
 
 ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-file"></i> Invoices</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addInvoiceModal"><i class="fa fa-plus"></i></button>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-file"></i> Invoices</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addInvoiceModal"><i class="fas fa-fw fa-plus"></i> New Invoice</button>
+    </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
@@ -148,15 +147,13 @@ $total_pages = ceil($total_found_rows / 10);
                   <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
                 </div>
               </div>
-              <?php
-              include("add_invoice_copy_modal.php");
-              include("edit_invoice_modal.php");
-              ?>      
             </td>
           </tr>
 
           <?php
           
+          include("add_invoice_copy_modal.php");
+          include("edit_invoice_modal.php");
           }
 
           ?>

@@ -2,14 +2,15 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-globe mr-2"></i><?php echo $domain_name ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-globe"></i> <?php echo $domain_name ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="domain_id" value="<?php echo $domain_id; ?>">
         <div class="modal-body bg-white">    
+          
           <div class="form-group">
             <label>Domain Name <strong class="text-danger">*</strong></label>
             <div class="input-group">

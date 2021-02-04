@@ -2,9 +2,9 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-user-edit mr-2"></i><?php echo $contact_name; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-user-edit"></i> <?php echo $contact_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -13,21 +13,21 @@
         <input type="hidden" name="current_avatar_path" value="<?php echo $contact_photo; ?>">
         <div class="modal-body bg-white">
 
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab">
+          <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-details-tab<?php echo $contact_id; ?>" data-toggle="pill" href="#pills-details<?php echo $contact_id; ?>">Details</a>
+              <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $contact_id; ?>">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-photo-tab<?php echo $contact_id; ?>" data-toggle="pill" href="#pills-photo<?php echo $contact_id; ?>">Photo</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-photo<?php echo $contact_id; ?>">Photo</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-notes-tab<?php echo $contact_id; ?>" data-toggle="pill" href="#pills-notes<?php echo $contact_id; ?>">Notes</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $contact_id; ?>">Notes</a>
             </li>
           </ul>
 
           <hr>
           
-          <div class="tab-content" id="pills-tabContent<?php echo $contact_id; ?>">
+          <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-details<?php echo $contact_id; ?>">
 

@@ -64,16 +64,6 @@
       </div>
 
       <div class="form-group">
-        <label>Phone</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-          </div>
-          <input type="text" class="form-control" name="config_company_phone" placeholder="Phone Number" value="<?php echo $config_company_phone; ?>" data-inputmask="'mask': '999-999-9999'" > 
-        </div>
-      </div>
-
-      <div class="form-group">
         <label>Country</label>
         <div class="input-group">
           <div class="input-group-prepend">
@@ -85,6 +75,26 @@
             <option <?php if($config_company_country == $country_name) { echo "selected"; } ?>><?php echo $country_name; ?></option>
             <?php } ?>
           </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Phone</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+          </div>
+          <input type="text" class="form-control" name="config_company_phone" placeholder="Phone Number" value="<?php echo $config_company_phone; ?>" data-inputmask="'mask': '999-999-9999'" > 
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+          </div>
+          <input type="email" class="form-control" name="config_company_email" placeholder="Email Address" value="<?php echo $config_company_email; ?>">
         </div>
       </div>
 

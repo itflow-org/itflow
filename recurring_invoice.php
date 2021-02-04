@@ -16,7 +16,7 @@ if(isset($_GET['recurring_id'])){
   $recurring_scope = $row['recurring_scope'];
   $recurring_frequency = $row['recurring_frequency'];
   $recurring_status = $row['recurring_status'];
-  $recurring_start_date = $row['recurring_start_date'];
+  $recurring_created_at = $row['recurring_created_at'];
   $recurring_last_sent = $row['recurring_last_sent'];
   if($recurring_last_sent == 0){
     $recurring_last_sent = '-';
@@ -132,8 +132,8 @@ if(isset($_GET['recurring_id'])){
       <div class="col-sm-4">
         <table class="table">
           <tr>
-            <td>Start Date</td>
-            <td class="text-right"><?php echo $recurring_start_date; ?></td>
+            <td>Created</td>
+            <td class="text-right"><?php echo $recurring_created_at; ?></td>
           </tr>
           <tr>
             <td>Next Date</td>
@@ -177,7 +177,9 @@ if(isset($_GET['recurring_id'])){
                 $item_subtotal = $row['item_price'];
                 $item_tax = $row['item_tax'];
                 $item_total = $row['item_total'];
+                $total_tax = 0;
                 $total_tax = $item_tax + $total_tax;
+                $sub_total = 0;
                 $sub_total = $item_price * $item_quantity + $sub_total;
 
               ?>
@@ -265,12 +267,6 @@ if(isset($_GET['recurring_id'])){
               <td>Subtotal</td>
               <td class="text-right">$<?php echo number_format($sub_total,2); ?></td>
             </tr>
-            <?php if($discount > 0){ ?>
-            <tr class="border-bottom">
-              <td>Discount</td>
-              <td class="text-right">$<?php echo number_format($invoice_discount,2); ?></td>          
-            </tr>
-            <?php } ?>
             <?php if($total_tax > 0){ ?>
             <tr class="border-bottom">
               <td>Tax</td>

@@ -8,10 +8,12 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
 
 ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-paperclip mr-2"></i>Files</h6>
-    <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addFileModal"><i class="fa fa-cloud-upload-alt"></i></button>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-paperclip"></i> Files</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addFileModal"><i class="fas fa-fw fa-cloud-upload-alt"></i> Upload File</button>
+    </div>
   </div>
   <div class="card-body">
 
@@ -52,7 +54,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
          
           <?php 
           include("view_file_modal.php");
-           } 
+          } 
           ?>
       </div>
 

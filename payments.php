@@ -64,7 +64,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card card-dark mb-3">
   <div class="card-header">
-    <h3 class="card-title py-2"><i class="fa fa-fw fa-credit-card"></i> Payments</h3>
+    <h3 class="card-title"><i class="fa fa-fw fa-credit-card"></i> Payments</h3>
   </div>
 
   <div class="card-body">

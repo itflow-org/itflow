@@ -1,9 +1,5 @@
 <?php
 
-  //Rebuild URL
-
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
 //Paging
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
@@ -40,6 +36,8 @@ if(isset($_GET['o'])){
   $disp = "ASC";
 }
 
+//Rebuild URL
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM payments, invoices, accounts
   WHERE invoices.client_id = $client_id
@@ -49,14 +47,12 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM payments, invoice
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-$total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / 10);
 
 ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-credit-card"></i> Payments</h6>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title"><i class="fa fa-fw fa-credit-card"></i> Payments</h3>
   </div>
   <div class="card-body">
     <form autocomplete="off">

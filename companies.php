@@ -1,60 +1,59 @@
 <?php include("header.php");
 
-  //Rebuild URL
+//Paging
+if(isset($_GET['p'])){
+  $p = intval($_GET['p']);
+  $record_from = (($p)-1)*$config_records_per_page;
+  $record_to = $config_records_per_page;
+}else{
+  $record_from = 0;
+  $record_to = $config_records_per_page;
+  $p = 1;
+}
+  
+if(isset($_GET['q'])){
+  $q = mysqli_real_escape_string($mysqli,$_GET['q']);
+}else{
+  $q = "";
+}
 
-  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+if(!empty($_GET['sb'])){
+  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+}else{
+  $sb = "company_name";
+}
 
-  //Paging
-  if(isset($_GET['p'])){
-    $p = intval($_GET['p']);
-    $record_from = (($p)-1)*$config_records_per_page;
-    $record_to = $config_records_per_page;
-  }else{
-    $record_from = 0;
-    $record_to = $config_records_per_page;
-    $p = 1;
-  }
-    
-  if(isset($_GET['q'])){
-    $q = mysqli_real_escape_string($mysqli,$_GET['q']);
-  }else{
-    $q = "";
-  }
-
-  if(!empty($_GET['sb'])){
-    $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
-  }else{
-    $sb = "company_name";
-  }
-
-  if(isset($_GET['o'])){
-    if($_GET['o'] == 'ASC'){
-      $o = "ASC";
-      $disp = "DESC";
-    }else{
-      $o = "DESC";
-      $disp = "ASC";
-    }
-  }else{
+if(isset($_GET['o'])){
+  if($_GET['o'] == 'ASC'){
     $o = "ASC";
     $disp = "DESC";
+  }else{
+    $o = "DESC";
+    $disp = "ASC";
   }
+}else{
+  $o = "ASC";
+  $disp = "DESC";
+}
 
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM companies, settings
-    WHERE companies.company_id = settings.company_id 
-    AND companies.company_name LIKE '%$q%'
-    ORDER BY $sb $o LIMIT $record_from, $record_to");
+//Rebuild URL
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-  $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-  $total_found_rows = $num_rows[0];
-  $total_pages = ceil($total_found_rows / 10);
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM companies, settings
+  WHERE companies.company_id = settings.company_id 
+  AND companies.company_name LIKE '%$q%'
+  ORDER BY $sb $o LIMIT $record_from, $record_to");
+
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card mb-3">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-building mr-2"></i>Companies</h6>
-    <button type="button" class="btn btn-primary btn-sm mr-auto float-right" data-toggle="modal" data-target="#addCompanyModal"><i class="fas fa-fw fa-plus"></i></button>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-building"></i> Companies</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCompanyModal"><i class="fas fa-fw fa-plus"></i> New Company</button>
+    </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
@@ -109,21 +108,21 @@
             </td>
             <td>
               <div class="dropdown dropleft text-center">
-                <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editCompanyModal<?php echo $company_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="post.php?delete_company=<?php echo $company_id; ?>">Delete</a>
                 </div>
               </div>
-              <?php include("edit_company_modal.php"); ?>      
             </td>
           </tr>
 
           <?php
           
+          include("edit_company_modal.php");
           }
           
           ?>

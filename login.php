@@ -27,8 +27,9 @@ if(isset($_POST['login'])){
   $username = mysqli_real_escape_string($mysqli,$_POST['username']);
   $plain_password = $_POST['password'];
   $password = md5($_POST['password']);
-  $current_code = mysqli_real_escape_string($mysqli,$_POST['current_code']);
-
+  if(!empty($token)){
+    $current_code = mysqli_real_escape_string($mysqli,$_POST['current_code']);
+  }
   $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE email = '$username' AND password = '$password'");
   
   if(mysqli_num_rows($sql) == 1){
@@ -130,7 +131,7 @@ if(isset($_POST['login'])){
               </div>
             </div>
           </div>
-          <?php echo $token_field; ?>
+          <?php if(!empty($token_field)){ echo $token_field; } ?>
           
           <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
         
