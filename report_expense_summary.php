@@ -13,10 +13,12 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
 
 ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-coins mr-2"></i>Expense Summary</h6>
-    <button type="button" class="btn btn-primary btn-sm float-right d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-coins"></i> Expense Summary</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
+    </div>
   </div>
   <div class="card-body">
     <form class="mb-3">
@@ -65,7 +67,8 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
               <td><?php echo $category_name; ?></td>
               
               <?php
-              
+
+              $total_expense_for_all_months = 0;
               for($month = 1; $month<=12; $month++) {
                 $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE category_id = $category_id AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month");
                 $row = mysqli_fetch_array($sql_expenses);
@@ -86,8 +89,6 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
             </tr>
           
           <?php 
-          
-          $total_expense_for_all_months = 0;
 
           } 
           

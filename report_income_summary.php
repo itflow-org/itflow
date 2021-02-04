@@ -13,10 +13,12 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
 
 ?>
 
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <h6 class="float-left mt-1"><i class="fa fa-fw fa-coins mr-2"></i>Income Summary</h6>
-    <button type="button" class="btn btn-primary btn-sm float-right d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-coins"></i> Income Summary</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
+    </div>
   </div>
   <div class="card-body p-0">
     <form class="p-3">
@@ -59,12 +61,15 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
           while($row = mysqli_fetch_array($sql_categories)){
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
+
           ?>
 
             <tr>
               <td><?php echo $category_name; ?></td>
               
               <?php
+
+              $total_payment_for_all_months = 0;
               
               for($month = 1; $month<=12; $month++) {
                 //Payments to Invoices
@@ -78,7 +83,6 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
                 $revenues_amount_for_month = $row['revenue_amount_for_month'];
 
                 $payment_amount_for_month = $payment_amount_for_month + $revenues_amount_for_month;
-                
                 $total_payment_for_all_months = $payment_amount_for_month + $total_payment_for_all_months;
 
               
@@ -95,8 +99,6 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
             </tr>
           
           <?php 
-          
-          $total_payment_for_all_months = 0;
 
           } 
           
