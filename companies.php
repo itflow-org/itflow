@@ -39,9 +39,8 @@ if(isset($_GET['o'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM companies, settings
-  WHERE companies.company_id = settings.company_id 
-  AND companies.company_name LIKE '%$q%'
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM companies
+  WHERE company_name LIKE '%$q%'
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -69,6 +68,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=company_name&o=<?php echo $disp; ?>">Name</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=company_address&o=<?php echo $disp; ?>">Address</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=company_phone&o=<?php echo $disp; ?>">Phone</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=company_email&o=<?php echo $disp; ?>">Email</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=company_website&o=<?php echo $disp; ?>">Website</a></th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -84,10 +87,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $company_state = $row['company_state'];
             $company_zip = $row['company_zip'];
             $company_phone = $row['company_phone'];
-            $company_site = $row['company_site'];
-            $company_logo = $row['company_invoice_logo'];
+            if(strlen($company_phone)>2){ 
+              $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
+            }
+            $company_email = $row['company_email'];
+            $company_website = $row['company_website'];
+            $company_logo = $row['company_logo'];
             
-            $initials = initials($company_name);
+            $company_initials = initials($company_name);
       
           ?>
           <tr>
@@ -98,7 +105,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 <?php }else{ ?>
                 <span class="fa-stack fa-2x">
                   <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                  <span class="fa fa-stack-1x text-white"><?php echo $initials; ?></span>
+                  <span class="fa fa-stack-1x text-white"><?php echo $company_initials; ?></span>
                 </span>
                 <br>
                 <?php } ?>
@@ -106,6 +113,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 <div class="text-secondary"><?php echo $company_name; ?></div>
               </a>
             </td>
+            <td><?php echo $company_address; ?></td>
+            <td><?php echo $company_phone; ?></td>
+            <td><?php echo $company_email; ?></td>
+            <td><?php echo $company_website; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

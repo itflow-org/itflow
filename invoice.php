@@ -6,10 +6,10 @@ if(isset($_GET['invoice_id'])){
 
   $invoice_id = intval($_GET['invoice_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, companies
     WHERE invoices.client_id = clients.client_id
-    AND invoices.invoice_id = $invoice_id
-    AND invoices.company_id = $session_company_id"
+    AND invoices.company_id = companies.company_id
+    AND invoices.invoice_id = $invoice_id"
   );
 
   if(mysqli_num_rows($sql) == 0){
@@ -48,6 +48,19 @@ if(isset($_GET['invoice_id'])){
   if($client_net_terms == 0){
     $client_net_terms = $config_default_net_terms;
   }
+  $company_name = $row['company_name'];
+  $company_country = $row['company_country'];
+  $company_address = $row['company_address'];
+  $company_city = $row['company_city'];
+  $company_state = $row['company_state'];
+  $company_zip = $row['company_zip'];
+  $company_phone = $row['company_phone'];
+  if(strlen($company_phone)>2){ 
+    $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
+  }
+  $company_email = $row['company_email'];
+  $company_website = $row['company_website'];
+  $company_logo = $row['company_logo'];
 
   $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE invoice_id = $invoice_id ORDER BY history_id DESC");
   
@@ -153,7 +166,7 @@ if(isset($_GET['invoice_id'])){
       
     <div class="row mb-4">
       <div class="col-sm-2">
-        <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
+        <img class="img-fluid" src="<?php echo $company_logo; ?>">
       </div>
       <div class="col-sm-10">
         <div class="ribbon-wrapper">
@@ -169,11 +182,12 @@ if(isset($_GET['invoice_id'])){
     <div class="row mb-4">
       <div class="col-sm">
         <ul class="list-unstyled">
-          <li><h4><strong><?php echo $config_company_name; ?></strong></h4></li>
-          <li><?php echo $config_company_address; ?></li>
-          <li><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
-          <li><?php echo $config_company_phone; ?></li>
-          <li><?php echo $config_company_email; ?></li>
+          <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
+          <li><?php echo $company_address; ?></li>
+          <li><?php echo "$company_city $company_state $company_zip"; ?></li>
+          <li><?php echo $company_phone; ?></li>
+          <li><?php echo $company_email; ?></li>
+          <li><?php echo $company_website; ?></li>
         </ul>
       </div>
       <div class="col-sm">

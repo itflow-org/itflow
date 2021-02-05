@@ -1,14 +1,15 @@
 <div class="modal" id="editCompanyModal<?php echo $company_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-building mr-2"></i><?php echo $company_name; ?></h5>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa fa-fw fa-building"></i> <?php echo $company_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
-      <form action="post.php" method="post" autocomplete="off">
+      <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="company_id" value="<?php echo $company_id; ?>">
+        <input type="hidden" name="current_file_path" value="<?php echo $company_logo; ?>">
         <div class="modal-body bg-white">
 
           <div class="form-group">
@@ -91,13 +92,34 @@
             </div>
           </div>
 
-          <div class="form-group mb-5">
+          <div class="form-group">
+            <label>Email</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+              </div>
+              <input type="email" class="form-control" name="email" placeholder="Email address" value="<?php echo $company_email; ?>">
+            </div>
+          </div>
+
+          <div class="form-group">
             <label>Website</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
               </div>
-              <input type="text" class="form-control" name="site" placeholder="Website address" value="<?php echo $company_site; ?>">
+              <input type="text" class="form-control" name="website" placeholder="Website address" value="<?php echo $company_website; ?>">
+            </div>
+          </div>
+
+          <div class="form-group mb-4">
+            <label>Logo</label>
+            <input type="file" class="form-control-file" name="file">
+          </div>
+
+          <div class="card col-md-2">
+            <div class="card-body">
+              <img class="img-fluid" src="<?php echo $company_logo; ?>">
             </div>
           </div>
 

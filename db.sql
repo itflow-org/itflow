@@ -187,6 +187,15 @@ DROP TABLE IF EXISTS `companies`;
 CREATE TABLE `companies` (
   `company_id` int(11) NOT NULL AUTO_INCREMENT,
   `company_name` varchar(200) NOT NULL,
+  `company_address` varchar(200) DEFAULT NULL,
+  `company_city` varchar(200) DEFAULT NULL,
+  `company_state` varchar(200) DEFAULT NULL,
+  `company_zip` varchar(200) DEFAULT NULL,
+  `company_country` varchar(200) DEFAULT NULL,
+  `company_phone` varchar(200) DEFAULT NULL,
+  `company_email` varchar(200) DEFAULT NULL,
+  `company_website` varchar(200) DEFAULT NULL,
+  `company_logo` varchar(250) DEFAULT NULL,
   `company_created_at` datetime NOT NULL,
   `company_updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`company_id`)
@@ -680,15 +689,6 @@ CREATE TABLE `settings` (
   `config_default_calendar` int(11) DEFAULT NULL,
   `config_default_net_terms` int(11) DEFAULT NULL,
   `config_records_per_page` int(10) NOT NULL,
-  `config_company_name` varchar(200) DEFAULT NULL,
-  `config_company_country` varchar(200) DEFAULT NULL,
-  `config_company_address` varchar(200) DEFAULT NULL,
-  `config_company_city` varchar(200) DEFAULT NULL,
-  `config_company_state` varchar(200) DEFAULT NULL,
-  `config_company_zip` varchar(200) DEFAULT NULL,
-  `config_company_phone` varchar(200) DEFAULT NULL,
-  `config_company_email` varchar(200) DEFAULT NULL,
-  `config_company_site` varchar(200) DEFAULT NULL,
   `config_smtp_host` varchar(200) DEFAULT NULL,
   `config_smtp_username` varchar(200) DEFAULT NULL,
   `config_smtp_password` varchar(200) DEFAULT NULL,
@@ -928,4 +928,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-04 17:43:24
+-- Dump completed on 2021-02-04 21:53:53

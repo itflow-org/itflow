@@ -171,9 +171,9 @@ if(isset($_POST['add_company'])){
     $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $site = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['site'])));
+    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
 
-    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_created_at = NOW()");
 
     $config_api_key = keygen();
     $config_base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
@@ -183,8 +183,18 @@ if(isset($_POST['add_company'])){
     mkdir("uploads/expenses/$company_id");
     mkdir("uploads/settings/$company_id");
     mkdir("uploads/tmp/$company_id");
- 
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$name', config_company_country = '$country', config_company_address = '$address', config_company_city = '$city', config_company_state = '$state', config_company_zip = '$zip', config_company_phone = '$phone', config_company_email = '$email', config_company_site = '$site', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_records_per_page = 10, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1");
+
+    if($_FILES['file']['tmp_name']!='') {
+        $path = "uploads/settings/$company_id/";
+        $path = $path . time() . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);
+    
+        mysqli_query($mysqli,"UPDATE companies SET company_logo = '$path' WHERE company_id = $company_id");
+
+    }
+
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_records_per_page = 10, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Create', log_description = '$name', log_created_at = NOW()");
@@ -198,18 +208,29 @@ if(isset($_POST['add_company'])){
 if(isset($_POST['edit_company'])){
     $company_id = intval($_POST['company_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
     $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
     $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
     $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
     $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['site']));
+    $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
 
-    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_updated_at = NOW() WHERE company_id = $company_id");
+    $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_file_path']));
 
-     mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$name', config_company_country = '$country', config_company_address = '$address', config_company_city = '$city', config_company_state = '$state', config_company_zip = '$zip', config_company_phone = '$phone', config_company_email = '$email', config_company_site = '$site' WHERE company_id = $company_id");
+    if(!file_exists("uploads/settings/$company_id/")) {
+        mkdir("uploads/settings/$company_id");
+    }
+
+    if($_FILES['file']['tmp_name']!='') {
+        $path = "uploads/settings/$company_id/";
+        $path = $path . time() . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);
+    }
+
+    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_logo = '$path', company_updated_at = NOW() WHERE company_id = $company_id");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
@@ -278,41 +299,6 @@ if(isset($_POST['edit_general_settings'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'General', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Settings updated";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_POST['edit_company_settings'])){
-
-    $config_company_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_name']));
-    $config_company_country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_country']));
-    $config_company_address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_address']));
-    $config_company_city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_city']));
-    $config_company_state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_state']));
-    $config_company_zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_zip']));
-    $config_company_phone = preg_replace("/[^0-9]/", '',$_POST['config_company_phone']);
-    $config_company_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_email'])));
-    $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
-
-    $path = "$config_invoice_logo";
-
-    if($_FILES['file']['tmp_name']!='') {
-        //delete old avatar file
-        unlink($path);
-        //Update with new path
-        $path = "uploads/settings/$session_company_id/";
-        $path = $path . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);   
-    }
-
-    mysqli_query($mysqli,"UPDATE settings SET config_company_name = '$config_company_name', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_country = '$config_company_country', config_company_phone = '$config_company_phone', config_company_email = '$config_company_email', config_company_site = '$config_company_site', config_invoice_logo = '$path' WHERE company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Company', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
-
-    $_SESSION['alert_message'] = "Company Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -647,10 +633,23 @@ if(isset($_POST['add_event'])){
     //If email is checked
     if($email_event == 1){
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client AND company_id = $session_company_id");
+        $sql = mysqli_query($mysqli,"SELECT * FROM clients, companies WHERE client_id = $client AND companies.company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
         $client_name = $row['client_name'];
         $client_email = $row['client_email'];
+        $company_name = $row['company_name'];
+        $company_country = $row['company_country'];
+        $company_address = $row['company_address'];
+        $company_city = $row['company_city'];
+        $company_state = $row['company_state'];
+        $company_zip = $row['company_zip'];
+        $company_phone = $row['company_phone'];
+        if(strlen($company_phone)>2){ 
+          $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
+        }
+        $company_email = $row['company_email'];
+        $company_website = $row['company_website'];
+        $company_logo = $row['company_logo'];
 
         $mail = new PHPMailer(true);
 
@@ -674,7 +673,7 @@ if(isset($_POST['add_event'])){
             // Content
             $mail->isHTML(true);                                  // Set email format to HTML
             $mail->Subject = "New Calendar Event";
-            $mail->Body    = "Hello $client_name,<br><br>A calendar event has been scheduled: $title at $start<br><br><br>~<br>$config_company_name<br>$config_company_phone";
+            $mail->Body    = "Hello $client_name,<br><br>A calendar event has been scheduled: $title at $start<br><br><br>~<br>$company_name<br>$company_phone";
 
             $mail->send();
             echo 'Message has been sent';
@@ -711,10 +710,23 @@ if(isset($_POST['edit_event'])){
     //If email is checked
     if($email_event == 1){
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client AND company_id = $session_company_id");
+        $sql = mysqli_query($mysqli,"SELECT * FROM clients, companies WHERE client_id = $client AND companies.company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
         $client_name = $row['client_name'];
         $client_email = $row['client_email'];
+        $company_name = $row['company_name'];
+        $company_country = $row['company_country'];
+        $company_address = $row['company_address'];
+        $company_city = $row['company_city'];
+        $company_state = $row['company_state'];
+        $company_zip = $row['company_zip'];
+        $company_phone = $row['company_phone'];
+        if(strlen($company_phone)>2){ 
+          $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
+        }
+        $company_email = $row['company_email'];
+        $company_website = $row['company_website'];
+        $company_logo = $row['company_logo'];
 
         $mail = new PHPMailer(true);
 
@@ -738,7 +750,7 @@ if(isset($_POST['edit_event'])){
             // Content
             $mail->isHTML(true);                                  // Set email format to HTML
             $mail->Subject = "Calendar Event Rescheduled";
-            $mail->Body    = "Hello $client_name,<br><br>A calendar event has been rescheduled: $title at $start<br><br><br>~<br>$config_company_name<br>$config_company_phone";
+            $mail->Body    = "Hello $client_name,<br><br>A calendar event has been rescheduled: $title at $start<br><br><br>~<br>$company_name<br>$company_phone";
 
             $mail->send();
             echo 'Message has been sent';
@@ -1864,8 +1876,9 @@ if(isset($_GET['pdf_quote'])){
 
     $quote_id = intval($_GET['pdf_quote']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients, companies
     WHERE quotes.client_id = clients.client_id
+    AND quotes.company_id = companies.company_id
     AND quotes.quote_id = $quote_id
     AND quotes.company_id = $session_company_id"
     );
@@ -1895,6 +1908,19 @@ if(isset($_GET['pdf_quote'])){
       $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
     }
     $client_website = $row['client_website'];
+    $company_name = $row['company_name'];
+    $company_country = $row['company_country'];
+    $company_address = $row['company_address'];
+    $company_city = $row['company_city'];
+    $company_state = $row['company_state'];
+    $company_zip = $row['company_zip'];
+    $company_phone = $row['company_phone'];
+    if(strlen($company_phone)>2){ 
+      $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
+    }
+    $company_email = $row['company_email'];
+    $company_website = $row['company_website'];
+    $company_logo = $row['company_logo'];
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id AND company_id = $session_company_id ORDER BY item_id ASC");
 
@@ -1966,8 +1992,8 @@ if(isset($_GET['pdf_quote'])){
     <!--mpdf
     <htmlpageheader name="myheader">
     <table width="100%"><tr>
-    <td width="15%"><img width="75" height="75" src=" /'.$config_invoice_logo.' "></img></td>
-    <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$config_company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
+    <td width="15%"><img width="75" height="75" src=" /'.$company_logo.' "></img></td>
+    <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$company_address.' <br /> '.$company_city.' '.$company_state.' '.$company_zip.'<br /> '.$company_phone.' </td>
     <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> '.$quote_number.' </span></td>
     </tr></table>
     </htmlpageheader>
@@ -2028,8 +2054,8 @@ if(isset($_GET['pdf_quote'])){
     'margin_footer' => 10
     ]);
     $mpdf->SetProtection(array('print'));
-    $mpdf->SetTitle("$config_company_name - Quote");
-    $mpdf->SetAuthor("$config_company_name");
+    $mpdf->SetTitle("$company_name - Quote");
+    $mpdf->SetAuthor("$company_name");
     $mpdf->SetWatermarkText("Quote");
     $mpdf->showWatermarkText = true;
     $mpdf->watermark_font = 'DejaVuSansCondensed';
@@ -2046,8 +2072,9 @@ if(isset($_GET['pdf_quote'])){
 if(isset($_GET['email_quote'])){
     $quote_id = intval($_GET['email_quote']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients, companies
     WHERE quotes.client_id = clients.client_id
+    AND quotes.company_id = companies.company_id
     AND quotes.quote_id = $quote_id
     AND quotes.company_id = $session_company_id"
     );
@@ -2073,6 +2100,19 @@ if(isset($_GET['email_quote'])){
     }
     $client_website = $row['client_website'];
     $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
+    $company_name = $row['company_name'];
+    $company_country = $row['company_country'];
+    $company_address = $row['company_address'];
+    $company_city = $row['company_city'];
+    $company_state = $row['company_state'];
+    $company_zip = $row['company_zip'];
+    $company_phone = $row['company_phone'];
+    if(strlen($company_phone)>2){ 
+      $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
+    }
+    $company_email = $row['company_email'];
+    $company_website = $row['company_website'];
+    $company_logo = $row['company_logo'];
 
     $mail = new PHPMailer(true);
 
@@ -2102,7 +2142,7 @@ if(isset($_GET['email_quote'])){
         $mail->isHTML(true);                                  // Set email format to HTML
 
         $mail->Subject = "Quote";
-        $mail->Body    = "Hello $client_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>Total Cost: $$quote_amount<br><br><br>View and accept your estimate online <a href='https://$base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$config_company_name<br>$config_company_phone";
+        $mail->Body    = "Hello $client_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>Total Cost: $$quote_amount<br><br><br>View and accept your estimate online <a href='https://$base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
         
         $mail->send();
         echo 'Message has been sent';
@@ -2528,13 +2568,32 @@ if(isset($_POST['add_payment'])){
         $total_payments_amount = $row['payments_amount'];
         
         //Get the invoice total
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients WHERE invoices.client_id = clients.client_id AND invoices.invoice_id = $invoice_id AND invoices.company_id = $session_company_id");
+        $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, companies 
+            WHERE invoices.client_id = clients.client_id 
+            AND invoices.invoice_id = $invoice_id 
+            AND invoices.company_id = companies.company_id 
+            AND invoices.company_id = $session_company_id"
+        );
+
         $row = mysqli_fetch_array($sql);
         $invoice_amount = $row['invoice_amount'];
         $invoice_number = $row['invoice_number'];
         $invoice_url_key = $row['invoice_url_key'];
         $client_name = $row['client_name'];
         $client_email = $row['client_email'];
+        $company_name = $row['company_name'];
+        $company_country = $row['company_country'];
+        $company_address = $row['company_address'];
+        $company_city = $row['company_city'];
+        $company_state = $row['company_state'];
+        $company_zip = $row['company_zip'];
+        $company_phone = $row['company_phone'];
+        if(strlen($company_phone)>2){ 
+          $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
+        }
+        $company_email = $row['company_email'];
+        $company_website = $row['company_website'];
+        $company_logo = $row['company_logo'];
 
         //Calculate the Invoice balance
         $invoice_balance = $invoice_amount - $total_payments_amount;
@@ -2569,7 +2628,7 @@ if(isset($_POST['add_payment'])){
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
                   $mail->Subject = "Payment Recieved - Invoice $invoice_number";
-                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment in the amount of $$formatted_amount for invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $$formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$config_company_name<br>$config_company_phone";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment in the amount of $$formatted_amount for invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $$formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>$company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';
@@ -2605,7 +2664,7 @@ if(isset($_POST['add_payment'])){
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
                   $mail->Subject = "Partial Payment Recieved - Invoice $invoice_number";
-                  $mail->Body    = "Hello $client_name,<br><br>We have recieved partial payment in the amount of $$formatted_amount and it has been applied to invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $$formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$config_company_name<br>$config_company_phone";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved partial payment in the amount of $$formatted_amount and it has been applied to invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $$formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>$company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';
@@ -2682,8 +2741,9 @@ if(isset($_GET['delete_payment'])){
 if(isset($_GET['email_invoice'])){
     $invoice_id = intval($_GET['email_invoice']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, companies
     WHERE invoices.client_id = clients.client_id
+    AND invoices.company_id = companies.company_id
     AND invoices.invoice_id = $invoice_id"
     );
 
@@ -2708,6 +2768,19 @@ if(isset($_GET['email_invoice'])){
     }
     $client_website = $row['client_website'];
     $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
+    $company_name = $row['company_name'];
+    $company_country = $row['company_country'];
+    $company_address = $row['company_address'];
+    $company_city = $row['company_city'];
+    $company_state = $row['company_state'];
+    $company_zip = $row['company_zip'];
+    $company_phone = $row['company_phone'];
+    if(strlen($company_phone)>2){ 
+      $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
+    }
+    $company_email = $row['company_email'];
+    $company_website = $row['company_website'];
+    $company_logo = $row['company_logo'];
 
     $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id AND payments.company_id = $session_company_id ORDER BY payments.payment_id DESC");
 
@@ -2743,12 +2816,12 @@ if(isset($_GET['email_invoice'])){
         if($invoice_status == 'Paid'){
 
             $mail->Subject = "Invoice $invoice_number Copy";
-            $mail->Body    = "Hello $client_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$config_company_name<br>Automated Billing Department<br>$config_company_phone";
+            $mail->Body    = "Hello $client_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Automated Billing Department<br>$company_phone";
 
         }else{
 
             $mail->Subject = "Invoice $invoice_number";
-            $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Balance Due: $$balance<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$config_company_name<br>$config_company_phone";
+            $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Balance Due: $$balance<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
             //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         }
         
@@ -2838,8 +2911,9 @@ if(isset($_GET['pdf_invoice'])){
 
     $invoice_id = intval($_GET['pdf_invoice']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, companies
     WHERE invoices.client_id = clients.client_id
+    AND companies.company_id = invoices.company_id
     AND invoices.invoice_id = $invoice_id
     AND invoices.company_id = $session_company_id"
     );
@@ -2865,6 +2939,19 @@ if(isset($_GET['pdf_invoice'])){
     $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
     }
     $client_website = $row['client_website'];
+    $company_name = $row['company_name'];
+    $company_country = $row['company_country'];
+    $company_address = $row['company_address'];
+    $company_city = $row['company_city'];
+    $company_state = $row['company_state'];
+    $company_zip = $row['company_zip'];
+    $company_phone = $row['company_phone'];
+    if(strlen($company_phone)>2){ 
+      $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
+    }
+    $company_email = $row['company_email'];
+    $company_website = $row['company_website'];
+    $company_logo = $row['company_logo'];
 
     $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id AND payments.company_id = $session_company_id ORDER BY payments.payment_id DESC");
 
@@ -2944,8 +3031,8 @@ if(isset($_GET['pdf_invoice'])){
         <!--mpdf
         <htmlpageheader name="myheader">
         <table width="100%"><tr>
-        <td width="15%"><img width="75" height="75" src=" /'.$config_invoice_logo.' "></img></td>
-        <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$config_company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
+        <td width="15%"><img width="75" height="75" src=" /'.$company_logo.' "></img></td>
+        <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$company_address.' <br /> '.$company_city.' '.$company_state.' '.$company_zip.'<br /> '.$company_phone.' </td>
         <td width="35%" style="text-align: right;">Invoice No.<br /><span style="font-weight: bold; font-size: 12pt;"> '.$invoice_number.' </span></td>
         </tr></table>
         </htmlpageheader>
@@ -3016,8 +3103,8 @@ if(isset($_GET['pdf_invoice'])){
     ]);
 
     $mpdf->SetProtection(array('print'));
-    $mpdf->SetTitle("$config_company_name - Invoice");
-    $mpdf->SetAuthor("$config_company_name");
+    $mpdf->SetTitle("$company_name - Invoice");
+    $mpdf->SetAuthor("$company_name");
     if($invoice_status == 'Paid'){
         $mpdf->SetWatermarkText("Paid");
     }

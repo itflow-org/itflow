@@ -7,8 +7,10 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
   $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
   $invoice_id = intval($_GET['invoice_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, settings, companies
     WHERE invoices.client_id = clients.client_id
+    AND settings.company_id = companies.company_id 
+    AND companies.company_id = invoices.company_id
     AND invoices.invoice_id = $invoice_id 
     AND invoices.invoice_url_key = '$url_key'"
   );
@@ -46,21 +48,17 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
       $client_net_terms = $config_default_net_terms;
     }
     $company_id = $row['company_id'];
-
-    $sql_company = mysqli_query($mysqli,"SELECT * FROM settings, companies WHERE settings.company_id = companies.company_id AND companies.company_id = $company_id");
-    $row = mysqli_fetch_array($sql_company);
-
     $company_name = $row['company_name'];
-    $config_company_address = $row['config_company_address'];
-    $config_company_city = $row['config_company_city'];
-    $config_company_state = $row['config_company_state'];
-    $config_company_zip = $row['config_company_zip'];
-    $config_company_phone = $row['config_company_phone'];
-    if(strlen($config_company_phone)>2){ 
-      $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
+    $company_address = $row['company_address'];
+    $company_city = $row['company_city'];
+    $company_state = $row['company_state'];
+    $company_zip = $row['company_zip'];
+    $company_phone = $row['company_phone'];
+    if(strlen($company_phone)>2){ 
+      $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
     }
-    $config_company_email = $row['config_company_email'];
-    $config_invoice_logo = $row['config_invoice_logo'];
+    $company_email = $row['company_email'];
+    $company_logo = $row['company_logo'];
     $config_invoice_footer = $row['config_invoice_footer'];
     $config_stripe_enable = $row['config_stripe_enable'];
     $config_stripe_publishable = $row['config_stripe_publishable'];
@@ -131,7 +129,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     <div class="card-body">
       <div class="row mb-4">
         <div class="col-sm-2">
-          <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
+          <img class="img-fluid" src="<?php echo $company_logo; ?>">
         </div>
         <div class="col-sm-10">
           <?php if($invoice_status == "Paid"){ ?>
@@ -148,10 +146,10 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         <div class="col-sm">    
           <ul class="list-unstyled">
             <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
-            <li><?php echo $config_company_address; ?></li>
-            <li><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
-            <li><?php echo $config_company_phone; ?></li>
-            <li><?php echo $config_company_email; ?></li>
+            <li><?php echo $company_address; ?></li>
+            <li><?php echo "$company_city $company_state $company_zip"; ?></li>
+            <li><?php echo $company_phone; ?></li>
+            <li><?php echo $company_email; ?></li>
           </ul>
           
         </div>
@@ -213,7 +211,9 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
                   $item_subtotal = $row['item_price'];
                   $item_tax = $row['item_tax'];
                   $item_total = $row['item_total'];
+                  $total_tax = 0;
                   $total_tax = $item_tax + $total_tax;
+                  $sub_total = 0;
                   $sub_total = $item_price * $item_quantity + $sub_total;
 
                 ?>
@@ -254,12 +254,6 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
                 <td>Subtotal</td>
                 <td class="text-right text-monospace">$<?php echo number_format($sub_total,2); ?></td>
               </tr>
-              <?php if($discount > 0){ ?>
-              <tr class="border-bottom">
-                <td>Discount</td>
-                <td class="text-right text-monospace">$<?php echo number_format($invoice_discount,2); ?></td>          
-              </tr>
-              <?php } ?>
               <?php if($total_tax > 0){ ?>
               <tr class="border-bottom">
                 <td>Tax</td>

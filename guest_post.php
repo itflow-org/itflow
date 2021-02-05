@@ -11,8 +11,10 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
     $invoice_id = intval($_GET['pdf_invoice']);
     $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, companies, settings
     WHERE invoices.client_id = clients.client_id
+    AND invoices.company_id = companies.company_id
+    AND settings.company_id = companies.company_id
     AND invoices.invoice_id = $invoice_id
     AND invoices.invoice_url_key = '$url_key'"
     );
@@ -42,21 +44,18 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
         }
         $client_website = $row['client_website'];
         $company_id = $row['company_id'];
-
-        $sql_company = mysqli_query($mysqli,"SELECT * FROM settings, companies WHERE settings.company_id = companies.company_id AND companies.company_id = $company_id");
-        $row = mysqli_fetch_array($sql_company);
-
         $company_name = $row['company_name'];
-        $config_company_address = $row['config_company_address'];
-        $config_company_city = $row['config_company_city'];
-        $config_company_state = $row['config_company_state'];
-        $config_company_zip = $row['config_company_zip'];
-        $config_company_phone = $row['config_company_phone'];
-        if(strlen($config_company_phone)>2){ 
-          $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
+        $company_address = $row['company_address'];
+        $company_city = $row['company_city'];
+        $company_state = $row['company_state'];
+        $company_zip = $row['company_zip'];
+        $company_phone = $row['company_phone'];
+        if(strlen($company_phone)>2){ 
+          $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
         }
-        $config_company_email = $row['config_company_email'];
-        $config_invoice_logo = $row['config_invoice_logo']; 
+        $company_email = $row['company_email'];
+        $company_logo = $row['company_logo'];
+        $config_invoice_footer = $row['config_invoice_footer'];
 
         //Mark downloaded in history
         mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice downloaded', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $company_id");
@@ -139,8 +138,8 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
             <!--mpdf
             <htmlpageheader name="myheader">
             <table width="100%"><tr>
-            <td width="15%"><img width="75" height="75" src=" /'.$config_invoice_logo.' "></img></td>
-            <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
+            <td width="15%"><img width="75" height="75" src=" /'.$company_logo.' "></img></td>
+            <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$company_address.' <br /> '.$company_city.' '.$company_state.' '.$company_zip.'<br /> '.$company_phone.' </td>
             <td width="35%" style="text-align: right;">Invoice No.<br /><span style="font-weight: bold; font-size: 12pt;"> '.$invoice_number.' </span></td>
             </tr></table>
             </htmlpageheader>
@@ -233,8 +232,10 @@ if(isset($_GET['pdf_quote'], $_GET['url_key'])){
     $quote_id = intval($_GET['pdf_quote']);
     $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients, companies, settings
     WHERE quotes.client_id = clients.client_id
+    AND quotes.company_id = companies.company_id
+    AND settings.company_id = companies.company_id
     AND quotes.quote_id = $quote_id
     AND quotes.quote_url_key = '$url_key'"
     );
@@ -262,21 +263,18 @@ if(isset($_GET['pdf_quote'], $_GET['url_key'])){
         }
         $client_website = $row['client_website'];
         $company_id = $row['company_id'];
-
-        $sql_company = mysqli_query($mysqli,"SELECT * FROM settings, companies WHERE settings.company_id = companies.company_id AND companies.company_id = $company_id");
-        $row = mysqli_fetch_array($sql_company);
-
         $company_name = $row['company_name'];
-        $config_company_address = $row['config_company_address'];
-        $config_company_city = $row['config_company_city'];
-        $config_company_state = $row['config_company_state'];
-        $config_company_zip = $row['config_company_zip'];
-        $config_company_phone = $row['config_company_phone'];
-        if(strlen($config_company_phone)>2){ 
-          $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
+        $company_address = $row['company_address'];
+        $company_city = $row['company_city'];
+        $company_state = $row['company_state'];
+        $company_zip = $row['company_zip'];
+        $company_phone = $row['company_phone'];
+        if(strlen($company_phone)>2){ 
+          $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
         }
-        $config_company_email = $row['config_company_email'];
-        $config_invoice_logo = $row['config_invoice_logo']; 
+        $company_email = $row['company_email'];
+        $company_logo = $row['company_logo'];
+        $config_quote_footer = $row['config_quote_footer'];
 
         $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id ORDER BY item_id ASC");
 
@@ -348,8 +346,8 @@ if(isset($_GET['pdf_quote'], $_GET['url_key'])){
         <!--mpdf
         <htmlpageheader name="myheader">
         <table width="100%"><tr>
-        <td width="15%"><img width="75" height="75" src=" /'.$config_invoice_logo.' "></img></td>
-        <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$config_company_address.' <br /> '.$config_company_city.' '.$config_company_state.' '.$config_company_zip.'<br /> '.$config_company_phone.' </td>
+        <td width="15%"><img width="75" height="75" src=" /'.$company_logo.' "></img></td>
+        <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$company_address.' <br /> '.$company_city.' '.$company_state.' '.$company_zip.'<br /> '.$company_phone.' </td>
         <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> '.$quote_number.' </span></td>
         </tr></table>
         </htmlpageheader>

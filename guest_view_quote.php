@@ -7,8 +7,10 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
   $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
   $quote_id = intval($_GET['quote_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients
+  $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients, settings, companies
     WHERE quotes.client_id = clients.client_id
+    AND settings.company_id = companies.company_id 
+    AND companies.company_id = quotes.company_id
     AND quotes.quote_id = $quote_id
     AND quotes.quote_url_key = '$url_key'"
   );
@@ -46,22 +48,18 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
       $client_net_terms = $config_default_net_terms;
     }
     $company_id = $row['company_id'];
-
-    $sql_company = mysqli_query($mysqli,"SELECT * FROM settings, companies WHERE settings.company_id = companies.company_id AND companies.company_id = $company_id");
-    $row = mysqli_fetch_array($sql_company);
-
     $company_name = $row['company_name'];
-    $config_company_address = $row['config_company_address'];
-    $config_company_city = $row['config_company_city'];
-    $config_company_state = $row['config_company_state'];
-    $config_company_zip = $row['config_company_zip'];
-    $config_company_phone = $row['config_company_phone'];
-    if(strlen($config_company_phone)>2){ 
-      $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
+    $company_address = $row['company_address'];
+    $company_city = $row['company_city'];
+    $company_state = $row['company_state'];
+    $company_zip = $row['company_zip'];
+    $company_phone = $row['company_phone'];
+    if(strlen($company_phone)>2){ 
+      $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
     }
-    $config_company_email = $row['config_company_email'];
-    $config_invoice_logo = $row['config_invoice_logo'];
-    $config_quote_footer = $row['config_quote_footer'];
+    $company_email = $row['company_email'];
+    $company_logo = $row['company_logo'];
+    $quote_footer = $row['quote_footer'];
 
     $ip = get_ip();
     $os = get_os();
@@ -123,10 +121,10 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
         <div class="col-sm">
           <ul class="list-unstyled">
             <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
-            <li><?php echo $config_company_address; ?></li>
-            <li><?php echo "$config_company_city $config_company_state $config_company_zip"; ?></li>
-            <li><?php echo $config_company_phone; ?></li>
-            <li><?php echo $config_company_email; ?></li>
+            <li><?php echo $company_address; ?></li>
+            <li><?php echo "$company_city $company_state $company_zip"; ?></li>
+            <li><?php echo $company_phone; ?></li>
+            <li><?php echo $company_email; ?></li>
           </ul>
           
         </div>

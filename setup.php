@@ -176,30 +176,40 @@ if(isset($_POST['add_company_settings'])){
   $row = mysqli_fetch_array($sql);
   $user_id = $row['user_id'];
 
-  $config_company_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_name']));
-  $config_company_country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_country']));
-  $config_company_address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_address']));
-  $config_company_city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_city']));
-  $config_company_state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_state']));
-  $config_company_zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_zip']));
-  $config_company_phone = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_phone']));
-  $config_company_phone = preg_replace("/[^0-9]/", '',$config_company_phone);
-  $config_company_site = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_company_site']));
-  $config_api_key = keygen();
+  $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+  $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
+  $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
+  $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
+  $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
+  $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+  $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
+  $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
+  $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
 
-  mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$config_company_name', company_created_at = NOW()");
+  mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_logo = '$path', company_created_at = NOW()");
 
   $company_id = mysqli_insert_id($mysqli);
+  $config_api_key = keygen();
+  $config_base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
 
   mkdir("uploads/clients/$company_id");
   mkdir("uploads/expenses/$company_id");
   mkdir("uploads/settings/$company_id");
   mkdir("uploads/tmp/$company_id");
 
+  if($_FILES['file']['tmp_name']!='') {
+    $path = "uploads/settings/$company_id/";
+    $path = $path . time() . basename( $_FILES['file']['name']);
+    $file_name = basename($path);
+    move_uploaded_file($_FILES['file']['tmp_name'], $path);
+
+    mysqli_query($mysqli,"UPDATE companies SET company_logo = '$path' WHERE company_id = $company_id");
+  }
+
   //Create Permissions
   mysqli_query($mysqli,"INSERT INTO permissions SET permission_level = 5, permission_default_company = $company_id, permission_companies = $company_id, user_id = $user_id");
  
-  mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_company_name = '$config_company_name', config_company_country = '$config_company_country', config_company_address = '$config_company_address', config_company_city = '$config_company_city', config_company_state = '$config_company_state', config_company_zip = '$config_company_zip', config_company_phone = '$config_company_phone', config_company_site = '$config_company_site', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_records_per_page = 10, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1");
+  mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_records_per_page = 10, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
 
   //Create Some Data
 
@@ -464,13 +474,14 @@ if(isset($_POST['add_company_settings'])){
             </div>
             <div class="card-body">
               <form class="p-3" method="post"  autocomplete="off">
+                
                 <div class="form-group">
                   <label>Company Name</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="config_company_name" placeholder="Company Name" autofocus required>  
+                    <input type="text" class="form-control" name="name" placeholder="Company Name" autofocus required>  
                   </div>
                 </div>
                 
@@ -480,7 +491,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="config_company_address" placeholder="Street Address">
+                    <input type="text" class="form-control" name="address" placeholder="Street Address">
                   </div>
                 </div>
 
@@ -490,7 +501,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="config_company_city" placeholder="City">
+                    <input type="text" class="form-control" name="city" placeholder="City">
                   </div>
                 </div>
 
@@ -500,7 +511,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                     </div>
-                    <select class="form-control select2" name="config_company_state">
+                    <select class="form-control select2" name="state">
                       <option value="">Select a state...</option>
                         <?php foreach($states_array as $state_abbr => $state_name) { ?>
                         <option value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
@@ -515,17 +526,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="config_company_zip" placeholder="Postal Code">
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label>Phone</label>
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                    </div>
-                    <input type="text" class="form-control" name="config_company_phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'"> 
+                    <input type="text" class="form-control" name="zip" placeholder="Postal Code">
                   </div>
                 </div>
 
@@ -544,14 +545,39 @@ if(isset($_POST['add_company_settings'])){
                   </div>
                 </div>
 
-                <div class="form-group mb-5">
+                <div class="form-group">
+                  <label>Phone</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                    </div>
+                    <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'"> 
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Email</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                    </div>
+                    <input type="email" class="form-control" name="email" placeholder="Email address"> 
+                  </div>
+                </div>
+
+                <div class="form-group">
                   <label>Website</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="config_company_site" placeholder="Website address">
+                    <input type="text" class="form-control" name="website" placeholder="Website address">
                   </div>
+                </div>
+
+                <div class="form-group mb-5">
+                  <label>Logo</label>
+                  <input type="file" class="form-control-file" name="file">
                 </div>
                 
                 <hr>

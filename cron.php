@@ -17,10 +17,12 @@ $sql_companies = mysqli_query($mysqli,"SELECT * FROM companies, settings WHERE c
 while($row = mysqli_fetch_array($sql_companies)){
   $company_id = $row['company_id'];
   $company_name = $row['company_name'];
-  $config_company_phone = $row['config_company_phone'];
-  if(strlen($config_company_phone)>2){ 
-    $config_company_phone = substr($row['config_company_phone'],0,3)."-".substr($row['config_company_phone'],3,3)."-".substr($row['config_company_phone'],6,4);
+  $company_phone = $row['company_phone'];
+  if(strlen($company_phone)>2){ 
+    $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
   }
+  $company_email = $row['company_email'];
+  $company_website = $row['company_website'];
   $config_enable_cron = $row['config_enable_cron'];
   $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
   $config_invoice_prefix = $row['config_invoice_prefix'];
@@ -118,9 +120,9 @@ while($row = mysqli_fetch_array($sql_companies)){
           $mail->isHTML(true);                                  // Set email format to HTML
 
           $mail->Subject = "Overdue Invoice $invoice_number";
-          $mail->Body    = "Hello $client_name,<br><br>According to our records, we have not received payment for invoice $invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $config_company_phone.
+          $mail->Body    = "Hello $client_name,<br><br>According to our records, we have not received payment for invoice $invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $company_phone.
             <br><br>
-            Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$config_company_phone";
+            Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
           
           $mail->send();
 
@@ -266,7 +268,7 @@ while($row = mysqli_fetch_array($sql_companies)){
           $mail->isHTML(true);                                  // Set email format to HTML
 
           $mail->Subject = "Invoice $invoice_number";
-          $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$config_company_phone";
+          $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
           
           $mail->send();
 
