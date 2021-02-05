@@ -290,7 +290,7 @@ if(isset($_POST['add_company_settings'])){
       
       <!-- Brand Logo -->
       <a href="https://itflow.org" class="brand-link">
-        <span class="brand-text font-weight-light">ITFlow</span>
+        <h3 class="brand-text font-weight-light">ITFlow</h3>
       </a>
 
       <!-- Sidebar -->
@@ -376,7 +376,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="username" placeholder="Username to access the database" autofocus required>
+                    <input type="text" class="form-control" name="username" placeholder="Database User" autofocus required>
                   </div>
                 </div>
 
@@ -386,7 +386,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                     </div>
-                    <input type="password" class="form-control" name="password" placeholder="Enter the Datbase password" required>
+                    <input type="password" class="form-control" name="password" placeholder="Database Password" required>
                   </div>
                 </div>
 
@@ -396,7 +396,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-database"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="database" placeholder="Name of the database" required>
+                    <input type="text" class="form-control" name="database" placeholder="Database Name" required>
                   </div>
                 </div>
 
@@ -583,7 +583,7 @@ if(isset($_POST['add_company_settings'])){
                 
                 <hr>
                 
-                <button type="submit" name="add_company_settings" class="btn btn-primary">Finish and Login <i class="fa fa-fw fa-checkmark"></i></button>
+                <button type="submit" name="add_company_settings" class="btn btn-primary">Finish and Login <i class="fa fa-fw fa-check-circle"></i></button>
                   
               </form>
             </div>
@@ -593,7 +593,7 @@ if(isset($_POST['add_company_settings'])){
 
           <div class="card card-dark">
             <div class="card-header">
-              <h3 class="card-title"><i class="fa fa-fw fa-box"></i> Welcome to ITFlow Setup</h3>
+              <h3 class="card-title"><i class="fa fa-fw fa-cube"></i> Welcome to ITFlow Setup</h3>
             </div>
             <div class="card-body">
               <p>Click on the install button to start the install process, you must create a database before proceeding</p>
@@ -607,7 +607,7 @@ if(isset($_POST['add_company_settings'])){
                 <li>Get List of Emails in CSV to export to a mailing list</li>
                 <li>Acquire balance can be useful for customer's to get their balance by phone</li>
               </ul>
-              <center><a href="?database" class="btn btn-lg btn-primary p-5 mb-5"><i class="fa fa-fw fa-checkmark"></i><br><br>Install</a></center>
+              <center><a href="?database" class="btn btn-lg btn-primary">Install <i class="fa fa-fw fa-arrow-alt-circle-right"></i></a></center>
             </div>
           </div>
 

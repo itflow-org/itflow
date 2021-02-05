@@ -48,10 +48,10 @@ if(!empty($_GET['dtf'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM logs 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM logs, users 
   WHERE (log_type LIKE '%$q%' OR log_action LIKE '%$q%' OR log_description LIKE '%$q%')
   AND DATE(log_created_at) BETWEEN '$dtf' AND '$dtt'
-  AND (user_id IS NULL)
+  AND (logs.user_id = users.user_id AND logs.user_id IS NULL)
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -98,6 +98,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_created_at&o=<?php echo $disp; ?>">Timestamp</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=name&o=<?php echo $disp; ?>">User</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_type&o=<?php echo $disp; ?>">Type</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_action&o=<?php echo $disp; ?>">Action</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_description&o=<?php echo $disp; ?>">Description</a></th>
@@ -112,11 +113,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $log_action = $row['log_action'];
             $log_description = $row['log_description'];
             $log_created_at = $row['log_created_at'];
+            $user_id = $row['user_id'];
+            $name = $row['name'];
+            if($user_id == 0){
+              $name = "-";
+            }
           
           ?>
           
           <tr>
             <td><?php echo $log_created_at; ?></td>
+            <td><?php echo $name; ?></td>
             <td><?php echo $log_type; ?></td>
             <td><?php echo $log_action; ?></td>
             <td><?php echo $log_description; ?></td>
