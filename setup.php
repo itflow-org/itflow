@@ -286,13 +286,11 @@ if(isset($_POST['add_company_settings'])){
     <!-- /.navbar -->
 
     <!-- Main Sidebar Container -->
-    <aside class="main-sidebar sidebar-dark-primary elevation-4 d-print-none">
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
       
       <!-- Brand Logo -->
-      <a href="index3.html" class="brand-link">
-        <img src="dist/img/AdminLTELogo.png" alt="Logo" class="brand-image img-circle elevation-3"
-             style="opacity: .8">
-        <span class="brand-text font-weight-light">Setup</span>
+      <a href="https://itflow.org" class="brand-link">
+        <span class="brand-text font-weight-light">ITFlow</span>
       </a>
 
       <!-- Sidebar -->
@@ -365,70 +363,70 @@ if(isset($_POST['add_company_settings'])){
 
         <?php if(isset($_GET['database'])){ ?>
 
-          <div class="card mb-3">
+          <div class="card card-dark">
             <div class="card-header">
-              <h6 class="mt-1"><i class="fa fa-fw fa-database"></i> Setup Database</h6>
+              <h3 class="card-title"><i class="fa fa-fw fa-database"></i> Connect your Database</h3>
             </div>
             <div class="card-body">
-              <form class="p-3" method="post" autocomplete="off">
+              <form method="post" autocomplete="off">
                 
                 <div class="form-group">
-                  <label>Database</label>
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="fa fa-fw fa-database"></i></span>
-                    </div>
-                    <input type="text" class="form-control" name="database" placeholder="Name of the database" autofocus required>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label>Username</label>
+                  <label>Database User <strong class="text-danger">*</strong></label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="username" placeholder="Username to access the database" required>
+                    <input type="text" class="form-control" name="username" placeholder="Username to access the database" autofocus required>
                   </div>
                 </div>
 
                 <div class="form-group">
-                  <label>Password</label>
+                  <label>Database Password <strong class="text-danger">*</strong></label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                     </div>
-                    <input type="password" class="form-control" name="password" placeholder="Enter the password" required>
+                    <input type="password" class="form-control" name="password" placeholder="Enter the Datbase password" required>
                   </div>
                 </div>
 
-                <div class="form-group mb-5">
-                  <label>Host</label>
+                <div class="form-group">
+                  <label>Database Name <strong class="text-danger">*</strong></label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="fa fa-fw fa-database"></i></span>
+                    </div>
+                    <input type="text" class="form-control" name="database" placeholder="Name of the database" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Database Host <strong class="text-danger">*</strong></label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="host" value="localhost" placeholder="Hostname of the server" required>
+                    <input type="text" class="form-control" name="host" value="localhost" placeholder="Database Host" required>
                   </div>
                 </div>
 
                 <hr>
-                <button type="submit" name="add_database" class="btn btn-primary">Save</button>
+                <button type="submit" name="add_database" class="btn btn-primary">Next <i class="fa fa-fw fa-arrow-circle-right"></i></button>
               </form>
             </div>
           </div>
 
         <?php }elseif(isset($_GET['user'])){ ?>
 
-          <div class="card mb-3">
+          <div class="card card-dark">
             <div class="card-header">
-              <h6 class="mt-1"><i class="fa fa-fw fa-user"></i> Create your first user</h6>
+              <h3 class="card-title"><i class="fa fa-fw fa-user"></i> Create your first user</h3>
             </div>
             <div class="card-body">
         
-              <form class="p-3" method="post" enctype="multipart/form-data" autocomplete="off">
+              <form method="post" enctype="multipart/form-data" autocomplete="off">
                 <div class="form-group">
-                  <label>Name</label>
+                  <label>Name <strong class="text-danger">*</strong></label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
@@ -438,7 +436,7 @@ if(isset($_POST['add_company_settings'])){
                 </div>
 
                 <div class="form-group">
-                  <label>Email</label>
+                  <label>Email <strong class="text-danger">*</strong></label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
@@ -448,7 +446,7 @@ if(isset($_POST['add_company_settings'])){
                 </div>
 
                 <div class="form-group">
-                  <label>Password</label>
+                  <label>Password <strong class="text-danger">*</strong></label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
@@ -456,27 +454,30 @@ if(isset($_POST['add_company_settings'])){
                     <input type="password" class="form-control" name="password" placeholder="Enter a Password" required>
                   </div>
                 </div>
-                <div class="form-group mb-5">
+                
+                <div class="form-group">
                   <label>Avatar</label>
                   <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
                 </div>
+                
                 <hr>
-                <button type="submit" name="add_user" class="btn btn-primary">Save</button>
+                
+                <button type="submit" name="add_user" class="btn btn-primary">Next <i class="fa fa-fw fa-arrow-circle-right"></i></button>
               </form>
             </div>
           </div>
 
         <?php }elseif(isset($_GET['company'])){ ?>
 
-          <div class="card mb-3">
+          <div class="card card-dark">
             <div class="card-header">
-              <h6 class="mt-1"><i class="fa fa-fw fa-building"></i> Company Settings</h6>
+              <h3 class="card-title"><i class="fa fa-fw fa-building"></i> Company Details</h3>
             </div>
             <div class="card-body">
-              <form class="p-3" method="post"  autocomplete="off">
+              <form method="post" enctype="multipart/form-data" autocomplete="off">
                 
                 <div class="form-group">
-                  <label>Company Name</label>
+                  <label>Company Name <strong class="text-danger">*</strong></label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
@@ -575,14 +576,14 @@ if(isset($_POST['add_company_settings'])){
                   </div>
                 </div>
 
-                <div class="form-group mb-5">
+                <div class="form-group">
                   <label>Logo</label>
                   <input type="file" class="form-control-file" name="file">
                 </div>
                 
                 <hr>
                 
-                <button type="submit" name="add_company_settings" class="btn btn-primary">Save</button>
+                <button type="submit" name="add_company_settings" class="btn btn-primary">Finish and Login <i class="fa fa-fw fa-checkmark"></i></button>
                   
               </form>
             </div>
@@ -590,29 +591,23 @@ if(isset($_POST['add_company_settings'])){
 
         <?php }else{ ?>
 
-          <div class="card mb-3">
+          <div class="card card-dark">
             <div class="card-header">
-              <h6 class="mt-1"><i class="fa fa-fw fa-download"></i> Start Install <?php echo $database; ?></h6>
+              <h3 class="card-title"><i class="fa fa-fw fa-box"></i> Welcome to ITFlow Setup</h3>
             </div>
             <div class="card-body">
               <p>Click on the install button to start the install process, you must create a database before proceeding</p>
-              <p>This process will accomplish the following</p>
-              <ul class="mb-4">
-                <li>Create a config.php</li>
-                <li>Creates the following expense cataegories (Office Supplies, Advertising, Travel)</li>
-                <li>Creates the following payment methods (Cash, Check)</li>
-                <li>Creates an account named Cash</li>
-                <li>Creates an income category</li>
-              </ul>
-              <p>After install add cron.php to your cron and set it to run once everyday at 11:00PM. This is so recurring invoices will automatically be sent out and created. This will also trigger late payment reminders, along with alerts such as domains expiration, etc.</p>
-              <p>An API is present to allow integration with other third pary apps. An API Key will be auto generated, and can be changed in settings after install. The API will give you the following capabilities</p>
+              <hr>
+              <p>After install add cron.php to your cron and set it to run once everyday at 11:00PM. This is for tasks such as sending out recurring invoices, late payment reminders, alerts, etc</p>
+              <hr>
+              <p>An API is present to allow integration with other third pary apps. An API Key will be auto generated and can be changed in settings after install. The API will give you the following capabilities</p>
               <ul class="mb-4">
                 <li>Address book XML for VOIP Phones</li>
                 <li>Caller ID Lookup</li>
                 <li>Get List of Emails in CSV to export to a mailing list</li>
-                <li>Get Balance, can be useful for customer's to get balances by phone</li>
+                <li>Acquire balance can be useful for customer's to get their balance by phone</li>
               </ul>
-              <center><a href="?database" class="btn btn-lg btn-primary mb-5">Install</a></center>
+              <center><a href="?database" class="btn btn-lg btn-primary p-5 mb-5"><i class="fa fa-fw fa-checkmark"></i><br><br>Install</a></center>
             </div>
           </div>
 

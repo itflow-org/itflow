@@ -145,6 +145,8 @@
             <label>Receipt</label>
             <input type="file" class="form-control-file" name="file">
           </div>
+
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCategoryModal"><i class="fas fa-fw fa-plus"></i></button>
           
         </div>
         <div class="modal-footer bg-white">

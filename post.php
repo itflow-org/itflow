@@ -1115,7 +1115,7 @@ if(isset($_POST['add_category'])){
 
     $_SESSION['alert_message'] = "Category added";
     
-    header("Location: categories.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
