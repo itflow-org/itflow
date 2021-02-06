@@ -346,9 +346,14 @@ if(isset($_GET['recurring_id'])){
   </div>
 </div>
 
-<?php include("edit_recurring_modal.php"); ?>
-<?php include("recurring_note_modal.php"); ?>
+<?php 
+  
+  include("edit_recurring_modal.php");
+  include("recurring_note_modal.php");
+  include("add_quick_modal.php");
 
-<?php } ?>
+}
 
-<?php include("footer.php");
+include("footer.php");
+
+?>

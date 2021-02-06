@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-user mr-2"></i>New Client</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-user"></i> New Client</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -71,6 +71,9 @@
                     }
                     ?>
                   </select>
+                  <div class="input-group-append">
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickReferralModal"><i class="fas fa-fw fa-plus"></i></button>
+                  </div>
                 </div>
               </div>
 

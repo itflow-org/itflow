@@ -243,5 +243,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 </div>
 
 <?php include("add_client_modal.php"); ?>
+<?php include("add_quick_modal.php"); ?>
 
 <?php include("footer.php");

@@ -201,16 +201,16 @@ if(isset($_GET['client_id'])){
   </div>
 </div>
 
-<?php include("client_routes.php"); ?>
-
-<?php include("edit_client_modal.php"); ?>
-
 <?php 
+  
+  include("client_routes.php");
+  include("edit_client_modal.php");
+  include("add_quick_modal.php");
 
   }
 
 }
 
-?>
+include("footer.php");
 
-<?php include("footer.php");
+?>

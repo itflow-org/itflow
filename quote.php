@@ -373,11 +373,15 @@ if(isset($_GET['quote_id'])){
   </div>
 </div>
 
-<?php include("edit_quote_modal.php"); ?>
-<?php include("add_quote_to_invoice_modal.php"); ?>
-<?php include("add_quote_copy_modal.php"); ?>
-<?php include("quote_note_modal.php"); ?>
+<?php 
+  include("edit_quote_modal.php");
+  include("add_quote_to_invoice_modal.php");
+  include("add_quote_copy_modal.php");
+  include("quote_note_modal.php");
+  include("add_quick_modal.php");
 
-<?php } ?>
+} 
 
-<?php include("footer.php");
+include("footer.php");
+
+?>

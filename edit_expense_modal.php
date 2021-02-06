@@ -96,6 +96,9 @@
                   
                   ?>
                 </select>
+                <div class="input-group-append">
+                  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickVendorModal"><i class="fas fa-fw fa-plus"></i></button>
+                </div>
               </div>
             </div>
             
@@ -128,6 +131,9 @@
                   
                   ?>
                 </select>
+                <div class="input-group-append">
+                  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryExpenseModal"><i class="fas fa-fw fa-plus"></i></button>
+                </div>
               </div>
             </div>
 

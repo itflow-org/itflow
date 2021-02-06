@@ -317,6 +317,11 @@
   </div>
 </div>
 
-<?php include("add_invoice_modal.php"); ?>
+<?php 
+  
+  include("add_invoice_modal.php");
+  include("add_quick_modal.php");
 
-<?php include("footer.php");
+  include("footer.php");
+
+?>

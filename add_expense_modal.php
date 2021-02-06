@@ -94,6 +94,9 @@
                   }
                   ?>
                 </select>
+                <div class="input-group-append">
+                  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickVendorModal"><i class="fas fa-fw fa-plus"></i></button>
+                </div>
               </div>
             </div>
           </div>
@@ -126,7 +129,12 @@
                   }
                   ?>
                 </select>
+                <div class="input-group-append">
+                  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryExpenseModal"><i class="fas fa-fw fa-plus"></i></button>
+                </div>
               </div>
+              
+
             </div>
 
             <div class="form-group col-md">
@@ -146,7 +154,7 @@
             <input type="file" class="form-control-file" name="file">
           </div>
 
-          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCategoryModal"><i class="fas fa-fw fa-plus"></i></button>
+          
           
         </div>
         <div class="modal-footer bg-white">

@@ -70,6 +70,33 @@
               </select>
             </div>
           </div>
+
+          <div class="form-group">
+            <label>Category <strong class="text-danger">*</strong></label>
+            <div class="input-group"> 
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
+              </div> 
+              <select class="form-control select2" name="category" required>
+                <option value="">- Category -</option>
+                <?php 
+                
+                $sql_category = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND company_id = $session_company_id ORDER BY category_name ASC"); 
+                while($row = mysqli_fetch_array($sql_category)){
+                  $category_id_select = $row['category_id'];
+                  $category_name = $row['category_name'];
+                ?>
+                  <option <?php if($category_id_select == $category_id){ echo "selected"; } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name; ?></option>
+                
+                <?php
+                }
+                ?>
+              </select>
+              <div class="input-group-append">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i></button>
+              </div>
+            </div>
+          </div>
           
           <div class="form-group">
             <label>Payment Method <strong class="text-danger">*</strong></label>

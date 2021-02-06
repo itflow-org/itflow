@@ -10,8 +10,13 @@ if(isset($_GET['calendar_id'])){
 
 <div id='calendar'></div>
   
-<?php include("add_calendar_event_modal.php"); ?>
-<?php include("add_calendar_modal.php"); ?>
+<?php 
+  
+  include("add_calendar_event_modal.php");
+  include("add_calendar_modal.php");
+  include("add_quick_modal.php");
+
+?>
 
 <?php
 //loop through IDs and create a modal for each

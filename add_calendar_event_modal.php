@@ -42,6 +42,9 @@
                 }
                 ?>
               </select>
+              <div class="input-group-append">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCalendarModal"><i class="fas fa-fw fa-plus"></i></button>
+              </div>
             </div>
           </div>
           

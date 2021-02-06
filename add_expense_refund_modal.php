@@ -1,10 +1,10 @@
 <div class="modal" id="addExpenseRefundModal<?php echo $expense_id; ?>" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-recycle mr-2"></i>Refund</h5>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa fa-fw fa-recycle"></i> Refund</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
@@ -12,7 +12,9 @@
           <input type="hidden" name="account" value="<?php echo $account_id; ?>">
           <input type="hidden" name="vendor" value="<?php echo $vendor_id; ?>">
           <input type="hidden" name="category" value="<?php echo $category_id; ?>">
+          
           <div class="form-row"> 
+            
             <div class="form-group col-md">
               <label>Refund Date</label>
               <div class="input-group">
@@ -22,6 +24,7 @@
                 <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
               </div>
             </div>
+            
             <div class="form-group col-md">
               <label>Refund Amount</label>
               <div class="input-group">
@@ -32,10 +35,12 @@
               </div>
             </div>
           </div>
+          
           <div class="form-group">
             <label>Description</label>
             <textarea class="form-control" rows="4" name="description" required>Refund: <?php echo $expense_description; ?></textarea>
           </div>
+          
           <div class="form-group">
             <label>Reference</label>
             <div class="input-group">
@@ -45,10 +50,12 @@
               <input type="text" class="form-control" name="reference" placeholder="Enter a reference" value="<?php echo $expense_reference; ?>">
             </div>
           </div>
+          
           <div class="form-group">
             <label>Receipt</label>
             <input type="file" class="form-control-file" name="file">
           </div>
+          
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

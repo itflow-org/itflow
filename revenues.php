@@ -170,6 +170,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_revenue_modal.php"); ?>
+<?php 
 
-<?php include("footer.php");
+  include("add_revenue_modal.php");
+  include("add_quick_modal.php");
+
+  include("footer.php");
+
+?>
