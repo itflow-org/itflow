@@ -92,6 +92,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $product_cost = $row['product_cost'];
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
+            $tax_id = $row['tax_id'];
 
           ?>
           <tr>

@@ -47,6 +47,32 @@
             <label>Cost <strong class="text-danger">*</strong></label>
             <input type="number" step="0.01" min="0" class="form-control" name="cost" value="<?php echo $product_cost; ?>" required>
           </div>
+
+          <div class="form-group">
+            <label>Tax</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+              </div>
+              <select class="form-control select2" name="tax">
+                <option value="0">None</option>
+                <?php 
+                
+                $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
+                while($row = mysqli_fetch_array($taxes_sql)){
+                  $tax_id_select = $row['tax_id'];
+                  $tax_name = $row['tax_name'];
+                  $tax_percent = $row['tax_percent'];
+                ?>
+                  <option <?php if($tax_id_select == $tax_id){ echo "selected"; } ?> value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                
+                <?php
+                }
+                ?>
+              </select>
+              
+            </div>
+          </div>
         
         </div>
         

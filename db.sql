@@ -571,6 +571,7 @@ CREATE TABLE `products` (
   `product_cost` decimal(15,2) NOT NULL,
   `product_created_at` datetime NOT NULL,
   `product_updated_at` datetime DEFAULT NULL,
+  `tax_id` int(11) DEFAULT NULL,
   `category_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`product_id`)
@@ -929,4 +930,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-06  0:17:15
+-- Dump completed on 2021-02-06  1:52:10
