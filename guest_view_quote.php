@@ -109,7 +109,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
 
       <div class="row mb-4">
         <div class="col-sm-2">
-          <img class="img-fluid" src="<?php echo $config_invoice_logo; ?>">
+          <img class="img-fluid" src="<?php echo $company_logo; ?>">
         </div>
         <div class="col-sm-10">
           <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo $quote_number; ?></small></h3>
