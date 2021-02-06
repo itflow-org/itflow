@@ -146,7 +146,7 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserCompaniesModal<?php echo $user_id; ?>">Company Access</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserClientsModal<?php echo $user_id; ?>">Client Access</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="post.php?delete_user=<?php echo $user_id; ?>">Delete</a>
+                  <a class="dropdown-item" href="post.php?archive_user=<?php echo $user_id; ?>">Archive</a>
                 </div>
               </div>   
             </td>
@@ -171,6 +171,10 @@
   </div>
 </div>
 
-<?php include("add_user_modal.php"); ?>
+<?php
+  
+  include("add_user_modal.php");
+  
+  include("footer.php");
 
-<?php include("footer.php");
+?>

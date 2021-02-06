@@ -95,7 +95,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editCategoryModal<?php echo $category_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="post.php?delete_category=<?php echo $category_id; ?>">Delete</a>
+                  <a class="dropdown-item" href="post.php?archive_category=<?php echo $category_id; ?>">Archive</a>
                 </div>
               </div>
             </td>
@@ -117,6 +117,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_category_modal.php"); ?>
+<?php 
 
-<?php include("footer.php");
+  include("add_category_modal.php");
+
+  include("footer.php");
+
+?>

@@ -108,7 +108,7 @@
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="post.php?delete_account=<?php echo $account_id; ?>">Delete</a>
+                  <a class="dropdown-item" href="post.php?archive_account=<?php echo $account_id; ?>">Archive</a>
                 </div>
               </div>      
             </td>
@@ -128,6 +128,10 @@
   </div>
 </div>
 
-<?php include("add_account_modal.php"); ?>
+<?php
 
-<?php include("footer.php");
+  include("add_account_modal.php");
+  
+  include("footer.php");
+
+?>

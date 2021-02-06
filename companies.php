@@ -125,7 +125,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editCompanyModal<?php echo $company_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="post.php?delete_company=<?php echo $company_id; ?>">Delete</a>
+                  <a class="dropdown-item" href="post.php?archive_company=<?php echo $company_id; ?>">Archive</a>
                 </div>
               </div>
             </td>

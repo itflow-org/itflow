@@ -65,7 +65,7 @@ $num_rows = mysqli_num_rows($sql);
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaxModal<?php echo $tax_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="post.php?delete_tax=<?php echo $tax_id; ?>">Delete</a>
+                  <a class="dropdown-item" href="post.php?archive_tax=<?php echo $tax_id; ?>">Archive</a>
                 </div>
               </div>
             </td>
@@ -76,12 +76,10 @@ $num_rows = mysqli_num_rows($sql);
           include("edit_tax_modal.php");
           }
           
-          ?>
-
-          <?php
           if($num_rows == 0){
             echo "<center><h3 class='text-secondary mt-3'>No Records Here</h3></center>";
           }
+          
           ?>
 
         </tbody>
@@ -91,6 +89,10 @@ $num_rows = mysqli_num_rows($sql);
   </div>
 </div>
 
-<?php include("add_tax_modal.php"); ?>
+<?php
+  
+  include("add_tax_modal.php");
 
-<?php include("footer.php");
+  include("footer.php");
+
+?>

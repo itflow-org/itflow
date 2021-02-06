@@ -141,6 +141,20 @@ if(isset($_POST['edit_user_clients'])){
 
 }
 
+if(isset($_GET['archive_user'])){
+    $user_id = intval($_GET['archive_user']);
+
+    mysqli_query($mysqli,"UPDATE users SET archived_at = NOW() WHERE user_id = $user_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Archived', log_description = '$user_id', log_created_at = NOW()");
+
+    $_SESSION['alert_message'] = "User Archived!";
+    
+    header("Location: users.php");
+
+}
+
 if(isset($_GET['delete_user'])){
     $user_id = intval($_GET['delete_user']);
 
@@ -241,6 +255,20 @@ if(isset($_POST['edit_company'])){
 
 }
 
+if(isset($_GET['archive_company'])){
+    $company_id = intval($_GET['archive_company']);
+
+    mysqli_query($mysqli,"UPDATE companies SET company_archived_at = NOW() WHERE company_id = $company_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Archived', log_description = '$company_id', log_created_at = NOW()");
+
+    $_SESSION['alert_message'] = "Company Archived";
+    
+    header("Location: companies.php");
+
+}
+
 if(isset($_GET['delete_company'])){
     $company_id = intval($_GET['delete_company']);
 
@@ -252,7 +280,7 @@ if(isset($_GET['delete_company'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Deleted', log_description = '$name', log_created_at = NOW()");
 
     $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = "Company deleted!";
+    $_SESSION['alert_message'] = "Company Archived!";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
@@ -932,6 +960,20 @@ if(isset($_POST['edit_vendor'])){
 
 }
 
+if(isset($_GET['archive_vendor'])){
+    $vendor_id = intval($_GET['archive_vendor']);
+
+    mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Archived', log_description = '$vendor_id', log_created_at = NOW()");
+
+    $_SESSION['alert_message'] = "Vendor Archived!";
+    
+    header("Location: vendors.php");
+
+}
+
 if(isset($_GET['delete_vendor'])){
     $vendor_id = intval($_GET['delete_vendor']);
 
@@ -1090,6 +1132,20 @@ if(isset($_POST['edit_account'])){
 
 }
 
+if(isset($_GET['archive_account'])){
+    $account_id = intval($_GET['archive_account']);
+
+    mysqli_query($mysqli,"UPDATE accounts SET account_archived_at = NOW() WHERE account_id = $account_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Archive', log_description = '$account_id', log_created_at = NOW()");
+
+    $_SESSION['alert_message'] = "Account Archived";
+    
+    header("Location: accounts.php");
+
+}
+
 if(isset($_GET['delete_account'])){
     $account_id = intval($_GET['delete_account']);
 
@@ -1134,6 +1190,20 @@ if(isset($_POST['edit_category'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Category modified";
+    
+    header("Location: categories.php");
+
+}
+
+if(isset($_GET['archive_category'])){
+    $category_id = intval($_GET['archive_category']);
+
+    mysqli_query($mysqli,"UPDATE categories SET category_archived_at = NOW() WHERE category_id = $category_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Archive', log_description = '$category_id', log_created_at = NOW()");
+
+    $_SESSION['alert_message'] = "Category Archived";
     
     header("Location: categories.php");
 
@@ -1189,13 +1259,27 @@ if(isset($_POST['edit_tax'])){
 
 }
 
+if(isset($_GET['archive_tax'])){
+    $tax_id = intval($_GET['archive_tax']);
+
+    mysqli_query($mysqli,"UPDATE taxes SET tax_archived_at = NOW() WHERE tax_id = $tax_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Archive', log_description = '$tax_id', log_created_at = NOW()");
+
+    $_SESSION['alert_message'] = "Tax Archived";
+    
+    header("Location: taxes.php");
+
+}
+
 if(isset($_GET['delete_tax'])){
     $tax_id = intval($_GET['delete_tax']);
 
     mysqli_query($mysqli,"DELETE FROM taxes WHERE tax_id = $tax_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Deleted', log_description = '$tax_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Delete', log_description = '$tax_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Tax deleted";
     $_SESSION['alert_type'] = "danger";
@@ -1213,7 +1297,7 @@ if(isset($_GET['alert_ack'])){
     mysqli_query($mysqli,"UPDATE alerts SET alert_ack_date = CURDATE() WHERE alert_id = $alert_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Alerts', log_action = 'Modified', log_description = '$alert_id Acknowledged', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Alerts', log_action = 'Modify', log_description = '$alert_id Acknowledged', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Alert Acknowledged";
     
