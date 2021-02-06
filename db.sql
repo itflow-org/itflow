@@ -29,6 +29,7 @@ CREATE TABLE `accounts` (
   `account_notes` text DEFAULT NULL,
   `account_created_at` datetime NOT NULL,
   `account_updated_at` datetime DEFAULT NULL,
+  `account_deleted_at` datetime DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`account_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -75,6 +76,7 @@ CREATE TABLE `assets` (
   `asset_notes` text DEFAULT NULL,
   `asset_created_at` datetime NOT NULL,
   `asset_updated_at` datetime DEFAULT NULL,
+  `asset_deleted_at` datetime DEFAULT NULL,
   `login_id` int(11) DEFAULT NULL,
   `vendor_id` int(11) DEFAULT NULL,
   `location_id` int(11) DEFAULT NULL,
@@ -99,6 +101,7 @@ CREATE TABLE `calendars` (
   `calendar_color` varchar(200) NOT NULL,
   `calendar_created_at` datetime NOT NULL,
   `calendar_updated_at` datetime DEFAULT NULL,
+  `calendar_deleted_at` datetime DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`calendar_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -118,6 +121,7 @@ CREATE TABLE `categories` (
   `category_color` varchar(200) DEFAULT NULL,
   `category_created_at` datetime NOT NULL,
   `category_updated_at` datetime DEFAULT NULL,
+  `category_deleted_at` datetime DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -139,6 +143,7 @@ CREATE TABLE `certificates` (
   `certificate_notes` text DEFAULT NULL,
   `certificate_created_at` datetime NOT NULL,
   `certificate_updated_at` datetime DEFAULT NULL,
+  `certificate_deleted_at` datetime DEFAULT NULL,
   `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`certificate_id`)
@@ -172,6 +177,7 @@ CREATE TABLE `clients` (
   `client_notes` text DEFAULT NULL,
   `client_created_at` datetime NOT NULL,
   `client_updated_at` datetime DEFAULT NULL,
+  `client_deleted_at` datetime DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -198,6 +204,7 @@ CREATE TABLE `companies` (
   `company_logo` varchar(250) DEFAULT NULL,
   `company_created_at` datetime NOT NULL,
   `company_updated_at` datetime DEFAULT NULL,
+  `company_deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -224,6 +231,7 @@ CREATE TABLE `contacts` (
   `contact_inactive` tinyint(1) NOT NULL DEFAULT 0,
   `contact_created_at` datetime NOT NULL,
   `contact_updated_at` datetime DEFAULT NULL,
+  `contact_deleted_at` datetime DEFAULT NULL,
   `location_id` int(11) DEFAULT NULL,
   `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -244,6 +252,7 @@ CREATE TABLE `documents` (
   `document_details` text NOT NULL,
   `document_created_at` datetime NOT NULL,
   `document_updated_at` datetime DEFAULT NULL,
+  `document_deleted_at` datetime DEFAULT NULL,
   `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`document_id`)
@@ -263,6 +272,7 @@ CREATE TABLE `domains` (
   `domain_expire` date DEFAULT NULL,
   `domain_created_at` datetime NOT NULL,
   `domain_updated_at` datetime DEFAULT NULL,
+  `domain_deleted_at` datetime DEFAULT NULL,
   `domain_registrar` int(11) DEFAULT NULL,
   `domain_webhost` int(11) DEFAULT NULL,
   `client_id` int(11) NOT NULL,
@@ -285,6 +295,7 @@ CREATE TABLE `events` (
   `event_end` datetime DEFAULT NULL,
   `event_created_at` datetime NOT NULL,
   `event_updated_at` datetime DEFAULT NULL,
+  `event_deleted_at` datetime DEFAULT NULL,
   `client_id` int(11) DEFAULT NULL,
   `location_id` int(11) DEFAULT NULL,
   `calendar_id` int(11) NOT NULL,
@@ -310,6 +321,7 @@ CREATE TABLE `expenses` (
   `expense_receipt` varchar(200) DEFAULT NULL,
   `expense_created_at` datetime NOT NULL,
   `expense_updated_at` datetime DEFAULT NULL,
+  `expense_deleted_at` datetime DEFAULT NULL,
   `vendor_id` int(11) DEFAULT NULL,
   `client_id` int(11) DEFAULT NULL,
   `asset_id` int(11) DEFAULT NULL,
@@ -334,6 +346,7 @@ CREATE TABLE `files` (
   `file_ext` varchar(200) DEFAULT NULL,
   `file_created_at` datetime NOT NULL,
   `file_updated_at` datetime DEFAULT NULL,
+  `file_deleted_at` datetime DEFAULT NULL,
   `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`file_id`)
@@ -353,6 +366,7 @@ CREATE TABLE `history` (
   `history_status` varchar(200) NOT NULL,
   `history_description` varchar(200) NOT NULL,
   `history_created_at` datetime NOT NULL,
+  `history_deleted_at` datetime DEFAULT NULL,
   `invoice_id` int(11) DEFAULT NULL,
   `recurring_id` int(11) DEFAULT NULL,
   `quote_id` int(11) DEFAULT NULL,
@@ -379,6 +393,7 @@ CREATE TABLE `invoice_items` (
   `item_total` decimal(15,2) NOT NULL,
   `item_created_at` datetime NOT NULL,
   `item_updated_at` datetime DEFAULT NULL,
+  `item_deleted_at` datetime DEFAULT NULL,
   `tax_id` int(11) DEFAULT NULL,
   `quote_id` int(11) DEFAULT NULL,
   `recurring_id` int(11) DEFAULT NULL,
@@ -407,6 +422,7 @@ CREATE TABLE `invoices` (
   `invoice_url_key` varchar(200) DEFAULT NULL,
   `invoice_created_at` datetime NOT NULL,
   `invoice_updated_at` datetime DEFAULT NULL,
+  `invoice_deleted_at` datetime DEFAULT NULL,
   `category_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -436,6 +452,7 @@ CREATE TABLE `locations` (
   `location_primary` tinyint(1) DEFAULT NULL,
   `location_created_at` datetime NOT NULL,
   `location_updated_at` datetime DEFAULT NULL,
+  `location_deleted_at` datetime DEFAULT NULL,
   `contact_id` int(11) DEFAULT NULL,
   `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -460,6 +477,7 @@ CREATE TABLE `logins` (
   `login_note` text DEFAULT NULL,
   `login_created_at` datetime NOT NULL,
   `login_updated_at` datetime DEFAULT NULL,
+  `login_deleted_at` datetime DEFAULT NULL,
   `vendor_id` int(11) DEFAULT NULL,
   `asset_id` int(11) DEFAULT NULL,
   `software_id` int(11) DEFAULT NULL,
@@ -482,6 +500,7 @@ CREATE TABLE `logs` (
   `log_action` varchar(255) NOT NULL,
   `log_description` varchar(255) NOT NULL,
   `log_created_at` datetime NOT NULL,
+  `log_deleted_at` datetime DEFAULT NULL,
   `client_id` int(11) DEFAULT NULL,
   `invoice_id` int(11) DEFAULT NULL,
   `quote_id` int(11) DEFAULT NULL,
@@ -509,6 +528,7 @@ CREATE TABLE `networks` (
   `network_notes` text DEFAULT NULL,
   `network_created_at` datetime NOT NULL,
   `network_updated_at` datetime DEFAULT NULL,
+  `network_deleted_at` datetime DEFAULT NULL,
   `location_id` int(11) DEFAULT NULL,
   `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -531,6 +551,7 @@ CREATE TABLE `payments` (
   `payment_reference` varchar(200) DEFAULT NULL,
   `payment_created_at` datetime NOT NULL,
   `payment_updated_at` datetime DEFAULT NULL,
+  `payment_deleted_at` datetime DEFAULT NULL,
   `account_id` int(11) NOT NULL,
   `invoice_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
@@ -571,6 +592,7 @@ CREATE TABLE `products` (
   `product_cost` decimal(15,2) NOT NULL,
   `product_created_at` datetime NOT NULL,
   `product_updated_at` datetime DEFAULT NULL,
+  `product_deleted_at` datetime DEFAULT NULL,
   `tax_id` int(11) DEFAULT NULL,
   `category_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -596,6 +618,7 @@ CREATE TABLE `quotes` (
   `quote_url_key` varchar(200) DEFAULT NULL,
   `quote_created_at` datetime NOT NULL,
   `quote_updated_at` datetime DEFAULT NULL,
+  `quote_deleted_at` datetime DEFAULT NULL,
   `category_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -618,6 +641,7 @@ CREATE TABLE `records` (
   `record_priority` int(11) DEFAULT NULL,
   `record_created_at` datetime NOT NULL,
   `record_updated_at` datetime NOT NULL,
+  `record_deleted_at` datetime DEFAULT NULL,
   `domain_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`record_id`)
@@ -642,6 +666,7 @@ CREATE TABLE `recurring` (
   `recurring_note` text DEFAULT NULL,
   `recurring_created_at` datetime NOT NULL,
   `recurring_updated_at` datetime DEFAULT NULL,
+  `recurring_deleted_at` datetime DEFAULT NULL,
   `category_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -665,6 +690,7 @@ CREATE TABLE `revenues` (
   `revenue_description` varchar(200) DEFAULT NULL,
   `revenue_created_at` datetime NOT NULL,
   `revenue_updated_at` datetime DEFAULT NULL,
+  `revenue_deleted_at` datetime DEFAULT NULL,
   `category_id` int(11) NOT NULL,
   `account_id` int(11) NOT NULL,
   `client_id` int(11) DEFAULT NULL,
@@ -738,6 +764,7 @@ CREATE TABLE `software` (
   `software_notes` text DEFAULT NULL,
   `software_created_at` datetime NOT NULL,
   `software_updated_at` datetime DEFAULT NULL,
+  `software_deleted_at` datetime DEFAULT NULL,
   `login_id` int(11) DEFAULT NULL,
   `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -758,6 +785,7 @@ CREATE TABLE `taxes` (
   `tax_percent` float NOT NULL,
   `tax_created_at` datetime NOT NULL,
   `tax_updated_at` datetime DEFAULT NULL,
+  `tax_deleted_at` datetime DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`tax_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -774,6 +802,8 @@ CREATE TABLE `ticket_updates` (
   `ticket_update_id` int(11) NOT NULL AUTO_INCREMENT,
   `ticket_update` text NOT NULL,
   `ticket_update_created_at` datetime NOT NULL,
+  `ticket_update_updated_at` datetime DEFAULT NULL,
+  `ticket_update_deleted_at` datetime DEFAULT NULL,
   `user_id` int(11) NOT NULL,
   `ticket_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -799,6 +829,7 @@ CREATE TABLE `tickets` (
   `ticket_status` varchar(200) NOT NULL,
   `ticket_created_at` datetime NOT NULL,
   `ticket_updated_at` datetime DEFAULT NULL,
+  `ticket_deleted_at` datetime DEFAULT NULL,
   `ticket_closed_at` datetime DEFAULT NULL,
   `ticket_created_by` int(11) NOT NULL,
   `ticket_closed_by` int(11) DEFAULT NULL,
@@ -821,6 +852,7 @@ CREATE TABLE `transfers` (
   `transfer_notes` text DEFAULT NULL,
   `transfer_created_at` datetime NOT NULL,
   `transfer_updated_at` datetime DEFAULT NULL,
+  `transfer_deleted_at` datetime DEFAULT NULL,
   `expense_id` int(11) NOT NULL,
   `revenue_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -847,6 +879,7 @@ CREATE TABLE `trips` (
   `round_trip` int(1) NOT NULL,
   `trip_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `trip_updated_at` datetime DEFAULT NULL,
+  `trip_deleted_at` datetime DEFAULT NULL,
   `client_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`trip_id`)
@@ -885,6 +918,7 @@ CREATE TABLE `users` (
   `avatar` varchar(200) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -915,6 +949,7 @@ CREATE TABLE `vendors` (
   `vendor_global` tinyint(1) DEFAULT NULL,
   `vendor_created_at` datetime NOT NULL,
   `vendor_updated_at` datetime DEFAULT NULL,
+  `vendor_deleted_at` datetime DEFAULT NULL,
   `client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`vendor_id`)
@@ -930,4 +965,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-06  1:52:10
+-- Dump completed on 2021-02-06 15:37:20
