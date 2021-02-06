@@ -39,7 +39,12 @@ if(isset($_GET['o'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM categories WHERE (category_name LIKE '%$q%' OR category_type LIKE '%$q%') AND company_id = $session_company_id ORDER BY $sb $o LIMIT $record_from, $record_to");
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM categories 
+  WHERE (category_name LIKE '%$q%' OR category_type LIKE '%$q%')
+  AND category_archived_at IS NULL
+  AND company_id = $session_company_id 
+  ORDER BY $sb $o LIMIT $record_from, $record_to"
+);
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 

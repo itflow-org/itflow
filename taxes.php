@@ -22,7 +22,11 @@ if(isset($_GET['o'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY $sb $o");
+$sql = mysqli_query($mysqli,"SELECT * FROM taxes 
+  WHERE tax_archived_at IS NULL 
+  AND company_id = $session_company_id 
+  ORDER BY $sb $o"
+);
 
 $num_rows = mysqli_num_rows($sql);
 
