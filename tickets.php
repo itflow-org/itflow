@@ -67,8 +67,8 @@
 
 ?>
 
-<div class="card mb-3">
-  <div class="card-header bg-dark text-white">
+<div class="card card-dark">
+  <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> Tickets</h3>
     <div class='card-tools'>
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i> New Ticket</button>

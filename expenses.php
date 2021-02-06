@@ -61,8 +61,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card card-dark mb-3">
-  <div class="card-header">
+<div class="card card-dark">
+  <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-shopping-cart"></i> Expenses</h3>
     <div class="card-tools">
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addExpenseModal"><i class="fas fa-fw fa-plus"></i> New Expense</button>

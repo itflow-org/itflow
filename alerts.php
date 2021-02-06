@@ -7,7 +7,7 @@ $sql = mysqli_query($mysqli,"SELECT * FROM alerts WHERE alert_ack_date IS NULL A
 ?>
 
 <div class="card card-dark">
-  <div class="card-header">
+  <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-exclamation-triangle"></i> Alerts</h3>
     <div class="card-tools">
       <a href="post.php?ack_all_alerts" class="btn btn-success"> <i class="fa fa-check"></i> Acknowledge All</a>

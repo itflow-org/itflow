@@ -48,7 +48,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 ?>
 
 <div class="card card-dark">
-  <div class="card-header">
+  <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-building"></i> Companies</h3>
     <div class="card-tools">
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCompanyModal"><i class="fas fa-fw fa-plus"></i> New Company</button>
