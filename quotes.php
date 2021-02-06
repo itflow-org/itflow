@@ -142,6 +142,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $quote_badge_color = "success";
             }elseif($quote_status == "Rejected"){
               $quote_badge_color = "danger";
+            }elseif($quote_status == "Invoiced"){
+              $quote_badge_color = "info";
             }else{
               $quote_badge_color = "secondary";
             }
@@ -170,7 +172,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">Copy</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send</a>
-                  <a class="dropdown-item" href="post.php?approve_quote=<?php echo $quote_id; ?>">Approve</a>
                   <a class="dropdown-item" href="post.php?pdf_quote=<?php echo $quote_id; ?>">PDF</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="post.php?delete_quote=<?php echo $quote_id; ?>">Delete</a>

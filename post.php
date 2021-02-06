@@ -1668,10 +1668,12 @@ if(isset($_POST['add_quote_to_invoice'])){
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), tax_id = $tax_id, invoice_id = $new_invoice_id, company_id = $session_company_id");
     }
 
+    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Invoiced' WHERE quote_id = $quote_id AND company_id = $session_company_id");
+
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Created', log_description = 'Quote copied to Invoice', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Quoted copied to Invoice";
+    $_SESSION['alert_message'] = "Quote copied to Invoice";
     
     header("Location: invoice.php?invoice_id=$new_invoice_id");
 
@@ -1860,35 +1862,35 @@ if(isset($_GET['mark_quote_sent'])){
 
 }
 
-if(isset($_GET['approve_quote'])){
+if(isset($_GET['accept_quote'])){
 
-    $quote_id = intval($_GET['approve_quote']);
+    $quote_id = intval($_GET['accept_quote']);
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Approved', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Accepted', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Approved', history_description = 'Quote approved!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Accepted', history_description = 'Quote accepted!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modified', log_description = 'Approved Quote $quote_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modified', log_description = 'Accepted Quote $quote_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> Quote approved";
+    $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> Quote accepted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if(isset($_GET['reject_quote'])){
+if(isset($_GET['decline_quote'])){
 
-    $quote_id = intval($_GET['reject_quote']);
+    $quote_id = intval($_GET['decline_quote']);
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Rejected', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Declined', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'Quote rejected!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Cancelled', history_description = 'Quote declined!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modified', log_description = 'Rejected Quote $quote_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modified', log_description = 'Declined Quote $quote_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Quote rejected";
+    $_SESSION['alert_message'] = "Quote declined";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

@@ -64,10 +64,12 @@ if(isset($_GET['quote_id'])){
     $quote_badge_color = "warning text-white";
   }elseif($quote_status == "Viewed"){
     $quote_badge_color = "primary";
-  }elseif($quote_status == "Approved"){
+  }elseif($quote_status == "Accepted"){
     $quote_badge_color = "success";
-  }elseif($quote_status == "Cancelled"){
+  }elseif($quote_status == "Declined"){
     $quote_badge_color = "danger";
+  }elseif($quote_status == "Invoiced"){
+    $quote_badge_color = "info";
   }else{
     $quote_badge_color = "secondary";
   }
@@ -103,17 +105,12 @@ if(isset($_GET['quote_id'])){
         </div>
         <?php } ?>
 
-        <?php if($quote_status == 'Sent'){ ?>
-        <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-          <i class="fas fa-fw fa-check"></i> Approve/Reject
-        </button>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="post.php?approve_quote=<?php echo $quote_id; ?>">Approve</a>
-          <a class="dropdown-item" href="post.php?reject_quote=<?php echo $quote_id; ?>">Reject</a>
-        </div>
+        <?php if($quote_status == 'Draft' or $quote_status == 'Sent' or $quote_status == 'Viewed'){ ?>
+        <a class="btn btn-success" href="post.php?accept_quote=<?php echo $quote_id; ?>"><i class="fas fa-fw fa-check"></i> Accept</a>
+        <a class="btn btn-danger" href="post.php?decline_quote=<?php echo $quote_id; ?>"><i class="fas fa-fw fa-times"></i> Decline</a>
         <?php } ?>
 
-        <?php if($quote_status == 'Approved'){ ?>
+        <?php if($quote_status == 'Accepted'){ ?>
           <a class="btn btn-success btn-sm" href="#" data-toggle="modal" data-target="#addQuoteToInvoiceModal<?php echo $quote_id; ?>"><i class="fas fa-fw fa-check"></i> Invoice</a>
         <?php } ?>
 
@@ -121,15 +118,16 @@ if(isset($_GET['quote_id'])){
 
       <div class="col-md-8">
         <div class="dropdown dropleft text-center">
-          <button class="btn btn-primary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button class="btn btn-primary btn-sm float-right" type="button" data-toggle="dropdown">
             <i class="fas fa-ellipsis-h"></i>
           </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <div class="dropdown-menu">
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuoteModal<?php echo $quote_id ?>">Edit</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">Copy</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
             <a class="dropdown-item" href="post.php?pdf_quote=<?php echo $quote_id; ?>">PDF</a>
+            <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send Email</a>
             <a class="dropdown-item" href="guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">Guest URL</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#">Delete</a>

@@ -76,33 +76,23 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
 
     mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Quote Viewed', alert_message = 'Quote $quote_number has been viewed by $client_name - $ip - $os - $browser - $device', alert_date = NOW(), company_id = $company_id");
 
-    //Set Badge color based off of quote status
-    if($quote_status == "Sent"){
-      $quote_badge_color = "warning text-white";
-    }elseif($quote_status == "Viewed"){
-      $quote_badge_color = "info";
-    }elseif($quote_status == "Approved"){
-      $quote_badge_color = "success";
-    }elseif($quote_status == "Cancelled"){
-      $quote_badge_color = "danger";
-    }else{
-      $quote_badge_color = "secondary";
-    }
-
   ?>
 
   <div class="card">
 
     <div class="card-header d-print-none">
+      <div class="float-left">
+        <?php
+        if($quote_status == "Draft" or $quote_status == "Sent" or $quote_status == "Viewed"){
+        ?>
+        <a class="btn btn-success" href="guest_post.php?accept_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-check"></i> Accept</a>
+        <a class="btn btn-danger" href="guest_post.php?decline_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-times"></i> Decline</a>
+        <?php } ?>
+      </div>
+
       <div class="float-right">
         <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
         <a class="btn btn-primary" download target="_blank" href="guest_post.php?pdf_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-download"></i> Download</a>
-        <?php
-        if($quote_status == "Draft" or $quote_status == "Sent"){
-        ?>
-        <a class="btn btn-success" href="guest_post.php?approve_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-thumbs-up"></i> Approve</a>
-        <a class="btn btn-danger" href="guest_post.php?reject_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-thumbs-down"></i> Reject</a>
-        <?php } ?>
       </div>
     </div>
     <div class="card-body">

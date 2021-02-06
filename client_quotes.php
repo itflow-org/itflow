@@ -94,14 +94,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
 
+            //Set Badge color based off of quote status
             if($quote_status == "Sent"){
-              $quote_badge_color = "warning";
+              $quote_badge_color = "warning text-white";
             }elseif($quote_status == "Viewed"){
               $quote_badge_color = "primary";
-            }elseif($quote_status == "Approved"){
+            }elseif($quote_status == "Accepted"){
               $quote_badge_color = "success";
-            }elseif($quote_status == "Rejected"){
+            }elseif($quote_status == "Declined"){
               $quote_badge_color = "danger";
+            }elseif($quote_status == "Invoiced"){
+              $quote_badge_color = "info";
             }else{
               $quote_badge_color = "secondary";
             }
@@ -125,13 +128,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send</a>
-                  <a class="dropdown-item" href="post.php?approve_quote=<?php echo $quote_id; ?>">Approve</a>
-                  <a class="dropdown-item" href="post.php?pdf_quote=<?php echo $quote_id; ?>">PDF</a>
-                  <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuoteModal<?php echo $quote_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">Copy</a>
-                  <div class="dropdown-divider"></div>     
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send</a>
+                  <a class="dropdown-item" href="post.php?pdf_quote=<?php echo $quote_id; ?>">PDF</a>
+                  <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="post.php?delete_quote=<?php echo $quote_id; ?>">Delete</a>
                 </div>
               </div>    
