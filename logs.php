@@ -17,6 +17,13 @@ if(isset($_GET['q'])){
   $q = "";
 }
 
+if($_GET['log'] == "user"){
+  
+  $extended_query = "= users.user_id";
+}else{
+  $extended_query = "IS NULL";
+}
+
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
@@ -51,7 +58,7 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM logs, users 
   WHERE (log_type LIKE '%$q%' OR log_action LIKE '%$q%' OR log_description LIKE '%$q%')
   AND DATE(log_created_at) BETWEEN '$dtf' AND '$dtt'
-  AND (logs.user_id = users.user_id AND logs.user_id IS NULL)
+  AND (logs.user_id $extended_query)
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -60,7 +67,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
   <div class="card-header">
-    <h3 class="card-title"><i class="fa fa-fw fa-book"></i> Logs</h3>
+    <h3 class="card-title"><i class="fa fa-fw fa-book"></i> Logs <?php echo $extended_query; ?></h3>
   </div>
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
@@ -72,6 +79,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>
+          </div>
+        </div>
+        <div class="col-sm-8">
+          <div class="btn-group float-right">
+            <a href="?log=user" class="btn <?php if($log == 'user'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">User</a>
+            <a href="?log=system" class="btn <?php if($log == 'system'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">System</a>
           </div>
         </div>
       </div>
@@ -113,10 +126,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $log_action = $row['log_action'];
             $log_description = $row['log_description'];
             $log_created_at = $row['log_created_at'];
-            $user_id = $row['user_id'];
-            $name = $row['name'];
+            $user_id = $row['logs.user_id'];
+            
             if($user_id == 0){
               $name = "-";
+            }else{
+              $name = $row['name'];
             }
           
           ?>

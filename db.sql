@@ -379,6 +379,7 @@ CREATE TABLE `invoice_items` (
   `item_total` decimal(15,2) NOT NULL,
   `item_created_at` datetime NOT NULL,
   `item_updated_at` datetime DEFAULT NULL,
+  `tax_id` int(11) DEFAULT NULL,
   `quote_id` int(11) DEFAULT NULL,
   `recurring_id` int(11) DEFAULT NULL,
   `invoice_id` int(11) DEFAULT NULL,
@@ -928,4 +929,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-04 21:53:53
+-- Dump completed on 2021-02-06  0:17:15

@@ -1,7 +1,7 @@
 <div class="modal" id="editQuoteItemModal<?php echo $item_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
+      <div class="modal-header">
         <h5 class="modal-title"><i class="fa fa-fw fa-edit mr-2"></i>Edit Line Item: <?php echo $item_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
@@ -67,17 +67,17 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
               </div>
-              <select class="form-control select2" name="tax" required>
-                <option value="0.00">None</option>
+              <select class="form-control select2" name="tax_id" required>
+                <option value="0">None</option>
                 <?php 
                 
                 $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
                 while($row = mysqli_fetch_array($taxes_sql)){
-                  $tax_id = $row['tax_id'];
+                  $tax_id_select = $row['tax_id'];
                   $tax_name = $row['tax_name'];
                   $tax_percent = $row['tax_percent'];
                 ?>
-                  <option value="<?php echo "$tax_percent"; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                  <option <?php if($tax_id_select == $tax_id){ echo "selected"; } ?> value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
                 
                 <?php
                 }

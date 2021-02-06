@@ -1489,8 +1489,9 @@ if(isset($_POST['add_invoice_copy'])){
         $item_subtotal = $row['item_subtotal'];
         $item_tax = $row['item_tax'];
         $item_total = $row['item_total'];
+        $tax_id = $row['tax_id'];
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), tax_id = $tax_id, invoice_id = $new_invoice_id, company_id = $session_company_id");
     }
 
     //Logging
@@ -1532,8 +1533,9 @@ if(isset($_POST['add_invoice_recurring'])){
         $item_subtotal = $row['item_subtotal'];
         $item_tax = $row['item_tax'];
         $item_total = $row['item_total'];
+        $tax_id = $row['tax_id'];
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), recurring_id = $recurring_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), tax_id = $tax_id, recurring_id = $recurring_id, company_id = $session_company_id");
     }
 
     //Logging
@@ -1609,8 +1611,9 @@ if(isset($_POST['add_quote_copy'])){
         $item_subtotal = $row['item_subtotal'];
         $item_tax = $row['item_tax'];
         $item_total = $row['item_total'];
+        $tax_id = $row['tax_id'];
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), quote_id = $new_quote_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), tax_id = $tax_id, quote_id = $new_quote_id, company_id = $session_company_id");
     }
 
     //Logging
@@ -1660,8 +1663,9 @@ if(isset($_POST['add_quote_to_invoice'])){
         $item_subtotal = $row['item_subtotal'];
         $item_tax = $row['item_tax'];
         $item_total = $row['item_total'];
+        $tax_id = $row['tax_id'];
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), tax_id = $tax_id, invoice_id = $new_invoice_id, company_id = $session_company_id");
     }
 
     //Logging
@@ -1681,13 +1685,22 @@ if(isset($_POST['add_quote_item'])){
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
-    $tax = floatval($_POST['tax']);
+    $tax_id = intval($_POST['tax_id']);
     
     $subtotal = $price * $qty;
-    $tax = $subtotal * $tax / 100;
-    $total = $subtotal + $tax;
+    
+    if($tax_id > 0){
+        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $row = mysqli_fetch_array($sql);
+        $tax_percent = $row['tax_percent'];
+        $tax_amount = $subtotal * $tax_percent / 100;
+    }else{
+        $tax_amount = 0;
+    }
+    
+    $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_created_at = NOW(), tax_id = $tax_id, quote_id = $quote_id, company_id = $session_company_id");
 
     //Update Invoice Balances
 
@@ -1725,13 +1738,22 @@ if(isset($_POST['edit_quote_item'])){
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
-    $tax = floatval($_POST['tax']);
-     
+    $tax_id = intval($_POST['tax_id']);
+    
     $subtotal = $price * $qty;
-    $tax = $subtotal * $tax / 100;
-    $total = $subtotal + $tax;
+    
+    if($tax_id > 0){
+        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $row = mysqli_fetch_array($sql);
+        $tax_percent = $row['tax_percent'];
+        $tax_amount = $subtotal * $tax_percent / 100;
+    }else{
+        $tax_amount = 0;
+    }
+    
+    $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total' WHERE item_id = $item_id");
+    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', tax_id = $tax_id WHERE item_id = $item_id");
 
     //Update Invoice Balances by tallying up invoice items
 
@@ -2278,13 +2300,22 @@ if(isset($_POST['add_recurring_item'])){
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
-    $tax = floatval($_POST['tax']);
+    $tax_id = intval($_POST['tax_id']);
     
     $subtotal = $price * $qty;
-    $tax = $subtotal * $tax / 100;
-    $total = $subtotal + $tax;
+    
+    if($tax_id > 0){
+        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $row = mysqli_fetch_array($sql);
+        $tax_percent = $row['tax_percent'];
+        $tax_amount = $subtotal * $tax_percent / 100;
+    }else{
+        $tax_amount = 0;
+    }
+    
+    $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), recurring_id = $recurring_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_created_at = NOW(), tax_id = $tax_id, recurring_id = $recurring_id, company_id = $session_company_id");
 
     //Update Invoice Balances
 
@@ -2322,13 +2353,22 @@ if(isset($_POST['edit_recurring_item'])){
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
-    $tax = floatval($_POST['tax']);
-     
+    $tax_id = intval($_POST['tax_id']);
+    
     $subtotal = $price * $qty;
-    $tax = $subtotal * $tax / 100;
-    $total = $subtotal + $tax;
+    
+    if($tax_id > 0){
+        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $row = mysqli_fetch_array($sql);
+        $tax_percent = $row['tax_percent'];
+        $tax_amount = $subtotal * $tax_percent / 100;
+    }else{
+        $tax_amount = 0;
+    }
+    
+    $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total' WHERE item_id = $item_id");
+    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', tax_id = $tax_id WHERE item_id = $item_id");
 
     //Update Invoice Balances by tallying up invoice items
 
@@ -2448,13 +2488,22 @@ if(isset($_POST['add_invoice_item'])){
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
-    $tax = floatval($_POST['tax']);
+    $tax_id = intval($_POST['tax_id']);
     
     $subtotal = $price * $qty;
-    $tax = $subtotal * $tax / 100;
-    $total = $subtotal + $tax;
+    
+    if($tax_id > 0){
+        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $row = mysqli_fetch_array($sql);
+        $tax_percent = $row['tax_percent'];
+        $tax_amount = $subtotal * $tax_percent / 100;
+    }else{
+        $tax_amount = 0;
+    }
+    
+    $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total', item_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_created_at = NOW(), tax_id = $tax_id, invoice_id = $invoice_id, company_id = $session_company_id");
 
     //Update Invoice Balances
 
@@ -2493,13 +2542,22 @@ if(isset($_POST['edit_invoice_item'])){
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
-    $tax = floatval($_POST['tax']);
-     
+    $tax_id = intval($_POST['tax_id']);
+    
     $subtotal = $price * $qty;
-    $tax = $subtotal * $tax / 100;
-    $total = $subtotal + $tax;
+    
+    if($tax_id > 0){
+        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $row = mysqli_fetch_array($sql);
+        $tax_percent = $row['tax_percent'];
+        $tax_amount = $subtotal * $tax_percent / 100;
+    }else{
+        $tax_amount = 0;
+    }
+    
+    $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax', item_total = '$total' WHERE item_id = $item_id");
+    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', tax_id = $tax_id WHERE item_id = $item_id");
 
     //Update Invoice Balances by tallying up invoice items
 
@@ -3846,21 +3904,43 @@ if(isset($_GET['force_recurring'])){
         $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
         $item_quantity = $row['item_quantity'];
         $item_price = $row['item_price'];
-        $item_subtotal = $row['item_price'];
-        $item_tax = $row['item_tax'];
-        $item_total = $row['item_total'];
+        $item_subtotal = $row['item_subtotal'];
+        $tax_id = $row['tax_id'];
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
+        //Recalculate Item Tax since Tax percents can change.
+        if($tax_id > 0){
+            $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id AND company_id = $session_company_id");
+            $row = mysqli_fetch_array($sql);
+            $tax_percent = $row['tax_percent'];
+            $item_tax_amount = $item_subtotal * $tax_percent / 100;
+        }else{
+            $item_tax_amount = 0;
+        }
+        
+        $item_total = $item_subtotal + $item_tax_amount;
+
+        //Update Recurring Items with new tax
+        mysqli_query($mysqli,"UPDATE invoice_items SET item_tax = '$item_tax_amount', item_total = '$item_total', item_updated_at = NOW(), tax_id = $tax_id WHERE item_id = $item_id");
+
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax_amount', item_total = '$item_total', item_created_at = NOW(), tax_id = $tax_id, invoice_id = $new_invoice_id, company_id = $session_company_id");
     }
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $session_company_id");
 
-    //update the recurring invoice with the new dates
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+    //Update Recurring Balances by tallying up recurring items also update recurring dates
+    $sql_recurring_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS recurring_total FROM invoice_items WHERE recurring_id = $recurring_id");
+    $row = mysqli_fetch_array($sql_recurring_total);
+    $new_recurring_amount = $row['recurring_total'];
+
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
+
+    //Also update the newly created invoice with the new amounts
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_recurring_amount' WHERE invoice_id = $new_invoice_id");
 
     if($config_recurring_auto_send_invoice == 1){
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
+        $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, companies
             WHERE invoices.client_id = clients.client_id
+            AND invoices.company_id = companies.company_id
             AND invoices.invoice_id = $new_invoice_id
             AND invoices.company_id = $session_company_id"
         );
@@ -3883,6 +3963,14 @@ if(isset($_GET['force_recurring'])){
         if(strlen($client_phone)>2){ 
         $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
         }
+        $company_id = $row['company_id'];
+        $company_name = $row['company_name'];
+        $company_phone = $row['company_phone'];
+        if(strlen($company_phone)>2){ 
+            $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
+        }
+        $company_email = $row['company_email'];
+        $company_website = $row['company_website'];
         $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
 
         $mail = new PHPMailer(true);
@@ -3908,7 +3996,7 @@ if(isset($_GET['force_recurring'])){
             $mail->isHTML(true);                                  // Set email format to HTML
 
             $mail->Subject = "Invoice $invoice_number";
-            $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$config_company_phone";
+            $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
 
             $mail->send();
 

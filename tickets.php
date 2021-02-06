@@ -64,8 +64,6 @@
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
-  $total_found_rows = $num_rows[0];
-  $total_pages = ceil($total_found_rows / 10);
 
 ?>
 

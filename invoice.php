@@ -237,6 +237,9 @@ if(isset($_GET['invoice_id'])){
             </thead>
             <tbody>
               <?php
+              
+              $total_tax = 0;
+              $sub_total = 0;
         
               while($row = mysqli_fetch_array($sql_invoice_items)){
                 $item_id = $row['item_id'];
@@ -247,9 +250,8 @@ if(isset($_GET['invoice_id'])){
                 $item_subtotal = $row['item_price'];
                 $item_tax = $row['item_tax'];
                 $item_total = $row['item_total'];
-                $total_tax = 0;
+                $tax_id = $row['tax_id'];
                 $total_tax = $item_tax + $total_tax;
-                $sub_total = 0;
                 $sub_total = $item_price * $item_quantity + $sub_total;
 
               ?>
@@ -283,10 +285,9 @@ if(isset($_GET['invoice_id'])){
                   <td><textarea class="form-control" rows="2" name="description" placeholder="Description"></textarea></td>
                   <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty" placeholder="QTY"></td>
                   <td><input type="number" step="0.01" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
-                  <td>
-                    
-                    <select class="form-control select2" name="tax" required>
-                      <option value="0.00">None</option>
+                  <td>             
+                    <select class="form-control select2" name="tax_id" required>
+                      <option value="0">None</option>
                       <?php 
                       
                       $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
@@ -295,13 +296,12 @@ if(isset($_GET['invoice_id'])){
                         $tax_name = $row['tax_name'];
                         $tax_percent = $row['tax_percent'];
                       ?>
-                        <option value="<?php echo "$tax_percent"; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                        <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
                       
                       <?php
                       }
                       ?>
                     </select>
-
                   </td>
                   <td>
                     <button class="btn btn-link text-success" type="submit" name="add_invoice_item">

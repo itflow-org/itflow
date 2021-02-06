@@ -341,7 +341,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
 
   <?php
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_number DESC");
 
   if(mysqli_num_rows($sql) > 1){
 
@@ -382,7 +382,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo $invoice_number; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td><?php echo $invoice_due; ?> (Due in <?php echo $days; ?> Days)</td>
-                <td class="text-right text-monospace">$<?php echo $invoice_amount; ?></td>
+                <td class="text-right">$<?php echo $invoice_amount; ?></td>
               </tr>
 
             <?php 
