@@ -98,7 +98,7 @@ if(isset($_GET['recurring_id'])){
           <button class="btn btn-primary btn-sm float-right" type="button" data-toggle="dropdown">
             <i class="fas fa-ellipsis-h"></i>
           </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <div class="dropdown-menu">
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringModal<?php echo $recurring_id; ?>">Edit</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="post.php?force_recurring=<?php echo $recurring_id; ?>">Force Send</a>
@@ -195,6 +195,7 @@ if(isset($_GET['recurring_id'])){
                 $item_subtotal = $row['item_price'];
                 $item_tax = $row['item_tax'];
                 $item_total = $row['item_total'];
+                $item_created_at = $row['item_created_at'];
                 $tax_id = $row['tax_id'];
                 $total_tax = $item_tax + $total_tax;
                 $sub_total = $item_price * $item_quantity + $sub_total;

@@ -251,6 +251,7 @@ if(isset($_GET['invoice_id'])){
                 $item_subtotal = $row['item_price'];
                 $item_tax = $row['item_tax'];
                 $item_total = $row['item_total'];
+                $item_created_at = $row['item_created_at'];
                 $tax_id = $row['tax_id'];
                 $total_tax = $item_tax + $total_tax;
                 $sub_total = $item_price * $item_quantity + $sub_total;

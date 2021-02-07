@@ -71,7 +71,7 @@
                 <option value="0.00">None</option>
                 <?php 
                 
-                $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
+                $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE (tax_archived_at > '$item_created_at' OR tax_archived_at IS NULL) AND company_id = $session_company_id ORDER BY tax_name ASC"); 
                 while($row = mysqli_fetch_array($taxes_sql)){
                   $tax_id_select = $row['tax_id'];
                   $tax_name = $row['tax_name'];
