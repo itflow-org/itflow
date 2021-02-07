@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-route mr-2"></i>Edit Trip</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-route"></i> Edit Trip</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>

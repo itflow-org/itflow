@@ -120,6 +120,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $transfer_account_to = $row['transfer_account_to'];
             $transfer_amount = $row['transfer_amount'];
             $transfer_notes = $row['transfer_notes'];
+            $transfer_created_at = $row['transfer_created_at'];
             $expense_id = $row['expense_id'];
             $revenue_id = $row['revenue_id'];
    

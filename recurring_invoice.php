@@ -25,6 +25,7 @@ if(isset($_GET['recurring_id'])){
   $recurring_next_date = $row['recurring_next_date'];
   $recurring_amount = $row['recurring_amount'];
   $recurring_note = $row['recurring_note'];
+  $recurring_created_at = $row['recurring_created_at'];
   $category_id = $row['category_id'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];

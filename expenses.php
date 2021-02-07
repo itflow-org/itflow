@@ -122,6 +122,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $expense_description = $row['expense_description'];
             $expense_receipt = $row['expense_receipt'];
             $expense_reference = $row['expense_reference'];
+            $expense_created_at = $row['expense_created_at'];
             $vendor_id = $row['vendor_id'];
             $vendor_name = $row['vendor_name'];
             $category_id = $row['category_id'];

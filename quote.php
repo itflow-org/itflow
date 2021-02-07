@@ -21,6 +21,7 @@ if(isset($_GET['quote_id'])){
   $quote_amount = $row['quote_amount'];
   $quote_note = $row['quote_note'];
   $quote_url_key = $row['quote_url_key'];
+  $quote_created_at = $row['quote_created_at'];
   $category_id = $row['category_id'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];

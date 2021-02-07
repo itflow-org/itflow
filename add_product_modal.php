@@ -24,7 +24,7 @@
                 <option value="">- Category -</option>
                 <?php 
                 
-                $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND company_id = $session_company_id"); 
+                $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL AND company_id = $session_company_id"); 
                 while($row = mysqli_fetch_array($sql)){
                   $category_id = $row['category_id'];
                   $category_name = $row['category_name'];
@@ -61,7 +61,7 @@
                 <option value="0">None</option>
                 <?php 
                 
-                $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
+                $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_archived_at IS NULL AND company_id = $session_company_id ORDER BY tax_name ASC"); 
                 while($row = mysqli_fetch_array($taxes_sql)){
                   $tax_id = $row['tax_id'];
                   $tax_name = $row['tax_name'];

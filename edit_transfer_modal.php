@@ -2,9 +2,9 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-exchange-alt mr-2"></i>Modify Transfer</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-exchange-alt"></i> Modify Transfer</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
@@ -13,20 +13,21 @@
           <input type="hidden" name="expense_id" value="<?php echo $expense_id; ?>">
           <input type="hidden" name="revenue_id" value="<?php echo $revenue_id; ?>">
           
-          <ul class="nav nav-pills nav-justified mb-3" id="pills-tab<?php echo $transfer_id; ?>">
+          <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-              <a class="nav-link active" id="pills-details-tab<?php echo $transfer_id; ?>" data-toggle="pill" href="#pills-details<?php echo $transfer_id; ?>">Details</a>
+              <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $transfer_id; ?>">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pills-notes-tab<?php echo $transfer_id; ?>" data-toggle="pill" href="#pills-notes<?php echo $transfer_id; ?>">Notes</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $transfer_id; ?>">Notes</a>
             </li>
           </ul>
 
-          <div class="tab-content" id="pills-tabContent<?php echo $transfer_id; ?>">
+          <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-details<?php echo $transfer_id; ?>">
 
               <div class="form-row">
+                
                 <div class="form-group col-sm">
                   <label>Date <strong class="text-danger">*</strong></label>
                   <div class="input-group">
@@ -36,6 +37,7 @@
                     <input type="date" class="form-control" name="date" value="<?php echo $transfer_date; ?>" required>
                   </div>
                 </div>
+                
                 <div class="form-group col-sm">
                   <label>Amount <strong class="text-danger">*</strong></label>
                   <div class="input-group">
@@ -45,7 +47,9 @@
                     <input type="number" class="form-control" step="0.01" min="0" name="amount" placeholder="Amount to transfer" value="<?php echo $transfer_amount; ?>" required>
                   </div>
                 </div>
+              
               </div>
+              
               <div class="form-group">
                 <label>Transfer <strong class="text-danger">*</strong></label>
                 <div class="input-group"> 
@@ -55,7 +59,7 @@
                   <select class="form-control select2" name="account_from" required>
                     <?php 
                     
-                    $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC"); 
+                    $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id ORDER BY account_name ASC"); 
                       while($row = mysqli_fetch_array($sql_accounts)){
                         $account_id_select = $row['account_id'];
                         $account_name_select = $row['account_name'];
@@ -76,7 +80,7 @@
                         $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
                     
                     ?>
-                    <option <?php if($transfer_account_from == $account_id_select){ ?> selected <?php } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                    <option <?php if($transfer_account_from == $account_id_select){ echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance,2); ?>]</option>
                     <?php
                     }
                     
@@ -93,7 +97,7 @@
                   <select class="form-control select2" name="account_to" required>
                     <?php 
                     
-                    $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC"); 
+                    $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id ORDER BY account_name ASC"); 
                     while($row = mysqli_fetch_array($sql2)){
                       $account_id2 = $row['account_id'];
                       $account_name = $row['account_name'];
@@ -114,7 +118,7 @@
                       $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                     ?>
-                    <option <?php if($transfer_account_to == $account_id2){ ?> selected <?php } ?> value="<?php echo $account_id2; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                    <option <?php if($transfer_account_to == $account_id2){ echo "selected"; } ?> value="<?php echo $account_id2; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
                     <?php
                     }
                     

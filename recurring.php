@@ -129,6 +129,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }
             $recurring_next_date = $row['recurring_next_date'];
             $recurring_amount = $row['recurring_amount'];
+            $recurring_created_at = $row['recurring_created_at'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
             $category_id = $row['category_id'];

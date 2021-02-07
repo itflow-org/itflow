@@ -1,6 +1,6 @@
-<?php include("guest_header.php"); ?>
-
 <?php 
+
+include("guest_header.php");
 
 if(isset($_GET['quote_id'], $_GET['url_key'])){
 

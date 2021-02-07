@@ -93,6 +93,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $invoice_date = $row['invoice_date'];
             $invoice_due = $row['invoice_due'];
             $invoice_amount = $row['invoice_amount'];
+            $invoice_created_at = $row['invoice_created_at'];
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
             $now = time();

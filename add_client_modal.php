@@ -61,7 +61,7 @@
                     <option value="">N/A</option>
                     <?php 
                     
-                    $referral_sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Referral' AND company_id = $session_company_id ORDER BY category_name ASC"); 
+                    $referral_sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC"); 
                     while($row = mysqli_fetch_array($referral_sql)){
                       $referral = $row['category_name'];
                     ?>

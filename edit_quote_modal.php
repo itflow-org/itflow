@@ -42,7 +42,7 @@
                 <option value="">- Category -</option>
                 <?php 
                 
-                $sql_income_category = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND company_id = $session_company_id ORDER BY category_name ASC"); 
+                $sql_income_category = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$quote_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC"); 
                 while($row = mysqli_fetch_array($sql_income_category)){
                   $category_id_select = $row['category_id'];
                   $category_name_select = $row['category_name'];

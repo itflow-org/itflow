@@ -156,4 +156,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("footer.php");
+<?php include("footer.php"); ?>

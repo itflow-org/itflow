@@ -59,7 +59,8 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM logs, users
   WHERE (log_type LIKE '%$q%' OR log_action LIKE '%$q%' OR log_description LIKE '%$q%')
   AND DATE(log_created_at) BETWEEN '$dtf' AND '$dtt'
   AND (logs.user_id $extended_query)
-  ORDER BY $sb $o LIMIT $record_from, $record_to");
+  ORDER BY $sb $o LIMIT $record_from, $record_to"
+);
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 

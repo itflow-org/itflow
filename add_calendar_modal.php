@@ -1,10 +1,10 @@
 <div class="modal" id="addCalendarModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
-      <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-fw fa-calendar-plus mr-2"></i>New Calendar</h5>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa fa-fw fa-calendar-plus"></i> New Calendar</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">

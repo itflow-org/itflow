@@ -122,6 +122,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $revenue_date = $row['revenue_date'];
             $revenue_payment_method = $row['revenue_payment_method'];
             $revenue_amount = $row['revenue_amount'];
+            $revenue_created_at = $row['revenue_created_at'];
             $account_id = $row['account_id'];
             $account_name = $row['account_name'];
             $category_id = $row['category_id'];

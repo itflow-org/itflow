@@ -90,6 +90,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $product_name = $row['product_name'];
             $product_description = $row['product_description'];
             $product_cost = $row['product_cost'];
+            $product_created_at = $row['product_created_at'];
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
             $tax_id = $row['tax_id'];

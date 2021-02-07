@@ -1,6 +1,6 @@
-<?php include("header.php"); ?>
-
 <?php 
+
+include("header.php"); 
 
 if(isset($_GET['invoice_id'])){
 
@@ -26,6 +26,7 @@ if(isset($_GET['invoice_id'])){
   $invoice_amount = $row['invoice_amount'];
   $invoice_note = $row['invoice_note'];
   $invoice_url_key = $row['invoice_url_key'];
+  $invoice_created_at = $row['invoice_created_at'];
   $category_id = $row['category_id'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];

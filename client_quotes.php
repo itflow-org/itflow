@@ -91,6 +91,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $quote_status = $row['quote_status'];
             $quote_date = $row['quote_date'];
             $quote_amount = $row['quote_amount'];
+            $quote_created_at $row['quote_created_at'];
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
 

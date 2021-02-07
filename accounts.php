@@ -107,8 +107,10 @@
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>">Edit</a>
+                  <?php if($balance == 0){ //Cannot Archive an Account until it reaches 0 Balance ?>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="post.php?archive_account=<?php echo $account_id; ?>">Archive</a>
+                  <?php } ?>
                 </div>
               </div>      
             </td>

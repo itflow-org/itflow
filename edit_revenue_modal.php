@@ -41,7 +41,7 @@
                 <option value="">- Account -</option>
                 <?php 
                 
-                $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC"); 
+                $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE (account_archived_at > '$revenue_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id  ORDER BY account_name ASC");
                 while($row = mysqli_fetch_array($sql_accounts)){
                   $account_id_select = $row['account_id'];
                   $account_name_select = $row['account_name'];
@@ -81,7 +81,7 @@
                 <option value="">- Category -</option>
                 <?php 
                 
-                $sql_category = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND company_id = $session_company_id ORDER BY category_name ASC"); 
+                $sql_category = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$revenue_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC"); 
                 while($row = mysqli_fetch_array($sql_category)){
                   $category_id_select = $row['category_id'];
                   $category_name = $row['category_name'];
@@ -108,7 +108,7 @@
                 <option value="">- Method of Payment -</option>
                 <?php 
                 
-                $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method' AND company_id = $session_company_id ORDER BY category_name ASC"); 
+                $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method' AND (category_archived_at > '$revenue_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC"); 
                 while($row = mysqli_fetch_array($sql_categories)){
                   $category_name_select = $row['category_name'];
                 ?>

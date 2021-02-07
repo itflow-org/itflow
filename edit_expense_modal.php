@@ -46,7 +46,7 @@
                 <select class="form-control select2" name="account" required>
                   <?php 
                   
-                  $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC"); 
+                  $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE (account_archived_at > '$expense_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id ORDER BY account_name ASC"); 
                   while($row = mysqli_fetch_array($sql_accounts)){
                     $account_id_select = $row['account_id'];
                     $account_name_select = $row['account_name'];
@@ -85,7 +85,7 @@
                 <select class="form-control select2" name="vendor" required>
                   <?php 
                   
-                  $sql_select = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 AND company_id = $session_company_id ORDER BY vendor_name ASC"); 
+                  $sql_select = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 AND (vendor_archived_at > '$expense_created_at' OR vendor_archived_at IS NULL) AND company_id = $session_company_id ORDER BY vendor_name ASC"); 
                   while($row = mysqli_fetch_array($sql_select)){
                     $vendor_id_select = $row['vendor_id'];
                     $vendor_name_select = $row['vendor_name'];
@@ -120,7 +120,7 @@
                 <select class="form-control select2" name="category" required>
                   <?php 
                   
-                  $sql_select = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense' AND company_id = $session_company_id ORDER BY category_name ASC"); 
+                  $sql_select = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense' AND (category_archived_at > '$expense_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC"); 
                   while($row = mysqli_fetch_array($sql_select)){
                     $category_id_select = $row['category_id'];
                     $category_name_select = $row['category_name'];

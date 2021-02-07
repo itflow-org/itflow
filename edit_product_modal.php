@@ -24,7 +24,7 @@
               <select class="form-control select2" name="category" required>
                 <?php 
                 
-                $sql_select = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND company_id = $session_company_id"); 
+                $sql_select = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$product_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id"); 
                 while($row = mysqli_fetch_array($sql_select)){
                   $category_id_select = $row['category_id'];
                   $category_name_select = $row['category_name'];
@@ -61,7 +61,7 @@
                 <option value="0">None</option>
                 <?php 
                 
-                $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
+                $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE (tax_archived_at > '$product_created_at' OR tax_archived_at IS NULL) AND company_id = $session_company_id ORDER BY tax_name ASC"); 
                 while($row = mysqli_fetch_array($taxes_sql)){
                   $tax_id_select = $row['tax_id'];
                   $tax_name = $row['tax_name'];
