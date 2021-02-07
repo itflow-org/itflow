@@ -3292,7 +3292,7 @@ if(isset($_POST['add_contact'])){
     mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_notes = '$notes', contact_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Contact added";
     
@@ -3336,13 +3336,27 @@ if(isset($_POST['edit_contact'])){
 
 }
 
+if(isset($_GET['archive_contact'])){
+    $contact_id = intval($_GET['archive_contact']);
+
+    mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NOW() WHERE contact_id = $contact_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$contact_id', log_created_at = NOW()");
+
+    $_SESSION['alert_message'] = "Contact Archived!";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_GET['delete_contact'])){
     $contact_id = intval($_GET['delete_contact']);
 
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Deleted', log_description = '$contact_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$contact_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Contact deleted";
     

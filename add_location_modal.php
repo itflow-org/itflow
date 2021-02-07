@@ -62,7 +62,7 @@
                     <option value="">- Contact -</option>
                     <?php 
                     
-                    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_name ASC"); 
+                    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_archived_at IS NULL AND client_id = $client_id ORDER BY contact_name ASC"); 
                     while($row = mysqli_fetch_array($sql_vendors)){
                       $contact_id = $row['contact_id'];
                       $contact_name = $row['contact_name'];

@@ -117,7 +117,7 @@
                     <option value="">- Location -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE client_id = $client_id ORDER BY location_name ASC"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_archived_at IS NULL AND client_id = $client_id ORDER BY location_name ASC"); 
                     while($row = mysqli_fetch_array($sql)){
                       $location_id = $row['location_id'];
                       $location_name = $row['location_name'];
@@ -141,7 +141,7 @@
                     <option value="">- Contact -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_name ASC"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_archived_at IS NULL AND client_id = $client_id ORDER BY contact_name ASC"); 
                     while($row = mysqli_fetch_array($sql)){
                       $contact_id = $row['contact_id'];
                       $contact_name = $row['contact_name'];
@@ -165,7 +165,7 @@
                     <option value="">- Network -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM networks WHERE client_id = $client_id ORDER BY network_name ASC"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_archived_at IS NULL AND client_id = $client_id ORDER BY network_name ASC"); 
                     while($row = mysqli_fetch_array($sql)){
                       $network_id = $row['network_id'];
                       $network_name = $row['network_name'];
@@ -215,7 +215,7 @@
                     <option value="">- Vendor -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id ORDER BY vendor_name ASC"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND client_id = $client_id ORDER BY vendor_name ASC"); 
                     while($row = mysqli_fetch_array($sql)){
                       $vendor_id = $row['vendor_id'];
                       $vendor_name = $row['vendor_name'];
