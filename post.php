@@ -413,12 +413,13 @@ if(isset($_POST['edit_default_settings'])){
 if(isset($_POST['edit_alert_settings'])){
 
     $config_enable_cron = intval($_POST['config_enable_cron']);
-    $config_enable_alert_domain_expire = intval('config_enable_alert_domain_expire');
-    $config_enable_alert_low_balance = intval('config_enable_alert_low_balance');
+    $config_enable_alert_domain_expire = intval($_POST['config_enable_alert_domain_expire']);
+    $config_enable_alert_low_balance = intval($_POST['config_enable_alert_low_balance']);
     $config_send_invoice_reminders = intval($_POST['config_send_invoice_reminders']);
     $config_invoice_overdue_reminders = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_overdue_reminders']));
+    $config_account_balance_threshold = preg_replace("/[^0-9]/", '',$_POST['config_account_balance_threshold']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_enable_cron = $config_enable_cron, config_enable_alert_domain_expire = $config_enable_alert_domain_expire, config_enable_alert_low_balance = $config_enable_alert_low_balance WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_enable_cron = $config_enable_cron, config_enable_alert_domain_expire = $config_enable_alert_domain_expire, config_enable_alert_low_balance = $config_enable_alert_low_balance, config_account_balance_threshold = '$config_account_balance_threshold' WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Alerts', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -4110,7 +4111,7 @@ if(isset($_GET['force_recurring'])){
 
 if(isset($_GET['export_trips_csv'])){
     //get records from database
-    $query = $db->query("SELECT * FROM trips ORDER BY trip_date DESC");
+    $query = $db->query("SELECT * FROM trips WHERE company_id = $session_company_id ORDER BY trip_date DESC");
 
     if($query->num_rows > 0){
         $delimiter = ",";

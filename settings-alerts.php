@@ -39,8 +39,8 @@
       </div>
 
       <div class="custom-control custom-switch mb-2">
-        <input type="checkbox" class="custom-control-input" name="config_send_invoice_reminders" <?php if($config_send_invoice_reminders == 1){ echo "checked"; } ?> value="1" id="customSwitch1">
-        <label class="custom-control-label" for="customSwitch1">Send Invoice Reminders</label>
+        <input type="checkbox" class="custom-control-input" name="config_send_invoice_reminders" <?php if($config_send_invoice_reminders == 1){ echo "checked"; } ?> value="1" id="customSwitch4">
+        <label class="custom-control-label" for="customSwitch4">Send Invoice Reminders</label>
       </div>
 
       <?php if($config_send_invoice_reminders == 1){ ?>

@@ -81,6 +81,12 @@
             </div>
           </div>
         </div>
+        <div class="col-sm-8">
+          <div class="float-right">
+            <a href="post.php?export_trips_csv" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
+            <a href="post.php?import_trips_csv" class="btn btn-default"><i class="fa fa-fw fa-upload"></i> Import</a>
+          </div>
+        </div>
       </div>
       <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
         <div class="row">
