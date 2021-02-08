@@ -112,7 +112,10 @@
             );
             $row = mysqli_fetch_array($sql_last_login);
             $log_created_at = $row['log_created_at'];
-            $log_description = $row['log_description'];
+            $last_login = $row['log_description'];
+            if(empty($last_login)){
+              $last_login = "Never logged in"; 
+            }
   
           ?>
           <tr>
