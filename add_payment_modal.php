@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-credit-card"></i> <?php echo $invoice_number; ?>: Add Payment</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-credit-card"></i> <?php echo "$invoice_prefix$invoice_number"; ?>: Add Payment</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>

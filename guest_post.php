@@ -24,6 +24,7 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
         $row = mysqli_fetch_array($sql);
 
         $invoice_id = $row['invoice_id'];
+        $invoice_prefix = $row['invoice_prefix'];
         $invoice_number = $row['invoice_number'];
         $invoice_status = $row['invoice_status'];
         $invoice_date = $row['invoice_date'];
@@ -140,7 +141,7 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
             <table width="100%"><tr>
             <td width="15%"><img width="75" height="75" src=" /'.$company_logo.' "></img></td>
             <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$company_address.' <br /> '.$company_city.' '.$company_state.' '.$company_zip.'<br /> '.$company_phone.' </td>
-            <td width="35%" style="text-align: right;">Invoice No.<br /><span style="font-weight: bold; font-size: 12pt;"> '.$invoice_number.' </span></td>
+            <td width="35%" style="text-align: right;">Invoice No.<br /><span style="font-weight: bold; font-size: 12pt;"> '."$invoice_prefix$invoice_number".' </span></td>
             </tr></table>
             </htmlpageheader>
             <htmlpagefooter name="myfooter">
@@ -244,6 +245,7 @@ if(isset($_GET['pdf_quote'], $_GET['url_key'])){
         $row = mysqli_fetch_array($sql);
         
         $quote_id = $row['quote_id'];
+        $quote_prefix = $row['quote_prefix'];
         $quote_number = $row['quote_number'];
         $quote_status = $row['quote_status'];
         $quote_date = $row['quote_date'];
@@ -348,7 +350,7 @@ if(isset($_GET['pdf_quote'], $_GET['url_key'])){
         <table width="100%"><tr>
         <td width="15%"><img width="75" height="75" src=" /'.$company_logo.' "></img></td>
         <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$company_address.' <br /> '.$company_city.' '.$company_state.' '.$company_zip.'<br /> '.$company_phone.' </td>
-        <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> '.$quote_number.' </span></td>
+        <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> '."$quote_prefix$quote_number".' </span></td>
         </tr></table>
         </htmlpageheader>
         <htmlpagefooter name="myfooter">

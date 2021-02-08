@@ -362,13 +362,14 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
           	while($row = mysqli_fetch_array($sql_latest_invoice_payments)){
 	            $payment_date = $row['payment_date'];
 	            $payment_amount = $row['payment_amount'];
-	            $invoice_number = $row['invoice_number'];
+	            $invoice_prefix = $row['invoice_prefix'];
+              $invoice_number = $row['invoice_number'];
 	            $client_name = $row['client_name'];
 		        ?>
             <tr>
               <td><?php echo $payment_date; ?></td>
               <td><?php echo $client_name; ?></td>
-              <td><?php echo $invoice_number; ?></td>
+              <td><?php echo "$invoice_prefix$invoice_number"; ?></td>
               <td class="text-right">$<?php echo number_format($payment_amount,2); ?></td>
             </tr>
             <?php

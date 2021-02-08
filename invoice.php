@@ -18,6 +18,7 @@ if(isset($_GET['invoice_id'])){
 
   $row = mysqli_fetch_array($sql);
   $invoice_id = $row['invoice_id'];
+  $invoice_prefix = $row['invoice_prefix'];
   $invoice_number = $row['invoice_number'];
   $invoice_scope = $row['invoice_scope'];
   $invoice_status = $row['invoice_status'];
@@ -106,7 +107,7 @@ if(isset($_GET['invoice_id'])){
   <li class="breadcrumb-item">
     <a href="client.php?client_id=<?php echo $client_id; ?>&tab=invoices"><?php echo $client_name; ?></a>
   </li>
-  <li class="breadcrumb-item active"><?php echo $invoice_number; ?></li>
+  <li class="breadcrumb-item active"><?php echo "$invoice_prefix$invoice_number"; ?></li>
   <?php if(isset($invoice_overdue)){ ?>
   <span class="p-2 ml-2 badge badge-danger"><?php echo $invoice_overdue; ?></span>
   <?php } ?>
@@ -175,7 +176,7 @@ if(isset($_GET['invoice_id'])){
             <?php echo $invoice_status; ?>
           </div>
         </div>
-        <h3 class="text-right mt-5"><strong>Invoice</strong><br><small class="text-secondary"><?php echo $invoice_number; ?></small></h3>
+        <h3 class="text-right mt-5"><strong>Invoice</strong><br><small class="text-secondary"><?php echo "$invoice_prefix$invoice_number"; ?></small></h3>
       </div>
       
         

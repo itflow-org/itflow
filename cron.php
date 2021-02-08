@@ -84,6 +84,7 @@ while($row = mysqli_fetch_array($sql_companies)){
             
       while($row = mysqli_fetch_array($sql)){
         $invoice_id = $row['invoice_id'];
+        $invoice_prefix = $row['invoice_prefix'];
         $invoice_number = $row['invoice_number'];
         $invoice_status = $row['invoice_status'];
         $invoice_date = $row['invoice_date'];
@@ -95,7 +96,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         $client_email = $row['client_email'];
 
 
-        mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice', alert_message = 'Invoice $invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', alert_date = NOW(), company_id = $company_id");
+        mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice', alert_message = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', alert_date = NOW(), company_id = $company_id");
 
         $mail = new PHPMailer(true);
 
@@ -119,10 +120,10 @@ while($row = mysqli_fetch_array($sql_companies)){
           // Content
           $mail->isHTML(true);                                  // Set email format to HTML
 
-          $mail->Subject = "Overdue Invoice $invoice_number";
-          $mail->Body    = "Hello $client_name,<br><br>According to our records, we have not received payment for invoice $invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $company_phone.
+          $mail->Subject = "Overdue Invoice $invoice_prefix$invoice_number";
+          $mail->Body    = "Hello $client_name,<br><br>According to our records, we have not received payment for invoice $invoice_prefix$invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $company_phone.
             <br><br>
-            Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+            Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
           
           $mail->send();
 
@@ -189,14 +190,14 @@ while($row = mysqli_fetch_array($sql_companies)){
       $row = mysqli_fetch_array($sql_invoice_number);
       $config_invoice_next_number = $row['config_invoice_next_number'];
       
-      $new_invoice_number = "$config_invoice_prefix$config_invoice_next_number";
+      $new_invoice_number = $config_invoice_next_number;
       $new_config_invoice_next_number = $config_invoice_next_number + 1;
       mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $company_id");
 
       //Generate a unique URL key for clients to access
       $url_key = keygen();
 
-      mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$new_invoice_number', invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $company_id");
+      mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = '$new_invoice_number', invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $company_id");
 
       $new_invoice_id = mysqli_insert_id($mysqli);
       
@@ -252,6 +253,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         );
 
         $row = mysqli_fetch_array($sql);
+        $invoice_prefix = $row['invoice_prefix'];
         $invoice_number = $row['invoice_number'];
         $invoice_date = $row['invoice_date'];
         $invoice_due = $row['invoice_due'];
@@ -291,8 +293,8 @@ while($row = mysqli_fetch_array($sql_companies)){
           // Content
           $mail->isHTML(true);                                  // Set email format to HTML
 
-          $mail->Subject = "Invoice $invoice_number";
-          $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+          $mail->Subject = "Invoice $invoice_prefix$invoice_number";
+          $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
           
           $mail->send();
 

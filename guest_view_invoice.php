@@ -19,6 +19,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
 
     $row = mysqli_fetch_array($sql);
     $invoice_id = $row['invoice_id'];
+    $invoice_prefix = $row['invoice_prefix'];
     $invoice_number = $row['invoice_number'];
     $invoice_status = $row['invoice_status'];
     $invoice_date = $row['invoice_date'];
@@ -139,7 +140,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
             </div>
           </div>
           <?php } ?>
-          <h3 class="text-right mt-5"><strong>Invoice</strong><br><small class="text-secondary"><?php echo $invoice_number; ?></small></h3>
+          <h3 class="text-right mt-5"><strong>Invoice</strong><br><small class="text-secondary"><?php echo "$invoice_prefix$invoice_number"; ?></small></h3>
         </div>
       </div>
       <div class="row mb-4">
@@ -252,23 +253,23 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
             <tbody>    
               <tr class="border-bottom">
                 <td>Subtotal</td>
-                <td class="text-right text-monospace">$<?php echo number_format($sub_total,2); ?></td>
+                <td class="text-right">$<?php echo number_format($sub_total,2); ?></td>
               </tr>
               <?php if($total_tax > 0){ ?>
               <tr class="border-bottom">
                 <td>Tax</td>
-                <td class="text-right text-monospace">$<?php echo number_format($total_tax,2); ?></td>        
+                <td class="text-right">$<?php echo number_format($total_tax,2); ?></td>        
               </tr>
               <?php } ?>
               <?php if($amount_paid > 0){ ?>
               <tr class="border-bottom">
                 <td><div class="text-success">Paid to Date</div></td>
-                <td class="text-right text-monospace text-success">$<?php echo number_format($amount_paid,2); ?></td>
+                <td class="text-right text-success">$<?php echo number_format($amount_paid,2); ?></td>
               </tr>
               <?php } ?>
               <tr class="border-bottom">
                 <td><strong>Balance Due</strong></td>
-                <td class="text-right text-monospace"><strong>$<?php echo number_format($balance,2); ?></strong></td>
+                <td class="text-right"><strong>$<?php echo number_format($balance,2); ?></strong></td>
               </tr>
             </tbody>
           </table>
@@ -309,6 +310,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
       
             while($row = mysqli_fetch_array($sql)){
               $invoice_id = $row['invoice_id'];
+              $invoice_prefix = $row['invoice_prefix'];
               $invoice_number = $row['invoice_number'];
               $invoice_date = $row['invoice_date'];
               $invoice_due = $row['invoice_due'];
@@ -321,10 +323,10 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
             ?>
 
               <tr>
-                <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo $invoice_number; ?></a></th>
+                <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td class="text-danger text-bold"><?php echo $invoice_due; ?> (<?php echo $days; ?> Days Late)</td>
-                <td class="text-right text-monospace">$<?php echo $invoice_amount; ?></td>
+                <td class="text-right">$<?php echo $invoice_amount; ?></td>
               </tr>
 
             <?php 
@@ -367,6 +369,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
       
             while($row = mysqli_fetch_array($sql)){
               $invoice_id = $row['invoice_id'];
+              $invoice_prefix = $row['invoice_prefix'];
               $invoice_number = $row['invoice_number'];
               $invoice_date = $row['invoice_date'];
               $invoice_due = $row['invoice_due'];
@@ -379,7 +382,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
             ?>
 
               <tr>
-                <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo $invoice_number; ?></a></th>
+                <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td><?php echo $invoice_due; ?> (Due in <?php echo $days; ?> Days)</td>
                 <td class="text-right">$<?php echo $invoice_amount; ?></td>
@@ -426,6 +429,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
       
             while($row = mysqli_fetch_array($sql)){
               $invoice_id = $row['invoice_id'];
+              $invoice_prefix = $row['invoice_prefix'];
               $invoice_number = $row['invoice_number'];
               $invoice_date = $row['invoice_date'];
               $invoice_due = $row['invoice_due'];
@@ -436,10 +440,10 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
             ?>
 
               <tr class="bg-light">
-                <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo $invoice_number; ?></a></th>
+                <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td><?php echo $invoice_due; ?></td>
-                <td class="text-right text-monospace">$<?php echo $invoice_amount; ?></td>
+                <td class="text-right">$<?php echo $invoice_amount; ?></td>
               </tr>
 
               <tr>

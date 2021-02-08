@@ -412,7 +412,8 @@ DROP TABLE IF EXISTS `invoices`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `invoices` (
   `invoice_id` int(11) NOT NULL AUTO_INCREMENT,
-  `invoice_number` varchar(20) NOT NULL,
+  `invoice_prefix` varchar(200) DEFAULT NULL,
+  `invoice_number` int(11) NOT NULL,
   `invoice_scope` varchar(255) DEFAULT NULL,
   `invoice_status` varchar(200) NOT NULL,
   `invoice_date` date NOT NULL,
@@ -609,7 +610,8 @@ DROP TABLE IF EXISTS `quotes`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `quotes` (
   `quote_id` int(11) NOT NULL AUTO_INCREMENT,
-  `quote_number` varchar(200) NOT NULL,
+  `quote_prefix` varchar(200) DEFAULT NULL,
+  `quote_number` int(11) NOT NULL,
   `quote_scope` varchar(255) DEFAULT NULL,
   `quote_status` varchar(200) NOT NULL,
   `quote_date` date NOT NULL,
@@ -965,4 +967,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-06 16:02:57
+-- Dump completed on 2021-02-08 16:56:33

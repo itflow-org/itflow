@@ -14,6 +14,7 @@ if(isset($_GET['quote_id'])){
 
   $row = mysqli_fetch_array($sql);
   $quote_id = $row['quote_id'];
+  $quote_prefix = $row['quote_prefix'];
   $quote_number = $row['quote_number'];
   $quote_scope = $row['quote_scope'];
   $quote_status = $row['quote_status'];
@@ -84,7 +85,7 @@ if(isset($_GET['quote_id'])){
   <li class="breadcrumb-item">
     <a href="client.php?client_id=<?php echo $client_id; ?>&tab=quotes"><?php echo $client_name; ?></a>
   </li>
-  <li class="breadcrumb-item active"><?php echo $quote_number; ?></li>
+  <li class="breadcrumb-item active"><?php echo "$quote_prefix$quote_number"; ?></li>
   <span class="ml-3 p-2 badge badge-<?php echo $quote_badge_color; ?>"><?php echo $quote_status; ?></span>
 </ol>
 
@@ -145,7 +146,7 @@ if(isset($_GET['quote_id'])){
         <img class="img-fluid" src="<?php echo $company_logo; ?>">
       </div>
       <div class="col-sm-10">
-        <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo $quote_number; ?></small></h3>
+        <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo "$quote_prefix$quote_number"; ?></small></h3>
       </div>
     </div>
     <div class="row mb-4">

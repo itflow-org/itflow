@@ -69,7 +69,7 @@
   }
 
   if(!empty($_GET['sb'])){
-    $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+    $sb = $_GET['sb'];
   }else{
     $sb = "invoice_number";
   }
@@ -229,6 +229,7 @@
       
           while($row = mysqli_fetch_array($sql)){
             $invoice_id = $row['invoice_id'];
+            $invoice_prefix = $row['invoice_prefix'];
             $invoice_number = $row['invoice_number'];
             $invoice_scope = $row['invoice_scope'];
             $invoice_status = $row['invoice_status'];
@@ -270,7 +271,7 @@
           ?>
 
           <tr>
-            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo $invoice_number; ?></a></td>
+            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
             <td><?php echo $invoice_scope; ?></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=invoices"><?php echo $client_name; ?></a></td>
             <td class="text-right">$<?php echo number_format($invoice_amount,2); ?></td>

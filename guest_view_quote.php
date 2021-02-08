@@ -20,6 +20,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     $row = mysqli_fetch_array($sql);
 
     $quote_id = $row['quote_id'];
+    $quote_prefix = $row['quote_prefix'];
     $quote_number = $row['quote_number'];
     $quote_status = $row['quote_status'];
     $quote_date = $row['quote_date'];
@@ -102,7 +103,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
           <img class="img-fluid" src="<?php echo $company_logo; ?>">
         </div>
         <div class="col-sm-10">
-          <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo $quote_number; ?></small></h3>
+          <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo "$quote_prefix$quote_number"; ?></small></h3>
         </div>
       </div>
 

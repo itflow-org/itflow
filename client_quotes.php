@@ -86,6 +86,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $quote_id = $row['quote_id'];
+            $quote_prefix = $row['quote_prefix'];
             $quote_number = $row['quote_number'];
             $quote_scope = $row['quote_scope'];
             $quote_status = $row['quote_status'];
@@ -113,7 +114,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           ?>
 
           <tr>
-            <td><a href="quote.php?quote_id=<?php echo $quote_id; ?>"><?php echo $quote_number; ?></a></td>
+            <td><a href="quote.php?quote_id=<?php echo $quote_id; ?>"><?php echo "$quote_prefix$quote_number"; ?></a></td>
             <td><?php echo $quote_scope; ?></td>
             <td class="text-right">$<?php echo number_format($quote_amount,2); ?></td>
             <td><?php echo $quote_date; ?></td>

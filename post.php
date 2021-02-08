@@ -1530,20 +1530,20 @@ if(isset($_POST['add_invoice'])){
     $client_net_terms = $row['client_net_terms'];
     
     //Get the last Invoice Number and add 1 for the new invoice number
-    $invoice_number = "$config_invoice_prefix$config_invoice_next_number";
+    $invoice_number = $config_invoice_next_number;
     $new_config_invoice_next_number = $config_invoice_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
 
     //Generate a unique URL key for clients to access
     $url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_scope = '$scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client, company_id = $session_company_id");
     $invoice_id = mysqli_insert_id($mysqli);
     
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'INVOICE added!', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
     
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Created', log_description = '$invoice_number', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Created', log_description = '$config_invoice_prefix$invoice_number', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Invoice added";
     
@@ -1579,7 +1579,7 @@ if(isset($_POST['add_invoice_copy'])){
     $row = mysqli_fetch_array($sql);
     $client_net_terms = $row['client_net_terms'];
 
-    $invoice_number = "$config_invoice_prefix$config_invoice_next_number";
+    $invoice_number = $config_invoice_next_number;
     $new_config_invoice_next_number = $config_invoice_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
 
@@ -1594,7 +1594,7 @@ if(isset($_POST['add_invoice_copy'])){
     //Generate a unique URL key for clients to access
     $url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_scope = '$invoice_scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id") or die(mysql_error());
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$invoice_scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_note = '$invoice_note', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id") or die(mysql_error());
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -1675,22 +1675,22 @@ if(isset($_POST['add_quote'])){
     $category = intval($_POST['category']);
     $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
     
-    //Get the last Invoice Number and add 1 for the new invoice number
-    $quote_number = "$config_quote_prefix$config_quote_next_number";
+    //Get the last Quote Number and add 1 for the new Quote number
+    $quote_number = $config_quote_next_number;
     $new_config_quote_next_number = $config_quote_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_quote_next_number = $new_config_quote_next_number WHERE company_id = $session_company_id");
 
     //Generate a unique URL key for clients to access
     $quote_url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = '$quote_number', quote_scope = '$scope', quote_date = '$date', category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_created_at = NOW(), client_id = $client, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$scope', quote_date = '$date', category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_created_at = NOW(), client_id = $client, company_id = $session_company_id");
 
     $quote_id = mysqli_insert_id($mysqli);
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Quote created!', history_created_at = NOW(), quote_id = $quote_id, company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Created', log_description = '$quote_number', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Created', log_description = '$quote_prefix$quote_number', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Quote added";
     
@@ -1704,7 +1704,7 @@ if(isset($_POST['add_quote_copy'])){
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     
     //Get the last Invoice Number and add 1 for the new invoice number
-    $quote_number = "$config_quote_prefix$config_quote_next_number";
+    $quote_number = $config_quote_next_number;
     $new_config_quote_next_number = $config_quote_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_quote_next_number = $new_config_quote_next_number WHERE company_id = $session_company_id");
 
@@ -1716,7 +1716,7 @@ if(isset($_POST['add_quote_copy'])){
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_number = '$quote_number', quote_scope = '$quote_scope', quote_date = '$date', category_id = $category_id, quote_status = 'Draft', quote_amount = '$quote_amount', quote_note = '$quote_note', quote_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$quote_scope', quote_date = '$date', category_id = $category_id, quote_status = 'Draft', quote_amount = '$quote_amount', quote_note = '$quote_note', quote_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $new_quote_id = mysqli_insert_id($mysqli);
 
@@ -1752,7 +1752,7 @@ if(isset($_POST['add_quote_to_invoice'])){
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $client_net_terms = intval($_POST['client_net_terms']);
     
-    $invoice_number = "$config_invoice_prefix$config_invoice_next_number";
+    $invoice_number = $config_invoice_next_number;
     $new_config_invoice_next_number = $config_invoice_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
 
@@ -1768,7 +1768,7 @@ if(isset($_POST['add_quote_to_invoice'])){
     //Generate a unique URL key for clients to access
     $url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$invoice_number', invoice_scope = '$quote_scope', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$quote_scope', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_note = '$quote_note', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -1991,6 +1991,7 @@ if(isset($_GET['pdf_quote'])){
 
     $row = mysqli_fetch_array($sql);
     $quote_id = $row['quote_id'];
+    $quote_prefix = $row['quote_prefix'];
     $quote_number = $row['quote_number'];
     $quote_status = $row['quote_status'];
     $quote_date = $row['quote_date'];
@@ -2100,7 +2101,7 @@ if(isset($_GET['pdf_quote'])){
     <table width="100%"><tr>
     <td width="15%"><img width="75" height="75" src=" /'.$company_logo.' "></img></td>
     <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$company_address.' <br /> '.$company_city.' '.$company_state.' '.$company_zip.'<br /> '.$company_phone.' </td>
-    <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> '.$quote_number.' </span></td>
+    <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> '."quote_prefix$quote_number".' </span></td>
     </tr></table>
     </htmlpageheader>
     <htmlpagefooter name="myfooter">
@@ -2187,6 +2188,7 @@ if(isset($_GET['email_quote'])){
 
     $row = mysqli_fetch_array($sql);
     $quote_id = $row['quote_id'];
+    $quote_prefix = $row['quote_prefix'];
     $quote_number = $row['quote_number'];
     $quote_status = $row['quote_status'];
     $quote_date = $row['quote_date'];
@@ -2873,6 +2875,7 @@ if(isset($_GET['email_invoice'])){
 
     $row = mysqli_fetch_array($sql);
     $invoice_id = $row['invoice_id'];
+    $invoice_prefix = $row['invoice_prefix'];
     $invoice_number = $row['invoice_number'];
     $invoice_status = $row['invoice_status'];
     $invoice_date = $row['invoice_date'];
@@ -2939,20 +2942,20 @@ if(isset($_GET['email_invoice'])){
         
         if($invoice_status == 'Paid'){
 
-            $mail->Subject = "Invoice $invoice_number Copy";
+            $mail->Subject = "Invoice $invoice_prefix$invoice_number Copy";
             $mail->Body    = "Hello $client_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Automated Billing Department<br>$company_phone";
 
         }else{
 
-            $mail->Subject = "Invoice $invoice_number";
-            $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Balance Due: $$balance<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+            $mail->Subject = "Invoice $invoice_prefix$invoice_number";
+            $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Balance Due: $$balance<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
             //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         }
         
         $mail->send();
         echo 'Message has been sent';
 
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed Invoice!', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Emailed invoice', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $session_company_id");
 
         //Don't chnage the status to sent if the status is anything but draf
         if($invoice_status == 'Draft'){
@@ -2962,7 +2965,7 @@ if(isset($_GET['email_invoice'])){
         }
 
         //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Emailed', log_description = 'Invoice $invoice_number emailed to $client_email', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Emailed', log_description = 'Invoice $invoice_prefix$invoice_number emailed to $client_email', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
         $_SESSION['alert_message'] = "Invoice has been sent";
 
@@ -3044,6 +3047,7 @@ if(isset($_GET['pdf_invoice'])){
 
     $row = mysqli_fetch_array($sql);
     $invoice_id = $row['invoice_id'];
+    $invoice_prefix = $row['invoice_prefix'];
     $invoice_number = $row['invoice_number'];
     $invoice_status = $row['invoice_status'];
     $invoice_date = $row['invoice_date'];
@@ -3157,7 +3161,7 @@ if(isset($_GET['pdf_invoice'])){
         <table width="100%"><tr>
         <td width="15%"><img width="75" height="75" src=" /'.$company_logo.' "></img></td>
         <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$company_address.' <br /> '.$company_city.' '.$company_state.' '.$company_zip.'<br /> '.$company_phone.' </td>
-        <td width="35%" style="text-align: right;">Invoice No.<br /><span style="font-weight: bold; font-size: 12pt;"> '.$invoice_number.' </span></td>
+        <td width="35%" style="text-align: right;">Invoice No.<br /><span style="font-weight: bold; font-size: 12pt;"> '."$invoice_prefix$invoice_number".' </span></td>
         </tr></table>
         </htmlpageheader>
         <htmlpagefooter name="myfooter">
@@ -3964,14 +3968,14 @@ if(isset($_GET['force_recurring'])){
     $client_net_terms = $row['client_net_terms'];
 
     //Get the last Invoice Number and add 1 for the new invoice number
-    $new_invoice_number = "$config_invoice_prefix$config_invoice_next_number";
+    $new_invoice_number = $config_invoice_next_number;
     $new_config_invoice_next_number = $config_invoice_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
 
     //Generate a unique URL key for clients to access
     $url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_number = '$new_invoice_number', invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = '$new_invoice_number', invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_note = '$recurring_note', category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
