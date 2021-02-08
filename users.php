@@ -137,7 +137,7 @@
             <td><a href="mailto:<?php echo $email; ?>"><?php echo $email; ?></a></td>
             <td><?php echo $permission_level_display; ?></td>
             <td>-</td>
-            <td><?php echo $log_created_at; ?> <br> <small class="text-secondary"><?php echo $log_description; ?></small></td>
+            <td><?php echo $log_created_at; ?> <br> <small class="text-secondary"><?php echo $last_login; ?></small></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
