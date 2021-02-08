@@ -101,7 +101,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <td><?php echo $payment_date; ?></td>
             <td><?php echo $invoice_date; ?></td>
-            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo $invoice_number; ?></a></td>
+            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
             <td class="text-right">$<?php echo number_format($invoice_amount,2); ?></td>
             <td class="text-right">$<?php echo number_format($payment_amount,2); ?></td>
             <td><?php echo $payment_method; ?></td>
