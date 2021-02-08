@@ -68,6 +68,12 @@
             </div>
           </div>
 
+          <?php if(isset($client_id)){ ?>
+
+          <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+
+          <?php }else{ ?>
+
           <div class="form-group">
             <label>Client</label>
             <div class="input-group">
@@ -92,6 +98,8 @@
               </select>
             </div>
           </div>
+            
+          <?php } ?>
 
           <div class="custom-control custom-checkbox">
             <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_event" value="1" >
