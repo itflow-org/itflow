@@ -32,9 +32,8 @@ if(isset($_POST['add_user'])){
     $password = md5($_POST['password']);
     $company = intval($_POST['company']);
     $level = intval($_POST['level']);
-    $client_id = intval($_POST['client']);
 
-    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', default_company = $company, created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', created_at = NOW()");
 
     $user_id = mysqli_insert_id($mysqli);
 

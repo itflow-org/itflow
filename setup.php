@@ -252,7 +252,7 @@ if(isset($_POST['add_company_settings'])){
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-  <title>Install IT CRM</title>
+  <title>ITFlow Setup</title>
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
@@ -267,7 +267,6 @@ if(isset($_POST['add_company_settings'])){
 <body class="hold-transition sidebar-mini">
 
   <div class="wrapper text-sm">
-
 
        <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-primary navbar-dark">
@@ -359,7 +358,6 @@ if(isset($_POST['add_company_settings'])){
         </div>
 
         <?php } ?>
-
 
         <?php if(isset($_GET['database'])){ ?>
 
