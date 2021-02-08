@@ -104,7 +104,7 @@
     AND invoices.category_id = categories.category_id
     AND invoices.company_id = $session_company_id
     AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
-    AND (invoice_number LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR category_name LIKE '%$q%') 
+    AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR category_name LIKE '%$q%') 
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));

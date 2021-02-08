@@ -43,7 +43,7 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM payments, invoice
   WHERE invoices.client_id = $client_id
   AND payments.invoice_id = invoices.invoice_id
   AND payments.account_id = accounts.account_id
-  AND (invoice_number LIKE '%$q%' OR account_name LIKE '%$q%' OR payment_method LIKE '%$q%') 
+  AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR account_name LIKE '%$q%' OR payment_method LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));

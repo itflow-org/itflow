@@ -558,6 +558,7 @@ if(isset($_GET['client_id'])){
 
     while($row = mysqli_fetch_array($sql_invoices)){
       $invoice_id = $row['invoice_id'];
+      $invoice_prefix = $row['invoice_prefix'];
       $invoice_number = $row['invoice_number'];
       $invoice_status = $row['invoice_status'];
       $invoice_date = $row['invoice_date'];
@@ -567,8 +568,8 @@ if(isset($_GET['client_id'])){
     ?>
 
     <tr>
-      <td><?php echo $invoice_number; ?></td>
-      <td class="text-right text-monospace">$<?php echo number_format($invoice_amount,2); ?></td>
+      <td><?php echo "$invoice_prefix$invoice_number"; ?></td>
+      <td class="text-right">$<?php echo number_format($invoice_amount,2); ?></td>
       <td><?php echo $invoice_date; ?></td>
       <td><?php echo $invoice_due; ?></td>
       <td><?php echo $invoice_status; ?></td>
@@ -605,6 +606,7 @@ if(isset($_GET['client_id'])){
 
     while($row = mysqli_fetch_array($sql_payments)){
       $invoice_id = $row['invoice_id'];
+      $invoice_prefix = $row['invoice_prefix'];
       $invoice_number = $row['invoice_number'];
       $invoice_status = $row['invoice_status'];
       $invoice_amount = $row['invoice_amount'];
@@ -621,10 +623,10 @@ if(isset($_GET['client_id'])){
     <tr>
       <td><?php echo $payment_date; ?></td>
       <td><?php echo $invoice_due; ?></td>
-      <td><?php echo $invoice_number; ?></td>
-      <td class="text-right text-monospace">$<?php echo number_format($invoice_amount,2); ?></td>
-      <td class="text-right text-monospace">$<?php echo number_format($payment_amount,2); ?></td>
-      <td class="text-right text-monospace">$<?php echo number_format($invoice_balance,2); ?></td>
+      <td><?php echo "$invoice_prefix$invoice_number"; ?></td>
+      <td class="text-right">$<?php echo number_format($invoice_amount,2); ?></td>
+      <td class="text-right">$<?php echo number_format($payment_amount,2); ?></td>
+      <td class="text-right">$<?php echo number_format($invoice_balance,2); ?></td>
       <td><?php echo $payment_method; ?></td>
       <td><?php echo $payment_reference; ?></td>
     </tr>
@@ -656,6 +658,7 @@ if(isset($_GET['client_id'])){
 
     while($row = mysqli_fetch_array($sql_quotes)){
       $quote_id = $row['quote_id'];
+      $quote_prefix = $row['quote_prefix'];
       $quote_number = $row['quote_number'];
       $quote_status = $row['quote_status'];
       $quote_date = $row['quote_date'];
@@ -665,7 +668,7 @@ if(isset($_GET['client_id'])){
 
     <tr>
       <td><?php echo $quote_number; ?></td>
-      <td class="text-right text-monospace">$<?php echo number_format($quote_amount,2); ?></td>
+      <td class="text-right">$<?php echo number_format($quote_amount,2); ?></td>
       <td><?php echo $quote_date; ?></td>
       <td><?php echo $quote_status; ?></td>
     </tr>

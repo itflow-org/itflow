@@ -54,7 +54,7 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM quotes, clients, 
   WHERE quotes.client_id = clients.client_id
   AND quotes.category_id = categories.category_id
   AND quotes.company_id = $session_company_id
-  AND (quote_number LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%' OR quote_amount LIKE '%$q%' OR client_name LIKE '%$q%')
+  AND (CONCAT(quote_prefix,quote_number) LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%' OR quote_amount LIKE '%$q%' OR client_name LIKE '%$q%')
   AND DATE(quote_date) BETWEEN '$dtf' AND '$dtt'
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 

@@ -54,7 +54,7 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM payments, invoice
   AND payments.account_id = accounts.account_id
   AND payments.company_id = $session_company_id
   AND DATE(payment_date) BETWEEN '$dtf' AND '$dtt'
-  AND (invoice_number LIKE '%$q%' OR client_name LIKE '%$q%' OR account_name LIKE '%$q%' OR payment_method LIKE '%$q%' OR payment_reference LIKE '%$q%')
+  AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR account_name LIKE '%$q%' OR payment_method LIKE '%$q%' OR payment_reference LIKE '%$q%')
   ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
