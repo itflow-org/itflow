@@ -85,6 +85,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $invoice_id = $row['invoice_id'];
+            $invoice_prefix = $row['invoice_prefix'];
             $invoice_number = $row['invoice_number'];
             $invoice_status = $row['invoice_status'];
             $invoice_amount = $row['invoice_amount'];

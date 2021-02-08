@@ -117,6 +117,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $invoice_id = $row['invoice_id'];
+            $invoice_prefix = $row['invoice_prefix'];
             $invoice_number = $row['invoice_number'];
             $invoice_status = $row['invoice_status'];
             $invoice_date = $row['invoice_date'];
@@ -133,7 +134,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <td><?php echo $payment_date; ?></td>
             <td><?php echo $invoice_date; ?></td>
-            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo $invoice_number; ?></a></td>
+            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=payments"><?php echo $client_name; ?></a></td>
             <td class="text-right">$<?php echo number_format($payment_amount,2); ?></td>
             <td><?php echo $payment_method; ?></td>
