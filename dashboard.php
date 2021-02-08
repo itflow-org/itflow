@@ -487,17 +487,18 @@ var myLineChart = new Chart(ctx, {
       pointBorderWidth: 2,
       data: [
       <?php
+
+      $largest_invoice_month = 0;
+
       for($month = 1; $month<=12; $month++) {
           $sql_projected = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amount_for_month FROM invoices WHERE YEAR(invoice_due) = $year AND MONTH(invoice_due) = $month AND invoice_status NOT LIKE 'Cancelled' AND invoice_status NOT LIKE 'Draft' AND company_id = $session_company_id");
           $row = mysqli_fetch_array($sql_projected);
           $invoice_for_month = $row['invoice_amount_for_month'];
-          $largest_invoice_month = 0;
-          
+
           if($invoice_for_month > 0 AND $invoice_for_month > $largest_invoice_month){
             $largest_invoice_month = $invoice_for_month;
           }
           
-
         ?>
           <?php echo "$invoice_for_month,"; ?>
         
@@ -522,11 +523,13 @@ var myLineChart = new Chart(ctx, {
       pointBorderWidth: 2,
       data: [
       <?php
+      
+      $largest_expense_month = 0;
+      
       for($month = 1; $month<=12; $month++) {
           $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND vendor_id > 0 AND expenses.company_id = $session_company_id");
           $row = mysqli_fetch_array($sql_expenses);
           $expenses_for_month = $row['expense_amount_for_month'];
-          $largest_expense_month = 0;
           
           if($expenses_for_month > 0 AND $expenses_for_month > $largest_expense_month){
             $largest_expense_month = $expenses_for_month;
