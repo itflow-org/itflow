@@ -72,7 +72,7 @@
               </div>
               <select class="form-control select2" name="level" required>
                 <option value="">- Permission -</option>
-                <option value="5">Global Admininstrator</option>
+                <option value="5">Global Administrator</option>
                 <option value="4">Administrator</option>
                 <option value="3">Technician</option>
                 <option value="2">IT Contractor</option>
