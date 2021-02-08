@@ -70,7 +70,7 @@ $password = $row['password'];
             <label>Avatar</label>
             <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
           </div>
-          <button type="submit" name="edit_user" class="btn btn-primary mt-3"><i class="fa fa-fw fa-check"></i> Save</button>     
+          <button type="submit" name="edit_profile" class="btn btn-primary mt-3"><i class="fa fa-fw fa-check"></i> Save</button>     
           
         </form>
 

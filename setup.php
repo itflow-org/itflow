@@ -581,7 +581,7 @@ if(isset($_POST['add_company_settings'])){
                 
                 <hr>
                 
-                <button type="submit" name="add_company_settings" class="btn btn-primary">Finish and Login <i class="fa fa-fw fa-check-circle"></i></button>
+                <button type="submit" name="add_company_settings" class="btn btn-primary">Finish and Sign in <i class="fa fa-fw fa-check-circle"></i></button>
                   
               </form>
             </div>
@@ -594,18 +594,18 @@ if(isset($_POST['add_company_settings'])){
               <h3 class="card-title"><i class="fa fa-fw fa-cube"></i> Welcome to ITFlow Setup</h3>
             </div>
             <div class="card-body">
-              <p>Click on the install button to start the install process, you must create a database before proceeding</p>
+              <p>A database must be created before proceeding, then click on the Setup button to to get started, </p>
               <hr>
-              <p>After install add cron.php to your cron and set it to run once everyday at 11:00PM. This is for tasks such as sending out recurring invoices, late payment reminders, alerts, etc</p>
+              <p>After the setup is complete add cron.php to your cron and set it to run once everyday at 11:00PM. This is for tasks such as sending out recurring invoices, late payment reminders, alerts, etc</p>
               <hr>
-              <p>An API is present to allow integration with other third pary apps. An API Key will be auto generated and can be changed in settings after install. The API will give you the following capabilities</p>
+              <p>An API is present to allow integration with other third pary apps. An API Key will be auto generated and can be changed in settings after setup. The API will give you the following capabilities</p>
               <ul class="mb-4">
                 <li>Address book XML for VOIP Phones</li>
                 <li>Caller ID Lookup</li>
                 <li>Get List of Emails in CSV to export to a mailing list</li>
                 <li>Acquire balance can be useful for customer's to get their balance by phone</li>
               </ul>
-              <center><a href="?database" class="btn btn-lg btn-primary">Install <i class="fa fa-fw fa-arrow-alt-circle-right"></i></a></center>
+              <center><a href="?database" class="btn btn-primary">Setup <i class="fa fa-fw fa-arrow-alt-circle-right"></i></a></center>
             </div>
           </div>
 

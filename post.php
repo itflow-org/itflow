@@ -102,6 +102,41 @@ if(isset($_POST['edit_user'])){
 
 }
 
+if(isset($_POST['edit_profile'])){
+
+    $user_id = intval($_POST['user_id']);
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
+    $current_password_hash = $_POST['current_password_hash'];
+    $password = $_POST['password'];
+    if($current_password_hash == $password){
+        $password = $current_password_hash;
+    }else{
+        $password = md5($password);
+    }
+    $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
+
+    if($_FILES['file']['tmp_name']!='') {
+        //delete old avatar file
+        unlink($path);
+        //Update with new path
+        $path = "uploads/users/$user_id/";
+        $path = $path . basename( $_FILES['file']['name']);
+        $file_name = basename($path);
+        move_uploaded_file($_FILES['file']['tmp_name'], $path);   
+    }
+    
+    mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', password = '$password', avatar = '$path', updated_at = NOW() WHERE user_id = $user_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
+
+    $_SESSION['alert_message'] = "User <strong>$name</strong> updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['edit_user_companies'])){
 
     $user_id = intval($_POST['user_id']);
