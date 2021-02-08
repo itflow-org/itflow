@@ -106,7 +106,7 @@ if(isset($_GET['quote_id'])){
         </div>
         <?php } ?>
 
-        <?php if($quote_status == 'Draft' or $quote_status == 'Sent' or $quote_status == 'Viewed'){ ?>
+        <?php if($quote_status == 'Sent' or $quote_status == 'Viewed'){ ?>
         <a class="btn btn-success" href="post.php?accept_quote=<?php echo $quote_id; ?>"><i class="fas fa-fw fa-check"></i> Accept</a>
         <a class="btn btn-danger" href="post.php?decline_quote=<?php echo $quote_id; ?>"><i class="fas fa-fw fa-times"></i> Decline</a>
         <?php } ?>
