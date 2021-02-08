@@ -224,7 +224,7 @@ if(isset($_GET['quote_id'])){
 
               <tr>
                 <td class="text-center d-print-none">
-                  <a class="text-secondary" href="#" data-toggle="modal" data-target="#editQuoteItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit"></i></a>
+                  <a class="text-secondary" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit"></i></a>
                   <a class="text-danger" href="post.php?delete_quote_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash-alt"></i></a>
                 </td>
                 <td><?php echo $item_name; ?></td>
@@ -237,7 +237,7 @@ if(isset($_GET['quote_id'])){
 
               <?php
 
-              include("edit_quote_item_modal.php");
+              include("edit_item_modal.php");
 
               }
 

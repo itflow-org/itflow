@@ -1,4 +1,4 @@
-<div class="modal" id="editInvoiceItemModal<?php echo $item_id; ?>" tabindex="-1">
+<div class="modal" id="editItemModal<?php echo $item_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
@@ -8,7 +8,14 @@
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-        <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+        <?php if(isset($invoice_id)){ ?>
+          <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+        <?php }elseif(isset($quote_id)){ ?>
+          <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
+        <?php }else{ ?>
+          <input type="hidden" name="recurring_id" value="<?php echo $recurring_id; ?>">
+        <?php } ?>
+        
         <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
         <div class="modal-body bg-white">
           
@@ -89,7 +96,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="edit_invoice_item" class="btn btn-primary">Save</button>
+          <button type="submit" name="edit_item" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>

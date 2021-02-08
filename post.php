@@ -1853,45 +1853,6 @@ if(isset($_POST['quote_note'])){
 
 }
 
-if(isset($_POST['edit_quote_item'])){
-
-    $quote_id = intval($_POST['quote_id']);
-    $item_id = intval($_POST['item_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $qty = floatval($_POST['qty']);
-    $price = floatval($_POST['price']);
-    $tax_id = intval($_POST['tax_id']);
-    
-    $subtotal = $price * $qty;
-    
-    if($tax_id > 0){
-        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
-        $row = mysqli_fetch_array($sql);
-        $tax_percent = $row['tax_percent'];
-        $tax_amount = $subtotal * $tax_percent / 100;
-    }else{
-        $tax_amount = 0;
-    }
-    
-    $total = $subtotal + $tax_amount;
-
-    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', tax_id = $tax_id WHERE item_id = $item_id");
-
-    //Update Invoice Balances by tallying up invoice items
-
-    $sql_quote_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS quote_total FROM invoice_items WHERE quote_id = $quote_id AND company_id = $session_company_id");
-    $row = mysqli_fetch_array($sql_quote_total);
-    $new_quote_amount = $row['quote_total'];
-
-    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> Item updated";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
 if(isset($_POST['edit_quote'])){
 
     $quote_id = intval($_POST['quote_id']);
@@ -2440,7 +2401,7 @@ if(isset($_POST['add_recurring_item'])){
 
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_created_at = NOW(), tax_id = $tax_id, recurring_id = $recurring_id, company_id = $session_company_id");
 
-    //Update Invoice Balances
+    //Update Recurring Balances
 
     $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
@@ -2463,45 +2424,6 @@ if(isset($_POST['recurring_note'])){
     mysqli_query($mysqli,"UPDATE recurring SET recurring_note = '$note', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> <strong>Notes added</strong>";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_POST['edit_recurring_item'])){
-
-    $recurring_id = intval($_POST['recurring_id']);
-    $item_id = intval($_POST['item_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $qty = floatval($_POST['qty']);
-    $price = floatval($_POST['price']);
-    $tax_id = intval($_POST['tax_id']);
-    
-    $subtotal = $price * $qty;
-    
-    if($tax_id > 0){
-        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
-        $row = mysqli_fetch_array($sql);
-        $tax_percent = $row['tax_percent'];
-        $tax_amount = $subtotal * $tax_percent / 100;
-    }else{
-        $tax_amount = 0;
-    }
-    
-    $total = $subtotal + $tax_amount;
-
-    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', tax_id = $tax_id WHERE item_id = $item_id");
-
-    //Update Invoice Balances by tallying up invoice items
-
-    $sql_recurring_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS recurring_total FROM invoice_items WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
-    $row = mysqli_fetch_array($sql_recurring_total);
-    $new_recurring_amount = $row['recurring_total'];
-
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "Item updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -2657,9 +2579,11 @@ if(isset($_POST['invoice_note'])){
 
 }
 
-if(isset($_POST['edit_invoice_item'])){
+if(isset($_POST['edit_item'])){
 
     $invoice_id = intval($_POST['invoice_id']);
+    $quote_id = intval($_POST['quote_id']);
+    $recurring_id = intval($_POST['recurring_id']);
     $item_id = intval($_POST['item_id']);
     $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
@@ -2682,13 +2606,32 @@ if(isset($_POST['edit_invoice_item'])){
 
     mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', tax_id = $tax_id WHERE item_id = $item_id");
 
-    //Update Invoice Balances by tallying up invoice items
+    if($invoice_id > 0){
+        //Update Invoice Balances by tallying up invoice items
+        $sql_invoice_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS invoice_total FROM invoice_items WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+        $row = mysqli_fetch_array($sql_invoice_total);
+        $new_invoice_amount = $row['invoice_total'];
 
-    $sql_invoice_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS invoice_total FROM invoice_items WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
-    $row = mysqli_fetch_array($sql_invoice_total);
-    $new_invoice_amount = $row['invoice_total'];
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    
+    }elseif($quote_id > 0){
+        //Update Quote Balances by tallying up items
+        $sql_quote_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS quote_total FROM invoice_items WHERE quote_id = $quote_id AND company_id = $session_company_id");
+        $row = mysqli_fetch_array($sql_quote_total);
+        $new_quote_amount = $row['quote_total'];
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+        mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+
+    }else{
+        //Update Invoice Balances by tallying up invoice items
+
+        $sql_recurring_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS recurring_total FROM invoice_items WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+        $row = mysqli_fetch_array($sql_recurring_total);
+        $new_recurring_amount = $row['recurring_total'];
+
+        mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+
+    }
 
     $_SESSION['alert_message'] = "Item updated";
 

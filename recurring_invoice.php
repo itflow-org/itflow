@@ -204,7 +204,7 @@ if(isset($_GET['recurring_id'])){
 
               <tr>
                 <td class="text-center d-print-none">
-                  <a class="text-secondary" href="#" data-toggle="modal" data-target="#editRecurringItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit"></i></a>
+                  <a class="text-secondary" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit"></i></a>
                   <a class="text-danger" href="post.php?delete_recurring_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash-alt"></i></a>
                 </td>
                 <td><?php echo $item_name; ?></td>
@@ -217,7 +217,7 @@ if(isset($_GET['recurring_id'])){
 
               <?php
 
-              include("edit_recurring_item_modal.php"); 
+              include("edit_item_modal.php"); 
 
               }
 
