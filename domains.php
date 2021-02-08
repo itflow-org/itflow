@@ -87,6 +87,7 @@ $total_pages = ceil($total_found_rows / 10);
             $domain_registrar = $row['domain_registrar'];
             $domain_webhost = $row['domain_webhost'];
             $domain_expire = $row['domain_expire'];
+            $domain_created_at = $row['domain_created_at'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
 

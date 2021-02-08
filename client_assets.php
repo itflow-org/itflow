@@ -97,6 +97,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $asset_purchase_date = $row['asset_purchase_date'];
             $asset_warranty_expire = $row['asset_warranty_expire'];
             $asset_notes = $row['asset_notes'];
+            $asset_created_at = $row['asset_created_at'];
             $vendor_id = $row['vendor_id'];
             $location_id = $row['location_id'];
             $contact_id = $row['contact_id'];

@@ -89,6 +89,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $network = $row['network'];
             $network_gateway = $row['network_gateway'];
             $network_dhcp_range = $row['network_dhcp_range'];
+            $network_created_at = $row['network_created_at'];
             $location_id = $row['location_id'];
       
           ?>

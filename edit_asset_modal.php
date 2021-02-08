@@ -140,7 +140,7 @@
                     <option value="">- Contact -</option>
                     <?php 
                     
-                    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_name ASC"); 
+                    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE (contact_archived_at > '$asset_created_at' OR contact_archived_at IS NULL) AND client_id = $client_id ORDER BY contact_name ASC"); 
                     while($row = mysqli_fetch_array($sql_contacts)){
                       $contact_id_select = $row['contact_id'];
                       $contact_name_select = $row['contact_name'];
@@ -164,7 +164,7 @@
                     <option value="">- Network -</option>
                     <?php 
                     
-                    $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE client_id = $client_id ORDER BY network_name ASC"); 
+                    $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE (network_archived_at > '$asset_created_at' OR network_archived_at IS NULL) AND client_id = $client_id ORDER BY network_name ASC"); 
                     while($row = mysqli_fetch_array($sql_networks)){
                       $network_id_select = $row['network_id'];
                       $network_name_select = $row['network_name'];
@@ -214,7 +214,7 @@
                     <option value="">- Vendor -</option>
                     <?php 
                     
-                    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id ORDER BY vendor_name ASC"); 
+                    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE (vendor_archived_at > '$asset_created_at' OR vendor_archived_at IS NULL) AND client_id = $client_id ORDER BY vendor_name ASC"); 
                     while($row = mysqli_fetch_array($sql_vendors)){
                       $vendor_id_select = $row['vendor_id'];
                       $vendor_name_select = $row['vendor_name'];
