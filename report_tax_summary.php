@@ -17,7 +17,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
 
 <div class="card card-dark">
   <div class="card-header py-2">
-    <h3 class="card-title mt-2"><i class="fa fa-fw fa-balance-scale"></i> Tax Summary</h3>
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-balance-scale"></i> Collected Tax Summary</h3>
     <div class="card-tools">
       <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
     </div>
@@ -42,16 +42,12 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
       <table class="table table-sm">
         <thead class="text-dark">
           <tr>
-            <th></th>
+            <th>Tax</th>
             <th class="text-right">Jan-Mar</th>
             <th class="text-right">Apr-Jun</th>
             <th class="text-right">Jul-Sep</th>
             <th class="text-right">Oct-Dec</th>
             <th class="text-right">Total</th>
-          </tr>
-          <tr>
-            <th><br><br>Tax</th>
-            <th colspan="5"></th>
           </tr>
         </thead>
         <tbody>
@@ -231,22 +227,6 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
             <th class="text-right">$<?php echo number_format($expense_total_amount_for_quarter_four,2); ?></th>
 
             <th class="text-right">$<?php echo number_format($total_expenses_for_all_four_quarters,2); ?></th>
-          </tr>
-          <tr>
-            <?php
-              $net_profit_quarter_one = $payment_total_amount_for_quarter_one - $expense_total_amount_for_quarter_one;
-              $net_profit_quarter_two = $payment_total_amount_for_quarter_two - $expense_total_amount_for_quarter_two;
-              $net_profit_quarter_three = $payment_total_amount_for_quarter_three - $expense_total_amount_for_quarter_three;
-              $net_profit_quarter_four = $payment_total_amount_for_quarter_four - $expense_total_amount_for_quarter_four;
-              $net_profit_year = $total_payments_for_all_four_quarters - $total_expenses_for_all_four_quarters;
-            ?>
-
-            <th>Net Profit</th>
-            <th class="text-right">$<?php echo number_format($net_profit_quarter_one,2); ?></th>
-            <th class="text-right">$<?php echo number_format($net_profit_quarter_two,2); ?></th>
-            <th class="text-right">$<?php echo number_format($net_profit_quarter_three,2); ?></th>
-            <th class="text-right">$<?php echo number_format($net_profit_quarter_four,2); ?></th>
-            <th class="text-right">$<?php echo number_format($net_profit_year,2); ?></th>
           </tr>
         </tbody>
       </table>
