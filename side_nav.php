@@ -167,6 +167,12 @@
                 <p>Expense</p>
               </a>
             </li>
+             <li class="nav-item">
+              <a href="report_tax_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_tax_summary.php") { echo "active"; } ?>">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Tax Summary</p>
+              </a>
+            </li>
             <li class="nav-item">
               <a href="report_profit_loss.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_profit_loss.php") { echo "active"; } ?>">
                 <i class="far fa-circle nav-icon"></i>
