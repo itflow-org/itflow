@@ -2303,7 +2303,7 @@ if(isset($_POST['add_recurring'])){
 
     $_SESSION['alert_message'] = "Recurring Invoice added";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: recurring_invoice.php?recurring_id=$recurring_id");
 
 }
 
