@@ -77,4 +77,18 @@
   </div>
 </div>
 
+<div class="card card-dark">
+  <div class="card-header">
+    <h3 class="card-title"><i class="fa fa-fw fa-paper-plane"></i> Test Email</h3>
+  </div>
+  <div class="card-body">
+    <form action="post.php" method="post" autocomplete="off">
+      <div class="input-group">
+        <input type="email" class="form-control " name="email" placeholder="Email address to test">
+        <div class="input-group-append">
+          <button type="submit" name="test_email" class="btn btn-secondary"><i class="fa fa-fw fa-paper-plane"></i> Send</button>
+        </div>
+      </div>
+    </form>
+
 <?php include("footer.php");

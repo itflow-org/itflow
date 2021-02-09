@@ -386,6 +386,47 @@ if(isset($_POST['edit_mail_settings'])){
 
 }
 
+if(isset($_POST['test_email'])){
+    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+
+    $mail = new PHPMailer(true);
+
+    try{
+
+        //Mail Server Settings
+
+        //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+        $mail->isSMTP();                                            // Set mailer to use SMTP
+        $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+        $mail->Username   = $config_smtp_username;                     // SMTP username
+        $mail->Password   = $config_smtp_password;                               // SMTP password
+        $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+        $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+
+        //Recipients
+        $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+        $mail->addAddress("$email");     // Add a recipient
+
+        // Content
+        $mail->isHTML(true);                                  // Set email format to HTML
+        
+        $mail->Subject = "Hi'ya there Chap";
+        $mail->Body    = "Hello there Chap ;) Don't worry this won't hurt a bit, it's just a test. ${$email}";
+
+        
+        $mail->send();
+        echo 'Message has been sent';
+
+        $_SESSION['alert_message'] = "Test Email has been sent!";
+
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+    } catch (Exception $e) {
+        echo "poop";
+    }
+}
+
 if(isset($_POST['edit_invoice_quote_settings'])){
 
     $config_invoice_prefix = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_prefix']));
