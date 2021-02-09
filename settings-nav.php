@@ -28,7 +28,7 @@
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-invoice-quotes.php") { echo "active"; } ?>" 
       href="settings-invoice-quotes.php">
       <i class="fa fa-fw fa-2x fa-file"></i><br>
-      Invoices / Quotes
+      Invoice / Quote
     </a> 
   </li>
 

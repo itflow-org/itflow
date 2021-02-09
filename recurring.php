@@ -20,7 +20,7 @@ if(isset($_GET['q'])){
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
-  $sb = "recurring_next_date";
+  $sb = "recurring_number";
 }
 
 if(isset($_GET['o'])){
@@ -52,7 +52,7 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM recurring, client
   WHERE recurring.client_id = clients.client_id
   AND recurring.category_id = categories.category_id
   AND recurring.company_id = $session_company_id
-  AND (recurring_frequency LIKE '%$q%' OR recurring_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%')
+  AND (CONCAT(recurring_prefix,recurring_number) LIKE '%$q%' OR recurring_frequency LIKE '%$q%' OR recurring_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%')
   AND DATE(recurring_next_date) BETWEEN '$dtf' AND '$dtt'
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
@@ -103,6 +103,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_number&o=<?php echo $disp; ?>">Number</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_next_date&o=<?php echo $disp; ?>">Next Date</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_scope&o=<?php echo $disp; ?>">Scope</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_frequency&o=<?php echo $disp; ?>">Frequency</a></th>
@@ -120,6 +121,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $recurring_id = $row['recurring_id'];
+            $recurring_prefix = $row['recurring_prefix'];
+            $recurring_number = $row['recurring_number'];
             $recurring_scope = $row['recurring_scope'];
             $recurring_frequency = $row['recurring_frequency'];
             $recurring_status = $row['recurring_status'];
@@ -145,7 +148,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           ?>
 
           <tr>
-            <td><a href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>"><?php echo $recurring_next_date; ?></a></td>
+            <td><a href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>"><?php echo "$recurring_prefix$recurring_number"; ?></a></td>
+            <td><?php echo $recurring_next_date; ?></td>
             <td><?php echo $recurring_scope; ?></td>
             <td><?php echo ucwords($recurring_frequency); ?>ly</td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=recurring"><?php echo $client_name; ?></a></td>

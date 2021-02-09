@@ -14,6 +14,8 @@
         <label class="custom-control-label" for="customSwitch1">Enable Stripe</label>
       </div>
 
+      <?php if($config_stripe_enable == 1){ ?>
+
       <div class="form-group">
         <label>Publishable</label>
         <div class="input-group">
@@ -33,6 +35,8 @@
           <input type="text" class="form-control" name="config_stripe_secret" placeholder="Stripe Secret API Key" value="<?php echo $config_stripe_secret; ?>">
         </div>
       </div>
+
+      <?php } ?>
       
       <hr>
       

@@ -36,6 +36,28 @@
         <textarea class="form-control" rows="4" name="config_invoice_footer"><?php echo $config_invoice_footer; ?></textarea>
       </div>
 
+      <legend>Recurring Invoice</legend>
+
+      <div class="form-group">
+        <label>Recurring Prefix</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
+          </div>
+          <input type="text" class="form-control" name="config_recurring_prefix" placeholder="Recurring Prefix" value="<?php echo $config_recurring_prefix; ?>" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Next Number</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
+          </div>
+          <input type="number" min="0" class="form-control" name="config_recurring_next_number" placeholder="Next Recurring Number" value="<?php echo $config_recurring_next_number; ?>" required>
+        </div>
+      </div>
+
       <legend>Quote</legend>
 
       <div class="form-group">
