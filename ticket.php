@@ -79,7 +79,7 @@ if(isset($_GET['ticket_id'])){
 
 <div class="row mb-3">
   <div class="col-9">
-    <h3>Ticket <?php echo $ticket_number; ?> <?php echo $ticket_status_display; ?></h3>
+    <h3>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <?php echo $ticket_status_display; ?></h3>
   </div>
   <div class="col-3">
 

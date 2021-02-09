@@ -863,7 +863,7 @@ if(isset($_POST['add_ticket'])){
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = $session_company_id");
 
-    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $session_user_id, client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $session_user_id, client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$subject', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, user_id = $session_user_id");
@@ -2710,6 +2710,7 @@ if(isset($_POST['add_payment'])){
 
         $row = mysqli_fetch_array($sql);
         $invoice_amount = $row['invoice_amount'];
+        $invoice_prefix = $row['invoice_prefix'];
         $invoice_number = $row['invoice_number'];
         $invoice_url_key = $row['invoice_url_key'];
         $client_name = $row['client_name'];
@@ -2760,8 +2761,8 @@ if(isset($_POST['add_payment'])){
 
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
-                  $mail->Subject = "Payment Recieved - Invoice $invoice_number";
-                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment in the amount of $$formatted_amount for invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $$formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>$company_phone";
+                  $mail->Subject = "Payment Recieved - Invoice $invoice_prefix$invoice_number";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved your payment in the amount of $$formatted_amount for invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $$formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>$company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';
@@ -2796,8 +2797,8 @@ if(isset($_POST['add_payment'])){
 
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
-                  $mail->Subject = "Partial Payment Recieved - Invoice $invoice_number";
-                  $mail->Body    = "Hello $client_name,<br><br>We have recieved partial payment in the amount of $$formatted_amount and it has been applied to invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $$formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>$company_phone";
+                  $mail->Subject = "Partial Payment Recieved - Invoice $invoice_prefix$invoice_number";
+                  $mail->Body    = "Hello $client_name,<br><br>We have recieved partial payment in the amount of $$formatted_amount and it has been applied to invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: $$formatted_amount<br>Balance: $$formatted_invoice_balance<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>$company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';

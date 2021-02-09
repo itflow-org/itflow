@@ -60,7 +60,7 @@
     AND tickets.company_id = $session_company_id
     AND ticket_status LIKE '%$status%'
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
-    AND (ticket_number LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_priority LIKE '%$q%')
+    AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_priority LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -120,7 +120,7 @@
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_id&o=<?php echo $disp; ?>">Number</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_number&o=<?php echo $disp; ?>">Number</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_status&o=<?php echo $disp; ?>">Status</a>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_created_at&o=<?php echo $disp; ?>">Created</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
@@ -135,6 +135,8 @@
       
           while($row = mysqli_fetch_array($sql)){
             $ticket_id = $row['ticket_id'];
+            $ticket_prefix = $row['ticket_prefix'];
+            $ticket_number = $row['ticket_number'];
             $ticket_subject = $row['ticket_subject'];
             $ticket_details = $row['ticket_details'];
             $ticket_priority = $row['ticket_priority'];
@@ -166,7 +168,7 @@
           ?>
 
           <tr>
-            <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_id; ?></a></td>
+            <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
             <td><?php echo $ticket_status_display; ?></td>
             <td><?php echo $ticket_created_at; ?></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></td>

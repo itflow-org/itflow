@@ -20,7 +20,7 @@ if(isset($_GET['q'])){
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
-  $sb = "recurring_number";
+  $sb = "recurring_next_date";
 }
 
 if(isset($_GET['o'])){
