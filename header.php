@@ -76,4 +76,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     }
 
+    //Set Records Per Page
+    if(empty($_SESSION['records_per_page'])){
+      $_SESSION['records_per_page'] = 10;
+    }
+
     ?>

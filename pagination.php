@@ -1,7 +1,7 @@
 <?php
 
 $total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / $config_records_per_page);
+$total_pages = ceil($total_found_rows / $_SESSION['records_per_page']);
 
 if ($total_found_rows > 10) {
 	$i=0;
@@ -14,12 +14,12 @@ if ($total_found_rows > 10) {
 	<div class="col mb-3">
 		<form action="post.php" method="post">
 			<select onchange="this.form.submit()" class="input-form select2" name="change_records_per_page">
-				<option <?php if($config_records_per_page == 5){ echo "selected"; } ?> >5</option>
-				<option <?php if($config_records_per_page == 10){ echo "selected"; } ?> >10</option>
-				<option <?php if($config_records_per_page == 20){ echo "selected"; } ?> >20</option>
-				<option <?php if($config_records_per_page == 50){ echo "selected"; } ?> >50</option>
-				<option <?php if($config_records_per_page == 100){ echo "selected"; } ?> >100</option>
-				<option <?php if($config_records_per_page == 500){ echo "selected"; } ?> >500</option>
+				<option <?php if($_SESSION['records_per_page'] == 5){ echo "selected"; } ?> >5</option>
+				<option <?php if($_SESSION['records_per_page'] == 10){ echo "selected"; } ?> >10</option>
+				<option <?php if($_SESSION['records_per_page'] == 20){ echo "selected"; } ?> >20</option>
+				<option <?php if($_SESSION['records_per_page'] == 50){ echo "selected"; } ?> >50</option>
+				<option <?php if($_SESSION['records_per_page'] == 100){ echo "selected"; } ?> >100</option>
+				<option <?php if($_SESSION['records_per_page'] == 500){ echo "selected"; } ?> >500</option>
 			</select>
 		</form>
 	</div>

@@ -729,7 +729,6 @@ CREATE TABLE `settings` (
   `config_default_expense_payment_method` varchar(200) DEFAULT NULL,
   `config_default_calendar` int(11) DEFAULT NULL,
   `config_default_net_terms` int(11) DEFAULT NULL,
-  `config_records_per_page` int(10) NOT NULL,
   `config_invoice_prefix` varchar(200) DEFAULT NULL,
   `config_invoice_next_number` int(11) DEFAULT NULL,
   `config_invoice_footer` text DEFAULT NULL,
@@ -970,4 +969,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-08 20:00:18
+-- Dump completed on 2021-02-10 13:39:33

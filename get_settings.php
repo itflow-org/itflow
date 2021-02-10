@@ -26,7 +26,6 @@ $config_default_payment_method = $row['config_default_payment_method'];
 $config_default_expense_payment_method = $row['config_default_expense_payment_method'];
 $config_default_calendar = $row['config_default_calendar'];
 $config_default_net_terms = $row['config_default_net_terms'];
-$config_records_per_page = $row['config_records_per_page'];
 
 //Invoice/Quote
 $config_invoice_prefix = $row['config_invoice_prefix'];
