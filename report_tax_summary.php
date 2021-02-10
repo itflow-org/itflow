@@ -62,105 +62,102 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
               
               <?php
 
-              $tax_line_quarter_one = 0;
+              $tax_collected_quarter_one = 0;
               
               for($month = 1; $month<=3; $month++) {
                 
-                $sql_payments = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_line_amount_for_month FROM taxes, invoices, invoice_items 
+                $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month FROM taxes, invoices, invoice_items 
                   WHERE invoice_items.invoice_id = invoices.invoice_id
                   AND invoices.status LIKE 'Paid' 
                   AND invoices_items.tax_id = $tax_id 
                   AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
                 );
                 
-                $row = mysqli_fetch_array($sql_payments);
-                $payment_amount_for_month = $row['payment_amount_for_month'];
-
-                $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenues.category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                $row = mysqli_fetch_array($sql_revenues);
-                $revenue_amount_for_month = $row['revenue_amount_for_month'];
-
-                $payment_amount_for_month = $payment_amount_for_month + $revenue_amount_for_month;
+                $row = mysqli_fetch_array($sql_tax_collected);
+                $tax_collected_for_month = $row['tax_collected_for_month'];
                 
-                $payment_amount_for_quarter_one = $payment_amount_for_quarter_one + $payment_amount_for_month;              
+                $tax_collected_quarter_one = $tax_collected_quarter_one + $tax_collected_for_month;              
               }
               
               ?>
                 
-                <td class="text-right">$<?php echo number_format($payment_amount_for_quarter_one,2); ?></td>
+                <td class="text-right">$<?php echo number_format($tax_collected_quarter_one,2); ?></td>
 
               <?php
 
-              $payment_amount_for_quarter_two = 0;
+              $tax_collected_quarter_two = 0;
               
-              for($month = 4; $month<=6; $month++) {
-                $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.category_id = $category_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                $row = mysqli_fetch_array($sql_payments);
-                $payment_amount_for_month = $row['payment_amount_for_month'];
-
-                $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenues.category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                $row = mysqli_fetch_array($sql_revenues);
-                $revenue_amount_for_month = $row['revenue_amount_for_month'];
-
-                $payment_amount_for_month = $payment_amount_for_month + $revenue_amount_for_month;
-
-                $payment_amount_for_quarter_two = $payment_amount_for_quarter_two + $payment_amount_for_month;
+              for($month = 4; $month <= 6; $month ++) {
+                
+                $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month FROM taxes, invoices, invoice_items 
+                  WHERE invoice_items.invoice_id = invoices.invoice_id
+                  AND invoices.status LIKE 'Paid' 
+                  AND invoices_items.tax_id = $tax_id 
+                  AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
+                );
+                
+                $row = mysqli_fetch_array($sql_tax_collected);
+                $tax_collected_for_month = $row['tax_collected_for_month'];
+                
+                $tax_collected_quarter_two = $tax_collected_quarter_two + $tax_collected_for_month;              
               }
               
               ?>
-
-                <td class="text-right">$<?php echo number_format($payment_amount_for_quarter_two,2); ?></td>
+                
+                <td class="text-right">$<?php echo number_format($tax_collected_quarter_two,2); ?></td>
 
               <?php
 
-              $payment_amount_for_quarter_three = 0;
+              $tax_collected_quarter_three = 0;
               
-              for($month = 7; $month<=9; $month++) {
-                $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.category_id = $category_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                $row = mysqli_fetch_array($sql_payments);
-                $payment_amount_for_month = $row['payment_amount_for_month'];
-
-                $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenues.category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                $row = mysqli_fetch_array($sql_revenues);
-                $revenue_amount_for_month = $row['revenue_amount_for_month'];
-
-                $payment_amount_for_month = $payment_amount_for_month + $revenue_amount_for_month;
-                $payment_amount_for_quarter_three = $payment_amount_for_quarter_three + $payment_amount_for_month;
+              for($month = 7; $month <= 9; $month ++) {
+                
+                $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month FROM taxes, invoices, invoice_items 
+                  WHERE invoice_items.invoice_id = invoices.invoice_id
+                  AND invoices.status LIKE 'Paid' 
+                  AND invoices_items.tax_id = $tax_id 
+                  AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
+                );
+                
+                $row = mysqli_fetch_array($sql_tax_collected);
+                $tax_collected_for_month = $row['tax_collected_for_month'];
+                
+                $tax_collected_quarter_three = $tax_collected_quarter_three + $tax_collected_for_month;              
               }
               
               ?>
-
-                <td class="text-right">$<?php echo number_format($payment_amount_for_quarter_three,2); ?></td>
+                
+                <td class="text-right">$<?php echo number_format($tax_collected_quarter_three,2); ?></td>
 
               <?php
 
-              $payment_amount_for_quarter_four = 0;
+              $tax_collected_quarter_four = 0;
               
-              for($month = 10; $month<=12; $month++) {
-                $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.category_id = $category_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                $row = mysqli_fetch_array($sql_payments);
-                $payment_amount_for_month = $row['payment_amount_for_month'];
+              for($month = 10; $month <= 12; $month ++) {
+                
+                $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month FROM taxes, invoices, invoice_items 
+                  WHERE invoice_items.invoice_id = invoices.invoice_id
+                  AND invoices.status LIKE 'Paid' 
+                  AND invoices_items.tax_id = $tax_id 
+                  AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
+                );
+                
+                $row = mysqli_fetch_array($sql_tax_collected);
+                $tax_collected_for_month = $row['tax_collected_for_month'];
 
-                $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenues.category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                $row = mysqli_fetch_array($sql_revenues);
-                $revenue_amount_for_month = $row['revenue_amount_for_month'];
-
-                $payment_amount_for_month = $payment_amount_for_month + $revenue_amount_for_month;
-                $payment_amount_for_quarter_four = $payment_amount_for_quarter_four + $payment_amount_for_month;
+                $tax_collected_quarter_four = $tax_collected_quarter_four + $tax_collected_for_month;  
               }
               
-              $total_payments_for_all_four_quarters = $payment_amount_for_quarter_one + $payment_amount_for_quarter_two + $payment_amount_for_quarter_three + $payment_amount_for_quarter_four;
+              $total_tax_collected_four_quarters = $tax_collected_quarter_one + $tax_collected_quarter_two + $tax_collected_quarter_three + $tax_collected_quarter_four;
 
               ?>
 
-              <td class="text-right">$<?php echo number_format($payment_amount_for_quarter_four,2); ?></td>        
+              <td class="text-right">$<?php echo number_format($tax_collected_quarter_four,2); ?></td>        
               
-              <td class="text-right">$<?php echo number_format($total_payments_for_all_four_quarters,2); ?></td>
+              <td class="text-right">$<?php echo number_format($total_tax_collected_four_quarters,2); ?></td>
             </tr>
           
           <?php 
-          
-          $total_payment_for_all_months = 0;
 
           } 
           
@@ -170,7 +167,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
             <th>Total Taxes<br><br><br></th>
             <?php
             
-            $expense_total_amount_for_quarter_one = 0;
+            $tax_total_for_quarter_one = 0;
 
             for($month = 1; $month<=3; $month++) {
               $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE category_id > 0 AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND vendor_id > 0 AND company_id = $session_company_id");

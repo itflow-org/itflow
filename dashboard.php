@@ -102,7 +102,7 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
         $payment_year = date('Y');
       }
     ?>
-    <option <?php if($year == $payment_year){ ?> selected <?php } ?> > <?php echo $payment_year; ?></option>
+    <option <?php if($year == $payment_year){ echo "selected"; } ?> > <?php echo $payment_year; ?></option>
     
     <?php
     }

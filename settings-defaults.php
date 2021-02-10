@@ -196,20 +196,6 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Records per Page</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-fw fa-sort"></i></span>
-          </div>
-          <select class="form-control select2" name="config_records_per_page">
-            <?php foreach($records_per_page_array as $records_per_page) { ?>
-            <option <?php if($config_records_per_page == $records_per_page){ echo "selected"; } ?> ><?php echo $records_per_page; ?></option>
-            <?php } ?>
-          </select>
-        </div>
-      </div>
-
       <hr>
       
       <button type="submit" name="edit_default_settings" class="btn btn-primary">Save</button>

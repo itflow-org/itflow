@@ -172,10 +172,8 @@
 
         </tbody>
       </table>
-
-      <?php include("pagination.php"); ?>
-
     </div>
+    <?php include("pagination.php"); ?>
   </div>
 </div>
 

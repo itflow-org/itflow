@@ -63,6 +63,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </div>
       </div>
     </form>
+    <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
@@ -139,11 +140,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           ?>
 
         </tbody>
-      </table>
-
-      <?php include("pagination.php"); ?>
-      
+      </table>      
     </div>
+    <?php include("pagination.php"); ?>
   </div>
 </div>
 

@@ -13,6 +13,16 @@ require_once $mpdf_path . '/vendor/autoload.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+if(isset($_POST['change_records_per_page'])){
+
+    $records_per_page = intval($_POST['change_records_per_page']);
+    
+    mysqli_query($mysqli,"UPDATE settings SET config_records_per_page = $records_per_page WHERE company_id = $session_company_id");
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_GET['switch_company'])){
     $company_id = intval($_GET['switch_company']);
 
@@ -475,9 +485,8 @@ if(isset($_POST['edit_default_settings'])){
     $config_default_transfer_to_account = intval($_POST['config_default_transfer_to_account']);
     $config_default_calendar = intval($_POST['config_default_calendar']);
     $config_default_net_terms = intval($_POST['config_default_net_terms']);
-    $config_records_per_page = intval($_POST['config_records_per_page']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_default_expense_account = $config_default_expense_account, config_default_payment_account = $config_default_payment_account, config_default_payment_method = '$config_default_payment_method', config_default_expense_payment_method = '$config_default_expense_payment_method', config_default_transfer_from_account = $config_default_transfer_from_account, config_default_transfer_to_account = $config_default_transfer_to_account, config_default_calendar = $config_default_calendar, config_default_net_terms = $config_default_net_terms, config_records_per_page = $config_records_per_page WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_default_expense_account = $config_default_expense_account, config_default_payment_account = $config_default_payment_account, config_default_payment_method = '$config_default_payment_method', config_default_expense_payment_method = '$config_default_expense_payment_method', config_default_transfer_from_account = $config_default_transfer_from_account, config_default_transfer_to_account = $config_default_transfer_to_account, config_default_calendar = $config_default_calendar, config_default_net_terms = $config_default_net_terms WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Defaults', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");

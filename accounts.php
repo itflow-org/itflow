@@ -122,11 +122,9 @@
           ?>
 
         </tbody>
-      </table>
-
-      <?php include("pagination.php"); ?>  
-
+      </table>  
     </div>
+    <?php include("pagination.php"); ?>
   </div>
 </div>
 
