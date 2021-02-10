@@ -2,8 +2,8 @@
 <?php include("functions.php"); ?>
 <?php
 
-require("vendor/PHPMailer-6.1.4/src/PHPMailer.php");
-require("vendor/PHPMailer-6.1.4/src/SMTP.php");
+require("vendor/PHPMailer-6.2.0/src/PHPMailer.php");
+require("vendor/PHPMailer-6.2.0/src/SMTP.php");
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
