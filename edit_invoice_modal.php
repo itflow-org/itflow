@@ -47,7 +47,7 @@
                   $category_id_select= $row['category_id'];
                   $category_name_select = $row['category_name'];
                 ?>
-                <option <?php if($category_id == $category_id_select){ ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
+                <option <?php if($category_id == $category_id_select){ echo "selected"; } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
                 
                 <?php
                 }
