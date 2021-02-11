@@ -81,13 +81,14 @@
 
 ### Technologies Used
 * PHP/MySQL
+* Bootstrap
 * AdminLTE3
 * fontawesome
 * chart.js
 * moments.js
 * Jquery
 * PHPmailer
-* mPDF
+* pdfmake
 * FullCalendar.io
 * Select2
 * Date Range Picker

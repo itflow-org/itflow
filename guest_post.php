@@ -3,9 +3,6 @@
 include("config.php");
 include("functions.php");
 
-$mpdf_path = (getenv('MPDF_ROOT')) ? getenv('MPDF_ROOT') : __DIR__;
-require_once $mpdf_path . '/vendor/autoload.php';
-
 if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
 
     $invoice_id = intval($_GET['pdf_invoice']);
