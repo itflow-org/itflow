@@ -314,6 +314,7 @@ DROP TABLE IF EXISTS `expenses`;
 CREATE TABLE `expenses` (
   `expense_id` int(11) NOT NULL AUTO_INCREMENT,
   `expense_description` text DEFAULT NULL,
+  `expense_currency` varchar(200) DEFAULT NULL,
   `expense_amount` decimal(15,2) NOT NULL,
   `expense_date` date NOT NULL,
   `expense_reference` varchar(200) DEFAULT NULL,
@@ -418,6 +419,7 @@ CREATE TABLE `invoices` (
   `invoice_status` varchar(200) NOT NULL,
   `invoice_date` date NOT NULL,
   `invoice_due` date NOT NULL,
+  `invoice_currency` varchar(200) DEFAULT NULL,
   `invoice_amount` decimal(15,2) DEFAULT NULL,
   `invoice_note` text DEFAULT NULL,
   `invoice_url_key` varchar(200) DEFAULT NULL,
@@ -547,6 +549,7 @@ DROP TABLE IF EXISTS `payments`;
 CREATE TABLE `payments` (
   `payment_id` int(11) NOT NULL AUTO_INCREMENT,
   `payment_date` date NOT NULL,
+  `payment_currency` varchar(200) DEFAULT NULL,
   `payment_amount` decimal(15,2) NOT NULL,
   `payment_method` varchar(200) DEFAULT NULL,
   `payment_reference` varchar(200) DEFAULT NULL,
@@ -590,6 +593,7 @@ CREATE TABLE `products` (
   `product_id` int(11) NOT NULL AUTO_INCREMENT,
   `product_name` varchar(200) NOT NULL,
   `product_description` text DEFAULT NULL,
+  `product_currency` varchar(200) DEFAULT NULL,
   `product_cost` decimal(15,2) NOT NULL,
   `product_created_at` datetime NOT NULL,
   `product_updated_at` datetime DEFAULT NULL,
@@ -615,6 +619,7 @@ CREATE TABLE `quotes` (
   `quote_scope` varchar(255) DEFAULT NULL,
   `quote_status` varchar(200) NOT NULL,
   `quote_date` date NOT NULL,
+  `quote_currency` varchar(200) DEFAULT NULL,
   `quote_amount` decimal(15,2) DEFAULT NULL,
   `quote_note` text DEFAULT NULL,
   `quote_url_key` varchar(200) DEFAULT NULL,
@@ -666,6 +671,7 @@ CREATE TABLE `recurring` (
   `recurring_last_sent` date DEFAULT NULL,
   `recurring_next_date` date NOT NULL,
   `recurring_status` int(1) NOT NULL,
+  `recurring_currency` varchar(200) DEFAULT NULL,
   `recurring_amount` decimal(15,2) DEFAULT NULL,
   `recurring_note` text DEFAULT NULL,
   `recurring_created_at` datetime NOT NULL,
@@ -688,6 +694,7 @@ DROP TABLE IF EXISTS `revenues`;
 CREATE TABLE `revenues` (
   `revenue_id` int(11) NOT NULL AUTO_INCREMENT,
   `revenue_date` date NOT NULL,
+  `revenue_currency` varchar(200) NOT NULL,
   `revenue_amount` decimal(15,2) NOT NULL,
   `revenue_payment_method` varchar(200) DEFAULT NULL,
   `revenue_reference` varchar(200) DEFAULT NULL,
@@ -969,4 +976,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-10 13:39:33
+-- Dump completed on 2021-02-11  1:03:59
