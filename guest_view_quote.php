@@ -93,7 +93,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
 
       <div class="float-right">
         <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
-        <a class="btn btn-primary" download target="_blank" href="guest_post.php?pdf_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-download"></i> Download</a>
+        <a class="btn btn-primary" target="_blank" href="guest_post.php?pdf_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-download"></i> Download</a>
       </div>
     </div>
     <div class="card-body">

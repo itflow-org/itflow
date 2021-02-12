@@ -52,7 +52,8 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
           $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
         }
         $company_email = $row['company_email'];
-        $company_logo = $row['company_logo'];
+        $company_website = $row['company_website'];
+        $company_logo = base64_encode(file_get_contents($row['company_logo']));
         $config_invoice_footer = $row['config_invoice_footer'];
 
         //Mark downloaded in history
@@ -66,159 +67,415 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
         $amount_paid = $row['amount_paid'];
 
         $balance = $invoice_amount - $amount_paid;
+        $balance = number_format($balance, 2);
 
-        $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC");
+        ?>
 
-        while($row = mysqli_fetch_array($sql_items)){
-            $item_id = $row['item_id'];
-            $item_name = $row['item_name'];
-            $item_description = $row['item_description'];
-            $item_quantity = $row['item_quantity'];
-            $item_price = $row['item_price'];
-            $item_subtotal = $row['item_price'];
-            $item_tax = $row['item_tax'];
-            $item_total = $row['item_total'];
-            $total_tax = $item_tax + $total_tax;
-            $sub_total = $item_price * $item_quantity + $sub_total;
+        <script src='plugins/pdfmake/pdfmake.js'></script>
+        <script src='plugins/pdfmake/vfs_fonts.js'></script>
 
-            $invoice_items .= "
-            <tr>
-                <td align='center'>$item_name</td>
-                <td>$item_description</td>
-                <td align='center'>$item_quantity</td>
-                <td class='cost'>$$item_price</td>
-                <td class='cost'>$$item_tax</td>
-                <td class='cost'>$$item_total</td>
-            </tr>
-            ";
+        <script>
 
+        // Invoice markup
+        // Author: Max Kostinevich
+        // BETA (no styles)
+        // http://pdfmake.org/playground.html
+        // playground requires you to assign document definition to a variable called dd
+
+        // CodeSandbox Example: https://codesandbox.io/s/pdfmake-invoice-oj81y
+
+
+        var docDefinition = {
+        info: {
+        title: '<?php echo "$company_name - Invoice"; ?>',
+        author: '<?php echo $company_name; ?>'
+        },
+
+
+        footer: {
+        columns: [
+          
+          { text: '<?php echo $config_invoice_footer; ?>', style: 'documentFooterCenter' },
+         
+        ]
+        },
+
+        watermark: {text: '<?php echo $invoice_status; ?>', color: 'grey', opacity: 0.3, bold: true, italics: false},
+
+        content: [
+          // Header
+          {
+              columns: [
+                  {
+                        image: '<?php echo "data:image;base64,$company_logo"; ?>',
+                        width: 120
+                  },
+                      
+                  [
+                      {
+                          text: 'INVOICE', 
+                          style: 'invoiceTitle',
+                          width: '*'
+                      },
+                      {
+                        stack: [
+                             {
+                                 columns: [
+                                      {
+                                          text:'Invoice #', 
+                                          style:'invoiceSubTitle',
+                                          width: '*'
+                                          
+                                      }, 
+                                      {
+                                          text:'<?php echo "$invoice_prefix$invoice_number"; ?>',
+                                          style:'invoiceSubValue',
+                                          width: 100
+                                          
+                                      }
+                                      ]
+                             },
+                             {
+                                 columns: [
+                                     {
+                                         text:'Date Issued',
+                                         style:'invoiceSubTitle',
+                                         width: '*'
+                                     }, 
+                                     {
+                                         text:'<?php echo $invoice_date ?>',
+                                         style:'invoiceSubValue',
+                                         width: 100
+                                     }
+                                     ]
+                             },
+                             {
+                                 columns: [
+                                     {
+                                         text:'Due Date',
+                                         style:'invoiceSubTitle',
+                                         width: '*'
+                                     }, 
+                                     {
+                                         text:'<?php echo $invoice_due ?>',
+                                         style:'invoiceSubValue',
+                                         width: 100
+                                     }
+                                     ]
+                             },
+                         ]
+                      }
+                  ],
+              ],
+          },
+          // Billing Headers
+          {
+              columns: [
+                  {
+                      text: '<?php echo $company_name; ?>',
+                      style:'invoiceBillingTitle',
+                      
+                  },
+                  {
+                      text: '<?php echo $client_name; ?>',
+                      style:'invoiceBillingTitle',
+                      
+                  },
+              ]
+          },
+          
+          {
+              columns: [
+                  {
+                      text: '<?php echo $company_address; ?> \n <?php echo "$company_city $company_state $company_zip"; ?> \n \n <?php echo $company_phone; ?> \n <?php echo $company_website; ?>',
+                      style: 'invoiceBillingAddress'
+                  },
+                  {
+                      text: '<?php echo $client_address; ?> \n <?php echo "$client_city $client_state $client_zip"; ?> \n \n <?php echo $client_email; ?> \n <?php echo $client_phone; ?>',
+                      style: 'invoiceBillingAddress'
+                  },
+              ]
+          },
+            // Line breaks
+          '\n\n',
+          // Items
+            {
+              table: {
+                // headers are automatically repeated if the table spans over multiple pages
+                // you can declare how many rows should be treated as headers
+                headerRows: 1,
+                widths: [ '*', 40, 'auto', 'auto', 80 ],
+
+                body: [
+                  // Table Header
+                  [ 
+                      {
+                          text: 'Product',
+                          style: 'itemsHeader'
+                      }, 
+                      {
+                          text: 'Qty',
+                          style: [ 'itemsHeader', 'center']
+                      }, 
+                      {
+                          text: 'Price',
+                          style: [ 'itemsHeader', 'center']
+                      }, 
+                      {
+                          text: 'Tax',
+                          style: [ 'itemsHeader', 'center']
+                      }, 
+                      {
+                          text: 'Total',
+                          style: [ 'itemsHeader', 'center']
+                      } 
+                  ],
+                  // Items
+                  <?php 
+                  $total_tax = 0;
+                  $sub_total = 0;
+
+                  $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC");
+                  
+                  while($row = mysqli_fetch_array($sql_invoice_items)){
+                    $item_name = $row['item_name'];
+                    $item_description = $row['item_description'];
+                    $item_quantity = $row['item_quantity'];
+                    $item_price = $row['item_price'];
+                    $item_subtotal = $row['item_price'];
+                    $item_tax = $row['item_tax'];
+                    $item_total = $row['item_total'];
+                    $tax_id = $row['tax_id'];
+                    $total_tax = $item_tax + $total_tax;
+                    $total_tax = number_format($total_tax,2);
+                    $sub_total = $item_price * $item_quantity + $sub_total;
+                    $sub_total = number_format($sub_total, 2);
+                    echo "
+
+                      // Item 1
+                      [ 
+                        [
+                            {
+                                text: '$item_name',
+                                style:'itemTitle'
+                            },
+                            {
+                                text: '$item_description',
+                                style:'itemSubTitle'
+                                
+                            }
+                        ], 
+                        {
+                            text:'$item_quantity',
+                            style:'itemNumber'
+                        }, 
+                        {
+                            text:'$$item_price',
+                            style:'itemNumber'
+                        }, 
+                        {
+                            text:'$$item_tax',
+                            style:'itemNumber'
+                        }, 
+                        {
+                            text: '$$item_total',
+                            style:'itemTotal'
+                        } 
+                    ],
+
+                    ";
+
+                  }
+
+                  ?>
+
+                  // END Items
+                ]
+              }, // table
+            //  layout: 'lightHorizontalLines'
+            },
+         // TOTAL
+            {
+              table: {
+                // headers are automatically repeated if the table spans over multiple pages
+                // you can declare how many rows should be treated as headers
+                headerRows: 0,
+                widths: [ '*', 80 ],
+
+                body: [
+                  // Total
+                  [ 
+                      {
+                          text:'Subtotal',
+                          style:'itemsFooterSubTitle'
+                      }, 
+                      { 
+                          text:'$<?php echo $sub_total; ?>',
+                          style:'itemsFooterSubValue'
+                      }
+                  ],
+                  [ 
+                      {
+                          text:'Tax',
+                          style:'itemsFooterSubTitle'
+                      },
+                      {
+                          text: '$<?php echo $total_tax; ?>',
+                          style:'itemsFooterSubValue'
+                      }
+                  ],
+                  [ 
+                      {
+                          text:'TOTAL',
+                          style:'itemsFooterTotalTitle'
+                      }, 
+                      {
+                          text: '$<?php echo $invoice_amount; ?>',
+                          style:'itemsFooterTotalValue'
+                      }
+                  ],
+                  [ 
+                      {
+                          text:'Paid',
+                          style:'itemsFooterSubTitle'
+                      },
+                      {
+                          text: '$<?php echo $amount_paid; ?>',
+                          style:'itemsFooterSubValue'
+                      }
+                  ],
+                  [ 
+                      {
+                          text:'Balance',
+                          style:'itemsFooterSubTitle'
+                      },
+                      {
+                          text: '$<?php echo $balance; ?>',
+                          style:'itemsFooterSubValue'
+                      }
+                  ],
+                ]
+              }, // table
+              layout: 'lightHorizontalLines'
+            },
+            { 
+                text: 'NOTES',
+                style:'notesTitle'
+            },
+            { 
+                text: '<?php ?>',
+                style:'notesText'
+            }
+        ],
+        styles: {
+          
+        // Document Footer
+        documentFooterCenter: {
+            fontSize: 10,
+            margin: [5,5,5,5],
+            alignment:'center'
+        },
+        // Invoice Title
+        invoiceTitle: {
+          fontSize: 22,
+          bold: true,
+          alignment:'right',
+          margin:[0,0,0,15]
+        },
+        // Invoice Details
+        invoiceSubTitle: {
+          fontSize: 12,
+          alignment:'right'
+        },
+        invoiceSubValue: {
+          fontSize: 12,
+          alignment:'right'
+        },
+        // Billing Headers
+        invoiceBillingTitle: {
+          fontSize: 14,
+          bold: true,
+          alignment:'left',
+          margin:[0,20,0,5],
+        },
+        // Billing Details
+        invoiceBillingDetails: {
+          alignment:'left'
+
+        },
+        invoiceBillingAddressTitle: {
+            margin: [0,7,0,3],
+            bold: true
+        },
+        invoiceBillingAddress: {
+            
+        },
+        // Items Header
+        itemsHeader: {
+            margin: [0,5,0,5],
+            bold: true
+        },
+        // Item Title
+        itemTitle: {
+            bold: true,
+        },
+        itemSubTitle: {
+                italics: true,
+                fontSize: 11
+        },
+        itemNumber: {
+            margin: [0,5,0,5],
+            alignment: 'center',
+        },
+        itemTotal: {
+            margin: [0,5,0,5],
+            bold: true,
+            alignment: 'center',
+        },
+
+        // Items Footer (Subtotal, Total, Tax, etc)
+        itemsFooterSubTitle: {
+            margin: [0,5,0,5],
+            bold: true,
+            alignment:'right',
+        },
+        itemsFooterSubValue: {
+            margin: [0,5,0,5],
+            bold: true,
+            alignment:'center',
+        },
+        itemsFooterTotalTitle: {
+            margin: [0,5,0,5],
+            bold: true,
+            alignment:'right',
+        },
+        itemsFooterTotalValue: {
+            margin: [0,5,0,5],
+            bold: true,
+            alignment:'center',
+        },
+        notesTitle: {
+          fontSize: 10,
+          bold: true,  
+          margin: [0,50,0,3],
+        },
+        notesText: {
+          fontSize: 10
+        },
+        center: {
+            alignment:'center',
+        },
+        },
+        defaultStyle: {
+        columnGap: 20,
         }
+        };
 
-        $html = '
-            <html>
-            <head>
-            <style>
-            body {font-family: sans-serif;
-              font-size: 10pt;
-            }
-            p { margin: 0pt; }
-            table.items {
-              border: 0.1mm solid #000000;
-            }
-            td { vertical-align: top; }
-            .items td {
-              border-left: 0.1mm solid #000000;
-              border-right: 0.1mm solid #000000;
-            }
-            table thead td { background-color: #EEEEEE;
-              text-align: center;
-              border: 0.1mm solid #000000;
-              font-variant: small-caps;
-            }
-            .items td.blanktotal {
-              background-color: #EEEEEE;
-              border: 0.1mm solid #000000;
-              background-color: #FFFFFF;
-              border: 0mm none #000000;
-              border-top: 0.1mm solid #000000;
-              border-right: 0.1mm solid #000000;
-            }
-            .items td.totals {
-              text-align: right;
-              border: 0.1mm solid #000000;
-            }
-            .items td.cost {
-              text-align: "." center;
-            }
-            </style>
-            </head>
-            <body>
-            <!--mpdf
-            <htmlpageheader name="myheader">
-            <table width="100%"><tr>
-            <td width="15%"><img width="75" height="75" src=" /'.$company_logo.' "></img></td>
-            <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$company_address.' <br /> '.$company_city.' '.$company_state.' '.$company_zip.'<br /> '.$company_phone.' </td>
-            <td width="35%" style="text-align: right;">Invoice No.<br /><span style="font-weight: bold; font-size: 12pt;"> '."$invoice_prefix$invoice_number".' </span></td>
-            </tr></table>
-            </htmlpageheader>
-            <htmlpagefooter name="myfooter">
-            <div style="border-top: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; ">
-            Page {PAGENO} of {nb}
-            </div>
-            </htmlpagefooter>
-            <sethtmlpageheader name="myheader" value="on" show-this-page="1" />
-            <sethtmlpagefooter name="myfooter" value="on" />
-            mpdf-->
-            <div style="text-align: right">Date: '.$invoice_date.'</div>
-            <div style="text-align: right">Due: '.$invoice_due.'</div>
-            <table width="100%" style="font-family: serif;" cellpadding="10"><tr>
-            <td width="45%" style="border: 0.1mm solid #888888; "><span style="font-size: 7pt; color: #555555; font-family: sans;">BILL TO:</span><br /><br /><b> '.$client_name.' </b><br />'.$client_address.'<br />'.$client_city.' '.$client_state.' '.$client_zip.' <br /><br> '.$client_email.' <br /> '.$client_phone.'</td>
-            <td width="65%">&nbsp;</td>
+        pdfMake.createPdf(docDefinition).download('<?php echo "$invoice_date-$company_name-Invoice-$invoice_prefix$invoice_number.pdf"; ?>');
 
-            </tr></table>
-            <br />
-            <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse; " cellpadding="8">
-            <thead>
-            <tr>
-            <td width="28%">Product</td>
-            <td width="28%">Description</td>
-            <td width="10%">Qty</td>
-            <td width="10%">Price</td>
-            <td width="12%">Tax</td>
-            <td width="12%">Total</td>
-            </tr>
-            </thead>
-            <tbody>
-            '.$invoice_items.'
-            <tr>
-            <td class="blanktotal" colspan="4" rowspan="5"><h4>Notes</h4> '.$invoice_note.' </td>
-            <td class="totals">Subtotal:</td>
-            <td class="totals cost">$ '.number_format($sub_total,2).' </td>
-            </tr>
-            <tr>
-            <td class="totals">Tax:</td>
-            <td class="totals cost">$ '.number_format($total_tax,2).' </td>
-            </tr>
-            <tr>
-            <td class="totals">Total:</td>
-            <td class="totals cost">$ '.number_format($invoice_amount,2).' </td>
-            </tr>
-            <tr>
-            <td class="totals">Paid:</td>
-            <td class="totals cost">$ '.number_format($amount_paid,2).' </td>
-            </tr>
-            <tr>
-            <td class="totals"><b>Balance:</b></td>
-            <td class="totals cost"><b>$ '.number_format($balance,2).' </b></td>
-            </tr>
-            </tbody>
-            </table>
-            <div style="text-align: center; font-style: italic;"> '.$config_invoice_footer.' </div>
-            </body>
-            </html>
-        ';
+        </script>
 
-        $mpdf = new \Mpdf\Mpdf([
-            'margin_left' => 5,
-            'margin_right' => 5,
-            'margin_top' => 48,
-            'margin_bottom' => 25,
-            'margin_header' => 10,
-            'margin_footer' => 10
-        ]);
-
-        $mpdf->SetProtection(array('print'));
-        $mpdf->SetTitle("$company_name - Invoice");
-        $mpdf->SetAuthor("$company_name");
-        if($invoice_status == 'Paid'){
-            $mpdf->SetWatermarkText("Paid");
-        }
-        $mpdf->showWatermarkText = true;
-        $mpdf->watermark_font = 'DejaVuSansCondensed';
-        $mpdf->watermarkTextAlpha = 0.1;
-        $mpdf->SetDisplayMode('fullpage');
-        $mpdf->WriteHTML($html);
-        $mpdf->Output("$invoice_date-$company_name-Invoice$invoice_number.pdf",'D');
+    <?php
 
     }else{
         echo "GTFO!!!";
@@ -272,150 +529,372 @@ if(isset($_GET['pdf_quote'], $_GET['url_key'])){
           $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
         }
         $company_email = $row['company_email'];
-        $company_logo = $row['company_logo'];
+        $company_website = $row['company_website'];
+        $company_logo = base64_encode(file_get_contents($row['company_logo']));
         $config_quote_footer = $row['config_quote_footer'];
 
-        $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id ORDER BY item_id ASC");
+        ?>
 
-        while($row = mysqli_fetch_array($sql_items)){
-            $item_id = $row['item_id'];
-            $item_name = $row['item_name'];
-            $item_description = $row['item_description'];
-            $item_quantity = $row['item_quantity'];
-            $item_price = $row['item_price'];
-            $item_subtotal = $row['item_price'];
-            $item_tax = $row['item_tax'];
-            $item_total = $row['item_total'];
-            $total_tax = $item_tax + $total_tax;
-            $sub_total = $item_price * $item_quantity + $sub_total;
+        <script src='plugins/pdfmake/pdfmake.js'></script>
+        <script src='plugins/pdfmake/vfs_fonts.js'></script>
+
+        <script>
+
+        // Invoice markup
+        // Author: Max Kostinevich
+        // BETA (no styles)
+        // http://pdfmake.org/playground.html
+        // playground requires you to assign document definition to a variable called dd
+
+        // CodeSandbox Example: https://codesandbox.io/s/pdfmake-invoice-oj81y
 
 
-            $items .= "
-              <tr>
-                <td align='center'>$item_name</td>
-                <td>$item_description</td>
-                <td align='center'>$item_quantity</td>
-                <td class='cost'>$$item_price</td>
-                <td class='cost'>$$item_tax</td>
-                <td class='cost'>$$item_total</td>
-              </tr>
-            ";
+        var docDefinition = {
+        info: {
+        title: '<?php echo "$company_name - Quote"; ?>',
+        author: '<?php echo $company_name; ?>'
+        },
 
-        }
 
-        $html = '
-        <html>
-        <head>
-        <style>
-        body {font-family: sans-serif;
-        font-size: 10pt;
-        }
-        p { margin: 0pt; }
-        table.items {
-        border: 0.1mm solid #000000;
-        }
-        td { vertical-align: top; }
-        .items td {
-        border-left: 0.1mm solid #000000;
-        border-right: 0.1mm solid #000000;
-        }
-        table thead td { background-color: #EEEEEE;
-        text-align: center;
-        border: 0.1mm solid #000000;
-        font-variant: small-caps;
-        }
-        .items td.blanktotal {
-        background-color: #EEEEEE;
-        border: 0.1mm solid #000000;
-        background-color: #FFFFFF;
-        border: 0mm none #000000;
-        border-top: 0.1mm solid #000000;
-        border-right: 0.1mm solid #000000;
-        }
-        .items td.totals {
-        text-align: right;
-        border: 0.1mm solid #000000;
-        }
-        .items td.cost {
-        text-align: "." center;
-        }
-        </style>
-        </head>
-        <body>
-        <!--mpdf
-        <htmlpageheader name="myheader">
-        <table width="100%"><tr>
-        <td width="15%"><img width="75" height="75" src=" /'.$company_logo.' "></img></td>
-        <td width="50%"><span style="font-weight: bold; font-size: 14pt;"> '.$company_name.' </span><br />' .$company_address.' <br /> '.$company_city.' '.$company_state.' '.$company_zip.'<br /> '.$company_phone.' </td>
-        <td width="35%" style="text-align: right;">Quote No.<br /><span style="font-weight: bold; font-size: 12pt;"> '."$quote_prefix$quote_number".' </span></td>
-        </tr></table>
-        </htmlpageheader>
-        <htmlpagefooter name="myfooter">
-        <div style="border-top: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; ">
-        Page {PAGENO} of {nb}
-        </div>
-        </htmlpagefooter>
-        <sethtmlpageheader name="myheader" value="on" show-this-page="1" />
-        <sethtmlpagefooter name="myfooter" value="on" />
-        mpdf-->
-        <div style="text-align: right">Date: '.$quote_date.'</div>
-        <table width="100%" style="font-family: serif;" cellpadding="10"><tr>
-        <td width="45%" style="border: 0.1mm solid #888888; "><span style="font-size: 7pt; color: #555555; font-family: sans;">TO:</span><br /><br /><b> '.$client_name.' </b><br />'.$client_address.'<br />'.$client_city.' '.$client_state.' '.$client_zip.' <br /><br> '.$client_email.' <br /> '.$client_phone.'</td>
-        <td width="65%">&nbsp;</td>
+        footer: {
+        columns: [
+          
+          { text: '<?php echo $config_quote_footer; ?>', style: 'documentFooterCenter' },
+         
+        ]
+        },
 
-        </tr></table>
-        <br />
-        <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse; " cellpadding="8">
-        <thead>
-        <tr>
-        <td width="28%">Product</td>
-        <td width="28%">Description</td>
-        <td width="10%">Qty</td>
-        <td width="10%">Price</td>
-        <td width="12%">Tax</td>
-        <td width="12%">Total</td>
-        </tr>
-        </thead>
-        <tbody>
-        '.$items.'
-        <tr>
-        <td class="blanktotal" colspan="4" rowspan="3"><h4>Notes</h4> '.$quote_note.' </td>
-        <td class="totals">Subtotal:</td>
-        <td class="totals cost">$ '.number_format($sub_total,2).' </td>
-        </tr>
-        <tr>
-        <td class="totals">Tax:</td>
-        <td class="totals cost">$ '.number_format($total_tax,2).' </td>
-        </tr>
-        <tr>
-        <td class="totals">Total:</td>
-        <td class="totals cost">$ '.number_format($quote_amount,2).' </td>
-        </tr>
-        </tbody>
-        </table>
-        <div style="text-align: center; font-style: italic;"> '.$config_quote_footer.' </div>
-        </body>
-        </html>
-        ';
-        
-        $mpdf = new \Mpdf\Mpdf([
-            'margin_left' => 5,
-            'margin_right' => 5,
-            'margin_top' => 48,
-            'margin_bottom' => 25,
-            'margin_header' => 10,
-            'margin_footer' => 10
-        ]);
-        $mpdf->SetProtection(array('print'));
-        $mpdf->SetTitle("$company_name - Quote");
-        $mpdf->SetAuthor("$company_name");
-        $mpdf->SetWatermarkText("Quote");
-        $mpdf->showWatermarkText = true;
-        $mpdf->watermark_font = 'DejaVuSansCondensed';
-        $mpdf->watermarkTextAlpha = 0.1;
-        $mpdf->SetDisplayMode('fullpage');
-        $mpdf->WriteHTML($html);
-        $mpdf->Output("$quote_date-$company_name-Quote$quote_number.pdf",'D');
+        watermark: {text: '<?php echo $quote_status; ?>', color: 'grey', opacity: 0.3, bold: true, italics: false},
+
+        content: [
+          // Header
+          {
+              columns: [
+                  {
+                        image: '<?php echo "data:image;base64,$company_logo"; ?>',
+                        width: 120
+                  },
+                      
+                  [
+                      {
+                          text: 'QUOTE', 
+                          style: 'invoiceTitle',
+                          width: '*'
+                      },
+                      {
+                        stack: [
+                             {
+                                 columns: [        
+                                      {
+                                          text:'<?php echo "$quote_prefix$quote_number"; ?>',
+                                          style:'invoiceSubValue',
+                                          width: '*'
+                                          
+                                      },
+                                      ]
+                             },
+                             {
+                                 columns: [
+                                     {
+                                         text:'<?php echo $quote_date ?>',
+                                         style:'invoiceSubValue',
+                                         width: '*'
+                                     }
+                                     ]
+                             },
+                         ]
+                      }
+                  ],
+              ],
+          },
+          // Billing Headers
+          {
+              columns: [
+                  {
+                      text: '<?php echo $company_name; ?>',
+                      style:'invoiceBillingTitle',
+                      
+                  },
+                  {
+                      text: '<?php echo $client_name; ?>',
+                      style:'invoiceBillingTitle',
+                      
+                  },
+              ]
+          },
+          
+          {
+              columns: [
+                  {
+                      text: '<?php echo $company_address; ?> \n <?php echo "$company_city $company_state $company_zip"; ?> \n \n <?php echo $company_phone; ?> \n <?php echo $company_website; ?>',
+                      style: 'invoiceBillingAddress'
+                  },
+                  {
+                      text: '<?php echo $client_address; ?> \n <?php echo "$client_city $client_state $client_zip"; ?> \n \n <?php echo $client_email; ?> \n <?php echo $client_phone; ?>',
+                      style: 'invoiceBillingAddress'
+                  },
+              ]
+          },
+            // Line breaks
+          '\n\n',
+          // Items
+            {
+              table: {
+                // headers are automatically repeated if the table spans over multiple pages
+                // you can declare how many rows should be treated as headers
+                headerRows: 1,
+                widths: [ '*', 40, 'auto', 'auto', 80 ],
+
+                body: [
+                  // Table Header
+                  [ 
+                      {
+                          text: 'Product',
+                          style: 'itemsHeader'
+                      }, 
+                      {
+                          text: 'Qty',
+                          style: [ 'itemsHeader', 'center']
+                      }, 
+                      {
+                          text: 'Price',
+                          style: [ 'itemsHeader', 'center']
+                      }, 
+                      {
+                          text: 'Tax',
+                          style: [ 'itemsHeader', 'center']
+                      }, 
+                      {
+                          text: 'Total',
+                          style: [ 'itemsHeader', 'center']
+                      } 
+                  ],
+                  // Items
+                  <?php 
+                  $total_tax = 0;
+                  $sub_total = 0;
+
+                  $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE quote_id = $quote_id ORDER BY item_id ASC");
+                  
+                  while($row = mysqli_fetch_array($sql_invoice_items)){
+                    $item_name = $row['item_name'];
+                    $item_description = $row['item_description'];
+                    $item_quantity = $row['item_quantity'];
+                    $item_price = $row['item_price'];
+                    $item_subtotal = $row['item_price'];
+                    $item_tax = $row['item_tax'];
+                    $item_total = $row['item_total'];
+                    $tax_id = $row['tax_id'];
+                    $total_tax = $item_tax + $total_tax;
+                    $total_tax = number_format($total_tax,2);
+                    $sub_total = $item_price * $item_quantity + $sub_total;
+                    $sub_total = number_format($sub_total, 2);
+                    echo "
+
+                      // Item 1
+                      [ 
+                        [
+                            {
+                                text: '$item_name',
+                                style:'itemTitle'
+                            },
+                            {
+                                text: '$item_description',
+                                style:'itemSubTitle'
+                                
+                            }
+                        ], 
+                        {
+                            text:'$item_quantity',
+                            style:'itemNumber'
+                        }, 
+                        {
+                            text:'$$item_price',
+                            style:'itemNumber'
+                        }, 
+                        {
+                            text:'$$item_tax',
+                            style:'itemNumber'
+                        }, 
+                        {
+                            text: '$$item_total',
+                            style:'itemTotal'
+                        } 
+                    ],
+
+                    ";
+
+                  }
+
+                  ?>
+
+                  // END Items
+                ]
+              }, // table
+            //  layout: 'lightHorizontalLines'
+            },
+         // TOTAL
+            {
+              table: {
+                // headers are automatically repeated if the table spans over multiple pages
+                // you can declare how many rows should be treated as headers
+                headerRows: 0,
+                widths: [ '*', 80 ],
+
+                body: [
+                  // Total
+                  [ 
+                      {
+                          text:'Subtotal',
+                          style:'itemsFooterSubTitle'
+                      }, 
+                      { 
+                          text:'$<?php echo $sub_total; ?>',
+                          style:'itemsFooterSubValue'
+                      }
+                  ],
+                  [ 
+                      {
+                          text:'Tax',
+                          style:'itemsFooterSubTitle'
+                      },
+                      {
+                          text: '$<?php echo $total_tax; ?>',
+                          style:'itemsFooterSubValue'
+                      }
+                  ],
+                  [ 
+                      {
+                          text:'TOTAL',
+                          style:'itemsFooterTotalTitle'
+                      }, 
+                      {
+                          text: '$<?php echo $quote_amount; ?>',
+                          style:'itemsFooterTotalValue'
+                      }
+                  ],
+                ]
+              }, // table
+              layout: 'lightHorizontalLines'
+            },
+            { 
+                text: 'NOTES',
+                style:'notesTitle'
+            },
+            { 
+                text: '<?php ?>',
+                style:'notesText'
+            }
+        ],
+        styles: {
+          
+        // Document Footer
+        documentFooterCenter: {
+            fontSize: 10,
+            margin: [5,5,5,5],
+            alignment:'center'
+        },
+        // Invoice Title
+        invoiceTitle: {
+          fontSize: 22,
+          bold: true,
+          alignment:'right',
+          margin:[0,0,0,15]
+        },
+        // Invoice Details
+        invoiceSubTitle: {
+          fontSize: 12,
+          alignment:'right'
+        },
+        invoiceSubValue: {
+          fontSize: 12,
+          alignment:'right'
+        },
+        // Billing Headers
+        invoiceBillingTitle: {
+          fontSize: 14,
+          bold: true,
+          alignment:'left',
+          margin:[0,20,0,5],
+        },
+        // Billing Details
+        invoiceBillingDetails: {
+          alignment:'left'
+
+        },
+        invoiceBillingAddressTitle: {
+            margin: [0,7,0,3],
+            bold: true
+        },
+        invoiceBillingAddress: {
+            
+        },
+        // Items Header
+        itemsHeader: {
+            margin: [0,5,0,5],
+            bold: true
+        },
+        // Item Title
+        itemTitle: {
+            bold: true,
+        },
+        itemSubTitle: {
+                italics: true,
+                fontSize: 11
+        },
+        itemNumber: {
+            margin: [0,5,0,5],
+            alignment: 'center',
+        },
+        itemTotal: {
+            margin: [0,5,0,5],
+            bold: true,
+            alignment: 'center',
+        },
+
+        // Items Footer (Subtotal, Total, Tax, etc)
+        itemsFooterSubTitle: {
+            margin: [0,5,0,5],
+            bold: true,
+            alignment:'right',
+        },
+        itemsFooterSubValue: {
+            margin: [0,5,0,5],
+            bold: true,
+            alignment:'center',
+        },
+        itemsFooterTotalTitle: {
+            margin: [0,5,0,5],
+            bold: true,
+            alignment:'right',
+        },
+        itemsFooterTotalValue: {
+            margin: [0,5,0,5],
+            bold: true,
+            alignment:'center',
+        },
+        notesTitle: {
+          fontSize: 10,
+          bold: true,  
+          margin: [0,50,0,3],
+        },
+        notesText: {
+          fontSize: 10
+        },
+        center: {
+            alignment:'center',
+        },
+        },
+        defaultStyle: {
+        columnGap: 20,
+        }
+        };
+
+        pdfMake.createPdf(docDefinition).download('<?php echo "$quote_date-$company_name-QUOTE-$quote_prefix$quote_number.pdf"; ?>');
+
+        </script>
+
+    <?php
 
     }else{
         echo "GTFO!!!";
