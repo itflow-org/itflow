@@ -121,10 +121,10 @@ if(isset($_GET['invoice_id'])){
       
       <div class="col-md-4">
         <?php if($invoice_status == 'Draft'){ ?>
-        <button class="btn btn-success btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
           <i class="fas fa-fw fa-paper-plane"></i> Send
         </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <div class="dropdown-menu">
           <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send Email</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">Mark Sent</a>
@@ -139,16 +139,16 @@ if(isset($_GET['invoice_id'])){
       <div class="col-md-8">
         
         <div class="dropdown dropleft text-center">
-          <button class="btn btn-primary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button class="btn btn-primary btn-sm float-right" type="button" data-toggle="dropdown">
             <i class="fas fa-fw fa-ellipsis-v"></i>
           </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <div class="dropdown-menu">
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">Edit</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceRecurringModal<?php echo $invoice_id; ?>">Recurring</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
-            <a class="dropdown-item" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>">PDF</a>
+            <a class="dropdown-item" target="_blank" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>">PDF</a>
             <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send Email</a>
             
             <a class="dropdown-item" target="_blank" href="guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Guest URL</a>

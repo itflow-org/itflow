@@ -128,7 +128,7 @@ if(isset($_GET['quote_id'])){
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">Copy</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
-            <a class="dropdown-item" href="post.php?pdf_quote=<?php echo $quote_id; ?>">PDF</a>
+            <a class="dropdown-item" target="_blank" href="post.php?pdf_quote=<?php echo $quote_id; ?>">PDF</a>
             <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send Email</a>
             <a class="dropdown-item" target="_blank" href="guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">Guest URL</a>
             <div class="dropdown-divider"></div>
