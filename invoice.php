@@ -148,7 +148,7 @@ if(isset($_GET['invoice_id'])){
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceRecurringModal<?php echo $invoice_id; ?>">Recurring</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
-            <a class="dropdown-item" target="_blank" href="post.php?pdf_invoice=<?php echo $invoice_id; ?>">PDF</a>
+            <a class="dropdown-item" target="_blank" href="post.php?download_invoice=<?php echo $invoice_id; ?>">Download</a>
             <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send Email</a>
             
             <a class="dropdown-item" target="_blank" href="guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Guest URL</a>

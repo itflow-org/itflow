@@ -119,7 +119,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
       <div class="float-right">
         <a class="btn btn-secondary" data-toggle="collapse" href="#collapsePreviousInvoices"><i class="fa fa-fw fa-history"></i> Invoice History</a>
         <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
-        <a class="btn btn-primary" target="_blank" href="guest_post.php?pdf_invoice=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-download"></i> Download</a>
+        <a class="btn btn-primary" target="_blank" href="guest_post.php?download_invoice=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-download"></i> Download</a>
         <?php
         if($invoice_status != "Paid" and $invoice_status  != "Cancelled" and $invoice_status != "Draft" and $config_stripe_enable == 1){
         ?>

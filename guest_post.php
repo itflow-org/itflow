@@ -3,9 +3,9 @@
 include("config.php");
 include("functions.php");
 
-if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
+if(isset($_GET['download_invoice'], $_GET['url_key'])){
 
-    $invoice_id = intval($_GET['pdf_invoice']);
+    $invoice_id = intval($_GET['download_invoice']);
     $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, companies, settings
@@ -65,6 +65,7 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
         $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE invoice_id = $invoice_id");
         $row = mysqli_fetch_array($sql_amount_paid);
         $amount_paid = $row['amount_paid'];
+        $amount_paid = number_format($amount_paid, 2);
 
         $balance = $invoice_amount - $amount_paid;
         $balance = number_format($balance, 2);
@@ -482,9 +483,9 @@ if(isset($_GET['pdf_invoice'], $_GET['url_key'])){
     }
 }
 
-if(isset($_GET['pdf_quote'], $_GET['url_key'])){
+if(isset($_GET['download_quote'], $_GET['url_key'])){
 
-    $quote_id = intval($_GET['pdf_quote']);
+    $quote_id = intval($_GET['download_quote']);
     $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients, companies, settings

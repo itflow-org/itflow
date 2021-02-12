@@ -2025,9 +2025,9 @@ if(isset($_GET['decline_quote'])){
 
 }
 
-if(isset($_GET['pdf_quote'])){
+if(isset($_GET['download_quote'])){
 
-    $quote_id = intval($_GET['pdf_quote']);
+    $quote_id = intval($_GET['download_quote']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes, clients, companies
     WHERE quotes.client_id = clients.client_id
@@ -2433,9 +2433,7 @@ if(isset($_GET['pdf_quote'])){
     }
     };
 
-    pdfMake.createPdf(docDefinition).open({}, window);
-
-
+    pdfMake.createPdf(docDefinition).download('<?php echo "$quote_date-$company_name-$client_name-Quote-$quote_prefix$quote_number.pdf"; ?>');
 
     </script>
 
@@ -3310,9 +3308,9 @@ if(isset($_GET['delete_revenue'])){
   
 }
 
-if(isset($_GET['pdf_invoice'])){
+if(isset($_GET['download_invoice'])){
 
-    $invoice_id = intval($_GET['pdf_invoice']);
+    $invoice_id = intval($_GET['download_invoice']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, companies
     WHERE invoices.client_id = clients.client_id
@@ -3368,6 +3366,14 @@ if(isset($_GET['pdf_invoice'])){
     $company_website = $row['company_website'];
     $company_logo = base64_encode(file_get_contents($row['company_logo']));
 
+    //Add up all the payments for the invoice and get the total amount paid to the invoice
+    $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE invoice_id = $invoice_id");
+    $row = mysqli_fetch_array($sql_amount_paid);
+    $amount_paid = $row['amount_paid'];
+    $amount_paid = number_format($amount_paid, 2);
+
+    $balance = $invoice_amount - $amount_paid;
+    $balance = number_format($balance, 2);
 
     ?>
 
@@ -3634,6 +3640,26 @@ if(isset($_GET['pdf_invoice'])){
                       style:'itemsFooterTotalValue'
                   }
               ],
+              [ 
+                  {
+                      text:'Paid',
+                      style:'itemsFooterSubTitle'
+                  },
+                  {
+                      text: '$<?php echo $amount_paid; ?>',
+                      style:'itemsFooterSubValue'
+                  }
+              ],
+              [ 
+                  {
+                      text:'Balance',
+                      style:'itemsFooterSubTitle'
+                  },
+                  {
+                      text: '$<?php echo $balance; ?>',
+                      style:'itemsFooterSubValue'
+                  }
+              ],
             ]
           }, // table
           layout: 'lightHorizontalLines'
@@ -3751,9 +3777,7 @@ if(isset($_GET['pdf_invoice'])){
     }
     };
 
-    pdfMake.createPdf(docDefinition).open({}, window);
-
-
+    pdfMake.createPdf(docDefinition).download('<?php echo "$invoice_date-$company_name-$client_name-Invoice-$invoice_prefix$invoice_number.pdf"; ?>');
 
     </script>
 
