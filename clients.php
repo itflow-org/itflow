@@ -144,6 +144,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }
             $client_email = $row['client_email'];
             $client_website = $row['client_website'];
+            $client_currency_code = $row['client_currency_code'];
             $client_net_terms = $row['client_net_terms'];
             $client_referral = $row['client_referral'];
             $client_notes = $row['client_notes'];

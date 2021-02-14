@@ -34,6 +34,7 @@ if(isset($_GET['client_id'])){
   }
   $client_website = $row['client_website'];
   $client_referral = $row['client_referral'];
+  $client_currency_code = $row['client_currency_code'];
   $client_net_terms = $row['client_net_terms'];
   if($client_net_terms == 0){
     $client_net_terms = $config_default_net_terms;

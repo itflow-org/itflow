@@ -236,11 +236,13 @@
             $invoice_date = $row['invoice_date'];
             $invoice_due = $row['invoice_due'];
             $invoice_amount = $row['invoice_amount'];
+            $invoice_currency_code = $row['invoice_currency_code'];
             $invoice_created_at = $row['invoice_created_at'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
+            $client_currency_code = $row['client_currency_code'];
             $client_net_terms = $row['client_net_terms'];
             if($client_net_terms == 0){
               $client_net_terms = $config_default_net_terms;

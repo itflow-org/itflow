@@ -25,6 +25,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     $invoice_date = $row['invoice_date'];
     $invoice_due = $row['invoice_due'];
     $invoice_amount = $row['invoice_amount'];
+    $invoice_currency_code = $row['invoice_currency_code'];
     $invoice_note = $row['invoice_note'];
     $invoice_category_id = $row['category_id'];
     $client_id = $row['client_id'];

@@ -26,6 +26,7 @@ if(isset($_GET['recurring_id'])){
   }
   $recurring_next_date = $row['recurring_next_date'];
   $recurring_amount = $row['recurring_amount'];
+  $recurring_currency_code = $row['recurring_currency_code'];
   $recurring_note = $row['recurring_note'];
   $recurring_created_at = $row['recurring_created_at'];
   $category_id = $row['category_id'];
@@ -46,6 +47,7 @@ if(isset($_GET['recurring_id'])){
     $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
   }
   $client_website = $row['client_website'];
+  $client_currency_code = $row['client_currency_code'];
   $client_net_terms = $row['client_net_terms'];
   
   if($recurring_status == 1){

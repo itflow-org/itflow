@@ -20,6 +20,7 @@ if(isset($_GET['quote_id'])){
   $quote_status = $row['quote_status'];
   $quote_date = $row['quote_date'];
   $quote_amount = $row['quote_amount'];
+  $quote_currency_code = $row['quote_currency_code'];
   $quote_note = $row['quote_note'];
   $quote_url_key = $row['quote_url_key'];
   $quote_created_at = $row['quote_created_at'];
@@ -41,6 +42,7 @@ if(isset($_GET['quote_id'])){
     $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
   }
   $client_website = $row['client_website'];
+  $client_currency_code = $row['client_currency_code'];
   $client_net_terms = $row['client_net_terms'];
   if($client_net_terms == 0){
     $client_net_terms = $config_default_net_terms;

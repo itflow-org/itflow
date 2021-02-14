@@ -64,10 +64,9 @@
               </select>
             </div>
           </div>
-         
-        
+           
           <div class="form-group">
-            <label>Income Category <strong class="text-danger">*</strong></label>
+            <label>Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
@@ -90,6 +89,21 @@
               <div class="input-group-append">
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i></button>
               </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Currency <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
+              </div>
+              <select class="form-control select2" name="currency_code" required>
+                <option value="">- Currency -</option>
+                <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
+                <option <?php if(isset($_GET['client_id']) AND $client_currency_code == $currency_code){ echo "selected"; }elseif($config_default_currency == $currency_code){ echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                <?php } ?>
+              </select>
             </div>
           </div>
 

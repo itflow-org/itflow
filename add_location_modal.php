@@ -144,7 +144,7 @@
                   <select class="form-control select2" name="country">
                     <option value="">- Country -</option>
                     <?php foreach($countries_array as $country_name) { ?>
-                    <option><?php echo $country_name; ?></option>
+                    <option <?php if($country_name == $client_country){ echo "selected"; } ?> ><?php echo $country_name; ?></option>
                     <?php } ?>
                   </select>
                 </div>

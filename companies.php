@@ -39,8 +39,9 @@ if(isset($_GET['o'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM companies
-  WHERE company_name LIKE '%$q%'
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM companies, settings
+  WHERE companies.company_id = settings.company_id
+  AND (company_name LIKE '%$q%')
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -96,6 +97,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $company_logo = $row['company_logo'];
             
             $company_initials = initials($company_name);
+
+            $company_currency_code = $row['config_default_currency'];
       
           ?>
           <tr>

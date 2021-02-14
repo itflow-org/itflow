@@ -25,6 +25,7 @@ if(isset($_GET['invoice_id'])){
   $invoice_date = $row['invoice_date'];
   $invoice_due = $row['invoice_due'];
   $invoice_amount = $row['invoice_amount'];
+  $invoice_currency_code = $row['invoice_currency_code'];
   $invoice_note = $row['invoice_note'];
   $invoice_url_key = $row['invoice_url_key'];
   $invoice_created_at = $row['invoice_created_at'];
@@ -46,6 +47,7 @@ if(isset($_GET['invoice_id'])){
     $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
   }
   $client_website = $row['client_website'];
+  $client_currency_code = $row['client_currency_code'];
   $client_net_terms = $row['client_net_terms'];
   if($client_net_terms == 0){
     $client_net_terms = $config_default_net_terms;

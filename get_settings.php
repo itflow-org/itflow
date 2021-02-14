@@ -18,6 +18,8 @@ $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
 
 //Defaults
+$config_default_country = $row['config_default_country'];
+$config_default_currency = $row['config_default_currency'];
 $config_default_transfer_from_account = $row['config_default_transfer_from_account'];
 $config_default_transfer_to_account = $row['config_default_transfer_to_account'];
 $config_default_payment_account = $row['config_default_payment_account'];
@@ -155,6 +157,13 @@ $timezones_array = array(
 	'US/Central',
 	'US/Mountain',
 	'US/Pacific'
+);
+
+$currencies_array = array(
+    'USD'=>'US Dollars',
+    'EUR'=>'Euro',
+    'GBP'=>'British Pounds',
+    'TRY'=>'Turkish Lira'
 );
 
 $category_types_array = array(

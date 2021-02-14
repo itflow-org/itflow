@@ -10,12 +10,42 @@
     <form action="post.php" method="post" autocomplete="off">
       
       <div class="form-group">
+        <label>Country</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+          </div>
+          <select class="form-control select2" name="country">
+            <option value="">- Country -</option>
+            <?php foreach($countries_array as $country) { ?>
+            <option <?php if($config_default_country == $country){ echo "selected"; } ?>><?php echo $country; ?></option>
+            <?php } ?>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Currency</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
+          </div>
+          <select class="form-control select2" name="currency_code" required>
+            <option value="">- Currency -</option>
+            <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
+            <option <?php if($config_default_currency == $currency_code){ echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+            <?php } ?>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
         <label>Transfer From Account</label>
         <div class="input-group">
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
           </div>
-          <select class="form-control select2" name="config_default_transfer_from_account">
+          <select class="form-control select2" name="transfer_from_account">
             <option value="0">- None -</option>
             <?php 
             
@@ -40,7 +70,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
           </div>
-          <select class="form-control select2" name="config_default_transfer_to_account">
+          <select class="form-control select2" name="transfer_to_account">
             <option value="0">- None -</option>
             <?php 
             
@@ -65,7 +95,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
           </div>
-          <select class="form-control select2" name="config_default_payment_account">
+          <select class="form-control select2" name="payment_account">
             <option value="0">- None -</option>
             <?php 
             
@@ -90,7 +120,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
           </div>
-          <select class="form-control select2" name="config_default_expense_account">
+          <select class="form-control select2" name="expense_account">
             <option value="0">- None -</option>
             <?php 
             
@@ -115,7 +145,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
           </div>
-          <select class="form-control select2" name="config_default_payment_method">
+          <select class="form-control select2" name="payment_method">
             <option value="">- None -</option>
             <?php 
             
@@ -139,7 +169,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
           </div>
-          <select class="form-control select2" name="config_default_expense_payment_method">
+          <select class="form-control select2" name="expense_payment_method">
             <option value="">- None -</option>
             <?php 
             
@@ -163,7 +193,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
           </div>
-          <select class="form-control select2" name="config_default_calendar">
+          <select class="form-control select2" name="calendar">
             <option value="0">- None -</option>
             <?php 
             
@@ -188,7 +218,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
           </div>
-          <select class="form-control select2" name="config_default_net_terms">
+          <select class="form-control select2" name="net_terms">
             <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
             <option <?php if($config_default_net_terms == $net_term_value){ echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
             <?php } ?>
