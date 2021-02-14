@@ -1507,10 +1507,10 @@ if(isset($_POST['add_transfer'])){
     $account_to = intval($_POST['account_to']);
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
 
-    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', vendor_id = 0, category_id = 0, account_id = $account_from, expense_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', expense_currency_code = '$config_default_currency', vendor_id = 0, category_id = 0, account_id = $account_from, expense_created_at = NOW(), company_id = $session_company_id");
     $expense_id = mysqli_insert_id($mysqli);
     
-    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', account_id = $account_to, category_id = 0, revenue_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_currency_code = '$config_default_currency', account_id = $account_to, category_id = 0, revenue_created_at = NOW(), company_id = $session_company_id");
     $revenue_id = mysqli_insert_id($mysqli);
 
     mysqli_query($mysqli,"INSERT INTO transfers SET expense_id = $expense_id, revenue_id = $revenue_id, transfer_notes = '$notes', transfer_created_at = NOW(), company_id = $session_company_id");
