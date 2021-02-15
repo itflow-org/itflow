@@ -61,6 +61,29 @@ $config_stripe_enable = $row['config_stripe_enable'];
 $config_stripe_publishable = $row['config_stripe_publishable'];
 $config_stripe_secret = $row['config_stripe_secret'];
 
+$colors_array = array(
+    'green',
+    'olive',
+    'yellowgreen',
+    'lime',
+    'blue',
+    'darkblue',
+    'cadetblue',
+    'cyan',
+    'purple',
+    'indigo',
+    'magenta',
+    'red',
+    'crimson',
+    'indianred',
+    'pink',
+    'orange',
+    'teal',
+    'black',
+    'gray-dark',
+    'gray' 
+);
+
 $net_terms_array = array(
     '0'=>'On Reciept',
     '7'=>'7 Days',

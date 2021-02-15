@@ -9,6 +9,7 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="category_id" value="<?php echo $category_id; ?>">
+        <input type="hidden" name="type" value="<?php echo $category; ?>">
         <div class="modal-body bg-white">
           
           <div class="form-group">
@@ -16,18 +17,23 @@
             <input type="text" class="form-control" name="name" value="<?php echo $category_name; ?>" required>
           </div>
           
-          <div class="form-group">
-            <label>Type <strong class="text-danger">*</strong></label>
-            <select class="form-control select2" name="type" required>
-              <?php foreach($category_types_array as $category_type_select) { ?>
-              <option <?php if($category_type == $category_type_select) { echo "selected"; } ?>><?php echo $category_type_select; ?></option>
-              <?php } ?>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label>Color <strong class="text-danger">*</strong></label>
-            <input type="color" class="form-control col-md-2" name="color" value="<?php echo $category_color; ?>">
+          <label>Color <strong class="text-danger">*</strong></label>
+          <div class="form-row">
+
+            <?php 
+
+            foreach($colors_diff as $color) { 
+            ?>
+            <div class="col-3 mb-3">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="color" value="<?php echo $color; ?>" <?php if($category_color == $color){ echo "checked"; } ?>>
+                <label class="form-check-label">
+                  <i class="fa fa-fw fa-3x fa-circle" style="color:<?php echo $color; ?>"></i>
+                </label>
+              </div>
+            </div>
+           
+            <?php } ?>
           </div>
         
         </div>

@@ -17,6 +17,12 @@ if(isset($_GET['q'])){
   $q = "";
 }
 
+ if(isset($_GET['category'])){
+    $category = mysqli_real_escape_string($mysqli,$_GET['category']);
+  }else{
+    $category = "Expense";
+  }
+
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
@@ -40,7 +46,8 @@ if(isset($_GET['o'])){
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM categories 
-  WHERE (category_name LIKE '%$q%' OR category_type LIKE '%$q%')
+  WHERE category_name LIKE '%$q%'
+  AND category_type = '$category'
   AND category_archived_at IS NULL
   AND company_id = $session_company_id 
   ORDER BY $sb $o LIMIT $record_from, $record_to"
@@ -48,22 +55,47 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM categories
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
+//Colors Used
+$sql_colors_used = mysqli_query($mysqli,"SELECT category_color FROM categories 
+  WHERE category_type = '$category'
+  AND category_archived_at IS NULL
+  AND company_id = $session_company_id"
+);
+
+while($color_used_row = mysqli_fetch_array($sql_colors_used)){
+  $colors_used_array[] = $color_used_row['category_color'];
+}
+$colors_diff = array_diff($colors_array,$colors_used_array);
+
 ?>
 
 
 <div class="card card-dark">
   <div class="card-header py-2">
-    <h3 class="card-title mt-2"><i class="fa fa-fw fa-list"></i> Categories</h3>
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-list"></i> <?php echo $category; ?> Categories</h3>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCategoryModal"><i class="fas fa-fw fa-plus"></i> New Category</button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCategoryModal"><i class="fas fa-fw fa-plus"></i> New</button>
     </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
-      <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Categories">
-        <div class="input-group-append">
-          <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+      <input type="hidden" name="category" value="<?php echo $category; ?>">
+      <div class="row">
+        <div class="col-sm-4 mb-2">
+          <div class="input-group">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Categories">
+            <div class="input-group-append">
+              <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-8">
+          <div class="btn-group float-right">
+            <a href="?category=Expense" class="btn <?php if($category == 'Expense'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Expense</a>
+            <a href="?category=Income" class="btn <?php if($category == 'Income'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Income</a>
+            <a href="?category=Referral" class="btn <?php if($category == 'Referral'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Refferal</a>
+            <a href="?category=Payment Method" class="btn <?php if($category == 'Payment Method'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Payment Method</a>
+          </div>
         </div>
       </div>
     </form>
@@ -73,25 +105,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Name</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=category_type&o=<?php echo $disp; ?>">Type</a></th>
             <th>Color</th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
         <tbody>
           <?php
-      
+
           while($row = mysqli_fetch_array($sql)){
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
-            $category_type = $row['category_type'];
             $category_color = $row['category_color'];
+            //$colors_used_array[] = $row['category_color'];
       
           ?>
           <tr>
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editCategoryModal<?php echo $category_id; ?>"><?php echo "$category_name"; ?></a></td>
-            <td><?php echo $category_type; ?></td>
-            <td><i class="fa fa-2x fa-circle" style="color:<?php echo $category_color; ?>;"></i></td>
+            <td><i class="fa fa-3x fa-circle" style="color:<?php echo $category_color; ?>;"></i></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -108,7 +138,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
 
+          //$colors_diff = array_diff($colors_array,$colors_used_array);
+
           include("edit_category_modal.php");
+
           }
 
           ?>
