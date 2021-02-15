@@ -18,6 +18,14 @@
           </div>
           
           <label>Color <strong class="text-danger">*</strong></label>
+          <div class="mb-3">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="color" value="<?php echo $category_color; ?>" checked>
+                <label class="form-check-label">
+                  <i class="fa fa-fw fa-4x fa-circle" style="color:<?php echo $category_color; ?>"></i>
+                </label>
+              </div>
+            </div>
           <div class="form-row">
 
             <?php 
@@ -26,7 +34,7 @@
             ?>
             <div class="col-3 mb-3">
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="color" value="<?php echo $color; ?>" <?php if($category_color == $color){ echo "checked"; } ?>>
+                <input class="form-check-input" type="radio" name="color" value="<?php echo $color; ?>">
                 <label class="form-check-label">
                   <i class="fa fa-fw fa-3x fa-circle" style="color:<?php echo $color; ?>"></i>
                 </label>
