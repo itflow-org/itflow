@@ -182,7 +182,6 @@ if(isset($_GET['invoice_id'])){
         <h3 class="text-right mt-5"><strong>Invoice</strong><br><small class="text-secondary"><?php echo "$invoice_prefix$invoice_number"; ?></small></h3>
       </div>
       
-        
     </div>
     <div class="row mb-4">
       <div class="col-sm">

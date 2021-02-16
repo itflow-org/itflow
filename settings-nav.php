@@ -57,6 +57,14 @@
   </li>
  
   <li class="nav-item">
+    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-update.php") { echo "active"; } ?>" 
+      href="settings-update.php">
+      <i class="fa fa-fw fa-2x fa-wrench"></i><br>
+      Update
+    </a> 
+  </li>
+
+  <li class="nav-item">
     <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-backup.php") { echo "active"; } ?>" 
       href="settings-backup.php">
       <i class="fa fa-fw fa-2x fa-database"></i><br>

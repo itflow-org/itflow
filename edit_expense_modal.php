@@ -153,6 +153,11 @@
             <label>Receipt</label>
             <input type="file" class="form-control-file" name="file">
           </div>
+
+          <?php if(!empty($expense_receipt)){ ?>
+            <hr>
+            <a class="text-secondary" href="<?php echo $expense_receipt; ?>"><i class="fa fa-fw fa-2x fa-file-pdf text-secondary"></i> <?php echo basename($expense_receipt); ?></a>
+          <?php } ?>
         
         </div>
         <div class="modal-footer bg-white">
