@@ -72,10 +72,10 @@
                   $row = mysqli_fetch_array($sql_expenses);
                   $total_expenses = $row['total_expenses'];
 
-                  $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
+                  $account_balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
                   
                 ?>
-                  <option <?php if($config_default_payment_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                  <option <?php if($config_default_payment_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($account_balance,2); ?>]</option>
                 
                 <?php
                 }
