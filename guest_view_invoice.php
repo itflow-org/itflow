@@ -494,7 +494,11 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
       </div>
     </div>
 
-    <script src='plugins/pdfmake/pdfmake.js'></script>
+  <?php
+  }
+  ?>
+
+  <script src='plugins/pdfmake/pdfmake.js'></script>
         <script src='plugins/pdfmake/vfs_fonts.js'></script>
 
         <script>
@@ -895,10 +899,6 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         };
 
         </script>
-
-  <?php
-  }
-  ?>
 
 
 
