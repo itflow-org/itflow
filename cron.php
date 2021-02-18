@@ -33,6 +33,7 @@ while($row = mysqli_fetch_array($sql_companies)){
   $config_mail_from_email = $row['config_mail_from_email'];
   $config_mail_from_name = $row['config_mail_from_name'];
   $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
+  $config_enable_alert_low_balance = $row['config_enable_alert_low_balance'];
   $config_base_url = $row['config_base_url'];
 
   if($config_enable_cron == 1){
@@ -139,29 +140,33 @@ while($row = mysqli_fetch_array($sql_companies)){
     }
     
     //LOW BALANCE ALERTS
-    $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $company_id ORDER BY account_id DESC");
+    if($config_enable_alert_low_balance == 1){
 
-    while($row = mysqli_fetch_array($sql)){
-      $account_id = $row['account_id'];
-      $account_name = $row['account_name'];
-      $opening_balance = $row['opening_balance'];
+      $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $company_id ORDER BY account_id DESC");
 
-      $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
-      $row = mysqli_fetch_array($sql_payments);
-      $total_payments = $row['total_payments'];
+      while($row = mysqli_fetch_array($sql)){
+        $account_id = $row['account_id'];
+        $account_name = $row['account_name'];
+        $opening_balance = $row['opening_balance'];
 
-      $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id");
-      $row = mysqli_fetch_array($sql_revenues);
-      $total_revenues = $row['total_revenues'];
-      
-      $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
-      $row = mysqli_fetch_array($sql_expenses);
-      $total_expenses = $row['total_expenses'];
+        $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
+        $row = mysqli_fetch_array($sql_payments);
+        $total_payments = $row['total_payments'];
 
-      $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
+        $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id");
+        $row = mysqli_fetch_array($sql_revenues);
+        $total_revenues = $row['total_revenues'];
+        
+        $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
+        $row = mysqli_fetch_array($sql_expenses);
+        $total_expenses = $row['total_expenses'];
 
-      if($balance < $config_account_balance_threshold){
-        mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Account Low Balance', alert_message = 'Threshold of $config_account_balance_threshold triggered low balance of $balance on account $account_name', alert_date = NOW(), company_id = $company_id");
+        $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
+
+        if($balance < $config_account_balance_threshold){
+          mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Account Low Balance', alert_message = 'Threshold of $config_account_balance_threshold triggered low balance of $balance on account $account_name', alert_date = NOW(), company_id = $company_id");
+        }
+
       }
 
     }
