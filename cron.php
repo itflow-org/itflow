@@ -212,25 +212,12 @@ while($row = mysqli_fetch_array($sql_companies)){
         $item_quantity = $row['item_quantity'];
         $item_price = $row['item_price'];
         $item_subtotal = $row['item_subtotal'];
+        $item_tax = $row['item_tax'];
+        $item_total = $row['item_total'];
         $tax_id = $row['tax_id'];
 
-        //Recalculate Item Tax since Tax percents can change.
-        if($tax_id > 0){
-            $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id AND company_id = $company_id");
-            $row = mysqli_fetch_array($sql);
-            $tax_percent = $row['tax_percent'];
-            $item_tax_amount = $item_subtotal * $tax_percent / 100;
-        }else{
-            $item_tax_amount = 0;
-        }
-        
-        $item_total = $item_subtotal + $item_tax_amount;
-
-        //Update Recurring Items with new tax
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_tax = '$item_tax_amount', item_total = '$item_total', item_updated_at = NOW(), tax_id = $tax_id WHERE item_id = $item_id");
-
         //Insert Items into New Invoice
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax_amount', item_total = '$item_total', item_created_at = NOW(), tax_id = $tax_id, invoice_id = $new_invoice_id, company_id = $company_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = '$item_quantity', item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), tax_id = $tax_id, invoice_id = $new_invoice_id, company_id = $company_id");
         
       }
 
@@ -238,15 +225,9 @@ while($row = mysqli_fetch_array($sql_companies)){
 
       mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Recurring', alert_message = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', alert_date = NOW(), company_id = $company_id");
 
-      //Update Recurring Balances by tallying up recurring items also update recurring dates
-      $sql_recurring_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS recurring_total FROM invoice_items WHERE recurring_id = $recurring_id");
-      $row = mysqli_fetch_array($sql_recurring_total);
-      $new_recurring_amount = $row['recurring_total'];
+      //Update recurring dates
 
-      mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
-
-      //Also update the newly created invoice with the new amounts
-      mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_recurring_amount' WHERE invoice_id = $new_invoice_id");
+      mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
 
       if($config_recurring_auto_send_invoice == 1){
         $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients
