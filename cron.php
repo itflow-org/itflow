@@ -236,7 +236,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
       mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), invoice_id = $new_invoice_id, company_id = $company_id");
 
-      mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Recurring', alert_message = 'Recurring Invoice $invoice_prefix$new_invoice_number for $client_name Sent', alert_date = NOW(), company_id = $company_id");
+      mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Recurring', alert_message = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', alert_date = NOW(), company_id = $company_id");
 
       //Update Recurring Balances by tallying up recurring items also update recurring dates
       $sql_recurring_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS recurring_total FROM invoice_items WHERE recurring_id = $recurring_id");
