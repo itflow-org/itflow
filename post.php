@@ -3785,11 +3785,11 @@ if(isset($_GET['force_recurring'])){
         $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, companies
             WHERE invoices.client_id = clients.client_id
             AND invoices.company_id = companies.company_id
-            AND invoices.invoice_id = $new_invoice_id
-            AND invoices.company_id = $session_company_id"
+            AND invoices.invoice_id = $new_invoice_id"
         );
 
         $row = mysqli_fetch_array($sql);
+        $invoice_prefix = $row['invoice_prefix'];
         $invoice_number = $row['invoice_number'];
         $invoice_scope = $row['invoice_scope'];
         $invoice_date = $row['invoice_date'];
@@ -3839,8 +3839,8 @@ if(isset($_GET['force_recurring'])){
             // Content
             $mail->isHTML(true);                                  // Set email format to HTML
 
-            $mail->Subject = "Invoice $invoice_number";
-            $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+            $mail->Subject = "Invoice $invoice_prefix$invoice_number";
+            $mail->Body    = "Hello $client_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
 
             $mail->send();
 
