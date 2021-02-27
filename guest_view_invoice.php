@@ -908,6 +908,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
   }
 }else{
   echo "GTFO";
-} ?>
+} 
+?>
 
 <?php include("guest_footer.php"); ?>
