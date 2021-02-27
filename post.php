@@ -1294,7 +1294,7 @@ if(isset($_POST['add_account'])){
     $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
     $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
 
-    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = '$name', opening_balance = '$opening_balance', account_currency_code = '$currency_code', account_notes = '$account_notes', account_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = '$name', opening_balance = '$opening_balance', account_currency_code = '$currency_code', account_notes = '$notes', account_created_at = NOW(), company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");

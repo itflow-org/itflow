@@ -1,8 +1,8 @@
--- MariaDB dump 10.18  Distrib 10.5.8-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.5.9-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: admin_crm
 -- ------------------------------------------------------
--- Server version	10.5.8-MariaDB-1:10.5.8+maria~focal
+-- Server version	10.5.9-MariaDB-1:10.5.9+maria~focal
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -26,7 +26,7 @@ CREATE TABLE `accounts` (
   `account_id` int(11) NOT NULL AUTO_INCREMENT,
   `account_name` varchar(200) NOT NULL,
   `opening_balance` decimal(15,2) NOT NULL DEFAULT 0.00,
-  `account_curency_code` varchar(200) NOT NULL,
+  `account_currency_code` varchar(200) NOT NULL,
   `account_notes` text DEFAULT NULL,
   `account_created_at` datetime NOT NULL,
   `account_updated_at` datetime DEFAULT NULL,
@@ -752,7 +752,7 @@ CREATE TABLE `settings` (
   `config_ticket_next_number` int(11) DEFAULT NULL,
   `config_enable_cron` tinyint(1) DEFAULT NULL,
   `config_enable_alert_low_balance` tinyint(1) DEFAULT NULL,
-  `config_account_balance_threshold` varchar(200) DEFAULT NULL,
+  `config_account_balance_threshold` decimal(15,2) DEFAULT NULL,
   `config_recurring_auto_send_invoice` tinyint(1) DEFAULT NULL,
   `config_enable_alert_domain_expire` tinyint(1) DEFAULT NULL,
   `config_send_invoice_reminders` tinyint(1) DEFAULT NULL,
@@ -980,4 +980,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-14 18:26:14
+-- Dump completed on 2021-02-27 13:36:19
