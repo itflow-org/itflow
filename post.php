@@ -2247,7 +2247,7 @@ if(isset($_POST['add_recurring'])){
     $frequency = strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency']));
     $start_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date']));
     $category = intval($_POST['category']);
-    $currency_code = intval($_POST['currency_code']);
+    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
     $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
 
     //Get the last Recurring Number and add 1 for the new Recurring number
