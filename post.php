@@ -2960,13 +2960,14 @@ if(isset($_POST['add_revenue'])){
 
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $amount = floatval($_POST['amount']);
+    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
     $account = intval($_POST['account']);
     $category = intval($_POST['category']);
     $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
 
-    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_currency_code = '$config_default_currency', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_created_at = NOW(), category_id = $category, account_id = $account, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_created_at = NOW(), category_id = $category, account_id = $account, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Created', log_description = '$date - $amount', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
@@ -2982,13 +2983,14 @@ if(isset($_POST['edit_revenue'])){
     $revenue_id = intval($_POST['revenue_id']);
     $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
     $amount = floatval($_POST['amount']);
+    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
     $account = intval($_POST['account']);
     $category = intval($_POST['category']);
     $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
     $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
     $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
 
-    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_updated_at = NOW(), category_id = $category, account_id = $account WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_updated_at = NOW(), category_id = $category, account_id = $account WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Modified', log_description = '$revenue_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");

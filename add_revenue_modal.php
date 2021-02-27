@@ -21,6 +21,21 @@
                 <input type="date" class="form-control" name="date" value="<?php echo date("Y-m-d"); ?>" required>
               </div>
             </div>
+
+            <div class="form-group col-md">
+              <label>Currency <strong class="text-danger">*</strong></label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
+                </div>
+                <select class="form-control select2" name="currency_code" required>
+                  <option value="">- Currency -</option>
+                  <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
+                  <option <?php if($config_default_currency == $currency_code){ echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+            </div>
             
             <div class="form-group col-md">
               <label>Amount <strong class="text-danger">*</strong></label>
