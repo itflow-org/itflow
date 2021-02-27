@@ -1791,12 +1791,18 @@ if(isset($_POST['add_invoice_recurring'])){
     $row = mysqli_fetch_array($sql);
     $invoice_date = $row['invoice_date'];
     $invoice_amount = $row['invoice_amount'];
+    $invoice_currency_code = $row['invoice_currency_code'];
     $invoice_scope = mysqli_real_escape_string($mysqli,$row['invoice_scope']);
     $invoice_note = mysqli_real_escape_string($mysqli,$row['invoice_note']); //SQL Escape in case notes have , them
     $client_id = $row['client_id'];
     $category_id = $row['category_id'];
 
-    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_scope = '$invoice_scope', recurring_frequency = '$recurring_frequency', recurring_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_status = 1, recurring_amount = '$invoice_amount', recurring_note = '$invoice_note', recurring_created_at = NOW(), category_id = $category_id, client_id = $client_id, company_id = $session_company_id");
+    //Get the last Recurring Number and add 1 for the new Recurring number
+    $recurring_number = $config_recurring_next_number;
+    $new_config_recurring_next_number = $config_recurring_next_number + 1;
+    mysqli_query($mysqli,"UPDATE settings SET config_recurring_next_number = $new_config_recurring_next_number WHERE company_id = $session_company_id");
+
+    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_prefix = '$config_recurring_prefix', recurring_number = $recurring_number, recurring_scope = '$invoice_scope', recurring_frequency = '$recurring_frequency', recurring_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_status = 1, recurring_amount = '$invoice_amount', recurring_currency_code = '$invoice_currency_code', recurring_note = '$invoice_note', recurring_created_at = NOW(), category_id = $category_id, client_id = $client_id, company_id = $session_company_id");
 
     $recurring_id = mysqli_insert_id($mysqli);
 
