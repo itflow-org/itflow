@@ -69,6 +69,7 @@
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=account_name&o=<?php echo $disp; ?>">Name</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=currency_code&o=<?php echo $disp; ?>">Currency</a></th>
             <th class="text-right">Balance</th>
             <th class="text-center">Action</th>
           </tr>
@@ -80,6 +81,7 @@
             $account_id = $row['account_id'];
             $account_name = $row['account_name'];
             $opening_balance = $row['opening_balance'];
+            $account_currency_code = $row['account_currency_code'];
             $account_notes = $row['account_notes'];
 
             $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
@@ -99,6 +101,7 @@
           
           <tr>
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>"><?php echo $account_name; ?></a></td>
+            <td><?php echo $account_currency_code; ?></td>
             <td class="text-right">$<?php echo number_format($balance,2); ?></td>
             <td>
               <div class="dropdown dropleft text-center">
