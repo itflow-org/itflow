@@ -77,7 +77,6 @@ if(isset($_GET['invoice_id'])){
   $amount_paid = $row['amount_paid'];
 
   $balance = $invoice_amount - $amount_paid;
-  $balance = number_format($balance,2);
 
   //check to see if overdue
   if($invoice_status !== "Paid" AND $invoice_status !== "Draft" AND $invoice_status !== "Cancelled"){
@@ -765,7 +764,7 @@ include("footer.php");
                       style:'itemsFooterSubTitle'
                   },
                   {
-                      text: '$<?php echo $balance; ?>',
+                      text: '$<?php echo number_format($balance,2); ?>',
                       style:'itemsFooterSubValue'
                   }
               ],
