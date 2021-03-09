@@ -734,7 +734,7 @@ include("footer.php");
                       style:'itemsFooterSubTitle'
                   },
                   {
-                      text: '$<?php echo $total_tax; ?>',
+                      text: '$<?php echo number_format($total_tax,2); ?>',
                       style:'itemsFooterSubValue'
                   }
               ],
@@ -744,7 +744,7 @@ include("footer.php");
                       style:'itemsFooterTotalTitle'
                   }, 
                   {
-                      text: '$<?php echo $invoice_amount; ?>',
+                      text: '$<?php echo number_format($invoice_amount,2); ?>',
                       style:'itemsFooterTotalValue'
                   }
               ],
@@ -754,7 +754,7 @@ include("footer.php");
                       style:'itemsFooterSubTitle'
                   },
                   {
-                      text: '$<?php echo $amount_paid; ?>',
+                      text: '$<?php echo number_format($amount_paid,2); ?>',
                       style:'itemsFooterSubValue'
                   }
               ],

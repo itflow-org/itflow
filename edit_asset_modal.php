@@ -39,7 +39,7 @@
             <div class="tab-pane fade show active" id="pills-details<?php echo $asset_id; ?>">
           
               <div class="form-group">
-                <label>Asset Name <strong class="text-danger">*</strong></label>
+                <label>Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
@@ -49,7 +49,7 @@
               </div>
               
               <div class="form-group">
-                <label>Asset Type <strong class="text-danger">*</strong></label>
+                <label>Type <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
