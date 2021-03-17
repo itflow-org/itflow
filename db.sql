@@ -892,7 +892,7 @@ CREATE TABLE `trips` (
   `trip_end_odmeter` int(11) DEFAULT NULL,
   `trip_miles` float(15,1) NOT NULL,
   `round_trip` int(1) NOT NULL,
-  `trip_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `trip_created_at` datetime NOT NULL,
   `trip_updated_at` datetime DEFAULT NULL,
   `trip_archived_at` datetime DEFAULT NULL,
   `client_id` int(11) DEFAULT NULL,
@@ -980,4 +980,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-27 13:36:19
+-- Dump completed on 2021-03-17 16:50:15
