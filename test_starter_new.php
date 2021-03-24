@@ -1,94 +1,93 @@
+<?php include("header.php"); ?>
+
 <?php 
-  include("header_new.php");
+
+if(isset($_GET['calendar_id'])){
+  $calendar_selected_id = intval($_GET['calendar_id']);
+}
+
 ?>
 
-<!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <div class="content-header">
-    <div class="container-fluid">
-      <div class="row mb-2">
-        <div class="col-sm-6">
-          <h1 class="m-0 text-dark">Starter Page</h1>
-        </div><!-- /.col -->
-        <div class="col-sm-6">
-          <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item active">Starter Page</li>
-          </ol>
-        </div><!-- /.col -->
-      </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
-  </div>
-  <!-- /.content-header -->
+<div id='calendar'></div>
+  
+<?php 
+  
+  include("add_calendar_event_modal.php");
+  include("add_calendar_modal.php");
+  include("add_quick_modal.php");
 
-  <!-- Main content -->
-  <div class="content">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-
-              <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's
-                content.
-              </p>
-
-              <a href="#" class="card-link">Card link</a>
-              <a href="#" class="card-link">Another link</a>
-            </div>
-          </div>
-
-          <div class="card card-primary card-outline">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-
-              <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's
-                content.
-              </p>
-              <a href="#" class="card-link">Card link</a>
-              <a href="#" class="card-link">Another link</a>
-            </div>
-          </div><!-- /.card -->
-        </div>
-        <!-- /.col-md-6 -->
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-header">
-              <h5 class="m-0">Featured</h5>
-            </div>
-            <div class="card-body">
-              <h6 class="card-title">Special title treatment</h6>
-
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
-            </div>
-          </div>
-
-          <div class="card card-primary card-outline">
-            <div class="card-header">
-              <h5 class="m-0">Featured</h5>
-            </div>
-            <div class="card-body">
-              <h6 class="card-title">Special title treatment</h6>
-
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
-            </div>
-          </div>
-        </div>
-        <!-- /.col-md-6 -->
-      </div>
-      <!-- /.row -->
-    </div><!-- /.container-fluid -->
-  </div>
-  <!-- /.content -->
-</div>
-<!-- /.content-wrapper -->
+?>
 
 <?php
-  include("footer_new.php");
+//loop through IDs and create a modal for each
+$sql = mysqli_query($mysqli,"SELECT * FROM events, calendars WHERE events.calendar_id = calendars.calendar_id AND calendars.company_id = $session_company_id");
+while($row = mysqli_fetch_array($sql)){
+  $event_id = $row['event_id'];
+  $event_title = $row['event_title'];
+  $event_start = $row['event_start'];
+  $event_end = $row['event_end'];
+  $calendar_id = $row['calendar_id'];
+  $calendar_name = $row['calendar_name'];
+  $calendar_color = $row['calendar_color'];
+  $client_id = $row['client_id'];
+
+  include("edit_calendar_event_modal.php");
+
+}
+
 ?>
+
+<?php include("footer.php"); ?>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        themeSystem: 'bootstrap',
+        defaultView: 'dayGridMonth',
+        customButtons: {
+          addEvent: {
+            bootstrapFontAwesome: 'fa fa-plus',
+            click: function() {
+              $("#addCalendarEventModal").modal();
+            }
+          },
+          addCalendar: {
+            bootstrapFontAwesome: 'fa fa-calendar-plus',
+            click: function() {
+              $("#addCalendarModal").modal();
+            }
+          }
+        },
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth addEvent addCalendar'
+        },
+        events: [
+          <?php
+          $sql = mysqli_query($mysqli,"SELECT * FROM events, calendars WHERE events.calendar_id = calendars.calendar_id AND calendars.company_id = $session_company_id");
+          while($row = mysqli_fetch_array($sql)){
+            $event_id = $row['event_id'];
+            $event_title = $row['event_title'];
+            $event_start = $row['event_start'];
+            $event_end = $row['event_end'];
+            $calendar_id = $row['calendar_id'];
+            $calendar_name = $row['calendar_name'];
+            $calendar_color = $row['calendar_color'];
+            
+            echo "{ id: '$event_id', title: '$event_title', start: '$event_start', end: '$event_end', color: '$calendar_color'},";
+          }
+          ?>
+        ],
+        eventClick: function(editEvent) {
+          $('#editEventModal'+editEvent.event.id).modal();
+        }
+      });
+
+      calendar.render();
+    });
+
+  </script>

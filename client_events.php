@@ -37,7 +37,6 @@ while($row = mysqli_fetch_array($sql)){
       var calendarEl = document.getElementById('calendar');
 
       var calendar = new FullCalendar.Calendar(calendarEl, {
-        plugins: [ 'bootstrap', 'dayGrid', 'timeGrid', 'list' ],
         themeSystem: 'bootstrap',
         defaultView: 'dayGridMonth',
         customButtons: {
@@ -54,10 +53,10 @@ while($row = mysqli_fetch_array($sql)){
             }
           }
         },
-        header: {
+        headerToolbar: {
           left: 'prev,next today',
           center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth addEvent addCalendar '
+          right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth addEvent addCalendar'
         },
         events: [
           <?php
