@@ -32,9 +32,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link href="plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
   <link href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
   <link href='plugins/fullcalendar/main.min.css' rel='stylesheet' />
-  <link href='plugins/fullcalendar-daygrid/main.min.css' rel='stylesheet' />
-  <link href='plugins/fullcalendar-timegrid/main.min.css' rel='stylesheet' />
-  <link href='plugins/fullcalendar-bootstrap/main.min.css' rel='stylesheet' />
   <link href='plugins/daterangepicker/daterangepicker.css' rel='stylesheet' />
   <link href="plugins/summernote/summernote-bs4.css" rel="stylesheet">
   <link href="plugins/toastr/toastr.min.css" rel="stylesheet">
