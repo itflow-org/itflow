@@ -53,7 +53,7 @@
         
         <?php if($session_permission_level > 2){ ?>
 
-        <li class="nav-header">SUPPORT</li>
+        <li class="nav-header mt-3">SUPPORT</li>
         <li class="nav-item">
           <a href="tickets.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tickets.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tags"></i>
@@ -77,7 +77,7 @@
 
         <?php if($session_permission_level == 1 OR $session_permission_level > 3){ ?> 
 
-        <li class="nav-header">SALES</li>
+        <li class="nav-header mt-3">SALES</li>
         <li class="nav-item">
           <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "quotes.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-file-invoice"></i>
@@ -108,7 +108,7 @@
             <p>Products</p>
           </a>
         </li>
-        <li class="nav-header">ACCOUNTING</li>
+        <li class="nav-header mt-3">ACCOUNTING</li>
         <li class="nav-item">
           <a href="payments.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "payments.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-credit-card"></i>
@@ -186,7 +186,7 @@
 
         <?php if($session_permission_level > 3){ ?>
 
-        <li class="nav-header">SETTINGS</li>
+        <li class="nav-header mt-3">SETTINGS</li>
         
         <li class="nav-item has-treeview">
           <a href="#" class="nav-link">

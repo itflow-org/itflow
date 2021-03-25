@@ -13,7 +13,7 @@
             <p>Back</p>
           </a>
         </li>
-        <li class="nav-header">CLIENT</li>
+        <li class="nav-header mt-3">CLIENT</li>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=contacts" class="nav-link <?php if($_GET['tab'] == "contacts") { echo "active"; } ?>">
@@ -41,7 +41,7 @@
           </a>
         </li>
 
-        <li class="nav-header">ASSETS</li>
+        <li class="nav-header mt-3">ASSETS</li>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=assets" class="nav-link <?php if($_GET['tab'] == "assets") { echo "active"; } ?>">
@@ -121,7 +121,7 @@
           </a>
         </li>
 
-        <li class="nav-header">SUPPORT</li>
+        <li class="nav-header mt-3">SUPPORT</li>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=tickets" class="nav-link <?php if($_GET['tab'] == "tickets") { echo "active"; } ?>">
@@ -190,7 +190,7 @@
 
         <?php if($session_permission_level == 1 OR $session_permission_level > 3){ ?>
 
-        <li class="nav-header">SALES AND ACCOUNTING</li>
+        <li class="nav-header mt-3">ACCOUNTING</li>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=invoices" class="nav-link <?php if($_GET['tab'] == "invoices") { echo "active"; } ?>">
