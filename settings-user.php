@@ -31,7 +31,11 @@ $password = $row['password'];
           <input type="hidden" name="current_password_hash" value="<?php echo $password; ?>">
 
           <center class="mb-3 p-4">
-            <img src="<?php echo "$session_avatar"; ?>" class="img-circle img-fluid elevation-2">
+            <?php if(empty($session_avatar)){ ?>
+            	<i class="fas fa-user-circle fa-8x text-secondary"></i>
+            <?php }else{ ?>
+            	<img src="<?php echo $session_avatar; ?>" class="img-circle img-fluid">
+            <?php } ?>
             <h4 class="text-secondary mt-2"><?php echo $session_permission_level_display; ?></h4>
           </center>
 

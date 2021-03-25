@@ -34,14 +34,22 @@
     
     <li class="nav-item dropdown user-menu">
       <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-        <img src="<?php echo $session_avatar; ?>" class="user-image img-circle" alt="User Image">
+        <?php if(empty($session_avatar)){ ?>
+        	<i class="fas fa-user-circle"></i>
+        <?php }else{ ?>
+        <img src="<?php echo $session_avatar; ?>" class="user-image img-circle">
+        <?php } ?>
         <span class="d-none d-md-inline"><?php echo $session_name; ?></span>
       </a>
       <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
         <!-- User image -->
         <li class="user-header bg-gray-dark">
-          <img src="<?php echo "$session_avatar"; ?>" class="img-circle" alt="User Image">
-
+          <?php if(empty($session_avatar)){ ?>
+          	<i class="fas fa-user-circle fa-6x"></i>
+          <?php }else{ ?>
+          
+          	<img src="<?php echo "$session_avatar"; ?>" class="img-circle">
+					<?php } ?>
           <p>
             <?php echo $session_name; ?>
             <small><?php echo $session_permission_level_display; ?></small>
