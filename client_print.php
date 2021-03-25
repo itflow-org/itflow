@@ -291,8 +291,8 @@ if(isset($_GET['client_id'])){
       $asset_os = $row['asset_os'];
       $asset_ip = $row['asset_ip'];
       $asset_mac = $row['asset_mac'];
-      $asset_purchase = $row['asset_purchase'];
-      $asset_warranty = $row['asset_warranty'];
+      $asset_purchase_date = $row['asset_purchase_date'];
+      $asset_warranty_expire = $row['asset_warranty_expire'];
 
     ?>
     <tr>
@@ -304,8 +304,8 @@ if(isset($_GET['client_id'])){
       <td><?php echo $asset_os; ?></td>
       <td><?php echo $asset_ip; ?></td>
       <td><?php echo $asset_mac; ?></td>
-      <td><?php echo $asset_purchase; ?></td>
-      <td><?php echo $asset_warranty; ?></td>
+      <td><?php echo $asset_purchase_date; ?></td>
+      <td><?php echo $asset_warranty_expire; ?></td>
     </tr>
 
     <?php
