@@ -251,7 +251,7 @@ DROP TABLE IF EXISTS `documents`;
 CREATE TABLE `documents` (
   `document_id` int(11) NOT NULL AUTO_INCREMENT,
   `document_name` varchar(200) NOT NULL,
-  `document_details` text NOT NULL,
+  `document_details` longtext NOT NULL,
   `document_created_at` datetime NOT NULL,
   `document_updated_at` datetime DEFAULT NULL,
   `document_archived_at` datetime DEFAULT NULL,
@@ -815,7 +815,7 @@ DROP TABLE IF EXISTS `ticket_updates`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ticket_updates` (
   `ticket_update_id` int(11) NOT NULL AUTO_INCREMENT,
-  `ticket_update` text NOT NULL,
+  `ticket_update` longtext NOT NULL,
   `ticket_update_created_at` datetime NOT NULL,
   `ticket_update_updated_at` datetime DEFAULT NULL,
   `ticket_update_archived_at` datetime DEFAULT NULL,
@@ -839,7 +839,7 @@ CREATE TABLE `tickets` (
   `ticket_number` int(11) NOT NULL,
   `ticket_category` varchar(200) DEFAULT NULL,
   `ticket_subject` varchar(200) NOT NULL,
-  `ticket_details` text NOT NULL,
+  `ticket_details` longtext NOT NULL,
   `ticket_priority` varchar(200) DEFAULT NULL,
   `ticket_status` varchar(200) NOT NULL,
   `ticket_created_at` datetime NOT NULL,
@@ -980,4 +980,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-03-17 16:50:15
+-- Dump completed on 2021-03-24 22:03:13
