@@ -67,6 +67,22 @@
               <input type="datetime-local" class="form-control" name="end" required>
             </div>
           </div>
+          
+          <div class="form-group">
+            <label>Repeat</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
+              </div>
+              <select class="form-control select2" name="repeat">
+                <option value="">Never</option>
+                <option>Day</option>
+                <option>Week</option>
+                <option>Month</option>
+                <option>Year</option>
+              </select>
+            </div>
+          </div>
 
           <?php if(isset($client_id)){ ?>
 

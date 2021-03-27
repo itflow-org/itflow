@@ -842,10 +842,11 @@ if(isset($_POST['add_event'])){
     $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
     $start = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start']));
     $end = strip_tags(mysqli_real_escape_string($mysqli,$_POST['end']));
+    $repeat = strip_tags(mysqli_real_escape_string($mysqli,$_POST['repeat']));
     $client = intval($_POST['client']);
     $email_event = intval($_POST['email_event']);
 
-    mysqli_query($mysqli,"INSERT INTO events SET event_title = '$title', event_start = '$start', event_end = '$end', event_created_at = NOW(), calendar_id = $calendar_id, client_id = $client, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO events SET event_title = '$title', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_created_at = NOW(), calendar_id = $calendar_id, client_id = $client, company_id = $session_company_id");
 
     //If email is checked
     if($email_event == 1){
@@ -919,10 +920,11 @@ if(isset($_POST['edit_event'])){
     $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
     $start = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start']));
     $end = strip_tags(mysqli_real_escape_string($mysqli,$_POST['end']));
+    $repeat = strip_tags(mysqli_real_escape_string($mysqli,$_POST['repeat']));
     $client = intval($_POST['client']);
     $email_event = intval($_POST['email_event']);
 
-    mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_start = '$start', event_end = '$end', event_updated_at = NOW(), calendar_id = $calendar_id, client_id = $client WHERE event_id = $event_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_updated_at = NOW(), calendar_id = $calendar_id, client_id = $client WHERE event_id = $event_id AND company_id = $session_company_id");
 
     //If email is checked
     if($email_event == 1){

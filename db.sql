@@ -295,6 +295,7 @@ CREATE TABLE `events` (
   `event_title` varchar(200) NOT NULL,
   `event_start` datetime NOT NULL,
   `event_end` datetime DEFAULT NULL,
+  `event_repeat` varchar(200) DEFAULT NULL,
   `event_created_at` datetime NOT NULL,
   `event_updated_at` datetime DEFAULT NULL,
   `event_archived_at` datetime DEFAULT NULL,
@@ -980,4 +981,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-03-24 22:03:13
+-- Dump completed on 2021-03-27 16:49:58

@@ -26,6 +26,7 @@ while($row = mysqli_fetch_array($sql)){
   $event_title = $row['event_title'];
   $event_start = $row['event_start'];
   $event_end = $row['event_end'];
+  $event_repeat = $row['event_repeat'];
   $calendar_id = $row['calendar_id'];
   $calendar_name = $row['calendar_name'];
   $calendar_color = $row['calendar_color'];

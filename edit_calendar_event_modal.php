@@ -66,6 +66,22 @@
               <input type="datetime-local" class="form-control" name="end" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_end)); ?>" required>
             </div>
           </div>
+          
+          <div class="form-group">
+            <label>Repeat</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
+              </div>
+              <select class="form-control select2" name="repeat">
+                <option <?php if(empty($event_repeat)){ echo "selected"; } ?> value="">Never</option>
+                <option <?php if($event_repeat == "Day"){ echo "selected"; } ?>>Day</option>
+                <option <?php if($event_repeat == "Week"){ echo "selected"; } ?>>Week</option>
+                <option <?php if($event_repeat == "Month"){ echo "selected"; } ?>>Month</option>
+                <option <?php if($event_repeat == "Year"){ echo "selected"; } ?>>Year</option>
+              </select>
+            </div>
+          </div>
 
           <?php if(isset($client_id)){ ?>
 
