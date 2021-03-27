@@ -61,7 +61,9 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     }
     $company_email = $row['company_email'];
     $company_logo = $row['company_logo'];
-    $company_logo_base64 = base64_encode(file_get_contents($row['company_logo']));
+    if(!empty($company_logo)){
+			$company_logo_base64 = base64_encode(file_get_contents($row['company_logo']));
+		}
     $config_invoice_footer = $row['config_invoice_footer'];
     $config_stripe_enable = $row['config_stripe_enable'];
     $config_stripe_publishable = $row['config_stripe_publishable'];
@@ -533,10 +535,12 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
           // Header
           {
               columns: [
+                  <?php if(!empty($company_logo_base64)){ ?>
                   {
                         image: '<?php echo "data:image;base64,$company_logo_base64"; ?>',
                         width: 120
                   },
+                  <?php } ?>
                       
                   [
                       {

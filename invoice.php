@@ -65,8 +65,9 @@ if(isset($_GET['invoice_id'])){
   $company_email = $row['company_email'];
   $company_website = $row['company_website'];
   $company_logo = $row['company_logo'];
-  $company_logo_base64 = base64_encode(file_get_contents($row['company_logo']));
-
+  if(!empty($company_logo)){
+  	$company_logo_base64 = base64_encode(file_get_contents($row['company_logo']));
+	}
   $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE invoice_id = $invoice_id ORDER BY history_id DESC");
   
   $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
@@ -520,10 +521,12 @@ include("footer.php");
       // Header
       {
           columns: [
+              <?php if(!empty($company_logo_base64)){ ?>
               {
                     image: '<?php echo "data:image;base64,$company_logo_base64"; ?>',
                     width: 120
               },
+              <?php } ?>
                   
               [
                   {
