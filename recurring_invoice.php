@@ -178,7 +178,7 @@ if(isset($_GET['recurring_id'])){
                 <th class="d-print-none"></th>
                 <th>Item</th>
                 <th>Description</th>
-                <th class="text-center">QTY</th>
+                <th class="text-center">Qty</th>
                 <th class="text-right">Price</th>
                 <th class="text-right">Tax</th>
                 <th class="text-right">Total</th>

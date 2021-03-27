@@ -591,7 +591,7 @@ if(isset($_POST['add_company_settings'])){
                     <select class="form-control select2" name="currency_code" required>
                       <option value="">- Currency -</option>
                       <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                      <option><?php echo "$currency_code - $currency_name"; ?></option>
+                      <option value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
                       <?php } ?>
                     </select>
                   </div>
