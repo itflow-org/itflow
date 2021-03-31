@@ -21,3 +21,6 @@ $('.summernote').summernote({
 //DateTime
 $('.datetimepicker').datetimepicker({
 });
+
+//Data Input Mask
+$('[data-mask]').inputmask();

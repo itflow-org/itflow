@@ -209,7 +209,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="mobile" placeholder="Mobile Number" value="<?php echo $client_mobile; ?>" data-inputmask="'mask': '999-999-9999'"> 
+                  <input type="text" class="form-control" name="mobile" placeholder="Mobile Number" value="<?php echo $client_mobile; ?>" data-inputmask="'mask': '999-999-9999'" data-mask> 
                 </div>
               </div>
               

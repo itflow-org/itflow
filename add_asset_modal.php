@@ -187,7 +187,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="ip" placeholder="IP Address" data-inputmask="'alias': 'ip'">
+                  <input type="text" class="form-control" name="ip" placeholder="IP Address" data-inputmask="'alias': 'ip'" data-mask>
                 </div>
               </div>
 
@@ -197,7 +197,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'">
+                  <input type="text" class="form-control" name="mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'" data-mask>
                 </div>
               </div>
             

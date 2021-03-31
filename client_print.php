@@ -147,19 +147,19 @@ if(isset($_GET['client_id'])){
       </div>
       <div class="card-body">
         <ul class="list-unstyled">
-          <?php if($num_contacts > 0){ ?> <li><a href="#contacts">Contacts</a></li> <?php } ?>
-          <?php if($num_locations > 0){ ?> <li><a href="#locations">Locations</a></li> <?php } ?>
-          <?php if($num_assets > 0){ ?> <li><a href="#assets">Assets</a></li> <?php } ?>
-          <?php if($num_vendors > 0){ ?> <li><a href="#vendors">Vendors</a></li> <?php } ?>
-          <?php if($num_logins > 0){ ?> <li><a href="#logins">Logins</a></li> <?php } ?>
-          <?php if($num_networks > 0){ ?> <li><a href="#networks">Networks</a></li> <?php } ?> 
-          <?php if($num_domains > 0){ ?> <li><a href="#domains">Domains</a></li> <?php } ?>
-          <?php if($num_software > 0){ ?> <li><a href="#software">Software</a></li> <?php } ?>
-          <?php if($num_invoices > 0){ ?> <li><a href="#invoices">Invoices</a></li> <?php } ?>
-          <?php if($num_payments > 0){ ?> <li><a href="#payments">Payments</a></li> <?php } ?>
-          <?php if($num_quotes > 0){ ?> <li><a href="#quotes">Quotes</a></li> <?php } ?>
-          <?php if($num_recurring > 0){ ?> <li><a href="#recurring">Recurring</a></li> <?php } ?>
-          <?php if($num_documents > 0){ ?> <li><a href="#documents">Documents</a></li> <?php } ?>
+          <?php if($num_contacts > 0){ ?> <li><input type="checkbox" name="c1" onclick="showMe('contacts')"> <a href="#contacts">Contacts</a></li> <?php } ?>
+          <?php if($num_locations > 0){ ?> <li><input type="checkbox" name="c1" onclick="showMe('locations')" checked> <a href="#locations">Locations</a></li> <?php } ?>
+          <?php if($num_assets > 0){ ?> <li><input type="checkbox" name="c1" onclick="showMe('assets')" checked> <a href="#assets">Assets</a></li> <?php } ?>
+          <?php if($num_vendors > 0){ ?> <li><input type="checkbox" checked> <a href="#vendors">Vendors</a></li> <?php } ?>
+          <?php if($num_logins > 0){ ?> <li><input type="checkbox" checked> <a href="#logins">Logins</a></li> <?php } ?>
+          <?php if($num_networks > 0){ ?> <li><input type="checkbox" checked> <a href="#networks">Networks</a></li> <?php } ?> 
+          <?php if($num_domains > 0){ ?> <li><input type="checkbox" checked> <a href="#domains">Domains</a></li> <?php } ?>
+          <?php if($num_software > 0){ ?> <li><input type="checkbox" checked> <a href="#software">Software</a></li> <?php } ?>
+          <?php if($num_invoices > 0){ ?> <li><input type="checkbox" checked> <a href="#invoices">Invoices</a></li> <?php } ?>
+          <?php if($num_payments > 0){ ?> <li><input type="checkbox" checked> <a href="#payments">Payments</a></li> <?php } ?>
+          <?php if($num_quotes > 0){ ?> <li><input type="checkbox" checked> <a href="#quotes">Quotes</a></li> <?php } ?>
+          <?php if($num_recurring > 0){ ?> <li><input type="checkbox" checked> <a href="#recurring">Recurring</a></li> <?php } ?>
+          <?php if($num_documents > 0){ ?> <li><input type="checkbox" checked> <a href="#documents">Documents</a></li> <?php } ?>
         </ul>
       </div>
     </div>
@@ -168,55 +168,57 @@ if(isset($_GET['client_id'])){
 
 
 <?php if($num_contacts > 0){ ?>
-<h4 id="contacts">Contacts <small>(<?php echo $num_contacts; ?>)</small></h4>
-<table class="table table-bordered table-compact table-sm mb-4">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Title</th>
-      <th>Email</th>
-      <th>Phone</th>
-      <th>Mobile</th>
-    </tr>
-  </thead>
-  <tbody>
-    <?php
 
-    while($row = mysqli_fetch_array($sql_contacts)){
-      $contact_id = $row['contact_id'];
-      $contact_name = $row['contact_name'];
-      $contact_title = $row['contact_title'];
-      $contact_phone = $row['contact_phone'];
-      if(strlen($contact_phone)>2){ 
-        $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
-      }
-      $contact_extension = $row['contact_extension'];
-      if(!empty($contact_extension)){
-        $contact_extension = "x$contact_extension";
-      }
-      $contact_mobile = $row['contact_mobile'];
-      if(strlen($contact_mobile)>2){ 
-        $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
-      }
-      $contact_email = $row['contact_email'];
+<div id="dvContacts">
+	<h4 id="contacts">Contacts <small>(<?php echo $num_contacts; ?>)</small></h4>
+	<table class="table table-bordered table-compact table-sm mb-4">
+		<thead>
+		  <tr>
+		    <th>Name</th>
+		    <th>Title</th>
+		    <th>Email</th>
+		    <th>Phone</th>
+		    <th>Mobile</th>
+		  </tr>
+		</thead>
+		<tbody>
+		  <?php
 
-    ?>
-    <tr>
-      <td><?php echo $contact_name; ?></td>
-      <td><?php echo $contact_title; ?></td>
-      <td><?php echo $contact_email; ?></td>
-      <td><?php echo "$contact_phone $contact_extension"; ?></td>
-      <td><?php echo $contact_mobile; ?></td>
-    </tr>
+		  while($row = mysqli_fetch_array($sql_contacts)){
+		    $contact_id = $row['contact_id'];
+		    $contact_name = $row['contact_name'];
+		    $contact_title = $row['contact_title'];
+		    $contact_phone = $row['contact_phone'];
+		    if(strlen($contact_phone)>2){ 
+		      $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
+		    }
+		    $contact_extension = $row['contact_extension'];
+		    if(!empty($contact_extension)){
+		      $contact_extension = "x$contact_extension";
+		    }
+		    $contact_mobile = $row['contact_mobile'];
+		    if(strlen($contact_mobile)>2){ 
+		      $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
+		    }
+		    $contact_email = $row['contact_email'];
 
-    <?php
-    }
-    ?>
+		  ?>
+		  <tr>
+		    <td><?php echo $contact_name; ?></td>
+		    <td><?php echo $contact_title; ?></td>
+		    <td><?php echo $contact_email; ?></td>
+		    <td><?php echo "$contact_phone $contact_extension"; ?></td>
+		    <td><?php echo $contact_mobile; ?></td>
+		  </tr>
 
-  </tbody>
-</table>
+		  <?php
+		  }
+		  ?>
+
+		</tbody>
+	</table>
+</div>
 <?php } ?>
-
 
 <?php if($num_locations > 0){ ?>
 <h4 id="locations">Locations <small>(<?php echo $num_locations; ?>)</small></h4>

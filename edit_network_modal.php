@@ -47,7 +47,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-route"></i></span>
               </div>
-              <input type="text" class="form-control" name="gateway" placeholder="ex 192.168.1.1" value="<?php echo $network_gateway; ?>" data-inputmask="'alias': 'ip'" required> 
+              <input type="text" class="form-control" name="gateway" placeholder="ex 192.168.1.1" value="<?php echo $network_gateway; ?>" data-inputmask="'alias': 'ip'" data-mask required> 
             </div>
           </div>
 

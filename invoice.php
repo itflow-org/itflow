@@ -515,7 +515,7 @@ include("footer.php");
     ]
     },
 
-    watermark: {text: '<?php echo $invoice_status; ?>', color: 'grey', opacity: 0.3, bold: true, italics: false},
+    //watermark: {text: '<?php echo $invoice_status; ?>', color: 'lightgrey', opacity: 0.3, bold: true, italics: false},
 
     content: [
       // Header
@@ -530,58 +530,15 @@ include("footer.php");
                   
               [
                   {
-                      text: 'INVOICE', 
+                      text: 'Invoice', 
                       style: 'invoiceTitle',
                       width: '*'
                   },
                   {
-                    stack: [
-                         {
-                             columns: [
-                                  {
-                                      text:'Invoice #', 
-                                      style:'invoiceSubTitle',
-                                      width: '*'
-                                      
-                                  }, 
-                                  {
-                                      text:'<?php echo "$invoice_prefix$invoice_number"; ?>',
-                                      style:'invoiceSubValue',
-                                      width: 100
-                                      
-                                  }
-                                  ]
-                         },
-                         {
-                             columns: [
-                                 {
-                                     text:'Date Issued',
-                                     style:'invoiceSubTitle',
-                                     width: '*'
-                                 }, 
-                                 {
-                                     text:'<?php echo $invoice_date ?>',
-                                     style:'invoiceSubValue',
-                                     width: 100
-                                 }
-                                 ]
-                         },
-                         {
-                             columns: [
-                                 {
-                                     text:'Due Date',
-                                     style:'invoiceSubTitle',
-                                     width: '*'
-                                 }, 
-                                 {
-                                     text:'<?php echo $invoice_due ?>',
-                                     style:'invoiceSubValue',
-                                     width: 100
-                                 }
-                                 ]
-                         },
-                     ]
-                  }
+                      text: '<?php echo "$invoice_prefix$invoice_number"; ?>', 
+                      style: 'invoiceNumber',
+                      width: '*'
+                  },
               ],
           ],
       },
@@ -595,24 +552,54 @@ include("footer.php");
               },
               {
                   text: '<?php echo $client_name; ?>',
-                  style:'invoiceBillingTitle',
+                  style:'invoiceBillingTitleClient',
                   
               },
           ]
       },
-      
+      // Billing Address
       {
           columns: [
               {
-                  text: '<?php echo $company_address; ?> \n <?php echo "$company_city $company_state $company_zip"; ?> \n \n <?php echo $company_phone; ?> \n <?php echo $company_website; ?>',
+                  text: '<?php echo $company_address; ?> \n <?php echo "$company_city $company_state $company_zip"; ?> \n <?php echo $company_phone; ?> \n <?php echo $company_website; ?>',
                   style: 'invoiceBillingAddress'
               },
               {
-                  text: '<?php echo $client_address; ?> \n <?php echo "$client_city $client_state $client_zip"; ?> \n \n <?php echo $client_email; ?> \n <?php echo $client_phone; ?>',
-                  style: 'invoiceBillingAddress'
+                  text: '<?php echo $client_address; ?> \n <?php echo "$client_city $client_state $client_zip"; ?> \n <?php echo $client_email; ?> \n <?php echo $client_phone; ?>',
+                  style: 'invoiceBillingAddressClient'
               },
           ]
       },
+      // Invoice Dates
+		   {
+		       columns: [
+		           {
+		               text:'Invoice Date',
+		               style:'invoiceDateTitle',
+		               width: '*'
+		           }, 
+		           {
+		               text:'<?php echo $invoice_date ?>',
+		               style:'invoiceDateValue',
+		               width: 50
+		           }
+		        ]
+		   },
+		   {
+		       columns: [
+		           {
+		               text:'Due Date',
+		               style:'invoiceDateTitle',
+		               width: '*'
+		           }, 
+		           {
+		               text:'<?php echo $invoice_due ?>',
+		               style:'invoiceDateValue',
+		               width: 50
+		           }
+		         ]
+		   },
+      
         // Line breaks
       '\n\n',
       // Items
@@ -678,13 +665,13 @@ include("footer.php");
                         },
                         {
                             text: '$item_description',
-                            style:'itemSubTitle'
+                            style:'itemDescription'
                             
                         }
                     ], 
                     {
                         text:'$item_quantity',
-                        style:'itemNumber'
+                        style:'itemQty'
                     }, 
                     {
                         text:'$$item_price',
@@ -709,7 +696,7 @@ include("footer.php");
               // END Items
             ]
           }, // table
-        //  layout: 'lightHorizontalLines'
+          layout: 'lightHorizontalLines'
         },
      // TOTAL
         {
@@ -743,7 +730,7 @@ include("footer.php");
               ],
               [ 
                   {
-                      text:'TOTAL',
+                      text:'Total',
                       style:'itemsFooterTotalTitle'
                   }, 
                   {
@@ -776,7 +763,7 @@ include("footer.php");
           layout: 'lightHorizontalLines'
         },
         { 
-            text: 'NOTES',
+            text: 'Notes',
             style:'notesTitle'
         },
         { 
@@ -785,157 +772,132 @@ include("footer.php");
         }
     ],
     styles: {
-      
-    // Document Footer
-    documentFooterCenter: {
-        fontSize: 10,
-        margin: [5,5,5,5],
-        alignment:'center'
-    },
-    // Invoice Title
-    invoiceTitle: {
-      fontSize: 22,
-      bold: true,
-      alignment:'right',
-      margin:[0,0,0,15]
-    },
-    // Invoice Details
-    invoiceSubTitle: {
-      fontSize: 12,
-      alignment:'right'
-    },
-    invoiceSubValue: {
-      fontSize: 12,
-      alignment:'right'
-    },
-    // Billing Headers
-    invoiceBillingTitle: {
-      fontSize: 14,
-      bold: true,
-      alignment:'left',
-      margin:[0,20,0,5],
-    },
-    // Billing Details
-    invoiceBillingDetails: {
-      alignment:'left'
-
-    },
-    invoiceBillingAddressTitle: {
-        margin: [0,7,0,3],
-        bold: true
-    },
-    invoiceBillingAddress: {
-        
-    },
-    // Items Header
-    itemsHeader: {
-        margin: [0,5,0,5],
-        bold: true
-    },
-    // Item Title
-    itemTitle: {
-        bold: true,
-    },
-    itemSubTitle: {
+	    // Document Footer
+	    documentFooterCenter: {
+	        fontSize: 8,
+	        margin: [5,5,5,5],
+	        alignment:'center'
+	    },
+	    // Invoice Title
+		invoiceTitle: {
+			fontSize: 16,
+			bold: true,
+			alignment:'right',
+			margin:[0,0,0,3]
+		},
+		// Invoice Number
+		invoiceNumber: {
+			fontSize: 12,
+			alignment:'right'
+		},
+		
+		// Billing Headers
+		invoiceBillingTitle: {
+			fontSize: 12,
+			bold: true,
+			alignment:'left',
+			margin:[0,20,0,5]
+		},
+		invoiceBillingTitleClient: {
+			fontSize: 12,
+			bold: true,
+			alignment:'right',
+			margin:[0,20,0,5]
+		},
+		// Billing Details
+		invoiceBillingAddress: {
+		    fontSize: 8,
+		    lineHeight: 1.2
+		},
+		invoiceBillingAddressClient: {
+		    fontSize: 8,
+		    lineHeight: 1.2,
+		    alignment:'right',
+		    margin:[0,0,0,30]
+		},
+		// Invoice Dates
+		invoiceDateTitle: {
+			fontSize: 8,
+			alignment:'right',
+			margin:[0,0,0,3]
+		},
+		invoiceDateValue: {
+			fontSize: 8,
+			alignment:'right',
+		},
+		// Items Header
+		itemsHeader: {
+		    fontSize: 8,
+		    margin: [0,5,0,5],
+		    bold: true
+		},
+		// Item Title
+		itemTitle: {
+		    fontSize: 8,
+		    bold: true,
+		    margin: [0,5,0,3]
+		},
+		itemDescription: {
             italics: true,
-            fontSize: 11
-    },
-    itemNumber: {
-        margin: [0,5,0,5],
-        alignment: 'center',
-    },
-    itemTotal: {
-        margin: [0,5,0,5],
-        bold: true,
-        alignment: 'center',
-    },
+            fontSize: 7,
+            lineHeight: 1.1,
+            margin: [0,3,0,5]
+		},
+		itemQty: {
+		    fontSize: 8,
+		    margin: [0,5,0,5],
+		    alignment: 'center',
+		},
+		itemNumber: {
+		    fontSize: 8,
+		    margin: [0,5,0,5],
+		    alignment: 'center',
+		},
+		itemTotal: {
+		    fontSize: 8,
+		    margin: [0,5,0,5],
+		    bold: true,
+		    alignment: 'center',
+		},
 
-    // Items Footer (Subtotal, Total, Tax, etc)
-    itemsFooterSubTitle: {
-        margin: [0,5,0,5],
-        bold: true,
-        alignment:'right',
-    },
-    itemsFooterSubValue: {
-        margin: [0,5,0,5],
-        bold: true,
-        alignment:'center',
-    },
-    itemsFooterTotalTitle: {
-        margin: [0,5,0,5],
-        bold: true,
-        alignment:'right',
-    },
-    itemsFooterTotalValue: {
-        margin: [0,5,0,5],
-        bold: true,
-        alignment:'center',
-    },
-    notesTitle: {
-      fontSize: 10,
-      bold: true,  
-      margin: [0,50,0,3],
-    },
-    notesText: {
-      fontSize: 10
-    },
-    center: {
-        alignment:'center',
-    },
-    },
-    defaultStyle: {
-    columnGap: 20,
-    }
-    };
-</script>
-
-<script>
-
-var products = [
-  <?php 
-  $sql = mysqli_query($mysqli,"SELECT product_name FROM products WHERE company_id = $session_company_id");
-  while($row = mysqli_fetch_array($sql)){
-    $product_name = $row['product_name'];
-    echo "\"$product_name\",";
-  }
-  ?>
-
-];
-
-var productCosts2 = [
-  <?php 
-  $sql = mysqli_query($mysqli,"SELECT product_id, product_name, product_cost FROM products WHERE company_id = $session_company_id");
-  while($row = mysqli_fetch_array($sql)){
-    $product_id = $row['product_id'];
-    $product_name = $row['product_name'];
-    $product_cost = $row['product_cost'];
-    echo "\"$product_cost\",";
-  }
-  ?>
-
-];
-
-
-var productCosts = [
-  <?php 
-  $sql = mysqli_query($mysqli,"SELECT product_id, product_name, product_cost FROM products WHERE company_id = $session_company_id");
-  while($row = mysqli_fetch_array($sql)){
-    $product_id = $row['product_id'];
-    $product_name = $row['product_name'];
-    $product_cost = $row['product_cost'];
-    echo "{ id: '$product_id', name: '$product_name', cost: '$product_cost' },";
-  }
-  ?>
-
-];
-
-$('#item').typeahead({
-  source: products,
-  afterSelect: function(){
-    $('#item').val( '<?php echo $product_name; ?>' );
-  }
-
-});
-
-
+		// Items Footer (Subtotal, Total, Tax, etc)
+		itemsFooterSubTitle: {
+		    fontSize: 8,
+		    margin: [0,5,0,5],
+		    alignment:'right',
+		},
+		itemsFooterSubValue: {
+		    fontSize: 8,
+		    margin: [0,5,0,5],
+		    bold: true,
+		    alignment:'center',
+		},
+		itemsFooterTotalTitle: {
+		    fontSize: 8,
+		    margin: [0,5,0,5],
+		    bold: true,
+		    alignment:'right',
+		},
+		itemsFooterTotalValue: {
+		    fontSize: 8,
+		    margin: [0,5,0,5],
+		    bold: true,
+		    alignment:'center',
+		},
+		notesTitle: {
+		  fontSize: 8,
+		  bold: true,  
+		  margin: [0,50,0,3],
+		},
+		notesText: {
+		  fontSize: 8
+		},
+		center: {
+		    alignment:'center',
+		},
+	},
+	defaultStyle: {
+		columnGap: 20,
+	}
+};
 </script>
