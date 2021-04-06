@@ -581,7 +581,7 @@ include("footer.php");
 		           {
 		               text:'<?php echo $invoice_date ?>',
 		               style:'invoiceDateValue',
-		               width: 50
+		               width: 80
 		           }
 		        ]
 		   },
@@ -595,7 +595,7 @@ include("footer.php");
 		           {
 		               text:'<?php echo $invoice_due ?>',
 		               style:'invoiceDateValue',
-		               width: 50
+		               width: 80
 		           }
 		         ]
 		   },
@@ -774,87 +774,87 @@ include("footer.php");
     styles: {
 	    // Document Footer
 	    documentFooterCenter: {
-	        fontSize: 8,
+	        fontSize: 10,
 	        margin: [5,5,5,5],
 	        alignment:'center'
 	    },
 	    // Invoice Title
 		invoiceTitle: {
-			fontSize: 16,
+			fontSize: 18,
 			bold: true,
 			alignment:'right',
 			margin:[0,0,0,3]
 		},
 		// Invoice Number
 		invoiceNumber: {
-			fontSize: 12,
+			fontSize: 14,
 			alignment:'right'
 		},
 		
 		// Billing Headers
 		invoiceBillingTitle: {
-			fontSize: 12,
+			fontSize: 14,
 			bold: true,
 			alignment:'left',
 			margin:[0,20,0,5]
 		},
 		invoiceBillingTitleClient: {
-			fontSize: 12,
+			fontSize: 14,
 			bold: true,
 			alignment:'right',
 			margin:[0,20,0,5]
 		},
 		// Billing Details
 		invoiceBillingAddress: {
-		    fontSize: 8,
+		    fontSize: 10,
 		    lineHeight: 1.2
 		},
 		invoiceBillingAddressClient: {
-		    fontSize: 8,
+		    fontSize: 10,
 		    lineHeight: 1.2,
 		    alignment:'right',
 		    margin:[0,0,0,30]
 		},
 		// Invoice Dates
 		invoiceDateTitle: {
-			fontSize: 8,
+			fontSize: 10,
 			alignment:'right',
 			margin:[0,0,0,3]
 		},
 		invoiceDateValue: {
-			fontSize: 8,
+			fontSize: 10,
 			alignment:'right',
 		},
 		// Items Header
 		itemsHeader: {
-		    fontSize: 8,
+		    fontSize: 10,
 		    margin: [0,5,0,5],
 		    bold: true
 		},
 		// Item Title
 		itemTitle: {
-		    fontSize: 8,
+		    fontSize: 10,
 		    bold: true,
 		    margin: [0,5,0,3]
 		},
 		itemDescription: {
             italics: true,
-            fontSize: 7,
+            fontSize: 9,
             lineHeight: 1.1,
             margin: [0,3,0,5]
 		},
 		itemQty: {
-		    fontSize: 8,
+		    fontSize: 10,
 		    margin: [0,5,0,5],
 		    alignment: 'center',
 		},
 		itemNumber: {
-		    fontSize: 8,
+		    fontSize: 10,
 		    margin: [0,5,0,5],
 		    alignment: 'center',
 		},
 		itemTotal: {
-		    fontSize: 8,
+		    fontSize: 10,
 		    margin: [0,5,0,5],
 		    bold: true,
 		    alignment: 'center',
@@ -862,35 +862,35 @@ include("footer.php");
 
 		// Items Footer (Subtotal, Total, Tax, etc)
 		itemsFooterSubTitle: {
-		    fontSize: 8,
+		    fontSize: 10,
 		    margin: [0,5,0,5],
 		    alignment:'right',
 		},
 		itemsFooterSubValue: {
-		    fontSize: 8,
+		    fontSize: 10,
 		    margin: [0,5,0,5],
 		    bold: true,
 		    alignment:'center',
 		},
 		itemsFooterTotalTitle: {
-		    fontSize: 8,
+		    fontSize: 10,
 		    margin: [0,5,0,5],
 		    bold: true,
 		    alignment:'right',
 		},
 		itemsFooterTotalValue: {
-		    fontSize: 8,
+		    fontSize: 10,
 		    margin: [0,5,0,5],
 		    bold: true,
 		    alignment:'center',
 		},
 		notesTitle: {
-		  fontSize: 8,
+		  fontSize: 10,
 		  bold: true,  
 		  margin: [0,50,0,3],
 		},
 		notesText: {
-		  fontSize: 8
+		  fontSize: 10
 		},
 		center: {
 		    alignment:'center',
