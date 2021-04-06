@@ -696,11 +696,24 @@ var docDefinition = {
 		  	// headers are automatically repeated if the table spans over multiple pages
 		    // you can declare how many rows should be treated as headers
 		    headerRows: 0,
-		    widths: [ '*', 80 ],
+		    widths: [ '*','auto', 80 ],
 
 		    body: [
 		    	// Total
 		      [ 
+		      	{
+		      		text: 'Notes',
+		  				style:'notesTitle'
+		  			},
+		      	{},
+		      	{}
+		      ],
+		      [ 
+		      	{
+		      		rowSpan: 5,
+							text: <?php echo json_encode($invoice_note); ?>,
+		  				style:'notesText'
+		  			},
 		      	{
 		        	text:'Subtotal',
 		          style:'itemsFooterSubTitle'
@@ -711,6 +724,7 @@ var docDefinition = {
 		        }
 		      ],
 		      [ 
+		      	{},    	
 		      	{
 		        	text:'Tax',
 		          style:'itemsFooterSubTitle'
@@ -721,6 +735,7 @@ var docDefinition = {
 		        }
 		      ],
 		      [ 
+		      	{},
 		      	{
 		        	text:'Total',
 		          style:'itemsFooterSubTitle'
@@ -731,6 +746,7 @@ var docDefinition = {
 		        }
 		      ],
 		      [ 
+		      	{},
 		      	{
 		        	text:'Paid',
 		          style:'itemsFooterSubTitle'
@@ -741,6 +757,7 @@ var docDefinition = {
 		        }
 		      ],
 		      [ 
+		      	{},
 		      	{
 		        	text:'Balance',
 		          style:'itemsFooterTotalTitle'
@@ -754,14 +771,6 @@ var docDefinition = {
 		    ]
 		  }, // table
 		  layout: 'lightHorizontalLines'
-		},
-		{ 
-			text: 'Notes',
-		  style:'notesTitle'
-		},
-		{ 
-			text: <?php echo json_encode($invoice_note); ?>,
-		  style:'notesText'
 		}
 	], //End Content,
 	styles: {
@@ -879,7 +888,7 @@ var docDefinition = {
 		notesTitle: {
 			fontSize: 10,
 			bold: true,  
-			margin: [0,50,0,3],
+			margin: [0,5,0,5],
 		},
 		notesText: {
 			fontSize: 10
