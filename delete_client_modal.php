@@ -1,14 +1,9 @@
 <div class="modal" id="deleteClientModal<?php echo $client_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-    	<div class="modal-header bg-danger">
-        <button type="button" class="close text-white" data-dismiss="modal">
-          <span>&times;</span>
-        </button>
-      </div>
       <div class="modal-body">
       	<center class="mb-4">
-      		<i class="far fa-8x fa-times-circle text-danger mb-3 mt-3"></i>
+      		<i class="far fa-10x fa-times-circle text-danger mb-3 mt-3"></i>
       		<h2>Are you sure?</h2>
       		<h6 class="mb-4 text-secondary">Do you really want to delete <?php echo $client_name; ?>? This process cannot be undone.</h6>	
       		<button type="button" class="btn btn-outline-secondary btn-lg px-5 mr-4" data-dismiss="modal">Cancel</button>

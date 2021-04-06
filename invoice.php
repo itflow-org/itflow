@@ -487,298 +487,287 @@ include("footer.php");
 ?>
 
 <script src='plugins/pdfmake/pdfmake.js'></script>
-    <script src='plugins/pdfmake/vfs_fonts.js'></script>
+<script src='plugins/pdfmake/vfs_fonts.js'></script>
+<script>
 
-    <script>
+// Invoice markup
+// Author: Max Kostinevich
+// BETA (no styles)
+// http://pdfmake.org/playground.html
+// playground requires you to assign document definition to a variable called dd
 
-    // Invoice markup
-    // Author: Max Kostinevich
-    // BETA (no styles)
-    // http://pdfmake.org/playground.html
-    // playground requires you to assign document definition to a variable called dd
-
-    // CodeSandbox Example: https://codesandbox.io/s/pdfmake-invoice-oj81y
-
-
-    var docDefinition = {
-    info: {
-    title: '<?php echo "$company_name - Invoice"; ?>',
-    author: '<?php echo $company_name; ?>'
-    },
+// CodeSandbox Example: https://codesandbox.io/s/pdfmake-invoice-oj81y
 
 
-    footer: {
-    columns: [
-      
-      { text: '<?php echo $config_invoice_footer; ?>', style: 'documentFooterCenter' },
-     
-    ]
-    },
+var docDefinition = {
+	info: {
+		title: '<?php echo "$company_name - Invoice"; ?>',
+		author: '<?php echo $company_name; ?>'
+	},
+	footer: {
+		columns: [
+			{ text: '<?php echo $config_invoice_footer; ?>', style: 'documentFooterCenter' },
+		]
+	},
 
-    //watermark: {text: '<?php echo $invoice_status; ?>', color: 'lightgrey', opacity: 0.3, bold: true, italics: false},
+	//watermark: {text: '<?php echo $invoice_status; ?>', color: 'lightgrey', opacity: 0.3, bold: true, italics: false},
 
-    content: [
-      // Header
-      {
-          columns: [
-              <?php if(!empty($company_logo_base64)){ ?>
-              {
-                    image: '<?php echo "data:image;base64,$company_logo_base64"; ?>',
-                    width: 120
-              },
-              <?php } ?>
-                  
-              [
-                  {
-                      text: 'Invoice', 
-                      style: 'invoiceTitle',
-                      width: '*'
-                  },
-                  {
-                      text: '<?php echo "$invoice_prefix$invoice_number"; ?>', 
-                      style: 'invoiceNumber',
-                      width: '*'
-                  },
-              ],
-          ],
-      },
-      // Billing Headers
-      {
-          columns: [
-              {
-                  text: '<?php echo $company_name; ?>',
-                  style:'invoiceBillingTitle',
-                  
-              },
-              {
-                  text: '<?php echo $client_name; ?>',
-                  style:'invoiceBillingTitleClient',
-                  
-              },
-          ]
-      },
-      // Billing Address
-      {
-          columns: [
-              {
-                  text: '<?php echo $company_address; ?> \n <?php echo "$company_city $company_state $company_zip"; ?> \n <?php echo $company_phone; ?> \n <?php echo $company_website; ?>',
-                  style: 'invoiceBillingAddress'
-              },
-              {
-                  text: '<?php echo $client_address; ?> \n <?php echo "$client_city $client_state $client_zip"; ?> \n <?php echo $client_email; ?> \n <?php echo $client_phone; ?>',
-                  style: 'invoiceBillingAddressClient'
-              },
-          ]
-      },
-      // Invoice Dates
-		   {
-		       columns: [
-		           {
-		               text:'Invoice Date',
-		               style:'invoiceDateTitle',
-		               width: '*'
-		           }, 
-		           {
-		               text:'<?php echo $invoice_date ?>',
-		               style:'invoiceDateValue',
-		               width: 80
-		           }
-		        ]
-		   },
-		   {
-		       columns: [
-		           {
-		               text:'Due Date',
-		               style:'invoiceDateTitle',
-		               width: '*'
-		           }, 
-		           {
-		               text:'<?php echo $invoice_due ?>',
-		               style:'invoiceDateValue',
-		               width: 80
-		           }
-		         ]
-		   },
-      
-        // Line breaks
-      '\n\n',
-      // Items
-        {
-          table: {
-            // headers are automatically repeated if the table spans over multiple pages
-            // you can declare how many rows should be treated as headers
-            headerRows: 1,
-            widths: [ '*', 40, 'auto', 'auto', 80 ],
+	content: [
+		// Header
+		{
+			columns: [
+				<?php if(!empty($company_logo_base64)){ ?>
+				{
+					image: '<?php echo "data:image;base64,$company_logo_base64"; ?>',
+					width: 120
+				},
+				<?php } ?>
+		            
+				[
+					{
+						text: 'Invoice', 
+						style: 'invoiceTitle',
+						width: '*'
+					},
+					{
+						text: '<?php echo "$invoice_prefix$invoice_number"; ?>', 
+						style: 'invoiceNumber',
+						width: '*'
+					},
+		    ],
+	 		],
+		},
+		// Billing Headers
+		{
+			columns: [
+				{
+		    	text: '<?php echo $company_name; ?>',
+		      style:'invoiceBillingTitle',
+		    },
+		    {
+		      text: '<?php echo $client_name; ?>',
+		      style:'invoiceBillingTitleClient',        
+		    },
+			]
+		},
+		// Billing Address
+		{
+			columns: [
+		  	{
+		      text: '<?php echo $company_address; ?> \n <?php echo "$company_city $company_state $company_zip"; ?> \n <?php echo $company_phone; ?> \n <?php echo $company_website; ?>',
+		      style: 'invoiceBillingAddress'
+		    },
+		    {
+		      text: '<?php echo $client_address; ?> \n <?php echo "$client_city $client_state $client_zip"; ?> \n <?php echo $client_email; ?> \n <?php echo $client_phone; ?>',
+		      style: 'invoiceBillingAddressClient'
+		    },
+		  ]
+		},
+		// Invoice Dates
+		{
+			columns: [
+		  	{
+					text:'Invoice Date',
+					style:'invoiceDateTitle',
+					width: '*'
+		    }, 
+		    {
+					text:'<?php echo $invoice_date ?>',
+					style:'invoiceDateValue',
+					width: 80
+		    },
+		  ]
+		},
+		{
+			columns: [
+				{
+					text:'Due Date',
+					style:'invoiceDateTitle',
+					width: '*'
+				}, 
+				{
+					text:'<?php echo $invoice_due ?>',
+					style:'invoiceDateValue',
+					width: 80
+				},
+			]
+		},
+		
+		// Line breaks
+		'\n\n',
+		// Items
+		{
+			table: {
+				// headers are automatically repeated if the table spans over multiple pages
+				// you can declare how many rows should be treated as headers
+				headerRows: 1,
+				widths: [ '*', 40, 'auto', 'auto', 80 ],
 
-            body: [
-              // Table Header
-              [ 
-                  {
-                      text: 'Product',
-                      style: 'itemsHeader'
-                  }, 
-                  {
-                      text: 'Qty',
-                      style: [ 'itemsHeader', 'center']
-                  }, 
-                  {
-                      text: 'Price',
-                      style: [ 'itemsHeader', 'center']
-                  }, 
-                  {
-                      text: 'Tax',
-                      style: [ 'itemsHeader', 'center']
-                  }, 
-                  {
-                      text: 'Total',
-                      style: [ 'itemsHeader', 'center']
-                  } 
-              ],
-              // Items
-              <?php 
-              $total_tax = 0;
-              $sub_total = 0;
+				body: [
+					// Table Header
+					[ 
+						{
+							text: 'Product',
+							style: 'itemsHeader'
+						}, 
+						{
+						  text: 'Qty',
+						  style: [ 'itemsHeader', 'center']
+						}, 
+						{
+						  text: 'Price',
+						  style: [ 'itemsHeader', 'center']
+						}, 
+						{
+						  text: 'Tax',
+						  style: [ 'itemsHeader', 'center']
+						}, 
+						{
+						  text: 'Total',
+						  style: [ 'itemsHeader', 'center']
+						} 
+					],
+		      // Items
+		      <?php 
+		      $total_tax = 0;
+		      $sub_total = 0;
 
-              $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC");
-              
-              while($row = mysqli_fetch_array($sql_invoice_items)){
-                $item_name = $row['item_name'];
-                $item_description = $row['item_description'];
-                $item_quantity = $row['item_quantity'];
-                $item_price = $row['item_price'];
-                $item_subtotal = $row['item_price'];
-                $item_tax = $row['item_tax'];
-                $item_total = $row['item_total'];
-                $tax_id = $row['tax_id'];
-                $total_tax = $item_tax + $total_tax;
-                $total_tax = number_format($total_tax,2);
-                $sub_total = $item_price * $item_quantity + $sub_total;
-                $sub_total = number_format($sub_total, 2);
-                echo "
+		      $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC");
+		      
+		      while($row = mysqli_fetch_array($sql_invoice_items)){
+		        $item_name = $row['item_name'];
+		        $item_description = $row['item_description'];
+		        $item_quantity = $row['item_quantity'];
+		        $item_price = $row['item_price'];
+		        $item_subtotal = $row['item_price'];
+		        $item_tax = $row['item_tax'];
+		        $item_total = $row['item_total'];
+		        $tax_id = $row['tax_id'];
+		        $total_tax = $item_tax + $total_tax;
+		        $total_tax = number_format($total_tax,2);
+		        $sub_total = $item_price * $item_quantity + $sub_total;
+		        $sub_total = number_format($sub_total, 2);
+		      ?>
 
-                  // Item 1
-                  [ 
-                    [
-                        {
-                            text: '$item_name',
-                            style:'itemTitle'
-                        },
-                        {
-                            text: '$item_description',
-                            style:'itemDescription'
-                            
-                        }
-                    ], 
-                    {
-                        text:'$item_quantity',
-                        style:'itemQty'
-                    }, 
-                    {
-                        text:'$$item_price',
-                        style:'itemNumber'
-                    }, 
-                    {
-                        text:'$$item_tax',
-                        style:'itemNumber'
-                    }, 
-                    {
-                        text: '$$item_total',
-                        style:'itemTotal'
-                    } 
-                ],
+		      // Item
+		      [	 
+		        [
+		        	{
+		          	text: '<?php echo $item_name; ?>',
+		            style:'itemTitle'
+		          },
+		          {
+		            text: '<?php echo $item_description; ?>',
+		            style:'itemDescription'       
+		          }
+		        ], 
+		        {
+		        	text:'<?php echo $item_quantity; ?>',
+		          style:'itemQty'
+		        }, 
+		        {
+		        	text:'$<?php echo $item_price; ?>',
+		         	style:'itemNumber'
+		        }, 
+		        {
+		          text:'$<?php echo $item_tax; ?>',
+		          style:'itemNumber'
+		        }, 
+		        {
+		          text: '$<?php echo $item_total; ?>',
+		          style:'itemTotal'
+		        } 
+		    	],
+		
+					<?php
+					}
+					?>
+		      // END Items
+		    ]
+		  }, // table
+		  layout: 'lightHorizontalLines'
+	 	},
+	 	// TOTAL
+		{
+			table: {
+		  	// headers are automatically repeated if the table spans over multiple pages
+		    // you can declare how many rows should be treated as headers
+		    headerRows: 0,
+		    widths: [ '*', 80 ],
 
-                ";
-
-              }
-
-              ?>
-
-              // END Items
-            ]
-          }, // table
-          layout: 'lightHorizontalLines'
-        },
-     // TOTAL
-        {
-          table: {
-            // headers are automatically repeated if the table spans over multiple pages
-            // you can declare how many rows should be treated as headers
-            headerRows: 0,
-            widths: [ '*', 80 ],
-
-            body: [
-              // Total
-              [ 
-                  {
-                      text:'Subtotal',
-                      style:'itemsFooterSubTitle'
-                  }, 
-                  { 
-                      text:'$<?php echo $sub_total; ?>',
-                      style:'itemsFooterSubValue'
-                  }
-              ],
-              [ 
-                  {
-                      text:'Tax',
-                      style:'itemsFooterSubTitle'
-                  },
-                  {
-                      text: '$<?php echo number_format($total_tax,2); ?>',
-                      style:'itemsFooterSubValue'
-                  }
-              ],
-              [ 
-                  {
-                      text:'Total',
-                      style:'itemsFooterTotalTitle'
-                  }, 
-                  {
-                      text: '$<?php echo number_format($invoice_amount,2); ?>',
-                      style:'itemsFooterTotalValue'
-                  }
-              ],
-              [ 
-                  {
-                      text:'Paid',
-                      style:'itemsFooterSubTitle'
-                  },
-                  {
-                      text: '$<?php echo number_format($amount_paid,2); ?>',
-                      style:'itemsFooterSubValue'
-                  }
-              ],
-              [ 
-                  {
-                      text:'Balance',
-                      style:'itemsFooterSubTitle'
-                  },
-                  {
-                      text: '$<?php echo number_format($balance,2); ?>',
-                      style:'itemsFooterSubValue'
-                  }
-              ],
-            ]
-          }, // table
-          layout: 'lightHorizontalLines'
-        },
-        { 
-            text: 'Notes',
-            style:'notesTitle'
-        },
-        { 
-            text: '<?php ?>',
-            style:'notesText'
-        }
-    ],
-    styles: {
-	    // Document Footer
-	    documentFooterCenter: {
-	        fontSize: 10,
-	        margin: [5,5,5,5],
-	        alignment:'center'
-	    },
-	    // Invoice Title
+		    body: [
+		    	// Total
+		      [ 
+		      	{
+		        	text:'Subtotal',
+		          style:'itemsFooterSubTitle'
+		        }, 
+		        { 
+		         	text:'$<?php echo $sub_total; ?>',
+		          style:'itemsFooterSubValue'
+		        }
+		      ],
+		      [ 
+		      	{
+		        	text:'Tax',
+		          style:'itemsFooterSubTitle'
+		        },
+		        {
+		         	text: '$<?php echo number_format($total_tax,2); ?>',
+		          style:'itemsFooterSubValue'
+		        }
+		      ],
+		      [ 
+		      	{
+		        	text:'Total',
+		          style:'itemsFooterTotalTitle'
+		        }, 
+		        {
+		         	text: '$<?php echo number_format($invoice_amount,2); ?>',
+		          style:'itemsFooterTotalValue'
+		        }
+		      ],
+		      [ 
+		      	{
+		        	text:'Paid',
+		          style:'itemsFooterSubTitle'
+		        },
+		        {
+		          text: '$<?php echo number_format($amount_paid,2); ?>',
+		          style:'itemsFooterSubValue'
+		        }
+		      ],
+		      [ 
+		      	{
+		        	text:'Balance',
+		          style:'itemsFooterSubTitle'
+		        },
+		        {
+		        	text: '$<?php echo number_format($balance,2); ?>',
+		          style:'itemsFooterSubValue'
+		        }
+		      ],
+		    ]
+		  }, // table
+		  layout: 'lightHorizontalLines'
+		},
+		{ 
+			text: 'Notes',
+		  style:'notesTitle'
+		},
+		{ 
+			text: '<?php //echo $invoice_note; ?>',
+		  style:'notesText'
+		}
+	], //End Content,
+	styles: {
+		// Document Footer
+		documentFooterCenter: {
+			fontSize: 10,
+		  margin: [5,5,5,5],
+		  alignment:'center'
+		},
+		// Invoice Title
 		invoiceTitle: {
 			fontSize: 18,
 			bold: true,
@@ -790,7 +779,6 @@ include("footer.php");
 			fontSize: 14,
 			alignment:'right'
 		},
-		
 		// Billing Headers
 		invoiceBillingTitle: {
 			fontSize: 14,
@@ -806,14 +794,14 @@ include("footer.php");
 		},
 		// Billing Details
 		invoiceBillingAddress: {
-		    fontSize: 10,
-		    lineHeight: 1.2
+		  fontSize: 10,
+		  lineHeight: 1.2
 		},
 		invoiceBillingAddressClient: {
-		    fontSize: 10,
-		    lineHeight: 1.2,
-		    alignment:'right',
-		    margin:[0,0,0,30]
+			fontSize: 10,
+			lineHeight: 1.2,
+			alignment:'right',
+			margin:[0,0,0,30]
 		},
 		// Invoice Dates
 		invoiceDateTitle: {
@@ -827,77 +815,76 @@ include("footer.php");
 		},
 		// Items Header
 		itemsHeader: {
-		    fontSize: 10,
-		    margin: [0,5,0,5],
-		    bold: true
+			fontSize: 10,
+			margin: [0,5,0,5],
+			bold: true
 		},
 		// Item Title
 		itemTitle: {
-		    fontSize: 10,
-		    bold: true,
-		    margin: [0,5,0,3]
+			fontSize: 10,
+			bold: true,
+			margin: [0,5,0,3]
 		},
 		itemDescription: {
-            italics: true,
-            fontSize: 9,
-            lineHeight: 1.1,
-            margin: [0,3,0,5]
+			italics: true,
+			fontSize: 9,
+			lineHeight: 1.1,
+			margin: [0,3,0,5]
 		},
 		itemQty: {
-		    fontSize: 10,
-		    margin: [0,5,0,5],
-		    alignment: 'center',
+			fontSize: 10,
+			margin: [0,5,0,5],
+			alignment: 'center',
 		},
 		itemNumber: {
-		    fontSize: 10,
-		    margin: [0,5,0,5],
-		    alignment: 'center',
+		  fontSize: 10,
+		  margin: [0,5,0,5],
+		  alignment: 'center',
 		},
 		itemTotal: {
-		    fontSize: 10,
-		    margin: [0,5,0,5],
-		    bold: true,
-		    alignment: 'center',
+		  fontSize: 10,
+		  margin: [0,5,0,5],
+		  bold: true,
+		  alignment: 'center',
 		},
-
 		// Items Footer (Subtotal, Total, Tax, etc)
 		itemsFooterSubTitle: {
-		    fontSize: 10,
-		    margin: [0,5,0,5],
-		    alignment:'right',
+		  fontSize: 10,
+		  margin: [0,5,0,5],
+		  alignment:'right',
 		},
 		itemsFooterSubValue: {
-		    fontSize: 10,
-		    margin: [0,5,0,5],
-		    bold: true,
-		    alignment:'center',
+		  fontSize: 10,
+		  margin: [0,5,0,5],
+		  bold: true,
+		  alignment:'center',
 		},
 		itemsFooterTotalTitle: {
-		    fontSize: 10,
-		    margin: [0,5,0,5],
-		    bold: true,
-		    alignment:'right',
+		  fontSize: 10,
+		  margin: [0,5,0,5],
+		  bold: true,
+		  alignment:'right',
 		},
 		itemsFooterTotalValue: {
-		    fontSize: 10,
-		    margin: [0,5,0,5],
-		    bold: true,
-		    alignment:'center',
+		  fontSize: 10,
+		  margin: [0,5,0,5],
+		  bold: true,
+		  alignment:'center',
 		},
 		notesTitle: {
-		  fontSize: 10,
-		  bold: true,  
-		  margin: [0,50,0,3],
+			fontSize: 10,
+			bold: true,  
+			margin: [0,50,0,3],
 		},
 		notesText: {
-		  fontSize: 10
+			fontSize: 10
 		},
 		center: {
-		    alignment:'center',
+			alignment:'center',
 		},
 	},
 	defaultStyle: {
 		columnGap: 20,
 	}
-};
+}
 </script>
