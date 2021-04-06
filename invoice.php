@@ -506,7 +506,10 @@ var docDefinition = {
 	},
 	footer: {
 		columns: [
-			{ text: '<?php echo $config_invoice_footer; ?>', style: 'documentFooterCenter' },
+			{ 
+				text: <?php echo json_encode($config_invoice_footer); ?>,
+				style: 'documentFooterCenter' 
+			},
 		]
 	},
 
@@ -541,11 +544,11 @@ var docDefinition = {
 		{
 			columns: [
 				{
-		    	text: '<?php echo $company_name; ?>',
+		    	text: <?php echo json_encode($company_name); ?>,
 		      style:'invoiceBillingTitle',
 		    },
 		    {
-		      text: '<?php echo $client_name; ?>',
+		      text: <?php echo json_encode($client_name); ?>,
 		      style:'invoiceBillingTitleClient',        
 		    },
 			]
@@ -554,11 +557,11 @@ var docDefinition = {
 		{
 			columns: [
 		  	{
-		      text: '<?php echo $company_address; ?> \n <?php echo "$company_city $company_state $company_zip"; ?> \n <?php echo $company_phone; ?> \n <?php echo $company_website; ?>',
+		      text: <?php echo json_encode("$company_address \n $company_city $company_state $company_zip \n $company_phone \n $company_website"); ?>,
 		      style: 'invoiceBillingAddress'
 		    },
 		    {
-		      text: '<?php echo $client_address; ?> \n <?php echo "$client_city $client_state $client_zip"; ?> \n <?php echo $client_email; ?> \n <?php echo $client_phone; ?>',
+		      text: <?php echo json_encode("$client_address \n $client_city $client_state $client_zip \n $client_email \n $client_phone"); ?>,
 		      style: 'invoiceBillingAddressClient'
 		    },
 		  ]
@@ -608,7 +611,7 @@ var docDefinition = {
 					[ 
 						{
 							text: 'Product',
-							style: 'itemsHeader'
+							style: [ 'itemsHeader', 'left']
 						}, 
 						{
 						  text: 'Qty',
@@ -616,15 +619,15 @@ var docDefinition = {
 						}, 
 						{
 						  text: 'Price',
-						  style: [ 'itemsHeader', 'center']
+						  style: [ 'itemsHeader', 'right']
 						}, 
 						{
 						  text: 'Tax',
-						  style: [ 'itemsHeader', 'center']
+						  style: [ 'itemsHeader', 'right']
 						}, 
 						{
 						  text: 'Total',
-						  style: [ 'itemsHeader', 'center']
+						  style: [ 'itemsHeader', 'right']
 						} 
 					],
 		      // Items
@@ -653,11 +656,11 @@ var docDefinition = {
 		      [	 
 		        [
 		        	{
-		          	text: '<?php echo $item_name; ?>',
+		          	text: <?php echo json_encode($item_name); ?>,
 		            style:'itemTitle'
 		          },
 		          {
-		            text: '<?php echo $item_description; ?>',
+		            text: <?php echo json_encode($item_description); ?>,
 		            style:'itemDescription'       
 		          }
 		        ], 
@@ -675,7 +678,7 @@ var docDefinition = {
 		        }, 
 		        {
 		          text: '$<?php echo $item_total; ?>',
-		          style:'itemTotal'
+		          style:'itemNumber'
 		        } 
 		    	],
 		
@@ -720,11 +723,11 @@ var docDefinition = {
 		      [ 
 		      	{
 		        	text:'Total',
-		          style:'itemsFooterTotalTitle'
+		          style:'itemsFooterSubTitle'
 		        }, 
 		        {
 		         	text: '$<?php echo number_format($invoice_amount,2); ?>',
-		          style:'itemsFooterTotalValue'
+		          style:'itemsFooterSubValue'
 		        }
 		      ],
 		      [ 
@@ -740,11 +743,12 @@ var docDefinition = {
 		      [ 
 		      	{
 		        	text:'Balance',
-		          style:'itemsFooterSubTitle'
+		          style:'itemsFooterTotalTitle'
 		        },
 		        {
 		        	text: '$<?php echo number_format($balance,2); ?>',
-		          style:'itemsFooterSubValue'
+		          
+		          style:'itemsFooterTotalTitle'
 		        }
 		      ],
 		    ]
@@ -756,7 +760,7 @@ var docDefinition = {
 		  style:'notesTitle'
 		},
 		{ 
-			text: '<?php //echo $invoice_note; ?>',
+			text: <?php echo json_encode($invoice_note); ?>,
 		  style:'notesText'
 		}
 	], //End Content,
@@ -817,7 +821,8 @@ var docDefinition = {
 		itemsHeader: {
 			fontSize: 10,
 			margin: [0,5,0,5],
-			bold: true
+			bold: true,
+			alignment:'right'
 		},
 		// Item Title
 		itemTitle: {
@@ -839,13 +844,13 @@ var docDefinition = {
 		itemNumber: {
 		  fontSize: 10,
 		  margin: [0,5,0,5],
-		  alignment: 'center',
+		  alignment: 'right',
 		},
 		itemTotal: {
 		  fontSize: 10,
 		  margin: [0,5,0,5],
 		  bold: true,
-		  alignment: 'center',
+		  alignment: 'right',
 		},
 		// Items Footer (Subtotal, Total, Tax, etc)
 		itemsFooterSubTitle: {
@@ -856,8 +861,8 @@ var docDefinition = {
 		itemsFooterSubValue: {
 		  fontSize: 10,
 		  margin: [0,5,0,5],
-		  bold: true,
-		  alignment:'center',
+		  bold: false,
+		  alignment:'right',
 		},
 		itemsFooterTotalTitle: {
 		  fontSize: 10,
@@ -869,7 +874,7 @@ var docDefinition = {
 		  fontSize: 10,
 		  margin: [0,5,0,5],
 		  bold: true,
-		  alignment:'center',
+		  alignment:'right',
 		},
 		notesTitle: {
 			fontSize: 10,
@@ -878,6 +883,9 @@ var docDefinition = {
 		},
 		notesText: {
 			fontSize: 10
+		},
+		left: {
+			alignment:'left',
 		},
 		center: {
 			alignment:'center',
