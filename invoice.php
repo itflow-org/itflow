@@ -490,15 +490,6 @@ include("footer.php");
 <script src='plugins/pdfmake/vfs_fonts.js'></script>
 <script>
 
-// Invoice markup
-// Author: Max Kostinevich
-// BETA (no styles)
-// http://pdfmake.org/playground.html
-// playground requires you to assign document definition to a variable called dd
-
-// CodeSandbox Example: https://codesandbox.io/s/pdfmake-invoice-oj81y
-
-
 var docDefinition = {
 	info: {
 		title: '<?php echo "$company_name - Invoice"; ?>',
@@ -791,7 +782,7 @@ var docDefinition = {
 		// Document Footer
 		documentFooterCenter: {
 			fontSize: 9,
-		  margin: [5,5,5,5],
+		  margin: [10,10,10,10],
 		  alignment:'center'
 		},
 		// Invoice Title
