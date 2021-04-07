@@ -848,6 +848,7 @@ CREATE TABLE `tickets` (
   `ticket_archived_at` datetime DEFAULT NULL,
   `ticket_closed_at` datetime DEFAULT NULL,
   `ticket_created_by` int(11) NOT NULL,
+  `ticket_assigned_to` int(11) DEFAULT NULL,
   `ticket_closed_by` int(11) DEFAULT NULL,
   `vendor_id` int(11) DEFAULT NULL,
   `client_id` int(11) DEFAULT NULL,
@@ -981,4 +982,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-03-27 16:49:58
+-- Dump completed on 2021-04-07 16:59:12
