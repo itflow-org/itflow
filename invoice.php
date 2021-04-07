@@ -566,36 +566,50 @@ var docDefinition = {
 		    },
 		  ]
 		},
-		// Invoice Dates
+		//Invoice Dates Table
 		{
-			columns: [
-		  	{
-					text:'Invoice Date',
-					style:'invoiceDateTitle',
-					width: '*'
-		    }, 
-		    {
-					text:'<?php echo $invoice_date ?>',
-					style:'invoiceDateValue',
-					width: 80
-		    },
-		  ]
+			table: {
+		  	// headers are automatically repeated if the table spans over multiple pages
+		    // you can declare how many rows should be treated as headers
+		    headerRows: 0,
+		    widths: [ '*',80, 80 ],
+
+		    body: [
+		    	// Total
+		      [ 
+		      	{
+		      		text:'',
+		      		rowSpan: 3
+		      	},
+		      	{}, 
+						{},
+		      ],
+		      [ 
+		      	{},
+		      	{
+							text:'Invoice Date',
+							style:'invoiceDateTitle',
+						}, 
+						{
+							text:'<?php echo $invoice_date ?>',
+							style:'invoiceDateValue',
+						},
+		      ],
+		      [ 
+		      	{},
+		      	{
+							text:'Due Date',
+							style:'invoiceDateTitle',
+						}, 
+						{
+							text:'<?php echo $invoice_due ?>',
+							style:'invoiceDateValue',
+						},
+		      ],
+		    ]
+		  }, // table
+		  layout: 'lightHorizontalLines'
 		},
-		{
-			columns: [
-				{
-					text:'Due Date',
-					style:'invoiceDateTitle',
-					width: '*'
-				}, 
-				{
-					text:'<?php echo $invoice_due ?>',
-					style:'invoiceDateValue',
-					width: 80
-				},
-			]
-		},
-		
 		// Line breaks
 		'\n\n',
 		// Items
@@ -776,7 +790,7 @@ var docDefinition = {
 	styles: {
 		// Document Footer
 		documentFooterCenter: {
-			fontSize: 10,
+			fontSize: 9,
 		  margin: [5,5,5,5],
 		  alignment:'center'
 		},
@@ -819,12 +833,13 @@ var docDefinition = {
 		// Invoice Dates
 		invoiceDateTitle: {
 			fontSize: 10,
-			alignment:'right',
-			margin:[0,0,0,3]
+			alignment:'left',
+			margin:[0,5,0,5]
 		},
 		invoiceDateValue: {
 			fontSize: 10,
 			alignment:'right',
+			margin:[0,5,0,5]
 		},
 		// Items Header
 		itemsHeader: {
@@ -891,7 +906,8 @@ var docDefinition = {
 			margin: [0,5,0,5],
 		},
 		notesText: {
-			fontSize: 10
+			fontSize: 9,
+			margin: [0,5,50,5]
 		},
 		left: {
 			alignment:'left',
