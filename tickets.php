@@ -125,6 +125,7 @@
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_created_at&o=<?php echo $disp; ?>">Created</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_subject&o=<?php echo $disp; ?>">Subject</a></th>
+            <th>Assigned</th>
             <th>Last Response</th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_priority&o=<?php echo $disp; ?>">Priority</a></th>
             <th class="text-center">Action</th>
@@ -173,6 +174,7 @@
             <td><?php echo $ticket_created_at; ?></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></td>
             <td><?php echo $ticket_subject; ?></td>
+            <td>- UNASSIGNED -</td>
             <td>Never</td>
             <td><?php echo $ticket_priority_display; ?></td>
             <td>

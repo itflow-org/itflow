@@ -4,8 +4,8 @@ include("config.php");
 include("check_login.php");
 include("functions.php");
 
-require("vendor/PHPMailer-6.2.0/src/PHPMailer.php");
-require("vendor/PHPMailer-6.2.0/src/SMTP.php");
+require("vendor/PHPMailer-6.4.0/src/PHPMailer.php");
+require("vendor/PHPMailer-6.4.0/src/SMTP.php");
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
