@@ -651,10 +651,8 @@ var docDefinition = {
 		        $item_tax = $row['item_tax'];
 		        $item_total = $row['item_total'];
 		        $tax_id = $row['tax_id'];
-		        $total_tax = $item_tax + $total_tax;
-		        $total_tax = number_format($total_tax,2);
+		        $total_tax = $item_tax + $total_tax;	        
 		        $sub_total = $item_price * $item_quantity + $sub_total;
-		        $sub_total = number_format($sub_total, 2);
 		      ?>
 
 		      // Item
@@ -674,15 +672,15 @@ var docDefinition = {
 		          style:'itemQty'
 		        }, 
 		        {
-		        	text:'$<?php echo $item_price; ?>',
+		        	text:'$<?php echo number_format($item_price,2); ?>',
 		         	style:'itemNumber'
 		        }, 
 		        {
-		          text:'$<?php echo $item_tax; ?>',
+		          text:'$<?php echo number_format($item_tax,2); ?>',
 		          style:'itemNumber'
 		        }, 
 		        {
-		          text: '$<?php echo $item_total; ?>',
+		          text: '$<?php echo number_format($item_total,2); ?>',
 		          style:'itemNumber'
 		        } 
 		    	],
@@ -724,7 +722,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        }, 
 		        { 
-		         	text:'$<?php echo $sub_total; ?>',
+		         	text:'$<?php echo number_format($sub_total,2); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
