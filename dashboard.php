@@ -705,6 +705,12 @@ var myPieChart = new Chart(ctx, {
       ],
     }],
   },
+  options: {
+  	legend: {
+    	display: true,
+    	position: 'right'
+  	}
+  }
 });
 
 // Set new default font family and font color to mimic Bootstrap's default styling
@@ -756,6 +762,12 @@ var myPieChart = new Chart(ctx, {
       ],
     }],
   },
+  options: {
+  	legend: {
+    	display: true,
+    	position: 'right'
+  	}
+  }
 });
 
 // Pie Chart Example
@@ -803,6 +815,12 @@ var myPieChart = new Chart(ctx, {
       ],
     }],
   },
+  options: {
+  	legend: {
+    	display: true,
+    	position: 'right'
+  	}
+  }
 });
 
 </script>
