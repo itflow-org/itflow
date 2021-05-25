@@ -68,6 +68,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
   <div class="card-body">
     <form autocomplete="off">
+      <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+      <input type="hidden" name="tab" value="<?php echo $_GET['tab']; ?>">
       <div class="input-group">
         <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Trips">
         <div class="input-group-append">
