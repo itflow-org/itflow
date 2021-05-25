@@ -67,6 +67,9 @@ if(isset($_GET['client_id'])){
 
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND client_id = $client_id"));
   $num_tickets = $row['num'];
+
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND ticket_status = 'Open' AND client_id = $client_id"));
+  $num_open_tickets = $row['num'];
   
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_archived_at IS NULL AND client_id = $client_id"));
   $num_vendors = $row['num'];
@@ -182,7 +185,8 @@ if(isset($_GET['client_id'])){
       </div>
       <?php } ?>
       <div class="col-md-2 border-left">
-        <h4 class="text-secondary">Services</h4>
+        <h4 class="text-secondary">Support</h4>
+        <h6 class="ml-1 text-secondary">Open Tickets <div class="text-dark float-right"><?php echo $num_open_tickets; ?></div></h6>
       </div>
       <div class="col-md-1 border-left">
         <div class="dropdown dropleft text-center">
