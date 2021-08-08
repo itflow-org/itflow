@@ -104,10 +104,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 <?php echo $login_name; ?>
               </a>
             </td>
-            <td><?php echo $login_uri; ?> <i class="far fa-copy"></i></td>
-            <td><?php echo $login_username; ?> <i class="far fa-copy"></i></td>
-            <td><?php echo $login_password; ?> <i class="far fa-eye"></i> <i class="far fa-copy"></i></td>
-            <td><?php echo "-"; ?>  <i class="far fa-copy"></i></td>
+            <td><?php echo $login_uri; ?><button class="btn clipboardjs" data-clipboard-text="<?php echo $login_uri; ?>"><i class="far fa-clipboard"></i></button></td>
+            <td><?php echo $login_username; ?><button class="btn clipboardjs" data-clipboard-text="<?php echo $login_username; ?>"><i class="far fa-clipboard"></i></button></td>
+            <td><?php echo $login_password; ?><button class="btn"><i class="far fa-eye" data-toggle="password"></i></button><button class="btn clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-clipboard"></i></button></td>
+            <td><?php echo "-"; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

@@ -150,6 +150,8 @@ if(isset($_POST['login'])){
   <!-- AdminLTE App -->
   <script src="dist/js/adminlte.min.js"></script>
 
+  <script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
+
   <!-- Prevents resubmit on refresh or back -->
   <script>
   

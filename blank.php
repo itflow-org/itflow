@@ -12,6 +12,9 @@
 <h1>Blank Page</h1>
 <hr>
 <p>This is a great starting point for new custom pages.</p>
+<button class="btn clipboard" type="button" data-clipboard-text="Just because you can doesn't mean you should — clipboard.js">
+    Copy to clipboard
+</button>
 
 <?php 
 

@@ -55,12 +55,12 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="password" placeholder="Password" value="<?php echo $login_password; ?>" required>
+                  <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password" value="<?php echo $login_password; ?>" required>
                   <div class="input-group-append">
                     <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                   </div>
                   <div class="input-group-append">
-                    <span class="input-group-text"><i class="fa fa-fw fa-copy"></i></span>
+                    <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?php echo $login_password; ?>"><i class="fa fa-fw fa-copy"></i></button>
                   </div>
                 </div>
               </div>
@@ -69,14 +69,14 @@
                 <label>URL/Host</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                    <a href="<?php echo $login_uri; ?>" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
                   </div>
                   <input type="text" class="form-control" name="uri" placeholder="ex. google.com" value="<?php echo $login_uri; ?>">
                   <div class="input-group-append">
                     <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                   </div>
                   <div class="input-group-append">
-                    <span class="input-group-text"><i class="fa fa-fw fa-copy"></i></span>
+                    <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?php echo $login_uri; ?>"><i class="fa fa-fw fa-copy"></i></button>
                   </div>
                 </div>
               </div>
