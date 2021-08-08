@@ -10,7 +10,8 @@
         <li class="nav-item">
           <a href="clients.php" class="nav-link">
             <i class="nav-icon fas fa-arrow-left"></i>
-            <p>Back</p>
+            <p>Back</p> | 
+            <p><strong><?php echo $client_name; ?></strong></p>
           </a>
         </li>
         <li class="nav-header mt-3">CLIENT</li>
