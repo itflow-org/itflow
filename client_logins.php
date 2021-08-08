@@ -75,6 +75,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_uri&o=<?php echo $disp; ?>">URL/Host</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_username&o=<?php echo $disp; ?>">Username</a></th>
             <th>Password</th>
+            <th>OTP</th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -103,9 +104,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 <?php echo $login_name; ?>
               </a>
             </td>
-            <td><?php echo $login_uri; ?>
-            <td><?php echo $login_username; ?></td>
-            <td><?php echo $login_password; ?></td>
+            <td><?php echo $login_uri; ?> <i class="far fa-copy"></i></td>
+            <td><?php echo $login_username; ?> <i class="far fa-copy"></i></td>
+            <td><?php echo $login_password; ?> <i class="far fa-eye"></i> <i class="far fa-copy"></i></td>
+            <td><?php echo "-"; ?>  <i class="far fa-copy"></i></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
