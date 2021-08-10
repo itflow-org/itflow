@@ -73,12 +73,7 @@ if(isset($_POST['edit_user'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $current_password_hash = $_POST['current_password_hash'];
-    $password = $_POST['password'];
-    if($current_password_hash == $password){
-        $password = $current_password_hash;
-    }else{
-        $password = md5($password);
-    }
+    $new_password = $_POST['new_password'];
     $company = intval($_POST['company']);
     $level = intval($_POST['level']);
     $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
@@ -94,6 +89,11 @@ if(isset($_POST['edit_user'])){
     }
     
     mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', password = '$password', avatar = '$path', updated_at = NOW() WHERE user_id = $user_id");
+
+    if(!empty($new_password)){
+        $new_password = md5($new_password);
+        mysqli_query($mysqli,"UPDATE users SET password = '$new_password' WHERE user_id = $user_id");
+    }
 
     //Create Permissions
     mysqli_query($mysqli,"UPDATE permissions SET permission_level = $level, permission_default_company = $company WHERE user_id = $user_id");
@@ -112,13 +112,7 @@ if(isset($_POST['edit_profile'])){
     $user_id = intval($_POST['user_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $current_password_hash = $_POST['current_password_hash'];
-    $password = $_POST['password'];
-    if($current_password_hash == $password){
-        $password = $current_password_hash;
-    }else{
-        $password = md5($password);
-    }
+    $new_password = $_POST['new_password'];
     $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
 
     if($_FILES['file']['tmp_name']!='') {
@@ -131,7 +125,12 @@ if(isset($_POST['edit_profile'])){
         move_uploaded_file($_FILES['file']['tmp_name'], $path);   
     }
     
-    mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', password = '$password', avatar = '$path', updated_at = NOW() WHERE user_id = $user_id");
+    mysqli_query($mysqli,"UPDATE users SET name = '$name', email = '$email', avatar = '$path', updated_at = NOW() WHERE user_id = $user_id");
+
+    if(!empty($new_password)){
+        $new_password = md5($new_password);
+        mysqli_query($mysqli,"UPDATE users SET password = '$new_password' WHERE user_id = $user_id");
+    }
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");

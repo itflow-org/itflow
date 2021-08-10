@@ -28,7 +28,6 @@ $password = $row['password'];
         <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
           <input type="hidden" name="user_id" value="<?php echo $session_user_id; ?>">
           <input type="hidden" name="current_avatar_path" value="<?php echo $session_avatar; ?>">
-          <input type="hidden" name="current_password_hash" value="<?php echo $password; ?>">
 
           <center class="mb-3 p-4">
             <?php if(empty($session_avatar)){ ?>
@@ -62,14 +61,18 @@ $password = $row['password'];
           </div>
 
           <div class="form-group">
-            <label>Password <strong class="text-danger">*</strong></label>
+            <label>New Password</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
               </div>
-              <input type="password" class="form-control" name="password" placeholder="Enter a password" value="<?php echo $password; ?>" autocomplete="new-password">
+              <input type="password" class="form-control" data-toggle="password" name="new_password" placeholder="Leave Blank For No Passwod Change" autocomplete="new-password">
+              <div class="input-group-append">
+                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+              </div>
             </div>
           </div>
+
           <div class="form-group">
             <label>Avatar</label>
             <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">

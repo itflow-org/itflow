@@ -84,7 +84,6 @@
             $user_id = $row['user_id'];
             $name = $row['name'];
             $email = $row['email'];
-            $password = $row['password'];
             $avatar = $row['avatar'];
             $permission_default_company = $row['permission_default_company'];
             $permission_level = $row['permission_level'];

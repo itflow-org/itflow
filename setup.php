@@ -392,7 +392,10 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                     </div>
-                    <input type="password" class="form-control" name="password" placeholder="Database Password" required>
+                    <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Enter a Database Password" autocomplete="new-password" required>
+                    <div class="input-group-append">
+                      <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                    </div>
                   </div>
                 </div>
 
@@ -457,7 +460,10 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                     </div>
-                    <input type="password" class="form-control" name="password" placeholder="Enter a Password" required>
+                    <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Enter a Password" autocomplete="new-password" required>
+                    <div class="input-group-append">
+                      <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                    </div>
                   </div>
                 </div>
                 
@@ -652,6 +658,7 @@ if(isset($_POST['add_company_settings'])){
   <script src='plugins/inputmask/min/jquery.inputmask.bundle.min.js'></script>
   <script src='plugins/inputmask/min/inputmask/bindings/inputmask.binding.min.js'></script>
   <script src='plugins/select2/js/select2.min.js'></script>
+  <script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
   <!-- AdminLTE App -->
   <script src="dist/js/adminlte.min.js"></script>
 

@@ -13,9 +13,12 @@
         <label>API Key</label>
         <div class="input-group">
           <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_api_key" placeholder="No spaces only numbers and letters" value="<?php echo $config_api_key; ?>">
+          <input type="password" class="form-control" data-toggle="password" name="config_api_key" placeholder="No spaces only numbers and letters" value="<?php echo $config_api_key; ?>">
+          <div class="input-group-append">
+            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+          </div>
         </div>
       </div>
 
@@ -25,7 +28,10 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_aes_key" placeholder="Key used to decrypt passwords" value="<?php echo $config_aes_key; ?>">
+          <input type="password" class="form-control" data-toggle="password" name="config_aes_key" placeholder="Key used to decrypt passwords" value="<?php echo $config_aes_key; ?>">
+          <div class="input-group-append">
+            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+          </div>
         </div>
         <small class="form-text text-muted">This will also update the key on all client logins</small>
       </div>
