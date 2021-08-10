@@ -10,11 +10,6 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
     WHERE user_id = $session_user_id AND log_type NOT LIKE 'Login'
     ORDER BY log_id DESC LIMIT 10");
 
-$sql_user = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $session_user_id");
-  
-$row = mysqli_fetch_array($sql_user);
-$password = $row['password'];
-
 ?>
 
 <div class="row">
