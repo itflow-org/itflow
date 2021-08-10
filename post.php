@@ -72,7 +72,6 @@ if(isset($_POST['edit_user'])){
     $user_id = intval($_POST['user_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $current_password_hash = $_POST['current_password_hash'];
     $new_password = $_POST['new_password'];
     $company = intval($_POST['company']);
     $level = intval($_POST['level']);
