@@ -60,7 +60,7 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                   </div>
                   <div class="input-group-append">
-                    <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?php echo $login_password; ?>"><i class="fa fa-fw fa-copy"></i></button>
+                    <button class="btn btn-default" type="button" data-clipboard-text="<?php echo $login_password; ?>"><i class="fa fa-fw fa-copy"></i></button>
                   </div>
                 </div>
               </div>
@@ -76,7 +76,7 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                   </div>
                   <div class="input-group-append">
-                    <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?php echo $login_uri; ?>"><i class="fa fa-fw fa-copy"></i></button>
+                    <button class="input-group-text" type="button" data-clipboard-text="<?php echo $login_uri; ?>"><i class="fa fa-fw fa-copy"></i></button>
                   </div>
                 </div>
               </div>

@@ -25,39 +25,41 @@ $('.datetimepicker').datetimepicker({
 // Data Input Mask
 $('[data-mask]').inputmask();
 
-// Tooltip ClipboardJS
-
-$('.clipboardjs').tooltip({
-  trigger: 'click',
-  placement: 'bottom'
-});
-
-function setTooltip(message) {
-  $('.clipboardjs').tooltip('hide')
-    .attr('data-original-title', message)
-    .tooltip('show');
-}
-
-function hideTooltip() {
-  setTimeout(function() {
-    $('.clipboardjs').tooltip('hide');
-  }, 1000);
-}
-
 // ClipboardJS
 
 //Fix to allow Clipboard Copying within Bootstrap Modals
 //For use in Bootstrap Modals or with any other library that changes the focus you'll want to set the focused element as the container value.
 $.fn.modal.Constructor.prototype._enforceFocus = function() {};
 
-var clipboard = new ClipboardJS('.clipboardjs');
+// Tooltip
+
+$('button').tooltip({
+  trigger: 'click',
+  placement: 'bottom'
+});
+
+function setTooltip(btn, message) {
+  $(btn).tooltip('hide')
+    .attr('data-original-title', message)
+    .tooltip('show');
+}
+
+function hideTooltip(btn) {
+  setTimeout(function() {
+    $(btn).tooltip('hide');
+  }, 1000);
+}
+
+// Clipboard
+
+var clipboard = new ClipboardJS('button');
 
 clipboard.on('success', function(e) {
-  setTooltip('Copied!');
-  hideTooltip();
+  setTooltip(e.trigger, 'Copied!');
+  hideTooltip(e.trigger);
 });
 
 clipboard.on('error', function(e) {
-  setTooltip('Failed!');
-  hideTooltip();
+  setTooltip(e.trigger, 'Failed!');
+  hideTooltip(e.trigger);
 });
