@@ -3877,7 +3877,7 @@ if(isset($_GET['force_recurring'])){
 
 if(isset($_GET['export_trips_csv'])){
     //get records from database
-    $query = $db->query("SELECT * FROM trips WHERE company_id = $session_company_id ORDER BY trip_date DESC");
+    $query = mysqli_query($mysqli,"SELECT * FROM trips WHERE company_id = $session_company_id ORDER BY trip_date DESC");
 
     if($query->num_rows > 0){
         $delimiter = ",";
