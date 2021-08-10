@@ -72,10 +72,10 @@ if(isset($_POST['edit_user'])){
     $user_id = intval($_POST['user_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $new_password = $_POST['new_password'];
+    $new_password = trim($_POST['new_password']);
     $company = intval($_POST['company']);
     $level = intval($_POST['level']);
-    $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
+    $path = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path'])));
 
     if($_FILES['file']['tmp_name']!='') {
         //delete old avatar file
@@ -111,8 +111,8 @@ if(isset($_POST['edit_profile'])){
     $user_id = intval($_POST['user_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $new_password = $_POST['new_password'];
-    $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
+    $new_password = trim($_POST['new_password']);
+    $path = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path'])));
 
     if($_FILES['file']['tmp_name']!='') {
         //delete old avatar file
@@ -259,16 +259,16 @@ if(isset($_POST['add_company'])){
 
 if(isset($_POST['edit_company'])){
     $company_id = intval($_POST['company_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
-    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
-    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
-    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
+    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
+    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
+    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
     $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
+    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
 
     $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_file_path']));
 
@@ -380,10 +380,10 @@ if(isset($_POST['verify'])){
 
 if(isset($_POST['edit_general_settings'])){
 
-    $config_api_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key']));
+    $config_api_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key'])));
     $old_aes_key = $config_aes_key;
-    $config_aes_key = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_aes_key']));
-    $config_base_url = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url']));
+    $config_aes_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_aes_key'])));
+    $config_base_url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url'])));
 
     mysqli_query($mysqli,"UPDATE settings SET config_api_key = '$config_api_key', config_aes_key = '$config_aes_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
 
@@ -411,12 +411,12 @@ if(isset($_POST['edit_general_settings'])){
 
 if(isset($_POST['edit_mail_settings'])){
 
-    $config_smtp_host = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_host']));
+    $config_smtp_host = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_host'])));
     $config_smtp_port = intval($_POST['config_smtp_port']);
-    $config_smtp_username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_username']));
-    $config_smtp_password = mysqli_real_escape_string($mysqli,$_POST['config_smtp_password']);
-    $config_mail_from_email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_email']));
-    $config_mail_from_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name']));
+    $config_smtp_username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_username'])));
+    $config_smtp_password = trim(mysqli_real_escape_string($mysqli,$_POST['config_smtp_password']));
+    $config_mail_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_email'])));
+    $config_mail_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name'])));
 
     mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
 
@@ -472,14 +472,14 @@ if(isset($_POST['test_email'])){
 
 if(isset($_POST['edit_invoice_quote_settings'])){
 
-    $config_invoice_prefix = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_prefix']));
+    $config_invoice_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_prefix'])));
     $config_invoice_next_number = intval($_POST['config_invoice_next_number']);
-    $config_invoice_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer']));
-    $config_recurring_prefix = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_recurring_prefix']));
+    $config_invoice_footer = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer'])));
+    $config_recurring_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_recurring_prefix'])));
     $config_recurring_next_number = intval($_POST['config_recurring_next_number']);
-    $config_quote_prefix = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_prefix']));
+    $config_quote_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_prefix'])));
     $config_quote_next_number = intval($_POST['config_quote_next_number']);
-    $config_quote_footer = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_footer']));
+    $config_quote_footer = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_footer'])));
 
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer', config_recurring_prefix = '$config_recurring_prefix', config_recurring_next_number = $config_recurring_next_number, config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer' WHERE company_id = $session_company_id");
 
@@ -494,7 +494,7 @@ if(isset($_POST['edit_invoice_quote_settings'])){
 
 if(isset($_POST['edit_ticket_settings'])){
 
-    $config_ticket_prefix = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_prefix']));
+    $config_ticket_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_prefix'])));
     $config_ticket_next_number = intval($_POST['config_ticket_next_number']);
 
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number WHERE company_id = $session_company_id");
@@ -510,12 +510,12 @@ if(isset($_POST['edit_ticket_settings'])){
 
 if(isset($_POST['edit_default_settings'])){
 
-    $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
+    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
     $expense_account = intval($_POST['expense_account']);
     $payment_account = intval($_POST['payment_account']);
-    $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
-    $expense_payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expense_payment_method']));
+    $payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method'])));
+    $expense_payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expense_payment_method'])));
     $transfer_from_account = intval($_POST['transfer_from_account']);
     $transfer_to_account = intval($_POST['transfer_to_account']);
     $calendar = intval($_POST['calendar']);
@@ -554,8 +554,8 @@ if(isset($_POST['edit_alert_settings'])){
 if(isset($_POST['edit_online_payment_settings'])){
 
     $config_stripe_enable = intval($_POST['config_stripe_enable']);
-    $config_stripe_publishable = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_stripe_publishable']));
-    $config_stripe_secret = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_stripe_secret']));
+    $config_stripe_publishable = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_stripe_publishable'])));
+    $config_stripe_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_stripe_secret'])));
 
     mysqli_query($mysqli,"UPDATE settings SET config_stripe_enable = $config_stripe_enable, config_stripe_publishable = '$config_stripe_publishable', config_stripe_secret = '$config_stripe_secret' WHERE company_id = $session_company_id");
 
@@ -674,23 +674,23 @@ if(isset($_GET['download_database'])){
 
 if(isset($_POST['add_client'])){
 
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
-    $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
-    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
-    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
-    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
-    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
-    $contact = strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
+    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
+    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
+    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
+    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
+    $contact = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
-    $referral = strip_tags(mysqli_real_escape_string($mysqli,$_POST['referral']));
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
+    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
+    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
+    $referral = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['referral'])));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
     $net_terms = intval($_POST['net_terms']);
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_country = '$country', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', client_created_at = NOW(), company_id = $session_company_id");
 
@@ -712,23 +712,23 @@ if(isset($_POST['add_client'])){
 if(isset($_POST['edit_client'])){
 
     $client_id = intval($_POST['client_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
-    $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
-    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
-    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
-    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
-    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
-    $contact = strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
+    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
+    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
+    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
+    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
+    $contact = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
-    $referral = strip_tags(mysqli_real_escape_string($mysqli,$_POST['referral']));
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
+    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
+    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
+    $referral = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['referral'])));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
     $net_terms = intval($_POST['net_terms']);
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_country = '$country', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
 
@@ -820,8 +820,8 @@ if(isset($_GET['delete_client'])){
 
 if(isset($_POST['add_calendar'])){
 
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $color = strip_tags(mysqli_real_escape_string($mysqli,$_POST['color']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
 
     mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = '$name', calendar_color = '$color', calendar_created_at = NOW(), company_id = $session_company_id");
 
@@ -837,10 +837,10 @@ if(isset($_POST['add_calendar'])){
 if(isset($_POST['add_event'])){
 
     $calendar_id = intval($_POST['calendar']);
-    $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
-    $start = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start']));
-    $end = strip_tags(mysqli_real_escape_string($mysqli,$_POST['end']));
-    $repeat = strip_tags(mysqli_real_escape_string($mysqli,$_POST['repeat']));
+    $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
+    $start = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start'])));
+    $end = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['end'])));
+    $repeat = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['repeat'])));
     $client = intval($_POST['client']);
     $email_event = intval($_POST['email_event']);
 
@@ -915,10 +915,10 @@ if(isset($_POST['edit_event'])){
 
     $event_id = intval($_POST['event_id']);
     $calendar_id = intval($_POST['calendar']);
-    $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
-    $start = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start']));
-    $end = strip_tags(mysqli_real_escape_string($mysqli,$_POST['end']));
-    $repeat = strip_tags(mysqli_real_escape_string($mysqli,$_POST['repeat']));
+    $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
+    $start = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start'])));
+    $end = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['end'])));
+    $repeat = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['repeat'])));
     $client = intval($_POST['client']);
     $email_event = intval($_POST['email_event']);
 
@@ -1006,9 +1006,9 @@ if(isset($_GET['delete_event'])){
 if(isset($_POST['add_ticket'])){
 
     $client_id = intval($_POST['client']);
-    $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
-    $priority = strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority']));
-    $details = mysqli_real_escape_string($mysqli,$_POST['details']);
+    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
+    $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
+    $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
 
     //Get the next Ticket Number and add 1 for the new ticket number
     $ticket_number = $config_ticket_next_number;
@@ -1029,9 +1029,9 @@ if(isset($_POST['add_ticket'])){
 if(isset($_POST['edit_ticket'])){
 
     $ticket_id = intval($_POST['ticket_id']);
-    $subject = strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject']));
-    $priority = strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority']));
-    $details = mysqli_real_escape_string($mysqli,$_POST['details']);
+    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
+    $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
+    $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
@@ -1061,7 +1061,7 @@ if(isset($_GET['delete_ticket'])){
 if(isset($_POST['add_ticket_update'])){
 
     $ticket_id = intval($_POST['ticket_id']);
-    $ticket_update = mysqli_real_escape_string($mysqli,$_POST['ticket_update']);
+    $ticket_update = trim(mysqli_real_escape_string($mysqli,$_POST['ticket_update']));
 
     mysqli_query($mysqli,"INSERT INTO ticket_updates SET ticket_update = '$ticket_update', ticket_update_created_at = NOW(), user_id = $session_user_id, ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
@@ -1092,20 +1092,20 @@ if(isset($_GET['close_ticket'])){
 if(isset($_POST['add_vendor'])){
 
     $client_id = intval($_POST['client_id']); //Used if this vendor is under a contact otherwise its 0 for under company
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $account_number = strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number']));
-    $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
-    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
-    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
-    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
-    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
-    $contact_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
+    $account_number = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number'])));
+    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
+    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
+    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
+    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
+    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
+    $contact_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
+    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
     
     mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_country = '$country', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
@@ -1123,20 +1123,20 @@ if(isset($_POST['add_vendor'])){
 if(isset($_POST['edit_vendor'])){
 
     $vendor_id = intval($_POST['vendor_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $account_number = strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number']));
-    $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
-    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
-    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
-    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
-    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
-    $contact_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
+    $account_number = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number'])));
+    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
+    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
+    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
+    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
+    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
+    $contact_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
+    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_country = '$country', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_updated_at = NOW() WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
 
@@ -1179,8 +1179,8 @@ if(isset($_GET['delete_vendor'])){
 
 if(isset($_POST['add_product'])){
 
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $cost = floatval($_POST['cost']);
     $category = intval($_POST['category']);
     $tax = intval($_POST['tax']);
@@ -1199,8 +1199,8 @@ if(isset($_POST['add_product'])){
 if(isset($_POST['edit_product'])){
 
     $product_id = intval($_POST['product_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $cost = floatval($_POST['cost']);
     $category = intval($_POST['category']);
     $tax = intval($_POST['tax']);
@@ -1232,12 +1232,12 @@ if(isset($_GET['delete_product'])){
 
 if(isset($_POST['add_trip'])){
 
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $source = strip_tags(mysqli_real_escape_string($mysqli,$_POST['source']));
-    $destination = strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
+    $source = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['source'])));
+    $destination = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination'])));
     $miles = floatval($_POST['miles']);
     $roundtrip = intval($_POST['roundtrip']);
-    $purpose = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose']));
+    $purpose = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose'])));
     $client_id = intval($_POST['client']);
 
     mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
@@ -1254,12 +1254,12 @@ if(isset($_POST['add_trip'])){
 if(isset($_POST['edit_trip'])){
 
     $trip_id = intval($_POST['trip_id']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $source = strip_tags(mysqli_real_escape_string($mysqli,$_POST['source']));
-    $destination = strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
+    $source = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['source'])));
+    $destination = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination'])));
     $miles = floatval($_POST['miles']);
     $roundtrip = intval($_POST['roundtrip']);
-    $purpose = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose']));
+    $purpose = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose'])));
     $client_id = intval($_POST['client']);
 
     mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_updated_at = NOW(), client_id = $client_id WHERE trip_id = $trip_id AND company_id = $session_company_id");
@@ -1289,10 +1289,10 @@ if(isset($_GET['delete_trip'])){
 
 if(isset($_POST['add_account'])){
 
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $opening_balance = floatval($_POST['opening_balance']);
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     mysqli_query($mysqli,"INSERT INTO accounts SET account_name = '$name', opening_balance = '$opening_balance', account_currency_code = '$currency_code', account_notes = '$notes', account_created_at = NOW(), company_id = $session_company_id");
 
@@ -1308,8 +1308,8 @@ if(isset($_POST['add_account'])){
 if(isset($_POST['edit_account'])){
 
     $account_id = intval($_POST['account_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     mysqli_query($mysqli,"UPDATE accounts SET account_name = '$name', account_notes = '$notes', account_updated_at = NOW() WHERE account_id = $account_id AND company_id = $session_company_id");
 
@@ -1352,9 +1352,9 @@ if(isset($_GET['delete_account'])){
 
 if(isset($_POST['add_category'])){
 
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
-    $color = strip_tags(mysqli_real_escape_string($mysqli,$_POST['color']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
 
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = '$name', category_type = '$type', category_color = '$color', category_created_at = NOW(), company_id = $session_company_id");
 
@@ -1370,9 +1370,9 @@ if(isset($_POST['add_category'])){
 if(isset($_POST['edit_category'])){
 
     $category_id = intval($_POST['category_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
-    $color = strip_tags(mysqli_real_escape_string($mysqli,$_POST['color']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
 
     mysqli_query($mysqli,"UPDATE categories SET category_name = '$name', category_type = '$type', category_color = '$color', category_updated_at = NOW() WHERE category_id = $category_id AND company_id = $session_company_id");
 
@@ -1418,7 +1418,7 @@ if(isset($_GET['delete_category'])){
 
 if(isset($_POST['add_tax'])){
 
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $percent = floatval($_POST['percent']);
 
     mysqli_query($mysqli,"INSERT INTO taxes SET tax_name = '$name', tax_percent = $percent, tax_created_at = NOW(), company_id = $session_company_id");
@@ -1435,7 +1435,7 @@ if(isset($_POST['add_tax'])){
 if(isset($_POST['edit_tax'])){
 
     $tax_id = intval($_POST['tax_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $percent = floatval($_POST['percent']);
 
     mysqli_query($mysqli,"UPDATE taxes SET tax_name = '$name', tax_percent = $percent, tax_updated_at = NOW() WHERE tax_id = $tax_id AND company_id = $session_company_id");
@@ -1520,13 +1520,13 @@ if(isset($_GET['ack_all_alerts'])){
 
 if(isset($_POST['add_expense'])){
 
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
     $vendor = intval($_POST['vendor']);
     $category = intval($_POST['category']);
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
+    $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
 
     if($_FILES['file']['tmp_name']!='') {
         $path = "uploads/expenses/$session_company_id/";
@@ -1549,14 +1549,14 @@ if(isset($_POST['add_expense'])){
 if(isset($_POST['edit_expense'])){
 
     $expense_id = intval($_POST['expense_id']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
     $vendor = intval($_POST['vendor']);
     $category = intval($_POST['category']);
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
-    $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expense_receipt']));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
+    $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
+    $path = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expense_receipt'])));
 
     if($_FILES['file']['tmp_name']!='') {
         //remove old receipt
@@ -1600,11 +1600,11 @@ if(isset($_GET['delete_expense'])){
 
 if(isset($_POST['add_transfer'])){
 
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $amount = floatval($_POST['amount']);
     $account_from = intval($_POST['account_from']);
     $account_to = intval($_POST['account_to']);
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', expense_currency_code = '$config_default_currency', vendor_id = 0, category_id = 0, account_id = $account_from, expense_created_at = NOW(), company_id = $session_company_id");
     $expense_id = mysqli_insert_id($mysqli);
@@ -1628,11 +1628,11 @@ if(isset($_POST['edit_transfer'])){
     $transfer_id = intval($_POST['transfer_id']);
     $expense_id = intval($_POST['expense_id']);
     $revenue_id = intval($_POST['revenue_id']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $amount = floatval($_POST['amount']);
     $account_from = intval($_POST['account_from']);
     $account_to = intval($_POST['account_to']);
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', account_id = $account_from, expense_updated_at = NOW() WHERE expense_id = $expense_id AND company_id = $session_company_id");
 
@@ -1675,10 +1675,10 @@ if(isset($_GET['delete_transfer'])){
 
 if(isset($_POST['add_invoice'])){
     $client = intval($_POST['client']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $category = intval($_POST['category']);
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
-    $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
+    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
     
     //Get Net Terms
     $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients WHERE client_id = $client AND company_id = $session_company_id"); 
@@ -1709,11 +1709,11 @@ if(isset($_POST['add_invoice'])){
 if(isset($_POST['edit_invoice'])){
 
     $invoice_id = intval($_POST['invoice_id']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
-    $due = strip_tags(mysqli_real_escape_string($mysqli,$_POST['due']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
+    $due = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['due'])));
     $category = intval($_POST['category']);
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
-    $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
+    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_scope = '$scope', invoice_date = '$date', invoice_due = '$due', invoice_currency_code = '$currency_code', invoice_updated_at = NOW(), category_id = $category WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
@@ -1729,7 +1729,7 @@ if(isset($_POST['edit_invoice'])){
 if(isset($_POST['add_invoice_copy'])){
 
     $invoice_id = intval($_POST['invoice_id']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
 
     //Get Net Terms
     $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients, invoices WHERE clients.client_id = invoices.client_id AND invoices.invoice_id = $invoice_id AND invoices.company_id = $session_company_id");
@@ -1785,7 +1785,7 @@ if(isset($_POST['add_invoice_copy'])){
 if(isset($_POST['add_invoice_recurring'])){
 
     $invoice_id = intval($_POST['invoice_id']);
-    $recurring_frequency = strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency']));
+    $recurring_frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
@@ -1835,10 +1835,10 @@ if(isset($_POST['add_invoice_recurring'])){
 if(isset($_POST['add_quote'])){
 
     $client = intval($_POST['client']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $category = intval($_POST['category']);
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
-    $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
+    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
     
     //Get the last Quote Number and add 1 for the new Quote number
     $quote_number = $config_quote_next_number;
@@ -1866,7 +1866,7 @@ if(isset($_POST['add_quote'])){
 if(isset($_POST['add_quote_copy'])){
 
     $quote_id = intval($_POST['quote_id']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     
     //Get the last Invoice Number and add 1 for the new invoice number
     $quote_number = $config_quote_next_number;
@@ -1918,7 +1918,7 @@ if(isset($_POST['add_quote_copy'])){
 if(isset($_POST['add_quote_to_invoice'])){
 
     $quote_id = intval($_POST['quote_id']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $client_net_terms = intval($_POST['client_net_terms']);
     
     $invoice_number = $config_invoice_next_number;
@@ -1974,8 +1974,8 @@ if(isset($_POST['add_quote_item'])){
 
     $quote_id = intval($_POST['quote_id']);
     
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -2013,7 +2013,7 @@ if(isset($_POST['add_quote_item'])){
 if(isset($_POST['quote_note'])){
     
     $quote_id = intval($_POST['quote_id']);
-    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+    $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$note', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
@@ -2026,10 +2026,10 @@ if(isset($_POST['quote_note'])){
 if(isset($_POST['edit_quote'])){
 
     $quote_id = intval($_POST['quote_id']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $category = intval($_POST['category']);
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
-    $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
+    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
 
      mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_currency_code = '$currency_code', category_id = $category, quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
@@ -2253,11 +2253,11 @@ if(isset($_GET['email_quote'])){
 if(isset($_POST['add_recurring'])){
 
     $client = intval($_POST['client']);
-    $frequency = strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency']));
-    $start_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date']));
+    $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
+    $start_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date'])));
     $category = intval($_POST['category']);
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
-    $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
+    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
 
     //Get the last Recurring Number and add 1 for the new Recurring number
     $recurring_number = $config_recurring_next_number;
@@ -2282,10 +2282,10 @@ if(isset($_POST['add_recurring'])){
 if(isset($_POST['edit_recurring'])){
 
     $recurring_id = intval($_POST['recurring_id']);
-    $frequency = strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency']));
+    $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
     $category = intval($_POST['category']);
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
-    $scope = strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope']));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
+    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
     $status = intval($_POST['status']);
 
     mysqli_query($mysqli,"UPDATE recurring SET recurring_scope = '$scope', recurring_frequency = '$frequency', category_id = $category, recurring_status = $status, recurring_currency_code = '$currency_code', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
@@ -2362,8 +2362,8 @@ if(isset($_GET['recurring_deactivate'])){
 if(isset($_POST['add_recurring_item'])){
 
     $recurring_id = intval($_POST['recurring_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -2401,7 +2401,7 @@ if(isset($_POST['add_recurring_item'])){
 if(isset($_POST['recurring_note'])){
     
     $recurring_id = intval($_POST['recurring_id']);
-    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+    $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
 
     mysqli_query($mysqli,"UPDATE recurring SET recurring_note = '$note', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
@@ -2511,8 +2511,8 @@ if(isset($_GET['delete_invoice'])){
 if(isset($_POST['add_invoice_item'])){
 
     $invoice_id = intval($_POST['invoice_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -2551,7 +2551,7 @@ if(isset($_POST['add_invoice_item'])){
 if(isset($_POST['invoice_note'])){
 
     $invoice_id = intval($_POST['invoice_id']);
-    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+    $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$note', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
@@ -2567,8 +2567,8 @@ if(isset($_POST['edit_item'])){
     $quote_id = intval($_POST['quote_id']);
     $recurring_id = intval($_POST['recurring_id']);
     $item_id = intval($_POST['item_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -2653,12 +2653,12 @@ if(isset($_POST['add_payment'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $balance = floatval($_POST['balance']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
-    $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
-    $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
+    $payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method'])));
+    $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
     $email_receipt = intval($_POST['email_receipt']);
     $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
 
@@ -2961,14 +2961,14 @@ if(isset($_GET['email_invoice'])){
 
 if(isset($_POST['add_revenue'])){
 
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $amount = floatval($_POST['amount']);
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
     $account = intval($_POST['account']);
     $category = intval($_POST['category']);
-    $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
+    $payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method'])));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
+    $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
 
     mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_created_at = NOW(), category_id = $category, account_id = $account, company_id = $session_company_id");
 
@@ -2984,14 +2984,14 @@ if(isset($_POST['add_revenue'])){
 if(isset($_POST['edit_revenue'])){
 
     $revenue_id = intval($_POST['revenue_id']);
-    $date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['date']));
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $amount = floatval($_POST['amount']);
-    $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
     $account = intval($_POST['account']);
     $category = intval($_POST['category']);
-    $payment_method = strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method']));
-    $description = strip_tags(mysqli_real_escape_string($mysqli,$_POST['description']));
-    $reference = strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference']));
+    $payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method'])));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
+    $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
 
     mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_updated_at = NOW(), category_id = $category, account_id = $account WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
 
@@ -3021,13 +3021,13 @@ if(isset($_GET['delete_revenue'])){
 if(isset($_POST['add_contact'])){
 
     $client_id = intval($_POST['client_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
@@ -3055,13 +3055,13 @@ if(isset($_POST['edit_contact'])){
 
     $contact_id = intval($_POST['contact_id']);
     $client_id = intval($_POST['client_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $title = strip_tags(mysqli_real_escape_string($mysqli,$_POST['title']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path']));
 
@@ -3118,15 +3118,15 @@ if(isset($_GET['delete_contact'])){
 if(isset($_POST['add_location'])){
 
     $client_id = intval($_POST['client_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
-    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
-    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
-    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
-    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
+    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
+    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
+    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
+    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $hours = strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours']));
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $hours = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
     $contact = intval($_POST['contact']);
 
     if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
@@ -3154,15 +3154,15 @@ if(isset($_POST['add_location'])){
 if(isset($_POST['edit_location'])){
 
     $location_id = intval($_POST['location_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
-    $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
-    $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
-    $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
-    $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
+    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
+    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
+    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
+    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $hours = strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours']));
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $hours = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
     $contact = intval($_POST['contact']);
 
     $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_file_path']));
@@ -3206,34 +3206,34 @@ if(isset($_GET['delete_location'])){
 if(isset($_POST['add_asset'])){
 
     $client_id = intval($_POST['client_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
-    $make = strip_tags(mysqli_real_escape_string($mysqli,$_POST['make']));
-    $model = strip_tags(mysqli_real_escape_string($mysqli,$_POST['model']));
-    $serial = strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial']));
-    $os = strip_tags(mysqli_real_escape_string($mysqli,$_POST['os']));
-    $ip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['ip']));
-    $mac = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mac']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $make = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['make'])));
+    $model = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['model'])));
+    $serial = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial'])));
+    $os = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['os'])));
+    $ip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['ip'])));
+    $mac = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['mac'])));
     $location = intval($_POST['location']);
     $vendor = intval($_POST['vendor']);
     $contact = intval($_POST['contact']);
     $network = intval($_POST['network']);
-    $purchase_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date']));
+    $purchase_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date'])));
     if(empty($purchase_date)){
         $purchase_date = "0000-00-00";
     }
-    $warranty_expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire']));
+    $warranty_expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire'])));
     if(empty($warranty_expire)){
         $warranty_expire = "0000-00-00";
     }
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_notes = '$notes', asset_created_at = NOW(), network_id = $network, client_id = $client_id, company_id = $session_company_id");
 
     if(!empty($_POST['username'])) {
         $asset_id = mysqli_insert_id($mysqli);
-        $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
-        $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
+        $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
+        $password = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['password'])));
 
         mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_created_at = NOW(), asset_id = $asset_id, client_id = $client_id, company_id = $session_company_id");
 
@@ -3253,29 +3253,29 @@ if(isset($_POST['edit_asset'])){
     $asset_id = intval($_POST['asset_id']);
     $login_id = intval($_POST['login_id']);
     $client_id = intval($_POST['client_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
-    $make = strip_tags(mysqli_real_escape_string($mysqli,$_POST['make']));
-    $model = strip_tags(mysqli_real_escape_string($mysqli,$_POST['model']));
-    $serial = strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial']));
-    $os = strip_tags(mysqli_real_escape_string($mysqli,$_POST['os']));
-    $ip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['ip']));
-    $mac = strip_tags(mysqli_real_escape_string($mysqli,$_POST['mac']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $make = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['make'])));
+    $model = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['model'])));
+    $serial = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial'])));
+    $os = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['os'])));
+    $ip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['ip'])));
+    $mac = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['mac'])));
     $location = intval($_POST['location']);
     $vendor = intval($_POST['vendor']);
     $contact = intval($_POST['contact']);
     $network = intval($_POST['network']);
-    $purchase_date = strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date']));
+    $purchase_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date'])));
     if(empty($purchase_date)){
         $purchase_date = "0000-00-00";
     }
-    $warranty_expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire']));
+    $warranty_expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire'])));
     if(empty($warranty_expire)){
         $warranty_expire = "0000-00-00";
     }
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
-    $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
-    $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
+    $password = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['password'])));
 
     mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', location_id = $location, vendor_id = $vendor, contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_notes = '$notes', asset_updated_at = NOW(), network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
 
@@ -3320,7 +3320,7 @@ if(isset($_POST['add_login'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['uri'])));
     $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
-    $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
+    $password = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['password'])));
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
@@ -3340,11 +3340,11 @@ if(isset($_POST['add_login'])){
 if(isset($_POST['edit_login'])){
 
     $login_id = intval($_POST['login_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $uri = strip_tags(mysqli_real_escape_string($mysqli,$_POST['uri']));
-    $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
-    $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
-    $note = strip_tags(mysqli_real_escape_string($mysqli,$_POST['note']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['uri'])));
+    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
+    $password = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['password'])));
+    $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
     $software_id = intval($_POST['software']);
@@ -3376,7 +3376,7 @@ if(isset($_GET['delete_login'])){
 
 if(isset($_POST['add_file'])){
     $client_id = intval($_POST['client_id']);
-    $new_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['new_name']));
+    $new_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['new_name'])));
 
     if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
@@ -3426,8 +3426,8 @@ if(isset($_GET['delete_file'])){
 if(isset($_POST['add_document'])){
 
     $client_id = intval($_POST['client_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $details = mysqli_real_escape_string($mysqli,$_POST['details']);
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
 
     mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_details = '$details', document_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
@@ -3443,8 +3443,8 @@ if(isset($_POST['add_document'])){
 if(isset($_POST['edit_document'])){
 
     $document_id = intval($_POST['document_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $details = mysqli_real_escape_string($mysqli,$_POST['details']);
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
 
     mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_details = '$details', document_updated_at = NOW() WHERE document_id = $document_id AND company_id = $session_company_id");
 
@@ -3474,11 +3474,11 @@ if(isset($_GET['delete_document'])){
 if(isset($_POST['add_network'])){
 
     $client_id = intval($_POST['client_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $vlan = intval($_POST['vlan']);
-    $network = strip_tags(mysqli_real_escape_string($mysqli,$_POST['network']));
-    $gateway = strip_tags(mysqli_real_escape_string($mysqli,$_POST['gateway']));
-    $dhcp_range = strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range']));
+    $network = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['network'])));
+    $gateway = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['gateway'])));
+    $dhcp_range = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range'])));
     $location_id = intval($_POST['location']);
 
     mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_created_at = NOW(), location_id = $location_id, client_id = $client_id, company_id = $session_company_id");
@@ -3495,11 +3495,11 @@ if(isset($_POST['add_network'])){
 if(isset($_POST['edit_network'])){
 
     $network_id = intval($_POST['network_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $vlan = intval($_POST['vlan']);
-    $network = strip_tags(mysqli_real_escape_string($mysqli,$_POST['network']));
-    $gateway = strip_tags(mysqli_real_escape_string($mysqli,$_POST['gateway']));
-    $dhcp_range = strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range']));
+    $network = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['network'])));
+    $gateway = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['gateway'])));
+    $dhcp_range = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range'])));
     $location_id = intval($_POST['location']);
 
     mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_updated_at = NOW(), location_id = $location_id WHERE network_id = $network_id AND company_id = $session_company_id");
@@ -3530,10 +3530,10 @@ if(isset($_GET['delete_network'])){
 if(isset($_POST['add_domain'])){
 
     $client_id = intval($_POST['client_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
-    $expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire']));
+    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
     if(empty($expire)){
         $expire = "0000-00-00";
     }
@@ -3552,10 +3552,10 @@ if(isset($_POST['add_domain'])){
 if(isset($_POST['edit_domain'])){
 
     $domain_id = intval($_POST['domain_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
-    $expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire']));
+    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
     if(empty($expire)){
         $expire = "0000-00-00";
     }
@@ -3588,10 +3588,10 @@ if(isset($_GET['delete_domain'])){
 if(isset($_POST['add_certificate'])){
  
     $client_id = intval($_POST['client_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $domain = strip_tags(mysqli_real_escape_string($mysqli,$_POST['domain']));
-    $issued_by = strip_tags(mysqli_real_escape_string($mysqli,$_POST['issued_by']));
-    $expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $domain = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['domain'])));
+    $issued_by = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['issued_by'])));
+    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
     if(empty($expire)){
         $expire = "0000-00-00";
     }
@@ -3610,10 +3610,10 @@ if(isset($_POST['add_certificate'])){
 if(isset($_POST['edit_certificate'])){
 
     $certificate_id = intval($_POST['certificate_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $domain = strip_tags(mysqli_real_escape_string($mysqli,$_POST['domain']));
-    $issued_by = strip_tags(mysqli_real_escape_string($mysqli,$_POST['issued_by']));
-    $expire = strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $domain = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['domain'])));
+    $issued_by = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['issued_by'])));
+    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
     if(empty($expire)){
         $expire = "0000-00-00";
     }
@@ -3646,10 +3646,10 @@ if(isset($_GET['delete_certificate'])){
 if(isset($_POST['add_software'])){
 
     $client_id = intval($_POST['client_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
-    $license = strip_tags(mysqli_real_escape_string($mysqli,$_POST['license']));
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $license = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_type = '$type', software_license = '$license', software_notes = '$notes', software_created_at = NOW(), client_id = $client_id, company_id = $session_company_id");
 
@@ -3675,12 +3675,12 @@ if(isset($_POST['edit_software'])){
 
     $software_id = intval($_POST['software_id']);
     $login_id = intval($_POST['login_id']);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-    $type = strip_tags(mysqli_real_escape_string($mysqli,$_POST['type']));
-    $license = strip_tags(mysqli_real_escape_string($mysqli,$_POST['license']));
-    $notes = strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes']));
-    $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
-    $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $license = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
+    $password = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['password'])));
 
     mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_type = '$type', software_license = '$license', software_notes = '$notes', software_updated_at = NOW() WHERE software_id = $software_id AND company_id = $session_company_id");
 

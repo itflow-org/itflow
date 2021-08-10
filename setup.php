@@ -152,8 +152,8 @@ if(isset($_POST['add_database'])){
 
 if(isset($_POST['add_user'])){
 
-  $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-  $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+  $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+  $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
   $password = md5($_POST['password']);
 
   mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', created_at = NOW()");
@@ -183,16 +183,16 @@ if(isset($_POST['add_company_settings'])){
   $row = mysqli_fetch_array($sql);
   $user_id = $row['user_id'];
 
-  $name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['name']));
-  $country = strip_tags(mysqli_real_escape_string($mysqli,$_POST['country']));
-  $address = strip_tags(mysqli_real_escape_string($mysqli,$_POST['address']));
-  $city = strip_tags(mysqli_real_escape_string($mysqli,$_POST['city']));
-  $state = strip_tags(mysqli_real_escape_string($mysqli,$_POST['state']));
-  $zip = strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip']));
+  $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+  $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
+  $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
+  $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
+  $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
+  $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
   $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-  $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
-  $website = strip_tags(mysqli_real_escape_string($mysqli,$_POST['website']));
-  $currency_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code']));
+  $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
+  $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
+  $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
 
   mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_logo = '$path', company_created_at = NOW()");
 
