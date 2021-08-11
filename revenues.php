@@ -36,10 +36,34 @@ if(isset($_GET['o'])){
   $disp = "ASC";
 }
 
-//Date From and Date To Filter
-if(!empty($_GET['dtf'])){
+//Date Filter
+if($_GET['canned_date'] =="custom"){
   $dtf = $_GET['dtf'];
   $dtt = $_GET['dtt'];
+}elseif($_GET['canned_date'] == "today"){
+  $dtf = date('Y-m-d');
+  $dtt = date('Y-m-d');
+}elseif($_GET['canned_date'] == "yesterday"){
+  $dtf = date('Y-m-d',strtotime("yesterday"));
+  $dtt = date('Y-m-d',strtotime("yesterday"));
+}elseif($_GET['canned_date'] == "thisweek"){
+  $dtf = date('Y-m-d',strtotime("monday this week"));
+  $dtt = date('Y-m-d');
+}elseif($_GET['canned_date'] == "lastweek"){
+  $dtf = date('Y-m-d',strtotime("monday last week"));
+  $dtt = date('Y-m-d',strtotime("sunday last week"));
+}elseif($_GET['canned_date'] == "thismonth"){
+  $dtf = date('Y-m-01');
+  $dtt = date('Y-m-d');
+}elseif($_GET['canned_date'] == "lastmonth"){
+  $dtf = date('Y-m-d',strtotime("first day of last month"));
+  $dtt = date('Y-m-d',strtotime("last day of last month"));
+}elseif($_GET['canned_date'] == "thisyear"){
+  $dtf = date('Y-01-01');
+  $dtt = date('Y-m-d');
+}elseif($_GET['canned_date'] == "lastyear"){
+  $dtf = date('Y-m-d',strtotime("first day of january last year"));
+  $dtt = date('Y-m-d',strtotime("last day of december last year"));  
 }else{
   $dtf = "0000-00-00";
   $dtt = "9999-00-00";
@@ -83,6 +107,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       </div>
       <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
         <div class="row">
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>Canned Date</label>
+              <select class="form-control select2" name="canned_date">
+                <option <?php if($_GET['canned_date'] == "custom"){ echo "selected"; } ?> value="custom">Custom</option>
+                <option <?php if($_GET['canned_date'] == "today"){ echo "selected"; } ?> value="today">Today</option>
+                <option <?php if($_GET['canned_date'] == "yesterday"){ echo "selected"; } ?> value="yesterday">Yesterday</option>
+                <option <?php if($_GET['canned_date'] == "thisweek"){ echo "selected"; } ?> value="thisweek">This Week</option>
+                <option <?php if($_GET['canned_date'] == "lastweek"){ echo "selected"; } ?> value="lastweek">Last Week</option>
+                <option <?php if($_GET['canned_date'] == "thismonth"){ echo "selected"; } ?> value="thismonth">This Month</option>
+                <option <?php if($_GET['canned_date'] == "lastmonth"){ echo "selected"; } ?> value="lastmonth">Last Month</option>
+                <option <?php if($_GET['canned_date'] == "thisyear"){ echo "selected"; } ?> value="thisyear">This Year</option>
+                <option <?php if($_GET['canned_date'] == "lastyear"){ echo "selected"; } ?> value="lastyear">Last Year</option>
+              </select>
+            </div>
+          </div>
           <div class="col-md-2">
             <div class="form-group">
               <label>Date From</label>
