@@ -877,6 +877,9 @@ CREATE TABLE `tickets` (
   `ticket_closed_by` int(11) DEFAULT NULL,
   `vendor_id` int(11) DEFAULT NULL,
   `client_id` int(11) DEFAULT NULL,
+  `contact_id` int(11) DEFAULT NULL,
+  `location_id` int(11) DEFAULT NULL,
+  `asset_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -1007,4 +1010,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-08-10 20:10:46
+-- Dump completed on 2021-08-11 16:39:45
