@@ -19,75 +19,75 @@ if(isset($_GET['p'])){
 }
   
 //Custom Query Filter  
-if(isset($_GET['q'])){
-  $q = mysqli_real_escape_string($mysqli,$_GET['q']);
+if(isset($_GET['query'])){
+  $query = mysqli_real_escape_string($mysqli,$_GET['query']);
 }else{
-  $q = "";
+  $query = "";
 }
 
 //Column Filter
-if(!empty($_GET['sb'])){
-  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+if(!empty($_GET['sortby'])){
+  $sortby = mysqli_real_escape_string($mysqli,$_GET['sortby']);
 }else{
-  $sb = "client_accessed_at";
+  $sortby = "client_accessed_at";
 }
 
 //Column Order Filter
-if(isset($_GET['o'])){
-  if($_GET['o'] == 'ASC'){
-    $o = "ASC";
-    $disp = "DESC";
+if(isset($_GET['order'])){
+  if($_GET['order'] == 'ASC'){
+    $order = "ASC";
+    $order_display = "DESC";
   }else{
-    $o = "DESC";
-    $disp = "ASC";
+    $order = "DESC";
+    $order_display = "ASC";
   }
 }else{
-  $o = "DESC";
-  $disp = "ASC";
+  $order = "DESC";
+  $order_display = "ASC";
 }
 
 //Date Filter
-if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
-  $dtf = $_GET['dtf'];
-  $dtt = $_GET['dtt'];
+if($_GET['canned_date'] == "custom" AND !empty($_GET['date_from'])){
+  $date_from = $_GET['date_from'];
+  $date_to = $_GET['date_to'];
 }elseif($_GET['canned_date'] == "today"){
-  $dtf = date('Y-m-d');
-  $dtt = date('Y-m-d');
+  $date_from = date('Y-m-d');
+  $date_to = date('Y-m-d');
 }elseif($_GET['canned_date'] == "yesterday"){
-  $dtf = date('Y-m-d',strtotime("yesterday"));
-  $dtt = date('Y-m-d',strtotime("yesterday"));
+  $date_from = date('Y-m-d',strtotime("yesterday"));
+  $date_to = date('Y-m-d',strtotime("yesterday"));
 }elseif($_GET['canned_date'] == "thisweek"){
-  $dtf = date('Y-m-d',strtotime("monday this week"));
-  $dtt = date('Y-m-d');
+  $date_from = date('Y-m-d',strtotime("monday this week"));
+  $date_to = date('Y-m-d');
 }elseif($_GET['canned_date'] == "lastweek"){
-  $dtf = date('Y-m-d',strtotime("monday last week"));
-  $dtt = date('Y-m-d',strtotime("sunday last week"));
+  $date_from = date('Y-m-d',strtotime("monday last week"));
+  $date_to = date('Y-m-d',strtotime("sunday last week"));
 }elseif($_GET['canned_date'] == "thismonth"){
-  $dtf = date('Y-m-01');
-  $dtt = date('Y-m-d');
+  $date_from = date('Y-m-01');
+  $date_to = date('Y-m-d');
 }elseif($_GET['canned_date'] == "lastmonth"){
-  $dtf = date('Y-m-d',strtotime("first day of last month"));
-  $dtt = date('Y-m-d',strtotime("last day of last month"));
+  $date_from = date('Y-m-d',strtotime("first day of last month"));
+  $date_to = date('Y-m-d',strtotime("last day of last month"));
 }elseif($_GET['canned_date'] == "thisyear"){
-  $dtf = date('Y-01-01');
-  $dtt = date('Y-m-d');
+  $date_from = date('Y-01-01');
+  $date_to = date('Y-m-d');
 }elseif($_GET['canned_date'] == "lastyear"){
-  $dtf = date('Y-m-d',strtotime("first day of january last year"));
-  $dtt = date('Y-m-d',strtotime("last day of december last year"));  
+  $date_from = date('Y-m-d',strtotime("first day of january last year"));
+  $date_to = date('Y-m-d',strtotime("last day of december last year"));  
 }else{
-  $dtf = "0000-00-00";
-  $dtt = "9999-00-00";
+  $date_from = "0000-00-00";
+  $date_to = "9999-00-00";
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sortby = http_build_query(array_merge($_GET,array('sortby' => $sortby, 'order' => $order)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients 
-  WHERE (client_name LIKE '%$q%' OR client_type LIKE '%$q%' OR client_support LIKE '%$q%' OR client_email LIKE '%$q%' OR client_contact LIKE '%$q%' OR client_phone LIKE '%$q%' 
-  OR client_mobile LIKE '%$q%' OR client_address LIKE '%$q%' OR client_city LIKE '%$q%' OR client_state LIKE '%$q%' OR client_zip LIKE '%$q%') 
-  AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt' 
+  WHERE (client_name LIKE '%$query%' OR client_type LIKE '%$query%' OR client_support LIKE '%$query%' OR client_email LIKE '%$query%' OR client_contact LIKE '%$query%' OR client_phone LIKE '%$query%' 
+  OR client_mobile LIKE '%$query%' OR client_address LIKE '%$query%' OR client_city LIKE '%$query%' OR client_state LIKE '%$query%' OR client_zip LIKE '%$query%') 
+  AND DATE(client_created_at) BETWEEN '$date_from' AND '$date_to' 
   AND company_id = $session_company_id $permission_sql 
-  ORDER BY $sb $o LIMIT $record_from, $record_to"
+  ORDER BY $sortby $order LIMIT $record_from, $record_to"
 ); 
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -107,7 +107,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Clients" autofocus>
+            <input type="search" class="form-control" name="query" value="<?php if(isset($query)){echo stripslashes($query);} ?>" placeholder="Search Clients" autofocus>
             <div class="input-group-append">
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -115,7 +115,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           </div>
         </div>
       </div>
-      <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
+      <div class="collapse mt-3 <?php if(!empty($_GET['date_from'])){ echo "show"; } ?>" id="advancedFilter">
         <div class="row">
           <div class="col-md-2">
             <div class="form-group">
@@ -136,13 +136,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <div class="col-md-2">
             <div class="form-group">
               <label>Date From</label>
-              <input type="date" class="form-control" name="dtf" value="<?php echo $dtf; ?>">
+              <input type="date" class="form-control" name="date_from" value="<?php echo $date_from; ?>">
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-group">
               <label>Date To</label>
-              <input type="date" class="form-control" name="dtt" value="<?php echo $dtt; ?>">
+              <input type="date" class="form-control" name="date_to" value="<?php echo $date_to; ?>">
             </div>
           </div>
         </div>    
@@ -153,7 +153,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <table class="table table-striped table-hover table-borderless">
         <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Name <i class="fa fa-sort-alpha<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=client_name&order=<?php echo $order_display; ?>">Name <i class="fa fa-sort-alpha<?php if($oder_display=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
             <th>Address</th>
             <th>Contact</th>
             <th class="text-right">Balance</th>
