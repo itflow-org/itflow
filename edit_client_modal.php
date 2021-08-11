@@ -53,6 +53,19 @@
               </div>
 
               <div class="form-group">
+                <label>Support</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-handshake"></i></span>
+                  </div>
+                  <select class="form-control select2" name="support">
+                    <option <?php if($client_support == "Non-Maintenance"){ echo "selected"; } ?>>Non-Maintenance</option>
+                    <option <?php if($client_support == "Maintenance"){ echo "selected"; } ?>>Maintenance</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
                 <label>Referral</label>
                 <div class="input-group">
                   <div class="input-group-prepend">

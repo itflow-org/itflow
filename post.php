@@ -676,6 +676,7 @@ if(isset($_POST['add_client'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $support = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['support'])));
     $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
     $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
     $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
@@ -692,7 +693,7 @@ if(isset($_POST['add_client'])){
     $net_terms = intval($_POST['net_terms']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
-    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_country = '$country', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', client_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_country = '$country', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_support = '$support', client_notes = '$notes', client_created_at = NOW(), company_id = $session_company_id");
 
     $client_id = mysqli_insert_id($mysqli);
 
@@ -714,6 +715,7 @@ if(isset($_POST['edit_client'])){
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $support = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['support'])));
     $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
     $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
     $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
@@ -730,7 +732,7 @@ if(isset($_POST['edit_client'])){
     $net_terms = intval($_POST['net_terms']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
-    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_country = '$country', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_country = '$country', client_address = '$address', client_city = '$city', client_state = '$state', client_zip = '$zip', client_contact = '$contact', client_phone = '$phone', client_extension = '$extension', client_mobile = '$mobile', client_email = '$email', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_support = '$support', client_notes = '$notes', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, user_id = $session_user_id");

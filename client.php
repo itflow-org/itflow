@@ -6,6 +6,8 @@
 if(isset($_GET['client_id'])){
   $client_id = intval($_GET['client_id']);
 
+  $sql = mysqli_query($mysqli,"UPDATE clients SET client_accessed_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
+
   $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
 
   if(mysqli_num_rows($sql) == 0){
@@ -39,6 +41,7 @@ if(isset($_GET['client_id'])){
   if($client_net_terms == 0){
     $client_net_terms = $config_default_net_terms;
   }
+  $client_support = $row['client_support'];
   $client_notes = $row['client_notes'];
 
   //Add up all the payments for the invoice and get the total amount paid to the invoice

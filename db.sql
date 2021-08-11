@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.5.9-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.5.11-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: admin_crm
+-- Host: localhost    Database: pittpc_crm
 -- ------------------------------------------------------
--- Server version	10.5.9-MariaDB-1:10.5.9+maria~focal
+-- Server version	10.5.11-MariaDB-1:10.5.11+maria~focal
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -176,10 +176,12 @@ CREATE TABLE `clients` (
   `client_referral` varchar(200) DEFAULT NULL,
   `client_currency_code` varchar(200) NOT NULL,
   `client_net_terms` int(10) NOT NULL,
+  `client_support` varchar(100) DEFAULT NULL,
   `client_notes` text DEFAULT NULL,
   `client_created_at` datetime NOT NULL,
   `client_updated_at` datetime DEFAULT NULL,
   `client_archived_at` datetime DEFAULT NULL,
+  `client_accessed_at` datetime DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -1005,4 +1007,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-04-30 17:52:53
+-- Dump completed on 2021-08-10 20:10:46

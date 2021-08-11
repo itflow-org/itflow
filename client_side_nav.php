@@ -13,6 +13,9 @@
             <p>Back</p> | 
             <p><strong><?php echo $client_name; ?></strong></p>
           </a>
+          <center>
+            <small class="text-secondary"><i class="fas fa-handshake"></i> <strong>SUPPORT: </strong><span style="color:<?php echo ($client_support=="Maintenance"?"green":"red");?>;"><?php echo $client_support;?></span></small>
+          </center>
         </li>
         <li class="nav-header mt-3">CLIENT</li>
 

@@ -29,7 +29,7 @@ if(isset($_GET['q'])){
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
-  $sb = "client_name";
+  $sb = "client_accessed_at";
 }
 
 //Column Order Filter
@@ -42,8 +42,8 @@ if(isset($_GET['o'])){
     $disp = "ASC";
   }
 }else{
-  $o = "ASC";
-  $disp = "DESC";
+  $o = "DESC";
+  $disp = "ASC";
 }
 
 //Date From and Date To Filter
@@ -59,7 +59,7 @@ if(!empty($_GET['dtf'])){
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients 
-  WHERE (client_name LIKE '%$q%' OR client_type LIKE '%$q%' OR client_email LIKE '%$q%' OR client_contact LIKE '%$q%' OR client_phone LIKE '%$q%' 
+  WHERE (client_name LIKE '%$q%' OR client_type LIKE '%$q%' OR client_support LIKE '%$q%' OR client_email LIKE '%$q%' OR client_contact LIKE '%$q%' OR client_phone LIKE '%$q%' 
   OR client_mobile LIKE '%$q%' OR client_address LIKE '%$q%' OR client_city LIKE '%$q%' OR client_state LIKE '%$q%' OR client_zip LIKE '%$q%') 
   AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt' 
   AND company_id = $session_company_id $permission_sql 
@@ -147,6 +147,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_currency_code = $row['client_currency_code'];
             $client_net_terms = $row['client_net_terms'];
             $client_referral = $row['client_referral'];
+            $client_support = $row['client_support'];
             $client_notes = $row['client_notes'];
             $client_created_at = $row['client_created_at'];
             $client_updated_at = $row['client_updated_at'];
@@ -176,6 +177,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a>
               <br>
               <small class="text-secondary"><?php echo $client_type; ?></small>
+              <br>
+              <small class="text-secondary"><i class="fas fa-handshake fa-fw"></i> <b>SUPPORT: </b><span style="color:<?php echo ($client_support == "Maintenance" ? "green" : "red");?>;"><?php echo $client_support;?></span></small>
+              <br>
+              <small class="text-secondary"><b>Contract started: </b><?php echo $client_created_at; ?></small>
             </td>
             <td>
               <?php echo "$client_address<br>$client_city $client_state $client_zip"; ?>

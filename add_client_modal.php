@@ -52,6 +52,19 @@
               </div>
 
               <div class="form-group">
+                <label>Support</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-handshake"></i></span>
+                  </div>
+                  <select class="form-control select2" name="support">
+                    <option>Non-Maintenance</option>
+                    <option>Maintenance</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
                 <label>Referral</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
