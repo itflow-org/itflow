@@ -45,7 +45,7 @@
           </a>
         </li>
 
-        <li class="nav-header mt-3">ASSETS</li>
+        <li class="nav-header mt-2">ASSETS</li>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=assets" class="nav-link <?php if($_GET['tab'] == "assets") { echo "active"; } ?>">
