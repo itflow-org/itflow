@@ -37,7 +37,7 @@ if(isset($_GET['o'])){
 }
 
 //Date Filter
-if($_GET['canned_date'] =="custom"){
+if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
   $dtf = $_GET['dtf'];
   $dtt = $_GET['dtt'];
 }elseif($_GET['canned_date'] == "today"){

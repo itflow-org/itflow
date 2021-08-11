@@ -37,7 +37,7 @@ if(isset($_GET['o'])){
 }
 
 //Date Filter
-if($_GET['canned_date'] =="custom"){
+if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
   $dtf = $_GET['dtf'];
   $dtt = $_GET['dtt'];
 }elseif($_GET['canned_date'] == "today"){
@@ -112,7 +112,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <div class="form-group">
               <label>Canned Date</label>
               <select class="form-control select2" name="canned_date">
-                <option <?php if($_GET['canned_date'] == "custom"){ echo "selected"; } ?> value="custom">Custom</option>
+                <option <?php if($_GET['canned_date'] == "custom"){ echo "selected"; } ?> value="">Custom</option>
                 <option <?php if($_GET['canned_date'] == "today"){ echo "selected"; } ?> value="today">Today</option>
                 <option <?php if($_GET['canned_date'] == "yesterday"){ echo "selected"; } ?> value="yesterday">Yesterday</option>
                 <option <?php if($_GET['canned_date'] == "thisweek"){ echo "selected"; } ?> value="thisweek">This Week</option>
