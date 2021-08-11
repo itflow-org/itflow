@@ -195,7 +195,7 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTripCopyModal<?php echo $trip_id; ?>">Copy</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="post.php?delete_trip=<?php echo $trip_id; ?>">Delete</a>
+                  <a class="dropdown-item text-danger" href="post.php?delete_trip=<?php echo $trip_id; ?>">Delete</a>
                 </div>
               </div>
             </td>

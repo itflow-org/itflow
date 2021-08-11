@@ -148,7 +148,7 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserCompaniesModal<?php echo $user_id; ?>">Company Access</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserClientsModal<?php echo $user_id; ?>">Client Access</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="post.php?archive_user=<?php echo $user_id; ?>">Archive</a>
+                  <a class="dropdown-item text-danger" href="post.php?archive_user=<?php echo $user_id; ?>">Archive</a>
                 </div>
               </div>   
             </td>

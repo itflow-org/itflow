@@ -69,7 +69,7 @@ $num_rows = mysqli_num_rows($sql);
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaxModal<?php echo $tax_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="post.php?archive_tax=<?php echo $tax_id; ?>">Archive</a>
+                  <a class="dropdown-item text-danger" href="post.php?archive_tax=<?php echo $tax_id; ?>">Archive</a>
                 </div>
               </div>
             </td>

@@ -146,7 +146,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>                  
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
+                  <a class="dropdown-item text-danger" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
                 </div>
               </div>
             </td>

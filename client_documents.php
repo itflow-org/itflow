@@ -113,7 +113,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="post.php?delete_document=<?php echo $document_id; ?>">Delete</a>
+                  <a class="dropdown-item text-danger" href="post.php?delete_document=<?php echo $document_id; ?>">Delete</a>
                 </div>
               </div>
               <?php include("view_document_modal.php"); ?>      

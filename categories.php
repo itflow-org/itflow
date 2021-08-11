@@ -130,7 +130,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editCategoryModal<?php echo $category_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="post.php?archive_category=<?php echo $category_id; ?>">Archive</a>
+                  <a class="dropdown-item text-danger" href="post.php?archive_category=<?php echo $category_id; ?>">Archive</a>
                 </div>
               </div>
             </td>

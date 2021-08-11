@@ -120,7 +120,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="post.php?delete_location=<?php echo $location_id; ?>">Delete</a>
+                  <a class="dropdown-item text-danger" href="post.php?delete_location=<?php echo $location_id; ?>">Delete</a>
                 </div>
               </div> 
               <?php include("edit_location_modal.php"); ?>     
