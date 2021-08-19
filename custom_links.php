@@ -97,7 +97,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           ?>
           <tr>
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editCustomLinkModal<?php echo $custom_link_id; ?>"><?php echo "$custom_link_icon_display $custom_link_name"; ?></a></td>
-            <td><?php echo $custom_link_url; ?></td>
+            <td><?php echo $custom_link_url; ?><a href="//<?php echo $custom_link_url; ?>" target="_blank"><i class="fa fa-fw fa-link text-info"></i></a></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
