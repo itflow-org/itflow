@@ -66,12 +66,12 @@
               </div>
 
               <div class="form-group">
-                <label>TOTP Key <strong class="text-danger">*</strong></label>
+                <label>OTP</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="otp_secret" value="<?php echo $login_otp_secret; ?>" placeholder="Leave Blank if not sure">
+                  <input type="text" class="form-control" name="otp_secret" value="<?php echo $login_otp_secret; ?>" placeholder="Insert secret key">
                 </div>
               </div>
 
