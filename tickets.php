@@ -182,6 +182,11 @@
             $ticket_status = $row['ticket_status'];
             $ticket_created_at = $row['ticket_created_at'];
             $ticket_updated_at = $row['ticket_updated_at'];
+            if(empty($ticket_updated_at)){
+              $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
+            }else{
+              $ticket_updated_at_display = $ticket_updated_at;
+            }
             $ticket_closed_at = $row['ticket_closed_at'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
@@ -214,8 +219,8 @@
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></td>
             <td><?php echo $ticket_subject; ?></td>
             <td>- UNASSIGNED -</td>
+            <td><?php echo $ticket_updated_at_display; ?></td>
             <td><?php echo $ticket_created_at; ?></td>
-            <td><?php echo $ticket_updated_at; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

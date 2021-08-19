@@ -91,10 +91,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $sql_domain_registrar = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $domain_registrar");
             $row = mysqli_fetch_array($sql_domain_registrar);
             $domain_registrar_name = $row['vendor_name'];
+            if(empty($domain_registrar_name)){
+              $domain_registrar_name = "-";
+            }
 
             $sql_domain_webhost = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $domain_webhost");
             $row = mysqli_fetch_array($sql_domain_webhost);
             $domain_webhost_name = $row['vendor_name'];
+            if(empty($domain_webhost_name)){
+              $domain_webhost_name = "-";
+            }
 
           ?>
           <tr>

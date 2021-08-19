@@ -165,6 +165,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $payment_method = $row['payment_method'];
             $payment_amount = $row['payment_amount'];
             $payment_reference = $row['payment_reference'];
+            if(empty($payment_reference)){
+              $payment_reference_display = "-";
+            }else{
+              $payment_reference_display = $payment_reference;
+            }
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
             $account_name = $row['account_name'];
@@ -178,7 +183,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=payments"><?php echo $client_name; ?></a></td>
             <td class="text-right">$<?php echo number_format($payment_amount,2); ?></td>
             <td><?php echo $payment_method; ?></td>
-            <td><?php echo $payment_reference; ?></td>
+            <td><?php echo $payment_reference_display; ?></td>
             <td><?php echo $account_name; ?></td>
           </tr>
 

@@ -86,6 +86,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $software_name = $row['software_name'];
             $software_type = $row['software_type'];
             $software_license = $row['software_license'];
+            if(empty($software_license)){
+              $software_license_display = "-";
+            }else{
+              $software_license_display = $software_license;
+            }
             $software_notes = $row['software_notes'];
 
             $sql_login = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE software_id = $software_id");
@@ -99,7 +104,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>"><?php echo $software_name; ?></a></td>
             <td><?php echo $software_type; ?></td>
-            <td><?php echo $software_license; ?></td>
+            <td><?php echo $software_license_display; ?></td>
             <td>
               <?php
               if($software_id == $software_id_relation){

@@ -90,6 +90,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $invoice_prefix = $row['invoice_prefix'];
             $invoice_number = $row['invoice_number'];
             $invoice_scope = $row['invoice_scope'];
+            if(empty($invoice_scope)){
+              $invoice_scope_display = "-";
+            }else{
+              $invoice_scope_display = $invoice_scope;
+            }
             $invoice_status = $row['invoice_status'];
             $invoice_date = $row['invoice_date'];
             $invoice_due = $row['invoice_due'];
@@ -125,7 +130,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <tr>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
-            <td><?php echo $invoice_scope; ?></td>
+            <td><?php echo $invoice_scope_display; ?></td>
             <td class="text-right">$<?php echo number_format($invoice_amount,2); ?></td>
             <td><?php echo $invoice_date; ?></td>
             <td><div class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></div></td>

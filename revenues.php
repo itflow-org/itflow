@@ -159,6 +159,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $revenue_id = $row['revenue_id'];
             $revenue_description = $row['revenue_description'];
             $revenue_reference = $row['revenue_reference'];
+            if(empty($revenue_reference)){
+              $revenue_reference_display = "-";
+            }else{
+              $revenue_reference_display = $revenue_reference;
+            }
             $revenue_date = $row['revenue_date'];
             $revenue_payment_method = $row['revenue_payment_method'];
             $revenue_amount = $row['revenue_amount'];
@@ -176,7 +181,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $category_name; ?></td>
             <td class="text-right">$<?php echo number_format($revenue_amount,2); ?></td>
             <td><?php echo $revenue_payment_method; ?></td>
-            <td><?php echo $revenue_reference; ?></td>
+            <td><?php echo $revenue_reference_display; ?></td>
             <td><?php echo $account_name; ?></td>
             <td>
               <div class="dropdown dropleft text-center">

@@ -272,6 +272,11 @@
             $invoice_prefix = $row['invoice_prefix'];
             $invoice_number = $row['invoice_number'];
             $invoice_scope = $row['invoice_scope'];
+            if(empty($invoice_scope)){
+              $invoice_scope_display = "-";
+            }else{
+              $invoice_scope_display = $invoice_scope;
+            }
             $invoice_status = $row['invoice_status'];
             $invoice_date = $row['invoice_date'];
             $invoice_due = $row['invoice_due'];
@@ -314,7 +319,7 @@
 
           <tr>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
-            <td><?php echo $invoice_scope; ?></td>
+            <td><?php echo $invoice_scope_display; ?></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=invoices"><?php echo $client_name; ?></a></td>
             <td class="text-right">$<?php echo number_format($invoice_amount,2); ?></td>
             <td><?php echo $invoice_date; ?></td>

@@ -91,8 +91,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $asset_make = $row['asset_make'];
             $asset_model = $row['asset_model'];
             $asset_serial = $row['asset_serial'];
+            if(empty($asset_serial)){
+              $asset_serial_display = "-";
+            }else{
+              $asset_serial_display = $asset_serial;
+            }
             $asset_os = $row['asset_os'];
             $asset_ip = $row['asset_ip'];
+            if(empty($asset_ip)){
+              $asset_ip_display = "-";
+            }else{
+              $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text='$asset_ip'><i class='far fa-copy text-secondary'></i></button>";
+            }
             $asset_mac = $row['asset_mac'];
             $asset_purchase_date = $row['asset_purchase_date'];
             $asset_warranty_expire = $row['asset_warranty_expire'];
@@ -199,8 +209,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             </th>
             <td><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_type; ?></td>
             <td><?php echo "$asset_make $asset_model"; ?></td>
-            <td><?php echo $asset_ip; ?></td>
-            <td><?php echo $asset_serial; ?></td>
+            <td><?php echo $asset_ip_display; ?></td>
+            <td><?php echo $asset_serial_display; ?></td>
             <td><?php echo $contact_name; ?></td>
             <td><?php echo $location_name; ?></td>
             <td>

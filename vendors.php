@@ -118,6 +118,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $vendor_id = $row['vendor_id'];
             $vendor_name = $row['vendor_name'];
             $vendor_description = $row['vendor_description'];
+            if(empty($vendor_description)){
+              $vendor_description_display = "-";
+            }else{
+              $vendor_description_display = $vendor_description;
+            }
             $vendor_account_number = $row['vendor_account_number'];
             $vendor_country = $row['vendor_country'];
             $vendor_address = $row['vendor_address'];
@@ -125,6 +130,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $vendor_state = $row['vendor_state'];
             $vendor_zip = $row['vendor_zip'];
             $vendor_contact_name = $row['vendor_contact_name'];
+            if(empty($vendor_contact_name)){
+              $vendor_contact_name_display = "-";
+            }else{
+              $vendor_contact_name_display = $vendor_contact_name;
+            }
             $vendor_phone = $row['vendor_phone'];
             if(strlen($vendor_phone)>2){ 
               $vendor_phone = substr($row['vendor_phone'],0,3)."-".substr($row['vendor_phone'],3,3)."-".substr($row['vendor_phone'],6,4);
@@ -149,7 +159,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               ?>
 
             </td>
-            <td><?php echo $vendor_description; ?></td>
+            <td><?php echo $vendor_description_display; ?></td>
             <td>
               <?php
               if(!empty($vendor_contact_name)){
@@ -157,6 +167,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $vendor_contact_name; ?>
               <br>
               <?php
+              }else{
+                echo $vendor_contact_name_display;
               }
               ?>
               <?php

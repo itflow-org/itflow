@@ -72,6 +72,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_title&o=<?php echo $disp; ?>">Title</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_email&o=<?php echo $disp; ?>">Email</a></th>
             <th>Phone</th>
+            <th>Mobile</th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -82,16 +83,36 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $contact_id = $row['contact_id'];
             $contact_name = $row['contact_name'];
             $contact_title = $row['contact_title'];
+            if(empty($contact_title)){
+              $contact_title_display = "-";
+            }else{
+              $contact_title_display = $contact_title;
+            }
             $contact_phone = $row['contact_phone'];
             if(strlen($contact_phone)>2){ 
               $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
+            }
+            if(empty($contact_phone)){
+              $contact_phone_display = "-";
+            }else{
+              $contact_phone_display = "$contact_phone";
             }
             $contact_extension = $row['contact_extension'];
             $contact_mobile = $row['contact_mobile'];
             if(strlen($contact_mobile)>2){ 
               $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
             }
+            if(empty($contact_mobile)){
+              $contact_mobile_display = "-";
+            }else{
+              $contact_mobile_display = "$contact_mobile";
+            }
             $contact_email = $row['contact_email'];
+            if(empty($contact_email)){
+              $contact_email_display = "-";
+            }else{
+              $contact_email_display = "<a href='mailto:$contact_email'>$contact_email</a><button class='btn btn-sm' data-clipboard-text='$contact_email'><i class='far fa-copy text-secondary'></i></button>";
+            }
             $contact_photo = $row['contact_photo'];
             $contact_initials = initials($contact_name);
             $contact_notes = $row['contact_notes'];
@@ -118,26 +139,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               </a>
             </th>
             
-            <td><?php echo $contact_title; ?></td>
-            <td><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a></td>
-            <td>
-              <?php
-              if(!empty($contact_phone) OR !empty($contact_extension)){
-              ?>
-              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $contact_phone; ?> <?php if(!empty($contact_extension)){ echo "x$contact_extension"; } ?>
-              <br>
-              <?php
-              }
-              ?>
-              <?php
-              if(!empty($contact_mobile)){
-              ?>
-              <i class="fa fa-fw fa-mobile-alt text-secondary mr-2 mb-2"></i><?php echo $contact_mobile; ?>
-              <br>
-              <?php
-              }
-              ?>
-            </td>
+            <td><?php echo $contact_title_display; ?></td>
+            <td><?php echo $contact_email_display; ?></td>
+            <td><?php echo $contact_phone_display; ?> <?php if(!empty($contact_extension)){ echo "x$contact_extension"; } ?></td>
+            <td><?php echo $contact_mobile_display; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

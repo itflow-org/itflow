@@ -96,6 +96,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $ticket_status = $row['ticket_status'];
             $ticket_created_at = $row['ticket_created_at'];
             $ticket_updated_at = $row['ticket_updated_at'];
+            if(empty($ticket_updated_at)){
+              $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
+            }else{
+              $ticket_updated_at_display = $ticket_updated_at;
+            }
             $ticket_closed_at = $row['ticket_closed_at'];
             
             if($ticket_status == "Open"){
@@ -124,7 +129,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $ticket_status_display; ?></td>
             <td><?php echo $ticket_subject; ?></td>
             <td>- UNASSIGNED -</td>
-            <td><?php echo $ticket_updated_at; ?></td>
+            <td><?php echo $ticket_updated_at_display; ?></td>
             <td><?php echo $ticket_created_at; ?></td>
             <td>
               <div class="dropdown dropleft text-center">

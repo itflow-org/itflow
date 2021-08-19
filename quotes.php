@@ -163,6 +163,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $quote_prefix = $row['quote_prefix'];
             $quote_number = $row['quote_number'];
             $quote_scope = $row['quote_scope'];
+            if(empty($quote_scope)){
+              $quote_scope_display = "-";
+            }else{
+              $quote_scope_display = $quote_scope;
+            }
             $quote_status = $row['quote_status'];
             $quote_date = $row['quote_date'];
             $quote_amount = $row['quote_amount'];
@@ -196,7 +201,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <tr>
             <td><a href="quote.php?quote_id=<?php echo $quote_id; ?>"><?php echo "$quote_prefix$quote_number"; ?></a></td>
-            <td><?php echo $quote_scope; ?></td>
+            <td><?php echo $quote_scope_display; ?></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=quotes"><?php echo $client_name; ?></a></td>
             <td class="text-right">$<?php echo number_format($quote_amount,2); ?></td>
             <td><?php echo $quote_date; ?></td>

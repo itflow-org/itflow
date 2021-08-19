@@ -93,9 +93,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             if(strlen($location_phone)>2){ 
               $location_phone = substr($row['location_phone'],0,3)."-".substr($row['location_phone'],3,3)."-".substr($row['location_phone'],6,4);
             }
+            if(empty($location_phones)){
+              $location_phone_display = "-";
+            }else{
+              $location_phone_display = $location_phone;
+            }
             $location_hours = $row['location_hours'];
             if(empty($location_hours)){
-              $location_hours = '-';
+              $location_hours_display = "-";
+            }else{
+              $location_hours_display = $location_hours;
             }
             $location_photo = $row['location_photo'];
             $location_notes = $row['location_notes'];
@@ -110,8 +117,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>"><?php echo $location_name; ?></a>
             </th>
             <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo $location_address; ?><br><?php echo "$location_city $location_state $location_zip"; ?></a></td>
-            <td><?php echo $location_phone; ?></td>
-            <td><?php echo $location_hours; ?></td>
+            <td><?php echo $location_phone_display; ?></td>
+            <td><?php echo $location_hours_display; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

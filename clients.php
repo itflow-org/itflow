@@ -172,7 +172,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_city = $row['client_city'];
             $client_state = $row['client_state'];
             $client_zip = $row['client_zip'];
+            if(empty($client_address)){
+              $client_address_display = "-";
+            }else{
+              $client_address_display = "$client_address<br>$client_city $client_state $client_zip";
+            }
             $client_contact = $row['client_contact'];
+            if(empty($client_contact)){
+              $client_contact_display = "-";
+            }else{
+              $client_contact_display = $client_contact;
+            }
             $client_phone = $row['client_phone'];
             if(strlen($client_phone)>2){ 
               $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
@@ -222,9 +232,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <br>
               <small class="text-secondary"><b>Contract started: </b><?php echo $client_created_at; ?></small>
             </td>
-            <td>
-              <?php echo "$client_address<br>$client_city $client_state $client_zip"; ?>
-            </td>
+            <td><?php echo $client_address_display; ?></td>
             <td>
               <?php
               if(!empty($client_contact)){
@@ -232,6 +240,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $client_contact; ?>
               <br>
               <?php
+              }else{
+                echo $client_contact_display;
               }
               ?>
               <?php

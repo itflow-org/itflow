@@ -86,9 +86,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $network_id = $row['network_id'];
             $network_name = $row['network_name'];
             $network_vlan = $row['network_vlan'];
+            if(empty($network_vlan)){
+              $network_vlan_display = "-";
+            }else{
+              $network_vlan_display = $network_vlan;
+            }
             $network = $row['network'];
             $network_gateway = $row['network_gateway'];
             $network_dhcp_range = $row['network_dhcp_range'];
+            if(empty($network_dhcp_range)){
+              $network_dhcp_range_display = "-";
+            }else{
+              $network_dhcp_range_display = $network_dhcp_range;
+            }
             $network_created_at = $row['network_created_at'];
             $location_id = $row['location_id'];
       
@@ -97,10 +107,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <th>
               <i class="fa fa-fw fa-network-wired text-secondary"></i> 
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editNetworkModal<?php echo $network_id; ?>"><?php echo $network_name; ?></a></th>
-            <td><?php echo $network_vlan; ?></td>
+            <td><?php echo $network_vlan_display; ?></td>
             <td><?php echo $network; ?></td>
             <td><?php echo $network_gateway; ?></td>
-            <td><?php echo $network_dhcp_range; ?></td>
+            <td><?php echo $network_dhcp_range_display; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
