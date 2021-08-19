@@ -457,7 +457,7 @@ if(isset($_GET['invoice_id'])){
             ?>
             <tr>
               <td><?php echo $payment_date; ?></td>
-              <td class=" text-right text-monospace">$<?php echo number_format($payment_amount,2); ?></td>
+              <td class=" text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($payment_amount,2); ?></td>
               <td><?php echo $payment_reference; ?></td>
               <td><?php echo $account_name; ?></td>
               <td class="text-center"><a class="btn btn-danger btn-sm" href="post.php?delete_payment=<?php echo $payment_id; ?>"><i class="fa fa-trash"></i></a></td>
