@@ -117,10 +117,12 @@
             
           <?php } ?>
 
+          <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
           <div class="custom-control custom-checkbox">
             <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_event" value="1" >
-            <label class="custom-control-label" for="customControlAutosizing">Email Event</label>
+            <label class="custom-control-label" for="customControlAutosizing">Email Event (<?php echo $client_email; ?>)</label>
           </div>
+          <?php } ?>
 
         </div>
         <div class="modal-footer bg-white">
