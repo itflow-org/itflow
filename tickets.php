@@ -20,7 +20,7 @@
   if(isset($_GET['status'])){
     $status = mysqli_real_escape_string($mysqli,$_GET['status']);
   }else{
-    $status = "";
+    $status = "Open";
   }
 
   if(!empty($_GET['sb'])){
@@ -113,12 +113,9 @@
         </div>
         <div class="col-sm-8">
           <div class="btn-group float-right">
-            <a href="?status=%" class="btn <?php if($status == '%'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All</a>
-            <a href="?status=Open" class="btn <?php if($status == 'Open'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Open</a>
-            <a href="?status=In-Progress" class="btn <?php if($status == 'In-Progress'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">In-Progress</a>
-            <a href="?status=On-Hold" class="btn <?php if($status == 'On-Hold'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">On-Hold</a>
-            <a href="?status=Resolved" class="btn <?php if($status == 'Resolved'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Resolved</a>
-            <a href="?status=Closed" class="btn <?php if($status == 'Closed'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Closed</a>
+            <a href="<?php echo $_SERVER['REQUEST_URI']; ?>&status=%" class="btn <?php if($status == '%'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Tickets</a>
+            <a href="<?php echo $_SERVER['REQUEST_URI']; ?>&status=Open" class="btn <?php if($status == 'Open'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Open Tickets</a>
+            <a href="<?php echo $_SERVER['REQUEST_URI']; ?>&status=Closed" class="btn <?php if($status == 'Closed'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Closed Tickets</a>
           </div>
         </div>
       </div>

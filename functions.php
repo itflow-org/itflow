@@ -183,4 +183,39 @@ function truncate($text, $chars = 25) {
     return $text;
 }
 
+function get_currency_symbol($cc = 'USD')
+{
+    $cc = strtoupper($cc);
+    $currency = array(
+    "USD" => "$" , //U.S. Dollar
+    "AUD" => "$" , //Australian Dollar
+    "BRL" => "R$" , //Brazilian Real
+    "CAD" => "C$" , //Canadian Dollar
+    "CZK" => "Kč" , //Czech Koruna
+    "DKK" => "kr" , //Danish Krone
+    "EUR" => "€" , //Euro
+    "HKD" => "&#36" , //Hong Kong Dollar
+    "HUF" => "Ft" , //Hungarian Forint
+    "ILS" => "₪" , //Israeli New Sheqel
+    "INR" => "₹", //Indian Rupee
+    "JPY" => "¥" , //Japanese Yen 
+    "MYR" => "RM" , //Malaysian Ringgit 
+    "MXN" => "&#36" , //Mexican Peso
+    "NOK" => "kr" , //Norwegian Krone
+    "NZD" => "&#36" , //New Zealand Dollar
+    "PHP" => "₱" , //Philippine Peso
+    "PLN" => "zł" ,//Polish Zloty
+    "GBP" => "£" , //Pound Sterling
+    "SEK" => "kr" , //Swedish Krona
+    "CHF" => "Fr" , //Swiss Franc
+    "TWD" => "$" , //Taiwan New Dollar 
+    "THB" => "฿" , //Thai Baht
+    "TRY" => "₺" //Turkish Lira
+    );
+    
+    if(array_key_exists($cc, $currency)){
+        return $currency[$cc];
+    }
+}
+
 ?>
