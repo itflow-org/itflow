@@ -107,8 +107,10 @@ if(isset($_GET['quote_id'])){
           <i class="fas fa-fw fa-paper-plane"></i> Send
         </button>
         <div class="dropdown-menu">
+          <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
           <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send Email</a>
           <div class="dropdown-divider"></div>
+          <?php } ?>
           <a class="dropdown-item" href="post.php?mark_quote_sent=<?php echo $quote_id; ?>">Mark Sent</a>
         </div>
         <?php } ?>
@@ -135,7 +137,9 @@ if(isset($_GET['quote_id'])){
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
             <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$quote_date-$company_name-$client_name-Quote-$quote_prefix$quote_number.pdf"; ?>');">Download PDF</a>
+            <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
             <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send Email</a>
+            <?php } ?>
             <a class="dropdown-item" target="_blank" href="guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">Guest URL</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#">Delete</a>

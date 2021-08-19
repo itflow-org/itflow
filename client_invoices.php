@@ -146,8 +146,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
+                  <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
                   <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send</a>
                   <div class="dropdown-divider"></div>
+                  <?php } ?>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>                  
                   <div class="dropdown-divider"></div>

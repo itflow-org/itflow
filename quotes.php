@@ -175,6 +175,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $quote_created_at = $row['quote_created_at'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
+            $client_email = $row['client_email'];
             $client_currency_code = $row['client_currency_code'];
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
@@ -220,8 +221,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuoteModal<?php echo $quote_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">Copy</a>
                   <div class="dropdown-divider"></div>
+                  <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
                   <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send</a>
                   <div class="dropdown-divider"></div>
+                  <?php } ?>
                   <a class="dropdown-item text-danger" href="post.php?delete_quote=<?php echo $quote_id; ?>">Delete</a>
                 </div>
               </div>
