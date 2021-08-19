@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.5.11-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.5.12-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: pittpc_crm
 -- ------------------------------------------------------
--- Server version	10.5.11-MariaDB-1:10.5.11+maria~focal
+-- Server version	10.5.12-MariaDB-1:10.5.12+maria~focal
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -505,6 +505,7 @@ CREATE TABLE `logins` (
   `login_uri` varchar(200) DEFAULT NULL,
   `login_username` varchar(200) NOT NULL,
   `login_password` varbinary(200) DEFAULT NULL,
+  `login_otp_secret` varchar(200) DEFAULT NULL,
   `login_note` text DEFAULT NULL,
   `login_created_at` datetime NOT NULL,
   `login_updated_at` datetime DEFAULT NULL,
@@ -1010,4 +1011,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-08-11 16:39:45
+-- Dump completed on 2021-08-18 22:28:45

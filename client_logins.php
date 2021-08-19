@@ -91,6 +91,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }
             $login_username = $row['login_username'];
             $login_password = $row['login_password'];
+            $login_otp_secret = $row['login_otp_secret'];
+            if(!empty($login_otp_secret)){
+              $otp = get_otp($login_otp_secret);
+              $otp = "<i class='far fa-clock text-secondary'></i> $otp<button class='btn btn-sm' data-clipboard-text='$otp'><i class='far fa-copy text-secondary'></i></button>";
+            }else{
+              $otp = "-";
+            }
             $login_note = $row['login_note'];
             $vendor_id = $row['vendor_id'];
             $asset_id = $row['asset_id'];
@@ -108,7 +115,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $login_username; ?><button class="btn btn-sm" data-clipboard-text="<?php echo $login_username; ?>"><i class="far fa-copy text-secondary"></i></button></td>
             <td><?php echo $login_password; ?><button class="btn btn-sm" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
             </td>
-            <td><?php echo "-"; ?></td>
+            <td><?php echo $otp; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
