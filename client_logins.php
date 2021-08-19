@@ -89,9 +89,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             if(empty($login_uri)){
               $login_uri_display = "-";
             }else{
-              $login_uri_display = "$login_uri <button class='btn btn-sm' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button>";
+              $login_uri_display = "$login_uri<button class='btn btn-sm' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button>";
             }
             $login_username = $row['login_username'];
+            if(empty($login_username)){
+              $login_username_display = "-";
+            }else{
+              $login_username_display = "$login_username<button class='btn btn-sm' data-clipboard-text='$login_username'><i class='far fa-copy text-secondary'></i></button>";
+            }
             $login_password = $row['login_password'];
             $login_otp_secret = $row['login_otp_secret'];
             if(empty($login_otp_secret)){
@@ -114,7 +119,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               </a>
             </td>
             <td><?php echo $login_uri_display; ?></td>
-            <td><?php echo $login_username; ?><button class="btn btn-sm" data-clipboard-text="<?php echo $login_username; ?>"><i class="far fa-copy text-secondary"></i></button></td>
+            <td><?php echo $login_username_display; ?></td>
             <td><?php echo $login_password; ?><button class="btn btn-sm" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
             </td>
             <td><?php echo $otp_display; ?></td>

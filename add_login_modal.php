@@ -40,12 +40,12 @@
               </div>
             
               <div class="form-group">
-                <label>Username <strong class="text-danger">*</strong></label>
+                <label>Username</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="username" placeholder="Username" required>
+                  <input type="text" class="form-control" name="username" placeholder="Username">
                 </div>
               </div>
               
