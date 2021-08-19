@@ -43,6 +43,7 @@ if(isset($_GET['quote_id'])){
   }
   $client_website = $row['client_website'];
   $client_currency_code = $row['client_currency_code'];
+  $client_currency_symbol = get_currency_symbol("$client_currency_code");
   $client_net_terms = $row['client_net_terms'];
   if($client_net_terms == 0){
     $client_net_terms = $config_default_net_terms;
