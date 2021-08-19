@@ -45,6 +45,8 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
       $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
     }
     $client_website = $row['client_website'];
+    $client_currency_code = $row['client_currency_code'];
+    $client_currency_symbol = get_currency_symbol($client_currency_code);
     $client_net_terms = $row['client_net_terms'];
     if($client_net_terms == 0){
       $client_net_terms = $config_default_net_terms;
@@ -228,9 +230,9 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
                   <td><?php echo $item_name; ?></td>
                   <td><?php echo $item_description; ?></td>
                   <td class="text-center"><?php echo $item_quantity; ?></td>
-                  <td class="text-right text-monospace">$<?php echo number_format($item_price,2); ?></td>
-                  <td class="text-right text-monospace">$<?php echo number_format($item_tax,2); ?></td>
-                  <td class="text-right text-monospace">$<?php echo number_format($item_total,2); ?></td>  
+                  <td class="text-right"><?php echo $client_currency_code; ?><?php echo number_format($item_price,2); ?></td>
+                  <td class="text-right"><?php echo $client_currency_code; ?><?php echo number_format($item_tax,2); ?></td>
+                  <td class="text-right"><?php echo $client_currency_code; ?><?php echo number_format($item_total,2); ?></td>  
                 </tr>
 
                 <?php 
@@ -258,23 +260,23 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
             <tbody>    
               <tr class="border-bottom">
                 <td>Subtotal</td>
-                <td class="text-right">$<?php echo number_format($sub_total,2); ?></td>
+                <td class="text-right"><?php echo $client_currency_code; ?><?php echo number_format($sub_total,2); ?></td>
               </tr>
               <?php if($total_tax > 0){ ?>
               <tr class="border-bottom">
                 <td>Tax</td>
-                <td class="text-right">$<?php echo number_format($total_tax,2); ?></td>        
+                <td class="text-right"><?php echo $client_currency_code; ?><?php echo number_format($total_tax,2); ?></td>        
               </tr>
               <?php } ?>
               <?php if($amount_paid > 0){ ?>
               <tr class="border-bottom">
                 <td><div class="text-success">Paid to Date</div></td>
-                <td class="text-right text-success">$<?php echo number_format($amount_paid,2); ?></td>
+                <td class="text-right text-success"><?php echo $client_currency_code; ?><?php echo number_format($amount_paid,2); ?></td>
               </tr>
               <?php } ?>
               <tr class="border-bottom">
                 <td><strong>Balance Due</strong></td>
-                <td class="text-right"><strong>$<?php echo number_format($balance,2); ?></strong></td>
+                <td class="text-right"><strong><?php echo $client_currency_code; ?><?php echo number_format($balance,2); ?></strong></td>
               </tr>
             </tbody>
           </table>
@@ -473,15 +475,15 @@ var docDefinition = {
 		          style:'itemQty'
 		        }, 
 		        {
-		        	text:'$<?php echo number_format($item_price,2); ?>',
+		        	text:'<?php echo $client_currency_code; ?><?php echo number_format($item_price,2); ?>',
 		         	style:'itemNumber'
 		        }, 
 		        {
-		          text:'$<?php echo number_format($item_tax,2); ?>',
+		          text:'<?php echo $client_currency_code; ?><?php echo number_format($item_tax,2); ?>',
 		          style:'itemNumber'
 		        }, 
 		        {
-		          text: '$<?php echo number_format($item_total,2); ?>',
+		          text: '<?php echo $client_currency_code; ?><?php echo number_format($item_total,2); ?>',
 		          style:'itemNumber'
 		        } 
 		    	],
@@ -523,7 +525,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        }, 
 		        { 
-		         	text:'$<?php echo number_format($sub_total,2); ?>',
+		         	text:'<?php echo $client_currency_code; ?><?php echo number_format($sub_total,2); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -534,7 +536,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        },
 		        {
-		         	text: '$<?php echo number_format($total_tax,2); ?>',
+		         	text: '<?php echo $client_currency_code; ?><?php echo number_format($total_tax,2); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -545,7 +547,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        }, 
 		        {
-		         	text: '$<?php echo number_format($invoice_amount,2); ?>',
+		         	text: '<?php echo $client_currency_code; ?><?php echo number_format($invoice_amount,2); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -556,7 +558,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        },
 		        {
-		          text: '$<?php echo number_format($amount_paid,2); ?>',
+		          text: '<?php echo $client_currency_code; ?><?php echo number_format($amount_paid,2); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -567,7 +569,7 @@ var docDefinition = {
 		          style:'itemsFooterTotalTitle'
 		        },
 		        {
-		        	text: '$<?php echo number_format($balance,2); ?>',
+		        	text: '<?php echo $client_currency_code; ?><?php echo number_format($balance,2); ?>',
 		          
 		          style:'itemsFooterTotalTitle'
 		        }
@@ -756,7 +758,7 @@ var docDefinition = {
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td class="text-danger text-bold"><?php echo $invoice_due; ?> (<?php echo $days; ?> Days Late)</td>
-                <td class="text-right">$<?php echo $invoice_amount; ?></td>
+                <td class="text-right"><?php echo $client_currency_code; ?><?php echo $invoice_amount; ?></td>
               </tr>
 
             <?php 
@@ -815,7 +817,7 @@ var docDefinition = {
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td><?php echo $invoice_due; ?> (Due in <?php echo $days; ?> Days)</td>
-                <td class="text-right">$<?php echo $invoice_amount; ?></td>
+                <td class="text-right"><?php echo $client_currency_code; ?><?php echo $invoice_amount; ?></td>
               </tr>
 
             <?php 
@@ -873,7 +875,7 @@ var docDefinition = {
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td><?php echo $invoice_due; ?></td>
-                <td class="text-right">$<?php echo $invoice_amount; ?></td>
+                <td class="text-right"><?php echo $client_currency_code; ?><?php echo $invoice_amount; ?></td>
               </tr>
 
               <tr>
@@ -905,7 +907,7 @@ var docDefinition = {
               ?>
 
                 <tr>
-                  <td colspan="4"><?php echo $payment_date; ?> - $<?php echo $payment_amount; ?> - <?php echo $payment_method; ?> - <?php echo $payment_reference; ?> - <?php echo $days; ?> <?php echo $payment_note; ?></td>
+                  <td colspan="4"><?php echo $payment_date; ?> - <?php echo $client_currency_code; ?><?php echo $payment_amount; ?> - <?php echo $payment_method; ?> - <?php echo $payment_reference; ?> - <?php echo $days; ?> <?php echo $payment_note; ?></td>
                 </tr>
               <?php
 
