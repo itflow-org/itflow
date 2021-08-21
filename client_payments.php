@@ -58,11 +58,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
       <input type="hidden" name="tab" value="<?php echo $_GET['tab']; ?>">
-      <div class="input-group">
-        <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php echo ucwords($_GET['tab']); ?>">
-        <div class="input-group-append">
-          <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
+      <div class="row">
+        
+        <div class="col-md-4">
+          <div class="input-group mb-3 mb-md-0">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php echo ucwords($_GET['tab']); ?>">
+            <div class="input-group-append">
+              <button class="btn btn-dark"><i class="fa fa-search"></i></button>
+            </div>
+          </div>
         </div>
+
+        <div class="col-md-8">
+          <div class="float-right">
+            <a href="post.php?export_client_<?php echo $_GET['tab']; ?>_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
+          </div>
+        </div>
+
       </div>
     </form>
     <hr>

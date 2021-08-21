@@ -67,10 +67,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           </div>
         </div>
 
-        <div class="col-sm-8">
+        <div class="col-md-8">
           <div class="float-right">
-            <a href="post.php?export_client_contacts_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
-            <a href="post.php?import_trips_csv" class="btn btn-default"><i class="fa fa-fw fa-upload"></i> Import</a>
+            <a href="post.php?export_client_<?php echo $_GET['tab']; ?>_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
+            <a href="#" class="btn btn-default"><i class="fa fa-fw fa-upload"></i> Import</a>
           </div>
         </div>
 
