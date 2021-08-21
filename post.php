@@ -1069,13 +1069,46 @@ if(isset($_POST['add_ticket_update'])){
 
     mysqli_query($mysqli,"INSERT INTO ticket_updates SET ticket_update = '$ticket_update', ticket_update_created_at = NOW(), ticket_update_by = $session_user_id, ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
+    //UPDATE Ticket Last Response Field 
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
+
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update', log_action = 'Created', log_description = '$ticket_id', log_created_at = NOW(), company_id = $session_company_id, ticket_update_by = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update', log_action = 'Created', log_description = '$ticket_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Posted an update";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
     
+}
+
+if(isset($_POST['edit_ticket_update'])){
+
+    $ticket_update_id = intval($_POST['ticket_update_id']);
+    $ticket_update = trim(mysqli_real_escape_string($mysqli,$_POST['ticket_update']));
+
+    mysqli_query($mysqli,"UPDATE ticket_updates SET ticket_update = '$ticket_update', ticket_update_updated_at = NOW() WHERE ticket_update_id = $ticket_update_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update', log_action = 'Modified', log_description = '$ticket_update_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Ticket update modified";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    
+}
+
+if(isset($_GET['archive_ticket_update'])){
+    $ticket_update_id = intval($_GET['archive_ticket_update']);
+
+    mysqli_query($mysqli,"UPDATE ticket_updates SET ticket_update_archived_at = NOW() WHERE ticket_update_id = $ticket_update_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update', log_action = 'Archived', log_description = '$ticket_update_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Ticket update archived";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
 }
 
 if(isset($_GET['close_ticket'])){

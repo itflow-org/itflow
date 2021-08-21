@@ -128,7 +128,7 @@ if(isset($_GET['ticket_id'])){
     </form>
 
     <?php
-    $sql = mysqli_query($mysqli,"SELECT * FROM ticket_updates WHERE ticket_id = $ticket_id ORDER BY ticket_update_id DESC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM ticket_updates WHERE ticket_id = $ticket_id AND ticket_update_archived_at IS NULL ORDER BY ticket_update_id DESC");
 
       while($row = mysqli_fetch_array($sql)){;
         $ticket_update_id = $row['ticket_update_id'];
@@ -145,11 +145,18 @@ if(isset($_GET['ticket_id'])){
       <div class="card-body">
         <p><?php echo $ticket_update; ?></p>
       </div>
-      <div class="card-footer"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_update_created_at; ?> <i class="fa fa-fw fa-user"></i> <?php echo $ticket_update_by_display; ?></div>
+      <div class="card-footer"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_update_created_at; ?> <i class="fa fa-fw fa-user"></i> <?php echo $ticket_update_by_display; ?> 
+        <a href="#" data-toggle="modal" data-target="#editTicketUpdateModal<?php echo $ticket_update_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i></a>
+        <a href="post.php?archive_ticket_update=<?php echo $ticket_update_id; ?>"><i class="fas fa-fw fa-trash text-danger"></i></a>
+      </div>
     </div>
 
     <?php
+    
+    include("edit_ticket_update_modal.php");
+    
     }
+    
     ?>
   
   </div>
@@ -158,7 +165,6 @@ if(isset($_GET['ticket_id'])){
 
     <div class="card mb-3">
       <div class="card-body">
-  
         <div>  
           <h4 class="text-secondary">Client</h4>
           <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <?php echo $client_name; ?>
