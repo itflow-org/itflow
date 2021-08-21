@@ -120,6 +120,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $ticket_priority_display = "-";
             }
+            $ticket_assigned_to = $row['ticket_assigned_to'];
+            if(empty($ticket_assigned_to)){
+              $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
+            }else{
+              $sql_assigned_to = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $ticket_assigned_to");
+              $row = mysqli_fetch_array($sql_assigned_to);
+              $ticket_assigned_to_display = $row['name'];
+            }
 
           ?>
 
@@ -128,7 +136,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $ticket_priority_display; ?></td>
             <td><?php echo $ticket_status_display; ?></td>
             <td><?php echo $ticket_subject; ?></td>
-            <td>- UNASSIGNED -</td>
+            <td><?php echo $ticket_assigned_to_display; ?></td>
             <td><?php echo $ticket_updated_at_display; ?></td>
             <td><?php echo $ticket_created_at; ?></td>
             <td>

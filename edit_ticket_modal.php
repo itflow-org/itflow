@@ -12,6 +12,30 @@
         <div class="modal-body bg-white">
         
           <div class="form-group">
+            <label>Assigned to</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+              </div>
+              <select class="form-control select2" name="assigned_to">
+                <option value="">Not Assigned</option>
+                <?php 
+                
+                $sql_assign_to_select = mysqli_query($mysqli,"SELECT * FROM users, permissions WHERE users.user_id = permissions.user_id AND $session_company_id IN($session_permission_companies) ORDER BY name ASC");
+                while($row = mysqli_fetch_array($sql_assign_to_select)){
+                  $user_id = $row['user_id'];
+                  $name = $row['name'];
+                ?>
+                <option <?php if($ticket_assigned_to == $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $name; ?></option>
+                
+                <?php
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
             <label>Priority <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">

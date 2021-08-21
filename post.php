@@ -1008,6 +1008,7 @@ if(isset($_GET['delete_event'])){
 if(isset($_POST['add_ticket'])){
 
     $client_id = intval($_POST['client']);
+    $assigned_to = intval($_POST['assigned_to']);
     $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
     $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
     $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
@@ -1017,7 +1018,7 @@ if(isset($_POST['add_ticket'])){
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = $session_company_id");
 
-    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $session_user_id, client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$subject', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, user_id = $session_user_id");
@@ -1031,11 +1032,12 @@ if(isset($_POST['add_ticket'])){
 if(isset($_POST['edit_ticket'])){
 
     $ticket_id = intval($_POST['ticket_id']);
+    $assigned_to = intval($_POST['assigned_to']);
     $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
     $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
     $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
 
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_updated_at = NOW(), ticket_assigned_to = $assigned_to WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modified', log_description = '$subject', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");

@@ -64,6 +64,15 @@ if(isset($_GET['ticket_id'])){
     $ticket_priority_display = "-";
   }
 
+  $ticket_assigned_to = $row['ticket_assigned_to'];
+  if(empty($ticket_assigned_to)){
+    $ticket_assigned_to_display = "<span class='text-danger'>Not Assigned</span>";
+  }else{
+    $sql_assigned_to = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $ticket_assigned_to");
+    $row = mysqli_fetch_array($sql_assigned_to);
+    $ticket_assigned_to_display = $row['name'];
+  }
+
 ?>
 
 <!-- Breadcrumbs-->
@@ -174,19 +183,8 @@ if(isset($_GET['ticket_id'])){
     <div class="card card-body mb-3"> 
       <h4 class="text-secondary">Details</h4>
       <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i> <?php echo $ticket_priority_display; ?></div>
-      <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $name; ?></div>
+      <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $ticket_assigned_to_display; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_at; ?></div>
-      <form>
-      	<select class="form-control select2" name="assigned_to">
-      	<?php
-      	$sql_assign_to = mysqli_query($mysqli,"SELECT * FROM users, permissions WHERE users.user_id = permissions.user_id AND $session_company_id IN($session_permission_companies)");
-      	while($row = mysqli_fetch_array($sql_assign_to)){;
-		      $user_id = $row['user_id'];
-		      $name = $row['name'];
-		     ?>
-		     <option value="<?php echo $user_id; ?>"><?php echo $name; ?></option>
-		    <?php } ?>
-		    </select>
     </div>
 
     <?php
