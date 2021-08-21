@@ -123,8 +123,42 @@ if(isset($_GET['ticket_id'])){
       <div class="form-group">
         <textarea class="form-control summernote" name="ticket_update"></textarea>
       </div>
-      <button type="submit" name="add_ticket_update" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save</button>
-       
+      <div class="form-row">
+        <div class="col-md-3">
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+              </div>
+              <select class="form-control select2" name="status" required>
+                <option <?php if($ticket_stataus == 'Open'){ echo "selected"; } ?> >Open</option>
+                <option <?php if($ticket_stataus == 'Working'){ echo "selected"; } ?> >Working</option>
+                <option <?php if($ticket_status == 'On Hold'){ echo "selected"; } ?> >On Hold</option>
+                <option <?php if($ticket_status == 'Closed'){ echo "selected"; } ?> >Closed</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
+
+        <div class="col-md-2">
+          <div class="form-group">
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_ticket_update" value="1" checked>
+              <label class="custom-control-label" for="customControlAutosizing">Email update to client</label>
+            </div>
+          </div>
+        </div>
+
+        <?php } ?>
+        
+        <div class="col-md-1">
+          <button type="submit" name="add_ticket_update" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save</button>
+        </div>
+
+      </div>
+    
     </form>
 
     <?php

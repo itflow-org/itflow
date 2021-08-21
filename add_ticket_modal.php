@@ -84,9 +84,19 @@
               <input type="text" class="form-control" name="subject" placeholder="Subject" required>
             </div>
           </div>
+
+          <?php if(!empty($config_smtp_host)){ ?>
+
+          <div class="form-group">
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_ticket_updates" value="1" checked>
+              <label class="custom-control-label" for="customControlAutosizing">Email ticket updates <span class="text-secondary"><?php echo $client_email; ?></span></label>
+            </div>
+          </div>
+
+          <?php } ?>
           
           <div class="form-group">
-            <label>Details <strong class="text-danger">*</strong></label>
             <textarea class="form-control summernote" rows="8" name="details"></textarea>
           </div>
 
