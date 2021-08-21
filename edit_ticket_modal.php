@@ -71,6 +71,30 @@
           <?php } ?>
 
           <div class="form-group">
+            <label>Client Contact</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+              </div>
+              <select class="form-control select2" name="contact">
+                <option value="">No One</option>
+                <?php 
+                
+                $sql_client_contacts_select = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_name ASC");
+                while($row = mysqli_fetch_array($sql_client_contacts_select)){
+                  $contact_id_select = $row['contact_id'];
+                  $contact_name_select = $row['contact_name'];
+                ?>
+                <option <?php if($contact_id_select == $contact_id){ echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
+                
+                <?php
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
             <textarea class="form-control summernote" rows="8" name="details" required><?php echo $ticket_details; ?></textarea>
           </div>
 

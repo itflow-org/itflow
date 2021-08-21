@@ -64,6 +64,25 @@ if(isset($_GET['ticket_id'])){
     $ticket_priority_display = "-";
   }
 
+  $contact_id = $row['contact_id'];
+  if(!empty($contact_id)){
+    $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql_contact);
+    $contact_name = $row['contact_name'];
+    $contact_title = $row['contact_title'];
+    $contact_email = $row['contact_email'];
+    $contact_phone = $row['contact_phone'];
+    $contact_extension = $row['contact_extension'];
+    $contact_mobile = $row['contact_mobile'];
+    $location_id = $row['location_id'];
+    if(!empty($location_id)){
+      $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_id = $location_id");
+      $row = mysqli_fetch_array($sql_location);
+      $location_name = $row['location_name'];
+    }
+  }
+
+
   $ticket_assigned_to = $row['ticket_assigned_to'];
   if(empty($ticket_assigned_to)){
     $ticket_assigned_to_display = "<span class='text-danger'>Not Assigned</span>";
@@ -131,8 +150,8 @@ if(isset($_GET['ticket_id'])){
                 <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
               </div>
               <select class="form-control select2" name="status" required>
-                <option <?php if($ticket_stataus == 'Open'){ echo "selected"; } ?> >Open</option>
-                <option <?php if($ticket_stataus == 'Working'){ echo "selected"; } ?> >Working</option>
+                <option <?php if($ticket_status == 'Open'){ echo "selected"; } ?> >Open</option>
+                <option <?php if($ticket_status == 'Working'){ echo "selected"; } ?> >Working</option>
                 <option <?php if($ticket_status == 'On Hold'){ echo "selected"; } ?> >On Hold</option>
                 <option <?php if($ticket_status == 'Closed'){ echo "selected"; } ?> >Closed</option>
               </select>
@@ -222,6 +241,52 @@ if(isset($_GET['ticket_id'])){
         </div>
       </div>
     </div>
+
+    <?php if(!empty($contact_id)){ ?>
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <div>  
+          <h4 class="text-secondary">Contact</h4>
+          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <?php echo $contact_name; ?>
+          <br>
+          <?php
+          if(!empty($location_name)){
+          ?>
+          <i class="fa fa-fw fa-map-marker-alt text-secondary ml-1 mr-2 mb-2"></i> <?php echo $location_name; ?>
+          <br>
+          <?php
+          }
+          ?>
+          <?php
+          if(!empty($contact_email)){
+          ?>
+          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i> <a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a>
+          <br>
+          <?php
+          }
+          ?>
+          <?php
+          if(!empty($contact_phone)){
+          ?>
+          <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <?php echo $contact_phone; ?>
+          <br>
+          <?php 
+          } 
+          ?>
+          <?php
+          if(!empty($contact_mobile)){
+          ?>
+          <i class="fa fa-fw fa-mobile text-secondary ml-1 mr-2 mb-2"></i> <?php echo $contact_mobile; ?>
+          <br>
+          <?php 
+          } 
+          ?>
+        </div>
+      </div>
+    </div>
+
+    <?php } ?>
 
     <div class="card card-body mb-3"> 
       <h4 class="text-secondary">Details</h4>
