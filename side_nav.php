@@ -6,17 +6,22 @@
 
     <!-- Sidebar Menu -->
     <nav class="mt-3">
+      <?php
+      $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id IN ($session_permission_companies)");
+      
+      if(mysqli_num_rows($sql) > 1){ 
+
+      ?>
 
       <div class="dropdown mb-4 ml-3">
         <a class="" href="#" data-toggle="dropdown">
-          <h3><?php echo $session_company_name; ?> <small><i class="fa fa-caret-down"></i></small></h3>
+          <h3 class="text-light"><?php echo $session_company_name; ?> <small><i class="fa fa-caret-down"></i></small></h3>
         </a>
 
         <ul class="dropdown-menu">
           
           <?php
           
-          $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id IN ($session_permission_companies)");
           while($row = mysqli_fetch_array($sql)){
 
             $company_id = $row['company_id'];
@@ -34,6 +39,12 @@
 
         </ul>
       </div>
+
+      <?php }else{ ?>
+
+        <h3 class="mb-4 ml-3 text-light"><?php echo $session_company_name; ?></h3>
+
+      <?php } ?>
 
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
 
