@@ -156,7 +156,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=client_name&order=<?php echo $order_display; ?>">Name <i class="fa fa-sort-alpha<?php if($oder_display=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
             <th>Address</th>
             <th>Contact</th>
-            <th class="text-right">Balance</th>
+            <th class="text-right">Billing</th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -268,7 +268,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               }
               ?>
             </td>
-            <td class="text-right <?php echo $balance_text_color; ?>">$<?php echo number_format($balance,2); ?></td>
+            <td class="text-right <?php echo $balance_text_color; ?>">
+              Balance: $<?php echo number_format($balance,2); ?>
+              <br>
+              Paid: $<?php echo number_format($amount_paid,2); ?>
+            </td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
