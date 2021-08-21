@@ -26,7 +26,7 @@ if(isset($_GET['switch_company'])){
     $_SESSION['alert_type'] = "info";
     $_SESSION['alert_message'] = "Switched Companies!";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: dashboard.php");
   
 }
 
