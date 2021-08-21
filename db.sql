@@ -232,7 +232,6 @@ CREATE TABLE `contacts` (
   `contact_billing` tinyint(1) DEFAULT NULL,
   `contact_photo` varchar(200) DEFAULT NULL,
   `contact_notes` text DEFAULT NULL,
-  `contact_inactive` tinyint(1) NOT NULL DEFAULT 0,
   `contact_created_at` datetime NOT NULL,
   `contact_updated_at` datetime DEFAULT NULL,
   `contact_archived_at` datetime DEFAULT NULL,
@@ -1030,4 +1029,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-08-20 22:36:13
+-- Dump completed on 2021-08-21  2:32:38
