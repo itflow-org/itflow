@@ -1067,10 +1067,10 @@ if(isset($_POST['add_ticket_update'])){
     $ticket_id = intval($_POST['ticket_id']);
     $ticket_update = trim(mysqli_real_escape_string($mysqli,$_POST['ticket_update']));
 
-    mysqli_query($mysqli,"INSERT INTO ticket_updates SET ticket_update = '$ticket_update', ticket_update_created_at = NOW(), user_id = $session_user_id, ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"INSERT INTO ticket_updates SET ticket_update = '$ticket_update', ticket_update_created_at = NOW(), ticket_update_by = $session_user_id, ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update', log_action = 'Created', log_description = '$ticket_id', log_created_at = NOW(), company_id = $session_company_id, user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update', log_action = 'Created', log_description = '$ticket_id', log_created_at = NOW(), company_id = $session_company_id, ticket_update_by = $session_user_id");
 
     $_SESSION['alert_message'] = "Posted an update";
     

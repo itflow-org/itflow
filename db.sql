@@ -865,7 +865,7 @@ CREATE TABLE `ticket_updates` (
   `ticket_update_created_at` datetime NOT NULL,
   `ticket_update_updated_at` datetime DEFAULT NULL,
   `ticket_update_archived_at` datetime DEFAULT NULL,
-  `user_id` int(11) NOT NULL,
+  `ticket_update_by` int(11) NOT NULL,
   `ticket_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`ticket_update_id`)
@@ -1030,4 +1030,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-08-19 12:24:33
+-- Dump completed on 2021-08-20 22:36:13

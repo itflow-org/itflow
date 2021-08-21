@@ -134,15 +134,18 @@ if(isset($_GET['ticket_id'])){
         $ticket_update_id = $row['ticket_update_id'];
         $ticket_update = $row['ticket_update'];
         $ticket_update_created_at = $row['ticket_update_created_at'];
-        $user_id = $row['user_id'];
+        $ticket_update_by = $row['ticket_update_by'];
 
+        $sql_update_by = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $ticket_update_by");
+        $row = mysqli_fetch_array($sql_update_by);
+        $ticket_update_by_display = $row['name'];
     ?>
 
     <div class="card mb-3">
       <div class="card-body">
         <p><?php echo $ticket_update; ?></p>
       </div>
-      <div class="card-footer"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_update_created_at; ?></div>
+      <div class="card-footer"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_update_created_at; ?> <i class="fa fa-fw fa-user"></i> <?php echo $ticket_update_by_display; ?></div>
     </div>
 
     <?php
@@ -190,7 +193,7 @@ if(isset($_GET['ticket_id'])){
     <?php
     if($ticket_status !== "Closed"){
     ?>
-      <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block">Close Ticket</a>
+      <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">Close Ticket</a>
     <?php
     }
     ?>
