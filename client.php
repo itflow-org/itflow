@@ -201,7 +201,7 @@ if(isset($_GET['client_id'])){
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
+            <a class="dropdown-item text-danger" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
           </div>
         </div>
       </div>

@@ -118,7 +118,7 @@ if(isset($_GET['ticket_id'])){
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
+        <a class="dropdown-item text-danger" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
       </div>
     </div>
   </div>
@@ -176,6 +176,16 @@ if(isset($_GET['ticket_id'])){
           <button type="submit" name="add_ticket_update" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save</button>
         </div>
 
+        <?php
+        if($ticket_status !== "Closed"){
+        ?>
+          <div class="col-md-2">
+            <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">Close Ticket</a>
+          </div>
+        <?php
+        }
+        ?>
+
       </div>
     
     </form>
@@ -195,10 +205,14 @@ if(isset($_GET['ticket_id'])){
     ?>
 
     <div class="card mb-3">
+      <div class="card-header"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_update_created_at; ?> <i class="fa fa-fw fa-user"></i> <?php echo $ticket_update_by_display; ?>
+        <a href="#" data-toggle="modal" data-target="#editTicketUpdateModal<?php echo $ticket_update_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i></a>
+        <a href="post.php?archive_ticket_update=<?php echo $ticket_update_id; ?>"><i class="fas fa-fw fa-trash text-danger"></i></a>
+      </div>
       <div class="card-body">
         <p><?php echo $ticket_update; ?></p>
       </div>
-      <div class="card-footer"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_update_created_at; ?> <i class="fa fa-fw fa-user"></i> <?php echo $ticket_update_by_display; ?> 
+      <div class="card-footer"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_update_created_at; ?> <i class="fa fa-fw fa-user"></i> <?php echo $ticket_update_by_display; ?>
         <a href="#" data-toggle="modal" data-target="#editTicketUpdateModal<?php echo $ticket_update_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i></a>
         <a href="post.php?archive_ticket_update=<?php echo $ticket_update_id; ?>"><i class="fas fa-fw fa-trash text-danger"></i></a>
       </div>
@@ -294,14 +308,6 @@ if(isset($_GET['ticket_id'])){
       <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $ticket_assigned_to_display; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_at; ?></div>
     </div>
-
-    <?php
-    if($ticket_status !== "Closed"){
-    ?>
-      <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">Close Ticket</a>
-    <?php
-    }
-    ?>
 
   </div>
 

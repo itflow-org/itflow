@@ -107,7 +107,7 @@ if(isset($_GET['recurring_id'])){
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="post.php?force_recurring=<?php echo $recurring_id; ?>">Force Send</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">Delete</a>
+            <a class="dropdown-item text-danger" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">Delete</a>
           </div>
         </div>
       </div>

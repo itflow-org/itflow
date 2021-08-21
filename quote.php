@@ -142,7 +142,7 @@ if(isset($_GET['quote_id'])){
             <?php } ?>
             <a class="dropdown-item" target="_blank" href="guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">Guest URL</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">Delete</a>
+            <a class="dropdown-item text-danger" href="#">Delete</a>
           </div>
         </div>
       </div>
