@@ -198,6 +198,7 @@ if(isset($_GET['client_id'])){
           </button>
           <div class="dropdown-menu">
             <a class="dropdown-item" href="client_print.php?client_id=<?php echo $client_id; ?>">Print</a>
+            <a class="dropdown-item" href="post.php?export_client_csv=<?php echo $client_id; ?>">Export</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
             <div class="dropdown-divider"></div>

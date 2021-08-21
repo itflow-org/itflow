@@ -4002,4 +4002,88 @@ if(isset($_GET['export_trips_csv'])){
   
 }
 
+if(isset($_GET['export_client_contacts_csv'])){
+    $client_id = intval($_GET['export_client_contacts_csv']);
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+
+    $client_name = $row['client_name'];
+    
+    //Contacts
+    $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_name ASC");
+    if($sql->num_rows > 0){
+        $delimiter = ",";
+        $filename = $client_name . "-Contacts-" . date('Y-m-d') . ".csv";
+        
+        //create a file pointer
+        $f = fopen('php://memory', 'w');
+        
+        //set column headers
+        $fields = array('Name', 'Title', 'Email', 'Phone', 'Mobile');
+        fputcsv($f, $fields, $delimiter);
+        
+        //output each row of the data, format line as csv and write to file pointer
+        while($row = $sql->fetch_assoc()){
+            $lineData = array($row['contact_name'], $row['contact_title'], $row['contact_email'], $row['contact_phone'], $row['contact_mobile']);
+            fputcsv($f, $lineData, $delimiter);
+        }
+        
+        //move back to beginning of file
+        fseek($f, 0);
+        
+        //set headers to download file rather than displayed
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+        
+        //output all remaining data on a file pointer
+        fpassthru($f);
+    }
+    exit;
+  
+}
+
+if(isset($_GET['export_client_locations_csv'])){
+    $client_id = intval($_GET['export_client_locations_csv']);
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+
+    $client_name = $row['client_name'];
+    
+    //Locations
+    $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE client_id = $client_id ORDER BY location_name ASC");
+    if($sql->num_rows > 0){
+        $delimiter = ",";
+        $filename = $client_name . "-Locations-" . date('Y-m-d') . ".csv";
+        
+        //create a file pointer
+        $f = fopen('php://memory', 'w');
+        
+        //set column headers
+        $fields = array('Name', 'Address', 'City', 'State', 'Postal Code', 'Phone');
+        fputcsv($f, $fields, $delimiter);
+        
+        //output each row of the data, format line as csv and write to file pointer
+        while($row = $sql->fetch_assoc()){
+            $lineData = array($row['location_name'], $row['location_address'], $row['location_city'], $row['location_state'], $row['location_zip'], $row['location_phone']);
+            fputcsv($f, $lineData, $delimiter);
+        }
+        
+        //move back to beginning of file
+        fseek($f, 0);
+        
+        //set headers to download file rather than displayed
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+        
+        //output all remaining data on a file pointer
+        fpassthru($f);
+    }
+    exit;
+  
+}
+
 ?>
