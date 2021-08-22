@@ -4643,6 +4643,7 @@ if(isset($_GET['export_client_pdf'])){
     $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE client_id = $client_id ORDER BY asset_type ASC");
     $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE client_id = $client_id ORDER BY network_name ASC");
     $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE client_id = $client_id ORDER BY domain_name ASC");
+    $sql_certficates = mysqli_query($mysqli,"SELECT * FROM certificates WHERE client_id = $client_id ORDER BY certificate_name ASC");
     $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE client_id = $client_id ORDER BY software_name ASC");
 
 ?>
@@ -5132,6 +5133,69 @@ if(isset($_GET['export_client_pdf'])){
             },
             //Assets END
 
+            //Software Start
+            { 
+                text: 'Software', 
+                style: 'title'
+            },
+
+            {
+                table: {
+                    body: [
+                        [
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Type', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'License', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Notes', 
+                                style: 'itemHeader' 
+                            }
+                        ],
+                        
+                        <?php
+                        while($row = mysqli_fetch_array($sql_software)){
+                            $software_name = $row['software_name'];
+                            $software_type = $row['software_type'];
+                            $software_license = $row['software_license'];
+                            $software_notes = $row['software_notes'];
+                        ?>
+
+                        [ 
+                            {
+                                text: <?php echo json_encode($software_name); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($software_type); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($software_license); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($software_notes); ?>,
+                                style: 'item'
+                            }
+                        ],
+
+                        <?php
+                        }
+                        ?>
+                    ]
+                }
+            },
+            //Software END
+
             //Networks Start
             { 
                 text: 'Networks', 
@@ -5204,6 +5268,114 @@ if(isset($_GET['export_client_pdf'])){
             },
             //Networks END
 
+            //Domains Start
+            { 
+                text: 'Domains', 
+                style: 'title'
+            },
+
+            {
+                table: {
+                    body: [
+                        [
+                            { 
+                                text: 'Domain Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Expire', 
+                                style: 'itemHeader' 
+                            }
+                        ],
+                        
+                        <?php
+                        while($row = mysqli_fetch_array($sql_domains)){
+                            $domain_name = $row['domain_name'];
+                            $domain_expire = $row['domain_expire'];
+                        ?>
+
+                        [ 
+                            {
+                                text: <?php echo json_encode($domain_name); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($domain_expire); ?>,
+                                style: 'item'
+                            }
+                        ],
+
+                        <?php
+                        }
+                        ?>
+                    ]
+                }
+            },
+            //Domains END
+
+            //Certificates Start
+            { 
+                text: 'Certificates', 
+                style: 'title'
+            },
+
+            {
+                table: {
+                    body: [
+                        [
+                            { 
+                                text: 'Certificate Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Domain Name', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Issuer', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Expiration Date', 
+                                style: 'itemHeader' 
+                            }
+                        ],
+                        
+                        <?php
+                        while($row = mysqli_fetch_array($sql_certficates)){
+                            $certificate_name = $row['certificate_name'];
+                            $certificate_domain = $row['certificate_domain'];
+                            $certificate_issued_by = $row['certificate_issued_by'];
+                            $certificate_expire = $row['certificate_expire'];
+                        ?>
+
+                        [ 
+                            {
+                                text: <?php echo json_encode($certificate_name); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($certificate_domain); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($certificate_issued_by); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($certificate_expire); ?>,
+                                style: 'item'
+                            }
+                        ],
+
+                        <?php
+                        }
+                        ?>
+                    ]
+                }
+            },
+            //Certificates END
+
 
 
         ], //End Content,
@@ -5217,13 +5389,13 @@ if(isset($_GET['export_client_pdf'])){
             //Item Header
             itemHeader: {
                 fontSize: 9,
-                margin: [0,5,0,5],
+                margin: [0,2,0,2],
                 bold: true
             },
             //item
             item: {
                 fontSize: 9,
-                margin: [0,5,0,5]
+                margin: [0,2,0,2]
             }
         }
     };

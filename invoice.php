@@ -528,7 +528,7 @@ var docDefinition = {
 						width: '*'
 					},
 					{
-						text: '<?php echo "$invoice_prefix$invoice_number"; ?>', 
+						text: <?php echo json_encode("$invoice_prefix$invoice_number"); ?>, 
 						style: 'invoiceNumber',
 						width: '*'
 					},
@@ -586,7 +586,7 @@ var docDefinition = {
 							style:'invoiceDateTitle',
 						}, 
 						{
-							text:'<?php echo $invoice_date ?>',
+							text:<?php echo json_encode($invoice_date); ?>,
 							style:'invoiceDateValue',
 						},
 		      ],
@@ -597,7 +597,7 @@ var docDefinition = {
 							style:'invoiceDateTitle',
 						}, 
 						{
-							text:'<?php echo $invoice_due ?>',
+							text:<?php echo json_encode($invoice_due); ?>,
 							style:'invoiceDateValue',
 						},
 		      ],
