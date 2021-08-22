@@ -387,7 +387,6 @@ if(isset($_GET['client_id'])){
     while($row = mysqli_fetch_array($sql_logins)){
       $login_id = $row['login_id'];
       $login_name = $row['login_name'];
-      $login_category = $row['login_category'];
       $login_username = $row['login_username'];
       $login_password = $row['login_password'];
       $login_uri = $row['login_uri'];

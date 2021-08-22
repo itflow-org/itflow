@@ -4620,4 +4620,622 @@ if(isset($_GET['export_client_trips_csv'])){
   
 }
 
+if(isset($_GET['export_client_pdf'])){
+    $client_id = intval($_GET['export_client_pdf']);
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+
+    $client_name = $row['client_name'];
+    $client_address = $row['client_address'];
+    $client_city = $row['client_city'];
+    $client_state = $row['client_state'];
+    $client_zip = $row['client_zip'];
+    $client_phone = $row['client_phone'];
+    $client_email = $row['client_email'];
+    $client_website = $row['client_website'];
+
+    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_name ASC");
+    $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE client_id = $client_id ORDER BY location_name ASC");
+    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id ORDER BY vendor_name ASC");
+    $sql_logins = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE client_id = $client_id ORDER BY login_name ASC");
+    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE client_id = $client_id ORDER BY asset_type ASC");
+    $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE client_id = $client_id ORDER BY network_name ASC");
+    $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE client_id = $client_id ORDER BY domain_name ASC");
+    $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE client_id = $client_id ORDER BY software_name ASC");
+
+?>
+
+    <script src='plugins/pdfmake/pdfmake.js'></script>
+    <script src='plugins/pdfmake/vfs_fonts.js'></script>
+    <script>
+
+    var docDefinition = {
+        info: {
+            title: '<?php echo $client_name; ?>- IT Documentation',
+            author: <?php echo json_encode($company_name); ?>
+        },
+        footer: {
+            columns: [
+                { 
+                    text: <?php echo json_encode($client_name); ?>,
+                    style: 'documentFooterCenter' 
+                },
+            ]
+        },
+
+        content: [
+            { 
+                text: <?php echo json_encode($client_name); ?>, 
+                style: 'title' 
+            },
+
+            {
+                //layout: 'lightHorizontalLines', // optional
+                table: {
+                    body: [
+                        [
+                            {
+                                text: 'Address',
+                                style: 'itemHeader'
+                            }, 
+                            {
+                                text: <?php echo json_encode($client_address); ?>,
+                                style: 'item'
+                            }
+                        ],
+                        [ 
+                            { 
+                                text: 'City State Zip',
+                                style: 'itemHeader'
+                            }, 
+                            {
+                                text: <?php echo json_encode("$client_city $client_state $client_zip"); ?>,
+                                style: 'item'
+                            }
+                        ],
+                        [ 
+                            { 
+                                text: 'Phone',
+                                style: 'itemHeader'
+                            }, 
+                            {
+                                text: <?php echo json_encode($client_phone); ?>,
+                                style: 'item'
+                            }
+                        ],
+                        [ 
+                            {
+                                text: 'Website',
+                                style: 'itemHeader' 
+                            }, 
+                            {
+                                text: <?php echo json_encode($client_website); ?>, 
+                                style: 'item'
+                            }
+                        ],
+                        [ 
+                            { 
+                                text: 'Email',
+                                style: 'itemHeader'
+                            },
+                            {
+                                text: <?php echo json_encode($client_email); ?>,
+                                style: 'item'
+                            }
+                        ]  
+                    ]
+                }
+            },
+
+            //Contacts Start
+            { 
+                text: 'Contacts', 
+                style: 'title'
+            },
+
+            {
+                table: {
+                // headers are automatically repeated if the table spans over multiple pages
+                // you can declare how many rows should be treated as headers
+                    body: [
+                        [
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Title', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Email', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Phone', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Mobile',
+                                style: 'itemHeader' 
+                            }
+                        ],
+                        
+                        <?php
+                        $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_name ASC");
+                        while($row = mysqli_fetch_array($sql_contacts)){
+                            $contact_name = $row['contact_name'];
+                            $contact_title = $row['contact_title'];
+                            $contact_phone = $row['contact_phone'];
+                            if(strlen($contact_phone)>2){ 
+                              $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
+                            }
+                            $contact_extension = $row['contact_extension'];
+                            if(!empty($contact_extension)){
+                              $contact_extension = "x$contact_extension";
+                            }
+                            $contact_mobile = $row['contact_mobile'];
+                            if(strlen($contact_mobile)>2){ 
+                              $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
+                            }
+                            $contact_email = $row['contact_email'];
+                        ?>
+
+                        [ 
+                            {
+                                text: <?php echo json_encode($contact_name); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($contact_title); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($contact_email); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($contact_phone); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($contact_mobile); ?>,
+                                style: 'item'
+                            }  
+                        ],
+
+                        <?php
+                        }
+                        ?>
+                    ]
+                }
+            },
+            //Contact END
+
+            //Locations Start
+            { 
+                text: 'Locations', 
+                style: 'title'
+            },
+
+            {
+                table: {
+                    body: [
+                        [
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Address', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Phone', 
+                                style: 'itemHeader' 
+                            }
+                        ],
+                        
+                        <?php
+                        while($row = mysqli_fetch_array($sql_locations)){
+                          $location_name = $row['location_name'];
+                          $location_address = $row['location_address'];
+                          $location_city = $row['location_city'];
+                          $location_state = $row['location_state'];
+                          $location_zip = $row['location_zip'];
+                          $location_phone = $row['location_phone'];
+                          if(strlen($location_phone)>2){ 
+                            $location_phone = substr($row['location_phone'],0,3)."-".substr($row['location_phone'],3,3)."-".substr($row['location_phone'],6,4);
+                          }
+                        ?>
+
+                        [ 
+                            {
+                                text: <?php echo json_encode($location_name); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode("$location_address $location_city $location_state $location_zip"); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($location_phone); ?>,
+                                style: 'item'
+                            }
+                        ],
+
+                        <?php
+                        }
+                        ?>
+                    ]
+                }
+            },
+            //Locations END
+
+            //Vendors Start
+            { 
+                text: 'Vendors', 
+                style: 'title'
+            },
+
+            {
+                table: {
+                    body: [
+                        [
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Description', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Phone', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Website', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Account Number', 
+                                style: 'itemHeader' 
+                            }
+                        ],
+                        
+                        <?php
+                        while($row = mysqli_fetch_array($sql_vendors)){
+                          $vendor_name = $row['vendor_name'];
+                          $vendor_description = $row['vendor_description'];
+                          $vendor_account_number = $row['vendor_account_number'];
+                          $vendor_contact_name = $row['vendor_contact_name'];
+                          $vendor_phone = $row['vendor_phone'];
+                          if(strlen($vendor_phone)>2){ 
+                            $vendor_phone = substr($row['vendor_phone'],0,3)."-".substr($row['vendor_phone'],3,3)."-".substr($row['vendor_phone'],6,4);
+                          }
+                          $vendor_email = $row['vendor_email'];
+                          $vendor_website = $row['vendor_website'];
+                        ?>
+
+                        [ 
+                            {
+                                text: <?php echo json_encode($vendor_name); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($vendor_description); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($vendor_phone); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($vendor_website); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($vendor_account_number); ?>,
+                                style: 'item'
+                            }
+                        ],
+
+                        <?php
+                        }
+                        ?>
+                    ]
+                }
+            },
+            //Vendors END
+
+            //Logins Start
+            { 
+                text: 'Logins', 
+                style: 'title'
+            },
+
+            {
+                table: {
+                    body: [
+                        [
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Username', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Password', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'URL', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Notes', 
+                                style: 'itemHeader' 
+                            }
+                        ],
+                        
+                        <?php
+                        while($row = mysqli_fetch_array($sql_logins)){
+                            $login_name = $row['login_name'];
+                            $login_username = $row['login_username'];
+                            $login_password = $row['login_password'];
+                            $login_uri = $row['login_uri'];
+                            $login_note = $row['login_note'];
+                        ?>
+
+                        [ 
+                            {
+                                text: <?php echo json_encode($login_name); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($login_username); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($login_password); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($login_uri); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($login_note); ?>,
+                                style: 'item'
+                            }
+                        ],
+
+                        <?php
+                        }
+                        ?>
+                    ]
+                }
+            },
+            //Logins END
+
+            //Assets Start
+            { 
+                text: 'Assets', 
+                style: 'title'
+            },
+
+            {
+                table: {
+                    body: [
+                        [
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Type', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Model', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'OS', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Serial', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'IP', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'MAC', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Purchase Date', 
+                                style: 'itemHeader'
+                            },
+                            { 
+                                text: 'Warranty Expire', 
+                                style: 'itemHeader'
+                            }
+                        ],
+                        
+                        <?php
+                        while($row = mysqli_fetch_array($sql_assets)){
+                            $asset_type = $row['asset_type'];
+                            $asset_name = $row['asset_name'];
+                            $asset_make = $row['asset_make'];
+                            $asset_model = $row['asset_model'];
+                            $asset_serial = $row['asset_serial'];
+                            $asset_os = $row['asset_os'];
+                            $asset_ip = $row['asset_ip'];
+                            $asset_mac = $row['asset_mac'];
+                            $asset_purchase_date = $row['asset_purchase_date'];
+                            $asset_warranty_expire = $row['asset_warranty_expire'];
+                        ?>
+
+                        [ 
+                            {
+                                text: <?php echo json_encode($asset_name); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_type); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode("$asset_make $asset_model"); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_os); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_serial); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_ip); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_mac); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_purchase_date); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_warranty_expire); ?>,
+                                style: 'item'
+                            }
+                        ],
+
+                        <?php
+                        }
+                        ?>
+                    ]
+                }
+            },
+            //Assets END
+
+            //Networks Start
+            { 
+                text: 'Networks', 
+                style: 'title'
+            },
+
+            {
+                table: {
+                    body: [
+                        [
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'vLAN', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Network Subnet', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Gateway', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'DHCP Range', 
+                                style: 'itemHeader' 
+                            }
+                        ],
+                        
+                        <?php
+                        while($row = mysqli_fetch_array($sql_networks)){
+                            $network_name = $row['network_name'];
+                            $network_vlan = $row['network_vlan'];
+                            $network = $row['network'];
+                            $network_gateway = $row['network_gateway'];
+                            $network_dhcp_range = $row['network_dhcp_range'];
+                        ?>
+
+                        [ 
+                            {
+                                text: <?php echo json_encode($network_name); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($network_vlan); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($network); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($network_gateway); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($network_dhcp_range); ?>,
+                                style: 'item'
+                            }
+                        ],
+
+                        <?php
+                        }
+                        ?>
+                    ]
+                }
+            },
+            //Networks END
+
+
+
+        ], //End Content,
+        styles: {
+            //Title
+            title: {
+                fontSize: 15,
+                margin: [0,20,0,5],
+                bold: true
+            },
+            //Item Header
+            itemHeader: {
+                fontSize: 9,
+                margin: [0,5,0,5],
+                bold: true
+            },
+            //item
+            item: {
+                fontSize: 9,
+                margin: [0,5,0,5]
+            }
+        }
+    };
+    
+
+    pdfMake.createPdf(docDefinition).download('<?php echo $client_name; ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>.pdf');
+
+    </script>
+
+
+<?php
+
+}
+
 ?>
