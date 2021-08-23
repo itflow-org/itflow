@@ -224,13 +224,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           ?>
           <tr>
             <td>
-              <a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a>
+              <i class="fas fa-handshake <?php if($client_support == 'Maintenance'){ echo "text-success"; }else{ echo "text-danger"; } ?> fa-fw"></i> <strong><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a></strong>
+              <?php
+              if(!empty($client_type)){
+              ?>
               <br>
               <small class="text-secondary"><?php echo $client_type; ?></small>
+              <?php } ?>
               <br>
-              <small class="text-secondary"><i class="fas fa-handshake fa-fw"></i> <b>SUPPORT: </b><span style="color:<?php echo ($client_support == "Maintenance" ? "green" : "red");?>;"><?php echo $client_support;?></span></small>
-              <br>
-              <small class="text-secondary"><b>Contract started: </b><?php echo $client_created_at; ?></small>
+              <small class="text-secondary"><b>Added:</b> <?php echo $client_created_at; ?></small>
             </td>
             <td><?php echo $client_address_display; ?></td>
             <td>
@@ -268,8 +270,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               }
               ?>
             </td>
-            <td class="text-right <?php echo $balance_text_color; ?>">
-              Balance: $<?php echo number_format($balance,2); ?>
+            <td class="text-right">
+              Balance: <span class="<?php echo $balance_text_color; ?>">$<?php echo number_format($balance,2); ?></span>
               <br>
               Paid: $<?php echo number_format($amount_paid,2); ?>
             </td>

@@ -4666,6 +4666,8 @@ if(isset($_GET['export_client_pdf'])){
             ]
         },
 
+        pageMargins: [ 15, 15, 15, 15 ],
+
         content: [
             { 
                 text: <?php echo json_encode($client_name); ?>, 
@@ -4674,6 +4676,7 @@ if(isset($_GET['export_client_pdf'])){
 
             {
                 //layout: 'lightHorizontalLines', // optional
+                layout: 'lightHorizontalLines',
                 table: {
                     body: [
                         [
@@ -5069,6 +5072,10 @@ if(isset($_GET['export_client_pdf'])){
                             { 
                                 text: 'Warranty Expire', 
                                 style: 'itemHeader'
+                            },
+                            { 
+                                text: 'Notes', 
+                                style: 'itemHeader'
                             }
                         ],
                         
@@ -5084,6 +5091,7 @@ if(isset($_GET['export_client_pdf'])){
                             $asset_mac = $row['asset_mac'];
                             $asset_purchase_date = $row['asset_purchase_date'];
                             $asset_warranty_expire = $row['asset_warranty_expire'];
+                            $asset_notes = $row['asset_notes'];
                         ?>
 
                         [ 
@@ -5121,6 +5129,10 @@ if(isset($_GET['export_client_pdf'])){
                             },
                             {
                                 text: <?php echo json_encode($asset_warranty_expire); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_notes); ?>,
                                 style: 'item'
                             }
                         ],
@@ -5389,13 +5401,13 @@ if(isset($_GET['export_client_pdf'])){
             //Item Header
             itemHeader: {
                 fontSize: 9,
-                margin: [0,2,0,2],
+                margin: [0,1,0,1],
                 bold: true
             },
             //item
             item: {
                 fontSize: 9,
-                margin: [0,2,0,2]
+                margin: [0,1,0,1]
             }
         }
     };
