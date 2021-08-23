@@ -178,11 +178,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $client_address_display = "$client_address<br>$client_city $client_state $client_zip";
             }
             $client_contact = $row['client_contact'];
-            if(empty($client_contact)){
-              $client_contact_display = "-";
-            }else{
-              $client_contact_display = $client_contact;
-            }
             $client_phone = $row['client_phone'];
             if(strlen($client_phone)>2){ 
               $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
@@ -224,7 +219,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           ?>
           <tr>
             <td>
-              <i class="fas fa-handshake <?php if($client_support == 'Maintenance'){ echo "text-success"; }else{ echo "text-danger"; } ?> fa-fw"></i> <strong><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a></strong>
+              <i class="fas fa-fw fa-handshake <?php if($client_support == 'Maintenance'){ echo "text-success"; }else{ echo "text-danger"; } ?> fa-fw"></i> <strong><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a></strong>
               <?php
               if(!empty($client_type)){
               ?>
@@ -236,6 +231,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             </td>
             <td><?php echo $client_address_display; ?></td>
             <td>
+              <?php 
+              if(empty($client_contact) AND empty($client_phone) AND empty($client_mobile) AND empty($client_email)){
+                echo "-";
+              }
+              ?>
               <?php
               if(!empty($client_contact)){
               ?>
@@ -243,7 +243,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <br>
               <?php
               }else{
-                echo $client_contact_display;
+                echo $client_contact;
               }
               ?>
               <?php
