@@ -82,13 +82,13 @@ if($_GET['canned_date'] == "custom" AND !empty($_GET['date_from'])){
 //Rebuild URL
 $url_query_strings_sortby = http_build_query(array_merge($_GET,array('sortby' => $sortby, 'order' => $order)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients 
-  WHERE (client_name LIKE '%$query%' OR client_type LIKE '%$query%' OR client_support LIKE '%$query%' OR client_email LIKE '%$query%' OR client_contact LIKE '%$query%' OR client_phone LIKE '%$query%' 
-  OR client_mobile LIKE '%$query%' OR client_address LIKE '%$query%' OR client_city LIKE '%$query%' OR client_state LIKE '%$query%' OR client_zip LIKE '%$query%') 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id LEFT JOIN locations ON clients.primary_location = locations.location_id
+  WHERE (client_name LIKE '%$query%' OR client_type LIKE '%$query%' OR client_support LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_name LIKE '%$query%' OR contact_phone LIKE '%$query%' 
+  OR contact_mobile LIKE '%$query%' OR location_address LIKE '%$query%' OR location_city LIKE '%$query%' OR location_state LIKE '%$query%' OR location_zip LIKE '%$query%') 
   AND DATE(client_created_at) BETWEEN '$date_from' AND '$date_to' 
-  AND company_id = $session_company_id $permission_sql 
+  AND clients.company_id = $session_company_id $permission_sql 
   ORDER BY $sortby $order LIMIT $record_from, $record_to"
-); 
+);
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
@@ -153,9 +153,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <table class="table table-striped table-hover table-borderless">
         <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=client_name&order=<?php echo $order_display; ?>">Name <i class="fa fa-sort-alpha<?php if($oder_display=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
-            <th>Address</th>
-            <th>Contact</th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=client_name&order=<?php echo $order_display; ?>">Name</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=location_city&order=<?php echo $order_display; ?>">Location</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=contact_name&order=<?php echo $order_display; ?>">Contact</a></th>
             <th class="text-right">Billing</th>
             <th class="text-center">Action</th>
           </tr>
@@ -167,27 +167,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
             $client_type = $row['client_type'];
-            $client_country = $row['client_country'];
-            $client_address = $row['client_address'];
-            $client_city = $row['client_city'];
-            $client_state = $row['client_state'];
-            $client_zip = $row['client_zip'];
-            if(empty($client_address)){
-              $client_address_display = "-";
+            $location_country = $row['location_country'];
+            $location_address = $row['location_address'];
+            $location_city = $row['location_city'];
+            $location_state = $row['location_state'];
+            $location_zip = $row['location_zip'];
+            if(empty($location_address) AND empty($location_city) AND empty($location_state) AND empty($location_zip)){
+              $location_address_display = "-";
             }else{
-              $client_address_display = "$client_address<br>$client_city $client_state $client_zip";
+              $location_address_display = "$location_address<br>$location_city $location_state $location_zip";
             }
-            $client_contact = $row['client_contact'];
-            $client_phone = $row['client_phone'];
+            $contact_name = $row['contact_name'];
+            $contact_phone = $row['contact_phone'];
             if(strlen($client_phone)>2){ 
-              $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+              $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
             }
-            $client_extension = $row['client_extension'];
-            $client_mobile = $row['client_mobile'];
-            if(strlen($client_mobile)>2){ 
-              $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
+            $contact_extension = $row['contact_extension'];
+            $contact_mobile = $row['contact_mobile'];
+            if(strlen($contact_mobile)>2){ 
+              $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
             }
-            $client_email = $row['client_email'];
+            $contact_email = $row['contact_email'];
             $client_website = $row['client_website'];
             $client_currency_code = $row['client_currency_code'];
             $client_net_terms = $row['client_net_terms'];
@@ -198,12 +198,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_updated_at = $row['client_updated_at'];
 
             //Add up all the payments for the invoice and get the total amount paid to the invoice
-            $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' ");
+            $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' ");
             $row = mysqli_fetch_array($sql_invoice_amounts);
 
             $invoice_amounts = $row['invoice_amounts'];
 
-            $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.client_id = $client_id");
+            $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
             $row = mysqli_fetch_array($sql_amount_paid);
             
             $amount_paid = $row['amount_paid'];
@@ -229,43 +229,43 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <br>
               <small class="text-secondary"><b>Added:</b> <?php echo $client_created_at; ?></small>
             </td>
-            <td><?php echo $client_address_display; ?></td>
+            <td><?php echo $location_address_display; ?></td>
             <td>
               <?php 
-              if(empty($client_contact) AND empty($client_phone) AND empty($client_mobile) AND empty($client_email)){
+              if(empty($contact_name) AND empty($contact_phone) AND empty($contact_mobile) AND empty($client_email)){
                 echo "-";
               }
               ?>
               <?php
-              if(!empty($client_contact)){
+              if(!empty($contact_name)){
               ?>
-              <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $client_contact; ?>
+              <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $contact_name; ?>
               <br>
               <?php
               }else{
-                echo $client_contact;
+                echo $contact_name;
               }
               ?>
               <?php
-              if(!empty($client_phone)){
+              if(!empty($contact_phone)){
               ?>
-              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $client_phone; ?> <?php if(!empty($client_extension)){ echo "x$client_extension"; } ?>
+              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $contact_phone; ?> <?php if(!empty($contact_extension)){ echo "x$contact_extension"; } ?>
               <br>
               <?php
               }
               ?>
               <?php
-              if(!empty($client_mobile)){
+              if(!empty($contact_mobile)){
               ?>
-              <i class="fa fa-fw fa-mobile-alt text-secondary mr-2 mb-2"></i><?php echo $client_mobile; ?>
+              <i class="fa fa-fw fa-mobile-alt text-secondary mr-2 mb-2"></i><?php echo $contact_mobile; ?>
               <br>
               <?php
               }
               ?>
               <?php
-              if(!empty($client_email)){
+              if(!empty($contact_email)){
               ?>
-              <i class="fa fa-fw fa-envelope text-secondary mr-2 mb-2"></i><a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a>
+              <i class="fa fa-fw fa-envelope text-secondary mr-2 mb-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
               <?php
               }
               ?>

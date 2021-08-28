@@ -6,7 +6,7 @@
 if(isset($_GET['ticket_id'])){
   $ticket_id = intval($_GET['ticket_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM tickets, clients, users WHERE tickets.client_id = clients.client_id AND tickets.ticket_created_by = users.user_id AND ticket_id = $ticket_id AND tickets.company_id = $session_company_id");
+  $sql = mysqli_query($mysqli,"SELECT * FROM tickets LEFT JOIN clients ON ticket_client_id = client_id LEFT JOIN contacts ON ticket_contact_id = contact_id LEFT JOIN users ON ticket_assigned_to = user_id LEFT JOIN locations ON ticket_location_id = location_id WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id");
 
   if(mysqli_num_rows($sql) == 0){
     echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='tickets.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
@@ -19,15 +19,6 @@ if(isset($_GET['ticket_id'])){
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];
   $client_type = $row['client_type'];
-  $client_address = $row['client_address'];
-  $client_city = $row['client_city'];
-  $client_state = $row['client_state'];
-  $client_zip = $row['client_zip'];
-  $client_email = $row['client_email'];
-  $client_phone = $row['client_phone'];
-  if(strlen($client_phone)>2){ 
-    $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
-  }
   $client_website = $row['client_website'];
   $client_net_terms = $row['client_net_terms'];
   if($client_net_terms == 0){
@@ -65,31 +56,27 @@ if(isset($_GET['ticket_id'])){
   }
 
   $contact_id = $row['contact_id'];
-  if(!empty($contact_id)){
-    $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_id = $contact_id");
-    $row = mysqli_fetch_array($sql_contact);
-    $contact_name = $row['contact_name'];
-    $contact_title = $row['contact_title'];
-    $contact_email = $row['contact_email'];
-    $contact_phone = $row['contact_phone'];
-    $contact_extension = $row['contact_extension'];
-    $contact_mobile = $row['contact_mobile'];
-    $location_id = $row['location_id'];
-    if(!empty($location_id)){
-      $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_id = $location_id");
-      $row = mysqli_fetch_array($sql_location);
-      $location_name = $row['location_name'];
-    }
+  $contact_name = $row['contact_name'];
+  $contact_title = $row['contact_title'];
+  $contact_email = $row['contact_email'];
+  $contact_phone = $row['contact_phone'];
+  $contact_extension = $row['contact_extension'];
+  $contact_mobile = $row['contact_mobile'];
+  $location_name = $row['location_name'];
+  $location_address = $row['location_address'];
+  $location_city = $row['location_city'];
+  $location_state = $row['location_state'];
+  $location_zip = $row['location_zip'];
+  $location_phone = $row['location_phone'];
+  if(strlen($client_phone)>2){ 
+    $location_phone = substr($row['location_phone'],0,3)."-".substr($row['location_phone'],3,3)."-".substr($row['location_phone'],6,4);
   }
-
 
   $ticket_assigned_to = $row['ticket_assigned_to'];
   if(empty($ticket_assigned_to)){
     $ticket_assigned_to_display = "<span class='text-danger'>Not Assigned</span>";
   }else{
-    $sql_assigned_to = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $ticket_assigned_to");
-    $row = mysqli_fetch_array($sql_assigned_to);
-    $ticket_assigned_to_display = $row['name'];
+    $ticket_assigned_to_display = $row['user_name'];
   }
 
 ?>
@@ -140,7 +127,7 @@ if(isset($_GET['ticket_id'])){
     <form class="mb-3" action="post.php" method="post" autocomplete="off">
       <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
       <div class="form-group">
-        <textarea class="form-control summernote" name="ticket_update"></textarea>
+        <textarea class="form-control summernote" name="ticket_reply"></textarea>
       </div>
       <div class="form-row">
         <div class="col-md-3">
@@ -164,7 +151,7 @@ if(isset($_GET['ticket_id'])){
         <div class="col-md-2">
           <div class="form-group">
             <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_ticket_update" value="1" checked>
+              <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_ticket_reply" value="1" checked>
               <label class="custom-control-label" for="customControlAutosizing">Email update to client</label>
             </div>
           </div>
@@ -173,7 +160,7 @@ if(isset($_GET['ticket_id'])){
         <?php } ?>
         
         <div class="col-md-1">
-          <button type="submit" name="add_ticket_update" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save</button>
+          <button type="submit" name="add_ticket_reply" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save</button>
         </div>
 
         <?php
@@ -191,36 +178,33 @@ if(isset($_GET['ticket_id'])){
     </form>
 
     <?php
-    $sql = mysqli_query($mysqli,"SELECT * FROM ticket_updates WHERE ticket_id = $ticket_id AND ticket_update_archived_at IS NULL ORDER BY ticket_update_id DESC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL ORDER BY ticket_reply_id DESC");
 
       while($row = mysqli_fetch_array($sql)){;
-        $ticket_update_id = $row['ticket_update_id'];
-        $ticket_update = $row['ticket_update'];
-        $ticket_update_created_at = $row['ticket_update_created_at'];
-        $ticket_update_by = $row['ticket_update_by'];
-
-        $sql_update_by = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $ticket_update_by");
-        $row = mysqli_fetch_array($sql_update_by);
-        $ticket_update_by_display = $row['name'];
+        $ticket_reply_id = $row['ticket_reply_id'];
+        $ticket_reply = $row['ticket_reply'];
+        $ticket_reply_created_at = $row['ticket_reply_created_at'];
+        $ticket_reply_by = $row['ticket_reply_by'];
+        $ticket_reply_by_display = $row['user_name'];
     ?>
 
     <div class="card mb-3">
-      <div class="card-header"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_update_created_at; ?> <i class="fa fa-fw fa-user"></i> <?php echo $ticket_update_by_display; ?>
-        <a href="#" data-toggle="modal" data-target="#editTicketUpdateModal<?php echo $ticket_update_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i></a>
-        <a href="post.php?archive_ticket_update=<?php echo $ticket_update_id; ?>"><i class="fas fa-fw fa-trash text-danger"></i></a>
+      <div class="card-header"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_reply_created_at; ?> <i class="fa fa-fw fa-user"></i> <?php echo $ticket_reply_by_display; ?>
+        <a href="#" data-toggle="modal" data-target="#editTicketReplyModal<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i></a>
+        <a href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-trash text-danger"></i></a>
       </div>
       <div class="card-body">
-        <p><?php echo $ticket_update; ?></p>
+        <p><?php echo $ticket_reply; ?></p>
       </div>
-      <div class="card-footer"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_update_created_at; ?> <i class="fa fa-fw fa-user"></i> <?php echo $ticket_update_by_display; ?>
-        <a href="#" data-toggle="modal" data-target="#editTicketUpdateModal<?php echo $ticket_update_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i></a>
-        <a href="post.php?archive_ticket_update=<?php echo $ticket_update_id; ?>"><i class="fas fa-fw fa-trash text-danger"></i></a>
+      <div class="card-footer"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_reply_created_at; ?> <i class="fa fa-fw fa-user"></i> <?php echo $ticket_reply_by_display; ?>
+        <a href="#" data-toggle="modal" data-target="#editTicketReplyModal<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i></a>
+        <a href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-trash text-danger"></i></a>
       </div>
     </div>
 
     <?php
     
-    include("edit_ticket_update_modal.php");
+    include("edit_ticket_reply_modal.php");
     
     }
     
@@ -235,23 +219,6 @@ if(isset($_GET['ticket_id'])){
         <div>  
           <h4 class="text-secondary">Client</h4>
           <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <?php echo $client_name; ?>
-          <br>
-          <?php
-          if(!empty($client_email)){
-          ?>
-          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i> <a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a>
-          <br>
-          <?php
-          }
-          ?>
-          <?php
-          if(!empty($client_phone)){
-          ?>
-          <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <?php echo $client_phone; ?>
-          <br>
-          <?php 
-          } 
-          ?>
         </div>
       </div>
     </div>

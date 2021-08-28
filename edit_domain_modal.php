@@ -31,7 +31,7 @@
                 <option value="">- Vendor -</option>
                 <?php 
                 
-                $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id"); 
+                $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id"); 
                 while($row = mysqli_fetch_array($sql_vendors)){
                   $vendor_id_select = $row['vendor_id'];
                   $vendor_name_select = $row['vendor_name'];
@@ -55,7 +55,7 @@
                 <option value="">- Vendor -</option>
                 <?php 
                 
-                $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id"); 
+                $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id"); 
                 while($row = mysqli_fetch_array($sql_vendors)){
                   $vendor_id_select = $row['vendor_id'];
                   $vendor_name_select = $row['vendor_name'];

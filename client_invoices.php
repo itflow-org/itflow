@@ -39,9 +39,9 @@ if(isset($_GET['o'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM invoices, categories 
-  WHERE invoices.client_id = $client_id 
-  AND invoices.category_id = categories.category_id 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM invoices
+  LEFT JOIN categories ON invoice_category_id = category_id
+  WHERE invoice_client_id = $client_id 
   AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR invoice_status LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 

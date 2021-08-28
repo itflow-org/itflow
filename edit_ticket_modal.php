@@ -21,12 +21,12 @@
                 <option value="">Not Assigned</option>
                 <?php 
                 
-                $sql_assign_to_select = mysqli_query($mysqli,"SELECT * FROM users, permissions WHERE users.user_id = permissions.user_id AND $session_company_id IN($session_permission_companies) ORDER BY name ASC");
+                $sql_assign_to_select = mysqli_query($mysqli,"SELECT * FROM users, permissions WHERE users.user_id = permissions.user_id AND $session_company_id IN($session_permission_companies) ORDER BY user_name ASC");
                 while($row = mysqli_fetch_array($sql_assign_to_select)){
                   $user_id = $row['user_id'];
-                  $name = $row['name'];
+                  $user_name = $row['user_name'];
                 ?>
-                <option <?php if($ticket_assigned_to == $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $name; ?></option>
+                <option <?php if($ticket_assigned_to == $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                 
                 <?php
                 }
@@ -59,12 +59,12 @@
             </div>
           </div>
           
-          <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
+          <?php if(!empty($config_smtp_host) AND !empty($contact_email)){ ?>
 
           <div class="form-group">
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_ticket_updates" value="1" checked>
-              <label class="custom-control-label" for="customControlAutosizing">Email ticket updates <span class="text-secondary"><?php echo $client_email; ?></span></label>
+              <label class="custom-control-label" for="customControlAutosizing">Email ticket updates <span class="text-secondary"><?php echo $contact_email; ?></span></label>
             </div>
           </div>
 
@@ -80,7 +80,7 @@
                 <option value="">No One</option>
                 <?php 
                 
-                $sql_client_contacts_select = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_name ASC");
+                $sql_client_contacts_select = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                 while($row = mysqli_fetch_array($sql_client_contacts_select)){
                   $contact_id_select = $row['contact_id'];
                   $contact_name_select = $row['contact_name'];

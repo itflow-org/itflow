@@ -49,15 +49,15 @@
                     $account_name = $row['account_name'];
                     $opening_balance = $row['opening_balance'];
                     
-                    $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
+                    $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                     $row = mysqli_fetch_array($sql_payments);
                     $total_payments = $row['total_payments'];
                     
-                    $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id");
+                    $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
                     $row = mysqli_fetch_array($sql_revenues);
                     $total_revenues = $row['total_revenues'];
 
-                    $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
+                    $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
                     $row = mysqli_fetch_array($sql_expenses);
                     $total_expenses = $row['total_expenses'];
 
@@ -83,7 +83,7 @@
                   <option value="">- Vendor -</option>
                   <?php 
                   
-                  $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = 0 AND vendor_archived_at IS NULL AND company_id = $session_company_id ORDER BY vendor_name ASC"); 
+                  $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = 0 AND vendor_archived_at IS NULL AND company_id = $session_company_id ORDER BY vendor_name ASC"); 
                   while($row = mysqli_fetch_array($sql)){
                     $vendor_id = $row['vendor_id'];
                     $vendor_name = $row['vendor_name'];

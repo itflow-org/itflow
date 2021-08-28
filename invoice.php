@@ -6,10 +6,12 @@ if(isset($_GET['invoice_id'])){
 
   $invoice_id = intval($_GET['invoice_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, companies
-    WHERE invoices.client_id = clients.client_id
-    AND invoices.company_id = companies.company_id
-    AND invoices.invoice_id = $invoice_id"
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices 
+    LEFT JOIN clients ON invoice_client_id = client_id
+    LEFT JOIN locations ON primary_location = location_id
+    LEFT JOIN contacts ON primary_contact = contact_id
+    LEFT JOIN companies ON invoices.company_id = companies.company_id
+    WHERE invoice_id = $invoice_id"
   );
 
   if(mysqli_num_rows($sql) == 0){
@@ -29,22 +31,22 @@ if(isset($_GET['invoice_id'])){
   $invoice_note = $row['invoice_note'];
   $invoice_url_key = $row['invoice_url_key'];
   $invoice_created_at = $row['invoice_created_at'];
-  $category_id = $row['category_id'];
+  $category_id = $row['invoice_category_id'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];
-  $client_address = $row['client_address'];
-  $client_city = $row['client_city'];
-  $client_state = $row['client_state'];
-  $client_zip = $row['client_zip'];
-  $client_email = $row['client_email'];
-  $client_phone = $row['client_phone'];
-  if(strlen($client_phone)>2){ 
-    $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+  $location_address = $row['location_address'];
+  $location_city = $row['location_city'];
+  $location_state = $row['location_state'];
+  $location_zip = $row['location_zip'];
+  $contact_email = $row['contact_email'];
+  $contact_phone = $row['contact_phone'];
+  if(strlen($contact_phone)>2){ 
+    $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
   }
-  $client_extension = $row['client_extension'];
-  $client_mobile = $row['client_mobile'];
-  if(strlen($client_mobile)>2){ 
-    $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
+  $contact_extension = $row['contact_extension'];
+  $contact_mobile = $row['contact_mobile'];
+  if(strlen($contact_mobile)>2){ 
+    $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
   }
   $client_website = $row['client_website'];
   $client_currency_code = $row['client_currency_code'];
@@ -69,12 +71,12 @@ if(isset($_GET['invoice_id'])){
   if(!empty($company_logo)){
   	$company_logo_base64 = base64_encode(file_get_contents($row['company_logo']));
 	}
-  $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE invoice_id = $invoice_id ORDER BY history_id DESC");
+  $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE history_invoice_id = $invoice_id ORDER BY history_id DESC");
   
-  $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
+  $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
   //Add up all the payments for the invoice and get the total amount paid to the invoice
-  $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE invoice_id = $invoice_id");
+  $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
   $row = mysqli_fetch_array($sql_amount_paid);
   $amount_paid = $row['amount_paid'];
 
@@ -130,7 +132,7 @@ if(isset($_GET['invoice_id'])){
           <i class="fas fa-fw fa-paper-plane"></i> Send
         </button>
         <div class="dropdown-menu">
-          <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
+          <?php if(!empty($config_smtp_host) AND !empty($contact_email)){ ?>
           <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send Email</a>
           <div class="dropdown-divider"></div>
           <?php } ?>
@@ -156,7 +158,7 @@ if(isset($_GET['invoice_id'])){
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
             <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$invoice_date-$company_name-$client_name-Invoice-$invoice_prefix$invoice_number.pdf"; ?>');">Download PDF</a>
-            <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
+            <?php if(!empty($config_smtp_host) AND !empty($contact_email)){ ?>
             <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send Email</a>
             <?php } ?>
             <a class="dropdown-item" target="_blank" href="guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Guest URL</a>
@@ -203,11 +205,11 @@ if(isset($_GET['invoice_id'])){
       <div class="col-sm">
         <ul class="list-unstyled text-right">
           <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
-          <li><?php echo $client_address; ?></li>
-          <li><?php echo "$client_city $client_state $client_zip"; ?></li>
-          <li><?php echo "$client_phone $client_extension"; ?></li>
-          <li><?php echo $client_mobile; ?></li>
-          <li><?php echo $client_email; ?></li>
+          <li><?php echo $location_address; ?></li>
+          <li><?php echo "$location_city $location_state $location_zip"; ?></li>
+          <li><?php echo "$contact_phone $contact_extension"; ?></li>
+          <li><?php echo $contact_mobile; ?></li>
+          <li><?php echo $contact_email; ?></li>
         </ul>
       </div>
     </div>
@@ -228,7 +230,7 @@ if(isset($_GET['invoice_id'])){
       </div>
     </div>
 
-    <?php $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC"); ?>
+    <?php $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC"); ?>
 
     <div class="row mb-4">
       <div class="col-md-12">
@@ -261,7 +263,7 @@ if(isset($_GET['invoice_id'])){
                 $item_tax = $row['item_tax'];
                 $item_total = $row['item_total'];
                 $item_created_at = $row['item_created_at'];
-                $tax_id = $row['tax_id'];
+                $tax_id = $row['item_tax_id'];
                 $total_tax = $item_tax + $total_tax;
                 $sub_total = $item_price * $item_quantity + $sub_total;
 
@@ -556,7 +558,7 @@ var docDefinition = {
 		      style: 'invoiceBillingAddress'
 		    },
 		    {
-		      text: <?php echo json_encode("$client_address \n $client_city $client_state $client_zip \n $client_email \n $client_phone"); ?>,
+		      text: <?php echo json_encode("$location_address \n $location_city $location_state $location_zip \n $contact_email \n $contact_phone"); ?>,
 		      style: 'invoiceBillingAddressClient'
 		    },
 		  ]
@@ -644,7 +646,7 @@ var docDefinition = {
 		      $total_tax = 0;
 		      $sub_total = 0;
 
-		      $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC");
+		      $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
 		      
 		      while($row = mysqli_fetch_array($sql_invoice_items)){
 		        $item_name = $row['item_name'];
@@ -654,7 +656,7 @@ var docDefinition = {
 		        $item_subtotal = $row['item_price'];
 		        $item_tax = $row['item_tax'];
 		        $item_total = $row['item_total'];
-		        $tax_id = $row['tax_id'];
+		        $tax_id = $row['item_tax_id'];
 		        $total_tax = $item_tax + $total_tax;	        
 		        $sub_total = $item_price * $item_quantity + $sub_total;
 		      ?>

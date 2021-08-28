@@ -65,15 +65,15 @@
                         $account_name_select = $row['account_name'];
                         $opening_balance = $row['opening_balance'];
                         
-                        $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id_select");
+                        $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id_select");
                         $row = mysqli_fetch_array($sql_payments);
                         $total_payments = $row['total_payments'];
                         
-                        $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id_select");
+                        $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id_select");
                         $row = mysqli_fetch_array($sql_revenues);
                         $total_revenues = $row['total_revenues'];
 
-                        $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id_select");
+                        $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id_select");
                         $row = mysqli_fetch_array($sql_expenses);
                         $total_expenses = $row['total_expenses'];
 
@@ -103,15 +103,15 @@
                       $account_name = $row['account_name'];
                       $opening_balance = $row['opening_balance'];
 
-                      $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id2");
+                      $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id2");
                       $row = mysqli_fetch_array($sql_payments);
                       $total_payments = $row['total_payments'];
 
-                      $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id2");
+                      $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id2");
                       $row = mysqli_fetch_array($sql_revenues);
                       $total_revenues = $row['total_revenues'];
                       
-                      $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id2");
+                      $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id2");
                       $row = mysqli_fetch_array($sql_expenses);
                       $total_expenses = $row['total_expenses'];
 

@@ -52,11 +52,10 @@ if(!empty($_GET['dtf'])){
 
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM assets, clients 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM assets LEFT JOIN clients ON asset_client_id = client_id 
   WHERE (asset_name LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' 
   OR asset_ip LIKE '%$q%' OR asset_mac LIKE '%$q%' OR client_name LIKE '%$q%') 
-  AND DATE(asset_created_at) BETWEEN '$dtf' AND '$dtt' 
-  AND  assets.client_id = clients.client_id 
+  AND DATE(asset_created_at) BETWEEN '$dtf' AND '$dtt'
   AND assets.company_id = $session_company_id 
   ORDER BY $sb $o LIMIT $record_from, $record_to"
 ); 

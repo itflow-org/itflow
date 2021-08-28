@@ -47,12 +47,12 @@
                 <option value="">Not Assigned</option>
                 <?php 
                 
-                $sql = mysqli_query($mysqli,"SELECT * FROM users, permissions WHERE users.user_id = permissions.user_id AND $session_company_id IN($session_permission_companies) ORDER BY name ASC");
+                $sql = mysqli_query($mysqli,"SELECT * FROM users, permissions WHERE users.user_id = permissions.user_id AND $session_company_id IN($session_permission_companies) ORDER BY user_name ASC");
                 while($row = mysqli_fetch_array($sql)){
                   $user_id = $row['user_id'];
-                  $name = $row['name'];
+                  $user_name = $row['user_name'];
                 ?>
-                <option value="<?php echo $user_id; ?>"><?php echo $name; ?></option>
+                <option value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                 
                 <?php
                 }

@@ -39,9 +39,8 @@ if(isset($_GET['o'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM products, categories 
-  WHERE products.category_id = categories.category_id 
-  AND products.company_id = $session_company_id 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM products LEFT JOIN categories ON product_category_id = category_id 
+  WHERE products.company_id = $session_company_id 
   AND (product_name LIKE '%$q%' OR product_description LIKE '%$q%' OR category_name LIKE '%$q%' OR product_cost LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
@@ -98,7 +97,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $product_created_at = $row['product_created_at'];
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
-            $tax_id = $row['tax_id'];
+            $product_tax_id = $row['product_tax_id'];
 
           ?>
           <tr>

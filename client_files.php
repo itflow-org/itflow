@@ -1,8 +1,8 @@
 <?php 
 
-$sql_files_images = mysqli_query($mysqli,"SELECT * FROM files WHERE client_id = $client_id AND (file_ext LIKE 'JPG' OR file_ext LIKE 'jpg' OR file_ext LIKE 'JPEG' OR file_ext LIKE 'jpeg' OR file_ext LIKE 'png' OR file_ext LIKE 'PNG') ORDER BY file_name ASC");
+$sql_files_images = mysqli_query($mysqli,"SELECT * FROM files WHERE file_client_id = $client_id AND (file_ext LIKE 'JPG' OR file_ext LIKE 'jpg' OR file_ext LIKE 'JPEG' OR file_ext LIKE 'jpeg' OR file_ext LIKE 'png' OR file_ext LIKE 'PNG') ORDER BY file_name ASC");
 
-$sql_files_other = mysqli_query($mysqli,"SELECT * FROM files WHERE client_id = $client_id AND file_ext NOT LIKE 'JPG' AND file_ext NOT LIKE 'jpg' AND file_ext NOT LIKE 'png' AND file_ext NOT LIKE 'PNG' ORDER BY file_name ASC"); 
+$sql_files_other = mysqli_query($mysqli,"SELECT * FROM files WHERE file_client_id = $client_id AND file_ext NOT LIKE 'JPG' AND file_ext NOT LIKE 'jpg' AND file_ext NOT LIKE 'png' AND file_ext NOT LIKE 'PNG' ORDER BY file_name ASC"); 
 
 $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_other);
 

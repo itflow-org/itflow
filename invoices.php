@@ -36,12 +36,12 @@
   $row = mysqli_fetch_array($sql_total_cancelled);
   $total_cancelled = $row['total_cancelled'];
   
-  $sql_total_partial = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS total_partial FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.invoice_status = 'Partial' AND invoices.company_id = $session_company_id");
+  $sql_total_partial = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS total_partial FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoices.company_id = $session_company_id");
   $row = mysqli_fetch_array($sql_total_partial);
   $total_partial = $row['total_partial'];
   $total_partial_count = mysqli_num_rows($sql_total_partial);
 
-  $sql_total_overdue_partial = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_overdue_partial FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.invoice_status = 'Partial' AND invoices.invoice_due < CURDATE() AND invoices.company_id = $session_company_id");
+  $sql_total_overdue_partial = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_overdue_partial FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoice_due < CURDATE() AND invoices.company_id = $session_company_id");
   $row = mysqli_fetch_array($sql_total_overdue_partial);
   $total_overdue_partial = $row['total_overdue_partial'];
 
@@ -123,10 +123,10 @@
   //Rebuild URL
   $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM invoices, clients, categories
-    WHERE invoices.client_id = clients.client_id
-    AND invoices.category_id = categories.category_id
-    AND invoices.company_id = $session_company_id
+  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM invoices
+    LEFT JOIN clients ON invoice_client_id = client_id
+    LEFT JOIN categories ON invoice_category_id = category_id
+    WHERE invoices.company_id = $session_company_id
     AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR category_name LIKE '%$q%') 
     ORDER BY $sb $o LIMIT $record_from, $record_to");

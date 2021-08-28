@@ -72,10 +72,10 @@ if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM accounts, revenues, categories
-  WHERE revenues.account_id = accounts.account_id
-  AND revenues.category_id = categories.category_id
-  AND revenues.company_id = $session_company_id
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM revenues
+  JOIN categories ON revenue_category_id = category_id
+  LEFT JOIN accounts ON revenue_account_id = account_id
+  WHERE revenues.company_id = $session_company_id
   AND (account_name LIKE '%$q%' OR revenue_payment_method LIKE '%$q%' OR category_name LIKE '%$q%' OR revenue_reference LIKE '%$q%' OR revenue_amount LIKE '%$q%')
   AND DATE(revenue_date) BETWEEN '$dtf' AND '$dtt'
   ORDER BY $sb $o LIMIT $record_from, $record_to");

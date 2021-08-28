@@ -13,16 +13,16 @@
           
           <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-              <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $client_id; ?>">Details</a>
+              <a class="nav-link active" data-toggle="pill" href="#pills-client-details<?php echo $client_id; ?>">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-toggle="pill" href="#pills-address<?php echo $client_id; ?>">Address</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-client-address<?php echo $client_id; ?>">Address</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-toggle="pill" href="#pills-contact<?php echo $client_id; ?>">Contact</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-client-contact<?php echo $client_id; ?>">Contact</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $client_id; ?>">Notes</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-client-notes<?php echo $client_id; ?>">Notes</a>
             </li>
           </ul>
 
@@ -30,7 +30,7 @@
           
           <div class="tab-content">
 
-            <div class="tab-pane fade show active" id="pills-details<?php echo $client_id; ?>">
+            <div class="tab-pane fade show active" id="pills-client-details<?php echo $client_id; ?>">
 
               <div class="form-group">
                 <label>Name <strong class="text-danger">*</strong></label>
@@ -123,7 +123,7 @@
 
             </div>
           
-            <div class="tab-pane fade" id="pills-address<?php echo $client_id; ?>">
+            <div class="tab-pane fade" id="pills-client-address<?php echo $client_id; ?>">
 
               <div class="form-group">
                 <label>Address</label>
@@ -187,7 +187,7 @@
             
             </div>
 
-            <div class="tab-pane fade" id="pills-contact<?php echo $client_id; ?>">
+            <div class="tab-pane fade" id="pills-client-contact<?php echo $client_id; ?>">
 
               <div class="form-group">
                 <label>Primary Contact</label>
@@ -248,7 +248,7 @@
             
             </div>
 
-            <div class="tab-pane fade" id="pills-notes<?php echo $client_id; ?>">
+            <div class="tab-pane fade" id="pills-client-notes<?php echo $client_id; ?>">
 
               <div class="form-group">
                 <textarea class="form-control" rows="8" name="notes"><?php echo $client_notes; ?></textarea>

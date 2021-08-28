@@ -40,7 +40,7 @@ if(isset($_GET['o'])){
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins 
-  WHERE client_id = $client_id 
+  WHERE login_client_id = $client_id 
   AND (login_name LIKE '%$q%' OR login_username LIKE '%$q%' OR login_uri LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
@@ -119,9 +119,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $otp_display = "<i class='far fa-clock text-secondary'></i> $otp<button class='btn btn-sm' data-clipboard-text='$otp'><i class='far fa-copy text-secondary'></i></button>";
             }
             $login_note = $row['login_note'];
-            $vendor_id = $row['vendor_id'];
-            $asset_id = $row['asset_id'];
-            $software_id = $row['software_id'];
+            $login_vendor_id = $row['login_vendor_id'];
+            $login_asset_id = $row['login_asset_id'];
+            $login_software_id = $row['login_software_id'];
       
           ?>
           <tr>

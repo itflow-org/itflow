@@ -18,11 +18,11 @@
 	$sql = mysqli_query($mysqli,"SELECT * FROM users, permissions  WHERE users.user_id = permissions.user_id AND users.user_id = $session_user_id");
 	
 	$row = mysqli_fetch_array($sql);
-	$session_name = $row['name'];
-	$session_email = $row['email'];
-	$session_avatar = $row['avatar'];
+	$session_name = $row['user_name'];
+	$session_email = $row['user_email'];
+	$session_avatar = $row['user_avatar'];
 	$session_company_id = $row['permission_default_company'];
-	$session_token = $row['token'];
+	$session_token = $row['user_token'];
 
 	$session_permission_level = $row['permission_level'];
   if($session_permission_level == 5){

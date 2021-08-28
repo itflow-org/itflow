@@ -39,7 +39,7 @@ if(isset($_GET['o'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM contacts WHERE contact_archived_at IS NULL AND (contact_name LIKE '%$q%') AND client_id = $client_id ORDER BY $sb $o LIMIT $record_from, $record_to");
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM contacts WHERE contact_archived_at IS NULL AND (contact_name LIKE '%$q%') AND contact_client_id = $client_id ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
@@ -129,7 +129,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $contact_photo = $row['contact_photo'];
             $contact_initials = initials($contact_name);
             $contact_notes = $row['contact_notes'];
-            $contact_created_at = $row['contact_created_at'];           
+            $contact_created_at = $row['contact_created_at'];
+            if($contact_id == $primary_contact){
+              $primary_contact_display = "<p class='text-success'>Primary Contact</p>";
+            }else{
+              $primary_contact_display = "";
+            }           
       
           ?>
           <tr>
@@ -149,6 +154,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 
                 <?php } ?>
                 <div class="text-dark"><?php echo $contact_name; ?></div>
+                <div><?php echo $primary_contact_display; ?></div>
               </a>
             </th>
             

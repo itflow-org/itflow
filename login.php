@@ -30,14 +30,14 @@ if(isset($_POST['login'])){
   if(!empty($token)){
     $current_code = mysqli_real_escape_string($mysqli,$_POST['current_code']);
   }
-  $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE email = '$username' AND password = '$password'");
+  $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_email = '$username' AND user_password = '$password'");
   
   if(mysqli_num_rows($sql) == 1){
     $row = mysqli_fetch_array($sql);
     $token = $row['token'];
     $_SESSION['user_id'] = $row['user_id'];
-    $_SESSION['name'] = $row['name'];
-    $name = $row['name'];
+    $_SESSION['user_name'] = $row['user_name'];
+    $user_name = $row['user_name'];
     $user_id = $row['user_id'];
 
     if(empty($token)){
@@ -59,11 +59,11 @@ if(isset($_POST['login'])){
 
       if(TokenAuth6238::verify($token,$current_code)){
         $_SESSION['logged'] = TRUE;
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login 2FA', log_action = 'Success', log_description = '$ip - $os - $browser - $device', log_created_at = NOW(), user_id = $user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login 2FA', log_action = 'Success', log_description = '$ip - $os - $browser - $device', log_created_at = NOW(), log_user_id = $user_id");
         //header("Location: $config_start_page");
         header("Location: dashboard.php");
       }else{
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$ip - $os - $browser - $device', log_created_at = NOW(), user_id = $user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$ip - $os - $browser - $device', log_created_at = NOW(), log_user_id = $user_id");
 
         $response = "
           <div class='alert alert-primary'>

@@ -39,9 +39,9 @@ if(isset($_GET['o'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
  
-$sql = mysqli_query($mysqli,"SELECT * FROM recurring, categories
-  WHERE recurring.client_id = $client_id
-  AND recurring.category_id = categories.category_id
+$sql = mysqli_query($mysqli,"SELECT * FROM recurring
+  LEFT JOIN categories ON recurring_category_id = category_id
+  WHERE recurring_client_id = $client_id
   AND (CONCAT(recurring_prefix,recurring_number) LIKE '%$q%' OR recurring_frequency LIKE '%$q%' OR recurring_scope LIKE '%$q%' OR category_name LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 

@@ -68,15 +68,15 @@
                       $account_name = $row['account_name'];
                       $opening_balance = $row['opening_balance'];
                       
-                      $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
+                      $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                       $row = mysqli_fetch_array($sql_payments);
                       $total_payments = $row['total_payments'];
                       
-                      $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id");
+                      $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
                       $row = mysqli_fetch_array($sql_revenues);
                       $total_revenues = $row['total_revenues'];
 
-                      $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
+                      $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
                       $row = mysqli_fetch_array($sql_expenses);
                       $total_expenses = $row['total_expenses'];
 
@@ -107,15 +107,15 @@
                       $account_name = $row['account_name'];
                       $opening_balance = $row['opening_balance'];
                     
-                      $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
+                      $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                       $row = mysqli_fetch_array($sql_payments);
                       $total_payments = $row['total_payments'];
 
-                      $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id");
+                      $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
                       $row = mysqli_fetch_array($sql_revenues);
                       $total_revenues = $row['total_revenues'];
                       
-                      $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
+                      $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
                       $row = mysqli_fetch_array($sql_expenses);
                       $total_expenses = $row['total_expenses'];
 
@@ -138,7 +138,7 @@
 
               //UNFINISHED BUSINESS (The goal is to select checks that need deposited and autocalculate)
 
-              $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments WHERE account_id = 1");
+              $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_account_id = 1");
 
               while($row = mysqli_fetch_array($sql_payments)){
                 $payment_id = $row['payment_id'];

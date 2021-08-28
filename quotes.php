@@ -74,10 +74,10 @@ if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM quotes, clients, categories
-  WHERE quotes.client_id = clients.client_id
-  AND quotes.category_id = categories.category_id
-  AND quotes.company_id = $session_company_id
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM quotes 
+  LEFT JOIN clients ON quote_client_id = client_id
+  LEFT JOIN categories ON quote_category_id = category_id
+  WHERE quotes.company_id = $session_company_id
   AND (CONCAT(quote_prefix,quote_number) LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%' OR quote_amount LIKE '%$q%' OR client_name LIKE '%$q%')
   AND DATE(quote_date) BETWEEN '$dtf' AND '$dtt'
   ORDER BY $sb $o LIMIT $record_from, $record_to");

@@ -73,9 +73,9 @@ if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM expenses, categories, vendors, accounts
-  WHERE expenses.category_id = categories.category_id
-  AND expenses.vendor_id = vendors.vendor_id
-  AND expenses.account_id = accounts.account_id
+  WHERE expense_category_id = category_id
+  AND expense_vendor_id = vendor_id
+  AND expense_account_id = account_id
   AND expenses.company_id = $session_company_id
   AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
   AND (vendor_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
@@ -163,12 +163,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $expense_receipt = $row['expense_receipt'];
             $expense_reference = $row['expense_reference'];
             $expense_created_at = $row['expense_created_at'];
-            $vendor_id = $row['vendor_id'];
+            $expense_vendor_id = $row['expense_vendor_id'];
             $vendor_name = $row['vendor_name'];
-            $category_id = $row['category_id'];
+            $expense_category_id = $row['expense_category_id'];
             $category_name = $row['category_name'];
             $account_name = $row['account_name'];
-            $account_id = $row['account_id'];
+            $expense_account_id = $row['expense_account_id'];
 
             if(empty($expense_receipt)){
               $receipt_attached = "";

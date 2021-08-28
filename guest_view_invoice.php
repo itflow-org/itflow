@@ -7,12 +7,14 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
   $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
   $invoice_id = intval($_GET['invoice_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices, clients, settings, companies
-    WHERE invoices.client_id = clients.client_id
-    AND settings.company_id = companies.company_id 
-    AND companies.company_id = invoices.company_id
-    AND invoices.invoice_id = $invoice_id 
-    AND invoices.invoice_url_key = '$url_key'"
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices 
+    LEFT JOIN clients ON invoice_client_id = client_id
+    LEFT JOIN locations ON primary_location = location_id
+    LEFT JOIN contacts ON primary_contact = contact_id
+    LEFT JOIN companies ON invoices.company_id = companies.company_id
+    LEFT JOIN settings ON settings.company_id = companies.company_id
+    WHERE invoice_id = $invoice_id
+    AND invoice_url_key = '$url_key'"
   );
 
   if(mysqli_num_rows($sql) == 1){
@@ -27,22 +29,22 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     $invoice_amount = $row['invoice_amount'];
     $invoice_currency_code = $row['invoice_currency_code'];
     $invoice_note = $row['invoice_note'];
-    $invoice_category_id = $row['category_id'];
+    $invoice_category_id = $row['invoice_category_id'];
     $client_id = $row['client_id'];
     $client_name = $row['client_name'];
-    $client_address = $row['client_address'];
-    $client_city = $row['client_city'];
-    $client_state = $row['client_state'];
-    $client_zip = $row['client_zip'];
-    $client_email = $row['client_email'];
-    $client_phone = $row['client_phone'];
-    if(strlen($client_phone)>2){ 
-      $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+    $location_address = $row['location_address'];
+    $location_city = $row['location_city'];
+    $location_state = $row['location_state'];
+    $location_zip = $row['location_zip'];
+    $contact_email = $row['contact_email'];
+    $contact_phone = $row['contact_phone'];
+    if(strlen($contact_phone)>2){ 
+      $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
     }
-    $client_extension = $row['client_extension'];
-    $client_mobile = $row['client_mobile'];
-    if(strlen($client_mobile)>2){ 
-      $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
+    $contact_extension = $row['contact_extension'];
+    $contact_mobile = $row['contact_mobile'];
+    if(strlen($contact_mobile)>2){ 
+      $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
     }
     $client_website = $row['client_website'];
     $client_currency_code = $row['client_currency_code'];
@@ -97,14 +99,14 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     }
 
     //Mark viewed in history
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed - $ip - $os - $browser - $device', history_created_at = NOW(), invoice_id = $invoice_id, company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed - $ip - $os - $browser - $device', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
 
     mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice Viewed', alert_message = 'Invoice $invoice_number has been viewed by $client_name - $ip - $os - $browser - $device', alert_date = NOW(), company_id = $company_id");
 
-    $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payments.account_id = accounts.account_id AND payments.invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
+    $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
-    $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE invoice_id = $invoice_id");
+    $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql_amount_paid);
     $amount_paid = $row['amount_paid'];
 
@@ -164,11 +166,11 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
 
           <ul class="list-unstyled text-right">
             <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
-            <li><?php echo $client_address; ?></li>
-            <li><?php echo "$client_city $client_state $client_zip"; ?></li>
-            <li><?php echo "$client_phone $client_extension"; ?></li>
-            <li><?php echo $client_mobile; ?></li>
-            <li><?php echo $client_email; ?></li>
+            <li><?php echo $location_address; ?></li>
+            <li><?php echo "$location_city $location_state $location_zip"; ?></li>
+            <li><?php echo "$contact_phone $contact_extension"; ?></li>
+            <li><?php echo $contact_mobile; ?></li>
+            <li><?php echo $contact_email; ?></li>
           </ul>
         
         </div>
@@ -190,7 +192,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         </div>
       </div>
 
-      <?php $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC"); ?>
+      <?php $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC"); ?>
 
       <div class="row mb-4">
         <div class="col-md-12">
@@ -355,7 +357,7 @@ var docDefinition = {
 		      style: 'invoiceBillingAddress'
 		    },
 		    {
-		      text: <?php echo json_encode("$client_address \n $client_city $client_state $client_zip \n $client_email \n $client_phone"); ?>,
+		      text: <?php echo json_encode("$location_address \n $location_city $location_state $location_zip \n $contact_email \n $contact_phone"); ?>,
 		      style: 'invoiceBillingAddressClient'
 		    },
 		  ]
@@ -443,7 +445,7 @@ var docDefinition = {
 		      $total_tax = 0;
 		      $sub_total = 0;
 
-		      $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE invoice_id = $invoice_id ORDER BY item_id ASC");
+		      $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
 		      
 		      while($row = mysqli_fetch_array($sql_invoice_items)){
 		        $item_name = $row['item_name'];
@@ -453,7 +455,7 @@ var docDefinition = {
 		        $item_subtotal = $row['item_price'];
 		        $item_tax = $row['item_tax'];
 		        $item_total = $row['item_total'];
-		        $tax_id = $row['tax_id'];
+		        $tax_id = $row['item_tax_id'];
 		        $total_tax = $item_tax + $total_tax;
 		        $sub_total = $item_price * $item_quantity + $sub_total;
 		      ?>
@@ -716,7 +718,7 @@ var docDefinition = {
 
   <?php
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id AND invoice_due < CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_due < CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
 
   if(mysqli_num_rows($sql) > 1){
 
@@ -775,7 +777,7 @@ var docDefinition = {
 
   <?php
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_number DESC");
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_number DESC");
 
   if(mysqli_num_rows($sql) > 1){
 
@@ -835,7 +837,7 @@ var docDefinition = {
 
   <?php
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id AND invoice_status = 'Paid' ORDER BY invoice_date DESC");
+  $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_status = 'Paid' ORDER BY invoice_date DESC");
 
   if(mysqli_num_rows($sql) > 1){
 
@@ -884,7 +886,7 @@ var docDefinition = {
               
               <?php
               
-              $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments WHERE invoice_id = $invoice_id ORDER BY payment_date DESC");
+              $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_invoice_id = $invoice_id ORDER BY payment_date DESC");
 
               while($row = mysqli_fetch_array($sql_payments)){
                 $payment_id = $row['payment_id'];

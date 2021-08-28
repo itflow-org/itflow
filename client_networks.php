@@ -40,7 +40,7 @@ if(isset($_GET['o'])){
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM networks 
-  WHERE client_id = $client_id 
+  WHERE network_client_id = $client_id 
   AND (network_name LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_dhcp_range LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
@@ -112,7 +112,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $network_dhcp_range_display = $network_dhcp_range;
             }
             $network_created_at = $row['network_created_at'];
-            $location_id = $row['location_id'];
+            $network_location_id = $row['network_location_id'];
       
           ?>
           <tr>

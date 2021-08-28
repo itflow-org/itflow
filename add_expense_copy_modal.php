@@ -50,21 +50,21 @@
                     $account_name_select = $row['account_name'];
                     $opening_balance = $row['opening_balance'];
                     
-                    $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id_select");
+                    $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id_select");
                     $row = mysqli_fetch_array($sql_payments);
                     $total_payments = $row['total_payments'];
                     
-                    $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id_select");
+                    $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id_select");
                     $row = mysqli_fetch_array($sql_revenues);
                     $total_revenues = $row['total_revenues'];
 
-                    $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id_select");
+                    $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id_select");
                     $row = mysqli_fetch_array($sql_expenses);
                     $total_expenses = $row['total_expenses'];
 
                     $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
                     ?>
-                  <option <?php if($account_id == $account_id_select){ ?> selected <?php } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                  <option <?php if($expense_account_id == $account_id_select){ ?> selected <?php } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance,2); ?>]</option>
                   <?php
                   }
                   
@@ -87,7 +87,7 @@
                     $vendor_id_select = $row['vendor_id'];
                     $vendor_name_select = $row['vendor_name'];
                   ?>
-                  <option <?php if($vendor_id == $vendor_id_select){ ?> selected <?php } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
+                  <option <?php if($expense_vendor_id == $vendor_id_select){ ?> selected <?php } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
                   <?php
                   }
                   
@@ -119,7 +119,7 @@
                     $category_id_select = $row['category_id'];
                     $category_name_select = $row['category_name'];
                   ?>
-                  <option <?php if($category_id == $category_id_select){ ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
+                  <option <?php if($expense_category_id == $category_id_select){ ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
                   <?php
                   }
                   

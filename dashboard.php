@@ -27,14 +27,14 @@ $sql_total_payments_to_invoices = mysqli_query($mysqli,"SELECT SUM(payment_amoun
 $row = mysqli_fetch_array($sql_total_payments_to_invoices);
 $total_payments_to_invoices = $row['total_payments_to_invoices'];
 //Do not grab transfer payment as these have an category_id of 0
-$sql_total_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE YEAR(revenue_date) = $year AND category_id > 0 AND company_id = $session_company_id");
+$sql_total_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE YEAR(revenue_date) = $year AND revenue_category_id > 0 AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_revenues);
 $total_revenues = $row['total_revenues'];
 
 $total_income = $total_payments_to_invoices + $total_revenues;
 
 //Get Total expenses and do not grab transfer expenses as these have a vendor of 0
-$sql_total_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE vendor_id > 0 AND YEAR(expense_date) = $year AND company_id = $session_company_id");
+$sql_total_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_vendor_id > 0 AND YEAR(expense_date) = $year AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_expenses);
 $total_expenses = $row['total_expenses'];
 
@@ -59,15 +59,15 @@ $profit = $total_income - $total_expenses;
 $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id");
 
 $sql_latest_invoice_payments = mysqli_query($mysqli,"SELECT * FROM payments, invoices, clients 
-	WHERE payments.invoice_id = invoices.invoice_id 
-	AND invoices.client_id = clients.client_id
+	WHERE payment_invoice_id = invoice_id 
+	AND invoice_client_id = client_id
   AND clients.company_id = $session_company_id
 	ORDER BY payment_id DESC LIMIT 5"
 );
 
 $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, categories 
-	WHERE expenses.vendor_id = vendors.vendor_id 
-	AND expenses.category_id = categories.category_id
+	WHERE expense_vendor_id = vendor_id 
+	AND expense_category_id = category_id
   AND expenses.company_id = $session_company_id
 	ORDER BY expense_id DESC LIMIT 5"
 );
@@ -82,7 +82,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_id') AS cli
 $clients_added = $row['clients_added'];
 
 //Get Total Vendors added
-$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND client_id = 0 AND company_id = $session_company_id"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND company_id = $session_company_id"));
 $vendors_added = $row['vendors_added'];
 
 //Get Total of Recurring Invoices
@@ -308,15 +308,15 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
             <tr>
 	            <td><?php echo $account_name; ?></a></td>
 	            <?php
-	            $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
+	            $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
               $row = mysqli_fetch_array($sql_payments);
               $total_payments = $row['total_payments'];
 	            
-	            $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id");
+	            $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
               $row = mysqli_fetch_array($sql_revenues);
               $total_revenues = $row['total_revenues'];
               
-              $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
+              $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
               $row = mysqli_fetch_array($sql_expenses);
               $total_expenses = $row['total_expenses'];
 	            
@@ -450,11 +450,11 @@ var myLineChart = new Chart(ctx, {
       data: [
       <?php
       for($month = 1; $month<=12; $month++) {
-          $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month AND payments.company_id = $session_company_id");
+          $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month AND payments.company_id = $session_company_id");
           $row = mysqli_fetch_array($sql_payments);
           $payments_for_month = $row['payment_amount_for_month'];
 
-          $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month AND company_id = $session_company_id");
+          $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month AND company_id = $session_company_id");
           $row = mysqli_fetch_array($sql_revenues);
           $revenues_for_month = $row['revenue_amount_for_month'];
 
@@ -528,7 +528,7 @@ var myLineChart = new Chart(ctx, {
       $largest_expense_month = 0;
       
       for($month = 1; $month<=12; $month++) {
-          $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND vendor_id > 0 AND expenses.company_id = $session_company_id");
+          $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND expenses.company_id = $session_company_id");
           $row = mysqli_fetch_array($sql_expenses);
           $expenses_for_month = $row['expense_amount_for_month'];
           
@@ -667,7 +667,7 @@ var myPieChart = new Chart(ctx, {
   data: {
     labels: [
       <?php
-        $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, categories.category_id FROM categories, invoices WHERE invoices.category_id = categories.category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year AND categories.company_id = $session_company_id");
+        $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_id FROM categories, invoices WHERE invoice_category_id = category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year AND categories.company_id = $session_company_id");
         while($row = mysqli_fetch_array($sql_categories)){
           $category_name = $row['category_name'];
           echo "\"$category_name\",";
@@ -679,11 +679,11 @@ var myPieChart = new Chart(ctx, {
     datasets: [{
       data: [
         <?php
-          $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, categories.category_id FROM categories, invoices WHERE invoices.category_id = categories.category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year AND categories.company_id = $session_company_id");
+          $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_id FROM categories, invoices WHERE invoice_category_id = category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year AND categories.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql_categories)){
             $category_id = $row['category_id'];
 
-            $sql_invoices = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS income_amount_for_year FROM invoices WHERE category_id = $category_id AND YEAR(invoice_date) = $year AND company_id = $session_company_id");
+            $sql_invoices = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS income_amount_for_year FROM invoices WHERE invoice_category_id = $category_id AND YEAR(invoice_date) = $year AND company_id = $session_company_id");
             $row = mysqli_fetch_array($sql_invoices);
             $income_amount_for_year = $row['income_amount_for_year'];
             echo "$income_amount_for_year,";
@@ -694,7 +694,7 @@ var myPieChart = new Chart(ctx, {
       ],
       backgroundColor: [
         <?php
-           $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, categories.category_id, category_color FROM categories, invoices WHERE invoices.category_id = categories.category_id AND YEAR(invoice_date) = $year AND categories.company_id = $session_company_id");
+           $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_id, category_color FROM categories, invoices WHERE invoice_category_id = category_id AND YEAR(invoice_date) = $year AND categories.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql_categories)){
             $category_color = $row['category_color'];
             echo "\"$category_color\",";
@@ -724,7 +724,7 @@ var myPieChart = new Chart(ctx, {
   data: {
     labels: [
       <?php
-        $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, categories.category_id FROM categories, expenses WHERE expenses.category_id = categories.category_id AND expenses.vendor_id > 0 AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
+        $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, categories.category_id FROM categories, expenses WHERE expense_category_id = category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
         while($row = mysqli_fetch_array($sql_categories)){
           $category_name = $row['category_name'];
           echo "\"$category_name\",";
@@ -736,11 +736,11 @@ var myPieChart = new Chart(ctx, {
     datasets: [{
       data: [
         <?php
-          $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, categories.category_id FROM categories, expenses WHERE expenses.category_id = categories.category_id AND expenses.vendor_id > 0 AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
+          $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, categories.category_id FROM categories, expenses WHERE expense_category_id = category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql_categories)){
             $category_id = $row['category_id'];
 
-            $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_year FROM expenses WHERE category_id = $category_id AND YEAR(expense_date) = $year");
+            $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_year FROM expenses WHERE expense_category_id = $category_id AND YEAR(expense_date) = $year");
             $row = mysqli_fetch_array($sql_expenses);
             $expense_amount_for_year = $row['expense_amount_for_year'];
             echo "$expense_amount_for_year,";
@@ -751,7 +751,7 @@ var myPieChart = new Chart(ctx, {
       ],
       backgroundColor: [
         <?php
-          $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expenses.category_id = categories.category_id AND expenses.vendor_id > 0 AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
+          $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expense_category_id = categories.category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql_categories)){
             $category_color = $row['category_color'];
             echo "\"$category_color\",";
@@ -777,7 +777,7 @@ var myPieChart = new Chart(ctx, {
   data: {
     labels: [
       <?php
-        $sql_vendors = mysqli_query($mysqli,"SELECT DISTINCT vendor_name, vendors.vendor_id FROM vendors, expenses WHERE expenses.vendor_id = vendors.vendor_id AND YEAR(expense_date) = $year AND vendors.company_id = $session_company_id");
+        $sql_vendors = mysqli_query($mysqli,"SELECT DISTINCT vendor_name, vendor_id FROM vendors, expenses WHERE expense_vendor_id = vendor_id AND YEAR(expense_date) = $year AND vendors.company_id = $session_company_id");
         while($row = mysqli_fetch_array($sql_vendors)){
           $vendor_name = $row['vendor_name'];
           echo "\"$vendor_name\",";
@@ -789,11 +789,11 @@ var myPieChart = new Chart(ctx, {
     datasets: [{
       data: [
         <?php
-          $sql_vendors = mysqli_query($mysqli,"SELECT DISTINCT vendor_name, vendors.vendor_id FROM vendors, expenses WHERE expenses.vendor_id = vendors.vendor_id AND YEAR(expense_date) = $year AND vendors.company_id = $session_company_id");
+          $sql_vendors = mysqli_query($mysqli,"SELECT DISTINCT vendor_name, vendor_id FROM vendors, expenses WHERE expense_vendor_id = vendor_id AND YEAR(expense_date) = $year AND vendors.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql_vendors)){
             $vendor_id = $row['vendor_id'];
 
-            $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_year FROM expenses WHERE vendor_id = $vendor_id AND YEAR(expense_date) = $year");
+            $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_year FROM expenses WHERE expense_vendor_id = $vendor_id AND YEAR(expense_date) = $year");
             $row = mysqli_fetch_array($sql_expenses);
             $expense_amount_for_year = $row['expense_amount_for_year'];
             echo "$expense_amount_for_year,";
@@ -804,7 +804,7 @@ var myPieChart = new Chart(ctx, {
       ],
       backgroundColor: [
         <?php
-          $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expenses.category_id = categories.category_id AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
+          $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expense_category_id = category_id AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql_categories)){
             $category_color = $row['category_color'];
             echo "\"$category_color\",";

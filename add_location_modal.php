@@ -39,6 +39,11 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
                   </div>
                   <input type="text" class="form-control" name="name" placeholder="Name of location" required autofocus>
+                  <div class="input-group-append">
+                    <div class="input-group-text">
+                      <input type="checkbox" name="primary_location" value="1" <?php if($primary_location == 0){ echo "checked"; } ?>>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -62,8 +67,8 @@
                     <option value="">- Contact -</option>
                     <?php 
                     
-                    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_archived_at IS NULL AND client_id = $client_id ORDER BY contact_name ASC"); 
-                    while($row = mysqli_fetch_array($sql_vendors)){
+                    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC"); 
+                    while($row = mysqli_fetch_array($sql_contacts)){
                       $contact_id = $row['contact_id'];
                       $contact_name = $row['contact_name'];
                     ?>

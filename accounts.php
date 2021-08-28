@@ -69,7 +69,7 @@
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=account_name&o=<?php echo $disp; ?>">Name</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=currency_code&o=<?php echo $disp; ?>">Currency</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=account_currency_code&o=<?php echo $disp; ?>">Currency</a></th>
             <th class="text-right">Balance</th>
             <th class="text-center">Action</th>
           </tr>
@@ -84,15 +84,15 @@
             $account_currency_code = $row['account_currency_code'];
             $account_notes = $row['account_notes'];
 
-            $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
+            $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
             $row = mysqli_fetch_array($sql_payments);
             $total_payments = $row['total_payments'];
 
-            $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id");
+            $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
             $row = mysqli_fetch_array($sql_revenues);
             $total_revenues = $row['total_revenues'];
             
-            $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
+            $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
             $row = mysqli_fetch_array($sql_expenses);
             $total_expenses = $row['total_expenses'];
 

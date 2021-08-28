@@ -60,15 +60,15 @@
                   $account_name = $row['account_name'];
                   $opening_balance = $row['opening_balance'];
                   
-                  $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE account_id = $account_id");
+                  $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                   $row = mysqli_fetch_array($sql_payments);
                   $total_payments = $row['total_payments'];
                   
-                  $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE account_id = $account_id");
+                  $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
                   $row = mysqli_fetch_array($sql_revenues);
                   $total_revenues = $row['total_revenues'];
 
-                  $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE account_id = $account_id");
+                  $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
                   $row = mysqli_fetch_array($sql_expenses);
                   $total_expenses = $row['total_expenses'];
 
@@ -117,13 +117,13 @@
             </div>
           </div>
           
-          <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
+          <?php if(!empty($config_smtp_host) AND !empty($contact_email)){ ?>
 
           <div class="form-group">
             <label>Email Receipt</label>
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_receipt" value="1" checked>
-              <label class="custom-control-label" for="customControlAutosizing"><?php echo $client_email; ?></label>
+              <label class="custom-control-label" for="customControlAutosizing"><?php echo $contact__email; ?></label>
             </div>
           </div>
 

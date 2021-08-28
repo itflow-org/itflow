@@ -46,6 +46,11 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                   </div>
                   <input type="text" class="form-control" name="title" placeholder="Title">
+                  <div class="input-group-append">
+                    <div class="input-group-text">
+                      <input type="checkbox" name="primary_contact" value="1" <?php if($primary_contact == 0){ echo "checked"; } ?>>
+                    </div>
+                  </div>
                 </div>
               </div>
             

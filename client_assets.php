@@ -39,9 +39,9 @@ if(isset($_GET['o'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM assets
-  WHERE client_id = $client_id 
-  AND (asset_name LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%') 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN logins ON login_asset_id = asset_id
+  WHERE asset_client_id = $client_id 
+  AND (asset_name LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -89,8 +89,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_make&o=<?php echo $disp; ?>">Make/Model</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_ip&o=<?php echo $disp; ?>">Primary IP</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_serial&o=<?php echo $disp; ?>">Serial Number</a></th>
-            <th>Contact</th>
-            <th>Location</th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Contact</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_name&o=<?php echo $disp; ?>">Location</a></th>
             <th class="text-center">Action</th>  
           </tr>
         </thead>
@@ -121,10 +121,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $asset_warranty_expire = $row['asset_warranty_expire'];
             $asset_notes = $row['asset_notes'];
             $asset_created_at = $row['asset_created_at'];
-            $vendor_id = $row['vendor_id'];
-            $location_id = $row['location_id'];
-            $contact_id = $row['contact_id'];
-            $network_id = $row['network_id'];
+            $asset_vendor_id = $row['asset_vendor_id'];
+            $asset_location_id = $row['asset_location_id'];
+            $asset_contact_id = $row['asset_contact_id'];
+            $asset_network_id = $row['asset_network_id'];
 
             if($asset_type == 'Laptop'){
               $device_icon = "laptop";
@@ -154,33 +154,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $device_icon = "tag";
             }
 
-            $sql_logins = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE asset_id = $asset_id");
-            $row = mysqli_fetch_array($sql_logins);
-            $login_id = $row['login_id'];
-            $login_username = $row['login_username'];
-            $login_password = $row['login_password'];
-            $asset_id_relation = $row['asset_id'];
-
-            $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_id = $contact_id");
-            $row = mysqli_fetch_array($sql_contact);
             $contact_name = $row['contact_name'];
             if(empty($contact_name)){
               $contact_name = "-";
             }
-
-            $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_id = $location_id");
-            $row = mysqli_fetch_array($sql_location);
+    
             $location_name = $row['location_name'];
             if(empty($location_name)){
               $location_name = "-";
             }
+
+            $login_id = $row['login_id'];
+            $login_username = $row['login_username'];
+            $login_password = $row['login_password'];
       
           ?>
           <tr>
             <th>
               <a class="text-secondary" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
               <?php
-              if($asset_id == $asset_id_relation){
+              if($login_id > 0){
               ?>  
               <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $login_id; ?>"><i class="fas fa-key text-dark"></i></button>
 

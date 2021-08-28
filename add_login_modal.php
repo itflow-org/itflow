@@ -96,7 +96,7 @@
                     <option value="">- Vendor -</option>
                     <?php 
                     
-                    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id ORDER BY vendor_name ASC"); 
+                    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC"); 
                     while($row = mysqli_fetch_array($sql_vendors)){
                       $vendor_id = $row['vendor_id'];
                       $vendor_name = $row['vendor_name'];
@@ -120,7 +120,7 @@
                     <option value="">- Asset -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM assets WHERE client_id = $client_id ORDER BY asset_name ASC"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC"); 
                     while($row = mysqli_fetch_array($sql)){
                       $asset_id = $row['asset_id'];
                       $asset_name = $row['asset_name'];
@@ -144,7 +144,7 @@
                     <option value="">- software -</option>
                     <?php 
                     
-                    $sql = mysqli_query($mysqli,"SELECT * FROM software WHERE client_id = $client_id ORDER BY software_name ASC"); 
+                    $sql = mysqli_query($mysqli,"SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC"); 
                     while($row = mysqli_fetch_array($sql)){
                       $software_id = $row['software_id'];
                       $software_name = $row['software_name'];

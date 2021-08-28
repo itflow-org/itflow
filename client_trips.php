@@ -52,7 +52,7 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips
   WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%')
   AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
   AND company_id = $session_company_id
-  AND client_id = $client_id
+  AND trip_client_id = $client_id
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));

@@ -40,7 +40,7 @@ if(isset($_GET['o'])){
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM locations 
-  WHERE client_id = $client_id 
+  WHERE location_client_id = $client_id 
   AND (location_name LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
@@ -103,10 +103,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $location_state = $row['location_state'];
             $location_zip = $row['location_zip'];
             $location_phone = $row['location_phone'];
+            
             if(strlen($location_phone)>2){ 
               $location_phone = substr($row['location_phone'],0,3)."-".substr($row['location_phone'],3,3)."-".substr($row['location_phone'],6,4);
             }
-            if(empty($location_phones)){
+            if(empty($location_phone)){
               $location_phone_display = "-";
             }else{
               $location_phone_display = $location_phone;
@@ -121,13 +122,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $location_notes = $row['location_notes'];
             $location_primary = $row['location_primary'];
             $location_created_at = $row['location_created_at'];
-            $contact_id = $row['contact_id'];
+            $location_contact_id = $row['location_contact_id'];
+            if($location_id == $primary_location){
+              $primary_location_display = "<p class='text-success'>Primary Location</p>";
+            }else{
+              $primary_location_display = "";
+            }
       
           ?>
           <tr>
             <th>
               <i class="fa fa-fw fa-map-marker-alt text-secondary"></i> 
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>"><?php echo $location_name; ?></a>
+              <?php echo $primary_location_display; ?>
             </th>
             <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo $location_address; ?><br><?php echo "$location_city $location_state $location_zip"; ?></a></td>
             <td><?php echo $location_phone_display; ?></td>

@@ -22,14 +22,14 @@ if(isset($_GET['client_id'])){
   $client_net_terms = $row['client_net_terms'];
 
   //Query each table and store them in their array
-  $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE client_id = $client_id ORDER BY contact_name ASC");
-  $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE client_id = $client_id ORDER BY location_name ASC");
-  $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE client_id = $client_id ORDER BY asset_type ASC");
-  $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id ORDER BY vendor_name ASC");
-  $sql_logins = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE client_id = $client_id ORDER BY login_name ASC");
-  $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE client_id = $client_id ORDER BY network_name ASC");
-  $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE client_id = $client_id ORDER BY domain_name ASC");
-  $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE client_id = $client_id ORDER BY software_name ASC");
+  $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+  $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id ORDER BY location_name ASC");
+  $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_type ASC");
+  $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
+  $sql_logins = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
+  $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_client_id = $client_id ORDER BY network_name ASC");
+  $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_client_id = $client_id ORDER BY domain_name ASC");
+  $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
   $sql_invoices = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id ORDER BY invoice_number DESC");
 
   $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, invoices, accounts
@@ -42,24 +42,24 @@ if(isset($_GET['client_id'])){
 
   $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring WHERE client_id = $client_id ORDER BY recurring_id DESC");
 
-  $sql_documents = mysqli_query($mysqli,"SELECT * FROM documents WHERE client_id = $client_id ORDER BY document_created_at DESC");
+  $sql_documents = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_client_id = $client_id ORDER BY document_created_at DESC");
 
   //Get Counts
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('contact_id') AS num FROM contacts WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('contact_id') AS num FROM contacts WHERE contact_client_id = $client_id"));
   $num_contacts = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('location_id') AS num FROM locations WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('location_id') AS num FROM locations WHERE location_client_id = $client_id"));
   $num_locations = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('asset_id') AS num FROM assets WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('asset_id') AS num FROM assets WHERE asset_client_id = $client_id"));
   $num_assets = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_client_id = $client_id"));
   $num_vendors = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('login_id') AS num FROM logins WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('login_id') AS num FROM logins WHERE login_client_id = $client_id"));
   $num_logins = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('network_id') AS num FROM networks WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('network_id') AS num FROM networks WHERE network_client_id = $client_id"));
   $num_networks = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('domain_id') AS num FROM domains WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('domain_id') AS num FROM domains WHERE domain_client_id = $client_id"));
   $num_domains = $row['num'];
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('software_id') AS num FROM software WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('software_id') AS num FROM software WHERE software_client_id = $client_id"));
   $num_software = $row['num'];
   
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE client_id = $client_id"));
@@ -74,7 +74,7 @@ if(isset($_GET['client_id'])){
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM recurring WHERE client_id = $client_id"));
   $num_recurring = $row['num'];
 
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_id') AS num FROM documents WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_id') AS num FROM documents WHERE document_client_id = $client_id"));
   $num_documents = $row['num'];
 
 ?>

@@ -39,8 +39,8 @@ if(isset($_GET['o'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM software 
-  WHERE client_id = $client_id 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM software LEFT JOIN logins ON login_software_id = software_id
+  WHERE software_client_id = $client_id 
   AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_license LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
@@ -105,12 +105,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }
             $software_notes = $row['software_notes'];
 
-            $sql_login = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE software_id = $software_id");
-            $row = mysqli_fetch_array($sql_login);
             $login_id = $row['login_id'];
             $login_username = $row['login_username'];
             $login_password = $row['login_password'];
-            $software_id_relation = $row['software_id'];
 
           ?>
           <tr>
@@ -119,7 +116,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $software_license_display; ?></td>
             <td>
               <?php
-              if($software_id == $software_id_relation){
+              if($login_id > 0){
               ?>  
               <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $login_id; ?>"><i class="fas fa-key"></i></button>
 

@@ -72,10 +72,10 @@
   //Rebuild URL
   $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips  
-    WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR trip_miles LIKE '%$q%')
+  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips LEFT JOIN clients ON trip_client_id = client_id
+    WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR trip_miles LIKE '%$q%' OR client_name LIKE '%$q%')
     AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
-    AND company_id = $session_company_id
+    AND trips.company_id = $session_company_id
     ORDER BY $sb $o LIMIT $record_from, $record_to"
   );
 
@@ -150,6 +150,7 @@
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_date&o=<?php echo $disp; ?>">Date</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_purpose&o=<?php echo $disp; ?>">Purpose</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_source&o=<?php echo $disp; ?>">Source</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_destination&o=<?php echo $disp; ?>">Destination</a></th>
@@ -169,7 +170,12 @@
             $trip_miles = $row['trip_miles'];
             $round_trip = $row['round_trip'];
             $client_id = $row['client_id'];
-
+            $client_name = $row['client_name'];
+            if(empty($client_name)){
+              $client_name_display = "-";
+            }else{
+              $client_name_display = "<a href='client.php?client_id=$client_id&tab=trips'>$client_name</a>";
+            }
             if($round_trip == 1){
               $round_trip_display = "<i class='fa fa-fw fa-sync-alt text-secondary'></i>";
             }else{
@@ -179,6 +185,7 @@
           ?>
           <tr>
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>"><?php echo $trip_date; ?></a></td>
+            <td><?php echo $client_name_display; ?></td>
             <td><?php echo $trip_purpose; ?></td>
             <td><?php echo $trip_source; ?></td>
             <td><?php echo $trip_destination; ?></td>

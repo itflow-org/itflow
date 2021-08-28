@@ -3,11 +3,11 @@
 <?php
 
 $sql_recent_logins = mysqli_query($mysqli,"SELECT * FROM logs 
-    WHERE log_type = 'Login' AND log_action = 'Success' AND user_id = $session_user_id
+    WHERE log_type = 'Login' AND log_action = 'Success' AND log_user_id = $session_user_id
     ORDER BY log_id DESC LIMIT 5");
 
 $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs 
-    WHERE user_id = $session_user_id AND log_type NOT LIKE 'Login'
+    WHERE log_user_id = $session_user_id AND log_type NOT LIKE 'Login'
     ORDER BY log_id DESC LIMIT 10");
 
 ?>

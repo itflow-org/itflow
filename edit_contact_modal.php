@@ -48,6 +48,11 @@
                     <span class="input-group-text"><i class="fa fa-id-badge"></i></span>
                   </div>
                   <input type="text" class="form-control" name="title" placeholder="Title" value="<?php echo $contact_title; ?>">
+                  <div class="input-group-append">
+                    <div class="input-group-text">
+                      <input type="checkbox" name="primary_contact" value="1" <?php if($contact_id == $primary_contact){ echo "checked"; } ?>>
+                    </div>
+                  </div>
                 </div>
               </div>
 

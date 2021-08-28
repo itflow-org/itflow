@@ -40,7 +40,7 @@ if(isset($_GET['o'])){
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM vendors 
-  WHERE client_id = $client_id 
+  WHERE vendor_client_id = $client_id 
   AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' ) 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 

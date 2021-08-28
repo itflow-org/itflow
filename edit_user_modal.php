@@ -2,23 +2,23 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-user"></i> <?php echo $name; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-user"></i> <?php echo $user_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-        <input type="hidden" name="current_avatar_path" value="<?php echo $avatar; ?>">
+        <input type="hidden" name="current_avatar_path" value="<?php echo $user_avatar; ?>">
         <div class="modal-body bg-white">    
           
           <center class="mb-3">
-            <?php if(!empty($avatar)){ ?>
-            <img class="img-fluid rounded-circle" src="<?php echo $avatar; ?>" height="128" width="128">
+            <?php if(!empty($user_avatar)){ ?>
+            <img class="img-fluid rounded-circle" src="<?php echo $user_avatar; ?>" height="128" width="128">
             <?php }else{ ?>
             <span class="fa-stack fa-4x">
               <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-              <span class="fa fa-stack-1x text-white"><?php echo $initials; ?></span>
+              <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
             </span>
             <?php } ?>
           </center>
@@ -29,7 +29,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
               </div>
-              <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo $name; ?>" required>
+              <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo $user_name; ?>" required>
             </div>
           </div>
 
@@ -39,7 +39,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
               </div>
-              <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo $email; ?>" required>
+              <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo $user_email; ?>" required>
             </div>
           </div>
 

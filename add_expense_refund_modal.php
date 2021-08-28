@@ -9,9 +9,9 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
-          <input type="hidden" name="account" value="<?php echo $account_id; ?>">
-          <input type="hidden" name="vendor" value="<?php echo $vendor_id; ?>">
-          <input type="hidden" name="category" value="<?php echo $category_id; ?>">
+          <input type="hidden" name="account" value="<?php echo $expense_account_id; ?>">
+          <input type="hidden" name="vendor" value="<?php echo $expense_vendor_id; ?>">
+          <input type="hidden" name="category" value="<?php echo $expense_category_id; ?>">
           
           <div class="form-row"> 
             

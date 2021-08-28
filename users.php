@@ -20,7 +20,7 @@
   if(!empty($_GET['sb'])){
     $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
   }else{
-    $sb = "name";
+    $sb = "user_name";
   }
 
   if(isset($_GET['o'])){
@@ -40,8 +40,8 @@
   $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM users, permissions
-    WHERE  users.user_id = permissions.user_id
-    AND (name LIKE '%$q%' OR email LIKE '%$q%')
+    WHERE users.user_id = permissions.user_id
+    AND (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -69,8 +69,8 @@
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
-            <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=name&o=<?php echo $disp; ?>">Name</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=email&o=<?php echo $disp; ?>">Email</a></th>
+            <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">Name</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_email&o=<?php echo $disp; ?>">Email</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=Permission_level&o=<?php echo $disp; ?>">Access Level</a></th>
             <th>Status</th>
             <th>Last Login</th>
@@ -82,9 +82,9 @@
       
           while($row = mysqli_fetch_array($sql)){
             $user_id = $row['user_id'];
-            $name = $row['name'];
-            $email = $row['email'];
-            $avatar = $row['avatar'];
+            $user_name = $row['user_name'];
+            $user_email = $row['user_email'];
+            $user_avatar = $row['user_avatar'];
             $permission_default_company = $row['permission_default_company'];
             $permission_level = $row['permission_level'];
             if($permission_level == 5){
@@ -103,10 +103,10 @@
             $permission_clients = $row['permission_clients'];
             $permission_clients_array = explode(",",$permission_clients);
             $permission_actions = $row['permission_actions'];
-            $initials = initials($name);
+            $user_initials = initials($user_name);
 
             $sql_last_login = mysqli_query($mysqli,"SELECT * FROM logs 
-              WHERE user_id = $user_id AND log_type = 'Login'
+              WHERE log_user_id = $user_id AND log_type = 'Login'
               ORDER BY log_id DESC LIMIT 1"
             );
             $row = mysqli_fetch_array($sql_last_login);
@@ -120,20 +120,20 @@
           <tr>
             <td class="text-center">
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">
-                <?php if(!empty($avatar)){ ?>
-                <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $avatar; ?>">
+                <?php if(!empty($user_avatar)){ ?>
+                <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $user_avatar; ?>">
                 <?php }else{ ?>
                 <span class="fa-stack fa-2x">
                   <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                  <span class="fa fa-stack-1x text-white"><?php echo $initials; ?></span>
+                  <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
                 </span>
                 <br>
                 <?php } ?>
 
-                <div class="text-secondary"><?php echo $name; ?></div>
+                <div class="text-secondary"><?php echo $user_name; ?></div>
               </a>
             </td>
-            <td><a href="mailto:<?php echo $email; ?>"><?php echo $email; ?></a></td>
+            <td><a href="mailto:<?php echo $email; ?>"><?php echo $user_email; ?></a></td>
             <td><?php echo $permission_level_display; ?></td>
             <td>-</td>
             <td><?php echo $log_created_at; ?> <br> <small class="text-secondary"><?php echo $last_login; ?></small></td>

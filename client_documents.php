@@ -40,7 +40,7 @@ if(isset($_GET['o'])){
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
  
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM documents 
-  WHERE documents.client_id = $client_id
+  WHERE document_client_id = $client_id
   AND documents.company_id = $session_company_id
   AND (document_name LIKE '%$q%' OR document_details LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");

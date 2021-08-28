@@ -13,9 +13,12 @@ if(isset($_GET['calendar_id'])){
 <?php include("add_calendar_event_modal.php"); ?>
 <?php include("add_calendar_modal.php"); ?>
 
+<?php 
+?>
+
 <?php
 //loop through IDs and create a modal for each
-$sql = mysqli_query($mysqli,"SELECT * FROM events, calendars WHERE events.calendar_id = calendars.calendar_id AND events.client_id = $client_id AND calendars.company_id = $session_company_id");
+$sql = mysqli_query($mysqli,"SELECT * FROM calendars LEFT JOIN events ON calendar_id = event_calendar_id WHERE event_client_id = $client_id AND calendars.company_id = $session_company_id");
 while($row = mysqli_fetch_array($sql)){
   $event_id = $row['event_id'];
   $event_title = $row['event_title'];
@@ -61,7 +64,7 @@ while($row = mysqli_fetch_array($sql)){
         },
         events: [
           <?php
-          $sql = mysqli_query($mysqli,"SELECT * FROM events, calendars WHERE events.calendar_id = calendars.calendar_id AND calendars.company_id = $session_company_id AND events.client_id = $client_id");
+          $sql = mysqli_query($mysqli,"SELECT * FROM calendars LEFT JOIN events ON calendar_id = event_calendar_id WHERE event_client_id = $client_id AND calendars.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
             $event_id = $row['event_id'];
             $event_title = $row['event_title'];

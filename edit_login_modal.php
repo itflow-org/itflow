@@ -105,12 +105,12 @@
                     <option value="0">- None -</option>
                     <?php 
                     
-                    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE client_id = $client_id ORDER BY vendor_name ASC"); 
+                    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC"); 
                     while($row = mysqli_fetch_array($sql_vendors)){
                       $vendor_id_select = $row['vendor_id'];
                       $vendor_name_select = $row['vendor_name'];
                     ?>
-                      <option <?php if($vendor_id == $vendor_id_select){ echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
+                      <option <?php if($login_vendor_id == $vendor_id_select){ echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
                     
                     <?php
                     }
@@ -129,12 +129,12 @@
                     <option value="0">- None -</option>
                     <?php 
                     
-                    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE client_id = $client_id ORDER BY asset_name ASC"); 
+                    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC"); 
                     while($row = mysqli_fetch_array($sql_assets)){
                       $asset_id_select = $row['asset_id'];
                       $asset_name_select = $row['asset_name'];
                     ?>
-                      <option <?php if($asset_id == $asset_id_select){ echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
+                      <option <?php if($login_asset_id == $asset_id_select){ echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
                     
                     <?php
                     }
@@ -153,12 +153,12 @@
                     <option value="0">- None -</option>
                     <?php 
                     
-                    $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE client_id = $client_id ORDER BY software_name ASC"); 
+                    $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC"); 
                     while($row = mysqli_fetch_array($sql_software)){
                       $software_id_select = $row['software_id'];
                       $software_name_select = $row['software_name'];
                     ?>
-                      <option <?php if($software_id == $software_id_select){ echo "selected"; } ?> value="<?php echo $software_id_select; ?>"><?php echo $software_name_select; ?></option>
+                      <option <?php if($login_software_id == $software_id_select){ echo "selected"; } ?> value="<?php echo $software_id_select; ?>"><?php echo $software_name_select; ?></option>
                     
                     <?php
                     }

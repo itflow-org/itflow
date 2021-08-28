@@ -156,7 +156,7 @@ if(isset($_POST['add_user'])){
   $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
   $password = md5($_POST['password']);
 
-  mysqli_query($mysqli,"INSERT INTO users SET name = '$name', email = '$email', password = '$password', created_at = NOW()");
+  mysqli_query($mysqli,"INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_created_at = NOW()");
 
   $user_id = mysqli_insert_id($mysqli);
 
@@ -169,9 +169,9 @@ if(isset($_POST['add_user'])){
       move_uploaded_file($_FILES['file']['tmp_name'], $path);
   }
 
-  mysqli_query($mysqli,"UPDATE users SET avatar = '$path' WHERE user_id = $user_id");
+  mysqli_query($mysqli,"UPDATE users SET user_avatar = '$path' WHERE user_id = $user_id");
   
-  $_SESSION['alert_message'] = "User <strong>$name</strong> created!";
+  $_SESSION['alert_message'] = "User <strong>$user_name</strong> created!";
 
   header("Location: setup.php?company");
 

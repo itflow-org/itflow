@@ -67,7 +67,7 @@
                   $tax_name = $row['tax_name'];
                   $tax_percent = $row['tax_percent'];
                 ?>
-                  <option <?php if($tax_id_select == $tax_id){ echo "selected"; } ?> value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                  <option <?php if($tax_id_select == $product_tax_id){ echo "selected"; } ?> value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
                 
                 <?php
                 }

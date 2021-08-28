@@ -75,9 +75,9 @@ if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
  
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS expenses.expense_date AS transfer_date, expenses.expense_amount AS transfer_amount, expenses.account_id AS transfer_account_from, revenues.account_id AS transfer_account_to, transfers.expense_id, transfers.revenue_id , transfers.transfer_id, transfers.transfer_notes AS transfer_notes FROM transfers, expenses, revenues 
-  WHERE transfers.expense_id = expenses.expense_id 
-  AND transfers.revenue_id = revenues.revenue_id 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS expense_date AS transfer_date, expense_amount AS transfer_amount, expense_account_id AS transfer_account_from, revenue_account_id AS transfer_account_to, transfer_expense_id, transfer_revenue_id , transfer_id, transfer_notes FROM transfers, expenses, revenues 
+  WHERE transfer_expense_id = expense_id 
+  AND transfer_revenue_id = revenue_id 
   AND transfers.company_id = $session_company_id
   AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
   ORDER BY $sb $o LIMIT $record_from, $record_to"

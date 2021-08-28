@@ -12,6 +12,14 @@ if(isset($_GET['recurring_id'])){
     AND recurring.recurring_id = $recurring_id"
   );
 
+  $sql = mysqli_query($mysqli,"SELECT * FROM recurring 
+    LEFT JOIN clients ON recurring_client_id = client_id
+    LEFT JOIN locations ON primary_location = location_id
+    LEFT JOIN contacts ON primary_contact = contact_id
+    LEFT JOIN companies ON recurring.company_id = companies.company_id
+    WHERE recurring_id = $recurring_id"
+  );
+
   $row = mysqli_fetch_array($sql);
   $recurring_id = $row['recurring_id'];
   $recurring_prefix = $row['recurring_prefix'];
@@ -29,22 +37,22 @@ if(isset($_GET['recurring_id'])){
   $recurring_currency_code = $row['recurring_currency_code'];
   $recurring_note = $row['recurring_note'];
   $recurring_created_at = $row['recurring_created_at'];
-  $category_id = $row['category_id'];
+  $category_id = $row['recurring_category_id'];
   $client_id = $row['client_id'];
   $client_name = $row['client_name'];
-  $client_address = $row['client_address'];
-  $client_city = $row['client_city'];
-  $client_state = $row['client_state'];
-  $client_zip = $row['client_zip'];
-  $client_email = $row['client_email'];
-  $client_phone = $row['client_phone'];
-  if(strlen($client_phone)>2){ 
-    $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+  $location_address = $row['location_address'];
+  $location_city = $row['location_city'];
+  $location_state = $row['location_state'];
+  $location_zip = $row['location_zip'];
+  $contact_email = $row['contact_email'];
+  $contact_phone = $row['contact_phone'];
+  if(strlen($contact_phone)>2){ 
+    $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
   }
-  $client_extension = $row['client_extension'];
-  $client_mobile = $row['client_mobile'];
-  if(strlen($client_mobile)>2){ 
-    $client_mobile = substr($row['client_mobile'],0,3)."-".substr($row['client_mobile'],3,3)."-".substr($row['client_mobile'],6,4);
+  $contact_extension = $row['contact_extension'];
+  $contact_mobile = $row['contact_mobile'];
+  if(strlen($contact_mobile)>2){ 
+    $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
   }
   $client_website = $row['client_website'];
   $client_currency_code = $row['client_currency_code'];
@@ -71,7 +79,7 @@ if(isset($_GET['recurring_id'])){
   $company_website = $row['company_website'];
   $company_logo = $row['company_logo'];
 
-  $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE recurring_id = $recurring_id ORDER BY history_id DESC");
+  $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE history_recurring_id = $recurring_id ORDER BY history_id DESC");
 
 ?>
 
@@ -137,11 +145,11 @@ if(isset($_GET['recurring_id'])){
       <div class="col-sm">
         <ul class="list-unstyled text-right">
           <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
-          <li><?php echo $client_address; ?></li>
-          <li><?php echo "$client_city $client_state $client_zip"; ?></li>
-          <li><?php echo "$client_phone $client_extension"; ?></li>
-          <li><?php echo $client_mobile; ?></li>
-          <li><?php echo $client_email; ?></li>
+          <li><?php echo $location_address; ?></li>
+          <li><?php echo "$location_city $location_state $location_zip"; ?></li>
+          <li><?php echo "$contact_phone $contact_extension"; ?></li>
+          <li><?php echo $contact_mobile; ?></li>
+          <li><?php echo $contact_email; ?></li>
         </ul>
       </div>
     </div>
@@ -166,7 +174,7 @@ if(isset($_GET['recurring_id'])){
       </div>
     </div>   
 
-    <?php $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE recurring_id = $recurring_id ORDER BY item_id ASC"); ?>
+    <?php $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id ORDER BY item_id ASC"); ?>
 
     <div class="row mb-4">
       <div class="col-md-12">
@@ -200,7 +208,7 @@ if(isset($_GET['recurring_id'])){
                 $item_tax = $row['item_tax'];
                 $item_total = $row['item_total'];
                 $item_created_at = $row['item_created_at'];
-                $tax_id = $row['tax_id'];
+                $tax_id = $row['item_tax_id'];
                 $total_tax = $item_tax + $total_tax;
                 $sub_total = $item_price * $item_quantity + $sub_total;
 
