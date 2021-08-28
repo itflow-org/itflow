@@ -38,7 +38,7 @@
           
           <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="4" name="description" required>Refund: <?php echo $expense_description; ?></textarea>
+            <textarea class="form-control" rows="4" name="description" placeholder="Enter a description" required>Refund: <?php echo $expense_description; ?></textarea>
           </div>
           
           <div class="form-group">

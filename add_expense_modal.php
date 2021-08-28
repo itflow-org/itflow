@@ -103,7 +103,7 @@
 
           <div class="form-group">
             <label>Description <strong class="text-danger">*</strong></label>
-            <textarea class="form-control" rows="4" name="description" required></textarea>
+            <textarea class="form-control" rows="4" name="description" placeholder="Enter a description" required></textarea>
           </div>
           
           <div class="form-row">

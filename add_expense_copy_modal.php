@@ -100,7 +100,7 @@
 
           <div class="form-group">
             <label>Description <strong class="text-danger">*</strong></label>
-            <textarea class="form-control" rows="4" name="description" required><?php echo $expense_description; ?></textarea>
+            <textarea class="form-control" rows="4" name="description" placeholder="Enter a description" required><?php echo $expense_description; ?></textarea>
           </div>
           
           <div class="form-row">
