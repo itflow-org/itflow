@@ -123,7 +123,7 @@
             <label>Email Receipt</label>
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_receipt" value="1" checked>
-              <label class="custom-control-label" for="customControlAutosizing"><?php echo $contact__email; ?></label>
+              <label class="custom-control-label" for="customControlAutosizing"><?php echo $contact_email; ?></label>
             </div>
           </div>
 
