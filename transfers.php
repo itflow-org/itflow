@@ -164,8 +164,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $transfer_amount = $row['transfer_amount'];
             $transfer_notes = $row['transfer_notes'];
             $transfer_created_at = $row['transfer_created_at'];
-            $expense_id = $row['expense_id'];
-            $revenue_id = $row['revenue_id'];
+            $expense_id = $row['transfer_expense_id'];
+            $revenue_id = $row['transfer_revenue_id'];
    
             $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_id = $transfer_account_from");
             $row = mysqli_fetch_array($sql2);
