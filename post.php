@@ -538,7 +538,8 @@ if(isset($_POST['edit_alert_settings'])){
     $config_enable_alert_low_balance = intval($_POST['config_enable_alert_low_balance']);
     $config_send_invoice_reminders = intval($_POST['config_send_invoice_reminders']);
     $config_invoice_overdue_reminders = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_overdue_reminders']));
-    $config_account_balance_threshold = preg_replace("/[^0-9]/", '',$_POST['config_account_balance_threshold']);
+    $config_account_balance_threshold = floatval($_POST['config_account_balance_threshold']);
+    //$config_account_balance_threshold = preg_replace("/[^0-9]/", '',$_POST['config_account_balance_threshold']);
 
     mysqli_query($mysqli,"UPDATE settings SET config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_enable_cron = $config_enable_cron, config_enable_alert_domain_expire = $config_enable_alert_domain_expire, config_enable_alert_low_balance = $config_enable_alert_low_balance, config_account_balance_threshold = '$config_account_balance_threshold' WHERE company_id = $session_company_id");
 
