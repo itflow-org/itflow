@@ -39,7 +39,9 @@ if(isset($_GET['o'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM tickets LEFT JOIN users ON ticket_assigned_to = user_id
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM tickets 
+  LEFT JOIN contacts ON contact_client_id = $client_id
+  LEFT JOIN users ON ticket_assigned_to = user_id
   WHERE ticket_client_id = $client_id
   AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%')
   ORDER BY $sb $o LIMIT $record_from, $record_to");
@@ -137,6 +139,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
             }else{
               $ticket_assigned_to_display = $row['user_name'];
+            }
+            $contact_name = $row['contact_name'];
+            $contact_title = $row['contact_title'];
+            $contact_email = $row['contact_email'];
+            $contact_phone = $row['contact_phone'];
+            if(strlen($contact_phone)>2){ 
+              $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
+            }
+            $contact_extension = $row['contact_extension'];
+            $contact_mobile = $row['contact_mobile'];
+            if(strlen($contact_mobile)>2){ 
+              $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
             }
 
           ?>

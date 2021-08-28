@@ -73,7 +73,10 @@
 
   $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM tickets LEFT JOIN clients ON ticket_client_id = client_id LEFT JOIN users ON ticket_assigned_to = user_id
+  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM tickets 
+    LEFT JOIN clients ON ticket_client_id = client_id
+    LEFT JOIN contacts ON ticket_contact_id = contact_id 
+    LEFT JOIN users ON ticket_assigned_to = user_id
     WHERE tickets.company_id = $session_company_id
     AND ticket_status LIKE '%$status%'
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
@@ -183,6 +186,19 @@
             $ticket_closed_at = $row['ticket_closed_at'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
+            $contact_id = $row['contact_id'];
+            $contact_name = $row['contact_name'];
+            $contact_title = $row['contact_title'];
+            $contact_email = $row['contact_email'];
+            $contact_phone = $row['contact_phone'];
+            if(strlen($contact_phone)>2){ 
+              $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
+            }
+            $contact_extension = $row['contact_extension'];
+            $contact_mobile = $row['contact_mobile'];
+            if(strlen($contact_mobile)>2){ 
+              $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
+            }
 
             if($ticket_status == "Open"){
               $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
