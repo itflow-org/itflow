@@ -4370,7 +4370,7 @@ if(isset($_GET['force_recurring'])){
     mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_recurring_amount' WHERE invoice_id = $new_invoice_id");
 
     if($config_recurring_auto_send_invoice == 1){
-        sql = mysqli_query($mysqli,"SELECT * FROM invoices
+        $sql = mysqli_query($mysqli,"SELECT * FROM invoices
             LEFT JOIN clients ON invoice_client_id = client_id
             LEFT JOIN contacts ON contact_id = primary_contact
             LEFT JOIN companies ON invoices.company_id = companies.company_id
