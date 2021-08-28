@@ -2683,7 +2683,7 @@ if(isset($_GET['delete_invoice_item'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $invoice_id = $row['invoice_id'];
+    $invoice_id = $row['item_invoice_id'];
     $item_subtotal = $row['item_subtotal'];
     $item_tax = $row['item_tax'];
     $item_total = $row['item_total'];

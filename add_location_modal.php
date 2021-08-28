@@ -168,7 +168,7 @@
             <div class="tab-pane fade" id="pills-notes">
 
               <div class="form-group">
-                <textarea class="form-control" rows="8" name="notes"></textarea>
+                <textarea class="form-control" rows="8" name="notes" placeholder="Enter some notes"></textarea>
               </div>
 
             </div>

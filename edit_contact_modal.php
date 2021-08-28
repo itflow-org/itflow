@@ -35,7 +35,7 @@
                 <label>Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-user"></i></span>
+                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                   </div>
                   <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo $contact_name; ?>" required>
                 </div>
@@ -45,7 +45,7 @@
                 <label>Title / Primary Contact</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-id-badge"></i></span>
+                    <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                   </div>
                   <input type="text" class="form-control" name="title" placeholder="Title" value="<?php echo $contact_title; ?>">
                   <div class="input-group-append">
@@ -87,7 +87,7 @@
                 <label>Email</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                    <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                   </div>
                   <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo $contact_email; ?>">
                 </div>
@@ -109,7 +109,7 @@
               </center>
 
               <div class="form-group">
-                <label>Photo</label>
+                <label>Upload Photo</label>
                 <input type="file" class="form-control-file" name="file">
               </div>
 
@@ -118,7 +118,7 @@
             <div class="tab-pane fade" id="pills-notes<?php echo $contact_id; ?>">
               
               <div class="form-group">
-                <textarea class="form-control" rows="8" name="notes"><?php echo $contact_notes; ?></textarea>
+                <textarea class="form-control" rows="8" name="notes" placeholder="Enter some notes"><?php echo $contact_notes; ?></textarea>
               </div>
 
             </div>
