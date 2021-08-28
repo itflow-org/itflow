@@ -40,7 +40,7 @@ if(isset($_GET['o'])){
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM tickets 
-  LEFT JOIN contacts ON contact_client_id = $client_id
+  LEFT JOIN contacts ON ticket_contact_id = contact_id
   LEFT JOIN users ON ticket_assigned_to = user_id
   WHERE ticket_client_id = $client_id
   AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%')
