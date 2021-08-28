@@ -1647,7 +1647,7 @@ if(isset($_POST['add_transfer'])){
     mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_currency_code = '$config_default_currency', revenue_account_id = $account_to, revenue_category_id = 0, revenue_created_at = NOW(), company_id = $session_company_id");
     $revenue_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO transfers SET expense_id = $expense_id, revenue_id = $revenue_id, transfer_notes = '$notes', transfer_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO transfers SET transfer_expense_id = $expense_id, transfer_revenue_id = $revenue_id, transfer_notes = '$notes', transfer_created_at = NOW(), company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Created', log_description = '$date - $amount', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");

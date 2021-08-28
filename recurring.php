@@ -74,7 +74,7 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM recurring
   LEFT JOIN clients ON recurring_client_id = client_id
-  LEFT JOIN categories ON recurring_category_id = category_id
+  JOIN categories ON recurring_category_id = category_id
   WHERE recurring.company_id = $session_company_id
   AND (CONCAT(recurring_prefix,recurring_number) LIKE '%$q%' OR recurring_frequency LIKE '%$q%' OR recurring_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%')
   AND DATE(recurring_last_sent) BETWEEN '$dtf' AND '$dtt'
