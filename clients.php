@@ -167,6 +167,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
             $client_type = $row['client_type'];
+            $location_id = $row['location_id'];
             $location_country = $row['location_country'];
             $location_address = $row['location_address'];
             $location_city = $row['location_city'];
@@ -177,6 +178,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $location_address_display = "$location_address<br>$location_city $location_state $location_zip";
             }
+            $contact_id = $row['contact_id'];
             $contact_name = $row['contact_name'];
             $contact_phone = $row['contact_phone'];
             if(strlen($client_phone)>2){ 

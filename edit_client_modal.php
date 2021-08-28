@@ -9,6 +9,8 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+        <input type="hidden" name="location_id" value="<?php echo $location_id; ?>">
+        <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
         <div class="modal-body bg-white">
           
           <ul class="nav nav-pills nav-justified mb-3">
@@ -131,7 +133,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="address" placeholder="Address" value="<?php echo $client_address; ?>">
+                  <input type="text" class="form-control" name="address" placeholder="Address" value="<?php echo $location_address; ?>">
                 </div>
               </div>
           
@@ -141,7 +143,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="city" placeholder="City" value="<?php echo $client_city; ?>">
+                  <input type="text" class="form-control" name="city" placeholder="City" value="<?php echo $location_city; ?>">
                 </div>
               </div>
               
@@ -154,7 +156,7 @@
                   <select class="form-control select2" name="state">
                     <option value="">- State -</option>
                     <?php foreach($states_array as $state_abbr => $state_name) { ?>
-                    <option <?php if($client_state == $state_abbr) { echo "selected"; } ?> value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
+                    <option <?php if($location_state == $state_abbr) { echo "selected"; } ?> value="<?php echo $state_abbr; ?>"><?php echo $state_name; ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -166,7 +168,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="zip" placeholder="Postal Code" value="<?php echo $client_zip; ?>">
+                  <input type="text" class="form-control" name="zip" placeholder="Postal Code" value="<?php echo $location_zip; ?>">
                 </div>
               </div>
 
@@ -179,7 +181,7 @@
                   <select class="form-control select2" name="country">
                     <option value="">- Country -</option>
                     <?php foreach($countries_array as $country_name) { ?>
-                    <option <?php if($client_country == $country_name) { echo "selected"; } ?>><?php echo $country_name; ?></option>
+                    <option <?php if($location_country == $country_name) { echo "selected"; } ?>><?php echo $country_name; ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -195,7 +197,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="contact" placeholder="Primary contact name" value="<?php echo $client_contact; ?>"> 
+                  <input type="text" class="form-control" name="contact" placeholder="Primary contact name" value="<?php echo $contact_name; ?>"> 
                 </div>
               </div>
 
@@ -207,12 +209,12 @@
                       <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                       </div>
-                      <input type="text" class="form-control" name="phone" placeholder="Phone Number" value="<?php echo $client_phone; ?>" data-inputmask="'mask': '999-999-9999'" data-mask> 
+                      <input type="text" class="form-control" name="phone" placeholder="Phone Number" value="<?php echo $contact_phone; ?>" data-inputmask="'mask': '999-999-9999'" data-mask> 
                     </div>
                   </div>
                 </div>
                 <div class="col-4">
-                  <input type="text" class="form-control" name="extension" placeholder="Extension" value="<?php echo $client_extension; ?>">
+                  <input type="text" class="form-control" name="extension" placeholder="Extension" value="<?php echo $contact_extension; ?>">
                 </div>
               </div>
 
@@ -222,7 +224,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="mobile" placeholder="Mobile Number" value="<?php echo $client_mobile; ?>" data-inputmask="'mask': '999-999-9999'" data-mask> 
+                  <input type="text" class="form-control" name="mobile" placeholder="Mobile Number" value="<?php echo $contact_mobile; ?>" data-inputmask="'mask': '999-999-9999'" data-mask> 
                 </div>
               </div>
               
@@ -232,7 +234,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                   </div>
-                  <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo $client_email; ?>">
+                  <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo $contact_email; ?>">
                 </div>
               </div>
 
@@ -251,7 +253,7 @@
             <div class="tab-pane fade" id="pills-client-notes<?php echo $client_id; ?>">
 
               <div class="form-group">
-                <textarea class="form-control" rows="8" name="notes"><?php echo $client_notes; ?></textarea>
+                <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?php echo $client_notes; ?></textarea>
               </div>
             
             </div>

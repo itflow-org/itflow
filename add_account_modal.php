@@ -47,7 +47,7 @@
 
           <div class="form-group">
             <label>Notes</label>
-            <textarea class="form-control" rows="5" name="notes"></textarea>
+            <textarea class="form-control" rows="5" placeholder="Enter some notes" name="notes"></textarea>
           </div>
         
         </div>

@@ -740,6 +740,8 @@ if(isset($_POST['add_client'])){
 if(isset($_POST['edit_client'])){
 
     $client_id = intval($_POST['client_id']);
+    $location_id = intval($_POST['location_id']);
+    $contact_id = intval($_POST['contact_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
     $support = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['support'])));
@@ -763,6 +765,23 @@ if(isset($_POST['edit_client'])){
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
+
+    //Edit Primary Location
+    if($location_id > 0){
+        mysqli_query($mysqli,"UPDATE locations SET location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_country = '$country', location_updated_at = NOW() WHERE location_id = $location_id");
+
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Modified', log_description = 'Primary Location $address', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    }
+
+    //Edit Primary Contact
+    if($contact_id > 0){
+        mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$contact', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_updated_at = NOW() WHERE contact_id = $contact_id");
+    
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modified', log_description = 'Primary Contact $contact', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    }
 
     $_SESSION['alert_message'] = "Client $name updated";
     

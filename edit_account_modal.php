@@ -23,7 +23,7 @@
         
           <div class="form-group">
             <label>Notes</label>
-            <textarea class="form-control" rows="5" name="notes"><?php echo $account_notes; ?></textarea>
+            <textarea class="form-control" rows="5" placeholder="Enter some notes" name="notes"><?php echo $account_notes; ?></textarea>
           </div>
 
         </div>

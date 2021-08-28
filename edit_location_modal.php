@@ -35,7 +35,7 @@
             <div class="tab-pane fade show active" id="pills-details<?php echo $location_id; ?>">
 
               <div class="form-group">
-                <label>Location Name <strong class="text-danger">*</strong></label>
+                <label>Location Name / Primary Location <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>

@@ -42,7 +42,7 @@
               </div>
               
               <div class="form-group">
-                <label>Title</label>
+                <label>Title / Primary Contact</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-id-badge"></i></span>
