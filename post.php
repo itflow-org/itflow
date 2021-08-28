@@ -4337,7 +4337,7 @@ if(isset($_GET['force_recurring'])){
         $item_quantity = $row['item_quantity'];
         $item_price = $row['item_price'];
         $item_subtotal = $row['item_subtotal'];
-        $tax_id = $row['tax_id'];
+        $tax_id = $row['item_tax_id'];
 
         //Recalculate Item Tax since Tax percents can change.
         if($tax_id > 0){
