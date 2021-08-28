@@ -233,7 +233,7 @@ if(isset($_GET['recurring_id'])){
                 <form action="post.php" method="post">
                   <input type="hidden" name="recurring_id" value="<?php echo $recurring_id; ?>">
                   <td></td>            
-                  <td><input type="text" class="form-control" name="name"  placeholder="Item"></td>
+                  <td><input type="text" class="form-control" name="name"  placeholder="Item" required></td>
                   <td><textarea class="form-control"  rows="1" name="description" placeholder="Description"></textarea></td>
                   <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty" placeholder="QTY"></td>
                   <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
