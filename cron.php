@@ -221,7 +221,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         $item_subtotal = $row['item_subtotal'];
         $item_tax = $row['item_tax'];
         $item_total = $row['item_total'];
-        $tax_id = $row['tax_id'];
+        $tax_id = $row['item_tax_id'];
 
         //Insert Items into New Invoice
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = '$item_quantity', item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), item_tax_id = $tax_id, item_invoice_id = $new_invoice_id, company_id = $company_id");
