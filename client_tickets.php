@@ -140,6 +140,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $ticket_assigned_to_display = $row['user_name'];
             }
+            $contact_id = $ow['contact_id'];
             $contact_name = $row['contact_name'];
             $contact_title = $row['contact_title'];
             $contact_email = $row['contact_email'];
