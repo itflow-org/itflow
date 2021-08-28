@@ -4040,16 +4040,23 @@ if(isset($_POST['add_ticket'])){
 
     $client_id = intval($_POST['client']);
     $assigned_to = intval($_POST['assigned_to']);
+    $contact = intval($_POST['contact']);
     $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
     $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
     $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
+
+    if($client_id > 0 AND $contact == 0){
+        $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+        $row = mysqli_fetch_array($sql);
+        $contact = $row['primary_contact'];
+    } 
 
     //Get the next Ticket Number and add 1 for the new ticket number
     $ticket_number = $config_ticket_next_number;
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = $session_company_id");
 
-    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$subject', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");

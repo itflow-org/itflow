@@ -11,6 +11,29 @@
         <div class="modal-body bg-white">
           <?php if(isset($_GET['client_id'])){ ?>
             <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+            <div class="form-group">
+            <label>Contact <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+              </div>
+              <select class="form-control select2" name="contact" required>
+                <option value="">- Contact -</option>
+                <?php 
+                
+                $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC"); 
+                while($row = mysqli_fetch_array($sql)){
+                  $contact_id = $row['contact_id'];
+                  $contact_name = $row['contact_name'];
+                ?>
+                  <option value="<?php echo $contact_id; ?>" <?php if($primary_contact == $contact_id){ echo "selected"; } ?>><?php echo "$contact_name"; ?></option>
+                
+                <?php
+                }
+                ?>
+              </select>
+            </div>
+          </div>
           <?php }else{ ?>
           <div class="form-group">
             <label>Client <strong class="text-danger">*</strong></label>
