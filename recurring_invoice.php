@@ -6,12 +6,6 @@ if(isset($_GET['recurring_id'])){
 
   $recurring_id = intval($_GET['recurring_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM clients, recurring, companies
-    WHERE recurring.client_id = clients.client_id
-    AND recurring.company_id = companies.company_id
-    AND recurring.recurring_id = $recurring_id"
-  );
-
   $sql = mysqli_query($mysqli,"SELECT * FROM recurring 
     LEFT JOIN clients ON recurring_client_id = client_id
     LEFT JOIN locations ON primary_location = location_id
