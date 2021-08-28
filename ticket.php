@@ -35,7 +35,6 @@ if(isset($_GET['ticket_id'])){
   $ticket_updated_at = $row['ticket_updated_at'];
   $ticket_closed_at = $row['ticket_closed_at'];
   $ticket_created_by = $row['ticket_created_by'];
-  $name = $row['name'];
 
   if($ticket_status == "Open"){
     $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
@@ -60,15 +59,21 @@ if(isset($_GET['ticket_id'])){
   $contact_title = $row['contact_title'];
   $contact_email = $row['contact_email'];
   $contact_phone = $row['contact_phone'];
+  if(strlen($contact_phone)>2){ 
+    $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
+  }
   $contact_extension = $row['contact_extension'];
   $contact_mobile = $row['contact_mobile'];
+  if(strlen($contact_mobile)>2){ 
+    $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
+  }
   $location_name = $row['location_name'];
   $location_address = $row['location_address'];
   $location_city = $row['location_city'];
   $location_state = $row['location_state'];
   $location_zip = $row['location_zip'];
   $location_phone = $row['location_phone'];
-  if(strlen($client_phone)>2){ 
+  if(strlen($location_phone)>2){ 
     $location_phone = substr($row['location_phone'],0,3)."-".substr($row['location_phone'],3,3)."-".substr($row['location_phone'],6,4);
   }
 
@@ -242,7 +247,7 @@ if(isset($_GET['ticket_id'])){
           <?php
           if(!empty($contact_email)){
           ?>
-          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i> <a href="mailto:<?php echo $client_email; ?>"><?php echo $client_email; ?></a>
+          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i> <a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
           <br>
           <?php
           }
