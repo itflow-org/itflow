@@ -1364,7 +1364,7 @@ if(isset($_POST['edit_category'])){
 
     $_SESSION['alert_message'] = "Category modified";
     
-    header("Location: categories.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -1378,7 +1378,7 @@ if(isset($_GET['archive_category'])){
 
     $_SESSION['alert_message'] = "Category Archived";
     
-    header("Location: categories.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
