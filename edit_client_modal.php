@@ -201,6 +201,16 @@
                 </div>
               </div>
 
+              <div class="form-group">
+                <label>Title</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="title" placeholder="Title" value="<?php echo $contact_title; ?>"> 
+                </div>
+              </div>
+
               <label>Phone</label>
               <div class="form-row">
                 <div class="col-8">

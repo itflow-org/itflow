@@ -751,6 +751,7 @@ if(isset($_POST['edit_client'])){
     $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
     $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
     $contact = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact'])));
+    $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);

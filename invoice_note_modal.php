@@ -11,7 +11,7 @@
         <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
         <div class="modal-body bg-white">  
           <div class="form-group">
-            <textarea class="form-control" rows="8" name="note"><?php echo $invoice_note; ?></textarea>
+            <textarea class="form-control" rows="8" name="note" placeholder="Enter some notes"><?php echo $invoice_note; ?></textarea>
           </div>
         </div>
         <div class="modal-footer bg-white">

@@ -50,6 +50,7 @@ if(isset($_GET['client_id'])){
   $primary_contact = $row['primary_contact'];
   $primary_location = $row['primary_location'];
   $contact_name = $row['contact_name'];
+  $contact_title = $row['contact_title'];
   $contact_email = $row['contact_email'];
   $contact_phone = $row['contact_phone'];
   if(strlen($contact_phone)>2){ 

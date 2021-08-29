@@ -180,6 +180,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }
             $contact_id = $row['contact_id'];
             $contact_name = $row['contact_name'];
+            $contact_title = $row['contact_title'];
             $contact_phone = $row['contact_phone'];
             if(strlen($client_phone)>2){ 
               $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
