@@ -15,16 +15,13 @@
 
           <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-              <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $location_id; ?>">Details</a>
+              <a class="nav-link active" data-toggle="pill" href="#pills-address<?php echo $location_id; ?>">Address</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-toggle="pill" href="#pills-address<?php echo $location_id; ?>">Address</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-contact<?php echo $location_id; ?>">Contact</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" data-toggle="pill" href="#pills-photo<?php echo $location_id; ?>">Photo</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $location_id; ?>">Notes</a>
             </li>
           </ul>
 
@@ -32,7 +29,7 @@
 
           <div class="tab-content">
 
-            <div class="tab-pane fade show active" id="pills-details<?php echo $location_id; ?>">
+            <div class="tab-pane fade show active" id="pills-address<?php echo $location_id; ?>">
 
               <div class="form-group">
                 <label>Location Name / Primary Location <strong class="text-danger">*</strong></label>
@@ -48,55 +45,6 @@
                   </div>
                 </div>
               </div>
-
-              <div class="form-group">
-                <label>Phone</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" data-mask value="<?php echo $location_phone; ?>"> 
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Contact</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                  </div>
-                  <select class="form-control" name="contact">
-                    <option value="">- Contact -</option>
-                    <?php 
-                    
-                    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE (contact_archived_at > '$location_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_name ASC"); 
-                    while($row = mysqli_fetch_array($sql_contacts)){
-                      $contact_id_select = $row['contact_id'];
-                      $contact_name_select = $row['contact_name'];
-
-                    ?>
-                      <option <?php if($location_contact_id == $contact_id_select){ echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
-                    
-                    <?php
-                    }
-                    ?>
-                  </select>
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label>Hours</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="hours" placeholder="Hours of operation" value="<?php echo $location_hours; ?>"> 
-                </div>
-              </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-address<?php echo $location_id; ?>">
 
               <div class="form-group">
                 <label>Address</label>
@@ -159,6 +107,59 @@
 
             </div>
 
+            <div class="tab-pane fade" id="pills-contact<?php echo $location_id; ?>">
+
+              <div class="form-group">
+                <label>Contact</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                  </div>
+                  <select class="form-control" name="contact">
+                    <option value="">- Contact -</option>
+                    <?php 
+                    
+                    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE (contact_archived_at > '$location_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_name ASC"); 
+                    while($row = mysqli_fetch_array($sql_contacts)){
+                      $contact_id_select = $row['contact_id'];
+                      $contact_name_select = $row['contact_name'];
+
+                    ?>
+                      <option <?php if($location_contact_id == $contact_id_select){ echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
+                    
+                    <?php
+                    }
+                    ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Phone</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'" data-mask value="<?php echo $location_phone; ?>"> 
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label>Hours</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="hours" placeholder="Hours of operation" value="<?php echo $location_hours; ?>"> 
+                </div>
+              </div>
+
+              <div class="form-group">
+                <textarea class="form-control" rows="8" name="notes" placeholder="Enter some notes"><?php echo $location_notes; ?></textarea>
+              </div>
+
+            </div>
+
             <div class="tab-pane fade" id="pills-photo<?php echo $location_id; ?>">
 
               <div class="form-group">
@@ -170,14 +171,6 @@
                 </center>
 
                 <input type="file" class="form-control-file" name="file">
-              </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-notes<?php echo $location_id; ?>">
-
-              <div class="form-group">
-                <textarea class="form-control" rows="8" name="notes" placeholder="Enter some notes"><?php echo $location_notes; ?></textarea>
               </div>
 
             </div>
