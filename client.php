@@ -66,6 +66,7 @@ if(isset($_GET['client_id'])){
   $location_city = $row['location_city'];
   $location_state = $row['location_state'];
   $location_zip = $row['location_zip'];
+  $location_country = $row['location_country'];
   $location_phone = $row['location_phone'];
   if(strlen($location_phone)>2){ 
     $location_phone = substr($row['location_phone'],0,3)."-".substr($row['location_phone'],3,3)."-".substr($row['location_phone'],6,4);
