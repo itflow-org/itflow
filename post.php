@@ -1766,10 +1766,9 @@ if(isset($_POST['edit_invoice'])){
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $due = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['due'])));
     $category = intval($_POST['category']);
-    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
     $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_scope = '$scope', invoice_date = '$date', invoice_due = '$due', invoice_currency_code = '$currency_code', invoice_updated_at = NOW(), invoice_category_id = $category WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_scope = '$scope', invoice_date = '$date', invoice_due = '$due', invoice_updated_at = NOW(), invoice_category_id = $category WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Modified', log_description = '$invoice_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -2082,10 +2081,9 @@ if(isset($_POST['edit_quote'])){
     $quote_id = intval($_POST['quote_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $category = intval($_POST['category']);
-    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
     $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
 
-     mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_currency_code = '$currency_code', quote_category_id = $category, quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+     mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_category_id = $category, quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
      //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modified', log_description = '$quote_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -2341,11 +2339,10 @@ if(isset($_POST['edit_recurring'])){
     $recurring_id = intval($_POST['recurring_id']);
     $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
     $category = intval($_POST['category']);
-    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
     $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
     $status = intval($_POST['status']);
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_scope = '$scope', recurring_frequency = '$frequency', recurring_category_id = $category, recurring_status = $status, recurring_currency_code = '$currency_code', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_scope = '$scope', recurring_frequency = '$frequency', recurring_category_id = $category, recurring_status = $status, recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_description = 'Recurring modified', history_created_at = NOW(), history_recurring_id = $recurring_id, company_id = $session_company_id");
 
