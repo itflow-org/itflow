@@ -171,6 +171,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           ?>
           <tr>
             <th>
+              <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
               <a class="text-secondary" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
               <?php
               if($login_id > 0){
@@ -213,7 +214,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               ?>
               
             </th>
-            <td><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_type; ?></td>
+            <td><?php echo $asset_type; ?></td>
             <td><?php echo "$asset_make $asset_model"; ?></td>
             <td><?php echo $asset_ip_display; ?></td>
             <td><?php echo $asset_serial_display; ?></td>
