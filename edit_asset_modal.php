@@ -277,7 +277,7 @@
             <div class="tab-pane fade" id="pills-notes<?php echo $asset_id; ?>">
 
               <div class="form-group">
-                <textarea class="form-control" rows="8" name="notes"><?php echo $asset_notes; ?></textarea>
+                <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?php echo $asset_notes; ?></textarea>
               </div>
 
             </div>

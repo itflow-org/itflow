@@ -68,7 +68,7 @@
 
             <div class="tab-pane fade" id="pills-notes<?php echo $software_id; ?>">
               
-              <textarea class="form-control" rows="8" name="notes"><?php echo $software_notes; ?></textarea>
+              <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?php echo $software_notes; ?></textarea>
 
             </div>
 

@@ -45,6 +45,7 @@
 	$row = mysqli_fetch_array($sql);
 
 	$session_company_name = $row['company_name'];
+	$session_company_currency = $row['company_currency'];
 
 	include("get_settings.php");
 
