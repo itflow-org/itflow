@@ -42,7 +42,7 @@ if(isset($_POST['login'])){
 
     if(empty($token)){
       $_SESSION['logged'] = TRUE;
-      mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$ip - $os - $browser - $device', log_created_at = NOW(), user_id = $user_id");
+      mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$ip - $os - $browser - $device', log_created_at = NOW(), log_user_id = $user_id");
          
       header("Location: dashboard.php");
     }else{

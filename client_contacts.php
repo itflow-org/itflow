@@ -102,9 +102,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $contact_title_display = $contact_title;
             }
             $contact_phone = $row['contact_phone'];
-            if(strlen($contact_phone)>2){ 
-              $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
-            }
             if(empty($contact_phone)){
               $contact_phone_display = "-";
             }else{
@@ -112,9 +109,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }
             $contact_extension = $row['contact_extension'];
             $contact_mobile = $row['contact_mobile'];
-            if(strlen($contact_mobile)>2){ 
-              $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
-            }
             if(empty($contact_mobile)){
               $contact_mobile_display = "-";
             }else{

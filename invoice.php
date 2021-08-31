@@ -40,14 +40,8 @@ if(isset($_GET['invoice_id'])){
   $location_zip = $row['location_zip'];
   $contact_email = $row['contact_email'];
   $contact_phone = $row['contact_phone'];
-  if(strlen($contact_phone)>2){ 
-    $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
-  }
   $contact_extension = $row['contact_extension'];
   $contact_mobile = $row['contact_mobile'];
-  if(strlen($contact_mobile)>2){ 
-    $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
-  }
   $client_website = $row['client_website'];
   $client_currency_code = $row['client_currency_code'];
   $client_currency_symbol = get_currency_symbol($client_currency_code);

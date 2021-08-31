@@ -103,10 +103,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $location_state = $row['location_state'];
             $location_zip = $row['location_zip'];
             $location_phone = $row['location_phone'];
-            
-            if(strlen($location_phone)>2){ 
-              $location_phone = substr($row['location_phone'],0,3)."-".substr($row['location_phone'],3,3)."-".substr($row['location_phone'],6,4);
-            }
             if(empty($location_phone)){
               $location_phone_display = "-";
             }else{

@@ -182,14 +182,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $contact_name = $row['contact_name'];
             $contact_title = $row['contact_title'];
             $contact_phone = $row['contact_phone'];
-            if(strlen($client_phone)>2){ 
-              $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
-            }
             $contact_extension = $row['contact_extension'];
             $contact_mobile = $row['contact_mobile'];
-            if(strlen($contact_mobile)>2){ 
-              $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
-            }
             $contact_email = $row['contact_email'];
             $client_website = $row['client_website'];
             $client_currency_code = $row['client_currency_code'];
