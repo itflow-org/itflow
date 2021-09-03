@@ -22,7 +22,7 @@
             </div>
             
             <div class="form-group col">
-              <label>Miles / Roundtrip<strong class="text-danger">*</strong></label>
+              <label>Miles / Roundtrip <strong class="text-danger">*</strong></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-bicycle"></i></span>
