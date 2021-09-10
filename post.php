@@ -1199,7 +1199,7 @@ if(isset($_POST['add_campaign'])){
 
     $_SESSION['alert_message'] = "Campaign created";
     
-    header("Location: campaign_details.php?campaign_id=$campaign_id"]);
+    header("Location: campaign_details.php?campaign_id=$campaign_id");
 
 }
 
