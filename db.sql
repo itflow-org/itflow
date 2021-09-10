@@ -109,6 +109,30 @@ CREATE TABLE `calendars` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `campaigns`
+--
+
+DROP TABLE IF EXISTS `campaigns`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaigns` (
+  `campaign_id` int(11) NOT NULL AUTO_INCREMENT,
+  `campaign_name` varchar(255) NOT NULL,
+  `campaign_subject` varchar(255) NOT NULL,
+  `campaign_content` longtext NOT NULL,
+  `campaign_status` varchar(20) NOT NULL,
+  `campaign_sent_count` int(11) DEFAULT NULL,
+  `campaign_open_count` int(11) DEFAULT NULL,
+  `campaign_scheduled_at` datetime DEFAULT NULL,
+  `campaign_created_at` datetime NOT NULL,
+  `campaign_updated_at` datetime DEFAULT NULL,
+  `campaign_archived_at` datetime DEFAULT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`campaign_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `categories`
 --
 
@@ -168,6 +192,7 @@ CREATE TABLE `clients` (
   `client_currency_code` varchar(200) NOT NULL,
   `client_net_terms` int(10) NOT NULL,
   `client_support` varchar(100) DEFAULT NULL,
+  `client_tags` text DEFAULT NULL,
   `client_notes` text DEFAULT NULL,
   `client_created_at` datetime NOT NULL,
   `client_updated_at` datetime DEFAULT NULL,
@@ -549,6 +574,26 @@ CREATE TABLE `logs` (
   `company_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `messages`
+--
+
+DROP TABLE IF EXISTS `messages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `messages` (
+  `message_id` int(11) NOT NULL AUTO_INCREMENT,
+  `message_email` varchar(250) NOT NULL,
+  `message_ip` varchar(200) DEFAULT NULL,
+  `message_sent_at` datetime DEFAULT NULL,
+  `message_opened_at` datetime DEFAULT NULL,
+  `message_campaign_id` int(11) NOT NULL,
+  `message_client_id` int(11) DEFAULT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`message_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1019,4 +1064,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-08-27 23:09:57
+-- Dump completed on 2021-09-09 23:14:42

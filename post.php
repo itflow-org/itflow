@@ -1051,6 +1051,8 @@ if(isset($_GET['delete_event'])){
   
 }
 
+// Vendors
+
 if(isset($_POST['add_vendor'])){
 
     $client_id = intval($_POST['client_id']); //Used if this vendor is under a contact otherwise its 0 for under company
@@ -1179,6 +1181,75 @@ if(isset($_GET['export_client_vendors_csv'])){
     exit;
   
 }
+
+// Campaigns
+
+if(isset($_POST['add_campaign'])){
+
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
+    $content = trim(mysqli_real_escape_string($mysqli,$_POST['content']));
+    
+    mysqli_query($mysqli,"INSERT INTO campaigns SET campaign_name = '$name', campaign_subject = '$subject', campaign_content = '$content', campaign_status = 'Draft', campaign_created_at = NOW(), company_id = $session_company_id");
+
+    $campaign_id = mysqli_insert_id($mysqli);
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Campaign created";
+    
+    header("Location: campaign_details.php?campaign_id=$campaign_id"]);
+
+}
+
+if(isset($_POST['edit_campaign'])){
+
+    $campaign_id = intval($_POST['campaign_id']);
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
+    $content = trim(mysqli_real_escape_string($mysqli,$_POST['content']));
+
+    mysqli_query($mysqli,"UPDATE campaigns SET SET campaign_name = '$name', campaign_subject = '$subject', campaign_content = '$content', campaign_updated_at = NOW() WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Campaign modified";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['archive_campaign'])){
+    $campaign_id = intval($_GET['archive_campaign']);
+
+    mysqli_query($mysqli,"UPDATE campaigns SET campaign_archived_at = NOW() WHERE campaign_id = $campaign_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Archived', log_description = '$campaign_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Campaign Archived!";
+    
+    header("Location: vendors.php");
+
+}
+
+if(isset($_GET['delete_campaign'])){
+    $campaign_id = intval($_GET['delete_campaign']);
+
+    mysqli_query($mysqli,"DELETE FROM campaigns WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Deleted', log_description = '$campaign_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Campaign deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
+// Products
 
 if(isset($_POST['add_product'])){
 

@@ -84,6 +84,13 @@
           </a>
         </li>
 
+        <li class="nav-item">
+          <a href="campaigns.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "campaigns.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-envelope"></i>
+            <p>Mail List</p>
+          </a>
+        </li>
+
         <?php } ?>
 
         <?php if($session_permission_level == 1 OR $session_permission_level > 3){ ?> 
