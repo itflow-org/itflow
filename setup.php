@@ -564,7 +564,7 @@ if(isset($_POST['add_company_settings'])){
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="phone" placeholder="Phone Number" data-inputmask="'mask': '999-999-9999'"> 
+                    <input type="text" class="form-control" name="phone" placeholder="Phone Number"> 
                   </div>
                 </div>
 
@@ -655,8 +655,6 @@ if(isset($_POST['add_company_settings'])){
   <!-- Bootstrap 4 -->
   <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
   <!-- Custom js-->
-  <script src='plugins/inputmask/min/jquery.inputmask.bundle.min.js'></script>
-  <script src='plugins/inputmask/min/inputmask/bindings/inputmask.binding.min.js'></script>
   <script src='plugins/select2/js/select2.min.js'></script>
   <script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
   <!-- AdminLTE App -->
