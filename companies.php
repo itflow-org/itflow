@@ -88,10 +88,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $company_city = $row['company_city'];
             $company_state = $row['company_state'];
             $company_zip = $row['company_zip'];
-            $company_phone = $row['company_phone'];
-            if(strlen($company_phone)>2){ 
-              $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
-            }
+            $company_phone = formatPhoneNumber($row['company_phone']);
             $company_email = $row['company_email'];
             $company_website = $row['company_website'];
             $company_logo = $row['company_logo'];
@@ -101,6 +98,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $company_currency_code = $row['config_default_currency'];
       
           ?>
+          
           <tr>
             <td class="text-center">
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editCompanyModal<?php echo $company_id; ?>">

@@ -2296,15 +2296,9 @@ if(isset($_GET['email_quote'])){
     $client_name = $row['client_name'];
     $contact_name = $row['contact_name'];
     $contact_email = $row['contact_email'];
-    $contact_phone = $row['contact_phone'];
-    if(strlen($contact_phone)>2){ 
-        $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
-    }
+    $contact_phone = formatPhoneNumber($row['contact_phone']);
     $contact_extension = $row['contact_extension'];
-    $contact_mobile = $row['contact_mobile'];
-    if(strlen($contact_mobile)>2){ 
-        $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
-    }
+    $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $client_website = $row['client_website'];
     $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
     $company_name = $row['company_name'];
@@ -2313,10 +2307,7 @@ if(isset($_GET['email_quote'])){
     $company_city = $row['company_city'];
     $company_state = $row['company_state'];
     $company_zip = $row['company_zip'];
-    $company_phone = $row['company_phone'];
-    if(strlen($company_phone)>2){ 
-      $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
-    }
+    $company_phone = formatPhoneNumber($row['company_phone']);
     $company_email = $row['company_email'];
     $company_website = $row['company_website'];
     $company_logo = $row['company_logo'];
@@ -3006,15 +2997,9 @@ if(isset($_GET['email_invoice'])){
     $client_name = $row['client_name'];
     $contact_name = $row['contact_name'];
     $contact_email = $row['contact_email'];
-    $contact_phone = $row['contact_phone'];
-    if(strlen($contact_phone)>2){ 
-        $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
-    }
+    $contact_phone = formatPhoneNumber($row['contact_phone']);
     $contact_extension = $row['contact_extension'];
-    $contact_mobile = $row['contact_mobile'];
-    if(strlen($contact_mobile)>2){ 
-        $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
-    }
+    $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $client_website = $row['client_website'];
     $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
     $company_name = $row['company_name'];
@@ -3023,10 +3008,7 @@ if(isset($_GET['email_invoice'])){
     $company_city = $row['company_city'];
     $company_state = $row['company_state'];
     $company_zip = $row['company_zip'];
-    $company_phone = $row['company_phone'];
-    if(strlen($company_phone)>2){ 
-      $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
-    }
+    $company_phone = formatPhoneNumber($row['company_phone']);
     $company_email = $row['company_email'];
     $company_website = $row['company_website'];
     $company_logo = $row['company_logo'];
@@ -4802,7 +4784,7 @@ if(isset($_GET['export_client_pdf'])){
     $location_state = $row['location_state'];
     $location_zip = $row['location_zip'];
     $contact_name = $row['contact_name'];
-    $contact_phone = $row['contact_phone'];
+    $contact_phone = formatPhoneNumber($row['contact_phone']);
     $contact_email = $row['contact_email'];
     $client_website = $row['client_website'];
 
@@ -4941,18 +4923,12 @@ if(isset($_GET['export_client_pdf'])){
                         while($row = mysqli_fetch_array($sql_contacts)){
                             $contact_name = $row['contact_name'];
                             $contact_title = $row['contact_title'];
-                            $contact_phone = $row['contact_phone'];
-                            if(strlen($contact_phone)>2){ 
-                              $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
-                            }
+                            $contact_phone = formatPhoneNumber($row['contact_phone']);
                             $contact_extension = $row['contact_extension'];
                             if(!empty($contact_extension)){
                               $contact_extension = "x$contact_extension";
                             }
-                            $contact_mobile = $row['contact_mobile'];
-                            if(strlen($contact_mobile)>2){ 
-                              $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
-                            }
+                            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                             $contact_email = $row['contact_email'];
                         ?>
 
@@ -5018,10 +4994,7 @@ if(isset($_GET['export_client_pdf'])){
                           $location_city = $row['location_city'];
                           $location_state = $row['location_state'];
                           $location_zip = $row['location_zip'];
-                          $location_phone = $row['location_phone'];
-                          if(strlen($location_phone)>2){ 
-                            $location_phone = substr($row['location_phone'],0,3)."-".substr($row['location_phone'],3,3)."-".substr($row['location_phone'],6,4);
-                          }
+                          $location_phone = formatPhoneNumber($row['location_phone']);
                         ?>
 
                         [ 
@@ -5085,10 +5058,7 @@ if(isset($_GET['export_client_pdf'])){
                           $vendor_description = $row['vendor_description'];
                           $vendor_account_number = $row['vendor_account_number'];
                           $vendor_contact_name = $row['vendor_contact_name'];
-                          $vendor_phone = $row['vendor_phone'];
-                          if(strlen($vendor_phone)>2){ 
-                            $vendor_phone = substr($row['vendor_phone'],0,3)."-".substr($row['vendor_phone'],3,3)."-".substr($row['vendor_phone'],6,4);
-                          }
+                          $vendor_phone = formatPhoneNumber($row['vendor_phone']);
                           $vendor_email = $row['vendor_email'];
                           $vendor_website = $row['vendor_website'];
                         ?>

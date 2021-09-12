@@ -58,24 +58,15 @@ if(isset($_GET['ticket_id'])){
   $contact_name = $row['contact_name'];
   $contact_title = $row['contact_title'];
   $contact_email = $row['contact_email'];
-  $contact_phone = $row['contact_phone'];
-  if(strlen($contact_phone)>2){ 
-    $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
-  }
+  $contact_phone = formatPhoneNumber($row['contact_phone']);
   $contact_extension = $row['contact_extension'];
-  $contact_mobile = $row['contact_mobile'];
-  if(strlen($contact_mobile)>2){ 
-    $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
-  }
+  $contact_mobile = formatPhoneNumber($row['contact_mobile']);
   $location_name = $row['location_name'];
   $location_address = $row['location_address'];
   $location_city = $row['location_city'];
   $location_state = $row['location_state'];
   $location_zip = $row['location_zip'];
-  $location_phone = $row['location_phone'];
-  if(strlen($location_phone)>2){ 
-    $location_phone = substr($row['location_phone'],0,3)."-".substr($row['location_phone'],3,3)."-".substr($row['location_phone'],6,4);
-  }
+  $location_phone = formatPhoneNumber($row['location_phone']);
 
   $ticket_assigned_to = $row['ticket_assigned_to'];
   if(empty($ticket_assigned_to)){

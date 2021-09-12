@@ -123,6 +123,14 @@ if(isset($_GET['client_id'])){
 
 <?php include("header.php"); ?>
 
+<?php
+
+$contact_phone = formatPhoneNumber($contact_phone);
+$contact_mobile = formatPhoneNumber($contact_mobile);
+$location_phone = formatPhoneNumber($location_phone);
+
+?>
+
 <div class="card mb-3">
   <div class="card-body">
     <div class="row">

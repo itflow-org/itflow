@@ -114,7 +114,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $vendor_contact_name_display = $vendor_contact_name;
             }
-            $vendor_phone = $row['vendor_phone'];
+            $vendor_phone = formatPhoneNumber($row['vendor_phone']);
             $vendor_extension = $row['vendor_extension'];
             $vendor_email = $row['vendor_email'];
             $vendor_website = $row['vendor_website'];

@@ -48,8 +48,9 @@ function removeDirectory($path) {
 }
 
 function get_user_agent() {
-    return  $_SERVER['HTTP_USER_AGENT'];
+    return $_SERVER['HTTP_USER_AGENT'];
 }
+
 function get_ip() {
     $mainIp = '';
     if (getenv('HTTP_CLIENT_IP'))
@@ -183,8 +184,7 @@ function truncate($text, $chars = 25) {
     return $text;
 }
 
-function get_currency_symbol($cc = 'USD')
-{
+function get_currency_symbol($cc = 'USD'){
     $cc = strtoupper($cc);
     $currency = array(
     "USD" => "$" , //U.S. Dollar

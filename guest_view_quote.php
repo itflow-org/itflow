@@ -36,15 +36,9 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     $location_state = $row['location_state'];
     $location_zip = $row['location_zip'];
     $contact_email = $row['contact_email'];
-    $contact_phone = $row['contact_phone'];
-    if(strlen($contact_phone)>2){ 
-      $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
-    }
+    $contact_phone = formatPhoneNumber($row['contact_phone']);
     $contact_extension = $row['contact_extension'];
-    $contact_mobile = $row['contact_mobile'];
-    if(strlen($contact_mobile)>2){ 
-      $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
-    }
+    $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $client_website = $row['client_website'];
     $client_currency_code = $row['client_currency_code'];
     $client_currency_symbol = get_currency_symbol($client_currency_code);
@@ -58,10 +52,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     $company_city = $row['company_city'];
     $company_state = $row['company_state'];
     $company_zip = $row['company_zip'];
-    $company_phone = $row['company_phone'];
-    if(strlen($company_phone)>2){ 
-      $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
-    }
+    $company_phone = formatPhoneNumber($row['company_phone']);
     $company_email = $row['company_email'];
     $company_logo = $row['company_logo'];
     if(!empty($company_logo)){

@@ -102,7 +102,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $location_city = $row['location_city'];
             $location_state = $row['location_state'];
             $location_zip = $row['location_zip'];
-            $location_phone = $row['location_phone'];
+            $location_phone = formatPhoneNumber($row['location_phone']);
             if(empty($location_phone)){
               $location_phone_display = "-";
             }else{

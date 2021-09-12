@@ -101,14 +101,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $contact_title_display = $contact_title;
             }
-            $contact_phone = $row['contact_phone'];
+            $contact_phone = formatPhoneNumber($row['contact_phone']);
             if(empty($contact_phone)){
               $contact_phone_display = "-";
             }else{
               $contact_phone_display = "$contact_phone";
             }
             $contact_extension = $row['contact_extension'];
-            $contact_mobile = $row['contact_mobile'];
+            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
             if(empty($contact_mobile)){
               $contact_mobile_display = "-";
             }else{

@@ -17,10 +17,7 @@ $sql_companies = mysqli_query($mysqli,"SELECT * FROM companies, settings WHERE c
 while($row = mysqli_fetch_array($sql_companies)){
   $company_id = $row['company_id'];
   $company_name = $row['company_name'];
-  $company_phone = $row['company_phone'];
-  if(strlen($company_phone)>2){ 
-    $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
-  }
+  $company_phone = formatPhoneNumber($row['company_phone']);
   $company_email = $row['company_email'];
   $company_website = $row['company_website'];
   $config_enable_cron = $row['config_enable_cron'];
