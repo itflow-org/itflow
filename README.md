@@ -14,42 +14,42 @@
   * Assets (Laptop, Workstations, Routers, Switches, Access Points, phones, etc)
   * Password Manager (AES Encrypted in DB)
   * Domain Names  
-  * Applications Licenses
+  * Software (Manage Applications Licenses)
   * Networks
-  * Files
-  * Notes
+  * Files (PDF Contracts, Manuals, Router Backup Configs, etc)
+  * Documents (Tech Docs, How-tos, Notes, etc)
   * Tickets
-  * Single Downloadable PDF of all documentation for a client to give them.
+  * Client Documentation (Single Downloadable PDF of all documentation for a client)
 * Client Portal
-  * Invoice and Payment information
+  * Invoice, Quotes and Payment information
   * More to come soon...
 * Invoicing
   * Automatically Emails Past Due Invoices to clients
   * Auto Email Receipts upon receiving payments
-  * Recurring Invoices
+  * Automatic Recurring Invoices
 * Quotes
-  * Automated customer approval process using email
+  * Automated customer approval process using a link that sent via email
   * Turn Quotes into invoices with a signle click
 * Accounting
-  * Expense Tracking
+  * Expense Tracking (Track Internal Business Expenses such as Office Supplies, Professional Services, Equipment etc)
   * Profit and Loss Reports
   * Income/Expense Summaries
-  * Travel Mileage Tracking
-  * Account Transfers / Deposits
+  * Travel Mileage Tracking (Track your mileage to and from clients and other points of business)
+  * Account Transfers / Deposits (Keep track of money transfers from account to account)
   * Accounts
 * Alerting/Notifications
   * Low Account Balances
   * Domains to expire
   * Password reset reminder for customers
   * Past Due Invoices
-  * Software License Expiring
+  * Software License Expiration
 * Calendar
   * Schedule Jobs
   * Overview of Invoices, Domains that are expiring, etc
   * Schedule Events
   * Automatic Email Reminders of upcoming calendar events to customers
 * Dashboard
-  * Gives a clear overview of your business financials using graphs
+  * Overview of business financials
 
 * API
   * XML Phonebook download for VOIP Phones
@@ -59,16 +59,14 @@
 
 * Multi-Tenant - One Instance Multiple Companies and Users
 * Audit Logging - Logs actions of users on the system
+* Permission / Roles
 * 2FA Login Support (TOTP)
-
-
 
 ### Installation Instructions
 
 * Change directory to your webroot
 * git clone https://github.com/johnnyq/itflow.git .
-* Set web owner on public web directory usually chown -R www-data:www-data /var/www
-* Create a MySQL database
+* Create a MySQL/MariaDB database
 * Point your browser to your Web Server
 * Go through the Setup Process
 * Login
@@ -77,23 +75,27 @@
 #### Requirements
 * Webserver (Apache, NGINX)
 * PHP7+
-* MySQL or MariaDB
+* MariaDB / MySQL
 
 ### Technologies Used
-* PHP/MySQL
-* Bootstrap
-* AdminLTE3
-* fontawesome
-* chart.js
-* moments.js
-* Jquery
-* PHPmailer
-* pdfmake
-* FullCalendar.io
-* Select2
-* Date Range Picker
-* Bootstrap Typeahead
-* SummerNote
+* Backend / PHP libs
+  * PHP
+  * MariaDB / MySQL
+  * PHPmailer
+
+* CSS
+  * Bootstrap
+  * AdminLTE
+  * fontawesome
+
+* JS Libraries
+  * chart.js
+  * moments.js
+  * Jquery
+  * pdfmake
+  * Select2
+  * SummerNote
+  * FullCalendar.io
 
 ### API Calls
 * Caller ID lookup (Great for integrating with your phone system like FreePBX, and having your VOIP phone return the client thats calling) - /api.php?api_key=[API_KEY]&cid=[PHONE_NUMBER] - Returns a name
