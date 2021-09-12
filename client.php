@@ -9,8 +9,8 @@ if(isset($_GET['client_id'])){
   $sql = mysqli_query($mysqli,"UPDATE clients SET client_accessed_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
 
   $sql = mysqli_query($mysqli,"SELECT * FROM clients
-    LEFT JOIN locations ON primary_location = location_id
-    LEFT JOIN contacts ON primary_contact = contact_id
+    LEFT JOIN locations ON primary_location = location_id AND location_archived_at IS NULL
+    LEFT JOIN contacts ON primary_contact = contact_id AND contact_archived_at IS NULL
     WHERE client_id = $client_id 
     AND clients.company_id = $session_company_id");
 
