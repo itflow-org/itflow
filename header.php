@@ -70,8 +70,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
         </div>
       <?php
       
-      $_SESSION['alert_type'] = '';
-      $_SESSION['alert_message'] = '';
+      unset($_SESSION['alert_type']);
+      unset($_SESSION['alert_message']);
 
     }
 

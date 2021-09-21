@@ -136,7 +136,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
                 <?php if(!empty($contact_photo)){ ?>
               
-                <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $contact_photo; ?>">
+                <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
                 
                 <?php }else{ ?>
     

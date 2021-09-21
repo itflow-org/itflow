@@ -10,7 +10,7 @@
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <input type="hidden" name="current_avatar_path" value="<?php echo $contact_photo; ?>">
+        <input type="hidden" name="existing_file_name" value="<?php echo $contact_photo; ?>">
         <div class="modal-body bg-white">
 
           <ul class="nav nav-pills nav-justified mb-3">
@@ -99,7 +99,7 @@
 
               <center>
                 <?php if(!empty($contact_photo)){ ?>
-                <img class="img-fluid rounded-circle" src="<?php echo $contact_photo; ?>" height="256" width="256">
+                <img class="img-fluid rounded-circle" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>" height="256" width="256">
                 <?php }else{ ?>
                 <span class="fa-stack fa-4x">
                   <i class="fa fa-circle fa-stack-2x text-secondary"></i>
