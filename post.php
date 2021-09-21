@@ -3371,14 +3371,7 @@ if(isset($_POST['add_location'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/clients/$session_company_id/$client_id/";
-        $path = $path . time() . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);
-    }
-
-    mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_photo = '$path', location_notes = '$notes', location_contact_id = $contact, location_created_at = NOW(), location_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact, location_created_at = NOW(), location_client_id = $client_id, company_id = $session_company_id");
 
     //Update Primay location in clients if primary location is checked
     if($primary_location > 0){
@@ -3386,10 +3379,45 @@ if(isset($_POST['add_location'])){
         mysqli_query($mysqli,"UPDATE clients SET primary_location = $location_id WHERE client_id = $client_id");
     }
 
+    //Check to see if a file is attached
+    if($_FILES['file']['tmp_name'] != ''){
+        
+        // get details of the uploaded file
+        $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_name = $_FILES['file']['name'];
+        $file_size = $_FILES['file']['size'];
+        $file_type = $_FILES['file']['type'];
+        $file_name_cmps = explode(".", $file_name);
+        $file_extension = strtolower(end($file_name_cmps));
+
+        // sanitize file-name
+        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
+
+        // check if file has one of the following extensions
+        $allowed_file_extensions = array('jpg', 'gif', 'png');
+     
+        if(in_array($file_extension, $allowed_file_extensions)){
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+
+            if(move_uploaded_file($file_tmp_path, $dest_path)){
+                mysqli_query($mysqli,"UPDATE locations SET location_photo = '$new_file_name' WHERE location_id = $location_id");
+
+                $_SESSION['alert_message'] = 'File successfully uploaded.';
+            }else{
+                $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+            }
+        }else{
+            $_SESSION['alert_message'] = 'Upload failed. Allowed file types: ' . implode(',', $allowed_file_extensions);
+            $_SESSION['alert_type'] = 'danger';
+        }
+    }
+
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Location added";
+    $_SESSION['alert_message'] .= "Location added";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -3411,30 +3439,61 @@ if(isset($_POST['edit_location'])){
     $contact = intval($_POST['contact']);
     $primary_location = intval($_POST['primary_location']);
 
-    $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_file_path']));
+    $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
 
     if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/clients/$session_company_id/$client_id/";
-        $path = $path . time() . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);
-    }
-
-    mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_photo = '$path', location_notes = '$notes', location_contact_id = $contact, location_updated_at = NOW() WHERE location_id = $location_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact, location_updated_at = NOW() WHERE location_id = $location_id AND company_id = $session_company_id");
 
     //Update Primay location in clients if primary location is checked
     if($primary_location > 0){
         mysqli_query($mysqli,"UPDATE clients SET primary_location = $location_id WHERE client_id = $client_id");
     }
 
+    //Check to see if a file is attached
+    if($_FILES['file']['tmp_name'] != ''){
+        
+        // get details of the uploaded file
+        $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_name = $_FILES['file']['name'];
+        $file_size = $_FILES['file']['size'];
+        $file_type = $_FILES['file']['type'];
+        $file_name_cmps = explode(".", $file_name);
+        $file_extension = strtolower(end($file_name_cmps));
+
+        // sanitize file-name
+        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
+
+        // check if file has one of the following extensions
+        $allowed_file_extensions = array('jpg', 'gif', 'png');
+     
+        if(in_array($file_extension, $allowed_file_extensions)){
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+
+            if(move_uploaded_file($file_tmp_path, $dest_path)){
+                mysqli_query($mysqli,"UPDATE locations SET location_photo = '$new_file_name' WHERE location_id = $location_id");
+
+                //Delete old file
+                unlink("uploads/clients/$session_company_id/$client_id/$existing_file_name");
+
+                $_SESSION['alert_message'] = 'File successfully uploaded.';
+            }else{
+                $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+            }
+        }else{
+            $_SESSION['alert_message'] = 'Upload failed. Allowed file types: ' . implode(',', $allowed_file_extensions);
+            $_SESSION['alert_type'] = 'danger';
+        }
+    }
+
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Location updated";
+    $_SESSION['alert_message'] .= "Location updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

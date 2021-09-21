@@ -10,7 +10,7 @@
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="location_id" value="<?php echo $location_id; ?>">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <input type="hidden" name="current_file_path" value="<?php echo $location_photo; ?>">
+        <input type="hidden" name="existing_file_name" value="<?php echo $location_photo; ?>">
         <div class="modal-body bg-white">
 
           <ul class="nav nav-pills nav-justified mb-3">
@@ -166,7 +166,7 @@
 
                 <center>
                   <?php if(!empty($location_photo)){ ?>
-                  <img class="img-fluid rounded-circle" src="<?php echo $location_photo; ?>" height="256" width="256">
+                  <img class="img-fluid rounded-circle" src="<?php echo "uploads/clients/$session_company_id/$client_id/$location_photo"; ?>" height="256" width="256">
                   <?php } ?>
                 </center>
 
