@@ -3409,10 +3409,10 @@ if(isset($_POST['add_contact'])){
 
     mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_created_at = NOW(), contact_client_id = $client_id, company_id = $session_company_id");
 
+    $contact_id = mysqli_insert_id($mysqli);
 
     //Update Primay contact in clients if primary contact is checked
-    if($primary_contact > 0){
-        $contact_id = mysqli_insert_id($mysqli);
+    if($primary_contact > 0){   
         mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");
     }
 
