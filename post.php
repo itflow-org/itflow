@@ -3638,9 +3638,10 @@ if(isset($_POST['add_location'])){
 
     mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact, location_created_at = NOW(), location_client_id = $client_id, company_id = $session_company_id");
 
+    $location_id = mysqli_insert_id($mysqli);
+
     //Update Primay location in clients if primary location is checked
     if($primary_location > 0){
-        $location_id = mysqli_insert_id($mysqli);
         mysqli_query($mysqli,"UPDATE clients SET primary_location = $location_id WHERE client_id = $client_id");
     }
 
