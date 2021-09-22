@@ -9,12 +9,12 @@
       </div>
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-        <input type="hidden" name="current_avatar_path" value="<?php echo $user_avatar; ?>">
+        <input type="hidden" name="existing_file_name" value="<?php echo "uploads/users/$user_id/$user_avatar"; ?>">
         <div class="modal-body bg-white">    
           
           <center class="mb-3">
             <?php if(!empty($user_avatar)){ ?>
-            <img class="img-fluid rounded-circle" src="<?php echo $user_avatar; ?>" height="128" width="128">
+            <img class="img-fluid rounded-circle" src="<?php echo "uploads/users/$user_id/$user_avatar"; ?>" height="128" width="128">
             <?php }else{ ?>
             <span class="fa-stack fa-4x">
               <i class="fa fa-circle fa-stack-2x text-secondary"></i>

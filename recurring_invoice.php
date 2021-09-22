@@ -53,6 +53,7 @@ if(isset($_GET['recurring_id'])){
     $status = "Inactive";
     $status_badge_color = "secondary";
   }
+  $company_id = $row['company_id'];
   $company_name = $row['company_name'];
   $company_country = $row['company_country'];
   $company_address = $row['company_address'];
@@ -111,7 +112,7 @@ if(isset($_GET['recurring_id'])){
 
     <div class="row mb-4">
       <div class="col-sm-2">
-        <img class="img-fluid" src="<?php echo $company_logo; ?>">
+        <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
       </div>
       <div class="col-sm-10">
         <h3 class="text-right"><strong>Recurring Invoice</strong><br><small class="text-secondary"><?php echo ucwords($recurring_frequency); ?>ly</small></h3>

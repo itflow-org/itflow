@@ -44,6 +44,7 @@ if(isset($_GET['quote_id'])){
   if($client_net_terms == 0){
     $client_net_terms = $config_default_net_terms;
   }
+  $company_id = $row['company_id'];
   $company_name = $row['company_name'];
   $company_country = $row['company_country'];
   $company_address = $row['company_address'];
@@ -55,8 +56,8 @@ if(isset($_GET['quote_id'])){
   $company_website = $row['company_website'];
   $company_logo = $row['company_logo'];
   if(!empty($company_logo)){
-  	$company_logo_base64 = base64_encode(file_get_contents($row['company_logo']));
-	}
+    $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
+  }
 
   $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE history_quote_id = $quote_id ORDER BY history_id DESC");
   
@@ -146,7 +147,7 @@ if(isset($_GET['quote_id'])){
 
     <div class="row mb-4">
       <div class="col-sm-2">
-        <img class="img-fluid" src="<?php echo $company_logo; ?>">
+        <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
       </div>
       <div class="col-sm-10">
         <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo "$quote_prefix$quote_number"; ?></small></h3>

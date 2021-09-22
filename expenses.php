@@ -173,7 +173,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             if(empty($expense_receipt)){
               $receipt_attached = "";
             }else{
-              $receipt_attached = "<a class='text-secondary mr-2' target='_blank' href='$expense_receipt'><i class='fa fa-file-pdf'></i></a>";
+              $receipt_attached = "<a class='text-secondary mr-2' target='_blank' href='uploads/expenses/$session_company_id/$expense_receipt'><i class='fa fa-file-pdf'></i></a>";
             }
 
           ?>
@@ -193,7 +193,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <?php 
                   if(!empty($expense_receipt)){
                   ?>
-                  <a class="dropdown-item" href="<?php echo $expense_receipt; ?>" target="_blank">Reciept</a>
+                  <a class="dropdown-item" href="<?php echo "uploads/expenses/$session_company_id/$expense_receipt"; ?>" download="<?php echo "$expense_date-$vendor_name-$category_name.pdf"; ?>">Download</a>
                   <div class="dropdown-divider"></div>
                   <?php
                   }

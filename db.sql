@@ -404,7 +404,7 @@ DROP TABLE IF EXISTS `files`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `files` (
   `file_id` int(11) NOT NULL AUTO_INCREMENT,
-  `reference_file_name` varchar(200) DEFAULT NULL,
+  `file_reference_name` varchar(200) DEFAULT NULL,
   `file_name` varchar(200) NOT NULL,
   `file_ext` varchar(200) DEFAULT NULL,
   `file_created_at` datetime NOT NULL,
@@ -1064,4 +1064,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-09-09 23:14:42
+-- Dump completed on 2021-09-21 22:22:21

@@ -121,7 +121,7 @@
             <td class="text-center">
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">
                 <?php if(!empty($user_avatar)){ ?>
-                <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $user_avatar; ?>">
+                <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo "uploads/users/$user_id/$user_avatar"; ?>">
                 <?php }else{ ?>
                 <span class="fa-stack fa-2x">
                   <i class="fa fa-circle fa-stack-2x text-secondary"></i>

@@ -9,7 +9,7 @@
       </div>
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="company_id" value="<?php echo $company_id; ?>">
-        <input type="hidden" name="current_file_path" value="<?php echo $company_logo; ?>">
+        <input type="hidden" name="existing_file_name" value="<?php echo $company_logo; ?>">
         <div class="modal-body bg-white">
 
           <div class="form-group">
@@ -134,7 +134,7 @@
 
           <div class="card col-md-2">
             <div class="card-body">
-              <img class="img-fluid" src="<?php echo $company_logo; ?>">
+              <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
             </div>
           </div>
 

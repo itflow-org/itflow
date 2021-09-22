@@ -37,7 +37,7 @@
         <?php if(empty($session_avatar)){ ?>
         	<i class="fas fa-user-circle"></i>
         <?php }else{ ?>
-        <img src="<?php echo $session_avatar; ?>" class="user-image img-circle">
+        <img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="user-image img-circle">
         <?php } ?>
         <span class="d-none d-md-inline"><?php echo $session_name; ?></span>
       </a>
@@ -48,7 +48,7 @@
           	<i class="fas fa-user-circle fa-6x"></i>
           <?php }else{ ?>
           
-          	<img src="<?php echo "$session_avatar"; ?>" class="img-circle">
+          	<img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-circle">
 					<?php } ?>
           <p>
             <?php echo $session_name; ?>

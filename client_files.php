@@ -32,6 +32,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
         while($row = mysqli_fetch_array($sql_files_images)){
           $file_id = $row['file_id'];
           $file_name = $row['file_name'];
+          $file_reference_name = $row['file_reference_name'];
           $file_ext = $row['file_ext'];
         
           ?>
@@ -39,12 +40,12 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
           <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">    
             <div class="card">
               <a href="#" data-toggle="modal" data-target="#viewFileModal<?php echo $file_id; ?>">  
-                <img class="img-fluid" src="<?php echo $file_name; ?>">       
+                <img class="img-fluid" src="<?php echo "uploads/clients/$session_company_id/$client_id/$file_reference_name"; ?>">       
               </a>
               <div class="card-footer bg-dark text-white p-1">
                 <center>
-                  <a href="<?php echo $file_name; ?>" download="<?php echo $file_name; ?>" class="text-white float-left ml-1"><i class="fa fa-cloud-download-alt"></i></a>
-                  <small><?php echo basename($file_name); ?></small>
+                  <a href="<?php echo "uploads/clients/$session_company_id/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>" class="text-white float-left ml-1"><i class="fa fa-cloud-download-alt"></i></a>
+                  <small><?php echo $file_name; ?></small>
 
                   <a href="post.php?delete_file=<?php echo $file_id; ?>" class="text-white float-right mr-1"><i class="fa fa-times"></i></a>
                 </center>
@@ -66,6 +67,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
         while($row = mysqli_fetch_array($sql_files_other)){
           $file_id = $row['file_id'];
           $file_name = $row['file_name'];
+          $file_reference_name = $row['file_reference_name'];
           $file_ext = $row['file_ext'];
           if($file_ext == 'pdf'){
             $file_icon = "file-pdf";
@@ -87,7 +89,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
           <tr>
             <td><a href="<?php echo $file_name; ?>" target="_blank" class="text-secondary"><i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> mr-3"></i> <?php echo basename($file_name); ?></a></td>
             <td>
-              <a href="<?php echo $file_name; ?>" download="<?php echo $file_name; ?>" class="text-secondary float-left ml-1"><i class="fa fa-cloud-download-alt"></i></a>
+              <a href="<?php echo "uploads/clients/$session_company_id/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>" class="text-secondary float-left ml-1"><i class="fa fa-cloud-download-alt"></i></a>
               <a href="post.php?delete_file=<?php echo $file_id; ?>" class="text-secondary float-right mr-1"><i class="fa fa-times"></i></a>
             </td>
           </tr>

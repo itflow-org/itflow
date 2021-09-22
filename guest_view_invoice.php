@@ -57,8 +57,8 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     $company_email = $row['company_email'];
     $company_logo = $row['company_logo'];
     if(!empty($company_logo)){
-			$company_logo_base64 = base64_encode(file_get_contents($row['company_logo']));
-		}
+      $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
+    }
     $config_invoice_footer = $row['config_invoice_footer'];
     $config_stripe_enable = $row['config_stripe_enable'];
     $config_stripe_publishable = $row['config_stripe_publishable'];
@@ -129,7 +129,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     <div class="card-body">
       <div class="row mb-4">
         <div class="col-sm-2">
-          <img class="img-fluid" src="<?php echo $company_logo; ?>">
+          <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
         </div>
         <div class="col-sm-10">
           <?php if($invoice_status == "Paid"){ ?>

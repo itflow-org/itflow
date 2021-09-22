@@ -56,8 +56,8 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     $company_email = $row['company_email'];
     $company_logo = $row['company_logo'];
     if(!empty($company_logo)){
-			$company_logo_base64 = base64_encode(file_get_contents($row['company_logo']));
-		}
+      $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
+    }
     $quote_footer = $row['quote_footer'];
 
     $ip = get_ip();
@@ -98,7 +98,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
 
       <div class="row mb-4">
         <div class="col-sm-2">
-          <img class="img-fluid" src="<?php echo $company_logo; ?>">
+          <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
         </div>
         <div class="col-sm-10">
           <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo "$quote_prefix$quote_number"; ?></small></h3>

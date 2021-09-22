@@ -103,7 +103,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td class="text-center">
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editCompanyModal<?php echo $company_id; ?>">
                 <?php if(!empty($company_logo)){ ?>
-                <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo $company_logo; ?>">
+                <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
                 <?php }else{ ?>
                 <span class="fa-stack fa-2x">
                   <i class="fa fa-circle fa-stack-2x text-secondary"></i>

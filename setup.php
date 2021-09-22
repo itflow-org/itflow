@@ -162,14 +162,48 @@ if(isset($_POST['add_user'])){
 
   mkdir("uploads/users/$user_id");
 
-  if($_FILES['file']['tmp_name']!='') {
-      $path = "uploads/users/$user_id/";
-      $path = $path . time() . basename( $_FILES['file']['name']);
-      $file_name = basename($path);
-      move_uploaded_file($_FILES['file']['tmp_name'], $path);
-  }
+  //Check to see if a file is attached
+  if($_FILES['file']['tmp_name'] != ''){
+      
+    // get details of the uploaded file
+    $file_error = 0;
+    $file_tmp_path = $_FILES['file']['tmp_name'];
+    $file_name = $_FILES['file']['name'];
+    $file_size = $_FILES['file']['size'];
+    $file_type = $_FILES['file']['type'];
+    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
 
-  mysqli_query($mysqli,"UPDATE users SET user_avatar = '$path' WHERE user_id = $user_id");
+    // sanitize file-name
+    $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
+
+    // check if file has one of the following extensions
+    $allowed_file_extensions = array('jpg', 'gif', 'png');
+ 
+    if(in_array($file_extension,$allowed_file_extensions) === false){
+        $file_error = 1;
+    }
+
+    //Check File Size
+    if($file_size > 2097152){
+      $file_error = 1;
+    }
+
+    if($file_error == 0){
+      // directory in which the uploaded file will be moved
+      $upload_file_dir = "uploads/users/$user_id/";
+      $dest_path = $upload_file_dir . $new_file_name;
+
+      move_uploaded_file($file_tmp_path, $dest_path);
+
+      //Set Avatar
+      mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
+
+      $_SESSION['alert_message'] = 'File successfully uploaded.';
+    }else{
+        
+      $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+    }
+  }
   
   $_SESSION['alert_message'] = "User <strong>$user_name</strong> created!";
 
@@ -205,13 +239,46 @@ if(isset($_POST['add_company_settings'])){
   mkdir("uploads/settings/$company_id");
   mkdir("uploads/tmp/$company_id");
 
-  if($_FILES['file']['tmp_name']!='') {
-    $path = "uploads/settings/$company_id/";
-    $path = $path . time() . basename( $_FILES['file']['name']);
-    $file_name = basename($path);
-    move_uploaded_file($_FILES['file']['tmp_name'], $path);
+  //Check to see if a file is attached
+  if($_FILES['file']['tmp_name'] != ''){
+      
+    // get details of the uploaded file
+    $file_error = 0;
+    $file_tmp_path = $_FILES['file']['tmp_name'];
+    $file_name = $_FILES['file']['name'];
+    $file_size = $_FILES['file']['size'];
+    $file_type = $_FILES['file']['type'];
+    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
 
-    mysqli_query($mysqli,"UPDATE companies SET company_logo = '$path' WHERE company_id = $company_id");
+    // sanitize file-name
+    $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
+
+    // check if file has one of the following extensions
+    $allowed_file_extensions = array('jpg', 'gif', 'png');
+ 
+    if(in_array($file_extension,$allowed_file_extensions) === false){
+      $file_error = 1;
+    }
+
+    //Check File Size
+    if($file_size > 2097152){
+      $file_error = 1;
+    }
+
+    if($file_error == 0){
+      // directory in which the uploaded file will be moved
+      $upload_file_dir = "uploads/settings/$company_id/";
+      $dest_path = $upload_file_dir . $new_file_name;
+
+      move_uploaded_file($file_tmp_path, $dest_path);
+
+      mysqli_query($mysqli,"UPDATE companies SET company_logo = '$new_file_name' WHERE company_id = $company_id");
+
+      $_SESSION['alert_message'] = 'File successfully uploaded.';
+    }else{
+        
+      $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+    }
   }
 
   //Create Permissions

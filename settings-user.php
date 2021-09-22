@@ -22,13 +22,13 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
 
         <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
           <input type="hidden" name="user_id" value="<?php echo $session_user_id; ?>">
-          <input type="hidden" name="current_avatar_path" value="<?php echo $session_avatar; ?>">
+          <input type="hidden" name="existing_file_name" value="<?php echo $session_avatar; ?>">
 
           <center class="mb-3 p-4">
             <?php if(empty($session_avatar)){ ?>
             	<i class="fas fa-user-circle fa-8x text-secondary"></i>
             <?php }else{ ?>
-            	<img src="<?php echo $session_avatar; ?>" class="img-circle img-fluid">
+            	<img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-circle img-fluid">
             <?php } ?>
             <h4 class="text-secondary mt-2"><?php echo $session_permission_level_display; ?></h4>
           </center>

@@ -46,14 +46,48 @@ if(isset($_POST['add_user'])){
         mkdir("uploads/users/$user_id");
     }
 
-    if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/users/$user_id/";
-        $path = $path . time() . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);
+    //Check to see if a file is attached
+    if($_FILES['file']['tmp_name'] != ''){
+        
+        // get details of the uploaded file
+        $file_error = 0;
+        $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_name = $_FILES['file']['name'];
+        $file_size = $_FILES['file']['size'];
+        $file_type = $_FILES['file']['type'];
+        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+
+        // sanitize file-name
+        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
+
+        // check if file has one of the following extensions
+        $allowed_file_extensions = array('jpg', 'gif', 'png');
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
+            $file_error = 1;
+        }
+
+        //Check File Size
+        if($file_size > 2097152){
+            $file_error = 1;
+        }
+
+        if($file_error == 0){
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/users/$user_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+
+            move_uploaded_file($file_tmp_path, $dest_path);
+
+            //Set Avatar
+            mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
+
+            $_SESSION['alert_message'] = 'File successfully uploaded.';
+        }else{
+            
+            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+        }
     }
-    //Set Avatar
-    mysqli_query($mysqli,"UPDATE users SET user_avatar = '$path' WHERE user_id = $user_id");
 
     //Create Permissions
     mysqli_query($mysqli,"INSERT INTO permissions SET permission_level = $level, permission_default_company = $company, permission_companies = $company, user_id = $user_id");
@@ -75,19 +109,58 @@ if(isset($_POST['edit_user'])){
     $new_password = trim($_POST['new_password']);
     $company = intval($_POST['company']);
     $level = intval($_POST['level']);
-    $path = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path'])));
+    $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
 
-    if($_FILES['file']['tmp_name']!='') {
-        //delete old avatar file
-        unlink($path);
-        //Update with new path
-        $path = "uploads/users/$user_id/";
-        $path = $path . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);   
+    if(!file_exists("uploads/users/$user_id/")) {
+        mkdir("uploads/users/$user_id");
+    }
+
+    //Check to see if a file is attached
+    if($_FILES['file']['tmp_name'] != ''){
+    
+    // get details of the uploaded file
+        $file_error = 0;
+        $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_name = $_FILES['file']['name'];
+        $file_size = $_FILES['file']['size'];
+        $file_type = $_FILES['file']['type'];
+        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+
+        // sanitize file-name
+        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
+
+        // check if file has one of the following extensions
+        $allowed_file_extensions = array('jpg', 'gif', 'png');
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
+            $file_error = 1;
+        }
+
+        //Check File Size
+        if($file_size > 2097152){
+            $file_error = 1;
+        }
+
+        if($file_error == 0){
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/users/$user_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+
+            move_uploaded_file($file_tmp_path, $dest_path);
+
+            //Delete old file
+            unlink("uploads/users/$user_id/$existing_file_name");
+            
+            mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
+
+            $_SESSION['alert_message'] = 'File successfully uploaded.';
+        }else{
+            
+            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+        }
     }
     
-    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email', user_password = '$password', user_avatar = '$path', user_updated_at = NOW() WHERE user_id = $user_id");
+    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email', user_password = '$password', user_updated_at = NOW() WHERE user_id = $user_id");
 
     if(!empty($new_password)){
         $new_password = md5($new_password);
@@ -112,19 +185,54 @@ if(isset($_POST['edit_profile'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $new_password = trim($_POST['new_password']);
-    $path = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_avatar_path'])));
+    $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
 
-    if($_FILES['file']['tmp_name']!='') {
-        //delete old avatar file
-        unlink($path);
-        //Update with new path
-        $path = "uploads/users/$user_id/";
-        $path = $path . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);   
+    //Check to see if a file is attached
+    if($_FILES['file']['tmp_name'] != ''){
+    
+    // get details of the uploaded file
+        $file_error = 0;
+        $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_name = $_FILES['file']['name'];
+        $file_size = $_FILES['file']['size'];
+        $file_type = $_FILES['file']['type'];
+        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+
+        // sanitize file-name
+        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
+
+        // check if file has one of the following extensions
+        $allowed_file_extensions = array('jpg', 'gif', 'png');
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
+            $file_error = 1;
+        }
+
+        //Check File Size
+        if($file_size > 2097152){
+            $file_error = 1;
+        }
+
+        if($file_error == 0){
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/users/$user_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+
+            move_uploaded_file($file_tmp_path, $dest_path);
+
+            //Delete old file
+            unlink("uploads/users/$user_id/$existing_file_name");
+            
+            mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
+
+            $_SESSION['alert_message'] = 'File successfully uploaded.';
+        }else{
+            
+            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+        }
     }
     
-    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email', user_avatar = '$path', user_updated_at = NOW() WHERE user_id = $user_id");
+    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email', user_updated_at = NOW() WHERE user_id = $user_id");
 
     if(!empty($new_password)){
         $new_password = md5($new_password);
@@ -236,14 +344,46 @@ if(isset($_POST['add_company'])){
     mkdir("uploads/settings/$company_id");
     mkdir("uploads/tmp/$company_id");
 
-    if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/settings/$company_id/";
-        $path = $path . time() . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);
-    
-        mysqli_query($mysqli,"UPDATE companies SET company_logo = '$path' WHERE company_id = $company_id");
+    //Check to see if a file is attached
+    if($_FILES['file']['tmp_name'] != ''){
+        
+        // get details of the uploaded file
+        $file_error = 0;
+        $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_name = $_FILES['file']['name'];
+        $file_size = $_FILES['file']['size'];
+        $file_type = $_FILES['file']['type'];
+        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
 
+        // sanitize file-name
+        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
+
+        // check if file has one of the following extensions
+        $allowed_file_extensions = array('jpg', 'gif', 'png');
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
+            $file_error = 1;
+        }
+
+        //Check File Size
+        if($file_size > 2097152){
+            $file_error = 1;
+        }
+
+        if($file_error == 0){
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/settings/$company_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+
+            move_uploaded_file($file_tmp_path, $dest_path);
+
+            mysqli_query($mysqli,"UPDATE companies SET company_logo = '$new_file_name' WHERE company_id = $company_id");
+
+            $_SESSION['alert_message'] = 'File successfully uploaded.';
+        }else{
+            
+            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+        }
     }
 
     mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_default_country = '$country', config_default_currency = '$currency_code', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
@@ -270,20 +410,58 @@ if(isset($_POST['edit_company'])){
     $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
     $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
 
-    $path = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_file_path']));
+    $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
 
     if(!file_exists("uploads/settings/$company_id/")) {
         mkdir("uploads/settings/$company_id");
     }
 
-    if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/settings/$company_id/";
-        $path = $path . time() . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);
+    //Check to see if a file is attached
+    if($_FILES['file']['tmp_name'] != ''){
+    
+    // get details of the uploaded file
+        $file_error = 0;
+        $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_name = $_FILES['file']['name'];
+        $file_size = $_FILES['file']['size'];
+        $file_type = $_FILES['file']['type'];
+        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+
+        // sanitize file-name
+        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
+
+        // check if file has one of the following extensions
+        $allowed_file_extensions = array('jpg', 'gif', 'png');
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
+            $file_error = 1;
+        }
+
+        //Check File Size
+        if($file_size > 2097152){
+            $file_error = 1;
+        }
+
+        if($file_error == 0){
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/settings/$company_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+
+            move_uploaded_file($file_tmp_path, $dest_path);
+
+            //Delete old file
+            unlink("uploads/settings/$company_id/$existing_file_name");
+            
+            mysqli_query($mysqli,"UPDATE companies SET company_logo = '$new_file_name' WHERE company_id = $company_id");
+
+            $_SESSION['alert_message'] = 'File successfully uploaded.';
+        }else{
+            
+            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+        }
     }
 
-    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_logo = '$path', company_updated_at = NOW() WHERE company_id = $company_id");
+    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_updated_at = NOW() WHERE company_id = $company_id");
 
     mysqli_query($mysqli,"UPDATE settings SET config_default_currency = '$currency_code', config_default_country = '$country' WHERE company_id = $company_id");
 
@@ -1654,14 +1832,51 @@ if(isset($_POST['add_expense'])){
     $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
 
-    if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/expenses/$session_company_id/";
-        $path = $path . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);
-    }
+    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', expense_currency_code = '$config_default_currency', expense_account_id = $account, expense_vendor_id = $vendor, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference', expense_created_at = NOW(), company_id = $session_company_id");
 
-    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', expense_currency_code = '$config_default_currency', expense_account_id = $account, expense_vendor_id = $vendor, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference', expense_receipt = '$path', expense_created_at = NOW(), company_id = $session_company_id");
+    $expense_id = mysqli_insert_id($mysqli);
+
+    //Check to see if a file is attached
+    if($_FILES['file']['tmp_name'] != ''){
+        
+        // get details of the uploaded file
+        $file_error = 0;
+        $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_name = $_FILES['file']['name'];
+        $file_size = $_FILES['file']['size'];
+        $file_type = $_FILES['file']['type'];
+        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+
+        // sanitize file-name
+        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
+
+        // check if file has one of the following extensions
+        $allowed_file_extensions = array('jpg', 'gif', 'png', 'pdf');
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
+            $file_error = 1;
+        }
+
+        //Check File Size
+        if($file_size > 9097152){
+            $file_error = 1;
+        }
+
+        if($file_error == 0){
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/expenses/$session_company_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+
+            move_uploaded_file($file_tmp_path, $dest_path);
+            
+            mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
+
+            $_SESSION['alert_message'] = 'File successfully uploaded.';
+        }else{
+            
+            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+        }
+    }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Created', log_description = '$description', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -1682,18 +1897,54 @@ if(isset($_POST['edit_expense'])){
     $category = intval($_POST['category']);
     $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
-    $path = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expense_receipt'])));
+    $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
 
-    if($_FILES['file']['tmp_name']!='') {
-        //remove old receipt
-        unlink($path);
-        $path = "uploads/expenses/$session_company_id/";
-        $path = $path . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);
+    //Check to see if a file is attached
+    if($_FILES['file']['tmp_name'] != ''){
+        
+        // get details of the uploaded file
+        $file_error = 0;
+        $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_name = $_FILES['file']['name'];
+        $file_size = $_FILES['file']['size'];
+        $file_type = $_FILES['file']['type'];
+        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+
+        // sanitize file-name
+        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
+
+        // check if file has one of the following extensions
+        $allowed_file_extensions = array('jpg', 'gif', 'png', 'pdf');
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
+            $file_error = 1;
+        }
+
+        //Check File Size
+        if($file_size > 9097152){
+            $file_error = 1;
+        }
+
+        if($file_error == 0){
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/expenses/$session_company_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+
+            move_uploaded_file($file_tmp_path, $dest_path);
+
+            //Delete old file
+            unlink("uploads/expenses/$session_company_id/$existing_file_name");
+            
+            mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
+
+            $_SESSION['alert_message'] = 'File successfully uploaded.';
+        }else{
+            
+            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+        }
     }
 
-    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', expense_account_id = $account, expense_vendor_id = $vendor, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference', expense_receipt = '$path', expense_updated_at = NOW() WHERE expense_id = $expense_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', expense_account_id = $account, expense_vendor_id = $vendor, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference', expense_updated_at = NOW() WHERE expense_id = $expense_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Expense modified";
 
@@ -1711,7 +1962,7 @@ if(isset($_GET['delete_expense'])){
     $row = mysqli_fetch_array($sql);
     $expense_receipt = $row['expense_receipt'];
 
-    unlink($expense_receipt);
+    unlink("uploads/expenses/$session_company_id/$expense_receipt");
 
     mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id AND company_id = $session_company_id");
 
@@ -3169,12 +3420,12 @@ if(isset($_POST['add_contact'])){
     if($_FILES['file']['tmp_name'] != ''){
         
         // get details of the uploaded file
+        $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
         $file_name = $_FILES['file']['name'];
         $file_size = $_FILES['file']['size'];
         $file_type = $_FILES['file']['type'];
-        $file_name_cmps = explode(".", $file_name);
-        $file_extension = strtolower(end($file_name_cmps));
+        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
 
         // sanitize file-name
         $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
@@ -3182,21 +3433,28 @@ if(isset($_POST['add_contact'])){
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png');
      
-        if(in_array($file_extension, $allowed_file_extensions)){
+        if(in_array($file_extension,$allowed_file_extensions) === false){
+            $file_error = 1;
+        }
+
+        //Check File Size
+        if($file_size > 2097152){
+            $file_error = 1;
+        }
+
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
 
-            if(move_uploaded_file($file_tmp_path, $dest_path)){
-                mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '$new_file_name' WHERE contact_id = $contact_id");
+            move_uploaded_file($file_tmp_path, $dest_path);
+            
+            mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '$new_file_name' WHERE contact_id = $contact_id");
 
-                $_SESSION['alert_message'] = 'File successfully uploaded.';
-            }else{
-                $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
-            }
+            $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-            $_SESSION['alert_message'] = 'Upload failed. Allowed file types: ' . implode(',', $allowed_file_extensions);
-            $_SESSION['alert_type'] = 'danger';
+            
+            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
 
@@ -3237,14 +3495,14 @@ if(isset($_POST['edit_contact'])){
 
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
-        
-        // get details of the uploaded file
+    
+    // get details of the uploaded file
+        $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
         $file_name = $_FILES['file']['name'];
         $file_size = $_FILES['file']['size'];
         $file_type = $_FILES['file']['type'];
-        $file_name_cmps = explode(".", $file_name);
-        $file_extension = strtolower(end($file_name_cmps));
+        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
 
         // sanitize file-name
         $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
@@ -3252,24 +3510,31 @@ if(isset($_POST['edit_contact'])){
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png');
      
-        if(in_array($file_extension, $allowed_file_extensions)){
+        if(in_array($file_extension,$allowed_file_extensions) === false){
+            $file_error = 1;
+        }
+
+        //Check File Size
+        if($file_size > 2097152){
+            $file_error = 1;
+        }
+
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
 
-            if(move_uploaded_file($file_tmp_path, $dest_path)){
-                mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '$new_file_name' WHERE contact_id = $contact_id");
+            move_uploaded_file($file_tmp_path, $dest_path);
 
-                //Delete old file
-                unlink("uploads/clients/$session_company_id/$client_id/$existing_file_name");
+            //Delete old file
+            unlink("uploads/clients/$session_company_id/$client_id/$existing_file_name");
+            
+            mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '$new_file_name' WHERE contact_id = $contact_id");
 
-                $_SESSION['alert_message'] = 'File successfully uploaded.';
-            }else{
-                $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
-            }
+            $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-            $_SESSION['alert_message'] = 'Upload failed. Allowed file types: ' . implode(',', $allowed_file_extensions);
-            $_SESSION['alert_type'] = 'danger';
+            
+            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
 
@@ -3383,12 +3648,12 @@ if(isset($_POST['add_location'])){
     if($_FILES['file']['tmp_name'] != ''){
         
         // get details of the uploaded file
+        $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
         $file_name = $_FILES['file']['name'];
         $file_size = $_FILES['file']['size'];
         $file_type = $_FILES['file']['type'];
-        $file_name_cmps = explode(".", $file_name);
-        $file_extension = strtolower(end($file_name_cmps));
+        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
 
         // sanitize file-name
         $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
@@ -3396,21 +3661,28 @@ if(isset($_POST['add_location'])){
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png');
      
-        if(in_array($file_extension, $allowed_file_extensions)){
+        if(in_array($file_extension,$allowed_file_extensions) === false){
+            $file_error = 1;
+        }
+
+        //Check File Size
+        if($file_size > 2097152){
+            $file_error = 1;
+        }
+
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
 
-            if(move_uploaded_file($file_tmp_path, $dest_path)){
-                mysqli_query($mysqli,"UPDATE locations SET location_photo = '$new_file_name' WHERE location_id = $location_id");
+            move_uploaded_file($file_tmp_path, $dest_path);
+            
+            mysqli_query($mysqli,"UPDATE locations SET location_photo = '$new_file_name' WHERE location_id = $location_id");
 
-                $_SESSION['alert_message'] = 'File successfully uploaded.';
-            }else{
-                $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
-            }
+            $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-            $_SESSION['alert_message'] = 'Upload failed. Allowed file types: ' . implode(',', $allowed_file_extensions);
-            $_SESSION['alert_type'] = 'danger';
+            
+            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
 
@@ -3454,14 +3726,14 @@ if(isset($_POST['edit_location'])){
 
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
-        
-        // get details of the uploaded file
+    
+    // get details of the uploaded file
+        $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
         $file_name = $_FILES['file']['name'];
         $file_size = $_FILES['file']['size'];
         $file_type = $_FILES['file']['type'];
-        $file_name_cmps = explode(".", $file_name);
-        $file_extension = strtolower(end($file_name_cmps));
+        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
 
         // sanitize file-name
         $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
@@ -3469,24 +3741,31 @@ if(isset($_POST['edit_location'])){
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png');
      
-        if(in_array($file_extension, $allowed_file_extensions)){
+        if(in_array($file_extension,$allowed_file_extensions) === false){
+            $file_error = 1;
+        }
+
+        //Check File Size
+        if($file_size > 2097152){
+            $file_error = 1;
+        }
+
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
 
-            if(move_uploaded_file($file_tmp_path, $dest_path)){
-                mysqli_query($mysqli,"UPDATE locations SET location_photo = '$new_file_name' WHERE location_id = $location_id");
+            move_uploaded_file($file_tmp_path, $dest_path);
 
-                //Delete old file
-                unlink("uploads/clients/$session_company_id/$client_id/$existing_file_name");
+            //Delete old file
+            unlink("uploads/clients/$session_company_id/$client_id/$existing_file_name");
+            
+            mysqli_query($mysqli,"UPDATE locations SET location_photo = '$new_file_name' WHERE location_id = $location_id");
 
-                $_SESSION['alert_message'] = 'File successfully uploaded.';
-            }else{
-                $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
-            }
+            $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-            $_SESSION['alert_message'] = 'Upload failed. Allowed file types: ' . implode(',', $allowed_file_extensions);
-            $_SESSION['alert_type'] = 'danger';
+            
+            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
 
@@ -4401,17 +4680,47 @@ if(isset($_POST['add_file'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    if($_FILES['file']['tmp_name']!='') {
-        $path = "uploads/clients/$session_company_id/$client_id/";
-        $path = $path . basename( $_FILES['file']['name']);
-        $file_name = basename($path);
-        move_uploaded_file($_FILES['file']['tmp_name'], $path);
-        $ext = pathinfo($path);
-        $ext = $ext['extension'];
+    //Check to see if a file is attached
+    if($_FILES['file']['tmp_name'] != ''){
+        
+        // get details of the uploaded file
+        $file_error = 0;
+        $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_name = $_FILES['file']['name'];
+        $file_size = $_FILES['file']['size'];
+        $file_type = $_FILES['file']['type'];
+        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
 
+        // sanitize file-name
+        $file_reference_name = md5(time() . $file_name) . '.' . $file_extension;
+
+        // check if file has one of the following extensions
+        $allowed_file_extensions = array('jpg', 'gif', 'png', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'zip', 'tar', 'gz');
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
+            $file_error = 1;
+        }
+
+        //Check File Size
+        if($file_size > 2097152){
+            $file_error = 1;
+        }
+
+        if($file_error == 0){
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
+            $dest_path = $upload_file_dir . $file_reference_name;
+
+            move_uploaded_file($file_tmp_path, $dest_path);
+            
+            mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_ext = '$file_extension', file_created_at = NOW(), file_client_id = $client_id, company_id = $session_company_id");
+
+            $_SESSION['alert_message'] = 'File successfully uploaded.';
+        }else{
+            
+            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+        }
     }
-
-    mysqli_query($mysqli,"INSERT INTO files SET file_name = '$path', file_ext = '$ext', file_created_at = NOW(), file_client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Uploaded', log_description = '$path', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -4427,9 +4736,10 @@ if(isset($_GET['delete_file'])){
 
     $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql_file);
-    $file_name = $row['file_name'];
+    $client_id = $row['file_client_id'];
+    $file_reference_name = $row['file_reference_name'];
 
-    unlink($file_name);
+    unlink("uploads/clients/$session_company_id/$client_id/$file_reference_name");
 
     mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id AND company_id = $session_company_id");
 
