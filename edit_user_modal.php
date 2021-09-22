@@ -9,7 +9,7 @@
       </div>
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-        <input type="hidden" name="existing_file_name" value="<?php echo "uploads/users/$user_id/$user_avatar"; ?>">
+        <input type="hidden" name="existing_file_name" value="<?php echo "$user_avatar"; ?>">
         <div class="modal-body bg-white">    
           
           <center class="mb-3">
