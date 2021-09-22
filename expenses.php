@@ -193,7 +193,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <?php 
                   if(!empty($expense_receipt)){
                   ?>
-                  <a class="dropdown-item" href="<?php echo "uploads/expenses/$session_company_id/$expense_receipt"; ?>" download="<?php echo "$expense_date-$vendor_name-$category_name.pdf"; ?>">Download</a>
+                  <a class="dropdown-item" href="<?php echo "uploads/expenses/$session_company_id/$expense_receipt"; ?>" download="<?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf"; ?>">Download</a>
                   <div class="dropdown-divider"></div>
                   <?php
                   }
