@@ -160,7 +160,7 @@ if(isset($_POST['edit_user'])){
         }
     }
     
-    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email', user_password = '$password', user_updated_at = NOW() WHERE user_id = $user_id");
+    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email', user_updated_at = NOW() WHERE user_id = $user_id");
 
     if(!empty($new_password)){
         $new_password = md5($new_password);
