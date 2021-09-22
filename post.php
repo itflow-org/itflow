@@ -4703,7 +4703,7 @@ if(isset($_POST['add_file'])){
         }
 
         //Check File Size
-        if($file_size > 2097152){
+        if($file_size > 20097152){
             $file_error = 1;
         }
 
