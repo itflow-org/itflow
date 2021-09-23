@@ -48,8 +48,7 @@ while($row = mysqli_fetch_array($sql_companies)){
       $sql = mysqli_query($mysqli,"SELECT * FROM domains, clients 
         WHERE domain_client_id = client_id 
         AND domain_expire = CURDATE() + INTERVAL $day DAY
-        AND domains.company_id = $company_id
-        ORDER BY domain_id DESC"
+        AND domains.company_id = $company_id"
       );
 
       while($row = mysqli_fetch_array($sql)){
@@ -59,7 +58,34 @@ while($row = mysqli_fetch_array($sql_companies)){
         $client_id = $row['client_id'];
         $client_name = $row['client_name'];
 
-        mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Domain', alert_message = 'Domain $domain_name will expire in $day Days on $domain_expire', alert_date = NOW(), company_id = $company_id");
+        mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Domain', alert_message = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', alert_date = NOW(), company_id = $company_id");
+
+      }
+
+    }
+
+    //CERTIFICATES EXPIRING 
+
+    $certificateAlertArray = [1,7,14,30,90,120];
+
+    foreach($certificateAlertArray as $day){
+
+      //Get Domains Expiring
+      $sql = mysqli_query($mysqli,"SELECT * FROM certificates, clients 
+        WHERE certificate_client_id = client_id 
+        AND certificate_expire = CURDATE() + INTERVAL $day DAY
+        AND certificates.company_id = $company_id"
+      );
+
+      while($row = mysqli_fetch_array($sql)){
+        $certificate_id = $row['certificate_id'];
+        $certificate_name = $row['certificate_name'];
+        $certificate_domain = $row['certificate_domain'];
+        $certificate_expire = $row['certificate_expire'];
+        $client_id = $row['client_id'];
+        $client_name = $row['client_name'];
+
+        mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Certificate', alert_message = 'Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire', alert_date = NOW(), company_id = $company_id");
 
       }
 
