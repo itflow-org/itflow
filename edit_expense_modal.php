@@ -156,7 +156,7 @@
 
           <?php if(!empty($expense_receipt)){ ?>
             <hr>
-            <a class="text-secondary" href="<?php echo $expense_receipt; ?>"><i class="fa fa-fw fa-2x fa-file-pdf text-secondary"></i> <?php echo basename($expense_receipt); ?></a>
+            <a class="text-secondary" href="<?php echo "uploads/expenses/$session_company_id/$expense_receipt"; ?>"><i class="fa fa-fw fa-2x fa-file-pdf text-secondary"></i> <?php echo basename($expense_receipt); ?></a>
           <?php } ?>
         
         </div>
