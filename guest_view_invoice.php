@@ -747,7 +747,7 @@ var docDefinition = {
 
             ?>
 
-              <tr>
+              <tr <?php if($_GET['invoice_id'] == $invoice_id){ echo "class='table-active'"; } ?>>
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td class="text-danger text-bold"><?php echo $invoice_due; ?> (<?php echo $days; ?> Days Late)</td>
@@ -806,7 +806,7 @@ var docDefinition = {
 
             ?>
 
-              <tr>
+              <tr <?php if($_GET['invoice_id'] == $invoice_id){ echo "class='table-active'"; } ?>>
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td><?php echo $invoice_due; ?> (Due in <?php echo $days; ?> Days)</td>
@@ -864,7 +864,7 @@ var docDefinition = {
 
             ?>
 
-              <tr class="bg-light">
+              <tr <?php if($_GET['invoice_id'] == $invoice_id){ echo "class='table-active'"; } ?>>
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td><?php echo $invoice_due; ?></td>
