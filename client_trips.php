@@ -114,7 +114,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $trip_destination = $row['trip_destination'];
             $trip_miles = $row['trip_miles'];
             $round_trip = $row['round_trip'];
-            $client_id = $row['client_id'];
+            $client_id = $row['trip_client_id'];
 
             if($round_trip == 1){
               $round_trip_display = "<i class='fa fa-fw fa-sync-alt text-secondary'></i>";
