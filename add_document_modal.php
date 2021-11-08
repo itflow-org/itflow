@@ -16,7 +16,7 @@
           </div>
           
           <div class="form-group">
-            <textarea class="form-control summernote" name="details"></textarea>
+            <textarea class="form-control summernote" name="content"></textarea>
           </div>
         </div>
         

@@ -16,7 +16,7 @@
           </div>
           
           <div class="form-group">
-            <textarea class="form-control summernote" name="details"><?php echo $document_details; ?></textarea>
+            <textarea class="form-control summernote" name="content"><?php echo $document_content; ?></textarea>
           </div>
         
         </div>

@@ -21,7 +21,7 @@
               <a class="nav-link" data-toggle="pill" href="#pills-contact">Contact</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-additional">Additional</a>
             </li>
           </ul>
 
@@ -42,25 +42,12 @@
               </div>
 
               <div class="form-group">
-                <label>Type</label>
+                <label>Industry</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                   </div>
                   <input type="text" class="form-control" name="type" placeholder="Company Type">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Support</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-handshake"></i></span>
-                  </div>
-                  <select class="form-control select2" name="support">
-                    <option>Non-Maintenance</option>
-                    <option>Maintenance</option>
-                  </select>
                 </div>
               </div>
 
@@ -90,35 +77,6 @@
                 </div>
               </div>
 
-              <div class="form-group">
-                <label>Currency <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                  </div>
-                  <select class="form-control select2" name="currency_code" required>
-                    <option value="">- Currency -</option>
-                    <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                    <option <?php if($config_default_currency == $currency_code){ echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Invoice Net Terms</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                  </div>
-                  <select class="form-control select2" name="net_terms">
-                    <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
-                    <option <?php if($config_default_net_terms == $net_term_value){ echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
-
             </div>
           
             <div class="tab-pane fade" id="pills-address">
@@ -144,22 +102,22 @@
               </div>
               
               <div class="form-group">
-                <label>State</label>
+                <label>State / Province</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                   </div>
-                 <input type="text" class="form-control" name="state" placeholder="State">
+                 <input type="text" class="form-control" name="state" placeholder="State or Province">
                 </div>
               </div>
               
               <div class="form-group">
-                <label>Zip</label>
+                <label>Zip / Postal Code</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="zip" placeholder="Postal Code">
+                  <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code">
                 </div>
               </div>
 
@@ -252,10 +210,53 @@
             
             </div>
 
-            <div class="tab-pane fade" id="pills-notes">
+            <div class="tab-pane fade" id="pills-additional">
 
               <div class="form-group">
-                <textarea class="form-control" rows="8" name="notes" placeholder="Enter some notes"></textarea>
+                <label>Support</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-handshake"></i></span>
+                  </div>
+                  <select class="form-control select2" name="support">
+                    <option>Non-Maintenance</option>
+                    <option>Maintenance</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Currency <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
+                  </div>
+                  <select class="form-control select2" name="currency_code" required>
+                    <option value="">- Currency -</option>
+                    <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
+                    <option <?php if($config_default_currency == $currency_code){ echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Payment Terms</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                  </div>
+                  <select class="form-control select2" name="net_terms">
+                    <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
+                    <option <?php if($config_default_net_terms == $net_term_value){ echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Notes</label>
+                <textarea class="form-control" rows="6" name="notes" placeholder="Enter some notes"></textarea>
               </div>
             
             </div>

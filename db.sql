@@ -176,6 +176,22 @@ CREATE TABLE `certificates` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `client_tags`
+--
+
+DROP TABLE IF EXISTS `client_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_tags` (
+  `client_tag_id` int(11) NOT NULL AUTO_INCREMENT,
+  `client_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  `client_tag_created_at` datetime NOT NULL,
+  PRIMARY KEY (`client_tag_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `clients`
 --
 
@@ -186,13 +202,11 @@ CREATE TABLE `clients` (
   `client_id` int(11) NOT NULL AUTO_INCREMENT,
   `client_name` varchar(200) NOT NULL,
   `client_type` varchar(200) DEFAULT NULL,
-  `client_contact` varchar(200) DEFAULT NULL,
   `client_website` varchar(200) DEFAULT NULL,
   `client_referral` varchar(200) DEFAULT NULL,
   `client_currency_code` varchar(200) NOT NULL,
   `client_net_terms` int(10) NOT NULL,
   `client_support` varchar(100) DEFAULT NULL,
-  `client_tags` text DEFAULT NULL,
   `client_notes` text DEFAULT NULL,
   `client_created_at` datetime NOT NULL,
   `client_updated_at` datetime DEFAULT NULL,
@@ -310,7 +324,7 @@ DROP TABLE IF EXISTS `documents`;
 CREATE TABLE `documents` (
   `document_id` int(11) NOT NULL AUTO_INCREMENT,
   `document_name` varchar(200) NOT NULL,
-  `document_details` longtext NOT NULL,
+  `document_content` longtext NOT NULL,
   `document_created_at` datetime NOT NULL,
   `document_updated_at` datetime DEFAULT NULL,
   `document_archived_at` datetime DEFAULT NULL,
@@ -868,6 +882,26 @@ CREATE TABLE `software` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `tags`
+--
+
+DROP TABLE IF EXISTS `tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tags` (
+  `tag_id` int(11) NOT NULL AUTO_INCREMENT,
+  `tag_name` varchar(200) NOT NULL,
+  `tag_color` varchar(200) DEFAULT NULL,
+  `tag_icon` varchar(200) DEFAULT NULL,
+  `tag_created_at` datetime NOT NULL,
+  `tag_updated_at` datetime DEFAULT NULL,
+  `tag_archived_at` datetime DEFAULT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`tag_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `taxes`
 --
 
@@ -1064,4 +1098,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-09-21 22:22:21
+-- Dump completed on 2021-11-08 18:05:26

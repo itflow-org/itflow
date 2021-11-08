@@ -30,7 +30,7 @@
             <div class="tab-pane fade show active" id="pills-address">
 
               <div class="form-group">
-                <label>Location Name / Primary Location <strong class="text-danger">*</strong></label>
+                <label>Location Name / Primary <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
@@ -50,7 +50,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="address" placeholder="Address">
+                  <input type="text" class="form-control" name="address" placeholder="Street Address">
                 </div>
               </div>
              
@@ -65,22 +65,22 @@
               </div>
               
               <div class="form-group">
-                <label>State</label>
+                <label>State / Province</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="state" placeholder="State">
+                  <input type="text" class="form-control" name="state" placeholder="State or Province">
                 </div>
               </div>
               
               <div class="form-group">
-                <label>Zip</label>
+                <label>Zip / Postal Code</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="zip" placeholder="Postal Code">
+                  <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code">
                 </div>
               </div>
 

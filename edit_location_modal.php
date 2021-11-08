@@ -32,7 +32,7 @@
             <div class="tab-pane fade show active" id="pills-address<?php echo $location_id; ?>">
 
               <div class="form-group">
-                <label>Location Name / Primary Location <strong class="text-danger">*</strong></label>
+                <label>Location Name / Primary <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
@@ -52,7 +52,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="address" placeholder="Address" value="<?php echo $location_address; ?>">
+                  <input type="text" class="form-control" name="address" placeholder="Street Address" value="<?php echo $location_address; ?>">
                 </div>
               </div>
 
@@ -67,22 +67,22 @@
               </div>
               
               <div class="form-group">
-                <label>State</label>
+                <label>State / Province</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="state" placeholder="State" value="<?php echo $location_state; ?>">
+                  <input type="text" class="form-control" name="state" placeholder="State or Province" value="<?php echo $location_state; ?>">
                 </div>
               </div>
               
               <div class="form-group">
-                <label>Zip</label>
+                <label>Zip / Postal Code</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="zip" placeholder="Postal Code" value="<?php echo $location_zip; ?>">
+                  <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" value="<?php echo $location_zip; ?>">
                 </div>
               </div>
 

@@ -74,7 +74,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="address"placeholder="Street address" >
+                  <input type="text" class="form-control" name="address"placeholder="Street Address" >
                 </div>
               </div>
               
@@ -89,22 +89,22 @@
               </div>
               
               <div class="form-group">
-                <label>State</label>
+                <label>State / Province</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="state" placeholder="State">
+                  <input type="text" class="form-control" name="state" placeholder="State or Province">
                 </div>
               </div>
               
               <div class="form-group">
-                <label>Zip</label>
+                <label>Zip / Postal Code</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="zip" placeholder="Postal Code">
+                  <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code">
                 </div>
               </div>
 

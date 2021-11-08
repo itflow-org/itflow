@@ -43,22 +43,22 @@
           </div>
 
           <div class="form-group">
-            <label>State</label>
+            <label>State / Province</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
               </div>
-              <input type="text" class="form-control" name="state" placeholder="State" value="<?php echo $company_state; ?>">
+              <input type="text" class="form-control" name="state" placeholder="State or Province" value="<?php echo $company_state; ?>">
             </div>
           </div>
 
           <div class="form-group">
-            <label>Zip</label>
+            <label>Zip / Postal Code</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
               </div>
-              <input type="text" class="form-control" name="zip" placeholder="Postal Code" value="<?php echo $company_zip; ?>">
+              <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" value="<?php echo $company_zip; ?>">
             </div>
           </div>
 

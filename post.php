@@ -4757,9 +4757,9 @@ if(isset($_POST['add_document'])){
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
+    $content = trim(mysqli_real_escape_string($mysqli,$_POST['content']));
 
-    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_details = '$details', document_created_at = NOW(), document_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_created_at = NOW(), document_client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Created', log_description = '$details', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -4774,9 +4774,9 @@ if(isset($_POST['edit_document'])){
 
     $document_id = intval($_POST['document_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
+    $content = trim(mysqli_real_escape_string($mysqli,$_POST['content']));
 
-    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_details = '$details', document_updated_at = NOW() WHERE document_id = $document_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_updated_at = NOW() WHERE document_id = $document_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Note', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");

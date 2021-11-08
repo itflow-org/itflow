@@ -8,7 +8,7 @@
         </button>
       </div>
       <div class="modal-body bg-white">
-        <?php echo $document_details; ?>
+        <?php echo $document_content; ?>
       </div>
     </div>
   </div>

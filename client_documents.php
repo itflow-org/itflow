@@ -42,7 +42,7 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM documents 
   WHERE document_client_id = $client_id
   AND documents.company_id = $session_company_id
-  AND (document_name LIKE '%$q%' OR document_details LIKE '%$q%') 
+  AND (document_name LIKE '%$q%' OR document_content LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -93,7 +93,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           while($row = mysqli_fetch_array($sql)){
             $document_id = $row['document_id'];
             $document_name = $row['document_name'];
-            $document_details = $row['document_details'];
+            $document_content = $row['document_content'];
             $document_created_at = $row['document_created_at'];
             $document_updated_at = $row['document_updated_at'];
 
