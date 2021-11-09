@@ -299,7 +299,7 @@ if(isset($_GET['quote_id'])){
             </div>
           </div>
           <div class="card-body">
-            <div><?php echo $quote_note; ?></div>
+            <?php echo $quote_note; ?>
           </div>
         </div>
       </div>

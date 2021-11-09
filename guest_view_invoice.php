@@ -244,7 +244,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         <div class="col-7">
           <div class="card">
             <div class="card-body">
-              <div><?php echo $invoice_note; ?></div>
+              <?php echo $invoice_note; ?>
             </div>
           </div>
         </div>

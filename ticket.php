@@ -111,7 +111,7 @@ if(isset($_GET['ticket_id'])){
 
   <div class="col-md-9">
 
-    <div class="card mb-3">
+    <div class="card card-outline card-primary mb-3">
       <div class="card-header">
         <h3 class="card-title"><?php echo $ticket_subject; ?></h3>
       </div>

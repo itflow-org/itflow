@@ -272,7 +272,7 @@ if(isset($_GET['recurring_id'])){
             </div>
           </div>
           <div class="card-body">
-            <div><?php echo $recurring_note; ?></div>
+            <?php echo $recurring_note; ?>
           </div>
         </div>
       </div>

@@ -202,7 +202,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
         <div class="col-7">
           <div class="card">
             <div class="card-body">
-              <div><?php echo $quote_note; ?></div>
+              <?php echo $quote_note; ?>
             </div>
           </div>
         </div>

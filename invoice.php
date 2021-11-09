@@ -333,7 +333,7 @@ if(isset($_GET['invoice_id'])){
             </div>
           </div>
           <div class="card-body">
-            <div><?php echo $invoice_note; ?></div>
+            <?php echo $invoice_note; ?>
           </div>
         </div>
       </div>
