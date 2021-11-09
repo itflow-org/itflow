@@ -188,67 +188,69 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
       <div class="row mb-4">
         <div class="col-md-12">
           <div class="card">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Description</th>
-                  <th class="text-center">Qty</th>
-                  <th class="text-right">Price</th>
-                  <th class="text-right">Tax</th>
-                  <th class="text-right">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php
-                
-                $total_tax = 0;
-                $sub_total = 0;
-          
-                while($row = mysqli_fetch_array($sql_invoice_items)){
-                  $item_id = $row['item_id'];
-                  $item_name = $row['item_name'];
-                  $item_description = $row['item_description'];
-                  $item_quantity = $row['item_quantity'];
-                  $item_price = $row['item_price'];
-                  $item_subtotal = $row['item_price'];
-                  $item_tax = $row['item_tax'];
-                  $item_total = $row['item_total'];
-                  $total_tax = $item_tax + $total_tax;
-                  $sub_total = $item_price * $item_quantity + $sub_total;
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Description</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-right">Price</th>
+                    <th class="text-right">Tax</th>
+                    <th class="text-right">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php
+                  
+                  $total_tax = 0;
+                  $sub_total = 0;
+            
+                  while($row = mysqli_fetch_array($sql_invoice_items)){
+                    $item_id = $row['item_id'];
+                    $item_name = $row['item_name'];
+                    $item_description = $row['item_description'];
+                    $item_quantity = $row['item_quantity'];
+                    $item_price = $row['item_price'];
+                    $item_subtotal = $row['item_price'];
+                    $item_tax = $row['item_tax'];
+                    $item_total = $row['item_total'];
+                    $total_tax = $item_tax + $total_tax;
+                    $sub_total = $item_price * $item_quantity + $sub_total;
 
-                ?>
+                  ?>
 
-                <tr>
-                  <td><?php echo $item_name; ?></td>
-                  <td><?php echo $item_description; ?></td>
-                  <td class="text-center"><?php echo $item_quantity; ?></td>
-                  <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_price,2); ?></td>
-                  <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_tax,2); ?></td>
-                  <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_total,2); ?></td>  
-                </tr>
+                  <tr>
+                    <td><?php echo $item_name; ?></td>
+                    <td><?php echo $item_description; ?></td>
+                    <td class="text-center"><?php echo $item_quantity; ?></td>
+                    <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_price,2); ?></td>
+                    <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_tax,2); ?></td>
+                    <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_total,2); ?></td>  
+                  </tr>
 
-                <?php 
+                  <?php 
 
-                }
+                  }
 
-                ?>
+                  ?>
 
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="row mb-4">
-        <div class="col-7">
+        <div class="col-sm-7">
           <div class="card">
             <div class="card-body">
               <?php echo $invoice_note; ?>
             </div>
           </div>
         </div>
-        <div class="col-3 offset-2">
+        <div class="col-sm-3 offset-sm-2">
           <table class="table table-borderless">
             <tbody>    
               <tr class="border-bottom">

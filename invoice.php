@@ -227,102 +227,104 @@ if(isset($_GET['invoice_id'])){
     <div class="row mb-4">
       <div class="col-md-12">
         <div class="card">
-          <table class="table">
-            <thead>
-              <tr>
-                <th class="d-print-none"></th>
-                <th>Item</th>
-                <th>Description</th>
-                <th class="text-center">Qty</th>
-                <th class="text-right">Price</th>
-                <th class="text-right">Tax</th>
-                <th class="text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php
-              
-              $total_tax = 0;
-              $sub_total = 0;
-        
-              while($row = mysqli_fetch_array($sql_invoice_items)){
-                $item_id = $row['item_id'];
-                $item_name = $row['item_name'];
-                $item_description = $row['item_description'];
-                $item_quantity = $row['item_quantity'];
-                $item_price = $row['item_price'];
-                $item_subtotal = $row['item_price'];
-                $item_tax = $row['item_tax'];
-                $item_total = $row['item_total'];
-                $item_created_at = $row['item_created_at'];
-                $tax_id = $row['item_tax_id'];
-                $total_tax = $item_tax + $total_tax;
-                $sub_total = $item_price * $item_quantity + $sub_total;
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="d-print-none"></th>
+                  <th>Item</th>
+                  <th>Description</th>
+                  <th class="text-center">Qty</th>
+                  <th class="text-right">Price</th>
+                  <th class="text-right">Tax</th>
+                  <th class="text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php
+                
+                $total_tax = 0;
+                $sub_total = 0;
+          
+                while($row = mysqli_fetch_array($sql_invoice_items)){
+                  $item_id = $row['item_id'];
+                  $item_name = $row['item_name'];
+                  $item_description = $row['item_description'];
+                  $item_quantity = $row['item_quantity'];
+                  $item_price = $row['item_price'];
+                  $item_subtotal = $row['item_price'];
+                  $item_tax = $row['item_tax'];
+                  $item_total = $row['item_total'];
+                  $item_created_at = $row['item_created_at'];
+                  $tax_id = $row['item_tax_id'];
+                  $total_tax = $item_tax + $total_tax;
+                  $sub_total = $item_price * $item_quantity + $sub_total;
 
-              ?>
+                ?>
 
-              <tr>
-                <td class="text-center d-print-none">
-                  <a class="text-secondary" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit"></i></a>
-                  <a class="text-danger" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash-alt"></i></a>
-                </td>
-                <td><?php echo $item_name; ?></td>
-                <td><?php echo $item_description; ?></td>
-                <td class="text-center"><?php echo $item_quantity; ?></td>
-                <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_price,2); ?></td>
-                <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_tax,2); ?></td>
-                <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_total,2); ?></td>  
-              </tr>
-
-              <?php 
-
-              include("edit_item_modal.php");
-
-              }
-
-              ?>
-
-              <tr class="d-print-none">
-                <form action="post.php" method="post" autocomplete="off">
-                  <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
-                  <td></td>            
-                  <td><input type="text" class="form-control" name="name" placeholder="Item" required></td>
-                  <td><textarea class="form-control" rows="2" name="description" placeholder="Description"></textarea></td>
-                  <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty" placeholder="QTY"></td>
-                  <td><input type="number" step="0.01" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
-                  <td>             
-                    <select class="form-control select2" name="tax_id" required>
-                      <option value="0">None</option>
-                      <?php 
-                      
-                      $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
-                      while($row = mysqli_fetch_array($taxes_sql)){
-                        $tax_id = $row['tax_id'];
-                        $tax_name = $row['tax_name'];
-                        $tax_percent = $row['tax_percent'];
-                      ?>
-                        <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
-                      
-                      <?php
-                      }
-                      ?>
-                    </select>
+                <tr>
+                  <td class="text-center d-print-none">
+                    <a class="text-secondary" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit"></i></a>
+                    <a class="text-danger" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash-alt"></i></a>
                   </td>
-                  <td>
-                    <button class="btn btn-link text-success" type="submit" name="add_invoice_item">
-                      <i class="fa fa-fw fa-check"></i>
-                    </button>
-                  </td>
-                </form>  
-              </tr>
-            </tbody>
-          </table>
+                  <td><?php echo $item_name; ?></td>
+                  <td><?php echo $item_description; ?></td>
+                  <td class="text-center"><?php echo $item_quantity; ?></td>
+                  <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_price,2); ?></td>
+                  <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_tax,2); ?></td>
+                  <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_total,2); ?></td>  
+                </tr>
+
+                <?php 
+
+                include("edit_item_modal.php");
+
+                }
+
+                ?>
+
+                <tr class="d-print-none">
+                  <form action="post.php" method="post" autocomplete="off">
+                    <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+                    <td></td>            
+                    <td><input type="text" class="form-control" name="name" placeholder="Item" required></td>
+                    <td><textarea class="form-control" rows="2" name="description" placeholder="Description"></textarea></td>
+                    <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty" placeholder="QTY"></td>
+                    <td><input type="number" step="0.01" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
+                    <td>             
+                      <select class="form-control select2" name="tax_id" required>
+                        <option value="0">None</option>
+                        <?php 
+                        
+                        $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
+                        while($row = mysqli_fetch_array($taxes_sql)){
+                          $tax_id = $row['tax_id'];
+                          $tax_name = $row['tax_name'];
+                          $tax_percent = $row['tax_percent'];
+                        ?>
+                          <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                        
+                        <?php
+                        }
+                        ?>
+                      </select>
+                    </td>
+                    <td>
+                      <button class="btn btn-link text-success" type="submit" name="add_invoice_item">
+                        <i class="fa fa-fw fa-check"></i>
+                      </button>
+                    </td>
+                  </form>  
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="row mb-4">
-      <div class="col-7">
+      <div class="col-sm-7">
         <div class="card">
           <div class="card-header">
             Notes
@@ -337,7 +339,7 @@ if(isset($_GET['invoice_id'])){
           </div>
         </div>
       </div>
-      <div class="col-3 offset-2">
+      <div class="col-sm-3 offset-sm-2">
         <table class="table table-borderless">
           <tbody>    
             <tr class="border-bottom">
@@ -431,39 +433,41 @@ if(isset($_GET['invoice_id'])){
         </div>
       </div>
       <div class="card-body">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th class="text-right">Amount</th>
-              <th>Reference</th>
-              <th>Account</th>
-              <th class="text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php
-      
-            while($row = mysqli_fetch_array($sql_payments)){
-              $payment_id = $row['payment_id'];
-              $payment_date = $row['payment_date'];
-              $payment_amount = $row['payment_amount'];
-              $payment_reference = $row['payment_reference'];
-              $account_name = $row['account_name'];
+        <div class="table-responsive">  
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th class="text-right">Amount</th>
+                <th>Reference</th>
+                <th>Account</th>
+                <th class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php
+        
+              while($row = mysqli_fetch_array($sql_payments)){
+                $payment_id = $row['payment_id'];
+                $payment_date = $row['payment_date'];
+                $payment_amount = $row['payment_amount'];
+                $payment_reference = $row['payment_reference'];
+                $account_name = $row['account_name'];
 
-            ?>
-            <tr>
-              <td><?php echo $payment_date; ?></td>
-              <td class=" text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($payment_amount,2); ?></td>
-              <td><?php echo $payment_reference; ?></td>
-              <td><?php echo $account_name; ?></td>
-              <td class="text-center"><a class="btn btn-danger btn-sm" href="post.php?delete_payment=<?php echo $payment_id; ?>"><i class="fa fa-trash"></i></a></td>
-            </tr>
-            <?php
-            }
-            ?>
-          </tbody>
-        </table>
+              ?>
+              <tr>
+                <td><?php echo $payment_date; ?></td>
+                <td class=" text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($payment_amount,2); ?></td>
+                <td><?php echo $payment_reference; ?></td>
+                <td><?php echo $account_name; ?></td>
+                <td class="text-center"><a class="btn btn-danger btn-sm" href="post.php?delete_payment=<?php echo $payment_id; ?>"><i class="fa fa-trash"></i></a></td>
+              </tr>
+              <?php
+              }
+              ?>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
