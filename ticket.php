@@ -112,11 +112,11 @@ if(isset($_GET['ticket_id'])){
   <div class="col-md-9">
 
     <div class="card mb-3">
-      <div class="card-header bg-dark">
-        <h6 class="float-left mt-1"><?php echo $ticket_subject; ?></h6>
+      <div class="card-header">
+        <h3 class="card-title"><?php echo $ticket_subject; ?></h3>
       </div>
       <div class="card-body">
-        <p><?php echo $ticket_details; ?></p>
+        <?php echo $ticket_details; ?>
       </div>
     </div>
 
@@ -182,19 +182,51 @@ if(isset($_GET['ticket_id'])){
         $ticket_reply_created_at = $row['ticket_reply_created_at'];
         $ticket_reply_by = $row['ticket_reply_by'];
         $ticket_reply_by_display = $row['user_name'];
+        $user_id = $row['user_id'];
+        $user_avatar = $row['user_avatar'];
+        $user_initials = initials($user_name);
     ?>
 
     <div class="card mb-3">
-      <div class="card-header"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_reply_created_at; ?> <i class="fa fa-fw fa-user"></i> <?php echo $ticket_reply_by_display; ?>
-        <a href="#" data-toggle="modal" data-target="#editTicketReplyModal<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i></a>
-        <a href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-trash text-danger"></i></a>
+      
+      <div class="card-header">
+        <h3 class="card-title">
+          <div class="media">
+            <?php if(!empty($user_avatar)){ ?>
+            <img src="<?php echo "uploads/users/$user_id/$user_avatar"; ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+            <?php }else{ ?>
+            <span class="fa-stack fa-2x">
+              <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+              <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
+            </span>
+            <?php 
+            }
+            ?>
+
+            <div class="media-body">
+              <?php echo $ticket_reply_by_display; ?>
+              <br>
+              <small class="text-muted"><?php echo $ticket_reply_created_at; ?></small>
+            </div>
+          </div>
+        </h3>
+      
+        <div class="card-tools">
+          <div class="dropdown dropleft">
+            <button class="btn btn-tool" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+              <i class="fas fa-fw fa-ellipsis-v"></i>
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketReplyModal<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i> Edit</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item text-danger" href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-trash text-danger"></i> Delete</a>
+            </div>
+          </div>
+        </div>
       </div>
+
       <div class="card-body">
-        <p><?php echo $ticket_reply; ?></p>
-      </div>
-      <div class="card-footer"><i class="fa fa-fw fa-clock"></i> <?php echo $ticket_reply_created_at; ?> <i class="fa fa-fw fa-user"></i> <?php echo $ticket_reply_by_display; ?>
-        <a href="#" data-toggle="modal" data-target="#editTicketReplyModal<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i></a>
-        <a href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-trash text-danger"></i></a>
+        <?php echo $ticket_reply; ?>
       </div>
     </div>
 
