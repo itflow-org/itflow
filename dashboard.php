@@ -72,6 +72,16 @@ $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, ca
 	ORDER BY expense_id DESC LIMIT 5"
 );
 
+//Get Monthly Recurring Total
+$sql_recurring_monthly_total = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND company_id = $session_company_id");
+$row = mysqli_fetch_array($sql_recurring_monthly_total);
+$recurring_monthly_total = $row['recurring_monthly_total'];
+
+//Get Yearly Recurring Total
+$sql_recurring_yearly_total = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND company_id = $session_company_id");
+$row = mysqli_fetch_array($sql_recurring_yearly_total);
+$recurring_yearly_total = $row['recurring_yearly_total'];
+
 //Get Total Miles Driven
 $sql_miles_driven = mysqli_query($mysqli,"SELECT SUM(trip_miles) AS total_miles FROM trips WHERE YEAR(trip_date) = $year AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_miles_driven);
@@ -84,11 +94,6 @@ $clients_added = $row['clients_added'];
 //Get Total Vendors added
 $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND company_id = $session_company_id"));
 $vendors_added = $row['vendors_added'];
-
-//Get Total of Recurring Invoices
-$sql_total_recurring_invoice_amount = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS total_recurring_invoice_amount FROM recurring WHERE YEAR(recurring_next_date) = $year AND company_id = $session_company_id");
-$row = mysqli_fetch_array($sql_total_recurring_invoice_amount);
-$total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
 
 ?>
 
@@ -136,7 +141,8 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
         <h3>$<?php echo number_format($total_expenses,2); ?></h3>
         <p>Total Expenses</p>
       </div>
-      <div class="icon">
+      <div class="icon">that I'm willing to try and give you as much information as needed!
+
         <i class="fa fa-shopping-cart"></i>
       </div>
     </a>
@@ -152,6 +158,34 @@ $total_recurring_invoice_amount = $row['total_recurring_invoice_amount'];
       </div>
       <div class="icon">
         <i class="fa fa-heart"></i>
+      </div>
+    </div>
+  </div>
+  <!-- ./col -->
+
+  <div class="col-lg-4 col-md-6 col-sm-12">
+    <!-- small box -->
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3>$<?php echo number_format($recurring_monthly_total,2); ?></h3>
+        <p>Monthly Recurring</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-sync-alt"></i>
+      </div>
+    </div>
+  </div>
+  <!-- ./col -->
+
+  <div class="col-lg-4 col-md-6 col-sm-12">
+    <!-- small box -->
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3>$<?php echo number_format($recurring_yearly_total,2); ?></h3>
+        <p>Yearly Recurring</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-sync-alt"></i>
       </div>
     </div>
   </div>
