@@ -43,7 +43,7 @@ $sql_invoice_totals = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoic
 $row = mysqli_fetch_array($sql_invoice_totals);
 $invoice_totals = $row['invoice_totals'];
 
-//Quaeries from Recievables
+//Quaeries from Receivables
 $sql_total_payments_to_invoices_all_years = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_to_invoices_all_years FROM payments WHERE company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_payments_to_invoices_all_years);
 $total_payments_to_invoices_all_years = $row['total_payments_to_invoices_all_years'];
@@ -52,7 +52,7 @@ $sql_invoice_totals_all_years = mysqli_query($mysqli,"SELECT SUM(invoice_amount)
 $row = mysqli_fetch_array($sql_invoice_totals_all_years);
 $invoice_totals_all_years = $row['invoice_totals_all_years'];
 
-$recievables = $invoice_totals_all_years - $total_payments_to_invoices_all_years; 
+$receivables = $invoice_totals_all_years - $total_payments_to_invoices_all_years; 
 
 $profit = $total_income - $total_expenses;
 
@@ -125,7 +125,7 @@ $vendors_added = $row['vendors_added'];
         <h3>$<?php echo number_format($total_income,2); ?></h3>
         <p>Total Income</p>
         <hr>
-        <small>Recievables: $<?php echo number_format($recievables,2); ?></small>
+        <small>Receivables: $<?php echo number_format($receivables,2); ?></small>
       </div>
       <div class="icon">
         <i class="fa fa-money-check"></i>
