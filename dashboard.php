@@ -141,8 +141,7 @@ $vendors_added = $row['vendors_added'];
         <h3>$<?php echo number_format($total_expenses,2); ?></h3>
         <p>Total Expenses</p>
       </div>
-      <div class="icon">that I'm willing to try and give you as much information as needed!
-
+      <div class="icon">
         <i class="fa fa-shopping-cart"></i>
       </div>
     </a>
