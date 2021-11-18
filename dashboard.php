@@ -123,7 +123,7 @@ $vendors_added = $row['vendors_added'];
     <a class="small-box bg-primary" href="payments.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3>$<?php echo number_format($total_income,2); ?></h3>
-        <p>Total Income</p>
+        <p>Revenue</p>
         <hr>
         <small>Receivables: $<?php echo number_format($receivables,2); ?></small>
       </div>
@@ -139,7 +139,7 @@ $vendors_added = $row['vendors_added'];
     <a class="small-box bg-danger" href="expenses.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
         <h3>$<?php echo number_format($total_expenses,2); ?></h3>
-        <p>Total Expenses</p>
+        <p>Expenses</p>
       </div>
       <div class="icon">
         <i class="fa fa-shopping-cart"></i>
@@ -153,7 +153,7 @@ $vendors_added = $row['vendors_added'];
     <div class="small-box bg-success">
       <div class="inner">
         <h3>$<?php echo number_format($profit,2); ?></h3>
-        <p>Total Profit</p>
+        <p>Profit</p>
       </div>
       <div class="icon">
         <i class="fa fa-heart"></i>
