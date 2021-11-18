@@ -173,7 +173,7 @@ function get_device(){
     }   
 }
 
-function truncate($text, $chars = 25) {
+function truncate($text, $chars) {
     if (strlen($text) <= $chars) {
         return $text;
     }
