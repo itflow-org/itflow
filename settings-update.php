@@ -29,6 +29,9 @@ $git_log = shell_exec("git log master..origin/master --pretty=format:'<tr><td>%h
       <?php if(!empty($git_log)){ ?>
       <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fa fa-fw fa-4x fa-check-square"></i><br>Update<br>NOW</a>
       <?php
+      }else{
+      ?>
+      <h3 class="text-success">Congratulations you are up to date!</h3>
       }
       ?>
     </center>
@@ -41,7 +44,7 @@ $git_log = shell_exec("git log master..origin/master --pretty=format:'<tr><td>%h
         <tr>
           <th>Commit</th>
           <th>When</th>
-          <th>Changes</th>
+          <th>Description</th>
         </tr>
       </thead>
       <tbody>
