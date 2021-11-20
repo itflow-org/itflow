@@ -184,7 +184,7 @@ function truncate($text, $chars) {
     return $text;
 }
 
-function get_currency_symbol($cc = 'USD'){
+function get_currency_symbol($cc){
     $cc = strtoupper($cc);
     $currency = array(
     "USD" => "$" , //U.S. Dollar
