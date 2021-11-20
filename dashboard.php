@@ -125,7 +125,7 @@ $vendors_added = $row['vendors_added'];
         <h3>$<?php echo number_format($total_income,2); ?></h3>
         <p>Revenue</p>
         <hr>
-        <small>Receivables: <?php echo get_currency_symbol($config_default_currency); ?><?php echo number_format($receivables,2); ?></small>
+        <small>Receivables: <?php echo get_currency_symbol($session_company_currency); ?><?php echo number_format($receivables,2); ?></small>
       </div>
       <div class="icon">
         <i class="fa fa-money-check"></i>
