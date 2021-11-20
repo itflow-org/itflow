@@ -32,6 +32,7 @@ $git_log = shell_exec("git log master..origin/master --pretty=format:'<tr><td>%h
       }else{
       ?>
       <h3 class="text-success">Congratulations you are up to date!</h3>
+      <?php
       }
       ?>
     </center>
