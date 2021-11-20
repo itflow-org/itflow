@@ -92,10 +92,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $company_email = $row['company_email'];
             $company_website = $row['company_website'];
             $company_logo = $row['company_logo'];
+            $company_currency = $row['company_currency'];
             
             $company_initials = initials($company_name);
 
-            $company_currency_code = $row['config_default_currency'];
+            
       
           ?>
           

@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.5.12-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.5.13-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: pittpc_crm
 -- ------------------------------------------------------
--- Server version	10.5.12-MariaDB-1:10.5.12+maria~focal
+-- Server version	10.5.13-MariaDB-1:10.5.13+maria~focal
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -119,6 +119,8 @@ CREATE TABLE `campaigns` (
   `campaign_id` int(11) NOT NULL AUTO_INCREMENT,
   `campaign_name` varchar(255) NOT NULL,
   `campaign_subject` varchar(255) NOT NULL,
+  `campaign_from_name` varchar(200) NOT NULL,
+  `campaign_from_email` varchar(200) NOT NULL,
   `campaign_content` longtext NOT NULL,
   `campaign_status` varchar(20) NOT NULL,
   `campaign_sent_count` int(11) DEFAULT NULL,
@@ -238,6 +240,7 @@ CREATE TABLE `companies` (
   `company_email` varchar(200) DEFAULT NULL,
   `company_website` varchar(200) DEFAULT NULL,
   `company_logo` varchar(250) DEFAULT NULL,
+  `company_currency` varchar(200) NOT NULL,
   `company_created_at` datetime NOT NULL,
   `company_updated_at` datetime DEFAULT NULL,
   `company_archived_at` datetime DEFAULT NULL,
@@ -824,8 +827,6 @@ CREATE TABLE `settings` (
   `config_smtp_password` varchar(200) DEFAULT NULL,
   `config_mail_from_email` varchar(200) DEFAULT NULL,
   `config_mail_from_name` varchar(200) DEFAULT NULL,
-  `config_default_country` varchar(200) DEFAULT NULL,
-  `config_default_currency` varchar(200) NOT NULL,
   `config_default_transfer_from_account` int(11) DEFAULT NULL,
   `config_default_transfer_to_account` int(11) DEFAULT NULL,
   `config_default_payment_account` int(11) DEFAULT NULL,
@@ -1098,4 +1099,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-11-08 18:05:26
+-- Dump completed on 2021-11-19 20:43:27
