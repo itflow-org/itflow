@@ -846,6 +846,12 @@ if(isset($_GET['download_database'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Downloaded', log_description = 'Database', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 }
 
+if(isset($_GET['update'])){
+    //Stuff will go here..
+    //also check to make sure someone has admin before running this function
+
+}
+
 if(isset($_POST['add_client'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
