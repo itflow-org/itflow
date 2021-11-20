@@ -27,7 +27,7 @@ $git_log = shell_exec("git log master..origin/master --pretty=format:'<tr><td>%h
     <center>
       <h2><small class="text-secondary">Current Version</small><br><?php echo $current_version; ?></h2>
       <?php if(!empty($git_log)){ ?>
-      <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fa fa-fw fa-4x fa-wrench"></i><br>Update<br>NOW</a>
+      <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fa fa-fw fa-4x fa-check-square"></i><br>Update<br>NOW</a>
       <?php
       }
       ?>
