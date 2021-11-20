@@ -855,6 +855,10 @@ if(isset($_GET['update'])){
     //exec("git fetch --all");
     //exec("git reset --hard origin/master");
 
+    $_SESSION['alert_message'] = "Update Successful!";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
 
 if(isset($_POST['add_client'])){
