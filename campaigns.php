@@ -175,6 +175,8 @@
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
+                  <a class="dropdown-item" href="post.php?send_campaign=<?php echo $campaign_id; ?>">Send</a>
+                  <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editCampaignModal<?php echo $campaign_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addCampaignCopyModal<?php echo $campaign_id; ?>">Copy</a>
                   <div class="dropdown-divider"></div>

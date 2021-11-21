@@ -122,10 +122,10 @@ $vendors_added = $row['vendors_added'];
     <!-- small box -->
     <a class="small-box bg-primary" href="payments.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
-        <h3>$<?php echo number_format($total_income,2); ?></h3>
+        <h3>$ <?php echo number_format($total_income,2); ?></h3>
         <p>Revenue</p>
         <hr>
-        <small>Receivables: <?php echo get_currency_symbol($session_company_currency); ?><?php echo number_format($receivables,2); ?></small>
+        <small>Receivables: <?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($receivables,2); ?></small>
       </div>
       <div class="icon">
         <i class="fa fa-money-check"></i>
@@ -138,7 +138,7 @@ $vendors_added = $row['vendors_added'];
     <!-- small box -->
     <a class="small-box bg-danger" href="expenses.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
-        <h3><?php echo get_currency_symbol($session_company_currency); ?><?php echo number_format($total_expenses,2); ?></h3>
+        <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_expenses,2); ?></h3>
         <p>Expenses</p>
       </div>
       <div class="icon">
@@ -152,7 +152,7 @@ $vendors_added = $row['vendors_added'];
     <!-- small box -->
     <div class="small-box bg-success">
       <div class="inner">
-        <h3><?php echo get_currency_symbol($session_company_currency); ?><?php echo number_format($profit,2); ?></h3>
+        <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($profit,2); ?></h3>
         <p>Profit</p>
       </div>
       <div class="icon">
@@ -166,7 +166,7 @@ $vendors_added = $row['vendors_added'];
     <!-- small box -->
     <div class="small-box bg-info">
       <div class="inner">
-        <h3><?php echo get_currency_symbol($session_company_currency); ?><?php echo number_format($recurring_monthly_total,2); ?></h3>
+        <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($recurring_monthly_total,2); ?></h3>
         <p>Monthly Recurring</p>
       </div>
       <div class="icon">
@@ -180,7 +180,7 @@ $vendors_added = $row['vendors_added'];
     <!-- small box -->
     <div class="small-box bg-info">
       <div class="inner">
-        <h3><?php echo get_currency_symbol($session_company_currency); ?><?php echo number_format($recurring_yearly_total,2); ?></h3>
+        <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($recurring_yearly_total,2); ?></h3>
         <p>Yearly Recurring</p>
       </div>
       <div class="icon">
@@ -359,7 +359,7 @@ $vendors_added = $row['vendors_added'];
 	              $balance = '0.00'; 
 	            }
 	            ?>
-	            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?><?php echo number_format($balance,2); ?></td>
+	            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($balance,2); ?></td>
 	          </tr>
 	          <?php
 	        	}
@@ -403,7 +403,7 @@ $vendors_added = $row['vendors_added'];
               <td><?php echo $payment_date; ?></td>
               <td><?php echo $client_name; ?></td>
               <td><?php echo "$invoice_prefix$invoice_number"; ?></td>
-              <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?><?php echo number_format($payment_amount,2); ?></td>
+              <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($payment_amount,2); ?></td>
             </tr>
             <?php
 		        }
@@ -446,7 +446,7 @@ $vendors_added = $row['vendors_added'];
               <td><?php echo $expense_date; ?></td>
               <td><?php echo $vendor_name; ?></td>
               <td><?php echo $category_name; ?></td>
-              <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?><?php echo number_format($expense_amount,2); ?></td>
+              <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($expense_amount,2); ?></td>
             </tr>
            	<?php
 		        }

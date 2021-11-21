@@ -849,7 +849,8 @@ if(isset($_GET['download_database'])){
 if(isset($_GET['update'])){
     //also check to make sure someone has admin before running this function
     exec("git pull");
-    
+
+    //FORCE UPDATE FUNCTION (Will be added later as a checkbox)
     //git fetch downloads the latest from remote without trying to merge or rebase anything. Then the git reset resets the master branch to what you just fetched. The --hard option changes all the files in your working tree to match the files in origin/master
 
     //exec("git fetch --all");
@@ -1377,9 +1378,11 @@ if(isset($_POST['add_campaign'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
+    $from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['from_name'])));
+    $from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['from_email'])));
     $content = trim(mysqli_real_escape_string($mysqli,$_POST['content']));
     
-    mysqli_query($mysqli,"INSERT INTO campaigns SET campaign_name = '$name', campaign_subject = '$subject', campaign_content = '$content', campaign_status = 'Draft', campaign_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO campaigns SET campaign_name = '$name', campaign_subject = '$subject', campaign_from_name = '$from_name', campaign_from_email = '$from_email', campaign_content = '$content', campaign_status = 'Draft', campaign_created_at = NOW(), company_id = $session_company_id");
 
     $campaign_id = mysqli_insert_id($mysqli);
 
@@ -1397,9 +1400,11 @@ if(isset($_POST['edit_campaign'])){
     $campaign_id = intval($_POST['campaign_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
+    $from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['from_name'])));
+    $from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['from_email'])));
     $content = trim(mysqli_real_escape_string($mysqli,$_POST['content']));
 
-    mysqli_query($mysqli,"UPDATE campaigns SET SET campaign_name = '$name', campaign_subject = '$subject', campaign_content = '$content', campaign_updated_at = NOW() WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE campaigns SET SET campaign_name = '$name', campaign_subject = '$subject', campaign_from_name = '$from_name', campaign_from_email = '$from_email', campaign_content = '$content', campaign_updated_at = NOW() WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -1420,7 +1425,7 @@ if(isset($_GET['archive_campaign'])){
 
     $_SESSION['alert_message'] = "Campaign Archived!";
     
-    header("Location: vendors.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -1436,6 +1441,68 @@ if(isset($_GET['delete_campaign'])){
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
+}
+
+if(isset($_GET['send_campaign'])){
+    $campaign_id = intval($_GET['send_campaign']);
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM campaigns WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
+
+    $row = mysqli_fetch_array($sql);
+    
+    $campaign_name = $row['campaign_name'];
+    $campaign_subject = $row['campaign_subject'];
+    $campaign_from_name = $row['campaign_from_name'];
+    $campaign_from_email = $row['campaign_from_email'];
+    $campaign_content = $row['campaign_content'];
+    $campaign_status = $row['campaign_status'];
+    $campaign_scheduled_at = $row['campaign_scheduled_at'];
+    $campaign_created_at = $row['campaign_created_at'];
+
+    $contact_name = "";
+    $emailsArray = [""];
+
+    foreach($emailsArray as $contact_email){
+
+        $mail = new PHPMailer(true);
+
+        try{
+
+            //Mail Server Settings
+
+            //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+            $mail->isSMTP();                                            // Set mailer to use SMTP
+            $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+            $mail->Username   = $config_smtp_username;                     // SMTP username
+            $mail->Password   = $config_smtp_password;                               // SMTP password
+            $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+            $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+
+            
+
+            //Recipients
+            $mail->setFrom("$campaign_from_email", "$campaign_from_name");
+            $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
+
+            // Content
+            $mail->isHTML(true);                                  // Set email format to HTML
+            $mail->Subject = "$campaign_subject";
+            $mail->Body    = "Hi $contact_name,<br><br>$campaign_content";
+
+            $mail->send();
+            echo 'Message has been sent';
+
+        }catch (Exception $e){
+            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+    }
+
+    //Logging of email sent
+    //mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Emailed', log_description = 'Emailed $client_name to email $client_email - $title', log_created_at = NOW(), log_client_id = $client, company_id = $session_company_id, log_user_id = $session_user_id");
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
 
 // Products
