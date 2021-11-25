@@ -1744,6 +1744,71 @@ if(isset($_GET['delete_category'])){
   
 }
 
+
+//Tags
+
+if(isset($_POST['add_tag'])){
+
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
+
+    mysqli_query($mysqli,"INSERT INTO tags SET tag_name = '$name', tag_color = '$color', tag_created_at = NOW(), company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Tag added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_tag'])){
+
+    $tag_id = intval($_POST['tag_id']);
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
+
+    mysqli_query($mysqli,"UPDATE tags SET tag_name = '$name', tag_color = '$color', tag_updated_at = NOW() WHERE tag_id = $tag_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Tag modified";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['archive_tag'])){
+    $tag_id = intval($_GET['archive_tag']);
+
+    mysqli_query($mysqli,"UPDATE tags SET tag_archived_at = NOW() WHERE tag_id = $tag_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Archive', log_description = '$tag_id', log_created_at = NOW()");
+
+    $_SESSION['alert_message'] = "Tag Archived";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_tag'])){
+    $tag_id = intval($_GET['delete_tag']);
+
+    mysqli_query($mysqli,"DELETE FROM tags WHERE tag_id = $tag_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Deleted', log_description = '$tag_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Tag deleted";
+    $_SESSION['alert_type'] = "danger";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 //Tax
 
 if(isset($_POST['add_tax'])){

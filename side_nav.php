@@ -228,6 +228,12 @@
               </a>
             </li>
             <li class="nav-item">
+              <a href="tags.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tags.php") { echo "active"; } ?>">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Tags</p>
+              </a>
+            </li>
+            <li class="nav-item">
               <a href="custom_links.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "custom_links.php") { echo "active"; } ?>">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Custom Links</p>
