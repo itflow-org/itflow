@@ -16,12 +16,12 @@
             <input type="text" class="form-control" name="name" placeholder="Tag name" required autofocus>
           </div>
 
-          <label>Color <strong class="text-danger">*</strong></label>
+          <label>Color</label>
           <div class="form-row">
 
             <?php
             
-            foreach($colors_diff as $color) { 
+            foreach($colors_diff as $color) {
             
             ?>
             
@@ -35,6 +35,11 @@
             </div>
            
             <?php } ?>
+          </div>
+
+          <div class="form-group">
+            <label>Icon</label>
+            <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake">
           </div>
         
         </div>

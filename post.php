@@ -921,6 +921,12 @@ if(isset($_POST['add_client'])){
 
     }
 
+    //Add Tags
+
+    foreach($_POST['tags'] as $tag_id){
+        mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag_id, client_tag_created_at = NOW()");
+    }
+
     $_SESSION['alert_message'] = "Client added";
     
     header("Location: clients.php");
@@ -1751,8 +1757,9 @@ if(isset($_POST['add_tag'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
+    $icon = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['icon'])));
 
-    mysqli_query($mysqli,"INSERT INTO tags SET tag_name = '$name', tag_color = '$color', tag_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO tags SET tag_name = '$name', tag_color = '$color', tag_icon = '$icon', tag_created_at = NOW(), company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -1768,8 +1775,9 @@ if(isset($_POST['edit_tag'])){
     $tag_id = intval($_POST['tag_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
+    $icon = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['icon'])));
 
-    mysqli_query($mysqli,"UPDATE tags SET tag_name = '$name', tag_color = '$color', tag_updated_at = NOW() WHERE tag_id = $tag_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE tags SET tag_name = '$name', tag_color = '$color', tag_icon = '$icon', tag_updated_at = NOW() WHERE tag_id = $tag_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");

@@ -112,7 +112,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
       
           ?>
           <tr>
-            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>"><?php echo "$tag_name"; ?></a></td>
+            <td><?php echo "<i class='fa fa-fw fa-$tag_icon'></i>"; ?> <a class="text-dark" href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>"><?php echo "$tag_name"; ?></a></td>
             <td><i class="fa fa-3x fa-circle" style="color:<?php echo $tag_color; ?>;"></i></td>
             <td>
               <div class="dropdown dropleft text-center">

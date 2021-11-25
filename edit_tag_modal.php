@@ -16,7 +16,7 @@
             <input type="text" class="form-control" name="name" value="<?php echo $tag_name; ?>" required>
           </div>
           
-          <label>Color <strong class="text-danger">*</strong></label>
+          <label>Color</label>
           <div class="mb-3">
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="color" value="<?php echo $tag_color; ?>" checked>
@@ -41,6 +41,11 @@
             </div>
            
             <?php } ?>
+          </div>
+
+          <div class="form-group">
+            <label>Icon</label>
+            <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" value="<?php echo $tag_icon; ?>">
           </div>
         
         </div>
