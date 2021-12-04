@@ -2,6 +2,10 @@
 
 <?php include("settings-nav.php"); ?>
 
+<div class="alert alert-warning">
+  Work in Progress
+</div>
+
 <div class="card card-dark">
   <div class="card-header">
     <h3 class="card-title"><i class="fa fa-fw fa-credit-card"></i> Online Payment</h3>

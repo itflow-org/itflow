@@ -122,7 +122,11 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         <?php
         if($invoice_status != "Paid" and $invoice_status  != "Cancelled" and $invoice_status != "Draft" and $config_stripe_enable == 1){
         ?>
+        <?php
+        if($config_stripe_enable == 1){
+        ?>
         <a class="btn btn-success" href="guest_pay.php?invoice_id=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card"></i> Pay Online <small>(Coming Soon)</small></a>
+        <?php } ?>
         <?php } ?>
       </div>
     </div>
