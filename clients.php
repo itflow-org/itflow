@@ -194,6 +194,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_created_at = $row['client_created_at'];
             $client_updated_at = $row['client_updated_at'];
 
+            //Get Tags WIP
+
+            $sql_client_tags = mysqli_query($mysqli,"SELECT * FROM client_tags, tags WHERE client_tags.client_id = $client_id AND client_tags.tag_id = tags.tag_id");
+            $row = mysqli_fetch_array($sql_client_tags);
+            while($row = mysqli_fetch_array($sql_client_tags)){
+
+              $client_tag_id = $row['tag_id'];
+              $client_tag_name = $row['tag_name'];
+              $client_tag_color = $row['tag_color'];
+              $client_tag_icon = $row['tag_icon'];
+            
+              //$client_tag_id_array = array($client_tag_id);
+              //$client_tag_name_array = array($client_tag_name);
+            }
+
             //Add up all the payments for the invoice and get the total amount paid to the invoice
             $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' ");
             $row = mysqli_fetch_array($sql_invoice_amounts);
@@ -211,7 +226,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $balance_text_color = "text-danger font-weight-bold";
             }else{
               $balance_text_color = "";
-            }            
+            }          
       
           ?>
           <tr>
@@ -221,7 +236,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               if(!empty($client_type)){
               ?>
               <br>
-              <small class="text-secondary"><?php echo $client_type; ?></small>
+              <small class="text-secondary"><?php echo $client_type; ?> - <?php explode(',', $client_tag_name_array); ?></small>
               <?php } ?>
               <br>
               <small class="text-secondary"><b>Added:</b> <?php echo $client_created_at; ?></small>

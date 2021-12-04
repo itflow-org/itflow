@@ -26,6 +26,9 @@
             <li class="nav-item">
               <a class="nav-link" data-toggle="pill" href="#pills-client-notes<?php echo $client_id; ?>">Notes</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-client-tag<?php echo $client_id; ?>">Tag</a>
+            </li>
           </ul>
 
           <hr>
@@ -261,6 +264,36 @@
                 <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?php echo $client_notes; ?></textarea>
               </div>
             
+            </div>
+
+            <div class="tab-pane fade" id="pills-client-tag<?php echo $client_id; ?>">
+
+              <ul class="list-group">
+
+                <?php
+              
+                $sql_tags_select = mysqli_query($mysqli,"SELECT * FROM tags WHERE tag_archived_at IS NULL AND company_id = $session_company_id ORDER BY tag_name ASC");
+
+                while($row = mysqli_fetch_array($sql_tags_select)){
+                  $tag_id_select = $row['tag_id'];
+                  $tag_name_select = $row['tag_name'];
+                  $tag_color_select = $row['tag_color'];
+                  $tag_icon_select = $row['tag_icon'];
+
+                ?>
+                  <li class="list-group-item">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" name="tags[]" value="<?php echo $tag_id_select; ?>" <?php if(in_array('$client_tags', $tag_id_select)){ echo "checked"; } ?>>
+                      <label class="form-check-label ml-2" style="color:<?php echo $tag_color_select ?>;"><?php echo "<i class='fa fw fa-$tag_icon_select'></i>"; ?> <?php echo $tag_name_select; ?></label>
+                    </div>
+                  </li>
+
+                <?php
+                }
+                ?>
+
+              </ul>
+
             </div>
           
           </div>    

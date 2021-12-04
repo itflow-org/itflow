@@ -218,7 +218,8 @@ $location_phone = formatPhoneNumber($location_phone);
           </button>
           <div class="dropdown-menu">
             <a class="dropdown-item" href="client_print.php?client_id=<?php echo $client_id; ?>">Print</a>
-            <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>">Export PDF</a>
+            <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>">Export PDF<br><small class="text-secondary">(without passwords)</small></a>
+            <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>&passwords">Export PDF<br><small class="text-secondary">(with passwords)</small></a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
             <div class="dropdown-divider"></div>

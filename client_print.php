@@ -5,21 +5,19 @@
 if(isset($_GET['client_id'])){
   $client_id = intval($_GET['client_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
+  $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN contacts ON primary_contact = contact_id LEFT JOIN locations ON primary_location = location_id WHERE client_id = $client_id AND clients.company_id = $session_company_id");
 
   $row = mysqli_fetch_array($sql);
   $client_name = $row['client_name'];
-  $client_address = $row['client_address'];
-  $client_city = $row['client_city'];
-  $client_state = $row['client_state'];
-  $client_zip = $row['client_zip'];
-  $client_email = $row['client_email'];
-  $client_phone = $row['client_phone'];
-  if(strlen($client_phone)>2){ 
-    $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
-  }
+  $location_address = $row['location_address'];
+  $location_city = $row['location_city'];
+  $location_state = $row['location_state'];
+  $location_zip = $row['location_zip'];
+  $contact_name = $row['contact_name'];
+  $contact_phone = formatPhoneNumber($row['contact_phone']);
+  $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+  $contact_email = $row['contact_email'];
   $client_website = $row['client_website'];
-  $client_net_terms = $row['client_net_terms'];
 
   //Query each table and store them in their array
   $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
@@ -30,17 +28,17 @@ if(isset($_GET['client_id'])){
   $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_client_id = $client_id ORDER BY network_name ASC");
   $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_client_id = $client_id ORDER BY domain_name ASC");
   $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
-  $sql_invoices = mysqli_query($mysqli,"SELECT * FROM invoices WHERE client_id = $client_id ORDER BY invoice_number DESC");
+  $sql_invoices = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_client_id = $client_id ORDER BY invoice_number DESC");
 
   $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, invoices, accounts
-    WHERE invoices.client_id = $client_id
-    AND payments.invoice_id = invoices.invoice_id
-    AND payments.account_id = accounts.account_id
-    ORDER BY payments.payment_id DESC"); 
+    WHERE invoice_client_id = $client_id
+    AND payment_invoice_id = invoice_id
+    AND payment_account_id = account_id
+    ORDER BY payment_id DESC"); 
   
-  $sql_quotes = mysqli_query($mysqli,"SELECT * FROM quotes WHERE client_id = $client_id ORDER BY quote_number DESC");
+  $sql_quotes = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_client_id = $client_id ORDER BY quote_number DESC");
 
-  $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring WHERE client_id = $client_id ORDER BY recurring_id DESC");
+  $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_client_id = $client_id ORDER BY recurring_id DESC");
 
   $sql_documents = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_client_id = $client_id ORDER BY document_created_at DESC");
 
@@ -62,16 +60,16 @@ if(isset($_GET['client_id'])){
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('software_id') AS num FROM software WHERE software_client_id = $client_id"));
   $num_software = $row['num'];
   
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_client_id = $client_id"));
   $num_invoices = $row['num'];
 
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('payment_id') AS num FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('payment_id') AS num FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id"));
   $num_payments = $row['num'];
 
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('quote_id') AS num FROM quotes WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('quote_id') AS num FROM quotes WHERE quote_client_id = $client_id"));
   $num_quotes = $row['num'];
 
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM recurring WHERE client_id = $client_id"));
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM recurring WHERE recurring_client_id = $client_id"));
   $num_recurring = $row['num'];
 
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_id') AS num FROM documents WHERE document_client_id = $client_id"));
@@ -117,18 +115,26 @@ if(isset($_GET['client_id'])){
       <tr>
         <th>Address</th>
         <td>
-          <?php echo $client_address; ?>
+          <?php echo $location_address; ?>
           <br>
-          <?php echo "$client_city $client_state $client_zip"; ?>
+          <?php echo "$location_city $location_state $location_zip"; ?>
         </td>
       </tr>
       <tr>
+        <th>Primary Contact</th>
+        <td><?php echo $contact_name; ?></td>
+      </tr>
+      <tr>
         <th>Phone</th>
-        <td><?php echo $client_phone; ?></td>
+        <td><?php echo $contact_phone; ?></td>
+      </tr>
+      <tr>
+        <th>Mobile</th>
+        <td><?php echo $contact_mobile; ?></td>
       </tr>
       <tr>      
         <th>Email</th>
-        <td><?php echo $client_email; ?></td>
+        <td><?php echo $contact_email; ?></td>
       </tr>
       <tr> 
         <th>Website</th>
@@ -147,19 +153,19 @@ if(isset($_GET['client_id'])){
       </div>
       <div class="card-body">
         <ul class="list-unstyled">
-          <?php if($num_contacts > 0){ ?> <li><input type="checkbox" name="c1" onclick="showMe('contacts')"> <a href="#contacts">Contacts</a></li> <?php } ?>
-          <?php if($num_locations > 0){ ?> <li><input type="checkbox" name="c1" onclick="showMe('locations')" checked> <a href="#locations">Locations</a></li> <?php } ?>
-          <?php if($num_assets > 0){ ?> <li><input type="checkbox" name="c1" onclick="showMe('assets')" checked> <a href="#assets">Assets</a></li> <?php } ?>
-          <?php if($num_vendors > 0){ ?> <li><input type="checkbox" checked> <a href="#vendors">Vendors</a></li> <?php } ?>
-          <?php if($num_logins > 0){ ?> <li><input type="checkbox" checked> <a href="#logins">Logins</a></li> <?php } ?>
-          <?php if($num_networks > 0){ ?> <li><input type="checkbox" checked> <a href="#networks">Networks</a></li> <?php } ?> 
-          <?php if($num_domains > 0){ ?> <li><input type="checkbox" checked> <a href="#domains">Domains</a></li> <?php } ?>
-          <?php if($num_software > 0){ ?> <li><input type="checkbox" checked> <a href="#software">Software</a></li> <?php } ?>
-          <?php if($num_invoices > 0){ ?> <li><input type="checkbox" checked> <a href="#invoices">Invoices</a></li> <?php } ?>
-          <?php if($num_payments > 0){ ?> <li><input type="checkbox" checked> <a href="#payments">Payments</a></li> <?php } ?>
-          <?php if($num_quotes > 0){ ?> <li><input type="checkbox" checked> <a href="#quotes">Quotes</a></li> <?php } ?>
-          <?php if($num_recurring > 0){ ?> <li><input type="checkbox" checked> <a href="#recurring">Recurring</a></li> <?php } ?>
-          <?php if($num_documents > 0){ ?> <li><input type="checkbox" checked> <a href="#documents">Documents</a></li> <?php } ?>
+          <?php if($num_contacts > 0){ ?> <li><a href="#contacts">Contacts</a></li> <?php } ?>
+          <?php if($num_locations > 0){ ?> <li><a href="#locations">Locations</a></li> <?php } ?>
+          <?php if($num_assets > 0){ ?> <li><a href="#assets">Assets</a></li> <?php } ?>
+          <?php if($num_vendors > 0){ ?> <li><a href="#vendors">Vendors</a></li> <?php } ?>
+          <?php if($num_logins > 0){ ?> <li><a href="#logins">Logins</a></li> <?php } ?>
+          <?php if($num_networks > 0){ ?> <li><a href="#networks">Networks</a></li> <?php } ?> 
+          <?php if($num_domains > 0){ ?> <li><a href="#domains">Domains</a></li> <?php } ?>
+          <?php if($num_software > 0){ ?> <li><a href="#software">Software</a></li> <?php } ?>
+          <?php if($num_invoices > 0){ ?> <li><a href="#invoices">Invoices</a></li> <?php } ?>
+          <?php if($num_payments > 0){ ?> <li><a href="#payments">Payments</a></li> <?php } ?>
+          <?php if($num_quotes > 0){ ?> <li><a href="#quotes">Quotes</a></li> <?php } ?>
+          <?php if($num_recurring > 0){ ?> <li><a href="#recurring">Recurring</a></li> <?php } ?>
+          <?php if($num_documents > 0){ ?> <li><a href="#documents">Documents</a></li> <?php } ?>
         </ul>
       </div>
     </div>

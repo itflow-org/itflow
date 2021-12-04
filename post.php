@@ -5371,7 +5371,9 @@ if(isset($_GET['export_client_pdf'])){
     $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
     $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id ORDER BY location_name ASC");
     $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
-    $sql_logins = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
+    if(isset($_GET['passwords'])){
+        $sql_logins = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
+    }
     $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_type ASC");
     $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_client_id = $client_id ORDER BY network_name ASC");
     $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_client_id = $client_id ORDER BY domain_name ASC");
@@ -5675,6 +5677,7 @@ if(isset($_GET['export_client_pdf'])){
             //Vendors END
 
             //Logins Start
+            <?php if(isset($_GET['passwords'])){ ?>
             { 
                 text: 'Logins', 
                 style: 'title'
@@ -5744,6 +5747,7 @@ if(isset($_GET['export_client_pdf'])){
                     ]
                 }
             },
+            <?php } ?>
             //Logins END
 
             //Assets Start
