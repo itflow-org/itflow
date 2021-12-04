@@ -8,35 +8,35 @@
 
 ### Features
 * Client Documentation
-  * Contacts
+  * Contacts - Keep track of important individuals
   * Locations (Head Quarters, Satellite locations)
-  * Vendors (ISP, WebHost, MailHost etc)
+  * Vendors (ISP, WebHost, MailHost, Software Company, VOIP company etc)
   * Assets (Laptop, Workstations, Routers, Switches, Access Points, phones, etc)
   * Password Manager (AES Encrypted in DB)
   * Domain Names  
-  * Software (Manage Applications Licenses)
+  * Software (Manage Applications Licenses, Renewals etc)
   * Networks
-  * Files (PDF Contracts, Manuals, Router Backup Configs, etc)
-  * Documents (Tech Docs, How-tos, Notes, etc)
+  * Files (PDF Contracts, Manuals, Firewall Backup Configs, etc)
+  * Documents (Tech Docs, How-tos, Processes, Procedures, Notes, etc)
   * Tickets
-  * Client Documentation (Single Downloadable PDF of all documentation for a client)
+  * Client Documentation (Single Downloadable IT Documentation for a client)
 * Client Portal
   * Invoice, Quotes and Payment information
   * More to come soon...
 * Invoicing
   * Automatically Emails Past Due Invoices to clients
-  * Auto Email Receipts upon receiving payments
+  * Automatically Email Receipts upon marking invoices paid
   * Automatic Recurring Invoices
 * Quotes
-  * Automated customer approval process using a link that sent via email
-  * Turn Quotes into invoices with a signle click
+  * Automated customer approval process using a link that is sent via email to the primary contact
+  * One Click turn Quotes into Invoices
 * Accounting
-  * Expense Tracking (Track Internal Business Expenses such as Office Supplies, Professional Services, Equipment etc)
+  * Expense Tracking (Track internal business expenses such as Office Supplies, Professional Services, Equipment, etc)
   * Profit and Loss Reports
   * Income/Expense Summaries
-  * Travel Mileage Tracking (Track your mileage to and from clients and other points of business)
-  * Account Transfers / Deposits (Keep track of money transfers from account to account)
-  * Accounts
+  * Travel Mileage Tracking
+  * Accounts (Manage several accounts including cash on hand, bank accounts, etc)
+  * Account Transfers (Keep track of money transfers from account to account inclusing deposits)
 * Alerting/Notifications
   * Low Account Balances
   * Domains to expire
@@ -45,11 +45,12 @@
   * Software License Expiration
 * Calendar
   * Schedule Jobs
-  * Overview of Invoices, Domains that are expiring, etc
+  * Overview of Invoices, Domains, asset Warranty Expiry, etc
   * Schedule Events
   * Automatic Email Reminders of upcoming calendar events to customers
 * Dashboard
   * Overview of business financials
+* Mailing List - Notify users of upcoming change controls, marketing etc 
 
 * API
   * XML Phonebook download for VOIP Phones
@@ -58,15 +59,16 @@
   * Check account Balances using FreePBX IVR
 
 * Multi-Tenant - One Instance Multiple Companies and Users
-* Audit Logging - Logs actions of users on the system
-* Permission / Roles
+* Audit Logging - Logs detailed actions of users and events
+* Permissions / Roles
 * 2FA Login Support (TOTP)
+
 
 ### Installation Instructions
 
 * Change directory to your webroot
 * git clone https://github.com/johnnyq/itflow.git .
-* Create a MySQL/MariaDB database
+* Create a MariaDB database (Note MySQL is broken)
 * Point your browser to your Web Server
 * Go through the Setup Process
 * Login
@@ -75,12 +77,12 @@
 #### Requirements
 * Webserver (Apache, NGINX)
 * PHP7+
-* MariaDB / MySQL
+* MariaDB (MySQL is broke)
 
 ### Technologies Used
 * Backend / PHP libs
   * PHP
-  * MariaDB / MySQL
+  * MariaDB
   * PHPmailer
 
 * CSS
@@ -98,17 +100,16 @@
   * FullCalendar.io
 
 ### API Calls
-* Caller ID lookup (Great for integrating with your phone system like FreePBX, and having your VOIP phone return the client thats calling) - /api.php?api_key=[API_KEY]&cid=[PHONE_NUMBER] - Returns a name
-* XML Phonebook Download (Great for using with VOIP Phones so phpnes have an up to date directory) - /api.php?api_key=[API_KEY]&phonebook 
+* Caller ID lookup (Great for integrating with your phone system like FreePBX, and having your VOIP phone return the client's name thats calling in) - /api.php?api_key=[API_KEY]&cid=[PHONE_NUMBER] - Returns a name
+* XML Phonebook Download - /api.php?api_key=[API_KEY]&phonebook 
 * Client Email (great for mailing lists) - /api.php?api_key=[API_KEY]&client_emails - Returns Client Name - Email Address
 * Account Balance for Client (can be integrated into multiple places for example in FreePBX Press 3 to check account balance, please enter your client ID your blanace is) - /api.php?api_key=[API_KEY]&client_id=[CLIENT_ID] - Returns Account Balance
 NOTE: [API_KEY] - is auto generated when a company is created and shows up in General Settings, this can also be changed manually.
 
 ### Future Todo
-* MeshCentral / TacticalRMM Integation to assign devices to assets and easily access remote desktop within the app, as well as pull vital information such as asset make, model, serial, hostname, Operating System, 
+* MeshCentral / TacticalRMM (Export Assets Info to ITFlow, Exports common software applications to Software)
 * CalDAV to integrate with 3rd party calendars
 * CardDAV to integrate with 3rd party Address books
 * Stripe Integration for online payments
 * Toast Alerts with recent caller that matches caller ID in database which allows you to click on the toast alerts and bring up the clients account right away.
-* Built-in mailing list used for alerts and marketing
-* WebAuthn Support for passwordless auth (TPM Fingerprint), (USB Hardware keys such as Yubikey)
+* FIDO2 WebAuthn Support for passwordless auth (TPM Fingerprint), (USB Hardware keys such as Yubikey)
