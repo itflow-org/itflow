@@ -27,14 +27,15 @@ if(isset($_POST['login'])){
   $username = mysqli_real_escape_string($mysqli,$_POST['username']);
   $plain_password = $_POST['password'];
   $password = md5($_POST['password']);
-  if(!empty($token)){
+  $current_code = mysqli_real_escape_string($mysqli,$_POST['current_code']);
+  if(!empty($current_code)){
     $current_code = mysqli_real_escape_string($mysqli,$_POST['current_code']);
   }
   $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_email = '$username' AND user_password = '$password'");
   
   if(mysqli_num_rows($sql) == 1){
     $row = mysqli_fetch_array($sql);
-    $token = $row['token'];
+    $token = $row['user_token'];
     $_SESSION['user_id'] = $row['user_id'];
     $_SESSION['user_name'] = $row['user_name'];
     $user_name = $row['user_name'];
@@ -61,6 +62,7 @@ if(isset($_POST['login'])){
         $_SESSION['logged'] = TRUE;
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login 2FA', log_action = 'Success', log_description = '$ip - $os - $browser - $device', log_created_at = NOW(), log_user_id = $user_id");
         //header("Location: $config_start_page");
+        echo "<script>alert(Fail); </script>";
         header("Location: dashboard.php");
       }else{
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$ip - $os - $browser - $device', log_created_at = NOW(), log_user_id = $user_id");
