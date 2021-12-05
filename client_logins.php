@@ -1,4 +1,6 @@
-<?php 
+<?php
+
+require_once("rfc6238.php");
 
 //Paging
 if(isset($_GET['p'])){
@@ -115,7 +117,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             if(empty($login_otp_secret)){
               $otp_display = "-";
             }else{
-              $otp = get_otp($login_otp_secret);
+              $otp = TokenAuth6238::getTokenCode($login_otp_secret,$rangein30s = 3);
               $otp_display = "<i class='far fa-clock text-secondary'></i> $otp<button class='btn btn-sm' data-clipboard-text='$otp'><i class='far fa-copy text-secondary'></i></button>";
             }
             $login_note = $row['login_note'];

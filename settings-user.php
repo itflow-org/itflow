@@ -87,12 +87,13 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           if(!empty($session_token)){ 
             //Generate QR Code based off the generated key
             print sprintf('<img src="%s"/>',TokenAuth6238::getBarCodeUrl('','',$session_token,$config_company_name));
+            
+            echo "<p class='text-secondary'>$secretkey</p>";
           }
     
         ?>
         
         <input type="hidden" name="token" value="<?php echo $secretkey; ?>">
-       
         <hr>
 
         <?php if(empty($session_token)){ ?>
