@@ -30,15 +30,18 @@ if(isset($_GET['client_id'])){
     $client_net_terms = $config_default_net_terms;
   }
   $client_support = $row['client_support'];
-  $client_notes = $row['client_notes']; 
+  $client_notes = $row['client_notes'];
+  $client_created_at = $row['client_created_at'];
   $primary_contact = $row['primary_contact'];
   $primary_location = $row['primary_location'];
+  $contact_id = $row['contact_id'];
   $contact_name = $row['contact_name'];
   $contact_title = $row['contact_title'];
   $contact_email = $row['contact_email'];
   $contact_phone = $row['contact_phone'];
   $contact_extension = $row['contact_extension'];
   $contact_mobile = $row['contact_mobile'];
+  $location_id = $row['location_id'];
   $location_name = $row['location_name'];
   $location_address = $row['location_address'];
   $location_city = $row['location_city'];

@@ -117,7 +117,7 @@
                   <select class="form-control select2" name="country">
                     <option value="">- Country -</option>
                     <?php foreach($countries_array as $country_name) { ?>
-                    <option <?php if($config_default_country == $country_name){ echo "selected"; } ?> ><?php echo $country_name; ?></option>
+                    <option <?php if($session_company_country == $country_name){ echo "selected"; } ?> ><?php echo $country_name; ?></option>
                     <?php } ?>
                   </select>
                 </div>

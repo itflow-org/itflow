@@ -116,7 +116,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }
             $location_photo = $row['location_photo'];
             $location_notes = $row['location_notes'];
-            $location_primary = $row['location_primary'];
             $location_created_at = $row['location_created_at'];
             $location_contact_id = $row['location_contact_id'];
             if($location_id == $primary_location){

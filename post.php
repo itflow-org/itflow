@@ -4121,7 +4121,7 @@ if(isset($_GET['export_client_assets_csv'])){
 
     $client_name = $row['client_name'];
     
-    $sql = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Assets-" . date('Y-m-d') . ".csv";
@@ -4130,12 +4130,12 @@ if(isset($_GET['export_client_assets_csv'])){
         $f = fopen('php://memory', 'w');
         
         //set column headers
-        $fields = array('Name', 'Type', 'Make', 'Model', 'Serial Number', 'MAC Address', 'IP Address', 'Operating System', 'Purchase Date', 'Warranty Expiration Date', 'Notes');
+        $fields = array('Name', 'Type', 'Make', 'Model', 'Serial Number', 'Operating System', 'Purchase Date', 'Warranty Expire', 'Install Date', 'Assigned To', 'Location', 'Notes');
         fputcsv($f, $fields, $delimiter);
         
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
-            $lineData = array($row['asset_name'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_mac'], $row['asset_ip'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_notes']);
+            $lineData = array($row['asset_name'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_install_date'], $row['contact_name'], $row['location_name'], $row['asset_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
         
@@ -5404,7 +5404,7 @@ if(isset($_GET['export_client_pdf'])){
     var docDefinition = {
         info: {
             title: '<?php echo $client_name; ?>- IT Documentation',
-            author: <?php echo json_encode($company_name); ?>
+            author: <?php echo json_encode($session_company_name); ?>
         },
         footer: {
             columns: [
@@ -5788,19 +5788,11 @@ if(isset($_GET['export_client_pdf'])){
                                 style: 'itemHeader' 
                             },
                             { 
-                                text: 'OS', 
-                                style: 'itemHeader' 
-                            },
-                            { 
                                 text: 'Serial', 
                                 style: 'itemHeader' 
                             },
                             { 
-                                text: 'IP', 
-                                style: 'itemHeader' 
-                            },
-                            { 
-                                text: 'MAC', 
+                                text: 'OS', 
                                 style: 'itemHeader' 
                             },
                             { 
@@ -5812,7 +5804,7 @@ if(isset($_GET['export_client_pdf'])){
                                 style: 'itemHeader'
                             },
                             { 
-                                text: 'Notes', 
+                                text: 'Install Date', 
                                 style: 'itemHeader'
                             }
                         ],
@@ -5829,6 +5821,7 @@ if(isset($_GET['export_client_pdf'])){
                             $asset_mac = $row['asset_mac'];
                             $asset_purchase_date = $row['asset_purchase_date'];
                             $asset_warranty_expire = $row['asset_warranty_expire'];
+                            $asset_install_date = $row['asset_install_date'];
                             $asset_notes = $row['asset_notes'];
                         ?>
 
@@ -5846,19 +5839,11 @@ if(isset($_GET['export_client_pdf'])){
                                 style: 'item'
                             },
                             {
-                                text: <?php echo json_encode($asset_os); ?>,
-                                style: 'item'
-                            },
-                            {
                                 text: <?php echo json_encode($asset_serial); ?>,
                                 style: 'item'
                             },
                             {
-                                text: <?php echo json_encode($asset_ip); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_mac); ?>,
+                                text: <?php echo json_encode($asset_os); ?>,
                                 style: 'item'
                             },
                             {
@@ -5870,7 +5855,7 @@ if(isset($_GET['export_client_pdf'])){
                                 style: 'item'
                             },
                             {
-                                text: <?php echo json_encode($asset_notes); ?>,
+                                text: <?php echo json_encode($asset_install_date); ?>,
                                 style: 'item'
                             }
                         ],
