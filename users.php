@@ -71,7 +71,7 @@
           <tr>
             <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_email&o=<?php echo $disp; ?>">Email</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=Permission_level&o=<?php echo $disp; ?>">Access Level</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=Permission_level&o=<?php echo $disp; ?>">Role</a></th>
             <th>Status</th>
             <th>Last Login</th>
             <th class="text-center">Action</th>
@@ -111,7 +111,10 @@
             );
             $row = mysqli_fetch_array($sql_last_login);
             $log_created_at = $row['log_created_at'];
-            $last_login = $row['log_description'];
+            $log_ip = $row['log_ip'];
+            $log_user_agent = $row['log_user_agent'];
+
+            $last_login = "$log_ip - $log_user_agent";
             if(empty($last_login)){
               $last_login = "Never logged in"; 
             }

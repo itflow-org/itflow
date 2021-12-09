@@ -139,13 +139,14 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
       
           while($row = mysqli_fetch_array($sql_recent_logins)){
             $log_id = $row['log_id'];
-            $log_description = $row['log_description'];
+            $log_ip = $row['log_ip'];
+            $log_user_agent = $row['log_user_agent'];
             $log_created_at = $row['log_created_at'];
 
           ?>
 
             <tr>
-              <td><i class="fa fa-fw fa-sign-in-alt text-secondary"></i> <?php echo $log_description; ?></td>
+              <td><i class="fa fa-fw fa-sign-in-alt text-secondary"></i> <?php echo "$log_ip - $log_user_agent"; ?></td>
               <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
             </tr>
           <?php
@@ -154,7 +155,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
         </tbody>
       </table>
       <div class="card-footer">
-        <a href="#">See More...</a>
+        <a href="logs.php?q=<?php echo "$session_name successfully logged in"; ?>">See More...</a>
       </div>
     </div>
 
@@ -197,7 +198,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
         </tbody>
       </table>
       <div class="card-footer">
-        <a href="#">See More...</a>
+        <a href="logs.php?q=<?php echo $session_name; ?>">See More...</a>
       </div>
     </div>
   </div>
