@@ -46,9 +46,6 @@ $config_ticket_next_number = $row['config_ticket_next_number'];
 //Alerts
 $config_enable_cron = $row['config_enable_cron'];
 
-$config_enable_alert_low_balance = $row['config_enable_alert_low_balance'];
-$config_account_balance_threshold = $row['config_account_balance_threshold'];
-
 $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
 $config_enable_alert_domain_expire = $row['config_enable_alert_domain_expire'];
 $config_send_invoice_reminders = $row['config_send_invoice_reminders'];

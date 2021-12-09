@@ -847,8 +847,6 @@ CREATE TABLE `settings` (
   `config_ticket_prefix` varchar(200) DEFAULT NULL,
   `config_ticket_next_number` int(11) DEFAULT NULL,
   `config_enable_cron` tinyint(1) DEFAULT NULL,
-  `config_enable_alert_low_balance` tinyint(1) DEFAULT NULL,
-  `config_account_balance_threshold` decimal(15,2) DEFAULT NULL,
   `config_recurring_auto_send_invoice` tinyint(1) DEFAULT NULL,
   `config_enable_alert_domain_expire` tinyint(1) DEFAULT NULL,
   `config_send_invoice_reminders` tinyint(1) DEFAULT NULL,
@@ -1100,4 +1098,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-12-08 22:12:04
+-- Dump completed on 2021-12-08 22:31:20

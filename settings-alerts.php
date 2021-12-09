@@ -15,25 +15,6 @@
       </div>
 
       <div class="custom-control custom-switch mb-2">
-        <input type="checkbox" class="custom-control-input" name="config_enable_alert_low_balance" <?php if($config_enable_alert_low_balance == 1){ echo "checked"; } ?> value="1" id="customSwitch2">
-        <label class="custom-control-label" for="customSwitch2">Enable Low Balance Alerts</label>
-      </div>
-
-      <?php if($config_enable_alert_low_balance == 1){ ?>
-
-      <div class="form-group">
-        <label>Threshold</label>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-          </div>
-          <input type="text" class="form-control" name="config_account_balance_threshold" placeholder="Set an alert for dollar amount" value="<?php echo $config_account_balance_threshold; ?>">
-        </div>
-      </div>
-
-      <?php } ?>
-
-      <div class="custom-control custom-switch mb-2">
         <input type="checkbox" class="custom-control-input" name="config_enable_alert_domain_expire" <?php if($config_enable_alert_domain_expire == 1){ echo "checked"; } ?> value="1" id="customSwitch3">
         <label class="custom-control-label" for="customSwitch3">Enable Domain Expiration Alerts</label>
       </div>

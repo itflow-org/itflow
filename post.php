@@ -709,12 +709,10 @@ if(isset($_POST['edit_alert_settings'])){
 
     $config_enable_cron = intval($_POST['config_enable_cron']);
     $config_enable_alert_domain_expire = intval($_POST['config_enable_alert_domain_expire']);
-    $config_enable_alert_low_balance = intval($_POST['config_enable_alert_low_balance']);
     $config_send_invoice_reminders = intval($_POST['config_send_invoice_reminders']);
     $config_invoice_overdue_reminders = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_overdue_reminders']));
-    $config_account_balance_threshold = floatval($_POST['config_account_balance_threshold']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_enable_cron = $config_enable_cron, config_enable_alert_domain_expire = $config_enable_alert_domain_expire, config_enable_alert_low_balance = $config_enable_alert_low_balance, config_account_balance_threshold = '$config_account_balance_threshold' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_enable_cron = $config_enable_cron, config_enable_alert_domain_expire = $config_enable_alert_domain_expire WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Alerts', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
