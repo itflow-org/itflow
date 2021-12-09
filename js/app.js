@@ -73,3 +73,8 @@ clipboard.on('error', function(e) {
   setTooltip(e.trigger, 'Failed!');
   hideTooltip(e.trigger);
 });
+
+// Enable Popovers
+$(function () {
+  $('[data-toggle="popover"]').popover()
+})

@@ -29,7 +29,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
             	<i class="fas fa-user-circle fa-8x text-secondary"></i>
             <?php }else{ ?>
             	<img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-circle img-fluid">
-            <?php } ?>
+            <?php } ?> 
             <h4 class="text-secondary mt-2"><?php echo $session_permission_level_display; ?></h4>
           </center>
 
@@ -72,11 +72,20 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
             <label>Avatar</label>
             <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
           </div>
-          <button type="submit" name="edit_profile" class="btn btn-primary mt-3"><i class="fa fa-fw fa-check"></i> Save</button>     
+          <button type="submit" name="edit_profile" class="btn btn-primary mt-3"><i class="fa fa-fw fa-check"></i> Save</button>
+          
           
         </form>
 
         <form class="p-3" action="post.php" method="post" autocomplete="off">
+        
+          <?php if(empty($session_token)){ ?>
+            <button type="submit" name="enable_2fa" class="btn btn-primary mt-3 float-right"><i class="fa fa-fw fa-lock"></i> Enable 2FA</button>
+          <?php }else{ ?>
+            <button type="submit" name="disable_2fa" class="btn btn-danger mt-3 float-right"><i class="fa fa-fw fa-unlock"></i> Disable 2FA</button> 
+          <?php } ?>        
+
+        <center>
         <?php
           
           require_once('rfc6238.php');
@@ -85,38 +94,34 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           $secretkey = key32gen();
           
           if(!empty($session_token)){ 
+
             //Generate QR Code based off the generated key
-            print sprintf('<img src="%s"/>',TokenAuth6238::getBarCodeUrl('','',$session_token,$config_company_name));
+            print sprintf('<img src="%s"/>',TokenAuth6238::getBarCodeUrl($session_name,' ',$session_token,$_SERVER['SERVER_NAME']));
             
             echo "<p class='text-secondary'>$session_token</p>";
           }
     
         ?>
+        </center>
         
         <input type="hidden" name="token" value="<?php echo $secretkey; ?>">
-        <hr>
-
-        <?php if(empty($session_token)){ ?>
-          <button type="submit" name="enable_2fa" class="btn btn-primary"><i class="fa fa-fw fa-lock"></i> Enable 2FA</button>
-        <?php }else{ ?>
-          <button type="submit" name="disable_2fa" class="btn btn-danger"><i class="fa fa-fw fa-unlock"></i> Disable 2FA</button> 
-        <?php } ?>      
       
       </form>
 
       <?php if(!empty($session_token)){ ?>
       <form class="p-3" action="post.php" method="post" autocomplete="off">
         <div class="form-group">
-          <label>Verify 2FA is Working</label>
           <div class="input-group">
             <div class="input-group-prepend">
               <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
             </div>
-            <input type="text" class="form-control" name="code" placeholder="Enter Code" required>
+            <input type="text" class="form-control" name="code" placeholder="Verify Code" required>
+            <div class="input-group-append">
+              <button type="submit" name="verify" class="btn btn-primary">Verify</button>
+            </div>
           </div>
         </div>
-        <hr>
-        <button type="submit" name="verify" class="btn btn-primary">Verify</button>        
+                
       </form>
       <?php } ?>
       </div>

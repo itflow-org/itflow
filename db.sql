@@ -73,6 +73,7 @@ CREATE TABLE `assets` (
   `asset_mac` varchar(17) DEFAULT NULL,
   `asset_purchase_date` date DEFAULT NULL,
   `asset_warranty_expire` date DEFAULT NULL,
+  `asset_install_date` date DEFAULT NULL,
   `asset_reciept` varchar(200) DEFAULT NULL,
   `asset_notes` text DEFAULT NULL,
   `asset_created_at` datetime NOT NULL,
@@ -1099,4 +1100,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-11-19 20:43:27
+-- Dump completed on 2021-12-08 22:12:04

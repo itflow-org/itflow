@@ -135,7 +135,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             </td>
             <td><?php echo $login_uri_display; ?></td>
             <td><?php echo $login_username_display; ?></td>
-            <td><?php echo $login_password; ?><button class="btn btn-sm"><i class="far fa-eye text-secondary"></i></button><button class="btn btn-sm" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
+            <td>
+              <a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
             </td>
             <td><?php echo $otp_display; ?></td>
             <td>

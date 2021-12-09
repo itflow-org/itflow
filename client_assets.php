@@ -87,8 +87,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_type&o=<?php echo $disp; ?>">Type</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_make&o=<?php echo $disp; ?>">Make/Model</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_ip&o=<?php echo $disp; ?>">Primary IP</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_serial&o=<?php echo $disp; ?>">Serial Number</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_os&o=<?php echo $disp; ?>">Operating System</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_install_date&o=<?php echo $disp; ?>">Install Date</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Contact</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_name&o=<?php echo $disp; ?>">Location</a></th>
             <th class="text-center">Action</th>  
@@ -110,6 +111,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $asset_serial_display = $asset_serial;
             }
             $asset_os = $row['asset_os'];
+            if(empty($asset_os)){
+              $asset_os_display = "-";
+            }else{
+              $asset_os_display = $asset_os;
+            }
             $asset_ip = $row['asset_ip'];
             if(empty($asset_ip)){
               $asset_ip_display = "-";
@@ -119,6 +125,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $asset_mac = $row['asset_mac'];
             $asset_purchase_date = $row['asset_purchase_date'];
             $asset_warranty_expire = $row['asset_warranty_expire'];
+            $asset_install_date = $row['asset_install_date'];
+            if(empty($asset_install_date)){
+              $asset_install_date_display = "-";
+            }else{
+              $asset_install_date_display = $asset_install_date;
+            }
             $asset_notes = $row['asset_notes'];
             $asset_created_at = $row['asset_created_at'];
             $asset_vendor_id = $row['asset_vendor_id'];
@@ -216,8 +228,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             </th>
             <td><?php echo $asset_type; ?></td>
             <td><?php echo "$asset_make $asset_model"; ?></td>
-            <td><?php echo $asset_ip_display; ?></td>
             <td><?php echo $asset_serial_display; ?></td>
+            <td><?php echo $asset_os_display; ?></td>
+            <td><?php echo $asset_install_date_display; ?></td>
             <td><?php echo $contact_name; ?></td>
             <td><?php echo $location_name; ?></td>
             <td>

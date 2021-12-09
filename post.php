@@ -4009,9 +4009,13 @@ if(isset($_POST['add_asset'])){
     if(empty($warranty_expire)){
         $warranty_expire = "0000-00-00";
     }
+    $install_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['install_date'])));
+    if(empty($install_date)){
+        $install_date = "0000-00-00";
+    }
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
-    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_notes = '$notes', asset_created_at = NOW(), asset_network_id = $network, asset_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_created_at = NOW(), asset_network_id = $network, asset_client_id = $client_id, company_id = $session_company_id");
 
     if(!empty($_POST['username'])) {
         $asset_id = mysqli_insert_id($mysqli);
@@ -4056,11 +4060,15 @@ if(isset($_POST['edit_asset'])){
     if(empty($warranty_expire)){
         $warranty_expire = "0000-00-00";
     }
+    $install_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['install_date'])));
+    if(empty($install_date)){
+        $install_date = "0000-00-00";
+    }
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
     $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
     $password = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['password'])));
 
-    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_notes = '$notes', asset_updated_at = NOW(), asset_network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_updated_at = NOW(), asset_network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
 
     //If login exists then update the login
     if($login_id > 0){
