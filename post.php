@@ -856,6 +856,10 @@ if(isset($_GET['update'])){
 
     //Alter SQL Structure
 
+    //Put ID Here
+    mysqli_query($mysqli,"ALTER TABLE logs ADD log_ip VARCHAR(200) NULL AFTER log_description");
+    mysqli_query($mysqli,"ALTER TABLE logs ADD log_user_agent VARCHAR(250) NULL AFTER log_ip");
+
     //85cdc42d0f15e36de5cab00d7f3c799a056e85ef
     mysqli_query($mysqli,"ALTER TABLE assets ADD asset_install_date DATE NULL AFTER asset_warranty_expire");
 
@@ -6143,6 +6147,18 @@ if(isset($_GET['export_client_pdf'])){
 
 <?php
 
+}
+
+?>
+
+<?php
+
+if(isset($_GET['logout'])){
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Logout', log_action = 'Success', log_description = '$session_name logged out', log_ip = '$session_ip', log_user_agent = '$session_os - $session_browser - $session_device', log_created_at = NOW(), log_user_id = $session_user_id");
+
+    session_start();
+    session_destroy();
+    header('Location: login.php');
 }
 
 ?>

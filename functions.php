@@ -282,4 +282,10 @@ function formatPhoneNumber($phoneNumber) {
     return $phoneNumber;
 }
 
+//SESSION FINGERPRINT
+$session_ip = get_ip();
+$session_os = get_os();
+$session_browser = get_web_browser();
+$session_device = get_device();
+
 ?>

@@ -9,7 +9,7 @@
 	}
 	
 	if(!$_SESSION['logged']){
-    header("Location: logout.php");
+    header("Location: login.php");
     die;
 	}
 

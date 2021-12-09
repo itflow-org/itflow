@@ -260,7 +260,7 @@
             <li class="nav-item">
               <a href="logs.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "active"; } ?>">
                 <i class="far fa-circle nav-icon"></i>
-                <p>Logs</p>
+                <p>Audit Logs</p>
               </a>
             </li>
           </ul>
