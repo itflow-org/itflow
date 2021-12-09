@@ -854,6 +854,14 @@ if(isset($_GET['update'])){
     //exec("git fetch --all");
     //exec("git reset --hard origin/master");
 
+    //Alter SQL Structure
+
+    mysql_query("ALTER TABLE settings DROP config_enable_alert_low_balance");
+
+    mysql_query("ALTER TABLE settings DROP config_account_balance_threshold");
+
+    mysql_query("ALTER TABLE assets ADD asset_install_date DATE NULL AFTER asset_warranty_expire");
+
     $_SESSION['alert_message'] = "Update Successful!";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
