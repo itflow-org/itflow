@@ -112,7 +112,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $login_username_display = "$login_username<button class='btn btn-sm' data-clipboard-text='$login_username'><i class='far fa-copy text-secondary'></i></button>";
             }
-            $login_password = $row['login_password'];
+            $login_password = htmlentities($row['login_password']);
             $login_otp_secret = $row['login_otp_secret'];
             if(empty($login_otp_secret)){
               $otp_display = "-";

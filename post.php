@@ -4280,7 +4280,7 @@ if(isset($_POST['add_login'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['uri'])));
     $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
-    $password = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['password'])));
+    $password = trim(mysqli_real_escape_string($mysqli,$_POST['password']));
     $otp_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['otp_secret'])));
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
     $vendor_id = intval($_POST['vendor']);
