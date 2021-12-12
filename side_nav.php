@@ -227,7 +227,7 @@
                 <p>Categories</p>
               </a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item d-none">
               <a href="tags.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tags.php") { echo "active"; } ?>">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Tags</p>
