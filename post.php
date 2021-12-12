@@ -93,7 +93,7 @@ if(isset($_POST['add_user'])){
     mysqli_query($mysqli,"INSERT INTO permissions SET permission_level = $level, permission_default_company = $company, permission_companies = $company, user_id = $user_id");
     
     //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Created', log_description = '$user_name', log_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Created', log_description = '$name', log_created_at = NOW()");
 
     $_SESSION['alert_message'] = "User <strong>$user_name</strong> created!";
     
@@ -542,7 +542,7 @@ if(isset($_GET['delete_company'])){
 if(isset($_POST['verify'])){
 
     require_once("rfc6238.php");
-    $currentcode = $_POST['code'];  //code to validate, for example received from device
+    $currentcode = mysqli_real_escape_string($mysqli,$_POST['code']);  //code to validate, for example received from device
 
     if(TokenAuth6238::verify($session_token,$currentcode)){
         $_SESSION['alert_message'] = "VALID!";
@@ -934,7 +934,7 @@ if(isset($_POST['add_client'])){
 
     //Add Tags
 
-    foreach($_POST['tags'] as $tag_id){
+    foreach($_POST['tags'] as intval($tag_id)){
         mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag_id, client_tag_created_at = NOW()");
     }
 
