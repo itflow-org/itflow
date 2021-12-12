@@ -251,7 +251,7 @@ if(isset($_POST['edit_profile'])){
 if(isset($_POST['edit_user_companies'])){
 
     $user_id = intval($_POST['user_id']);
-    $companies = mysqli_real_escape_string($_POST['companies']);
+    $companies = mysqli_real_escape_string($mysqli,$_POST['companies']);
     
     //Turn the Array into a string with , seperation
     $companies_imploded = implode(",",$companies);
@@ -270,7 +270,7 @@ if(isset($_POST['edit_user_companies'])){
 if(isset($_POST['edit_user_clients'])){
 
     $user_id = intval($_POST['user_id']);
-    $clients = mysqli_real_escape_string($_POST['clients']);
+    $clients = mysqli_real_escape_string($mysqli,$_POST['clients']);
     
     //Turn the Array into a string with , seperation
     $clients_imploded = implode(",",$clients);
