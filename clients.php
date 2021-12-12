@@ -48,8 +48,8 @@ if(isset($_GET['order'])){
 
 //Date Filter
 if($_GET['canned_date'] == "custom" AND !empty($_GET['date_from'])){
-  $date_from = $_GET['date_from'];
-  $date_to = $_GET['date_to'];
+  $date_from = mysqli_real_escape_string($mysqli,$_GET['date_from']);
+  $date_to = mysqli_real_escape_string($mysqli,$_GET['date_to']);
 }elseif($_GET['canned_date'] == "today"){
   $date_from = date('Y-m-d');
   $date_to = date('Y-m-d');

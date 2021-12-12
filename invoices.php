@@ -89,8 +89,8 @@
 
   //Date Filter
   if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
-    $dtf = $_GET['dtf'];
-    $dtt = $_GET['dtt'];
+    $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
+    $dtt = mysqli_real_escape_string($mysqli,$_GET['dtt']);
   }elseif($_GET['canned_date'] == "today"){
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');

@@ -38,8 +38,8 @@ if(isset($_GET['o'])){
 
 //Date From and Date To Filter
 if(isset($_GET['dtf'])){
-  $dtf = $_GET['dtf'];
-  $dtt = $_GET['dtt'];
+  $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
+  $dtt = mysqli_real_escape_string($mysqli,$_GET['dtt']);
 }else{
   $dtf = "0000-00-00";
   $dtt = "9999-00-00";
