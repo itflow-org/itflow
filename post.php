@@ -934,7 +934,8 @@ if(isset($_POST['add_client'])){
 
     //Add Tags
 
-    foreach($_POST['tags'] as intval($tag_id)){
+    foreach($_POST['tags'] as $tag_id){
+        intval($tag_id);
         mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag_id, client_tag_created_at = NOW()");
     }
 
