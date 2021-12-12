@@ -97,7 +97,7 @@ function get_web_browser() {
 
 function get_os() {
     $user_agent = get_user_agent();
-    $os_platform    =   "Unknown OS Platform";
+    $os_platform    =   "Unknown OS";
     $os_array       =   array(
         '/windows nt 10/i'      =>  'Windows 10',
         '/windows nt 6.3/i'     =>  'Windows 8.1',
@@ -107,7 +107,7 @@ function get_os() {
         '/windows nt 5.2/i'     =>  'Windows Server 2003/XP x64',
         '/windows nt 5.1/i'     =>  'Windows XP',
         '/windows xp/i'         =>  'Windows XP',
-        '/macintosh|mac os x/i' =>  'Mac OS X',
+        '/macintosh|mac os x/i' =>  'MacOS',
         '/linux/i'              =>  'Linux',
         '/ubuntu/i'             =>  'Ubuntu',
         '/iphone/i'             =>  'iPhone',
