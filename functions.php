@@ -283,9 +283,9 @@ function formatPhoneNumber($phoneNumber) {
 }
 
 //SESSION FINGERPRINT
-$session_ip = get_ip();
-$session_os = get_os();
-$session_browser = get_web_browser();
-$session_device = get_device();
+$session_ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
+$session_os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
+$session_browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
+$session_device = strip_tags(mysqli_real_escape_string($mysqli,get_device()));
 
 ?>

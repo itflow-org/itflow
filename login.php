@@ -11,10 +11,10 @@ if(!file_exists('config.php')){
 
 <?php 
 
-$ip = get_ip();
-$os = get_os();
-$browser = get_web_browser();
-$device = get_device();
+$ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
+$os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
+$browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
+$device = strip_tags(mysqli_real_escape_string($mysqli,get_device()));
 
 ?>
 
@@ -24,17 +24,18 @@ session_start();
 
 if(isset($_POST['login'])){
   
-  $username = mysqli_real_escape_string($mysqli,$_POST['username']);
-  $plain_password = $_POST['password'];
-  $password = md5($_POST['password']);
-  $current_code = mysqli_real_escape_string($mysqli,$_POST['current_code']);
+  $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
+  $password = $_POST['password'];
+  $current_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_code']));
   if(!empty($current_code)){
-    $current_code = mysqli_real_escape_string($mysqli,$_POST['current_code']);
+    $current_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_code']));
   }
-  $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_email = '$username' AND user_password = '$password'");
-  
-  if(mysqli_num_rows($sql) == 1){
-    $row = mysqli_fetch_array($sql);
+  $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_email = '$username'");
+  $row = mysqli_fetch_array($sql);
+
+  if(password_verify($password, $row['user_password'])){
+
+
     $token = $row['user_token'];
     $_SESSION['user_id'] = $row['user_id'];
     $_SESSION['user_name'] = $row['user_name'];
@@ -74,9 +75,9 @@ if(isset($_POST['login'])){
         ";
       }     
     }
-  
+
   }else{
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = '$user_name failed to log in', log_ip = '$ip', log_user_agent = '$os - $browser - $device', log_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = '$username failed to log in', log_ip = '$ip', log_user_agent = '$os - $browser - $device', log_created_at = NOW()");
 
     $response = "
       <div class='alert alert-danger'>
@@ -125,7 +126,7 @@ if(isset($_POST['login'])){
             </div>
           </div>
           <div class="input-group mb-3">
-            <input type="password" class="form-control" placeholder="Password" name="password" value="<?php if(!empty($token_field)){ echo $plain_password; } ?>" required>
+            <input type="password" class="form-control" placeholder="Password" name="password" value="<?php if(!empty($token_field)){ echo $password; } ?>" required>
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-lock"></span>

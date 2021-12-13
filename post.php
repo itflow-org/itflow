@@ -34,7 +34,7 @@ if(isset($_POST['add_user'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $password = md5($_POST['password']);
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $company = intval($_POST['company']);
     $level = intval($_POST['level']);
 
@@ -163,7 +163,7 @@ if(isset($_POST['edit_user'])){
     mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email', user_updated_at = NOW() WHERE user_id = $user_id");
 
     if(!empty($new_password)){
-        $new_password = md5($new_password);
+        $new_password = password_hash($new_password, PASSWORD_DEFAULT);
         mysqli_query($mysqli,"UPDATE users SET user_password = '$new_password' WHERE user_id = $user_id");
     }
 
@@ -235,7 +235,7 @@ if(isset($_POST['edit_profile'])){
     mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email', user_updated_at = NOW() WHERE user_id = $user_id");
 
     if(!empty($new_password)){
-        $new_password = md5($new_password);
+        $new_password = password_hash($new_password, PASSWORD_DEFAULT);
         mysqli_query($mysqli,"UPDATE users SET user_password = '$new_password' WHERE user_id = $user_id");
     }
 
@@ -252,7 +252,7 @@ if(isset($_POST['edit_user_companies'])){
 
     $user_id = intval($_POST['user_id']);
     $companies = mysqli_real_escape_string($mysqli,$_POST['companies']);
-    
+
     //Turn the Array into a string with , seperation
     $companies_imploded = implode(",",$companies);
 
