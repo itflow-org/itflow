@@ -15,7 +15,7 @@
           </div>
           <div class="form-group">
             <label>Percent <strong class="text-danger">*</strong></label>
-            <input type="number" min="0" class="form-control col-md-2" name="percent">
+            <input type="number" min="0" step="any" class="form-control col-md-4" name="percent">
           </div>
         </div>
         <div class="modal-footer bg-white">
