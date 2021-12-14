@@ -181,7 +181,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $invoice_date; ?></td>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=payments"><?php echo $client_name; ?></a></td>
-            <td class="text-right">$<?php echo number_format($payment_amount,2); ?></td>
+            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($payment_amount,2); ?></td>
             <td><?php echo $payment_method; ?></td>
             <td><?php echo $payment_reference_display; ?></td>
             <td><?php echo $account_name; ?></td>

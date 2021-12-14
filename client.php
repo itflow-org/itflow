@@ -205,8 +205,8 @@ $location_phone = formatPhoneNumber($location_phone);
       <?php if($session_permission_level == 1 OR $session_permission_level > 3){ ?>
       <div class="col-md-3 border-left">
         <h4 class="text-secondary">Billing</h4>
-        <h6 class="ml-1 text-secondary">Paid <div class="text-dark float-right">$<?php echo number_format($amount_paid,2); ?></div></h6>
-        <h6 class="ml-1 text-secondary">Balance <div class="text-dark float-right">$<?php echo number_format($balance,2); ?></div></h6>
+        <h6 class="ml-1 text-secondary">Paid <div class="text-dark float-right"> <?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($amount_paid,2); ?></div></h6>
+        <h6 class="ml-1 text-secondary">Balance <div class="text-dark float-right"> <?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($balance,2); ?></div></h6>
         <h6 class="ml-1 text-secondary">Net Terms <div class="text-dark float-right"><?php echo $client_net_terms; ?> <small class="text-secondary">Days</small></div></h6>
       </div>
       <?php } ?>

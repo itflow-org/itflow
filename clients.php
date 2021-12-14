@@ -283,9 +283,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               ?>
             </td>
             <td class="text-right">
-              Balance: <span class="<?php echo $balance_text_color; ?>">$<?php echo number_format($balance,2); ?></span>
+              Balance: <span class="<?php echo $balance_text_color; ?>"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($balance,2); ?></span>
               <br>
-              Paid: $<?php echo number_format($amount_paid,2); ?>
+              Paid: <?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($amount_paid,2); ?>
             </td>
             <td>
               <div class="dropdown dropleft text-center">

@@ -180,7 +180,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTransferModal<?php echo $transfer_id; ?>"><?php echo $transfer_date; ?></a></td>
             <td><?php echo $account_name_from; ?></td>
             <td><?php echo $account_name_to; ?></td>
-            <td class="text-right">$<?php echo number_format($transfer_amount,2); ?></td>
+            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($transfer_amount,2); ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

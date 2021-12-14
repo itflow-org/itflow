@@ -104,7 +104,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>"><?php echo $product_name; ?></a></td>
             <td><?php echo $category_name; ?></td>
             <td><?php echo $product_description_display; ?></td>
-            <td class="text-right">$<?php echo number_format($product_cost,2); ?></td>
+            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($product_cost,2); ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

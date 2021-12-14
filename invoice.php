@@ -270,9 +270,9 @@ if(isset($_GET['invoice_id'])){
                   <td><?php echo $item_name; ?></td>
                   <td><?php echo $item_description; ?></td>
                   <td class="text-center"><?php echo $item_quantity; ?></td>
-                  <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_price,2); ?></td>
-                  <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_tax,2); ?></td>
-                  <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_total,2); ?></td>  
+                  <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_price,2); ?></td>
+                  <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_tax,2); ?></td>
+                  <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_total,2); ?></td>  
                 </tr>
 
                 <?php 
@@ -344,23 +344,23 @@ if(isset($_GET['invoice_id'])){
           <tbody>    
             <tr class="border-bottom">
               <td>Subtotal</td>
-              <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($sub_total,2); ?></td>
+              <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($sub_total,2); ?></td>
             </tr>
             <?php if($total_tax > 0){ ?>
             <tr class="border-bottom">
               <td>Tax</td>
-              <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($total_tax,2); ?></td>        
+              <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($total_tax,2); ?></td>        
             </tr>
             <?php } ?>
             <?php if($amount_paid > 0){ ?>
             <tr class="border-bottom">
               <td><div class="text-success">Paid to Date</div></td>
-              <td class="text-right text-success"><?php echo $client_currency_symbol; ?><?php echo number_format($amount_paid,2); ?></td>
+              <td class="text-right text-success"><?php echo $client_currency_symbol; ?> <?php echo number_format($amount_paid,2); ?></td>
             </tr>
             <?php } ?>
             <tr class="border-bottom">
               <td><strong>Balance Due</strong></td>
-              <td class="text-right"><strong><?php echo $client_currency_symbol; ?><?php echo number_format($balance,2); ?></strong></td>
+              <td class="text-right"><strong><?php echo $client_currency_symbol; ?> <?php echo number_format($balance,2); ?></strong></td>
             </tr>
           </tbody>
         </table>
@@ -457,7 +457,7 @@ if(isset($_GET['invoice_id'])){
               ?>
               <tr>
                 <td><?php echo $payment_date; ?></td>
-                <td class=" text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($payment_amount,2); ?></td>
+                <td class=" text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($payment_amount,2); ?></td>
                 <td><?php echo $payment_reference; ?></td>
                 <td><?php echo $account_name; ?></td>
                 <td class="text-center"><a class="btn btn-danger btn-sm" href="post.php?delete_payment=<?php echo $payment_id; ?>"><i class="fa fa-trash"></i></a></td>
@@ -674,15 +674,15 @@ var docDefinition = {
 		          style:'itemQty'
 		        }, 
 		        {
-		        	text:'<?php echo $client_currency_symbol; ?><?php echo number_format($item_price,2); ?>',
+		        	text:'<?php echo $client_currency_symbol; ?> <?php echo number_format($item_price,2); ?>',
 		         	style:'itemNumber'
 		        }, 
 		        {
-		          text:'<?php echo $client_currency_symbol; ?><?php echo number_format($item_tax,2); ?>',
+		          text:'<?php echo $client_currency_symbol; ?> <?php echo number_format($item_tax,2); ?>',
 		          style:'itemNumber'
 		        }, 
 		        {
-		          text: '<?php echo $client_currency_symbol; ?><?php echo number_format($item_total,2); ?>',
+		          text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($item_total,2); ?>',
 		          style:'itemNumber'
 		        } 
 		    	],
@@ -724,7 +724,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        }, 
 		        { 
-		         	text:'<?php echo $client_currency_symbol; ?><?php echo number_format($sub_total,2); ?>',
+		         	text:'<?php echo $client_currency_symbol; ?> <?php echo number_format($sub_total,2); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -735,7 +735,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        },
 		        {
-		         	text: '<?php echo $client_currency_symbol; ?><?php echo number_format($total_tax,2); ?>',
+		         	text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($total_tax,2); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -746,7 +746,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        }, 
 		        {
-		         	text: '<?php echo $client_currency_symbol; ?><?php echo number_format($invoice_amount,2); ?>',
+		         	text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($invoice_amount,2); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -757,7 +757,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        },
 		        {
-		          text: '<?php echo $client_currency_symbol; ?><?php echo number_format($amount_paid,2); ?>',
+		          text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($amount_paid,2); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -768,7 +768,7 @@ var docDefinition = {
 		          style:'itemsFooterTotalTitle'
 		        },
 		        {
-		        	text: '<?php echo $client_currency_symbol; ?><?php echo number_format($balance,2); ?>',
+		        	text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($balance,2); ?>',
 		          
 		          style:'itemsFooterTotalTitle'
 		        }

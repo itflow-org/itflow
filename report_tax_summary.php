@@ -81,7 +81,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
               
               ?>
                 
-                <td class="text-right">$<?php echo number_format($tax_collected_quarter_one,2); ?></td>
+                <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($tax_collected_quarter_one,2); ?></td>
 
               <?php
 
@@ -104,7 +104,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
               
               ?>
                 
-                <td class="text-right">$<?php echo number_format($tax_collected_quarter_two,2); ?></td>
+                <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($tax_collected_quarter_two,2); ?></td>
 
               <?php
 
@@ -127,7 +127,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
               
               ?>
                 
-                <td class="text-right">$<?php echo number_format($tax_collected_quarter_three,2); ?></td>
+                <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($tax_collected_quarter_three,2); ?></td>
 
               <?php
 
@@ -152,9 +152,9 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
 
               ?>
 
-              <td class="text-right">$<?php echo number_format($tax_collected_quarter_four,2); ?></td>        
+              <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($tax_collected_quarter_four,2); ?></td>        
               
-              <td class="text-right">$<?php echo number_format($total_tax_collected_four_quarters,2); ?></td>
+              <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_tax_collected_four_quarters,2); ?></td>
             </tr>
           
           <?php 
@@ -177,7 +177,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
             
             ?>  
             
-              <th class="text-right">$<?php echo number_format($expense_total_amount_for_quarter_one,2); ?></th>
+              <th class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($expense_total_amount_for_quarter_one,2); ?></th>
 
             <?php
 
@@ -191,7 +191,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
             
             ?>  
             
-              <th class="text-right">$<?php echo number_format($expense_total_amount_for_quarter_two,2); ?></th>
+              <th class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($expense_total_amount_for_quarter_two,2); ?></th>
 
             <?php
 
@@ -205,7 +205,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
             
             ?>  
             
-              <th class="text-right">$<?php echo number_format($expense_total_amount_for_quarter_three,2); ?></th>
+              <th class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($expense_total_amount_for_quarter_three,2); ?></th>
 
             <?php
 
@@ -221,9 +221,9 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
 
             ?>  
             
-            <th class="text-right">$<?php echo number_format($expense_total_amount_for_quarter_four,2); ?></th>
+            <th class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($expense_total_amount_for_quarter_four,2); ?></th>
 
-            <th class="text-right">$<?php echo number_format($total_expenses_for_all_four_quarters,2); ?></th>
+            <th class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_expenses_for_all_four_quarters,2); ?></th>
           </tr>
         </tbody>
       </table>

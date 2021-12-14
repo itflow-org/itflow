@@ -122,8 +122,8 @@ $vendors_added = $row['vendors_added'];
     <!-- small box -->
     <a class="small-box bg-primary" href="payments.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
       <div class="inner">
-        <h3>$ <?php echo number_format($total_income,2); ?></h3>
-        <p>Revenue</p>
+        <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_income,2); ?></h3>
+        <p>Income</p>
         <hr>
         <small>Receivables: <?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($receivables,2); ?></small>
       </div>
