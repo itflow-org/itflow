@@ -73,7 +73,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
               </div>
-              <select class="form-control select2" name="level" required>
+              <select class="form-control select2" name="role" required>
                 <option value="">- Role -</option>
                 <option value="6">Global Administrator</option>
                 <option value="5">Administrator</option>
