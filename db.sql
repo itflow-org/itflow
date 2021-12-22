@@ -1110,7 +1110,6 @@ CREATE TABLE `users` (
   `user_created_at` datetime NOT NULL,
   `user_updated_at` datetime DEFAULT NULL,
   `user_archived_at` datetime DEFAULT NULL,
-  `role_id` int(11) NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1157,4 +1156,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-12-22 13:04:22
+-- Dump completed on 2021-12-22 13:35:39
