@@ -11,6 +11,7 @@ if(!file_exists('config.php')){
 
 <?php 
 
+//SESSION FINGERPRINT
 $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
 $os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
 $browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));

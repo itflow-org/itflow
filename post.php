@@ -1,8 +1,8 @@
 <?php
 
 include("config.php");
-include("check_login.php");
 include("functions.php");
+include("check_login.php");
 
 require("vendor/PHPMailer-6.5.1/src/PHPMailer.php");
 require("vendor/PHPMailer-6.5.1/src/SMTP.php");
@@ -891,6 +891,27 @@ if(isset($_GET['update'])){
 
 }
 
+if(isset($_GET['update_db'])){
+
+    //Alter SQL Structure
+
+    //Put ID Here
+    //mysqli_query($mysqli,"ALTER TABLE logs ADD log_ip VARCHAR(200) NULL AFTER log_description");
+    //mysqli_query($mysqli,"ALTER TABLE logs ADD log_user_agent VARCHAR(250) NULL AFTER log_ip");
+
+    //85cdc42d0f15e36de5cab00d7f3c799a056e85ef
+    //mysqli_query($mysqli,"ALTER TABLE assets ADD asset_install_date DATE NULL AFTER asset_warranty_expire");
+
+    //c88e6b851aadfbde173f7cfe7155dd1ed31adece
+    //mysqli_query($mysqli,"ALTER TABLE settings DROP config_enable_alert_low_balance");
+    //mysqli_query($mysqli,"ALTER TABLE settings DROP config_account_balance_threshold"); 
+
+    $_SESSION['alert_message'] = "Database Structure Update Successful!";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['add_client'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -952,9 +973,9 @@ if(isset($_POST['add_client'])){
 
     //Add Tags
 
-    foreach($_POST['tags'] as $tag_id){
-        intval($tag_id);
-        mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag_id");
+    foreach($_POST['tags'] as $tag){
+        intval($tag);
+        mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
     }
 
     $_SESSION['alert_message'] = "Client added";
