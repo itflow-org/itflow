@@ -204,11 +204,9 @@ DROP TABLE IF EXISTS `client_tags`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `client_tags` (
-  `client_tag_id` int(11) NOT NULL AUTO_INCREMENT,
   `client_id` int(11) NOT NULL,
   `tag_id` int(11) NOT NULL,
-  `client_tag_created_at` datetime NOT NULL,
-  PRIMARY KEY (`client_tag_id`)
+  PRIMARY KEY (`client_id`,`tag_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1156,4 +1154,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-12-22 13:35:39
+-- Dump completed on 2021-12-22 14:33:03

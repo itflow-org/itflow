@@ -320,6 +320,8 @@ if(isset($_GET['delete_user'])){
     mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_created_by = $user_id");
     mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_closed_by = $user_id");
     mysqli_query($mysqli,"DELETE FROM ticket_replies WHERE ticket_reply_by = $user_id");
+    mysqli_query($mysqli,"DELETE FROM user_companies WHERE user_id = $user_id");
+    mysqli_query($mysqli,"DELETE FROM user_clients WHERE user_id = $user_id");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Deleted', log_description = '$user_id', log_created_at = NOW()");
@@ -536,6 +538,11 @@ if(isset($_GET['delete_company'])){
     mysqli_query($mysqli,"DELETE FROM trips WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM vendors WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM settings WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM api_keys WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM campaigns WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM messages WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM custom_links WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM user_companies WHERE company_id = $company_id");
     
     //Delete Company Files
     removeDirectory('uploads/clients/$company_id');
@@ -947,7 +954,7 @@ if(isset($_POST['add_client'])){
 
     foreach($_POST['tags'] as $tag_id){
         intval($tag_id);
-        mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag_id, client_tag_created_at = NOW()");
+        mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag_id");
     }
 
     $_SESSION['alert_message'] = "Client added";
