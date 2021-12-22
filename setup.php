@@ -445,7 +445,7 @@ if(isset($_POST['add_user'])){
   //Create Settings
   mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id, user_role = 6, user_default_company = 1");
   
-  $_SESSION['alert_message'] = "User <strong>$user_name</strong> created!";
+  $_SESSION['alert_message'] = "User <strong>$name</strong> created!";
 
   header("Location: setup.php?company");
 
@@ -468,7 +468,7 @@ if(isset($_POST['add_company_settings'])){
   $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
   $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
 
-  mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_logo = '$path', company_currency = '$currency_code', company_created_at = NOW()");
+  mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_currency = '$currency_code', company_created_at = NOW()");
 
   $company_id = mysqli_insert_id($mysqli);
   $config_api_key = keygen();
@@ -528,7 +528,7 @@ if(isset($_POST['add_company_settings'])){
 
   //Create Some Data
 
-  mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_created_at = NOW(), company_id = $company_id");
+  mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', opening_balance = 0, account_currency_code = '$currency_code', account_created_at = NOW(), company_id = $company_id");
 
   mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue', category_created_at = NOW(), company_id = $company_id");
   mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red', category_created_at = NOW(), company_id = $company_id");
@@ -846,12 +846,12 @@ if(isset($_POST['add_company_settings'])){
                 </div>
 
                 <div class="form-group">
-                  <label>Country</label>
+                  <label>Country <strong class="text-danger">*</strong></label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                     </div>
-                    <select class="form-control select2" name="country">
+                    <select class="form-control select2" name="country" required>
                       <option value="">- Country -</option>
                       <?php foreach($countries_array as $country_name) { ?>
                       <option><?php echo $country_name; ?></option>
@@ -891,7 +891,7 @@ if(isset($_POST['add_company_settings'])){
                 </div>
 
                 <div class="form-group">
-                  <label>Currency</label>
+                  <label>Currency <strong class="text-danger">*</strong></label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
