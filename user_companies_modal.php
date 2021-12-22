@@ -9,7 +9,7 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-        <input type="hidden" name="companies[]" value="<?php echo $permission_default_company; ?>">
+        <input type="hidden" name="companies[]" value="<?php echo $user_default_company; ?>">
 
         <div class="modal-body bg-white">
 
@@ -29,8 +29,8 @@
             ?>
               <li class="list-group-item">
                 <div class="form-check">
-                  <input type="checkbox" class="form-check-input" name="companies[]" value="<?php echo $company_id_select; ?>" <?php if(in_array("$company_id_select",$permission_companies_array)){ echo "checked"; } ?> <?php if($permission_default_company == $company_id_select){ echo "disabled"; } ?>>
-                  <label class="form-check-label ml-2"><?php echo $company_name_select; ?> <?php if($permission_default_company == $company_id_select){ echo "<small>(Default Company)</small>"; } ?></label>
+                  <input type="checkbox" class="form-check-input" name="companies[]" value="<?php echo $company_id_select; ?>" <?php if(in_array("$company_id_select",$user_company_access_array)){ echo "checked"; } ?> <?php if($user_default_company == $company_id_select){ echo "disabled"; } ?>>
+                  <label class="form-check-label ml-2"><?php echo $company_name_select; ?> <?php if($user_default_company == $company_id_select){ echo "<small>(Default Company)</small>"; } ?></label>
                 </div>
               </li>
 

@@ -202,7 +202,7 @@ $location_phone = formatPhoneNumber($location_phone);
         } 
         ?>
       </div>
-      <?php if($session_permission_level == 1 OR $session_permission_level > 3){ ?>
+      <?php if($session_user_role == 1 OR $session_user_role > 3){ ?>
       <div class="col-md-3 border-left">
         <h4 class="text-secondary">Billing</h4>
         <h6 class="ml-1 text-secondary">Paid <div class="text-dark float-right"> <?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($amount_paid,2); ?></div></h6>

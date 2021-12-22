@@ -52,7 +52,7 @@
 					<?php } ?>
           <p>
             <?php echo $session_name; ?>
-            <small><?php echo $session_permission_level_display; ?></small>
+            <small><?php echo $session_user_role_display; ?></small>
           </p>
         </li>
         <!-- Menu Footer-->

@@ -55,6 +55,24 @@ CREATE TABLE `alerts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `api_keys`
+--
+
+DROP TABLE IF EXISTS `api_keys`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `api_keys` (
+  `api_key_id` int(11) NOT NULL AUTO_INCREMENT,
+  `api_key_secret` varchar(255) NOT NULL,
+  `api_key_description` varchar(255) DEFAULT NULL,
+  `api_key_created_at` datetime NOT NULL,
+  `api_key_expire` datetime NOT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`api_key_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `assets`
 --
 
@@ -582,6 +600,8 @@ CREATE TABLE `logs` (
   `log_type` varchar(200) NOT NULL,
   `log_action` varchar(255) NOT NULL,
   `log_description` varchar(255) NOT NULL,
+  `log_ip` varchar(200) DEFAULT NULL,
+  `log_user_agent` varchar(250) DEFAULT NULL,
   `log_created_at` datetime NOT NULL,
   `log_archived_at` datetime DEFAULT NULL,
   `log_client_id` int(11) DEFAULT NULL,
@@ -661,25 +681,6 @@ CREATE TABLE `payments` (
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`payment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `permissions`
---
-
-DROP TABLE IF EXISTS `permissions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `permissions` (
-  `permission_id` int(11) NOT NULL AUTO_INCREMENT,
-  `permission_level` tinyint(1) NOT NULL,
-  `permission_default_company` int(11) NOT NULL,
-  `permission_companies` varchar(500) NOT NULL,
-  `permission_clients` varchar(500) DEFAULT NULL,
-  `permission_actions` tinyint(1) DEFAULT NULL,
-  `user_id` int(11) NOT NULL,
-  PRIMARY KEY (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -807,6 +808,20 @@ CREATE TABLE `revenues` (
   `revenue_client_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`revenue_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `roles`
+--
+
+DROP TABLE IF EXISTS `roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `roles` (
+  `role_id` int(11) NOT NULL AUTO_INCREMENT,
+  `role_name` varchar(200) NOT NULL,
+  PRIMARY KEY (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1020,6 +1035,34 @@ CREATE TABLE `trips` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `user_clients`
+--
+
+DROP TABLE IF EXISTS `user_clients`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_clients` (
+  `user_id` int(11) NOT NULL,
+  `client_id` int(11) NOT NULL,
+  PRIMARY KEY (`user_id`,`client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_companies`
+--
+
+DROP TABLE IF EXISTS `user_companies`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_companies` (
+  `user_id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`user_id`,`company_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `user_keys`
 --
 
@@ -1032,6 +1075,21 @@ CREATE TABLE `user_keys` (
   `user_public_key` varchar(250) NOT NULL,
   `user_id` int(11) NOT NULL,
   PRIMARY KEY (`user_key_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_settings`
+--
+
+DROP TABLE IF EXISTS `user_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_settings` (
+  `user_id` int(11) NOT NULL,
+  `user_default_company` int(11) NOT NULL,
+  `user_role` int(11) NOT NULL,
+  PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1052,6 +1110,7 @@ CREATE TABLE `users` (
   `user_created_at` datetime NOT NULL,
   `user_updated_at` datetime DEFAULT NULL,
   `user_archived_at` datetime DEFAULT NULL,
+  `role_id` int(11) NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1098,4 +1157,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-12-08 22:31:20
+-- Dump completed on 2021-12-22 13:04:22

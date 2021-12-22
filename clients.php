@@ -1,8 +1,8 @@
 <?php include("header.php");
 
-//Permission check
-if($session_permission_level == 2){
-  $permission_sql = "AND client_id IN ($session_permission_clients)";
+// Role / Client Access Permission Check
+if($session_user_role == 2){
+  $permission_sql = "AND client_id IN ($session_user_client_access)";
 }else{
   $permission_sql = "";
 }

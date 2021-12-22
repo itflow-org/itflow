@@ -7,7 +7,7 @@
     <!-- Sidebar Menu -->
     <nav class="mt-3">
       <?php
-      $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id IN ($session_permission_companies)");
+      $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id IN ($session_user_company_access)");
       
       if(mysqli_num_rows($sql) > 1){ 
 
@@ -62,7 +62,7 @@
           </a>
         </li>
         
-        <?php if($session_permission_level > 2){ ?>
+        <?php if($session_user_role > 2){ ?>
 
         <li class="nav-header mt-3">SUPPORT</li>
         <li class="nav-item">
@@ -93,7 +93,7 @@
 
         <?php } ?>
 
-        <?php if($session_permission_level == 1 OR $session_permission_level > 3){ ?> 
+        <?php if($session_user_role == 1 OR $session_user_role > 3){ ?> 
 
         <li class="nav-header mt-3">SALES</li>
         <li class="nav-item">
@@ -202,7 +202,7 @@
 
         <?php } ?>
 
-        <?php if($session_permission_level > 3){ ?>
+        <?php if($session_user_role > 3){ ?>
 
         <li class="nav-header mt-3">SETTINGS</li>
         

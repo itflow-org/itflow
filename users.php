@@ -39,8 +39,8 @@
   //Rebuild URL
   $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM users, permissions
-    WHERE users.user_id = permissions.user_id
+  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM users, user_settings
+    WHERE users.user_id = user_settings.user_id
     AND (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
@@ -85,24 +85,35 @@
             $user_name = $row['user_name'];
             $user_email = $row['user_email'];
             $user_avatar = $row['user_avatar'];
-            $permission_default_company = $row['permission_default_company'];
-            $permission_level = $row['permission_level'];
-            if($permission_level == 5){
-              $permission_level_display = "Global Administrator";
-            }elseif($permission_level == 4){
-              $permission_level_display = "Administrator";
-            }elseif($permission_level == 3){
-              $permission_level_display = "Technician";
-            }elseif($permission_level == 2){
-              $permission_level_display = "IT Contractor";
+            $user_default_company = $row['user_default_company'];
+            $user_role = $row['user_role'];
+            if($user_role == 6){
+              $user_role_display = "Global Administrator";
+            }elseif($user_role == 5){
+              $user_role_display = "Administrator";
+            }elseif($user_role == 4){
+              $user_role_display = "Technician";
+            }elseif($user_role == 3){
+              $user_role_display = "IT Contractor";
+            }elseif($user_role == 2){
+              $user_role_display = "Client";
             }else{
-              $permission_level_display = "Accounting";  
+              $user_role_display = "Accountant";  
             }
-            $permission_companies = $row['permission_companies'];
-            $permission_companies_array = explode(",",$permission_companies); 
-            $permission_clients = $row['permission_clients'];
-            $permission_clients_array = explode(",",$permission_clients);
-            $permission_actions = $row['permission_actions'];
+            $user_company_access_sql = mysqli_query($mysqli,"SELECT company_id FROM user_companies WHERE user_id = $user_id");
+            $user_company_access_array = array();
+            while($row = mysqli_fetch_array($user_company_access_sql)){
+              $user_company_access_array[] = $row['company_id'];
+            }
+            $user_company_access = implode(',',$user_company_access_array);
+
+            $user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_clients WHERE user_id = $user_id");
+            $user_client_access_array = array();
+            while($row = mysqli_fetch_array($user_client_access_sql)){
+              $user_client_access_array[] = $row['client_id'];
+            }
+            $user_client_access = implode(',',$user_client_access_array);
+
             $user_initials = initials($user_name);
 
             $sql_last_login = mysqli_query($mysqli,"SELECT * FROM logs 
@@ -137,7 +148,7 @@
               </a>
             </td>
             <td><a href="mailto:<?php echo $email; ?>"><?php echo $user_email; ?></a></td>
-            <td><?php echo $permission_level_display; ?></td>
+            <td><?php echo $user_role_display; ?></td>
             <td>-</td>
             <td><?php echo $log_created_at; ?> <br> <small class="text-secondary"><?php echo $last_login; ?></small></td>
             <td>

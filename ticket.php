@@ -123,7 +123,7 @@ if(isset($_GET['ticket_id'])){
     <form class="mb-3" action="post.php" method="post" autocomplete="off">
       <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
       <div class="form-group">
-        <textarea class="form-control summernote" name="ticket_reply"></textarea>
+        <textarea class="form-control summernote" name="ticket_reply" required></textarea>
       </div>
       <div class="form-row">
         <div class="col-md-3">

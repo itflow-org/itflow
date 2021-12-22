@@ -24,17 +24,16 @@ session_start();
 
 if(isset($_POST['login'])){
   
-  $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
+  $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
   $password = $_POST['password'];
   $current_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_code']));
   if(!empty($current_code)){
     $current_code = strip_tags(mysqli_real_escape_string($mysqli,$_POST['current_code']));
   }
-  $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_email = '$username'");
+  $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_email = '$email'");
   $row = mysqli_fetch_array($sql);
 
   if(password_verify($password, $row['user_password'])){
-
 
     $token = $row['user_token'];
     $_SESSION['user_id'] = $row['user_id'];
@@ -77,7 +76,7 @@ if(isset($_POST['login'])){
     }
 
   }else{
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = '$username failed to log in', log_ip = '$ip', log_user_agent = '$os - $browser - $device', log_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt using $email', log_ip = '$ip', log_user_agent = '$os - $browser - $device', log_created_at = NOW()");
 
     $response = "
       <div class='alert alert-danger'>
@@ -118,7 +117,7 @@ if(isset($_POST['login'])){
         <p class="login-box-msg"><?php if(isset($response)) { echo $response; } ?></p>
         <form method="post">
           <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Email" name="username" value="<?php if(!empty($token_field)){ echo $username; }?>" required <?php if(empty($token_field)){ echo "autofocus"; } ?> >
+            <input type="text" class="form-control" placeholder="Email" name="email" value="<?php if(!empty($token_field)){ echo $email; }?>" required <?php if(empty($token_field)){ echo "autofocus"; } ?> >
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-envelope"></span>

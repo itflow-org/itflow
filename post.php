@@ -21,10 +21,16 @@ if(isset($_POST['change_records_per_page'])){
 if(isset($_GET['switch_company'])){
     $company_id = intval($_GET['switch_company']);
 
-    mysqli_query($mysqli,"UPDATE permissions SET permission_default_company = $company_id WHERE user_id = $session_user_id");
+    //Check to see if user has Permission to access the company
+    if(in_array($company_id,$session_user_company_access_array)){
+        mysqli_query($mysqli,"UPDATE user_settings SET user_default_company = $company_id WHERE user_id = $session_user_id");
 
-    $_SESSION['alert_type'] = "info";
-    $_SESSION['alert_message'] = "Switched Companies!";
+        $_SESSION['alert_type'] = "info";
+        $_SESSION['alert_message'] = "Switched Companies!";
+    }else{
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = "What are you trying to DO! WHy did you do this? WHYYY??";
+    }
     
     header("Location: dashboard.php");
   
@@ -35,8 +41,8 @@ if(isset($_POST['add_user'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $company = intval($_POST['company']);
-    $level = intval($_POST['level']);
+    $default_company = intval($_POST['default_company']);
+    $role = intval($_POST['role']);
 
     mysqli_query($mysqli,"INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_created_at = NOW()");
 
@@ -89,9 +95,12 @@ if(isset($_POST['add_user'])){
         }
     }
 
-    //Create Permissions
-    mysqli_query($mysqli,"INSERT INTO permissions SET permission_level = $level, permission_default_company = $company, permission_companies = $company, user_id = $user_id");
-    
+    //Create Settings
+    mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id, user_role = $role, user_default_company = $default_company");
+
+    //Create Company Access Permissions
+    mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $default_company");
+
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Created', log_description = '$name', log_created_at = NOW()");
 
@@ -107,8 +116,8 @@ if(isset($_POST['edit_user'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $new_password = trim($_POST['new_password']);
-    $company = intval($_POST['company']);
-    $level = intval($_POST['level']);
+    $default_company = intval($_POST['default_company']);
+    $role = intval($_POST['role']);
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
 
     if(!file_exists("uploads/users/$user_id/")) {
@@ -167,8 +176,8 @@ if(isset($_POST['edit_user'])){
         mysqli_query($mysqli,"UPDATE users SET user_password = '$new_password' WHERE user_id = $user_id");
     }
 
-    //Create Permissions
-    mysqli_query($mysqli,"UPDATE permissions SET permission_level = $level, permission_default_company = $company WHERE user_id = $user_id");
+    //Update User Settings
+    mysqli_query($mysqli,"UPDATE user_settings SET user_role = $role, user_default_company = $default_company WHERE user_id = $user_id");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$user_name', log_created_at = NOW()");
@@ -251,12 +260,13 @@ if(isset($_POST['edit_profile'])){
 if(isset($_POST['edit_user_companies'])){
 
     $user_id = intval($_POST['user_id']);
-    $companies = mysqli_real_escape_string($mysqli,$_POST['companies']);
 
-    //Turn the Array into a string with , seperation
-    $companies_imploded = implode(",",$companies);
+    mysqli_query($mysqli,"DELETE FROM user_companies WHERE user_id = $user_id");
 
-    mysqli_query($mysqli,"UPDATE permissions SET permission_companies = '$companies_imploded' WHERE user_id = $user_id");
+    foreach($_POST['companies'] as $company){
+        intval($company);
+        mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company");
+    }
     
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
@@ -270,12 +280,13 @@ if(isset($_POST['edit_user_companies'])){
 if(isset($_POST['edit_user_clients'])){
 
     $user_id = intval($_POST['user_id']);
-    $clients = mysqli_real_escape_string($mysqli,$_POST['clients']);
     
-    //Turn the Array into a string with , seperation
-    $clients_imploded = implode(",",$clients);
+    mysqli_query($mysqli,"DELETE FROM user_clients WHERE user_id = $user_id");
 
-    mysqli_query($mysqli,"UPDATE permissions SET permission_clients = '$clients_imploded' WHERE user_id = $user_id");
+    foreach($_POST['clients'] as $client){
+        intval($client);
+        mysqli_query($mysqli,"INSERT INTO user_clients SET user_id = $user_id, client_id = $client");
+    }
     
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
@@ -304,7 +315,7 @@ if(isset($_GET['delete_user'])){
     $user_id = intval($_GET['delete_user']);
 
     mysqli_query($mysqli,"DELETE FROM users WHERE user_id = $user_id");
-    mysqli_query($mysqli,"DELETE FROM permissions WHERE user_id = $user_id");
+    mysqli_query($mysqli,"DELETE FROM user_settings WHERE user_id = $user_id");
     mysqli_query($mysqli,"DELETE FROM logs WHERE log_user_id = $user_id");
     mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_created_by = $user_id");
     mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_closed_by = $user_id");
@@ -904,7 +915,7 @@ if(isset($_POST['add_client'])){
     }
 
     //Log Add Client
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Created', log_description = '$name', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Created', log_description = '$name', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
 
     //Add Location
     if(!empty($address) OR !empty($city) OR !empty($state) OR !empty($zip)){

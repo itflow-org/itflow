@@ -62,7 +62,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
               </div>
-              <select class="form-control select2" name="company" required>
+              <select class="form-control select2" name="default_company" required>
                 <option value="">- Company -</option>
                 <?php 
                 
@@ -71,7 +71,7 @@
                   $company_id_select = $row['company_id'];
                   $company_name_select = $row['company_name'];
                 ?>
-                  <option <?php if($company_id_select == $permission_default_company){ echo "selected"; } ?> value="<?php echo $company_id_select; ?>"><?php echo $company_name_select; ?></option>
+                  <option <?php if($company_id_select == $user_default_company){ echo "selected"; } ?> value="<?php echo $company_id_select; ?>"><?php echo $company_name_select; ?></option>
                 
                 <?php
                 }
@@ -81,18 +81,19 @@
           </div>
 
           <div class="form-group">
-            <label>Permission <strong class="text-danger">*</strong></label>
+            <label>Role <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
               </div>
-              <select class="form-control select2" name="level" required>
-                <option value="">- Permission -</option>
-                <option <?php if($permission_level == 5){ echo "selected"; } ?> value="5">Global Admininstrator</option>
-                <option <?php if($permission_level == 4){ echo "selected"; } ?> value="4">Administrator</option>
-                <option <?php if($permission_level == 3){ echo "selected"; } ?> value="3">Technician</option>
-                <option <?php if($permission_level == 2){ echo "selected"; } ?> value="2">IT Contractor</option>
-                <option <?php if($permission_level == 1){ echo "selected"; } ?> value="1">Accounting</option>
+              <select class="form-control select2" name="role" required>
+                <option value="">- Role -</option>
+                <option <?php if($user_role == 6){ echo "selected"; } ?> value="6">Global Admininstrator</option>
+                <option <?php if($user_role == 5){ echo "selected"; } ?> value="5">Administrator</option>
+                <option <?php if($user_role == 4){ echo "selected"; } ?> value="4">Technician</option>
+                <option <?php if($user_role == 3){ echo "selected"; } ?> value="3">IT Contractor</option>
+                <option <?php if($user_role == 2){ echo "selected"; } ?> value="2">Client</option>
+                <option <?php if($user_role == 1){ echo "selected"; } ?> value="1">Accountant</option>
               </select>
             </div>
           </div>

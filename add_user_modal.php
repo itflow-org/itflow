@@ -49,7 +49,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
               </div>
-              <select class="form-control select2" name="company" required>
+              <select class="form-control select2" name="default_company" required>
                 <option value="">- Company -</option>
                 <?php 
                 
@@ -68,18 +68,19 @@
           </div>
 
           <div class="form-group">
-            <label>Permission <strong class="text-danger">*</strong></label>
+            <label>Role <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
               </div>
               <select class="form-control select2" name="level" required>
-                <option value="">- Permission -</option>
-                <option value="5">Global Administrator</option>
-                <option value="4">Administrator</option>
-                <option value="3">Technician</option>
-                <option value="2">IT Contractor</option>
-                <option value="1">Accounting</option>
+                <option value="">- Role -</option>
+                <option value="6">Global Administrator</option>
+                <option value="5">Administrator</option>
+                <option value="4">Technician</option>
+                <option value="3">IT Contractor</option>
+                <option value="2">Client</option>
+                <option value="1">Accountant</option>
               </select>
             </div>
           </div>

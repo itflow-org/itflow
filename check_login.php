@@ -15,31 +15,50 @@
 
 	$session_user_id = $_SESSION['user_id'];
 
-	$sql = mysqli_query($mysqli,"SELECT * FROM users, permissions  WHERE users.user_id = permissions.user_id AND users.user_id = $session_user_id");
-	
+	$sql = mysqli_query($mysqli,"SELECT * FROM users, user_settings WHERE users.user_id = user_settings.user_id AND users.user_id = $session_user_id");
 	$row = mysqli_fetch_array($sql);
 	$session_name = $row['user_name'];
 	$session_email = $row['user_email'];
 	$session_avatar = $row['user_avatar'];
-	$session_company_id = $row['permission_default_company'];
 	$session_token = $row['user_token'];
-
-	$session_permission_level = $row['permission_level'];
-  if($session_permission_level == 5){
-    $session_permission_level_display = "Global Administrator";
-  }elseif($session_permission_level == 4){
-    $session_permission_level_display = "Administrator";
-  }elseif($session_permission_level == 3){
-    $session_permission_level_display = "Technician";
-  }elseif($session_permission_level == 2){
-    $session_permission_level_display = "IT Contractor";
+	$session_company_id = $row['user_default_company'];
+	$session_user_role = $row['user_role'];
+  if($session_user_role == 6){
+    $session_user_role_display = "Global Administrator";
+  }elseif($session_user_role == 5){
+    $session_user_role_display = "Administrator";
+  }elseif($session_user_role == 4){
+    $session_user_role_display = "Technician";
+  }elseif($session_user_role == 3){
+    $session_user_role_display = "IT Contractor";
+  }elseif($session_user_role == 2){
+    $session_user_role_display = "Client";
   }else{
-    $session_permission_level_display = "Accounting";  
+    $session_user_role_display = "Accountant";
   }
-	$session_permission_companies_array = explode(",",$row['permission_companies']);
-	$session_permission_companies = $row['permission_companies'];
-	$session_permission_clients_array = explode(",",$row['permission_clients']);
-	$session_permission_clients = $row['permission_clients'];
+	
+  //LOAD USER COMPANY ACCESS PERMISSIONS
+  $session_user_company_access_sql = mysqli_query($mysqli,"SELECT company_id FROM user_companies WHERE user_id = $session_user_id");
+  $session_user_company_access_array = array();
+  while($row = mysqli_fetch_array($session_user_company_access_sql)){
+  	$session_user_company_access_array[] = $row['company_id'];
+  }
+  $session_user_company_access = implode(',',$session_user_company_access_array);
+
+  //Check to see if user has rights to company Prevents User from access a company he is not allowed to have access to.
+  if(!in_array($session_company_id,$session_user_company_access_array)){
+  	session_start();
+    session_destroy();
+    header('Location: login.php');
+  }
+
+  //LOAD USER CLIENT ACCESS PERMISSIONS
+  $session_user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_clients WHERE user_id = $session_user_id");
+  $session_user_client_access_array = array();
+  while($row = mysqli_fetch_array($session_user_client_access_sql)){
+  	$session_user_client_access_array[] = $row['client_id'];
+  }
+  $session_user_client_access = implode(',',$session_user_client_access_array);
 
 	$sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $session_company_id");
 	$row = mysqli_fetch_array($sql);

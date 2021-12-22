@@ -16,7 +16,7 @@
           
           <?php
           
-          $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id IN ($session_permission_companies)");
+          $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id IN ($session_user_company_access)");
           while($row = mysqli_fetch_array($sql)){
 
             $company_id = $row['company_id'];

@@ -19,7 +19,7 @@
           <ul class="list-group">
 
             <?php
-            $sql_clients_select = mysqli_query($mysqli,"SELECT * FROM clients, companies WHERE clients.company_id = companies.company_id AND companies.company_id IN ($permission_companies) ORDER BY client_name ASC");
+            $sql_clients_select = mysqli_query($mysqli,"SELECT * FROM clients, companies WHERE clients.company_id = companies.company_id AND companies.company_id IN ($user_company_access) ORDER BY client_name ASC");
 
             while($row = mysqli_fetch_array($sql_clients_select)){
               $client_id_select = $row['client_id'];
@@ -30,7 +30,7 @@
             ?>
               <li class="list-group-item">
                 <div class="form-check">
-                  <input type="checkbox" class="form-check-input" name="clients[]" value="<?php echo $client_id_select; ?>" <?php if(in_array("$client_id_select",$permission_clients_array)){ echo "checked"; } ?> >
+                  <input type="checkbox" class="form-check-input" name="clients[]" value="<?php echo $client_id_select; ?>" <?php if(in_array("$client_id_select",$user_client_access_array)){ echo "checked"; } ?> >
                   <label class="form-check-label ml-2"><?php echo $client_name_select; ?></label>
                 </div>
               </li>

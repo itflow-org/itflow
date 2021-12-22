@@ -272,7 +272,7 @@ if(isset($_GET['invoice_id'])){
                   <td class="text-center"><?php echo $item_quantity; ?></td>
                   <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_price,2); ?></td>
                   <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_tax,2); ?></td>
-                  <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_total,2); ?></td>  
+                  <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_total,2); ?></td>  
                 </tr>
 
                 <?php 

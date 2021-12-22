@@ -441,6 +441,9 @@ if(isset($_POST['add_user'])){
       $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
     }
   }
+
+  //Create Settings
+  mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id, user_role = 6, user_default_company = 1");
   
   $_SESSION['alert_message'] = "User <strong>$user_name</strong> created!";
 
