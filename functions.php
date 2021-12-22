@@ -282,10 +282,10 @@ function formatPhoneNumber($phoneNumber) {
     return $phoneNumber;
 }
 
-//SESSION FINGERPRINT
-$session_ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
-$session_os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
-$session_browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
-$session_device = strip_tags(mysqli_real_escape_string($mysqli,get_device()));
+//SESSION FINGERPRINT Removed Breaking Setup.php 2021-12-22
+//$session_ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
+//$session_os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
+//$session_browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
+//$session_device = strip_tags(mysqli_real_escape_string($mysqli,get_device()));
 
 ?>
