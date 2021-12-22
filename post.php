@@ -868,15 +868,15 @@ if(isset($_GET['update'])){
     //Alter SQL Structure
 
     //Put ID Here
-    mysqli_query($mysqli,"ALTER TABLE logs ADD log_ip VARCHAR(200) NULL AFTER log_description");
-    mysqli_query($mysqli,"ALTER TABLE logs ADD log_user_agent VARCHAR(250) NULL AFTER log_ip");
+    //mysqli_query($mysqli,"ALTER TABLE logs ADD log_ip VARCHAR(200) NULL AFTER log_description");
+    //mysqli_query($mysqli,"ALTER TABLE logs ADD log_user_agent VARCHAR(250) NULL AFTER log_ip");
 
     //85cdc42d0f15e36de5cab00d7f3c799a056e85ef
-    mysqli_query($mysqli,"ALTER TABLE assets ADD asset_install_date DATE NULL AFTER asset_warranty_expire");
+    //mysqli_query($mysqli,"ALTER TABLE assets ADD asset_install_date DATE NULL AFTER asset_warranty_expire");
 
     //c88e6b851aadfbde173f7cfe7155dd1ed31adece
-    mysqli_query($mysqli,"ALTER TABLE settings DROP config_enable_alert_low_balance");
-    mysqli_query($mysqli,"ALTER TABLE settings DROP config_account_balance_threshold"); 
+    //mysqli_query($mysqli,"ALTER TABLE settings DROP config_enable_alert_low_balance");
+    //mysqli_query($mysqli,"ALTER TABLE settings DROP config_account_balance_threshold"); 
 
     $_SESSION['alert_message'] = "Update Successful!";
 
