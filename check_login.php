@@ -80,8 +80,8 @@
 	$iPhone  = stripos($_SERVER['HTTP_USER_AGENT'],"iPhone");
 	$iPad    = stripos($_SERVER['HTTP_USER_AGENT'],"iPad");
 
-	if( $iPod || $iPhone || $iPad){
-	    $session_map_source = "apple";
+	if($iPod || $iPhone || $iPad){
+		$session_map_source = "apple";
 	}else{
 		$session_map_source = "google";
 	}

@@ -1,7 +1,7 @@
 <?php 
 
   include("config.php");
-  include("functions.php");
+  include_once("functions.php");
   include("check_login.php");
 
 ?>

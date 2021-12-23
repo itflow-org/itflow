@@ -1,4 +1,5 @@
 <?php include("config.php"); ?>
+<?php include("functions.php"); ?>
 <?php include("check_login.php"); ?>
 
 <?php 

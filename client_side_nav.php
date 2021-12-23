@@ -192,7 +192,7 @@
           </a>
         </li>
 
-        <?php if($session_permission_level == 1 OR $session_permission_level > 3){ ?>
+        <?php if($session_user_role == 1 OR $session_user_role > 3){ ?>
 
         <li class="nav-header mt-3">ACCOUNTING</li>
 
