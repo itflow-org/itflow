@@ -903,6 +903,7 @@ DROP TABLE IF EXISTS `tags`;
 CREATE TABLE `tags` (
   `tag_id` int(11) NOT NULL AUTO_INCREMENT,
   `tag_name` varchar(200) NOT NULL,
+  `tag_type` int(11) NOT NULL,
   `tag_color` varchar(200) DEFAULT NULL,
   `tag_icon` varchar(200) DEFAULT NULL,
   `tag_created_at` datetime NOT NULL,
@@ -1152,4 +1153,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-12-27 11:38:55
+-- Dump completed on 2021-12-27 12:04:12

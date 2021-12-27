@@ -96,6 +96,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tag_name&o=<?php echo $disp; ?>">Name</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tag_type&o=<?php echo $disp; ?>">Type</a></th>
             <th>Color</th>
             <th class="text-center">Action</th>
           </tr>
@@ -106,12 +107,14 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
           while($row = mysqli_fetch_array($sql)){
             $tag_id = $row['tag_id'];
             $tag_name = $row['tag_name'];
+            $tag_type = $row['tag_type'];
             $tag_color = $row['tag_color'];
             $tag_icon = $row['tag_icon'];
       
           ?>
           <tr>
             <td><?php echo "<i class='fa fa-fw fa-$tag_icon'></i>"; ?> <a class="text-dark" href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>"><?php echo "$tag_name"; ?></a></td>
+            <td><?php echo $tag_type; ?></td>
             <td><i class="fa fa-3x fa-circle" style="color:<?php echo $tag_color; ?>;"></i></td>
             <td>
               <div class="dropdown dropleft text-center">

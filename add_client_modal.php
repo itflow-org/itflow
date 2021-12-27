@@ -256,7 +256,7 @@
               <ul class="list-group">
 
                 <?php
-                $sql_tags_select = mysqli_query($mysqli,"SELECT * FROM tags WHERE company_id = $session_company_id ORDER BY tag_name ASC");
+                $sql_tags_select = mysqli_query($mysqli,"SELECT * FROM tags WHERE tag_type = 1 AND company_id = $session_company_id ORDER BY tag_name ASC");
 
                 while($row = mysqli_fetch_array($sql_tags_select)){
                   $tag_id_select = $row['tag_id'];
