@@ -894,7 +894,7 @@ if(isset($_GET['update_db'])){
     mysqli_query($mysqli,"ALTER TABLE tags DROP tag_archived_at");
 
     //Update 2
-    mysqli_query($mysqli,"ALTER TABLE tags ADD tag_type INT(11) AFTER tag_name");
+    mysqli_query($mysqli,"ALTER TABLE tags ADD tag_type INT(11) NOT NULL AFTER tag_name");
 
     $_SESSION['alert_message'] = "Update Successful Database Structure Update Successful!";
 
