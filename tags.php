@@ -41,7 +41,6 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM tags 
   WHERE tag_name LIKE '%$q%'
-  AND tag_archived_at IS NULL
   AND company_id = $session_company_id 
   ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
@@ -122,7 +121,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item text-danger" href="post.php?archive_tag=<?php echo $tag_id; ?>">Archive</a>
+                  <a class="dropdown-item text-danger" href="post.php?delete_tag=<?php echo $tag_id; ?>">Delete</a>
                 </div>
               </div>
             </td>

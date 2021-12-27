@@ -82,8 +82,10 @@ if($_GET['canned_date'] == "custom" AND !empty($_GET['date_from'])){
 //Rebuild URL
 $url_query_strings_sortby = http_build_query(array_merge($_GET,array('sortby' => $sortby, 'order' => $order)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contact_archived_at IS NULL LEFT JOIN locations ON clients.primary_location = locations.location_id AND location_archived_at IS NULL
-  WHERE (client_name LIKE '%$query%' OR client_type LIKE '%$query%' OR client_support LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_name LIKE '%$query%' OR contact_phone LIKE '%$query%' 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients 
+  LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contact_archived_at IS NULL 
+  LEFT JOIN locations ON clients.primary_location = locations.location_id AND location_archived_at IS NULL
+  WHERE (client_name LIKE '%$query%' OR client_type LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_name LIKE '%$query%' OR contact_phone LIKE '%$query%' 
   OR contact_mobile LIKE '%$query%' OR location_address LIKE '%$query%' OR location_city LIKE '%$query%' OR location_state LIKE '%$query%' OR location_zip LIKE '%$query%') 
   AND DATE(client_created_at) BETWEEN '$date_from' AND '$date_to'
   AND clients.company_id = $session_company_id $permission_sql 
@@ -189,26 +191,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_currency_code = $row['client_currency_code'];
             $client_net_terms = $row['client_net_terms'];
             $client_referral = $row['client_referral'];
-            $client_support = $row['client_support'];
             $client_notes = $row['client_notes'];
             $client_created_at = $row['client_created_at'];
             $client_updated_at = $row['client_updated_at'];
 
-            //Get Tags WIP
+            //Client Tags
 
-            $sql_client_tags = mysqli_query($mysqli,"SELECT * FROM client_tags, tags WHERE client_tags.client_id = $client_id AND client_tags.tag_id = tags.tag_id");
-            $row = mysqli_fetch_array($sql_client_tags);
+            $client_tag_name_display_array = array();
+            $client_tag_id_array = array();
+            $sql_client_tags = mysqli_query($mysqli,"SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_tags.client_id = $client_id");
             while($row = mysqli_fetch_array($sql_client_tags)){
 
               $client_tag_id = $row['tag_id'];
               $client_tag_name = $row['tag_name'];
               $client_tag_color = $row['tag_color'];
               $client_tag_icon = $row['tag_icon'];
+              if(empty($client_tag_icon)){
+                $client_tag_icon = "tag";
+              }
             
-              //$client_tag_id_array = array($client_tag_id);
-              //$client_tag_name_array = array($client_tag_name);
+              $client_tag_id_array[] = $client_tag_id;
+              $client_tag_name_display_array[] = "<span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon'></i> $client_tag_name</span>";
             }
+            $client_tags_display = implode('', $client_tag_name_display_array);
 
+            
             //Add up all the payments for the invoice and get the total amount paid to the invoice
             $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' ");
             $row = mysqli_fetch_array($sql_invoice_amounts);
@@ -231,12 +238,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           ?>
           <tr>
             <td>
-              <i class="fas fa-fw fa-handshake <?php if($client_support == 'Maintenance'){ echo "text-success"; }else{ echo "text-danger"; } ?> fa-fw"></i> <strong><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a></strong>
+              <strong><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a></strong>
               <?php
               if(!empty($client_type)){
               ?>
               <br>
-              <small class="text-secondary"><?php echo $client_type; ?> - <?php explode(',', $client_tag_name_array); ?></small>
+              <small class="text-secondary"><?php echo $client_type; ?></small>
+              <?php } ?>
+              <?php
+              if(!empty($client_tags_display)){
+              ?>
+              <br>
+              <?php echo $client_tags_display; ?>
               <?php } ?>
               <br>
               <small class="text-secondary"><b>Added:</b> <?php echo $client_created_at; ?></small>

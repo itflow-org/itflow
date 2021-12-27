@@ -58,19 +58,6 @@
               </div>
 
               <div class="form-group">
-                <label>Support</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-handshake"></i></span>
-                  </div>
-                  <select class="form-control select2" name="support">
-                    <option <?php if($client_support == "Non-Maintenance"){ echo "selected"; } ?>>Non-Maintenance</option>
-                    <option <?php if($client_support == "Maintenance"){ echo "selected"; } ?>>Maintenance</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-group">
                 <label>Referral</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
@@ -272,7 +259,7 @@
 
                 <?php
               
-                $sql_tags_select = mysqli_query($mysqli,"SELECT * FROM tags WHERE tag_archived_at IS NULL AND company_id = $session_company_id ORDER BY tag_name ASC");
+                $sql_tags_select = mysqli_query($mysqli,"SELECT * FROM tags WHERE company_id = $session_company_id ORDER BY tag_name ASC");
 
                 while($row = mysqli_fetch_array($sql_tags_select)){
                   $tag_id_select = $row['tag_id'];
@@ -283,8 +270,8 @@
                 ?>
                   <li class="list-group-item">
                     <div class="form-check">
-                      <input type="checkbox" class="form-check-input" name="tags[]" value="<?php echo $tag_id_select; ?>" <?php if(in_array('$client_tags', $tag_id_select)){ echo "checked"; } ?>>
-                      <label class="form-check-label ml-2" style="color:<?php echo $tag_color_select ?>;"><?php echo "<i class='fa fw fa-$tag_icon_select'></i>"; ?> <?php echo $tag_name_select; ?></label>
+                      <input type="checkbox" class="form-check-input" name="tags[]" value="<?php echo $tag_id_select; ?>" <?php if(in_array($tag_id_select, $client_tag_id_array)){ echo "checked"; } ?>>
+                      <label class="form-check-label ml-2 badge bg-<?php echo $tag_color_select; ?>"><?php echo "<i class='fa fw fa-$tag_icon_select'></i>"; ?> <?php echo $tag_name_select; ?></label>
                     </div>
                   </li>
 

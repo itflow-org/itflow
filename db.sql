@@ -225,7 +225,6 @@ CREATE TABLE `clients` (
   `client_referral` varchar(200) DEFAULT NULL,
   `client_currency_code` varchar(200) NOT NULL,
   `client_net_terms` int(10) NOT NULL,
-  `client_support` varchar(100) DEFAULT NULL,
   `client_notes` text DEFAULT NULL,
   `client_created_at` datetime NOT NULL,
   `client_updated_at` datetime DEFAULT NULL,
@@ -908,7 +907,6 @@ CREATE TABLE `tags` (
   `tag_icon` varchar(200) DEFAULT NULL,
   `tag_created_at` datetime NOT NULL,
   `tag_updated_at` datetime DEFAULT NULL,
-  `tag_archived_at` datetime DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`tag_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1154,4 +1152,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-12-22 14:33:03
+-- Dump completed on 2021-12-27 11:38:55

@@ -872,22 +872,7 @@ if(isset($_GET['update'])){
     //exec("git fetch --all");
     //exec("git reset --hard origin/master");
 
-    //Alter SQL Structure
-
-    //Put ID Here
-    //mysqli_query($mysqli,"ALTER TABLE logs ADD log_ip VARCHAR(200) NULL AFTER log_description");
-    //mysqli_query($mysqli,"ALTER TABLE logs ADD log_user_agent VARCHAR(250) NULL AFTER log_ip");
-
-    //85cdc42d0f15e36de5cab00d7f3c799a056e85ef
-    //mysqli_query($mysqli,"ALTER TABLE assets ADD asset_install_date DATE NULL AFTER asset_warranty_expire");
-
-    //c88e6b851aadfbde173f7cfe7155dd1ed31adece
-    //mysqli_query($mysqli,"ALTER TABLE settings DROP config_enable_alert_low_balance");
-    //mysqli_query($mysqli,"ALTER TABLE settings DROP config_account_balance_threshold"); 
-
-    $_SESSION['alert_message'] = "Update Successful!";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: post.php?update_db");
 
 }
 
@@ -904,9 +889,11 @@ if(isset($_GET['update_db'])){
 
     //c88e6b851aadfbde173f7cfe7155dd1ed31adece
     //mysqli_query($mysqli,"ALTER TABLE settings DROP config_enable_alert_low_balance");
-    //mysqli_query($mysqli,"ALTER TABLE settings DROP config_account_balance_threshold"); 
+    //mysqli_query($mysqli,"ALTER TABLE settings DROP config_account_balance_threshold");
+    mysqli_query($mysqli,"ALTER TABLE clients DROP client_support");
+    mysqli_query($mysqli,"ALTER TABLE tags DROP tag_archived_at");
 
-    $_SESSION['alert_message'] = "Database Structure Update Successful!";
+    $_SESSION['alert_message'] = "Update Successful Database Structure Update Successful!";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -916,7 +903,6 @@ if(isset($_POST['add_client'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
-    $support = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['support'])));
     $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
     $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
     $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
@@ -934,7 +920,7 @@ if(isset($_POST['add_client'])){
     $net_terms = intval($_POST['net_terms']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
-    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_support = '$support', client_notes = '$notes', client_created_at = NOW(), client_accessed_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', client_created_at = NOW(), client_accessed_at = NOW(), company_id = $session_company_id");
 
     $client_id = mysqli_insert_id($mysqli);
 
@@ -991,7 +977,6 @@ if(isset($_POST['edit_client'])){
     $contact_id = intval($_POST['contact_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
-    $support = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['support'])));
     $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
     $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
     $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
@@ -1009,10 +994,10 @@ if(isset($_POST['edit_client'])){
     $net_terms = intval($_POST['net_terms']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
-    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_support = '$support', client_notes = '$notes', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
 
     //Edit Primary Location
     if($location_id > 0){
@@ -1029,6 +1014,14 @@ if(isset($_POST['edit_client'])){
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modified', log_description = 'Primary Contact $contact', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
+    }
+
+    //Tags
+    mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_id = $client_id");
+    
+    foreach($_POST['tags'] as $tag){
+        intval($tag);
+        mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
     }
 
     $_SESSION['alert_message'] = "Client $name updated";
@@ -1839,24 +1832,11 @@ if(isset($_POST['edit_tag'])){
 
 }
 
-if(isset($_GET['archive_tag'])){
-    $tag_id = intval($_GET['archive_tag']);
-
-    mysqli_query($mysqli,"UPDATE tags SET tag_archived_at = NOW() WHERE tag_id = $tag_id");
-
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Archive', log_description = '$tag_id', log_created_at = NOW()");
-
-    $_SESSION['alert_message'] = "Tag Archived";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
 if(isset($_GET['delete_tag'])){
     $tag_id = intval($_GET['delete_tag']);
 
     mysqli_query($mysqli,"DELETE FROM tags WHERE tag_id = $tag_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"DELETE FROM client_tags WHERE tag_id = $tag_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Deleted', log_description = '$tag_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");

@@ -21,7 +21,7 @@
                 <option value="">Not Assigned</option>
                 <?php 
                 
-                $sql_assign_to_select = mysqli_query($mysqli,"SELECT * FROM users, permissions WHERE users.user_id = permissions.user_id AND $session_company_id IN($session_permission_companies) ORDER BY user_name ASC");
+                $sql_assign_to_select = mysqli_query($mysqli,"SELECT * FROM users, user_companies WHERE users.user_id = user_companies.user_id AND user_companies.company_id = $session_company_id ORDER BY user_name ASC");
                 while($row = mysqli_fetch_array($sql_assign_to_select)){
                   $user_id = $row['user_id'];
                   $user_name = $row['user_name'];

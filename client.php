@@ -30,7 +30,6 @@ if(isset($_GET['client_id'])){
   if($client_net_terms == 0){
     $client_net_terms = $config_default_net_terms;
   }
-  $client_support = $row['client_support'];
   $client_notes = $row['client_notes'];
   $client_created_at = $row['client_created_at'];
   $primary_contact = $row['primary_contact'];
@@ -50,6 +49,26 @@ if(isset($_GET['client_id'])){
   $location_zip = $row['location_zip'];
   $location_country = $row['location_country'];
   $location_phone = $row['location_phone'];
+
+  //Client Tags
+
+  $client_tag_name_display_array = array();
+  $client_tag_id_array = array();
+  $sql_client_tags = mysqli_query($mysqli,"SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_tags.client_id = $client_id");
+  while($row = mysqli_fetch_array($sql_client_tags)){
+
+    $client_tag_id = $row['tag_id'];
+    $client_tag_name = $row['tag_name'];
+    $client_tag_color = $row['tag_color'];
+    $client_tag_icon = $row['tag_icon'];
+    if(empty($client_tag_icon)){
+      $client_tag_icon = "tag";
+    }
+  
+    $client_tag_id_array[] = $client_tag_id;
+    $client_tag_name_display_array[] = "<span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon'></i> $client_tag_name</span>";
+  }
+  $client_tags_display = implode('', $client_tag_name_display_array);
 
   //Add up all the payments for the invoice and get the total amount paid to the invoice
   $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled'");
