@@ -19,6 +19,8 @@
 	$session_browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
 	$session_device = strip_tags(mysqli_real_escape_string($mysqli,get_device()));
 
+	$session_user_agent = "$session_device - $session_os - $session_browser";
+
 	$session_user_id = $_SESSION['user_id'];
 
 	$sql = mysqli_query($mysqli,"SELECT * FROM users, user_settings WHERE users.user_id = user_settings.user_id AND users.user_id = $session_user_id");

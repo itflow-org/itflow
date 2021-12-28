@@ -21,15 +21,27 @@ if(isset($_POST['change_records_per_page'])){
 if(isset($_GET['switch_company'])){
     $company_id = intval($_GET['switch_company']);
 
+    //Get Company Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $company_id");
+    $row = mysqli_fetch_array($sql);
+    $company_name = $row['company_name'];
+
     //Check to see if user has Permission to access the company
     if(in_array($company_id,$session_user_company_access_array)){
+        
         mysqli_query($mysqli,"UPDATE user_settings SET user_default_company = $company_id WHERE user_id = $session_user_id");
 
-        $_SESSION['alert_type'] = "info";
         $_SESSION['alert_message'] = "Switched Companies!";
+
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Switch', log_description = '$session_name switched to company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    
     }else{
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = "What are you trying to DO! WHy did you do this? WHYYY??";
+
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Switch', log_description = '$session_name tried to switch to company $company_name but does not have permission', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
     }
     
     header("Location: dashboard.php");
@@ -90,7 +102,7 @@ if(isset($_POST['add_user'])){
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-            
+            $_SESSION['alert_type'] = "danger";
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -101,8 +113,8 @@ if(isset($_POST['add_user'])){
     //Create Company Access Permissions
     mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $default_company");
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Created', log_description = '$name', log_created_at = NOW()");
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Created', log_description = '$session_name created user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "User <strong>$user_name</strong> created!";
     
@@ -162,9 +174,12 @@ if(isset($_POST['edit_user'])){
             
             mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
 
+            //Extended Logging
+            $extended_log_description .= ", profile picture updated";
+
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-            
+            $_SESSION['alert_type'] = "danger";
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -174,15 +189,17 @@ if(isset($_POST['edit_user'])){
     if(!empty($new_password)){
         $new_password = password_hash($new_password, PASSWORD_DEFAULT);
         mysqli_query($mysqli,"UPDATE users SET user_password = '$new_password' WHERE user_id = $user_id");
+        //Extended Logging
+        $extended_log_description .= ", password changed";
     }
 
     //Update User Settings
     mysqli_query($mysqli,"UPDATE user_settings SET user_role = $role, user_default_company = $default_company WHERE user_id = $user_id");
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$user_name', log_created_at = NOW()");
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$session_name modified user $name $extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "User <strong>$user_name</strong> updated";
+    $_SESSION['alert_message'] = "User <strong>$name</strong> updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -234,9 +251,12 @@ if(isset($_POST['edit_profile'])){
             
             mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
 
+            //Extended Logging
+            $extended_log_description .= ", profile picture updated";
+
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-            
+            $_SESSION['alert_type'] = "danger";
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -246,12 +266,14 @@ if(isset($_POST['edit_profile'])){
     if(!empty($new_password)){
         $new_password = password_hash($new_password, PASSWORD_DEFAULT);
         mysqli_query($mysqli,"UPDATE users SET user_password = '$new_password' WHERE user_id = $user_id");
+
+        $extended_log_description .= ", password changed";
     }
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$user_name', log_created_at = NOW()");
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Preferences', log_action = 'Modified', log_description = '$session_name modified their preferences$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "User <strong>$user_name</strong> updated";
+    $_SESSION['alert_message'] = "User preferences updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -267,11 +289,15 @@ if(isset($_POST['edit_user_companies'])){
         intval($company);
         mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company");
     }
-    
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
 
-    $_SESSION['alert_message'] = "Companies <strong>$company</strong> added to user $user_id!";
+    //Logging
+    //Get User Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $name = $row['user_name'];
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$session_name updated company permissions for user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Company permssions updated for user <strong>$name</strong>";
     
     header("Location: users.php");
 
@@ -288,8 +314,12 @@ if(isset($_POST['edit_user_clients'])){
         mysqli_query($mysqli,"INSERT INTO user_clients SET user_id = $user_id, client_id = $client");
     }
     
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
+    //Logging
+    //Get User Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $name = $row['user_name'];
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$session_name updated client permissions for user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Client <strong>$client_imploded</strong> added to user $user_id!";
     
@@ -302,10 +332,15 @@ if(isset($_GET['archive_user'])){
 
     mysqli_query($mysqli,"UPDATE users SET user_archived_at = NOW() WHERE user_id = $user_id");
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Archived', log_description = '$user_id', log_created_at = NOW()");
+    //Logging
+    //Get User Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $name = $row['user_name'];
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Archived', log_description = '$session_name archived user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "User Archived!";
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "<strong>$name</strong> archived";
     
     header("Location: users.php");
 
@@ -323,11 +358,16 @@ if(isset($_GET['delete_user'])){
     mysqli_query($mysqli,"DELETE FROM user_companies WHERE user_id = $user_id");
     mysqli_query($mysqli,"DELETE FROM user_clients WHERE user_id = $user_id");
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Deleted', log_description = '$user_id', log_created_at = NOW()");
+    //Logging
+    //Get User Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $name = $row['user_name'];
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Deleted', log_description = '$session_name deleted user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
 
     $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = "User deleted!";
+    $_SESSION['alert_message'] = "User <strong>$name</strong> deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
@@ -1438,6 +1478,7 @@ if(isset($_POST['add_campaign'])){
     mysqli_query($mysqli,"INSERT INTO campaigns SET campaign_name = '$name', campaign_subject = '$subject', campaign_from_name = '$from_name', campaign_from_email = '$from_email', campaign_content = '$content', campaign_status = 'Draft', campaign_created_at = NOW(), company_id = $session_company_id");
 
     $campaign_id = mysqli_insert_id($mysqli);
+
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");

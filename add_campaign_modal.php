@@ -52,10 +52,37 @@
 
             <div class="tab-pane fade" id="pills-recipients">
   
+              <legend>Recipients</legend>
+
               <div class="form-group">
                 <label>Email <strong class="text-danger">*</strong></label>
                 <input type="text" class="form-control" name="to_email" placeholder="Recipient Email">
               </div>
+
+              <ul class="list-group">
+
+                <?php
+                $sql_tags_select = mysqli_query($mysqli,"SELECT * FROM tags WHERE tag_type = 1 AND company_id = $session_company_id ORDER BY tag_name ASC");
+
+                while($row = mysqli_fetch_array($sql_tags_select)){
+                  $tag_id_select = $row['tag_id'];
+                  $tag_name_select = $row['tag_name'];
+                  $tag_color_select = $row['tag_color'];
+                  $tag_icon_select = $row['tag_icon'];
+
+                ?>
+                  <li class="list-group-item">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" name="tags[]" value="<?php echo $tag_id_select; ?>">
+                      <label class="form-check-label ml-2 badge bg-<?php echo $tag_color_select; ?>"><?php echo "<i class='fa fw fa-$tag_icon_select'></i>"; ?> <?php echo $tag_name_select; ?></label>
+                    </div>
+                  </li>
+
+                <?php
+                }
+                ?>
+
+              </ul>
 
               <legend>Schedule</legend>
 

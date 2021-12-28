@@ -85,7 +85,6 @@ function get_web_browser() {
         '/maxthon/i'    =>  'Maxthon',
         '/konqueror/i'  =>  'Konqueror',
         '/ubrowser/i'   =>  'UC Browser',
-        '/mobile/i'     =>  'Handheld Browser'
     );
     foreach ($browser_array as $regex => $value) {
         if (preg_match($regex, $user_agent)) {

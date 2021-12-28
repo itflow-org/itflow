@@ -18,9 +18,9 @@
 
 <?php 
 
-echo "$session_permission_companies";
-print_r($session_permission_companies_array); 
+$user_agent = get_user_agent();
 
+echo $user_agent;
 
 ?>
 

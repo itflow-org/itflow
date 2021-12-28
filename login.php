@@ -17,6 +17,8 @@ $os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
 $browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
 $device = strip_tags(mysqli_real_escape_string($mysqli,get_device()));
 
+$user_agent = "$device - $os - $browser";
+
 ?>
 
 <?php
@@ -44,7 +46,7 @@ if(isset($_POST['login'])){
 
     if(empty($token)){
       $_SESSION['logged'] = TRUE;
-      mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$user_name successfully logged in', log_ip = '$ip', log_user_agent = '$os - $browser - $device', log_created_at = NOW(), log_user_id = $user_id");
+      mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$user_name successfully logged in', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
          
       header("Location: dashboard.php");
     }else{
@@ -61,11 +63,11 @@ if(isset($_POST['login'])){
 
       if(TokenAuth6238::verify($token,$current_code)){
         $_SESSION['logged'] = TRUE;
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login 2FA', log_action = 'Success', log_description = '$user_name successfully logged in using 2FA', log_ip = '$ip', log_user_agent = '$os - $browser - $device', log_created_at = NOW(), log_user_id = $user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login 2FA', log_action = 'Success', log_description = '$user_name successfully logged in using 2FA', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
         //header("Location: $config_start_page");
         header("Location: dashboard.php");
       }else{
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$user_name failed 2FA', log_ip = '$ip', log_user_agent = '$os - $browser - $device', log_created_at = NOW(), log_user_id = $user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$user_name failed 2FA', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
 
         $response = "
           <div class='alert alert-primary'>
@@ -77,7 +79,7 @@ if(isset($_POST['login'])){
     }
 
   }else{
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt using $email', log_ip = '$ip', log_user_agent = '$os - $browser - $device', log_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
 
     $response = "
       <div class='alert alert-danger'>
