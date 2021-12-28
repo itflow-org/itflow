@@ -471,8 +471,10 @@ if(isset($_POST['add_company_settings'])){
   mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_currency = '$currency_code', company_created_at = NOW()");
 
   $company_id = mysqli_insert_id($mysqli);
-  $config_api_key = keygen();
   $config_base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
+  $config_api_key = keygen();
+  $config_aes_key = keygen();
+
 
   mkdir("uploads/clients/$company_id");
   mkdir("uploads/expenses/$company_id");
@@ -521,10 +523,10 @@ if(isset($_POST['add_company_settings'])){
     }
   }
 
-  //Create Permissions
+  //Set User Company Permissions
   mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company_id");
  
-  mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 0, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
+  mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_aes_key = '$config_aes_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 1, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
 
   //Create Some Data
 

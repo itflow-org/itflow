@@ -4,7 +4,7 @@ if(window.history.replaceState){
 }
 
 // Slide alert up after 4 secs
-$("#alert").fadeTo(4000, 500).slideUp(500, function(){
+$("#alert").fadeTo(5000, 500).slideUp(500, function(){
   $("#alert").slideUp(500);
 });
 
