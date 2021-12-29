@@ -365,7 +365,6 @@ if(isset($_GET['delete_user'])){
     $name = $row['user_name'];
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Deleted', log_description = '$session_name deleted user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = "User <strong>$name</strong> deleted";
     
@@ -540,10 +539,10 @@ if(isset($_POST['edit_company'])){
 
     mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_currency = '$currency_code', company_updated_at = NOW() WHERE company_id = $company_id");
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Modified', log_description = '$name', log_created_at = NOW()");
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Modified', log_description = '$session_name modified company $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Company <strong>$name</strong> updated!";
+    $_SESSION['alert_message'] = "Company <strong>$name</strong> updated";
     
     header("Location: companies.php");
 
@@ -554,10 +553,16 @@ if(isset($_GET['archive_company'])){
 
     mysqli_query($mysqli,"UPDATE companies SET company_archived_at = NOW() WHERE company_id = $company_id");
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Archived', log_description = '$company_id', log_created_at = NOW()");
 
-    $_SESSION['alert_message'] = "Company Archived";
+    //Logging
+    //Get Company Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $company_id");
+    $row = mysqli_fetch_array($sql);
+    $company_name = $row['company_name'];
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Archived', log_description = '$session_name archived company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Company <strong>$company_name</strong> archived";
     
     header("Location: companies.php");
 
@@ -565,6 +570,11 @@ if(isset($_GET['archive_company'])){
 
 if(isset($_GET['delete_company'])){
     $company_id = intval($_GET['delete_company']);
+
+    //Get Company Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $company_id");
+    $row = mysqli_fetch_array($sql);
+    $company_name = $row['company_name'];
 
     //Delete Company and all relational data A-Z
 
@@ -607,7 +617,9 @@ if(isset($_GET['delete_company'])){
     mysqli_query($mysqli,"DELETE FROM messages WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM custom_links WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM user_companies WHERE company_id = $company_id");
-    
+    mysqli_query($mysqli,"DELETE FROM tags WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM client_tags WHERE company_id = $company_id");
+
     //Delete Company Files
     removeDirectory('uploads/clients/$company_id');
     removeDirectory('uploads/expenses/$company_id');
@@ -616,6 +628,11 @@ if(isset($_GET['delete_company'])){
 
     //Finally Remove the company
     mysqli_query($mysqli,"DELETE FROM companies WHERE company_id = $company_id");
+
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Deleted', log_description = '$session_name deleted company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Company <strong>$company_name</strong> deleted";
     
     header("Location: logout.php");
   
@@ -629,6 +646,7 @@ if(isset($_POST['verify'])){
     if(TokenAuth6238::verify($session_token,$currentcode)){
         $_SESSION['alert_message'] = "VALID!";
     }else{
+        $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = "IN-VALID!";
     } 
 
@@ -658,8 +676,8 @@ if(isset($_POST['edit_general_settings'])){
         }
     }
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'General', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = '$session_name modified general settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Settings updated";
 
@@ -679,9 +697,9 @@ if(isset($_POST['edit_mail_settings'])){
     mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Mail', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = '$session_name modified mail settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Mail Settings updated";
+    $_SESSION['alert_message'] = "Mail settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -692,40 +710,35 @@ if(isset($_POST['test_email'])){
 
     $mail = new PHPMailer(true);
 
-    try{
+    //Mail Server Settings
 
-        //Mail Server Settings
+    $mail->SMTPDebug = 2;                                       // Enable verbose debug output
+    $mail->isSMTP();                                            // Set mailer to use SMTP
+    $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+    $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+    $mail->Username   = $config_smtp_username;                     // SMTP username
+    $mail->Password   = $config_smtp_password;                               // SMTP password
+    $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+    $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
-        //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
-        $mail->isSMTP();                                            // Set mailer to use SMTP
-        $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-        $mail->Username   = $config_smtp_username;                     // SMTP username
-        $mail->Password   = $config_smtp_password;                               // SMTP password
-        $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
-        $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+    //Recipients
+    $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+    $mail->addAddress("$email");     // Add a recipient
 
-        //Recipients
-        $mail->setFrom($config_mail_from_email, $config_mail_from_name);
-        $mail->addAddress("$email");     // Add a recipient
+    // Content
+    $mail->isHTML(true);                                  // Set email format to HTML
+    
+    $mail->Subject = "Hi'ya there Chap";
+    $mail->Body    = "Hello there Chap ;) Don't worry this won't hurt a bit, it's just a test";
 
-        // Content
-        $mail->isHTML(true);                                  // Set email format to HTML
-        
-        $mail->Subject = "Hi'ya there Chap";
-        $mail->Body    = "Hello there Chap ;) Don't worry this won't hurt a bit, it's just a test. ${$email}";
-
-        
-        $mail->send();
-        echo 'Message has been sent';
-
-        $_SESSION['alert_message'] = "Test Email has been sent!";
-
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-    } catch (Exception $e) {
-        echo "poop";
+    if($mail->send()){
+        $_SESSION['alert_message'] = "Test email sent successfully";
+    }else{
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = "Test email failed";
     }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if(isset($_POST['edit_invoice_quote_settings'])){
@@ -936,7 +949,9 @@ if(isset($_GET['update'])){
     //exec("git fetch --all");
     //exec("git reset --hard origin/master");
 
-    header("Location: post.php?update_db");
+    //header("Location: post.php?update_db");
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -954,11 +969,11 @@ if(isset($_GET['update_db'])){
     //c88e6b851aadfbde173f7cfe7155dd1ed31adece
     //mysqli_query($mysqli,"ALTER TABLE settings DROP config_enable_alert_low_balance");
     //mysqli_query($mysqli,"ALTER TABLE settings DROP config_account_balance_threshold");
-    mysqli_query($mysqli,"ALTER TABLE clients DROP client_support");
-    mysqli_query($mysqli,"ALTER TABLE tags DROP tag_archived_at");
+    //mysqli_query($mysqli,"ALTER TABLE clients DROP client_support");
+    //mysqli_query($mysqli,"ALTER TABLE tags DROP tag_archived_at");
 
     //Update 2
-    mysqli_query($mysqli,"ALTER TABLE tags ADD tag_type INT(11) NOT NULL AFTER tag_name");
+    //mysqli_query($mysqli,"ALTER TABLE tags ADD tag_type INT(11) NOT NULL AFTER tag_name");
 
     $_SESSION['alert_message'] = "Update Successful Database Structure Update Successful!";
 
