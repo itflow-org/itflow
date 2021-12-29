@@ -61,12 +61,12 @@
           </div>
 
           <div class="form-group">
-            <label>Country</label>
+            <label>Country <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
               </div>
-              <select class="form-control select2" name="country">
+              <select class="form-control select2" name="country" required>
                 <option value="">- Country -</option>
                 <?php foreach($countries_array as $country_name) { ?>
                 <option><?php echo $country_name; ?></option>
