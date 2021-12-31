@@ -9,19 +9,11 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <input type="hidden" name="location_id" value="<?php echo $location_id; ?>">
-        <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
         <div class="modal-body bg-white">
           
           <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
               <a class="nav-link active" data-toggle="pill" href="#pills-client-details<?php echo $client_id; ?>">Details</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-toggle="pill" href="#pills-client-address<?php echo $client_id; ?>">Address</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-toggle="pill" href="#pills-client-contact<?php echo $client_id; ?>">Contact</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" data-toggle="pill" href="#pills-client-notes<?php echo $client_id; ?>">Notes</a>
@@ -84,6 +76,16 @@
               </div>
 
               <div class="form-group">
+                <label>Website</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="website" placeholder="ex. google.com" value="<?php echo $client_website; ?>">
+                </div>
+              </div>
+
+              <div class="form-group">
                 <label>Currency <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
@@ -113,136 +115,6 @@
                 </div>
               </div>
 
-            </div>
-          
-            <div class="tab-pane fade" id="pills-client-address<?php echo $client_id; ?>">
-
-              <div class="form-group">
-                <label>Address</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="address" placeholder="Street Address" value="<?php echo $location_address; ?>">
-                </div>
-              </div>
-          
-              <div class="form-group">
-                <label>City</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="city" placeholder="City" value="<?php echo $location_city; ?>">
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label>State / Province</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="state" placeholder="State or Province" value="<?php echo $location_state; ?>">
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label>Zip / Postal Code</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" value="<?php echo $location_zip; ?>">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Country</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                  </div>
-                  <select class="form-control select2" name="country">
-                    <option value="">- Country -</option>
-                    <?php foreach($countries_array as $country_name) { ?>
-                    <option <?php if($location_country == $country_name) { echo "selected"; } ?>><?php echo $country_name; ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
-            
-            </div>
-
-            <div class="tab-pane fade" id="pills-client-contact<?php echo $client_id; ?>">
-
-              <div class="form-group">
-                <label>Primary Contact</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="contact" placeholder="Primary contact name" value="<?php echo $contact_name; ?>"> 
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Title</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="title" placeholder="Title" value="<?php echo $contact_title; ?>"> 
-                </div>
-              </div>
-
-              <label>Phone</label>
-              <div class="form-row">
-                <div class="col-8">
-                  <div class="form-group">
-                    <div class="input-group">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                      </div>
-                      <input type="text" class="form-control" name="phone" placeholder="Phone Number" value="<?php echo $contact_phone; ?>"> 
-                    </div>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <input type="text" class="form-control" name="extension" placeholder="Extension" value="<?php echo $contact_extension; ?>">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Mobile</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="mobile" placeholder="Mobile Number" value="<?php echo $contact_mobile; ?>"> 
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label>Email</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                  </div>
-                  <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo $contact_email; ?>">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Website</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="website" placeholder="ex. google.com" value="<?php echo $client_website; ?>">
-                </div>
-              </div>
-            
             </div>
 
             <div class="tab-pane fade" id="pills-client-notes<?php echo $client_id; ?>">

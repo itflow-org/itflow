@@ -1060,21 +1060,8 @@ if(isset($_POST['add_client'])){
 if(isset($_POST['edit_client'])){
 
     $client_id = intval($_POST['client_id']);
-    $location_id = intval($_POST['location_id']);
-    $contact_id = intval($_POST['contact_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
-    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
-    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
-    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
-    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
-    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
-    $contact = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact'])));
-    $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
-    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
-    $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
     $referral = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['referral'])));
     $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
@@ -1082,22 +1069,6 @@ if(isset($_POST['edit_client'])){
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
-
-    //Edit Primary Location
-    if($location_id > 0){
-        mysqli_query($mysqli,"UPDATE locations SET location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_country = '$country', location_updated_at = NOW() WHERE location_id = $location_id");
-
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Modify', log_description = '$session_name modified primary location $address', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
-    }
-
-    //Edit Primary Contact
-    if($contact_id > 0){
-        mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$contact', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_updated_at = NOW() WHERE contact_id = $contact_id");
-
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified $contact', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
-    }
 
     //Tags
     //Delete existing tags
