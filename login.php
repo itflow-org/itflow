@@ -15,9 +15,9 @@ if(!file_exists('config.php')){
 $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
 $os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
 $browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
-$device = strip_tags(mysqli_real_escape_string($mysqli,get_device()));
+//$device = strip_tags(mysqli_real_escape_string($mysqli,get_device()));
 
-$user_agent = "$device - $os - $browser";
+$user_agent = "$os - $browser";
 
 ?>
 

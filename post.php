@@ -114,7 +114,7 @@ if(isset($_POST['add_user'])){
     mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $default_company");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Created', log_description = '$session_name created user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Create', log_description = '$session_name created user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "User <strong>$user_name</strong> created!";
     
@@ -197,7 +197,7 @@ if(isset($_POST['edit_user'])){
     mysqli_query($mysqli,"UPDATE user_settings SET user_role = $role, user_default_company = $default_company WHERE user_id = $user_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$session_name modified user $name $extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name modified user $name $extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> updated";
     
@@ -271,7 +271,7 @@ if(isset($_POST['edit_profile'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Preferences', log_action = 'Modified', log_description = '$session_name modified their preferences$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Preferences', log_action = 'Modify', log_description = '$session_name modified their preferences$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "User preferences updated";
     
@@ -295,7 +295,7 @@ if(isset($_POST['edit_user_companies'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
     $name = $row['user_name'];
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$session_name updated company permissions for user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name updated company permissions for user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Company permssions updated for user <strong>$name</strong>";
     
@@ -319,7 +319,7 @@ if(isset($_POST['edit_user_clients'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
     $name = $row['user_name'];
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modified', log_description = '$session_name updated client permissions for user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name updated client permissions for user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Client <strong>$client_imploded</strong> added to user $user_id!";
     
@@ -337,7 +337,7 @@ if(isset($_GET['archive_user'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
     $name = $row['user_name'];
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Archived', log_description = '$session_name archived user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Archive', log_description = '$session_name archived user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = "<strong>$name</strong> archived";
@@ -363,7 +363,7 @@ if(isset($_GET['delete_user'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
     $name = $row['user_name'];
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Deleted', log_description = '$session_name deleted user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Delete', log_description = '$session_name deleted user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = "User <strong>$name</strong> deleted";
@@ -392,8 +392,6 @@ if(isset($_POST['add_company'])){
     $config_api_key = keygen();
     $config_aes_key = keygen();
     
-    
-
     mkdir("uploads/clients/$company_id");
     mkdir("uploads/expenses/$company_id");
     mkdir("uploads/settings/$company_id");
@@ -465,7 +463,7 @@ if(isset($_POST['add_company'])){
     mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue', calendar_created_at = NOW(), company_id = $company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Created', log_description = '$session_name created company $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Create', log_description = '$session_name created company $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> created";
     
@@ -540,7 +538,7 @@ if(isset($_POST['edit_company'])){
     mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_currency = '$currency_code', company_updated_at = NOW() WHERE company_id = $company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Modified', log_description = '$session_name modified company $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Modify', log_description = '$session_name modified company $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> updated";
     
@@ -559,7 +557,7 @@ if(isset($_GET['archive_company'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $company_id");
     $row = mysqli_fetch_array($sql);
     $company_name = $row['company_name'];
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Archived', log_description = '$session_name archived company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Archive', log_description = '$session_name archived company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = "Company <strong>$company_name</strong> archived";
@@ -629,7 +627,7 @@ if(isset($_GET['delete_company'])){
     //Finally Remove the company
     mysqli_query($mysqli,"DELETE FROM companies WHERE company_id = $company_id");
 
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Deleted', log_description = '$session_name deleted company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Delete', log_description = '$session_name deleted company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = "Company <strong>$company_name</strong> deleted";
@@ -677,9 +675,9 @@ if(isset($_POST['edit_general_settings'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = '$session_name modified general settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified general settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Settings updated";
+    $_SESSION['alert_message'] = "General settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -697,7 +695,7 @@ if(isset($_POST['edit_mail_settings'])){
     mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = '$session_name modified mail settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified mail settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Mail settings updated";
 
@@ -755,7 +753,7 @@ if(isset($_POST['edit_invoice_quote_settings'])){
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer', config_recurring_prefix = '$config_recurring_prefix', config_recurring_next_number = $config_recurring_next_number, config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer' WHERE company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Invoice', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified invoice / quote settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Invoice / Quote Settings updated";
 
@@ -771,7 +769,7 @@ if(isset($_POST['edit_ticket_settings'])){
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number WHERE company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Ticket', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified ticket settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Ticket Settings updated";
 
@@ -793,7 +791,7 @@ if(isset($_POST['edit_default_settings'])){
     mysqli_query($mysqli,"UPDATE settings SET config_default_expense_account = $expense_account, config_default_payment_account = $payment_account, config_default_payment_method = '$payment_method', config_default_expense_payment_method = '$expense_payment_method', config_default_transfer_from_account = $transfer_from_account, config_default_transfer_to_account = $transfer_to_account, config_default_calendar = $calendar, config_default_net_terms = $net_terms WHERE company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Defaults', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified default settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Default Settings updated";
 
@@ -810,7 +808,7 @@ if(isset($_POST['edit_alert_settings'])){
     mysqli_query($mysqli,"UPDATE settings SET config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_enable_cron = $config_enable_cron, config_enable_alert_domain_expire = $config_enable_alert_domain_expire WHERE company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Alerts', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified alert settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Alert Settings updated";
 
@@ -827,9 +825,9 @@ if(isset($_POST['edit_online_payment_settings'])){
     mysqli_query($mysqli,"UPDATE settings SET config_stripe_enable = $config_stripe_enable, config_stripe_publishable = '$config_stripe_publishable', config_stripe_secret = '$config_stripe_secret' WHERE company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = 'Online Payment', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modified', log_description = '$session_name modified online payment settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Online Payment Settings Updated";
+    $_SESSION['alert_message'] = "Online Payment Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -841,9 +839,9 @@ if(isset($_POST['enable_2fa'])){
     mysqli_query($mysqli,"UPDATE users SET user_token = '$token' WHERE user_id = $session_user_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Settings', log_action = 'Modified', log_description = '2FA Enabled', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Settings', log_action = 'Modify', log_description = '$session_name enabled 2FA on their account', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Two Factor Authentication Enabled and Token Updated, don't lose your code you will need this additionally to login";
+    $_SESSION['alert_message'] = "Two-factor authentication enabled";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -854,9 +852,9 @@ if(isset($_POST['disable_2fa'])){
     mysqli_query($mysqli,"UPDATE users SET user_token = '' WHERE user_id = $session_user_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Settings', log_action = 'Modified', log_description = '2FA Disabled', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Settings', log_action = 'Modify', log_description = '$session_name disabled 2FA on their account', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Two Factor Authentication Disabled you can now login without TOTP Code";
+    $_SESSION['alert_message'] = "Two-factor authentication disabled";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -936,7 +934,9 @@ if(isset($_GET['download_database'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Downloaded', log_description = 'Database', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Download', log_description = '$session_name downloaded the database', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Database downloaded";
 }
 
 if(isset($_GET['update'])){
@@ -950,6 +950,11 @@ if(isset($_GET['update'])){
     //exec("git reset --hard origin/master");
 
     //header("Location: post.php?update_db");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Update', log_description = '$session_name ran updates', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Updates successful";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -975,10 +980,12 @@ if(isset($_GET['update_db'])){
     //Update 2
     //mysqli_query($mysqli,"ALTER TABLE tags ADD tag_type INT(11) NOT NULL AFTER tag_name");
 
-    $_SESSION['alert_message'] = "Update Successful Database Structure Update Successful!";
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Update', log_description = '$session_name updated the database structure', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Database structure update successful";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
 }
 
 if(isset($_POST['add_client'])){
@@ -1010,9 +1017,6 @@ if(isset($_POST['add_client'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    //Log Add Client
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Created', log_description = '$name', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
-
     //Add Location
     if(!empty($address) OR !empty($city) OR !empty($state) OR !empty($zip)){
         mysqli_query($mysqli,"INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_country = '$country', location_created_at = NOW(), location_client_id = $client_id, company_id = $session_company_id");
@@ -1021,8 +1025,8 @@ if(isset($_POST['add_client'])){
         $location_id = mysqli_insert_id($mysqli);
         mysqli_query($mysqli,"UPDATE clients SET primary_location = $location_id WHERE client_id = $client_id");
 
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Create', log_description = 'Pimary Location $address', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+        //Extended Logging
+        $extended_log_description .= ", primary location $address added";
     }
 
     
@@ -1034,19 +1038,20 @@ if(isset($_POST['add_client'])){
         $contact_id = mysqli_insert_id($mysqli);
         mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");
     
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = 'Primary Contact $contact', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
-
+        //Extended Logging
+        $extended_log_description .= ", primary contact $contact added";
     }
 
     //Add Tags
-
     foreach($_POST['tags'] as $tag){
         intval($tag);
         mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
     }
 
-    $_SESSION['alert_message'] = "Client added";
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Create', log_description = '$session_name created $name$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Client created";
     
     header("Location: clients.php");
 
@@ -1078,42 +1083,47 @@ if(isset($_POST['edit_client'])){
 
     mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
-
     //Edit Primary Location
     if($location_id > 0){
         mysqli_query($mysqli,"UPDATE locations SET location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_country = '$country', location_updated_at = NOW() WHERE location_id = $location_id");
 
         //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Modified', log_description = 'Primary Location $address', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Modify', log_description = '$session_name modified primary location $address', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
     }
 
     //Edit Primary Contact
     if($contact_id > 0){
         mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$contact', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_updated_at = NOW() WHERE contact_id = $contact_id");
-    
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modified', log_description = 'Primary Contact $contact', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified $contact', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
     }
 
     //Tags
+    //Delete existing tags
     mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_id = $client_id");
     
+    //Add new tags
     foreach($_POST['tags'] as $tag){
         intval($tag);
         mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
     }
 
-    $_SESSION['alert_message'] = "Client $name updated";
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modify', log_description = '$session_name modified client $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Client <strong>$name</strong> updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
 }
 
 if(isset($_GET['delete_client'])){
     $client_id = intval($_GET['delete_client']);
+
+    //Get Client Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
+    $row = mysqli_fetch_array($sql);
+    $client_name = $row['client_name'];
 
     //Delete Client Data
 
@@ -1129,6 +1139,8 @@ if(isset($_GET['delete_client'])){
     mysqli_query($mysqli,"DELETE FROM networks WHERE network_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM software WHERE software_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_client_id = $client_id");
+    mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_id = $client_id");
+    mysqli_query($mysqli,"DELETE FROM user_clients WHERE client_id = $client_id");
 
     $sql = mysqli_query($mysqli,"SELECT recurring_id FROM recurring WHERE recurring_client_id = $client_id");
     while($row = mysqli_fetch_array($sql)){
@@ -1151,11 +1163,13 @@ if(isset($_GET['delete_client'])){
     //Delete Financial Data this will affect the accounting
     mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_client_id = $client_id");
     
+    //Delete Invoices and Invoice Referencing data
     $sql = mysqli_query($mysqli,"SELECT invoice_id FROM invoices WHERE invoice_client_id = $client_id");
     while($row = mysqli_fetch_array($sql)){
         $invoice_id = $row['invoice_id'];
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_invoice_id = $invoice_id");
         mysqli_query($mysqli,"DELETE FROM payments WHERE payment_invoice_id = $invoice_id");
+        mysqli_query($mysqli,"DELETE FROM history WHERE history_invoice_id = $invoice_id");
     }
     mysqli_query($mysqli,"DELETE FROM invoices WHERE invoice_client_id = $client_id");
 
@@ -1180,12 +1194,12 @@ if(isset($_GET['delete_client'])){
     mysqli_query($mysqli,"DELETE FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Deleted', log_description = '$client_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Delete', log_description = '$session_name deleted client $client_name and all referring data', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Client deleted";
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Client $client_name deleted along with all referring data";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-  
+    header("Location: " . $_SERVER["HTTP_REFERER"]); 
 }
 
 if(isset($_POST['add_calendar'])){
@@ -1196,7 +1210,7 @@ if(isset($_POST['add_calendar'])){
     mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = '$name', calendar_color = '$color', calendar_created_at = NOW(), company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar', log_action = 'Create', log_description = '$session_name created calendar $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Calendar created, now lets add some events!";
     
@@ -1221,6 +1235,7 @@ if(isset($_POST['add_event'])){
 
         $sql = mysqli_query($mysqli,"SELECT * FROM clients JOIN companies ON clients.company_id = companies.company_id JOIN contacts ON primary_contact = contact_id WHERE client_id = $client AND companies.company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
+        $client_name = $row['client_name'];
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
         $company_name = $row['company_name'];
@@ -1229,10 +1244,7 @@ if(isset($_POST['add_event'])){
         $company_city = $row['company_city'];
         $company_state = $row['company_state'];
         $company_zip = $row['company_zip'];
-        $company_phone = $row['company_phone'];
-        if(strlen($company_phone)>2){ 
-          $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
-        }
+        $company_phone = formatPhoneNumber($row['company_phone']);
         $company_email = $row['company_email'];
         $company_website = $row['company_website'];
         $company_logo = $row['company_logo'];
@@ -1243,7 +1255,7 @@ if(isset($_POST['add_event'])){
 
             //Mail Server Settings
 
-            //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+            $mail->SMTPDebug = 2;                                       // Enable verbose debug output
             $mail->isSMTP();                                            // Set mailer to use SMTP
             $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
             $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
@@ -1268,12 +1280,12 @@ if(isset($_POST['add_event'])){
             echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
 
-        //Logging of email sent
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Emailed', log_description = 'Emailed $client_name to email $client_email - $title', log_created_at = NOW(), log_client_id = $client, company_id = $session_company_id, log_user_id = $session_user_id");
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Email', log_description = '$session_name emailed event $event_title to $contact_name from client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Created', log_description = '$title', log_created_at = NOW(), log_client_id = $client, company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Create', log_description = '$session_name created event $title in calendar', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Event added to the calendar";
     
@@ -1307,10 +1319,7 @@ if(isset($_POST['edit_event'])){
         $company_city = $row['company_city'];
         $company_state = $row['company_state'];
         $company_zip = $row['company_zip'];
-        $company_phone = $row['company_phone'];
-        if(strlen($company_phone)>2){ 
-          $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
-        }
+        $company_phone = formatPhoneNumber($row['company_phone']);
         $company_email = $row['company_email'];
         $company_website = $row['company_website'];
         $company_logo = $row['company_logo'];
@@ -3340,10 +3349,7 @@ if(isset($_POST['add_payment'])){
         $company_city = $row['company_city'];
         $company_state = $row['company_state'];
         $company_zip = $row['company_zip'];
-        $company_phone = $row['company_phone'];
-        if(strlen($company_phone)>2){ 
-          $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
-        }
+        $company_phone = formatPhoneNumber($row['company_phone']);
         $company_email = $row['company_email'];
         $company_website = $row['company_website'];
         $company_logo = $row['company_logo'];
@@ -5169,21 +5175,12 @@ if(isset($_GET['force_recurring'])){
         $client_name = $row['client_name'];
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
-        $contact_phone = $row['contact_phone'];
-        if(strlen($contact_phone)>2){ 
-            $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
-        }
+        $contact_phone = formatPhoneNumber($row['contact_phone']);
         $contact_extension = $row['contact_extension'];
-        $contact_mobile = $row['contact_mobile'];
-        if(strlen($contact_mobile)>2){ 
-            $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
-        }
+        $contact_mobile = formatPhoneNumber($row['contact_mobile']);
         $company_id = $row['company_id'];
         $company_name = $row['company_name'];
-        $company_phone = $row['company_phone'];
-        if(strlen($company_phone)>2){ 
-            $company_phone = substr($row['company_phone'],0,3)."-".substr($row['company_phone'],3,3)."-".substr($row['company_phone'],6,4);
-        }
+        $company_phone = formatPhoneNumber($row['company_phone']);
         $company_email = $row['company_email'];
         $company_website = $row['company_website'];
         $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
@@ -5194,7 +5191,7 @@ if(isset($_GET['force_recurring'])){
 
             //Mail Server Settings
 
-            //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+            $mail->SMTPDebug = 2;                                       // Enable verbose debug output
             $mail->isSMTP();                                            // Set mailer to use SMTP
             $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
             $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
