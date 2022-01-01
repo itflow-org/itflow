@@ -739,7 +739,7 @@ if(isset($_POST['add_company_settings'])){
                 <hr>
                 <button type="submit" name="add_database" class="btn btn-primary">Next <i class="fa fa-fw fa-arrow-circle-right"></i></button>
               </form>
-              <? } ?>
+              <?php } ?>
             </div>
           </div>
 
