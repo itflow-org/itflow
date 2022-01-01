@@ -343,7 +343,7 @@ if(isset($_POST['add_database'])){
 
   $new_config = array();
   $new_config[] = "<?php\n\n";
-  $new_config[] = sprintf("\$dbhost = '%s';\n", addslashes($dbhost));
+  $new_config[] = sprintf("\$dbhost = '%s';\n", addslashes($host));
   $new_config[] = sprintf("\$dbusername = '%s';\n", addslashes($username));
   $new_config[] = sprintf("\$dbpassword = '%s';\n", addslashes($password));
   $new_config[] = sprintf("\$database = '%s';\n", addslashes($database));
