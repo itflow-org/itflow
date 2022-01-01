@@ -1097,7 +1097,6 @@ if(isset($_GET['delete_client'])){
     $client_name = $row['client_name'];
 
     //Delete Client Data
-
     mysqli_query($mysqli,"DELETE FROM assets WHERE asset_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM certificates WHERE certificate_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_client_id = $client_id");
@@ -1161,7 +1160,6 @@ if(isset($_GET['delete_client'])){
     removeDirectory('uploads/clients/$client_id');
 
     //Finally Remove the Client
-
     mysqli_query($mysqli,"DELETE FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
 
     //Logging
@@ -1282,6 +1280,7 @@ if(isset($_POST['edit_event'])){
 
         $sql = mysqli_query($mysqli,"SELECT * FROM clients JOIN companies ON clients.company_id = companies.company_id JOIN contacts ON primary_contact = contact_id WHERE client_id = $client AND companies.company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
+        $client_name = $row['client_name'];
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
         $company_name = $row['company_name'];
@@ -1301,7 +1300,7 @@ if(isset($_POST['edit_event'])){
 
             //Mail Server Settings
 
-            //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+            $mail->SMTPDebug = 2;                                       // Enable verbose debug output
             $mail->isSMTP();                                            // Set mailer to use SMTP
             $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
             $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
@@ -1326,12 +1325,12 @@ if(isset($_POST['edit_event'])){
             echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
 
-        //Logging of email sent
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Emailed', log_description = 'Emailed $client_name to email $client_email - $title', log_created_at = NOW(), log_client_id = $client, company_id = $session_company_id, log_user_id = $session_user_id");
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Email', log_description = '$session_name Emailed modified event $title to $client_name email $client_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar', log_action = 'Modified', log_description = '$title', log_created_at = NOW(), log_client_id = $client, company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Modify', log_description = '$session_name modified event $title in calendar', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Event modified on the calendar";
     
@@ -1342,12 +1341,18 @@ if(isset($_POST['edit_event'])){
 if(isset($_GET['delete_event'])){
     $event_id = intval($_GET['delete_event']);
 
+    //Get Event Title
+    $sql = mysqli_query($mysqli,"SELECT * FROM events WHERE event_id = $event_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $event_title = $row['event_title'];
+
     mysqli_query($mysqli,"DELETE FROM events WHERE event_id = $event_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar', log_action = 'Deleted', log_description = '$event_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Delete', log_description = '$session_name deleted calendar event titled $event_title', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Event deleted on the calendar";
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Event <strong>$event_title</strong> deleted on the calendar";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
@@ -1378,12 +1383,11 @@ if(isset($_POST['add_vendor'])){
     $vendor_id = mysqli_insert_id($mysqli);
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Create', log_description = '$session_name created vendor $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Vendor added";
+    $_SESSION['alert_message'] = "Vendor <strong>$name</strong> created";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
 }
 
 if(isset($_POST['edit_vendor'])){
@@ -1409,38 +1413,50 @@ if(isset($_POST['edit_vendor'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Vendor modified";
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Modify', log_description = '$session_name modified vendor $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Vendor <strong>$name</strong> modified";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
 }
 
 if(isset($_GET['archive_vendor'])){
     $vendor_id = intval($_GET['archive_vendor']);
 
+    //Get Vendor Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $vendor_name = $row['vendor_name'];
+
     mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Archived', log_description = '$vendor_id', log_created_at = NOW()");
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Archive', log_description = '$session_name archived vendor $vendor_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Vendor Archived!";
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Vendor <strong>$vendor_name archived";
     
     header("Location: vendors.php");
-
 }
 
 if(isset($_GET['delete_vendor'])){
     $vendor_id = intval($_GET['delete_vendor']);
 
+    //Get Vendor Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $vendor_name = $row['vendor_name'];
+
     mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Deleted', log_description = '$vendor_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Delete', log_description = '$session_name deleted vendor $vendor_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Vendor deleted";
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-  
 }
 
 if(isset($_GET['export_client_vendors_csv'])){
@@ -1480,8 +1496,11 @@ if(isset($_GET['export_client_vendors_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
     }
+    
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Export', log_description = '$session_name exported vendors to CSV', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
     exit;
-  
 }
 
 // Campaigns
@@ -1498,14 +1517,12 @@ if(isset($_POST['add_campaign'])){
 
     $campaign_id = mysqli_insert_id($mysqli);
 
-
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Create', log_description = '$session_name created mail campaign $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Campaign created";
+    $_SESSION['alert_message'] = "Campaign <strong>$name</strong> created";
     
     header("Location: campaign_details.php?campaign_id=$campaign_id");
-
 }
 
 if(isset($_POST['edit_campaign'])){
@@ -1520,40 +1537,49 @@ if(isset($_POST['edit_campaign'])){
     mysqli_query($mysqli,"UPDATE campaigns SET SET campaign_name = '$name', campaign_subject = '$subject', campaign_from_name = '$from_name', campaign_from_email = '$from_email', campaign_content = '$content', campaign_updated_at = NOW() WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Modify', log_description = '$session_name modified mail campaign $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Campaign modified";
+    $_SESSION['alert_message'] = "Campaign <strong>$name</strong> modified";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
 }
 
 if(isset($_GET['archive_campaign'])){
     $campaign_id = intval($_GET['archive_campaign']);
 
+    //Get Campaign Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM campaigns WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $campaign_name = $row['campaign_name'];
+
     mysqli_query($mysqli,"UPDATE campaigns SET campaign_archived_at = NOW() WHERE campaign_id = $campaign_id");
 
     //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Archived', log_description = '$campaign_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Archive', log_description = '$session_name archived mail campaign $campaign_name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Campaign Archived!";
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Campaign <strong>$campaign_name</strong> archived";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
 }
 
 if(isset($_GET['delete_campaign'])){
     $campaign_id = intval($_GET['delete_campaign']);
 
+    //Get Campaign Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM campaigns WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $campaign_name = $row['campaign_name'];
+
     mysqli_query($mysqli,"DELETE FROM campaigns WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Deleted', log_description = '$campaign_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Delete', log_description = '$session_name deleted mail campaign $campaign_name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Campaign deleted";
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Campaign <strong>$campaign_name</strong> deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-  
 }
 
 if(isset($_GET['send_campaign'])){
@@ -1619,7 +1645,6 @@ if(isset($_GET['send_campaign'])){
 }
 
 // Products
-
 if(isset($_POST['add_product'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -1630,10 +1655,10 @@ if(isset($_POST['add_product'])){
 
     mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_currency_code = '$config_default_currency', product_created_at = NOW(), product_tax_id = $tax, product_category_id = $category, company_id = $session_company_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Create', log_description = '$session_name created product $name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Product added";
+    $_SESSION['alert_message'] = "Product <strong>$name</strong> created";
     
     header("Location: products.php");
 
@@ -1653,7 +1678,10 @@ if(isset($_POST['edit_product'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Product modified";
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Modify', log_description = '$session_name modifyed product $name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Product <strong>$name</strong> modified";
     
     header("Location: products.php");
 
@@ -1662,12 +1690,18 @@ if(isset($_POST['edit_product'])){
 if(isset($_GET['delete_product'])){
     $product_id = intval($_GET['delete_product']);
 
+    //Get Product Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM products WHERE product_id = $product_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $product_name = $row['product_name'];
+
     mysqli_query($mysqli,"DELETE FROM products WHERE product_id = $product_id AND company_id = $session_company_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Deleted', log_description = '$product_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Delete', log_description = '$session_name deleted product $name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Product deleted";
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Product <strong>$product_name</strong> deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
@@ -1685,8 +1719,8 @@ if(isset($_POST['add_trip'])){
 
     mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_created_at = NOW(), trip_client_id = $client_id, company_id = $session_company_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Created', log_description = '$date', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Create', log_description = '$session_name logged trip to $destination', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Trip added";
     

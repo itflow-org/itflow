@@ -40,7 +40,8 @@ if(isset($_GET['o'])){
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN logins ON login_asset_id = asset_id
-  WHERE asset_client_id = $client_id 
+  WHERE asset_client_id = $client_id
+  AND (asset_type = 'Laptop' OR asset_type = 'Desktop')
   AND (asset_name LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 

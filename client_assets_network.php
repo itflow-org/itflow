@@ -40,7 +40,8 @@ if(isset($_GET['o'])){
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN logins ON login_asset_id = asset_id
-  WHERE asset_client_id = $client_id 
+  WHERE asset_client_id = $client_id
+  AND (asset_type = 'Printer' OR asset_type = 'Camera' OR asset_type = 'Phone' OR asset_type = 'Switch' OR asset_type = 'Access Point' OR asset_type = 'Firewall/Router')
   AND (asset_name LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
@@ -88,9 +89,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_type&o=<?php echo $disp; ?>">Type</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_make&o=<?php echo $disp; ?>">Make/Model</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_serial&o=<?php echo $disp; ?>">Serial Number</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_os&o=<?php echo $disp; ?>">Operating System</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_install_date&o=<?php echo $disp; ?>">Install Date</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Contact</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_name&o=<?php echo $disp; ?>">Location</a></th>
             <th class="text-center">Action</th>  
           </tr>
@@ -138,13 +137,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $asset_contact_id = $row['asset_contact_id'];
             $asset_network_id = $row['asset_network_id'];
 
-            if($asset_type == 'Laptop'){
-              $device_icon = "laptop";
-            }elseif($asset_type == 'Desktop'){
-              $device_icon = "desktop";
-            }elseif($asset_type == 'Server'){
-              $device_icon = "server";
-            }elseif($asset_type == 'Printer'){
+            if($asset_type == 'Printer'){
               $device_icon = "print";
             }elseif($asset_type == 'Camera'){
               $device_icon = "video";
@@ -229,9 +222,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $asset_type; ?></td>
             <td><?php echo "$asset_make $asset_model"; ?></td>
             <td><?php echo $asset_serial_display; ?></td>
-            <td><?php echo $asset_os_display; ?></td>
             <td><?php echo $asset_install_date_display; ?></td>
-            <td><?php echo $contact_name; ?></td>
             <td><?php echo $location_name; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
