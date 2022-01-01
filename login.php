@@ -2,14 +2,11 @@
 
 if(!file_exists('config.php')){
   header("Location: setup.php");
+  exit;
 }
 
-?>
-
-<?php include("config.php"); ?>
-<?php include("functions.php"); ?>
-
-<?php 
+include("config.php");
+include("functions.php");
 
 //SESSION FINGERPRINT
 $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
@@ -18,10 +15,6 @@ $browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
 //$device = strip_tags(mysqli_real_escape_string($mysqli,get_device()));
 
 $user_agent = "$os - $browser";
-
-?>
-
-<?php
 
 session_start();
 

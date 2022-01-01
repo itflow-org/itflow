@@ -1,6 +1,8 @@
 <?php
 
-include("config.php");
+if(file_exists("config.php")){
+  include("config.php");
+}
 include("functions.php");
 
 if(!isset($config_enable_setup)){
@@ -9,6 +11,7 @@ if(!isset($config_enable_setup)){
 
 if($config_enable_setup == 0){
   header("Location: login.php");
+  exit;
 }
 
 $countries_array = array(
@@ -326,35 +329,29 @@ $currencies_array = array(
 
 if(isset($_POST['add_database'])){
 
+  if(file_exists('config.php')){
+    $_SESSION['alert_message'] = "Database already configured. Any further changes should be made by editing the config.php file.";
+    header("Location: setup.php?user");
+    exit;
+  }
+
   $host = $_POST['host'];
   $database = $_POST['database'];
   $username = $_POST['username'];
   $password = $_POST['password'];
   $config_base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
 
-  $myfile = fopen("config.php", "w");
+  $new_config = array();
+  $new_config[] = "<?php\n\n";
+  $new_config[] = sprintf("\$dbhost = '%s';\n", addslashes($dbhost));
+  $new_config[] = sprintf("\$dbusername = '%s';\n", addslashes($username));
+  $new_config[] = sprintf("\$dbpassword = '%s';\n", addslashes($password));
+  $new_config[] = sprintf("\$database = '%s';\n", addslashes($database));
+  $new_config[] = "\$mysqli = mysqli_connect(\$dbhost, \$dbusername, \$dbpassword, \$database) or die('Database Connection Failed');\n";
+  $new_config[] = "\$config_app_name = 'ITFlow';\n";
+  $new_config[] = sprintf("\$config_base_url = '%s';\n", addslashes($config_base_url));
 
-  $txt = "<?php\n\n";
-
-  fwrite($myfile, $txt);
-
-  $txt = "\$dbhost = \"$host\";\n\$dbusername = \"$username\";\n\$dbpassword = \"$password\";\n\$database = \"$database\";\n\n";
-
-  fwrite($myfile, $txt);
-
-  $txt = "\$mysqli = mysqli_connect(\$dbhost, \$dbusername, \$dbpassword, \$database) or die('Database Connection Failed');\n\n";
-
-  fwrite($myfile, $txt);
-
-  $txt = "\$config_app_name = 'ITFlow';\n";
-
-  fwrite($myfile, $txt);
-
-  $txt = "\$config_base_url = '$config_base_url';\n";
-
-  fwrite($myfile, $txt);
-
-  fclose($myfile);
+  file_put_contents("config.php", $new_config);
 
   include("config.php");
 
@@ -384,10 +381,17 @@ if(isset($_POST['add_database'])){
   $_SESSION['alert_message'] = "Database successfully added";
 
   header("Location: setup.php?user");
+  exit;
 
 }
 
 if(isset($_POST['add_user'])){
+  $user_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users;"));
+  if($user_count !== 0) {
+    $_SESSION['alert_message'] = "Users already exist in the database. Clear them to reconfigure here.";
+    header("Location: setup.php?company");
+    exit;
+  }
 
   $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
   $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
@@ -397,7 +401,7 @@ if(isset($_POST['add_user'])){
 
   $user_id = mysqli_insert_id($mysqli);
 
-  mkdir("uploads/users/$user_id");
+  mkdir_missing("uploads/users/$user_id");
 
   //Check to see if a file is attached
   if($_FILES['file']['tmp_name'] != ''){
@@ -448,6 +452,7 @@ if(isset($_POST['add_user'])){
   $_SESSION['alert_message'] = "User <strong>$name</strong> created!";
 
   header("Location: setup.php?company");
+  exit;
 
 }
 
@@ -475,11 +480,10 @@ if(isset($_POST['add_company_settings'])){
   $config_api_key = keygen();
   $config_aes_key = keygen();
 
-
-  mkdir("uploads/clients/$company_id");
-  mkdir("uploads/expenses/$company_id");
-  mkdir("uploads/settings/$company_id");
-  mkdir("uploads/tmp/$company_id");
+  mkdir_missing("uploads/clients/$company_id");
+  mkdir_missing("uploads/expenses/$company_id");
+  mkdir_missing("uploads/settings/$company_id");
+  mkdir_missing("uploads/tmp/$company_id");
 
   //Check to see if a file is attached
   if($_FILES['file']['tmp_name'] != ''){
@@ -552,13 +556,10 @@ if(isset($_POST['add_company_settings'])){
 
   fwrite($myfile, $txt);
 
-  $txt = "?>\n";
-
-  fwrite($myfile, $txt);
-
   fclose($myfile);
 
   header("Location: login.php");
+  exit;
 
 }
 
@@ -686,6 +687,10 @@ if(isset($_POST['add_company_settings'])){
               <h3 class="card-title"><i class="fa fa-fw fa-database"></i> Connect your Database</h3>
             </div>
             <div class="card-body">
+              <?php if(file_exists('config.php')){ ?>
+                Database already configured. Any further changes should be made by editing the config.php file,
+                or deleting it and refreshing this page.
+              <?php }else{ ?>
               <form method="post" autocomplete="off">
                 
                 <div class="form-group">
@@ -734,6 +739,7 @@ if(isset($_POST['add_company_settings'])){
                 <hr>
                 <button type="submit" name="add_database" class="btn btn-primary">Next <i class="fa fa-fw fa-arrow-circle-right"></i></button>
               </form>
+              <? } ?>
             </div>
           </div>
 
@@ -798,6 +804,9 @@ if(isset($_POST['add_company_settings'])){
               <h3 class="card-title"><i class="fa fa-fw fa-building"></i> Company Details</h3>
             </div>
             <div class="card-body">
+              <?php if(mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users;")) !== 0){ ?>
+                Database config invalid, or users already exist in the database.
+              <?php }else{ ?>
               <form method="post" enctype="multipart/form-data" autocomplete="off">
                 
                 <div class="form-group">
@@ -920,6 +929,7 @@ if(isset($_POST['add_company_settings'])){
                 <button type="submit" name="add_company_settings" class="btn btn-primary">Finish and Sign in <i class="fa fa-fw fa-check-circle"></i></button>
                   
               </form>
+              <?php } ?>
             </div>
           </div>
 

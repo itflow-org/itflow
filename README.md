@@ -6,6 +6,9 @@
 * USERNAME: demo@demo
 * PASSWORD: demo
 
+### Notice
+This project is still in early Beta stages and is considered work in progress we highly do not recommend storing any confiential information like passwords in ITFlow. Many changes are being permformed and may cause breakage upon updates. We are hoping to have a stable 1.0 release by July 2022.
+
 ### Features
 * Client Documentation
   * Contacts - Keep track of important individuals

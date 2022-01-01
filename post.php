@@ -1043,18 +1043,21 @@ if(isset($_POST['add_client'])){
     }
 
     //Add Tags
-    foreach($_POST['tags'] as $tag){
-        intval($tag);
-        mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
+    if(isset($_POST['tags'])){
+        foreach($_POST['tags'] as $tag){
+            intval($tag);
+            mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
+        }
     }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Create', log_description = '$session_name created $name$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Client created";
+    $_SESSION['alert_message'] = "Client <strong>$name</strong> created";
     
     header("Location: clients.php");
-
+    exit;
+    
 }
 
 if(isset($_POST['edit_client'])){

@@ -1,11 +1,13 @@
 <?php
+	
+	if(!isset($_SESSION)){
+    session_start();
+	}
+
 	//Check to see if setup is enabled
 	if(!isset($config_enable_setup) or $config_enable_setup == 1){
   	header("Location: setup.php");
-	}
-
-	if(!isset($_SESSION)){
-    session_start();
+  	exit;
 	}
 	
 	if(!$_SESSION['logged']){
