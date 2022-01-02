@@ -387,7 +387,7 @@ if(isset($_POST['add_database'])){
 
 if(isset($_POST['add_user'])){
   $user_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users"));
-  if($user_count !== 0) {
+  if($user_count < 0) {
     $_SESSION['alert_message'] = "Users already exist in the database. Clear them to reconfigure here.";
     header("Location: setup.php?company");
     exit;
@@ -804,7 +804,7 @@ if(isset($_POST['add_company_settings'])){
               <h3 class="card-title"><i class="fa fa-fw fa-building"></i> Company Details</h3>
             </div>
             <div class="card-body">
-              <?php if(mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users")) !== 0){ ?>
+              <?php if(mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users")) < 0){ ?>
                 Database config invalid, or users already exist in the database.
               <?php }else{ ?>
               <form method="post" enctype="multipart/form-data" autocomplete="off">
