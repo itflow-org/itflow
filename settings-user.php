@@ -190,6 +190,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
 
             <tr>
               <td><i class="fa fa-fw text-secondary fa-<?php echo $log_icon; ?>"></i> <?php echo $log_type; ?></td>
+              <td><?php echo $log_description; ?></td>
               <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
             </tr>
           <?php
