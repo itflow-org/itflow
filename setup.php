@@ -542,8 +542,8 @@ if(isset($_POST['add_company_settings'])){
 
   mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Service', category_type = 'Income', category_color = 'blue', category_created_at = NOW(), company_id = $company_id");
 
-  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Friend', category_type = 'Refferal', category_color = 'blue', category_created_at = NOW(), company_id = $company_id");
-  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Search Engine', category_type = 'Refferal', category_color = 'red', category_created_at = NOW(), company_id = $company_id");
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Friend', category_type = 'Referral', category_color = 'blue', category_created_at = NOW(), company_id = $company_id");
+  mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Search Engine', category_type = 'Referral', category_color = 'red', category_created_at = NOW(), company_id = $company_id");
 
   mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'blue', category_created_at = NOW(), company_id = $company_id");
   mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'red', category_created_at = NOW(), company_id = $company_id");

@@ -93,7 +93,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
           <div class="btn-group float-right">
             <a href="?category=Expense" class="btn <?php if($category == 'Expense'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Expense</a>
             <a href="?category=Income" class="btn <?php if($category == 'Income'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Income</a>
-            <a href="?category=Referral" class="btn <?php if($category == 'Referral'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Refferal</a>
+            <a href="?category=Referral" class="btn <?php if($category == 'Referral'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Referral</a>
             <a href="?category=Payment Method" class="btn <?php if($category == 'Payment Method'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Payment Method</a>
           </div>
         </div>
