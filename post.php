@@ -2917,7 +2917,7 @@ if(isset($_POST['add_recurring'])){
 
     $recurring_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_description = 'Recurring Invoice created!', history_created_at = NOW(), history_recurring_id = $recurring_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Active', history_description = 'Recurring Invoice created!', history_created_at = NOW(), history_recurring_id = $recurring_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Created', log_description = '$start_date - $category', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -2938,7 +2938,7 @@ if(isset($_POST['edit_recurring'])){
 
     mysqli_query($mysqli,"UPDATE recurring SET recurring_scope = '$scope', recurring_frequency = '$frequency', recurring_category_id = $category, recurring_status = $status, recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_description = 'Recurring modified', history_created_at = NOW(), history_recurring_id = $recurring_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$status', history_description = 'Recurring modified', history_created_at = NOW(), history_recurring_id = $recurring_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Modified', log_description = '$recurring_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -2975,36 +2975,6 @@ if(isset($_GET['delete_recurring'])){
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
-}
-
-if(isset($_GET['recurring_activate'])){
-
-    $recurring_id = intval($_GET['recurring_activate']);
-
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_status = 1 WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Modified', log_description = 'Activated', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
-
-    $_SESSION['alert_message'] = "Recurring Invoice Activated";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_GET['recurring_deactivate'])){
-
-    $recurring_id = intval($_GET['recurring_deactivate']);
-
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_status = 0 WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Modified', log_description = 'Deactivated', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
-
-    $_SESSION['alert_message'] = "Recurring Invoice Deactivated";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
 }
 
 if(isset($_POST['add_recurring_item'])){

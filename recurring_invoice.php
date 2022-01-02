@@ -85,11 +85,6 @@ if(isset($_GET['recurring_id'])){
 
     <div class="row">
       <div class="col-md-4">
-        <?php if($recurring_status == 1){ ?>
-          <a class="btn btn-secondary btn-sm" href="post.php?recurring_deactivate=<?php echo $recurring_id; ?>"><i class='fa fa-fw fa-ban'></i> Deactivate</a>
-        <? }else{ ?>
-          <a class="btn btn-success btn-sm" href="post.php?recurring_activate=<?php echo $recurring_id; ?>"><i class='fa fa-fw fa-check'></i> Activate</a>
-        <?php } ?>
       </div>
       <div class="col-md-8">
         <div class="dropdown dropleft text-center">

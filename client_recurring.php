@@ -146,12 +146,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                     <div class="dropdown-menu">
                       <a class="dropdown-item" href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>">Edit</a>
                       <div class="dropdown-divider"></div>
-                      <?php if($recurring_status == 1){ ?>
-                        <a class="dropdown-item" href="post.php?recurring_deactivate=<?php echo $recurring_id; ?>">Deactivate</a>
-                      <?php }else{ ?>
-                        <a class="dropdown-item" href="post.php?recurring_activate=<?php echo $recurring_id; ?>">Activate</a>
-                      <?php } ?>
-                      <div class="dropdown-divider"></div>
                       <a class="dropdown-item text-danger" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">Delete</a>
                     </div>
                   </div>      

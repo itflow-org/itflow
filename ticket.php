@@ -207,7 +207,7 @@ if(isset($_GET['ticket_id'])){
             <div class="media-body">
               <?php echo $ticket_reply_by_display; ?>
               <br>
-              <small class="text-muted"><?php echo $ticket_reply_created_at; ?> <?php if(!empty($ticket_reply_updated_at)){ echo "(modified: $ticket_reply_updated_at)"; } ?></small>
+              <small class="text-muted"><?php echo $ticket_reply_created_at; ?> <?php if(!empty($ticket_reply_updated_at)){ echo "modified: $ticket_reply_updated_at"; } ?></small>
             </div>
           </div>
         </h3>
