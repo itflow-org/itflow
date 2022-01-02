@@ -180,6 +180,7 @@ if(isset($_GET['ticket_id'])){
         $ticket_reply_id = $row['ticket_reply_id'];
         $ticket_reply = $row['ticket_reply'];
         $ticket_reply_created_at = $row['ticket_reply_created_at'];
+        $ticket_reply_updated_at = $row['ticket_reply_updated_at'];
         $ticket_reply_by = $row['ticket_reply_by'];
         $ticket_reply_by_display = $row['user_name'];
         $user_id = $row['user_id'];
@@ -206,7 +207,7 @@ if(isset($_GET['ticket_id'])){
             <div class="media-body">
               <?php echo $ticket_reply_by_display; ?>
               <br>
-              <small class="text-muted"><?php echo $ticket_reply_created_at; ?></small>
+              <small class="text-muted"><?php echo $ticket_reply_created_at; ?> <?php if(!empty($ticket_reply_updated_at)){ echo "(modified: $ticket_reply_updated_at)"; } ?></small>
             </div>
           </div>
         </h3>
