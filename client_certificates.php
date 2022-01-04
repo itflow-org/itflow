@@ -99,6 +99,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $certificate_issued_by = $row['certificate_issued_by'];
             $certificate_expire = $row['certificate_expire'];
             $certificate_updated_at = $row['certificate_updated_at'];
+            $certificate_public_key = $row['certificate_public_key'];
 
           ?>
           <tr>
