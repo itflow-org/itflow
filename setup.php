@@ -329,6 +329,7 @@ $currencies_array = array(
 
 if(isset($_POST['add_database'])){
 
+  // Check if database has been setup already. If it has, direct user to edit directly instead.
   if(file_exists('config.php')){
     $_SESSION['alert_message'] = "Database already configured. Any further changes should be made by editing the config.php file.";
     header("Location: setup.php?user");
@@ -951,6 +952,16 @@ if(isset($_POST['add_company_settings'])){
                 <li>Get List of Emails in CSV to export to a mailing list</li>
                 <li>Acquire balance can be useful for customer's to get their balance by phone</li>
               </ul>
+                <?php
+                    // Check that there is access to write config.php
+                    if (!file_put_contents("config.php", "Test")) {
+                        echo "<div class=\"alert alert-danger\" role=\"alert\">Warning: config.php is not writable. Ensure Apache has write access. </div>";
+                    }
+                    else {
+                        // Else, able to write. Tidy up
+                        unlink("config.php");
+                    }
+                ?>
               <center><a href="?database" class="btn btn-primary">Setup <i class="fa fa-fw fa-arrow-alt-circle-right"></i></a></center>
             </div>
           </div>
