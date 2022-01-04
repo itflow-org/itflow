@@ -51,15 +51,15 @@
             </div>
           </div>
 
-        <div class="form-group">
+          <div class="form-group">
             <label>Public Key </label>
             <div class="input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                </div>
-                <textarea class="form-control" name="public_key" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+              </div>
+              <textarea class="form-control" name="public_key" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
             </div>
-        </div>
+          </div>
 
         </div>
         <div class="modal-footer bg-white">

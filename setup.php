@@ -953,14 +953,13 @@ if(isset($_POST['add_company_settings'])){
                 <li>Acquire balance can be useful for customer's to get their balance by phone</li>
               </ul>
                 <?php
-                    // Check that there is access to write config.php
-                    if (!file_put_contents("config.php", "Test")) {
-                        echo "<div class=\"alert alert-danger\" role=\"alert\">Warning: config.php is not writable. Ensure Apache has write access. </div>";
-                    }
-                    else {
-                        // Else, able to write. Tidy up
-                        unlink("config.php");
-                    }
+                  // Check that there is access to write config.php
+                  if(!file_put_contents("config.php", "Test")){
+                    echo "<div class='alert alert-danger'>Warning: config.php is not writable. Ensure the webserver user has write access.</div>";
+                  }else{
+                    // Else, able to write. Tidy up
+                    unlink("config.php");
+                  }
                 ?>
               <center><a href="?database" class="btn btn-primary">Setup <i class="fa fa-fw fa-arrow-alt-circle-right"></i></a></center>
             </div>
