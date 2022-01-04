@@ -32,12 +32,12 @@
           </div>
 
           <div class="form-group">
-            <label>Issued By <strong class="text-danger">*</strong></label>
+            <label>Issued By</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
               </div>
-              <input type="text" class="form-control" name="issued_by" placeholder="Issued By" value="<?php echo $certificate_issued_by; ?>" required>
+              <input type="text" class="form-control" name="issued_by" placeholder="Issued By" value="<?php echo $certificate_issued_by; ?>">
             </div>
           </div>
         
@@ -50,6 +50,16 @@
               <input type="date" class="form-control" name="expire" value="<?php echo $certificate_expire; ?>"> 
             </div>
           </div>
+
+        <div class="form-group">
+            <label>Public Key </label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                </div>
+                <textarea class="form-control" name="public_key"><?php echo $certificate_public_key; ?></textarea>
+            </div>
+        </div>
 
         </div>
         <div class="modal-footer bg-white">
