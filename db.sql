@@ -186,6 +186,7 @@ CREATE TABLE `certificates` (
   `certificate_domain` varchar(200) DEFAULT NULL,
   `certificate_issued_by` varchar(200) NOT NULL,
   `certificate_expire` date DEFAULT NULL,
+  `certificate_public_key` varchar(1500) DEFAULT NULL,
   `certificate_notes` text DEFAULT NULL,
   `certificate_created_at` datetime NOT NULL,
   `certificate_updated_at` datetime DEFAULT NULL,
@@ -1153,4 +1154,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-12-27 12:04:12
+-- Dump completed on 2022-01-04 11:34:48

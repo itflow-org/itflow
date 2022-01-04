@@ -32,12 +32,12 @@
           </div>
           
           <div class="form-group">
-            <label>Issued By <strong class="text-danger">*</strong></label>
+            <label>Issued By </label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
               </div>
-              <input type="text" class="form-control" name="issued_by" placeholder="Issued By" required>
+              <input type="text" class="form-control" name="issued_by" placeholder="Issued By">
             </div>
           </div>
         
@@ -48,6 +48,16 @@
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
               </div>
               <input type="date" class="form-control" name="expire"> 
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Public Key </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+              </div>
+              <textarea class="form-control" name="public_key" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
             </div>
           </div>
 
