@@ -63,6 +63,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <?php
     //Alert Feedback
     if(!empty($_SESSION['alert_message'])){
+        if (!isset($_SESSION['alert_type'])){
+            $_SESSION['alert_type'] = "primary";
+        }
       ?>
         <div class="alert alert-info alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
           <?php echo $_SESSION['alert_message']; ?>
