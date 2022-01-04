@@ -36,7 +36,28 @@
     $disp = "ASC";
   }
 
+  // Ticket status from GET
+  if (isset($_GET['status']) && ($_GET['status']) == 'Open') {
+      $status = 'Open';
+  }
+  elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
+      $status = 'Closed';
+  }
+  else {
+      $status = '%';
+  }
+  if(isset($_GET['status'])) {
+    unset($_GET['status']);
+  }
+
   //Date Filter
+
+  if (empty($_GET['canned_date'])) {
+    //Prevents lots of undefined variable errors.
+    // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
+    $_GET['canned_date'] = 'custom';
+  }
+
   if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
     $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
     $dtt = mysqli_real_escape_string($mysqli,$_GET['dtt']);
@@ -109,9 +130,10 @@
         </div>
         <div class="col-sm-8">
           <div class="btn-group float-right">
-            <a href="<?php echo $_SERVER['REQUEST_URI']; ?>&status=%" class="btn <?php if($status == '%'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Tickets</a>
-            <a href="<?php echo $_SERVER['REQUEST_URI']; ?>&status=Open" class="btn <?php if($status == 'Open'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Open Tickets</a>
-            <a href="<?php echo $_SERVER['REQUEST_URI']; ?>&status=Closed" class="btn <?php if($status == 'Closed'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Closed Tickets</a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&status=%" class="btn <?php if($status == '%'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Tickets</a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&status=Open" class="btn <?php if($status == 'Open'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Open Tickets</a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&status=Closed" class="btn <?php if($status == 'Closed'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Closed Tickets</a>
+
           </div>
         </div>
       </div>
