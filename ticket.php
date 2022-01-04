@@ -35,8 +35,20 @@ if(isset($_GET['ticket_id'])){
   $ticket_updated_at = $row['ticket_updated_at'];
   $ticket_closed_at = $row['ticket_closed_at'];
   $ticket_created_by = $row['ticket_created_by'];
+  $ticket_asset_id = $row['ticket_asset_id'];
 
-  if($ticket_status == "Open"){
+  // Convert asset id to asset name
+  $ticket_asset_sql_result = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_client_id = '$client_id' AND asset_id = '$ticket_asset_id' LIMIT 1");
+  if (mysqli_num_rows($ticket_asset_sql_result) > 0) {
+      // Set asset name
+      $ticket_asset_name = mysqli_fetch_array($ticket_asset_sql_result);
+      $ticket_asset_name = htmlentities($ticket_asset_name['asset_name']);
+  }
+  else {
+      $ticket_asset_name = '';
+  }
+
+      if($ticket_status == "Open"){
     $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
   }elseif($ticket_status == "Working"){
     $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
@@ -303,6 +315,7 @@ if(isset($_GET['ticket_id'])){
       <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i> <?php echo $ticket_priority_display; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $ticket_assigned_to_display; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_at; ?></div>
+        <div class="ml-1"><i class="fa fa-fw fa-desktop text-secondary mr-2 mb-2"></i> <?php echo $ticket_asset_name; ?></div>
     </div>
 
   </div>
