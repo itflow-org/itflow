@@ -5036,12 +5036,22 @@ if(isset($_POST['add_document'])){
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $tags_ids = $_POST['tags_ids'];
     $content = trim(mysqli_real_escape_string($mysqli,$_POST['content']));
 
-    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_created_at = NOW(), document_client_id = $client_id, company_id = $session_company_id");
+    // Document add query
+    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_created_at = NOW(), document_client_id = $client_id, company_id = $session_company_id");
+    $document_id = $mysqli->insert_id;
 
-    //Logging
+    // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Created', log_description = '$details', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    // Add tags
+    foreach($tags_ids as $tag_id) {
+        if (intval($tag_id)) {
+            mysqli_query($mysqli, "INSERT INTO documents_tagged SET document_id = '$document_id', tag_id = '$tag_id'");
+        }
+    }
 
     $_SESSION['alert_message'] = "Document added";
     
@@ -5053,12 +5063,24 @@ if(isset($_POST['edit_document'])){
 
     $document_id = intval($_POST['document_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $tags_ids = $_POST['tags_ids'];
     $content = trim(mysqli_real_escape_string($mysqli,$_POST['content']));
 
+    // Document edit query
     mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_updated_at = NOW() WHERE document_id = $document_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Note', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    // Remove any old tags
+    mysqli_query($mysqli, "DELETE FROM documents_tagged WHERE document_id = $document_id");
+
+    // Add tags
+    foreach($tags_ids as $tag_id) {
+        if (intval($tag_id)) {
+            mysqli_query($mysqli, "INSERT INTO documents_tagged SET document_id = '$document_id', tag_id = '$tag_id'");
+        }
+    }
 
     $_SESSION['alert_message'] = "Document updated";
     
@@ -5078,6 +5100,41 @@ if(isset($_GET['delete_document'])){
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
+}
+
+if (isset($_POST['add_document_tag'])) {
+    $client_id = intval($_POST['client_id']);
+    $tag_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['tag_name'])));
+
+    mysqli_query($mysqli,"INSERT INTO document_tags SET client_id = '$client_id', tag_name = '$tag_name'");
+
+    $_SESSION['alert_message'] = "Document tag added";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['delete_document_tag'])) {
+    $tag_id = intval($_POST['tag_id']);
+
+    // Delete the tag ID
+    mysqli_query($mysqli, "DELETE FROM document_tags WHERE tag_id = '$tag_id'");
+
+    // Delete the associations to documents
+    mysqli_query($mysqli, "DELETE FROM documents_tagged WHERE tag_id = '$tag_id'");
+
+    $_SESSION['alert_message'] = "Document tag deleted";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['rename_document_tag'])) {
+    $tag_id = intval($_POST['tag_id']);
+    $tag_new_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['tag_new_name'])));
+
+    // Rename tag in db
+    mysqli_query($mysqli, "UPDATE document_tags SET tag_name = '$tag_new_name' WHERE tag_id = '$tag_id'");
+
+    $_SESSION['alert_message'] = "Document tag updated";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
 
 if(isset($_GET['force_recurring'])){
