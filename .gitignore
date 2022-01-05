@@ -11,3 +11,4 @@ uploads/users/*
 !uploads/users/index.php
 uploads/tmp/*
 !uploads/tmp/index.php
+.idea/*
