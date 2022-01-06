@@ -246,7 +246,7 @@ $location_phone = formatPhoneNumber($location_phone);
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item text-danger" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
+            <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">Delete</a>
           </div>
         </div>
       </div>
@@ -259,6 +259,7 @@ $location_phone = formatPhoneNumber($location_phone);
   include("client_routes.php");
   include("edit_client_modal.php");
   include("add_quick_modal.php");
+  include("delete_client_modal.php");
 
   }
 

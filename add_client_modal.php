@@ -144,12 +144,12 @@
             <div class="tab-pane fade" id="pills-contact">
 
               <div class="form-group">
-                <label>Primary Contact</label>
+                <label>Primary Contact <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="contact" placeholder="Primary Contact Person"> 
+                  <input type="text" class="form-control" name="contact" placeholder="Primary Contact Person" required autofocus>
                 </div>
               </div>
 
