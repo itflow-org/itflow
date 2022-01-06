@@ -36,14 +36,42 @@ if(isset($_GET['o'])){
   $disp = "DESC";
 }
 
+# Tag from GET
+if (isset($_GET['tag'])) {
+    $tag = intval($_GET['tag']);
+    # Avoid doubling up
+    unset($_GET['tag']);
+}
+else {
+    $tag = '';
+}
+
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
- 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM documents 
+
+# Currently using two separate queries: one with and one without tags
+# If we use a query with tags with no tags set (or even %), then documents appear twice
+
+$sql_no_tag = "SELECT SQL_CALC_FOUND_ROWS * FROM documents
   WHERE document_client_id = $client_id
   AND documents.company_id = $session_company_id
-  AND (document_name LIKE '%$q%' OR document_content LIKE '%$q%') 
-  ORDER BY $sb $o LIMIT $record_from, $record_to");
+  AND (document_name LIKE '%$q%' OR document_content LIKE '%$q%')
+  ORDER BY $sb $o LIMIT $record_from, $record_to";
+
+$sql_with_tag = "SELECT SQL_CALC_FOUND_ROWS * FROM documents
+  LEFT JOIN documents_tagged ON documents.document_id = documents_tagged.document_id
+  WHERE document_client_id = $client_id
+  AND documents.company_id = $session_company_id
+  AND (document_name LIKE '%$q%' OR document_content LIKE '%$q%')
+  AND documents_tagged.tag_id LIKE '%$tag%'
+  ORDER BY $sb $o LIMIT $record_from, $record_to";
+
+if (empty($tag)) {
+    $sql = mysqli_query($mysqli, $sql_no_tag);
+}
+else {
+    $sql = mysqli_query($mysqli, $sql_with_tag);
+}
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
@@ -54,9 +82,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-alt"></i> Documents</h3>
     <div class="card-tools">
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDocumentModal"><i class="fas fa-fw fa-plus"></i> New Document</button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#manageTagsModal"><i class="fas fa-fw fa-tags"></i> Tags</button>
     </div>
   </div>
   <div class="card-body">
+      <div class="form-group">
+      <?php
+      # Show client document tags from database, allow user to filter documents using these
+      $document_tags = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM document_tags WHERE client_id = $client_id ORDER BY tag_name");
+      if (mysqli_num_rows($document_tags) > 0) {
+          foreach($document_tags as $document_tag) {
+              echo "<a href='?$url_query_strings_sb&tag=$document_tag[tag_id]' class=\"btn btn-outline-primary btn-lg mr-1\">"; echo htmlentities($document_tag['tag_name']); echo "</a>";
+          }
+      }
+      else {
+          $document_tags = FALSE;
+      }
+       ?>
+      </div>
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
       <input type="hidden" name="tab" value="<?php echo $_GET['tab']; ?>">
@@ -97,6 +140,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $document_created_at = $row['document_created_at'];
             $document_updated_at = $row['document_updated_at'];
 
+            // Get the tags set for the current document, store them as $document_tags_set
+            // There is probably a nicer way to do this, but this works.
+            $query_tags_set = mysqli_query($mysqli, "SELECT tag_id FROM documents_tagged WHERE document_id = $document_id");
+            $document_tags_set = array();
+            if ($query_tags_set){
+                foreach($query_tags_set as $query_tag) {
+                    array_push($document_tags_set, $query_tag['tag_id']);
+                }
+            }
+
           ?>
 
           <tr>
@@ -135,3 +188,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 </div>
 
 <?php include("add_document_modal.php"); ?>
+<?php include("manage_document_tags_modal.php"); ?>

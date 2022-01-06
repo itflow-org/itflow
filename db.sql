@@ -355,6 +355,30 @@ CREATE TABLE `documents` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `documents_tagged`
+--
+
+DROP TABLE IF EXISTS `documents_tagged`;
+CREATE TABLE IF NOT EXISTS `documents_tagged` (
+  `document_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+COMMIT;
+
+--
+-- Table structure for table `document_tags`
+--
+
+DROP TABLE IF EXISTS `document_tags`;
+CREATE TABLE IF NOT EXISTS `document_tags` (
+  `tag_id` int(11) NOT NULL AUTO_INCREMENT,
+  `client_id` int(11) NOT NULL,
+  `tag_name` varchar(15) NOT NULL,
+  PRIMARY KEY (`tag_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+COMMIT;
+
+--
 -- Table structure for table `domains`
 --
 
