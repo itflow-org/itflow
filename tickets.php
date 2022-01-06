@@ -36,17 +36,15 @@
     $disp = "ASC";
   }
 
-  // Ticket status from GET
-  if (isset($_GET['status']) && ($_GET['status']) == 'Open') {
-      $status = 'Open';
+  //Ticket status from GET
+  if(isset($_GET['status']) && ($_GET['status']) == 'Open'){
+    $status = 'Open';
+  }elseif(isset($_GET['status']) && ($_GET['status']) == 'Closed'){
+    $status = 'Closed';
+  }else{
+    $status = '%';
   }
-  elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
-      $status = 'Closed';
-  }
-  else {
-      $status = '%';
-  }
-  if(isset($_GET['status'])) {
+  if(isset($_GET['status'])){
     unset($_GET['status']);
   }
 
@@ -117,6 +115,7 @@
   </div>
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
+      <input type="hidden" name="status" value="<?php echo $status; ?>"> 
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
