@@ -44,9 +44,12 @@
   }else{
     $status = '%';
   }
-  if(isset($_GET['status'])){
-    unset($_GET['status']);
-  }
+  
+  //$url_query_strings_sb = http_build_query(array_merge($_GET,array('ticket_status' => $status)));
+
+  //if(isset($_GET['status'])){
+    //unset($_GET['status']);
+  //}
 
   //Date Filter
 
@@ -90,7 +93,7 @@
 
   //Rebuild URL
 
-  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o, 'ticket_status' => $status)));
 
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM tickets 
     LEFT JOIN clients ON ticket_client_id = client_id

@@ -87,6 +87,20 @@
     $disp = "ASC";
   }
 
+  //Invoice status from GET
+  if(isset($_GET['status']) && ($_GET['status']) == 'Draft'){
+    $status = 'Draft';
+  }elseif(isset($_GET['status']) && ($_GET['status']) == 'Sent'){
+    $status = 'Sent';
+  }elseif(isset($_GET['status']) && ($_GET['status']) == 'Viewed'){
+    $status = 'Viewed';
+  }elseif(isset($_GET['status']) && ($_GET['status']) == 'Partial'){
+    $status = 'Partial';
+  }else{
+    $status = '%';
+  }
+  
+
   //Date Filter
   if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
     $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
@@ -127,6 +141,7 @@
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN categories ON invoice_category_id = category_id
     WHERE invoices.company_id = $session_company_id
+    AND invoice_status LIKE '%$status%'
     AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR category_name LIKE '%$q%') 
     ORDER BY $sb $o LIMIT $record_from, $record_to");
@@ -138,7 +153,7 @@
 <div class="row">
   <div class="col-lg-3">
     <!-- small box -->
-    <a href="?q=Draft" class="small-box bg-secondary">
+    <a href="?<?php echo $url_query_strings_sb; ?>&?status=Draft" class="small-box bg-secondary">
       <div class="inner">
         <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_draft,2); ?></h3>
         <p><?php echo $draft_count; ?> Draft</p>
@@ -152,7 +167,7 @@
 
   <div class="col-lg-3">
     <!-- small box -->
-    <a href="?q=Sent" class="small-box bg-warning">
+    <a href="?<?php echo $url_query_strings_sb; ?>&status=Sent" class="small-box bg-warning">
       <div class="inner text-white">
         <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_sent,2); ?></h3>
         <p><?php echo $sent_count; ?> Sent</p>
@@ -166,7 +181,7 @@
 
   <div class="col-lg-3">
     <!-- small box -->
-    <a href="?q=Viewed" class="small-box bg-info">
+    <a href="?<?php echo $url_query_strings_sb; ?>&status=Viewed" class="small-box bg-info">
       <div class="inner">
         <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_viewed,2); ?></h3>
         <p><?php echo $viewed_count; ?> Viewed</p>
@@ -180,7 +195,7 @@
 
   <div class="col-lg-3">
     <!-- small box -->
-    <a href="?q=Partial" class="small-box bg-primary">
+    <a href="?<?php echo $url_query_strings_sb; ?>&status=Partial" class="small-box bg-primary">
       <div class="inner">
         <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_partial,2); ?></h3>
         <p><?php echo $partial_count; ?> Partial</p>
@@ -204,6 +219,7 @@
 
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
+      <input type="hidden" name="status" value="<?php echo $status; ?>">
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
