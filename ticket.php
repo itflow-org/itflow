@@ -6,7 +6,13 @@
 if(isset($_GET['ticket_id'])){
   $ticket_id = intval($_GET['ticket_id']);
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM tickets LEFT JOIN clients ON ticket_client_id = client_id LEFT JOIN contacts ON ticket_contact_id = contact_id LEFT JOIN users ON ticket_assigned_to = user_id LEFT JOIN locations ON ticket_location_id = location_id WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id");
+  $sql = mysqli_query($mysqli,"SELECT * FROM tickets 
+    LEFT JOIN clients ON ticket_client_id = client_id 
+    LEFT JOIN contacts ON ticket_contact_id = contact_id 
+    LEFT JOIN users ON ticket_assigned_to = user_id 
+    LEFT JOIN locations ON ticket_location_id = location_id
+    LEFT JOIN assets ON ticket_asset_id = asset_id
+    WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id");
 
   if(mysqli_num_rows($sql) == 0){
     echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='tickets.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
@@ -35,20 +41,8 @@ if(isset($_GET['ticket_id'])){
   $ticket_updated_at = $row['ticket_updated_at'];
   $ticket_closed_at = $row['ticket_closed_at'];
   $ticket_created_by = $row['ticket_created_by'];
-  $ticket_asset_id = $row['ticket_asset_id'];
 
-  // Convert asset id to asset name
-  $ticket_asset_sql_result = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_client_id = '$client_id' AND asset_id = '$ticket_asset_id' LIMIT 1");
-  if (mysqli_num_rows($ticket_asset_sql_result) > 0) {
-      // Set asset name
-      $ticket_asset_name = mysqli_fetch_array($ticket_asset_sql_result);
-      $ticket_asset_name = htmlentities($ticket_asset_name['asset_name']);
-  }
-  else {
-      $ticket_asset_name = '';
-  }
-
-      if($ticket_status == "Open"){
+  if($ticket_status == "Open"){
     $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
   }elseif($ticket_status == "Working"){
     $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
@@ -73,6 +67,15 @@ if(isset($_GET['ticket_id'])){
   $contact_phone = formatPhoneNumber($row['contact_phone']);
   $contact_extension = $row['contact_extension'];
   $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+  
+  $asset_id = $row['asset_id'];
+  $asset_name = htmlentities($row['asset_name']);
+  $asset_type = htmlentities($row['asset_type']);
+  $asset_make = htmlentities($row['asset_make']);
+  $asset_model = htmlentities($row['asset_model']);
+  $asset_serial = htmlentities($row['asset_serial']);
+  $asset_os = htmlentities($row['asset_os']);
+
   $location_name = $row['location_name'];
   $location_address = $row['location_address'];
   $location_city = $row['location_city'];
@@ -310,12 +313,50 @@ if(isset($_GET['ticket_id'])){
 
     <?php } ?>
 
+    <?php if(!empty($asset_id)){ ?>
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <div>  
+          <h4 class="text-secondary">Asset</h4>
+          <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i> <?php echo $asset_name; ?>
+          <br>
+          <?php
+          if(!empty($asset_make)){
+          ?>
+          <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> <?php echo "$asset_make $asset_model"; ?>
+          <br>
+          <?php
+          }
+          ?>
+          <?php
+          if(!empty($asset_serial)){
+          ?>
+          <i class="fa fa-fw fa-barcode text-secondary ml-1 mr-2 mb-2"></i> <?php echo $asset_serial; ?>
+          <br>
+          <?php
+          }
+          ?>
+          <?php
+          if(!empty($asset_os)){
+          ?>
+          <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> <?php echo $asset_os; ?>
+          <br>
+          <?php 
+          } 
+          ?>
+        </div>
+      </div>
+    </div>
+
+    <?php } ?>
+
+
     <div class="card card-body mb-3"> 
       <h4 class="text-secondary">Details</h4>
       <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i> <?php echo $ticket_priority_display; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $ticket_assigned_to_display; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_at; ?></div>
-        <div class="ml-1"><i class="fa fa-fw fa-desktop text-secondary mr-2 mb-2"></i> <?php echo $ticket_asset_name; ?></div>
     </div>
 
   </div>
