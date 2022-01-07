@@ -870,6 +870,7 @@ CREATE TABLE IF NOT EXISTS `scheduled_tickets` (
                                                  `scheduled_ticket_updated_at` datetime DEFAULT NULL,
                                                  `scheduled_ticket_created_by` int(11) NOT NULL,
                                                  `scheduled_ticket_client_id` int(11) DEFAULT NULL,
+                                                 `scheduled_ticket_contact_id` int(11) DEFAULT NULL,
                                                  `scheduled_ticket_asset_id` int(11) DEFAULT NULL,
                                                  `company_id` int(11) NOT NULL,
                                                  PRIMARY KEY (`scheduled_ticket_id`)

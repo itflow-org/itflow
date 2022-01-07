@@ -32,6 +32,10 @@ while($row = mysqli_fetch_array($sql_companies)){
   $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
   $config_base_url = $row['config_base_url'];
 
+  //Tickets
+  $config_ticket_prefix = $row['config_ticket_prefix'];
+  $config_ticket_next_number = $row['config_ticket_next_number'];
+
   if($config_enable_cron == 1){
 
     //GET ALERTS
@@ -286,6 +290,62 @@ while($row = mysqli_fetch_array($sql_companies)){
     //Send Alert to inform Cron was run
     mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Cron', alert_message = 'Cron.php successfully executed', alert_date = NOW(), company_id = $company_id");
   } //End Cron Check
+
+  // Scheduled tickets
+  // This should really be somewhere else above, but I don't want to break anything. Please move as appropriate.
+
+  // Get date now, and calculate tomorrow's date (presuming this is being run at 11 PM)
+  $now = new DateTime();
+  $tomorrow = date_add($now, date_interval_create_from_date_string('1 day'));
+  $tomorrow_text = $tomorrow->format('Y-m-d');
+
+  // Get scheduled tickets for tomorrow
+  $sql_scheduled_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_next_run = '$tomorrow_text'");
+
+  if(mysqli_num_rows($sql_scheduled_tickets) > 0){
+    while($row = mysqli_fetch_array($sql_scheduled_tickets)){
+      $schedule_id = $row['scheduled_ticket_id'];
+      $subject = $row['scheduled_ticket_subject'];
+      $details = $row['scheduled_ticket_details'];
+      $priority = $row['scheduled_ticket_priority'];
+      $frequency = strtolower($row['scheduled_ticket_frequency']);
+      $created_id = $row['scheduled_ticket_created_by'];
+      $client_id = $row['scheduled_ticket_client_id'];
+      $contact_id = $row['scheduled_ticket_contact_id'];
+      $asset_id = $row['scheduled_ticket_asset_id'];
+      $company_id = $row['company_id'];
+
+      //Get the next Ticket Number and add 1 for the new ticket number
+      $ticket_number = $config_ticket_next_number;
+      $new_config_ticket_next_number = $config_ticket_next_number + 1;
+      mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = '$company_id'");
+
+      mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $created_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, company_id = $company_id");
+
+      //Logging
+      mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created scheduled $frequency ticket - $subject', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id, log_user_id = $created_id");
+
+      //Set the next run date
+      if($frequency == "weekly"){
+        //NOTE: We seemingly have to initialize a new datetime for each loop.
+        //Otherwise it stacks the dates of $now / $tomorrow, e.g. by the third scheduled ticket it will schedule the next run for three weeks/months out instead of one
+        //This isn't clean but it works
+        //TODO: Refactor this
+        $now = new DateTime();
+        $next_run = date_add($now, date_interval_create_from_date_string('1 week 1 day'));
+      }
+      elseif($frequency == "monthly"){
+        $now = new DateTime();
+        $next_run = date_add($now, date_interval_create_from_date_string('1 month 1 day'));
+      }
+
+      //Update the run date
+      $next_run = $next_run->format('Y-m-d');
+      $a = mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_next_run = '$next_run' WHERE scheduled_ticket_id = '$schedule_id'");
+
+    }
+  }
+
 } //End Company Loop through
 
 ?>
