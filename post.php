@@ -4863,6 +4863,30 @@ if(isset($_POST['add_ticket'])){
 
 }
 
+if(isset($_POST['add_scheduled_ticket'])){
+    $client_id = intval($_POST['client']);
+    $contact = intval($_POST['contact']);
+    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
+    $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
+    $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
+    $asset_id = intval($_POST['asset']);
+    $frequency = trim(mysqli_real_escape_string($mysqli,$_POST['frequency']));
+    $start_date = mysqli_real_escape_string($mysqli,$_POST['start_date']);
+
+    if($client_id > 0 AND $contact == 0){
+        $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+        $row = mysqli_fetch_array($sql);
+        $contact = $row['primary_contact'];
+    }
+
+    mysqli_query($mysqli, "INSERT INTO scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_start_date = '$start_date', scheduled_ticket_next_run = '$start_date', scheduled_ticket_created_at = NOW(), scheduled_ticket_created_by = '$session_user_id', scheduled_ticket_client_id = '$client_id', scheduled_ticket_contact_id = '$contact', scheduled_ticket_asset_id = '$asset_id', company_id = '$session_company_id'");
+
+    $_SESSION['alert_message'] = "Scheduled ticket created.";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['edit_ticket'])){
 
     $ticket_id = intval($_POST['ticket_id']);
