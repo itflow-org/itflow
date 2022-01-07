@@ -4884,6 +4884,24 @@ if(isset($_POST['edit_ticket'])){
 
 }
 
+if(isset($_POST['assign_ticket'])){
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $assigned_to = intval($_POST['assigned_to']);
+
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_updated_at = NOW(), ticket_assigned_to = $assigned_to WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
+
+    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket re-assigned', ticket_reply_created_at = NOW(), ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modified', log_description = '$subject', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Ticket re-assigned";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_GET['delete_ticket'])){
     $ticket_id = intval($_GET['delete_ticket']);
 

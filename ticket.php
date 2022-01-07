@@ -90,6 +90,12 @@ if(isset($_GET['ticket_id'])){
     $ticket_assigned_to_display = $row['user_name'];
   }
 
+  if($contact_id == $primary_contact){
+     $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
+  }else{
+    $primary_contact_display = "<small class='text-danger'>Needs approval</small>";
+  }
+
 ?>
 
 <!-- Breadcrumbs-->
@@ -134,59 +140,6 @@ if(isset($_GET['ticket_id'])){
         <?php echo $ticket_details; ?>
       </div>
     </div>
-
-    <form class="mb-3" action="post.php" method="post" autocomplete="off">
-      <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-      <div class="form-group">
-        <textarea class="form-control summernote" name="ticket_reply" required></textarea>
-      </div>
-      <div class="form-row">
-        <div class="col-md-3">
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-              </div>
-              <select class="form-control select2" name="status" required>
-                <option <?php if($ticket_status == 'Open'){ echo "selected"; } ?> >Open</option>
-                <option <?php if($ticket_status == 'Working'){ echo "selected"; } ?> >Working</option>
-                <option <?php if($ticket_status == 'On Hold'){ echo "selected"; } ?> >On Hold</option>
-                <option <?php if($ticket_status == 'Closed'){ echo "selected"; } ?> >Closed</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
-
-        <div class="col-md-2">
-          <div class="form-group">
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_ticket_reply" value="1" checked>
-              <label class="custom-control-label" for="customControlAutosizing">Email update to client</label>
-            </div>
-          </div>
-        </div>
-
-        <?php } ?>
-        
-        <div class="col-md-1">
-          <button type="submit" name="add_ticket_reply" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save</button>
-        </div>
-
-        <?php
-        if($ticket_status !== "Closed"){
-        ?>
-          <div class="col-md-2">
-            <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">Close Ticket</a>
-          </div>
-        <?php
-        }
-        ?>
-
-      </div>
-    
-    </form>
 
     <?php
     $sql = mysqli_query($mysqli,"SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL ORDER BY ticket_reply_id DESC");
@@ -253,6 +206,49 @@ if(isset($_GET['ticket_id'])){
     }
     
     ?>
+
+    <form class="mb-3" action="post.php" method="post" autocomplete="off">
+      <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+      <div class="form-group">
+        <textarea class="form-control summernote" name="ticket_reply" required></textarea>
+      </div>
+      <div class="form-row">
+        <div class="col-md-3">
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+              </div>
+              <select class="form-control select2" name="status" required>
+                <option <?php if($ticket_status == 'Open'){ echo "selected"; } ?> >Open</option>
+                <option <?php if($ticket_status == 'Working'){ echo "selected"; } ?> >Working</option>
+                <option <?php if($ticket_status == 'On Hold'){ echo "selected"; } ?> >On Hold</option>
+                <option <?php if($ticket_status == 'Closed'){ echo "selected"; } ?> >Closed</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
+
+        <div class="col-md-2">
+          <div class="form-group">
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_ticket_reply" value="1" checked>
+              <label class="custom-control-label" for="customControlAutosizing">Email update to client</label>
+            </div>
+          </div>
+        </div>
+
+        <?php } ?>
+        
+        <div class="col-md-2">
+          <button type="submit" name="add_ticket_reply" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save & Reply</button>
+        </div>
+
+      </div>
+    
+    </form>
   
   </div>
 
@@ -262,7 +258,7 @@ if(isset($_GET['ticket_id'])){
       <div class="card-body">
         <div>  
           <h4 class="text-secondary">Client</h4>
-          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <?php echo $client_name; ?>
+          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <strong><?php echo strtoupper($client_name); ?></strong>
         </div>
       </div>
     </div>
@@ -273,8 +269,10 @@ if(isset($_GET['ticket_id'])){
       <div class="card-body">
         <div>  
           <h4 class="text-secondary">Contact</h4>
-          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <?php echo $contact_name; ?>
+          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <strong><?php echo strtoupper($contact_name); ?></strong>
           <br>
+          <i class="fa fa-fw fa-info-circle text-secondary ml-1 mr-2 mb-2"></i> <?php echo $primary_contact_display; ?>
+          <hr>
           <?php
           if(!empty($location_name)){
           ?>
@@ -319,7 +317,7 @@ if(isset($_GET['ticket_id'])){
       <div class="card-body">
         <div>  
           <h4 class="text-secondary">Asset</h4>
-          <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i> <?php echo $asset_name; ?>
+          <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i> <strong><?php echo strtoupper($asset_name); ?></strong>
           <br>
           <?php
           if(!empty($asset_make)){
@@ -351,13 +349,57 @@ if(isset($_GET['ticket_id'])){
 
     <?php } ?>
 
-
     <div class="card card-body mb-3"> 
       <h4 class="text-secondary">Details</h4>
       <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i> <?php echo $ticket_priority_display; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $ticket_assigned_to_display; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_at; ?></div>
     </div>
+
+    <form action="post.php" method="post">
+      <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+      <div class="form-group">
+        <label>Assigned to</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+          </div>
+          <select class="form-control select2" name="assigned_to">
+            <option value="">Not Assigned</option>
+            <?php 
+            
+            $sql_assign_to_select = mysqli_query($mysqli,"SELECT * FROM users, user_companies WHERE users.user_id = user_companies.user_id AND user_companies.company_id = $session_company_id ORDER BY user_name ASC");
+            while($row = mysqli_fetch_array($sql_assign_to_select)){
+              $user_id = $row['user_id'];
+              $user_name = $row['user_name'];
+            ?>
+            <option <?php if($ticket_assigned_to == $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+            
+            <?php
+            }
+            ?>
+          </select>
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-primary" name="assign_ticket"><i class="fas fa-check"></i></button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <?php
+    if($ticket_status !== "Closed"){
+    ?>
+    
+    <div class="card card-body mb-2">      
+     <div class="">
+        <a href="#" class="btn btn-outline-success btn-block">INVOICE</a>
+        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">CLOSE TICKET</a>
+      </div>
+    </div>
+    
+    <?php
+    }
+    ?>
 
   </div>
 
