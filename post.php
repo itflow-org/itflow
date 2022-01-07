@@ -4136,50 +4136,46 @@ if (isset($_POST["import_client_assets_csv"])) {
     $client_id = intval($_POST['client_id']);
 	$file_name = $_FILES["file"]["tmp_name"];
 
-	if ($_FILES["file"]["size"] > 0) {
+	if($_FILES["file"]["size"] > 0){
         $file = fopen($file_name, "r");
         fgetcsv($file, 1000, ","); // Skip first line
-        while (($column = fgetcsv($file, 1000, ",")) !== FALSE) {
-            if (isset($column[0])) {
+        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
+            if(isset($column[0])) {
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
             }
-            if (isset($column[1])) {
+            if(isset($column[1])){
                 $type = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[1])));
             }
-            if (isset($column[2])) {
+            if(isset($column[2])){
                 $make = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[2])));
             }
-            if (isset($column[3])) {
+            if(isset($column[3])){
                 $model = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[3])));
             }
-            if (isset($column[4])) {
+            if(isset($column[4])){
                 $serial = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[4])));
             }
-            if (isset($column[5])) {
+            if(isset($column[5])){
                 $os = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[5])));
             }
             // Potentially import the rest in the future?
 
-            // Add
+            //Add
             mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_created_at = NOW(), asset_client_id = $client_id, company_id = $session_company_id");
 
             //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Import', log_description = '$session_name imported CSV file into assets', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
         }
         fclose($file);
 
-        $_SESSION['alert_message'] = "Asset added";
-
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-    }
-	else {
+        $_SESSION['alert_message'] = "Assets added via CSV file";       
+    }else{
 	    // The file was empty
 	    $_SESSION['alert_type'] = "warning";
         $_SESSION['alert_message'] = "Something went wrong";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
-
 
 if(isset($_POST['edit_asset'])){
 
