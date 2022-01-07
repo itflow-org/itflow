@@ -125,10 +125,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $contact_notes = $row['contact_notes'];
             $contact_created_at = $row['contact_created_at'];
             if($contact_id == $primary_contact){
-              $primary_contact_display = "<p class='text-success'>Primary Contact</p>";
+                $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
             }else{
-              $primary_contact_display = "";
-            }           
+              $primary_contact_display = "<small class='text-danger'>Needs approval</small>";
+            }            
       
           ?>
           <tr>
