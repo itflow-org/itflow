@@ -200,7 +200,7 @@ if(isset($_GET['ticket_id'])){
         $ticket_reply_by_display = $row['user_name'];
         $user_id = $row['user_id'];
         $user_avatar = $row['user_avatar'];
-        $user_initials = initials($user_name);
+        $user_initials = initials($row['user_name']);
     ?>
 
     <div class="card mb-3">
