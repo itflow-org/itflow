@@ -3773,7 +3773,7 @@ if(isset($_POST['edit_contact'])){
             $dest_path = $upload_file_dir . $new_file_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
-
+asset
             //Delete old file
             unlink("uploads/clients/$session_company_id/$client_id/$existing_file_name");
             
@@ -4139,8 +4139,9 @@ if (isset($_POST["import_client_assets_csv"])) {
 	if($_FILES["file"]["size"] > 0){
         $file = fopen($file_name, "r");
         fgetcsv($file, 1000, ","); // Skip first line
-        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
-            if(isset($column[0])) {
+        $count = 0;
+        while (($column = fgetcsv($file, 1000, ",")) !== FALSE) {
+            if (isset($column[0])) {
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
             }
             if(isset($column[1])){
@@ -4164,12 +4165,17 @@ if (isset($_POST["import_client_assets_csv"])) {
             mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_created_at = NOW(), asset_client_id = $client_id, company_id = $session_company_id");
 
             //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Import', log_description = '$session_name imported CSV file into assets', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+            $count = $count + 1;
         }
         fclose($file);
 
-        $_SESSION['alert_message'] = "Assets added via CSV file";       
-    }else{
+        $_SESSION['alert_message'] = "$count Asset(s) added";
+
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
+	else {
 	    // The file was empty
 	    $_SESSION['alert_type'] = "warning";
         $_SESSION['alert_message'] = "Something went wrong";
