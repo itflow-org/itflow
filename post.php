@@ -4139,6 +4139,7 @@ if (isset($_POST["import_client_assets_csv"])) {
 	if ($_FILES["file"]["size"] > 0) {
         $file = fopen($file_name, "r");
         fgetcsv($file, 1000, ","); // Skip first line
+        $count = 0;
         while (($column = fgetcsv($file, 1000, ",")) !== FALSE) {
             if (isset($column[0])) {
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
@@ -4165,10 +4166,12 @@ if (isset($_POST["import_client_assets_csv"])) {
 
             //Logging
             mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+            $count = $count + 1;
         }
         fclose($file);
 
-        $_SESSION['alert_message'] = "Asset added";
+        $_SESSION['alert_message'] = "$count Asset(s) added";
 
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
