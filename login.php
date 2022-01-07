@@ -16,6 +16,9 @@ $browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
 
 $user_agent = "$os - $browser";
 
+// HTTP Only cookies
+ini_set("session.cookie_httponly", True);
+
 session_start();
 
 if(isset($_POST['login'])){
