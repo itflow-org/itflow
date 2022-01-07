@@ -1015,6 +1015,7 @@ if(isset($_POST['add_client'])){
 
     if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
+        file_put_contents("uploads/clients/$session_company_id/$client_id/index.php", "");
     }
 
     //Add Location
