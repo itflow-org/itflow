@@ -1015,6 +1015,7 @@ if(isset($_POST['add_client'])){
 
     if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
+        file_put_contents("uploads/clients/$session_company_id/$client_id/index.php", "");
     }
 
     //Add Location
@@ -5027,7 +5028,7 @@ if(isset($_POST['add_file'])){
         $file_reference_name = md5(time() . $file_name) . '.' . $file_extension;
 
         // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png', 'pdf', 'txt', 'doc', 'docx', 'xls', 'xlsx', 'zip', 'tar', 'gz');
+        $allowed_file_extensions = array('jpg', 'gif', 'png', 'pdf', 'txt', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'zip', 'tar', 'gz');
      
         if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;

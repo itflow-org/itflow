@@ -482,9 +482,13 @@ if(isset($_POST['add_company_settings'])){
   $config_aes_key = keygen();
 
   mkdir_missing("uploads/clients/$company_id");
+  file_put_contents("uploads/clients/$company_id/index.php", "");
   mkdir_missing("uploads/expenses/$company_id");
+  file_put_contents("uploads/expenses/$company_id/index.php", "");
   mkdir_missing("uploads/settings/$company_id");
+  file_put_contents("uploads/settings/$company_id/index.php", "");
   mkdir_missing("uploads/tmp/$company_id");
+  file_put_contents("uploads/tmp/$company_id/index.php", "");
 
   //Check to see if a file is attached
   if($_FILES['file']['tmp_name'] != ''){
