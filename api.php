@@ -1,8 +1,6 @@
 <?php include("config.php"); ?>
 
 <?php
-//Check Key
-
 
 // Check API key is provided in GET request as 'api_key'
 if(!isset($_GET['api_key']) OR empty($_GET['api_key'])) {
@@ -41,7 +39,7 @@ if(isset($_GET['cid'])){
     $name = $row['name'];
 
     echo "$name - $cid";
-    //Alert whern call comes through
+    //Alert when call comes through
     mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Inbound Call', alert_message = 'Inbound call from $name - $cid', alert_date = NOW(), company_id = $company_id");
     //Log When call comes through
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Call', log_action = 'Inbound', log_description = 'Inbound call from $name - $cid', log_created_at = NOW(), company_id = $company_id");
@@ -185,7 +183,24 @@ if(isset($_GET['account_balance'])){
     //Log
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Account Balance', log_description = 'Client $client_id checked their balance which had a balance of $balance', log_created_at = NOW(), company_id = $company_id");
 
+}
 
+if(isset($_GET['add_asset']) && isset($_GET['client_id'])) {
+    $client_id = intval($_GET['client_id']);
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['add_asset'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['type'])));
+    $make = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['make'])));
+    $model = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['model'])));
+    $serial = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['serial'])));
+    $os = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['os'])));
+
+    // Add
+    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_created_at = NOW(), asset_client_id = $client_id, company_id = $company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Asset Created', log_description = '$name', log_created_at = NOW(), company_id = $company_id");
+
+    echo "Asset added!";
 }
 
 
