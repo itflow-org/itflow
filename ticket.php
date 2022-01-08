@@ -209,9 +209,7 @@ if(isset($_GET['ticket_id'])){
         $ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
     ?>
 
-    <div class="card <?php if($ticket_reply_type == 'Internal') {echo "bg-dark";} ?> mb-3">
-        <!-- Not sure how I feel about the dark background for internal notes, but we need a way to differentiate them from public updates? -->
-
+    <div class="card card-outline <?php if($ticket_reply_type == 'Internal'){ echo "card-dark"; }else{ echo "card-info"; } ?> mb-3">
       <div class="card-header">
         <h3 class="card-title">
           <div class="media">
