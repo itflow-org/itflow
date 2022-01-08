@@ -30,6 +30,8 @@ if(isset($_GET['ticket_id'])){
   if($client_net_terms == 0){
     $client_net_terms = $config_default_net_terms;
   }
+
+  
   $ticket_prefix = $row['ticket_prefix'];
   $ticket_number = $row['ticket_number'];
   $ticket_category = $row['ticket_category'];
