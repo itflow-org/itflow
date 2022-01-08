@@ -4949,8 +4949,9 @@ if(isset($_POST['add_ticket_reply'])){
     $ticket_id = intval($_POST['ticket_id']);
     $ticket_reply = trim(mysqli_real_escape_string($mysqli,$_POST['ticket_reply']));
     $ticket_status = trim(mysqli_real_escape_string($mysqli,$_POST['status']));
+    $ticket_reply_time_worked = trim(mysqli_real_escape_string($mysqli,$_POST['time']));
 
-    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_created_at = NOW(), ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_time_worked = '$ticket_reply_time_worked', ticket_reply_created_at = NOW(), ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     //UPDATE Ticket Last Response Field 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = '$ticket_status', ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));

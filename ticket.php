@@ -156,6 +156,7 @@ if(isset($_GET['ticket_id'])){
         $user_id = $row['user_id'];
         $user_avatar = $row['user_avatar'];
         $user_initials = initials($row['user_name']);
+        $ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
     ?>
 
     <div class="card mb-3">
@@ -178,6 +179,8 @@ if(isset($_GET['ticket_id'])){
               <?php echo $ticket_reply_by_display; ?>
               <br>
               <small class="text-muted"><?php echo $ticket_reply_created_at; ?> <?php if(!empty($ticket_reply_updated_at)){ echo "modified: $ticket_reply_updated_at"; } ?></small>
+              <br>
+              <small class="text-muted">Time worked: <?php echo date_format($ticket_reply_time_worked, 'H:i:s'); ?></small>
             </div>
           </div>
         </h3>
@@ -215,7 +218,7 @@ if(isset($_GET['ticket_id'])){
         <textarea class="form-control summernote" name="ticket_reply" required></textarea>
       </div>
       <div class="form-row">
-        <div class="col-md-3">
+        <div class="col-md-2">
           <div class="form-group">
             <div class="input-group">
               <div class="input-group-prepend">
@@ -243,6 +246,10 @@ if(isset($_GET['ticket_id'])){
         </div>
 
         <?php } ?>
+
+          <div class="form-group">
+              <input id="time_worked" name="time" type="time" step="1" value="00:00:00" class="form-control timepicker" onchange="setTime()"/>
+          </div>
         
         <div class="col-md-2">
           <button type="submit" name="add_ticket_reply" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save & Reply</button>
@@ -416,5 +423,56 @@ if(isset($_GET['ticket_id'])){
 }
 
 ?>
+
+<!-- Maybe move this to it's own JS file? -->
+<script type="text/javascript">
+    // Default values
+    var hours = 0;
+    var minutes = 0;
+    var seconds = 0;
+    setInterval(countTime, 1000);
+
+    // Counter
+    function countTime()
+    {
+        ++seconds;
+        if(seconds == 60) {
+            seconds = 0;
+            minutes++;
+        }
+        if(minutes == 60) {
+            minutes = 0;
+            hours++;
+        }
+
+        // Total timeworked
+        var time_worked = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
+        document.getElementById("time_worked").value = time_worked;
+    }
+
+    // Allows manually adjusting the timer
+    function setTime()
+    {
+        var time_as_text = document.getElementById("time_worked").value;
+        const time_text_array = time_as_text.split(":");
+        hours = parseInt(time_text_array[0]);
+        minutes = parseInt(time_text_array[1]);
+        seconds = parseInt(time_text_array[2]);
+    }
+
+    // This function "pads" out the values, adding zeros if they are required
+    function pad(val)
+    {
+        var valString = val + "";
+        if(valString.length < 2)
+        {
+            return "0" + valString;
+        }
+        else
+        {
+            return valString;
+        }
+    }
+</script>
 
 <?php include("footer.php");
