@@ -999,6 +999,8 @@ DROP TABLE IF EXISTS `ticket_replies`;
 CREATE TABLE `ticket_replies` (
   `ticket_reply_id` int(11) NOT NULL AUTO_INCREMENT,
   `ticket_reply` longtext NOT NULL,
+  `ticket_reply_type` varchar(9) NOT NULL,
+  `ticket_reply_time_worked` time DEFAULT NULL,
   `ticket_reply_created_at` datetime NOT NULL,
   `ticket_reply_updated_at` datetime DEFAULT NULL,
   `ticket_reply_archived_at` datetime DEFAULT NULL,
@@ -1025,6 +1027,7 @@ CREATE TABLE `tickets` (
   `ticket_details` longtext NOT NULL,
   `ticket_priority` varchar(200) DEFAULT NULL,
   `ticket_status` varchar(200) NOT NULL,
+  `ticket_feedback` varchar(104) DEFAULT NULL,
   `ticket_created_at` datetime NOT NULL,
   `ticket_updated_at` datetime DEFAULT NULL,
   `ticket_archived_at` datetime DEFAULT NULL,

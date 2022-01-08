@@ -1,7 +1,7 @@
 <?php include("config.php"); ?>
 <?php include("header.php"); ?>
 
-<?php 
+<?php
 
 if(isset($_GET['ticket_id'])){
   $ticket_id = intval($_GET['ticket_id']);
@@ -18,7 +18,7 @@ if(isset($_GET['ticket_id'])){
     echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='tickets.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
     include("footer.php");
-  
+
   }else{
 
   $row = mysqli_fetch_array($sql);
@@ -31,7 +31,7 @@ if(isset($_GET['ticket_id'])){
     $client_net_terms = $config_default_net_terms;
   }
 
-  
+
   $ticket_prefix = $row['ticket_prefix'];
   $ticket_number = $row['ticket_number'];
   $ticket_category = $row['ticket_category'];
@@ -69,7 +69,7 @@ if(isset($_GET['ticket_id'])){
   $contact_phone = formatPhoneNumber($row['contact_phone']);
   $contact_extension = $row['contact_extension'];
   $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-  
+
   $asset_id = $row['asset_id'];
   $asset_name = htmlentities($row['asset_name']);
   $asset_type = htmlentities($row['asset_type']);
@@ -149,6 +149,7 @@ if(isset($_GET['ticket_id'])){
       while($row = mysqli_fetch_array($sql)){;
         $ticket_reply_id = $row['ticket_reply_id'];
         $ticket_reply = $row['ticket_reply'];
+        $ticket_reply_type = $row['ticket_reply_type'];
         $ticket_reply_created_at = $row['ticket_reply_created_at'];
         $ticket_reply_updated_at = $row['ticket_reply_updated_at'];
         $ticket_reply_by = $row['ticket_reply_by'];
@@ -156,10 +157,12 @@ if(isset($_GET['ticket_id'])){
         $user_id = $row['user_id'];
         $user_avatar = $row['user_avatar'];
         $user_initials = initials($row['user_name']);
+        $ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
     ?>
 
-    <div class="card mb-3">
-      
+    <div class="card <?php if($ticket_reply_type == 'Internal') {echo "bg-dark";} ?> mb-3">
+        <!-- Not sure how I feel about the dark background for internal notes, but we need a way to differentiate them from public updates? -->
+
       <div class="card-header">
         <h3 class="card-title">
           <div class="media">
@@ -170,7 +173,7 @@ if(isset($_GET['ticket_id'])){
               <i class="fa fa-circle fa-stack-2x text-secondary"></i>
               <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
             </span>
-            <?php 
+            <?php
             }
             ?>
 
@@ -178,10 +181,12 @@ if(isset($_GET['ticket_id'])){
               <?php echo $ticket_reply_by_display; ?>
               <br>
               <small class="text-muted"><?php echo $ticket_reply_created_at; ?> <?php if(!empty($ticket_reply_updated_at)){ echo "modified: $ticket_reply_updated_at"; } ?></small>
+              <br>
+              <small class="text-muted">Time worked: <?php echo date_format($ticket_reply_time_worked, 'H:i:s'); ?></small>
             </div>
           </div>
         </h3>
-      
+
         <div class="card-tools">
           <div class="dropdown dropleft">
             <button class="btn btn-tool" type="button" id="dropdownMenuButton" data-toggle="dropdown">
@@ -202,11 +207,11 @@ if(isset($_GET['ticket_id'])){
     </div>
 
     <?php
-    
+
     include("edit_ticket_reply_modal.php");
-    
+
     }
-    
+
     ?>
 
     <form class="mb-3" action="post.php" method="post" autocomplete="off">
@@ -215,7 +220,7 @@ if(isset($_GET['ticket_id'])){
         <textarea class="form-control summernote" name="ticket_reply" required></textarea>
       </div>
       <div class="form-row">
-        <div class="col-md-3">
+        <div class="col-md-2">
           <div class="form-group">
             <div class="input-group">
               <div class="input-group-prepend">
@@ -231,34 +236,40 @@ if(isset($_GET['ticket_id'])){
           </div>
         </div>
 
-        <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
+          <div class="col-sm-2">
+              <div class="form-group">
+                  <input class="form-control timepicker" id="time_worked" name="time" type="time" step="1" value="00:00:00" onchange="setTime()"/>
+              </div>
+          </div>
 
-        <div class="col-md-2">
-          <div class="form-group">
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_ticket_reply" value="1" checked>
-              <label class="custom-control-label" for="customControlAutosizing">Email update to client</label>
+          <?php //if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
+
+          <div class="col-md-2">
+            <div class="form-group">
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="public_reply_type" value="1" checked>
+                <label class="custom-control-label" for="customControlAutosizing">Email update to client (Public Update)</label>
+              </div>
             </div>
           </div>
-        </div>
 
-        <?php } ?>
-        
+        <?php //} ?>
+
         <div class="col-md-2">
           <button type="submit" name="add_ticket_reply" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save & Reply</button>
         </div>
 
       </div>
-    
+
     </form>
-  
+
   </div>
 
   <div class="col-md-3">
 
     <div class="card mb-3">
       <div class="card-body">
-        <div>  
+        <div>
           <h4 class="text-secondary">Client</h4>
           <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <strong><?php echo strtoupper($client_name); ?></strong>
         </div>
@@ -269,7 +280,7 @@ if(isset($_GET['ticket_id'])){
 
     <div class="card mb-3">
       <div class="card-body">
-        <div>  
+        <div>
           <h4 class="text-secondary">Contact</h4>
           <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <strong><?php echo strtoupper($contact_name); ?></strong>
           <br>
@@ -296,16 +307,16 @@ if(isset($_GET['ticket_id'])){
           ?>
           <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <?php echo $contact_phone; ?>
           <br>
-          <?php 
-          } 
+          <?php
+          }
           ?>
           <?php
           if(!empty($contact_mobile)){
           ?>
           <i class="fa fa-fw fa-mobile text-secondary ml-1 mr-2 mb-2"></i> <?php echo $contact_mobile; ?>
           <br>
-          <?php 
-          } 
+          <?php
+          }
           ?>
         </div>
       </div>
@@ -317,7 +328,7 @@ if(isset($_GET['ticket_id'])){
 
     <div class="card mb-3">
       <div class="card-body">
-        <div>  
+        <div>
           <h4 class="text-secondary">Asset</h4>
           <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i> <strong><?php echo strtoupper($asset_name); ?></strong>
           <br>
@@ -342,8 +353,8 @@ if(isset($_GET['ticket_id'])){
           ?>
           <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> <?php echo $asset_os; ?>
           <br>
-          <?php 
-          } 
+          <?php
+          }
           ?>
         </div>
       </div>
@@ -351,7 +362,7 @@ if(isset($_GET['ticket_id'])){
 
     <?php } ?>
 
-    <div class="card card-body mb-3"> 
+    <div class="card card-body mb-3">
       <h4 class="text-secondary">Details</h4>
       <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i> <?php echo $ticket_priority_display; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $ticket_assigned_to_display; ?></div>
@@ -368,15 +379,15 @@ if(isset($_GET['ticket_id'])){
           </div>
           <select class="form-control select2" name="assigned_to">
             <option value="">Not Assigned</option>
-            <?php 
-            
+            <?php
+
             $sql_assign_to_select = mysqli_query($mysqli,"SELECT * FROM users, user_companies WHERE users.user_id = user_companies.user_id AND user_companies.company_id = $session_company_id ORDER BY user_name ASC");
             while($row = mysqli_fetch_array($sql_assign_to_select)){
               $user_id = $row['user_id'];
               $user_name = $row['user_name'];
             ?>
             <option <?php if($ticket_assigned_to == $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
-            
+
             <?php
             }
             ?>
@@ -391,14 +402,14 @@ if(isset($_GET['ticket_id'])){
     <?php
     if($ticket_status !== "Closed"){
     ?>
-    
-    <div class="card card-body mb-2">      
+
+    <div class="card card-body mb-2">
      <div class="">
         <a href="#" class="btn btn-outline-success btn-block">INVOICE</a>
         <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">CLOSE TICKET</a>
       </div>
     </div>
-    
+
     <?php
     }
     ?>
@@ -409,12 +420,63 @@ if(isset($_GET['ticket_id'])){
 
 <?php include("edit_ticket_modal.php"); ?>
 
-<?php 
+<?php
 
 }
 
 }
 
 ?>
+
+<!-- Maybe move this to it's own JS file? -->
+<script type="text/javascript">
+    // Default values
+    var hours = 0;
+    var minutes = 0;
+    var seconds = 0;
+    setInterval(countTime, 1000);
+
+    // Counter
+    function countTime()
+    {
+        ++seconds;
+        if(seconds == 60) {
+            seconds = 0;
+            minutes++;
+        }
+        if(minutes == 60) {
+            minutes = 0;
+            hours++;
+        }
+
+        // Total timeworked
+        var time_worked = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
+        document.getElementById("time_worked").value = time_worked;
+    }
+
+    // Allows manually adjusting the timer
+    function setTime()
+    {
+        var time_as_text = document.getElementById("time_worked").value;
+        const time_text_array = time_as_text.split(":");
+        hours = parseInt(time_text_array[0]);
+        minutes = parseInt(time_text_array[1]);
+        seconds = parseInt(time_text_array[2]);
+    }
+
+    // This function "pads" out the values, adding zeros if they are required
+    function pad(val)
+    {
+        var valString = val + "";
+        if(valString.length < 2)
+        {
+            return "0" + valString;
+        }
+        else
+        {
+            return valString;
+        }
+    }
+</script>
 
 <?php include("footer.php");
