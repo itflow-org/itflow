@@ -1025,6 +1025,7 @@ CREATE TABLE `tickets` (
   `ticket_details` longtext NOT NULL,
   `ticket_priority` varchar(200) DEFAULT NULL,
   `ticket_status` varchar(200) NOT NULL,
+  `ticket_feedback` varchar(104) DEFAULT NULL,
   `ticket_created_at` datetime NOT NULL,
   `ticket_updated_at` datetime DEFAULT NULL,
   `ticket_archived_at` datetime DEFAULT NULL,
