@@ -947,14 +947,19 @@ if(isset($_POST['add_company_settings'])){
             <div class="card-body">
               <p>A database must be created before proceeding, then click on the Setup button to to get started, </p>
               <hr>
-              <p>After the setup is complete add cron.php to your cron and set it to run once everyday at 11:00PM. This is for tasks such as sending out recurring invoices, late payment reminders, alerts, etc</p>
+              <p>Post installation, <a href="https://itflow.org/docs.php?doc_id=3">additional steps</a> are required for tasks such as sending out recurring invoices, late payment reminders, scheduled tickets, alerts, etc.</p>
+                <ul>
+                    <li>Navigate to the settings/alerts page, enable cron and the alerts you want</li>
+                    <li>Add cron.php to your crontab and set it to run once everyday at 11:00PM</li>
+                </ul>
               <hr>
-              <p>An API is present to allow integration with other third pary apps. An API Key will be auto generated and can be changed in settings after setup. The API will give you the following capabilities</p>
+              <p>An API is present to allow integration with other third pary apps. An API Key will be auto generated and can be changed in settings after setup. The API will give you the following capabilities:</p>
               <ul class="mb-4">
                 <li>Address book XML for VOIP Phones</li>
                 <li>Caller ID Lookup</li>
                 <li>Get List of Emails in CSV to export to a mailing list</li>
                 <li>Acquire balance can be useful for customer's to get their balance by phone</li>
+                <li>Add new assets</li>
               </ul>
                 <?php
                   // Check that there is access to write config.php
