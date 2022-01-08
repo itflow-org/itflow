@@ -4132,16 +4132,19 @@ if(isset($_POST['add_asset'])){
 
 }
 
-if (isset($_POST["import_client_assets_csv"])) {
+if(isset($_POST["import_client_assets_csv"])){
     $client_id = intval($_POST['client_id']);
 	$file_name = $_FILES["file"]["tmp_name"];
 
 	if($_FILES["file"]["size"] > 0){
+
+        //Need to put a CSV file check and maybe a format check so it doesnt just import anything
+
         $file = fopen($file_name, "r");
         fgetcsv($file, 1000, ","); // Skip first line
         $count = 0;
-        while (($column = fgetcsv($file, 1000, ",")) !== FALSE) {
-            if (isset($column[0])) {
+        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
+            if(isset($column[0])){
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
             }
             if(isset($column[1])){
@@ -4164,18 +4167,15 @@ if (isset($_POST["import_client_assets_csv"])) {
             //Add
             mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_created_at = NOW(), asset_client_id = $client_id, company_id = $session_company_id");
 
-            //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
-
             $count = $count + 1;
         }
         fclose($file);
 
-        $_SESSION['alert_message'] = "$count Asset(s) added";
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Import', log_description = '$session_name imported $count asset(s) via CSV file', log_created_at = NOW(), company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
 
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-    }
-	else {
+        $_SESSION['alert_message'] = "$count Asset(s) added";
+    }else{
 	    // The file was empty
 	    $_SESSION['alert_type'] = "warning";
         $_SESSION['alert_message'] = "Something went wrong";
