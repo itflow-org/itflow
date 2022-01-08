@@ -165,22 +165,22 @@ if(isset($_GET['ticket_id'])){
           </div>
         </div>
 
-          <div class="col-sm-2">
-              <div class="form-group">
-                  <input class="form-control timepicker" id="time_worked" name="time" type="time" step="1" value="00:00:00" onchange="setTime()"/>
-              </div>
-          </div>
-
-          <?php //if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
-
-          <div class="col-md-2">
+        <div class="col-sm-2">
             <div class="form-group">
-              <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="public_reply_type" value="1" checked>
-                <label class="custom-control-label" for="customControlAutosizing">Email update to client (Public Update)</label>
-              </div>
+                <input class="form-control timepicker" id="time_worked" name="time" type="text" step="1" value="00:00:00" onchange="setTime()"/>
+            </div>
+        </div>
+
+        <?php //if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
+
+        <div class="col-md-2">
+          <div class="form-group">
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="public_reply_type" value="1" checked>
+              <label class="custom-control-label" for="customControlAutosizing">Email update to client (Public Update)</label>
             </div>
           </div>
+        </div>
 
         <?php //} ?>
 
