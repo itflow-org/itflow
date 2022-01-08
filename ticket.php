@@ -271,7 +271,7 @@ if(isset($_GET['ticket_id'])){
       <div class="card-body">
         <div>
           <h4 class="text-secondary">Client</h4>
-          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <strong><?php echo strtoupper($client_name); ?></strong>
+          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo strtoupper($client_name); ?></strong>
         </div>
       </div>
     </div>
@@ -282,14 +282,14 @@ if(isset($_GET['ticket_id'])){
       <div class="card-body">
         <div>
           <h4 class="text-secondary">Contact</h4>
-          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <strong><?php echo strtoupper($contact_name); ?></strong>
+          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo strtoupper($contact_name); ?></strong>
           <br>
-          <i class="fa fa-fw fa-info-circle text-secondary ml-1 mr-2 mb-2"></i> <?php echo $primary_contact_display; ?>
+          <i class="fa fa-fw fa-info-circle text-secondary ml-1 mr-2 mb-2"></i><?php echo $primary_contact_display; ?>
           <hr>
           <?php
           if(!empty($location_name)){
           ?>
-          <i class="fa fa-fw fa-map-marker-alt text-secondary ml-1 mr-2 mb-2"></i> <?php echo $location_name; ?>
+          <i class="fa fa-fw fa-map-marker-alt text-secondary ml-1 mr-2 mb-2"></i><?php echo $location_name; ?>
           <br>
           <?php
           }
@@ -297,7 +297,7 @@ if(isset($_GET['ticket_id'])){
           <?php
           if(!empty($contact_email)){
           ?>
-          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i> <a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
+          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
           <br>
           <?php
           }
@@ -305,7 +305,7 @@ if(isset($_GET['ticket_id'])){
           <?php
           if(!empty($contact_phone)){
           ?>
-          <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <?php echo $contact_phone; ?>
+          <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i><?php echo $contact_phone; ?>
           <br>
           <?php
           }
@@ -313,7 +313,7 @@ if(isset($_GET['ticket_id'])){
           <?php
           if(!empty($contact_mobile)){
           ?>
-          <i class="fa fa-fw fa-mobile text-secondary ml-1 mr-2 mb-2"></i> <?php echo $contact_mobile; ?>
+          <i class="fa fa-fw fa-mobile text-secondary ml-1 mr-2 mb-2"></i><?php echo $contact_mobile; ?>
           <br>
           <?php
           }
@@ -330,12 +330,12 @@ if(isset($_GET['ticket_id'])){
       <div class="card-body">
         <div>
           <h4 class="text-secondary">Asset</h4>
-          <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i> <strong><?php echo strtoupper($asset_name); ?></strong>
+          <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo strtoupper($asset_name); ?></strong>
           <br>
           <?php
           if(!empty($asset_make)){
           ?>
-          <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> <?php echo "$asset_make $asset_model"; ?>
+          <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i><?php echo "$asset_make $asset_model"; ?>
           <br>
           <?php
           }
@@ -343,7 +343,7 @@ if(isset($_GET['ticket_id'])){
           <?php
           if(!empty($asset_serial)){
           ?>
-          <i class="fa fa-fw fa-barcode text-secondary ml-1 mr-2 mb-2"></i> <?php echo $asset_serial; ?>
+          <i class="fa fa-fw fa-barcode text-secondary ml-1 mr-2 mb-2"></i><?php echo $asset_serial; ?>
           <br>
           <?php
           }
@@ -351,7 +351,7 @@ if(isset($_GET['ticket_id'])){
           <?php
           if(!empty($asset_os)){
           ?>
-          <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> <?php echo $asset_os; ?>
+          <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i><?php echo $asset_os; ?>
           <br>
           <?php
           }
@@ -364,9 +364,9 @@ if(isset($_GET['ticket_id'])){
 
     <div class="card card-body mb-3">
       <h4 class="text-secondary">Details</h4>
-      <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i> <?php echo $ticket_priority_display; ?></div>
-      <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i> <?php echo $ticket_assigned_to_display; ?></div>
-      <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i> <?php echo $ticket_created_at; ?></div>
+      <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i><?php echo $ticket_priority_display; ?></div>
+      <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $ticket_assigned_to_display; ?></div>
+      <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i><?php echo $ticket_created_at; ?></div>
     </div>
 
     <form action="post.php" method="post">
