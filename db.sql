@@ -853,6 +853,31 @@ CREATE TABLE `roles` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `scheduled_tickets`
+--
+
+DROP TABLE IF EXISTS `scheduled_tickets`;
+CREATE TABLE IF NOT EXISTS `scheduled_tickets` (
+                                                 `scheduled_ticket_id` int(11) NOT NULL AUTO_INCREMENT,
+                                                 `scheduled_ticket_category` varchar(200) DEFAULT NULL,
+                                                 `scheduled_ticket_subject` varchar(200) NOT NULL,
+                                                 `scheduled_ticket_details` longtext NOT NULL,
+                                                 `scheduled_ticket_priority` varchar(200) DEFAULT NULL,
+                                                 `scheduled_ticket_frequency` varchar(10) NOT NULL,
+                                                 `scheduled_ticket_start_date` date NOT NULL,
+                                                 `scheduled_ticket_next_run` date NOT NULL,
+                                                 `scheduled_ticket_created_at` datetime NOT NULL,
+                                                 `scheduled_ticket_updated_at` datetime DEFAULT NULL,
+                                                 `scheduled_ticket_created_by` int(11) NOT NULL,
+                                                 `scheduled_ticket_client_id` int(11) DEFAULT NULL,
+                                                 `scheduled_ticket_contact_id` int(11) DEFAULT NULL,
+                                                 `scheduled_ticket_asset_id` int(11) DEFAULT NULL,
+                                                 `company_id` int(11) NOT NULL,
+                                                 PRIMARY KEY (`scheduled_ticket_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+COMMIT;
+
+--
 -- Table structure for table `settings`
 --
 

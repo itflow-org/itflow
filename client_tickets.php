@@ -55,6 +55,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> Tickets</h3>
     <div class="card-tools">
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i> New Ticket</button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addScheduledTicketModal"><i class="fas fa-fw fa-plus"></i> Scheduled Ticket</button>
     </div>
   </div>
   <div class="card-body">
@@ -195,4 +196,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_ticket_modal.php"); ?>
+<?php
+include("add_ticket_modal.php");
+include("add_scheduled_ticket_modal.php");
+?>
