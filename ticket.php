@@ -375,7 +375,7 @@ if(isset($_GET['ticket_id'])){
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
           </div>
-          <select class="form-control select2" name="assigned_to">
+          <select class="form-control select2" name="assigned_to" <?php if($ticket_status == "Closed") {echo "disabled";} ?>>
             <option value="">Not Assigned</option>
             <?php
 
@@ -391,7 +391,7 @@ if(isset($_GET['ticket_id'])){
             ?>
           </select>
           <div class="input-group-append">
-            <button type="submit" class="btn btn-primary" name="assign_ticket"><i class="fas fa-check"></i></button>
+            <button type="submit" class="btn btn-primary" name="assign_ticket" <?php if($ticket_status == "Closed") {echo "disabled";} ?>><i class="fas fa-check"></i></button>
           </div>
         </div>
       </div>
