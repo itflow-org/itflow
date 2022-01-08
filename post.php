@@ -4919,7 +4919,7 @@ if(isset($_POST['assign_ticket'])){
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_updated_at = NOW(), ticket_assigned_to = $assigned_to WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket re-assigned', ticket_reply_created_at = NOW(), ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket re-assigned', ticket_reply_type = 'Internal', ticket_reply_created_at = NOW(), ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modified', log_description = '$subject', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -4951,7 +4951,14 @@ if(isset($_POST['add_ticket_reply'])){
     $ticket_status = trim(mysqli_real_escape_string($mysqli,$_POST['status']));
     $ticket_reply_time_worked = trim(mysqli_real_escape_string($mysqli,$_POST['time']));
 
-    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_time_worked = '$ticket_reply_time_worked', ticket_reply_created_at = NOW(), ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
+    if(isset($_POST['public_reply_type'])){
+        $ticket_reply_type = 'Public';
+    }
+    else{
+        $ticket_reply_type = 'Internal';
+    }
+
+    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_time_worked = '$ticket_reply_time_worked', ticket_reply_type = '$ticket_reply_type', ticket_reply_created_at = NOW(), ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     //UPDATE Ticket Last Response Field 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = '$ticket_status', ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
