@@ -143,6 +143,55 @@ if(isset($_GET['ticket_id'])){
       </div>
     </div>
 
+    <form class="mb-3" action="post.php" method="post" autocomplete="off">
+      <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+      <div class="form-group">
+        <textarea class="form-control summernote" name="ticket_reply" required></textarea>
+      </div>
+      <div class="form-row">
+        <div class="col-md-2">
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+              </div>
+              <select class="form-control select2" name="status" required>
+                <option <?php if($ticket_status == 'Open'){ echo "selected"; } ?> >Open</option>
+                <option <?php if($ticket_status == 'Working'){ echo "selected"; } ?> >Working</option>
+                <option <?php if($ticket_status == 'On Hold'){ echo "selected"; } ?> >On Hold</option>
+                <option <?php if($ticket_status == 'Closed'){ echo "selected"; } ?> >Closed</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+          <div class="col-sm-2">
+              <div class="form-group">
+                  <input class="form-control timepicker" id="time_worked" name="time" type="time" step="1" value="00:00:00" onchange="setTime()"/>
+              </div>
+          </div>
+
+          <?php //if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
+
+          <div class="col-md-2">
+            <div class="form-group">
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="public_reply_type" value="1" checked>
+                <label class="custom-control-label" for="customControlAutosizing">Email update to client (Public Update)</label>
+              </div>
+            </div>
+          </div>
+
+        <?php //} ?>
+
+        <div class="col-md-2">
+          <button type="submit" name="add_ticket_reply" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save & Reply</button>
+        </div>
+
+      </div>
+
+    </form>
+
     <?php
     $sql = mysqli_query($mysqli,"SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL ORDER BY ticket_reply_id DESC");
 
@@ -213,55 +262,6 @@ if(isset($_GET['ticket_id'])){
     }
 
     ?>
-
-    <form class="mb-3" action="post.php" method="post" autocomplete="off">
-      <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-      <div class="form-group">
-        <textarea class="form-control summernote" name="ticket_reply" required></textarea>
-      </div>
-      <div class="form-row">
-        <div class="col-md-2">
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-              </div>
-              <select class="form-control select2" name="status" required>
-                <option <?php if($ticket_status == 'Open'){ echo "selected"; } ?> >Open</option>
-                <option <?php if($ticket_status == 'Working'){ echo "selected"; } ?> >Working</option>
-                <option <?php if($ticket_status == 'On Hold'){ echo "selected"; } ?> >On Hold</option>
-                <option <?php if($ticket_status == 'Closed'){ echo "selected"; } ?> >Closed</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-          <div class="col-sm-2">
-              <div class="form-group">
-                  <input class="form-control timepicker" id="time_worked" name="time" type="time" step="1" value="00:00:00" onchange="setTime()"/>
-              </div>
-          </div>
-
-          <?php //if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
-
-          <div class="col-md-2">
-            <div class="form-group">
-              <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="public_reply_type" value="1" checked>
-                <label class="custom-control-label" for="customControlAutosizing">Email update to client (Public Update)</label>
-              </div>
-            </div>
-          </div>
-
-        <?php //} ?>
-
-        <div class="col-md-2">
-          <button type="submit" name="add_ticket_reply" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save & Reply</button>
-        </div>
-
-      </div>
-
-    </form>
 
   </div>
 
