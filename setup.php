@@ -961,6 +961,8 @@ if(isset($_POST['add_company_settings'])){
                 <li>Acquire balance can be useful for customer's to get their balance by phone</li>
                 <li>Add new assets</li>
               </ul>
+              <hr>
+                <p class="text-muted">This program is free software: you can redistribute it and/or modify it under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License</a>. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.</p>
                 <?php
                   // Check that there is access to write config.php
                   if(!file_put_contents("config.php", "Test")){
