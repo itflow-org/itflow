@@ -4135,14 +4135,35 @@ if(isset($_POST['add_asset'])){
 if(isset($_POST["import_client_assets_csv"])){
     $client_id = intval($_POST['client_id']);
 	$file_name = $_FILES["file"]["tmp_name"];
+	$error = FALSE;
 
-	if($_FILES["file"]["size"] > 0){
+    //Check file is CSV
+    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+    $allowed_file_extensions = array('csv');
+    if(in_array($file_extension,$allowed_file_extensions) === false){
+        $error = TRUE;
+        $_SESSION['alert_message'] = "Bad file extension";
+    }
 
-        //Need to put a CSV file check and maybe a format check so it doesnt just import anything
+    //Check file isn't empty
+    elseif($_FILES["file"]["size"] < 1){
+        $error = TRUE;
+        $_SESSION['alert_message'] = "Bad file size (empty?)";
+    }
 
+    //(Else)Check column count (name, type, make, model, serial, os)
+    $f = fopen($file_name, "r");
+    $f_columns = fgetcsv($f, 1000, ",");
+    if(!$error & count($f_columns) != 6) {
+        $error = TRUE;
+        $_SESSION['alert_message'] = "Bad column count.";
+    }
+
+    //Else, parse the file
+    if(!$error){
         $file = fopen($file_name, "r");
         fgetcsv($file, 1000, ","); // Skip first line
-        $count = 0;
+        $asset_count = 0;
         while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
             if(isset($column[0])){
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
@@ -4167,20 +4188,21 @@ if(isset($_POST["import_client_assets_csv"])){
             //Add
             mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_created_at = NOW(), asset_client_id = $client_id, company_id = $session_company_id");
 
-            $count = $count + 1;
+            $asset_count = $asset_count + 1;
         }
         fclose($file);
 
         //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Import', log_description = '$session_name imported $count asset(s) via CSV file', log_created_at = NOW(), company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Import', log_description = '$session_name imported $asset_count asset(s) via CSV file', log_created_at = NOW(), company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
 
-        $_SESSION['alert_message'] = "$count Asset(s) added";
-    }else{
-	    // The file was empty
-	    $_SESSION['alert_type'] = "warning";
-        $_SESSION['alert_message'] = "Something went wrong";
+        $_SESSION['alert_message'] = "$asset_count Asset(s) added";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    //Check for any errors, if there are notify user and redirect
+    if($error) {
+        $_SESSION['alert_type'] = "warning";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
 }
 
 if(isset($_POST['edit_asset'])){
