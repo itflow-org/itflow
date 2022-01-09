@@ -5201,6 +5201,9 @@ if(isset($_GET['delete_document'])){
 
     mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id AND company_id = $session_company_id");
 
+    // Delete the tag associations to documents
+    mysqli_query($mysqli, "DELETE FROM documents_tagged WHERE document_id = '$document_id'");
+
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Deleted', log_description = '$document_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
