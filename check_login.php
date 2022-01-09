@@ -1,6 +1,8 @@
 <?php
 	
 	if(!isset($_SESSION)){
+    // HTTP Only cookies
+    ini_set("session.cookie_httponly", True);
     session_start();
 	}
 
