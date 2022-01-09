@@ -8,12 +8,12 @@
                 </button>
             </div>
             <div class="modal-body bg-white">
-                <p>Format: name, type, make, model, serial, os</p>
+                <p>Format: CSV file with headings & data: name, type, make, model, serial, os</p>
                 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 
                     <div class="form-group">
-                        <input type="file" class="form-control-file" name="file">
+                        <input type="file" class="form-control-file" name="file" accept=".csv">
                     </div>
 
             </div>
