@@ -1,9 +1,13 @@
 <?php
 	
 	if(!isset($_SESSION)){
-    // HTTP Only cookies
-    ini_set("session.cookie_httponly", True);
-    session_start();
+        // HTTP Only cookies
+        ini_set("session.cookie_httponly", True);
+        if($config_https_only){
+            // Tell client to only send cookie(s) over HTTPS
+            ini_set("session.cookie_secure", True);
+        }
+        session_start();
 	}
 
 	//Check to see if setup is enabled
