@@ -19,6 +19,11 @@ $user_agent = "$os - $browser";
 // HTTP Only cookies
 ini_set("session.cookie_httponly", True);
 
+// Tell client to only send cookie(s) over HTTPS
+if($config_https_only){
+    ini_set("session.cookie_secure", True);
+}
+
 session_start();
 
 if(isset($_POST['login'])){
