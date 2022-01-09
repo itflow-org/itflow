@@ -109,8 +109,8 @@
 * XML Phonebook Download - /api.php?api_key=[API_KEY]&phonebook 
 * Client Email (great for mailing lists) - /api.php?api_key=[API_KEY]&client_emails - Returns Client Name - Email Address
 * Account Balance for Client (can be integrated into multiple places for example in FreePBX Press 3 to check account balance, please enter your client ID your balance is) - /api.php?api_key=[API_KEY]&client_id=[CLIENT_ID] - Returns Account Balance
-* Add new asset for a client - /api.php?api_key=[API_KEY]&add_asset=Name&type=[Desktop|Laptop|Server]&make=Make&model=Model&serial=Serial&os=OS
-    * Required: api_key, add_asset (name)
+* Add new asset for a client - /api.php?api_key=[API_KEY]&company_id=CompanyID&add_asset=Name&type=[Desktop|Laptop|Server]&make=Make&model=Model&serial=Serial&os=OS
+    * Required: api_key, company_id, add_asset (name)
 * NOTE: [API_KEY] - is auto generated when a company is created and shows up in General Settings, this can also be changed manually.
 
 ### Future Todo
