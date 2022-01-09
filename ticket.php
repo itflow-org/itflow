@@ -143,6 +143,8 @@ if(isset($_GET['ticket_id'])){
       </div>
     </div>
 
+    <!-- Only show ticket reply modal if status is not closed -->
+    <?php if($ticket_status != "Closed"){ ?>
     <form class="mb-3" action="post.php" method="post" autocomplete="off">
       <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
       <div class="form-group">
@@ -191,6 +193,8 @@ if(isset($_GET['ticket_id'])){
       </div>
 
     </form>
+    <!-- End IF for reply modal -->
+    <?php } ?>
 
     <?php
     $sql = mysqli_query($mysqli,"SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL ORDER BY ticket_reply_id DESC");
