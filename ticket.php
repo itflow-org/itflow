@@ -365,6 +365,12 @@ if(isset($_GET['ticket_id'])){
       <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i><?php echo $ticket_priority_display; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $ticket_assigned_to_display; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i><?php echo $ticket_created_at; ?></div>
+      <?php
+      $ticket_total_reply_time = mysqli_query($mysqli,"SELECT SEC_TO_TIME(SUM(ticket_reply_time_worked)) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
+       $row = mysqli_fetch_array($ticket_total_reply_time);
+        $ticket_total_reply_time = $row['ticket_total_reply_time'];
+        ?>
+        <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i><?php echo $ticket_total_reply_time; ?></div>
     </div>
 
     <form action="post.php" method="post">
