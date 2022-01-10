@@ -159,15 +159,15 @@ function get_device(){
         }
     }
     if ($tablet_browser > 0) {
-           // do something for tablet devices
+           //do something for tablet devices
         return 'Tablet';
     }
     else if ($mobile_browser > 0) {
-           // do something for mobile devices
+           //do something for mobile devices
         return 'Mobile';
     }
     else {
-           // do something for everything else
+           //do something for everything else
         return 'Computer';
     }   
 }
@@ -286,5 +286,130 @@ function mkdir_missing($dir) {
         mkdir($dir);
     }
 }
+
+//Called during initial setup
+//Encrypts the master key with the user's password
+function setupFirstUserSpecificKey($user_password, $site_encryption_master_key){
+    $iv = keygen();
+    $salt = keygen();
+
+    //Generate 128-bit (16 byte/char) kdhash of the users password
+    $user_password_kdhash = hash_pbkdf2('sha256', $user_password, $salt, 100000, 16);
+
+    //Encrypt the master key with the users kdf'd hash and the IV
+    $ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
+
+    $user_encryption_ciphertext = $salt . $iv . $ciphertext;
+
+    return $user_encryption_ciphertext;
+}
+
+/*
+For additional users / password changes
+New Users: Requires the admin setting up their account have the their own Specific/Session key configured
+Password Changes: Will use the current info in the session. Maybe a good idea force logout users after a password change, so that upon login new session info is set fresh..
+-- This logic will need to be in the pass change function itself
+*/
+function encryptUserSpecificKey($user_password){
+    $iv = keygen();
+    $salt = keygen();
+
+    //Get the session info.
+    $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
+    $user_encryption_session_iv =  $_SESSION['user_encryption_session_iv'];
+    $user_encryption_session_key = $_COOKIE['user_encryption_session_key'];
+
+    //Decrypt the session key to get the master key
+    $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
+
+    //Generate 128-bit (16 byte/char) kdhash of the users (new) password
+    $user_password_kdhash = hash_pbkdf2('sha256', $user_password, $salt, 100000, 16);
+
+    //Encrypt the master key with the users kdf'd hash and the IV
+    $user_encryption_ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
+
+    return $user_encryption_ciphertext;
+
+}
+
+//Given a ciphertext (incl. IV) and the user's password, returns the site master key
+//Ran at login, to facilitate generateUserSessionKey
+function decryptUserSpecificKey($user_encryption_ciphertext, $user_password){
+    //Get the IV, salt and ciphertext
+    $salt = substr($user_encryption_ciphertext, 0, 16);
+    $iv = substr($user_encryption_ciphertext, 16, 16);
+    $ciphertext = substr($user_encryption_ciphertext, 32);
+
+    //Generate 128-bit (16 byte/char) kdhash of the users password
+    $user_password_kdhash = hash_pbkdf2('sha256', $user_password, $salt, 100000, 16);
+
+    //Use this hash to get the original/master key
+    $site_encryption_master_key = openssl_decrypt($ciphertext, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
+    return $site_encryption_master_key;
+}
+
+/*
+Generates what is probably best described as an session key (ephemeral-ish)
+- Allows us to store the master key on the server whilst the user is using the application, without prompting to type their password everytime they want to decrypt a credential
+- Ciphertext/IV is stored on the server in the users session, encryption key is controlled/provided by the user as a cookie
+- Only the user can decrypt their session ciphertext to get the master key
+- Encryption key never hits the disk in cleartext
+*/
+function generateUserSessionKey($site_encryption_master_key){
+
+    //Generate both of these using keygen()
+    $user_encryption_session_key = keygen();
+    $user_encryption_session_iv = keygen();
+    $user_encryption_session_ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
+
+    //Store ciphertext in the user's session
+    $_SESSION['user_encryption_session_ciphertext'] = $user_encryption_session_ciphertext;
+    $_SESSION['user_encryption_session_iv'] = $user_encryption_session_iv;
+
+    //Give the user "their" key as a cookie
+    setcookie("user_encryption_session_key", $user_encryption_session_key, 0, "/", "", "true", "true");
+}
+
+//Decrypts an encrypted password (website/asset login), returns it as a string
+function decryptLoginEntry($login_password_ciphertext){
+
+    //Split the login into IV and Ciphertext
+    $login_iv =  substr($login_password_ciphertext, 0, 16);
+    $login_ciphertext = $salt = substr($login_password_ciphertext, 16);
+
+    //Get the user session info.
+    $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
+    $user_encryption_session_iv =  $_SESSION['user_encryption_session_iv'];
+    $user_encryption_session_key = $_COOKIE['user_encryption_session_key'];
+
+    //Decrypt the session key to get the master key
+    $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
+
+    //Decrypt the login password using the master key
+    $login_password_cleartext = openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
+    return $login_password_cleartext;
+
+}
+
+//Encrypts a website/asset login password
+function encryptLoginEntry($login_password_cleartext){
+    $iv = keygen();
+
+    //Get the user session info.
+    $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
+    $user_encryption_session_iv =  $_SESSION['user_encryption_session_iv'];
+    $user_encryption_session_key = $_COOKIE['user_encryption_session_key'];
+
+    //Decrypt the session key to get the master key
+    $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
+
+    //Encrypt the website/asset login using the master key
+    $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
+
+    $login_password_ciphertext = $iv . $ciphertext;
+    return $login_password_ciphertext;
+}
+
+
 
 ?>

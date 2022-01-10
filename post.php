@@ -4439,14 +4439,14 @@ if(isset($_POST['add_login'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['uri'])));
     $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
-    $password = trim(mysqli_real_escape_string($mysqli,$_POST['password']));
+    $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
     $otp_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['otp_secret'])));
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
     $software_id = intval($_POST['software']);
 
-    mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_uri = '$uri', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_otp_secret = '$otp_secret', login_note = '$note', login_created_at = NOW(), login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id, login_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_uri = '$uri', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_created_at = NOW(), login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id, login_client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -5681,7 +5681,7 @@ if(isset($_GET['export_client_pdf'])){
     $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id ORDER BY location_name ASC");
     $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
     if(isset($_GET['passwords'])){
-        $sql_logins = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
+        $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
     }
     $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_type ASC");
     $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_client_id = $client_id ORDER BY network_name ASC");
@@ -6022,7 +6022,7 @@ if(isset($_GET['export_client_pdf'])){
                         while($row = mysqli_fetch_array($sql_logins)){
                             $login_name = $row['login_name'];
                             $login_username = $row['login_username'];
-                            $login_password = $row['login_password'];
+                            $login_password = decryptLoginEntry($row['login_password']);
                             $login_uri = $row['login_uri'];
                             $login_note = $row['login_note'];
                         ?>
