@@ -326,7 +326,9 @@ function encryptUserSpecificKey($user_password){
     $user_password_kdhash = hash_pbkdf2('sha256', $user_password, $salt, 100000, 16);
 
     //Encrypt the master key with the users kdf'd hash and the IV
-    $user_encryption_ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
+    $ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
+
+    $user_encryption_ciphertext = $salt . $iv . $ciphertext;
 
     return $user_encryption_ciphertext;
 

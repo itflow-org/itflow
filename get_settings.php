@@ -6,7 +6,6 @@ $row = mysqli_fetch_array($sql_settings);
 
 //General
 $config_api_key = $row['config_api_key'];
-$config_aes_key = $row['config_aes_key'];
 $config_base_url = $row['config_base_url'];
 
 //Mail
