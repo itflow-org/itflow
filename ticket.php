@@ -167,7 +167,7 @@ if(isset($_GET['ticket_id'])){
 
         <div class="col-sm-2">
             <div class="form-group">
-                <input class="form-control timepicker" id="time_worked" name="time" type="text" step="1" value="00:00:00" onchange="setTime()"/>
+                <input class="form-control timepicker" id="time_worked" name="time" type="time" step="1" value="00:00:00" onchange="setTime()"/>
             </div>
         </div>
 
