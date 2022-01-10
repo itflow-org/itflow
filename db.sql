@@ -1163,7 +1163,7 @@ CREATE TABLE `users` (
   `user_email` varchar(200) NOT NULL,
   `user_password` varchar(200) NOT NULL,
   `user_token` varchar(200) DEFAULT NULL,
-  `user_encryption_ciphertext` varchar(200) DEFAULT NULL,
+  `user_specific_encryption_ciphertext` varchar(200) DEFAULT NULL,
   `user_avatar` varchar(200) DEFAULT NULL,
   `user_created_at` datetime NOT NULL,
   `user_updated_at` datetime DEFAULT NULL,
