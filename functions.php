@@ -411,6 +411,16 @@ function encryptLoginEntry($login_password_cleartext){
     return $login_password_ciphertext;
 }
 
+//For migrating/upgrading to the new encryption scheme
+//Have to supply the master key as the cookie might not be set properly (generally requires a refresh)
+function encryptUpgradeLoginEntry($login_password_cleartext, $site_encryption_master_key){
+    $iv = keygen();
 
+    //Encrypt the website/asset login using the master key
+    $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
+
+    $login_password_ciphertext = $iv . $ciphertext;
+    return $login_password_ciphertext;
+}
 
 ?>

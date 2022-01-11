@@ -1028,6 +1028,78 @@ if(isset($_GET['update_db'])){
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if(isset($_POST['encryption_update'])){
+    $password = $_POST['password'];
+    //$session_company_id
+
+    //Get user details
+    $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = '$session_user_id'");
+    $row = mysqli_fetch_array($sql);
+
+    //Verify the users password
+    if(!password_verify($password, $row['user_password'])){
+        echo "Password incorrect.";
+        exit();
+    }
+
+    //First, check if this user is setup for the new encryption setup
+    if(isset($row['user_specific_encryption_ciphertext'])){
+        echo "Ciphertext data already exists, using it.<br>";
+        $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
+        $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
+    }
+    else{
+        echo "Ciphertext data not found, attempting to adding it.";
+        $update_table = mysqli_query($mysqli, "ALTER TABLE `users` ADD `user_specific_encryption_ciphertext` VARCHAR(200) NULL AFTER `user_avatar`; ");
+
+        if(!$update_table){
+            echo "Error adding ciphertext column to users table. Either there was a connection/permissions issue or the column already exists due to a upgrade already taking place?<br>";
+            exit();
+        }
+
+        echo "Ciphertext column added successfully!<br>";
+
+        echo "Generating new master key.<br>";
+        $site_encryption_master_key = keygen();
+        echo "New master key is: $site_encryption_master_key <br>";
+        $user_encryption_ciphertext = setupFirstUserSpecificKey($password, $site_encryption_master_key);
+
+        $set_user_specific_key = mysqli_query($mysqli, "UPDATE users SET user_specific_encryption_ciphertext = '$user_encryption_ciphertext' user_id = '$session_user_id'");
+        if(!$set_user_specific_key){
+            echo "Something went wrong adding your user specific key.<br>";
+            exit();
+        }
+
+        //Setup the user session key
+        generateUserSessionKey($site_encryption_master_key);
+
+        //Invalidate user passwords
+        //If we don't do this, users won't be able to see the new passwords properly, and could potentially add passwords that can never be decrypted
+        mysqli_query($mysqli, "UPDATE users SET login_password = 'Invalid due to upgrade'");
+        $extended_log_description = ", invalidated all user passwords";
+        echo "Invalidated all user passwords. You must re-set them from this user.<br>";
+    }
+
+    //Either way, if we got here we now have the master key as $site_encryption_master_key
+
+    //Get & upgrade user login encryption
+    $sql_logins = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE (company_id = '$session_company_id' AND login_password IS NOT NULL)");
+    $count = 0;
+    foreach ($sql_logins as $row){
+        $login_id = $row['login_id'];
+        $new_encrypted_password = encryptUpgradeLoginEntry($row['login_password'], $site_encryption_master_key);
+        mysqli_query($mysqli, "UPDATE logins SET login_password = '$new_encrypted_password' WHERE login_id = '$login_id'");
+        $count++;
+    }
+    echo "Upgraded $count records.<br>";
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Migrate', log_description = '$session_name upgraded $session_company_id logins to the new encryption scheme$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    echo "Migration for company successful.";
+
+}
+
 if(isset($_POST['add_client'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));

@@ -46,9 +46,11 @@ if(isset($_POST['login'])){
     $user_id = $row['user_id'];
 
     //Setup encryption session key
-    $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
-    $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
-    generateUserSessionKey($site_encryption_master_key);
+    if(isset($row['user_specific_encryption_ciphertext'])){
+        $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
+        $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
+        generateUserSessionKey($site_encryption_master_key);
+    }
 
     if(empty($token)){
       $_SESSION['logged'] = TRUE;
