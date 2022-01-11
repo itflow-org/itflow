@@ -53,7 +53,7 @@ if(isset($_POST['add_user'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $user_specific_encryption_ciphertext = encryptUserSpecificKey($password); //TODO: Consider this users role - if they don't need access to logins, potentially don't set this -- but it's a pain to add afterwards.
+    $user_specific_encryption_ciphertext = encryptUserSpecificKey($_POST['password']); //TODO: Consider this users role - if they don't need access to logins, potentially don't set this -- just know it's a pain to add afterwards (you'd need to reset their password).
     $default_company = intval($_POST['default_company']);
     $role = intval($_POST['role']);
 
@@ -399,7 +399,6 @@ if(isset($_POST['add_company'])){
     $company_id = mysqli_insert_id($mysqli);
     $config_base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
     $config_api_key = keygen();
-    $config_aes_key = keygen();
     
     mkdir("uploads/clients/$company_id");
     mkdir("uploads/expenses/$company_id");
@@ -451,7 +450,7 @@ if(isset($_POST['add_company'])){
     //Set User Company Permissions
     mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $session_user_id, company_id = $company_id");
 
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_aes_key = '$config_aes_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 1, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_api_key = '$config_api_key', config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 1, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
 
     //Create Some Data
 
@@ -664,24 +663,24 @@ if(isset($_POST['verify'])){
 if(isset($_POST['edit_general_settings'])){
 
     $config_api_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key'])));
-    $old_aes_key = $config_aes_key;
-    $config_aes_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_aes_key'])));
+    //$old_aes_key = $config_aes_key;
+    //$config_aes_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_aes_key'])));
     $config_base_url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url'])));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_api_key = '$config_api_key', config_aes_key = '$config_aes_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_api_key = '$config_api_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
 
-    //Update AES key on client_logins if changed
-    if($old_aes_key != $config_aes_key){
-        $sql = mysqli_query($mysqli,"SELECT login_id, AES_DECRYPT(login_password, '$old_aes_key') AS old_login_password FROM logins 
-          WHERE company_id = $session_company_id");
-
-        while($row = mysqli_fetch_array($sql)){
-            $login_id = $row['login_id'];
-            $old_login_password = $row['old_login_password'];
-          
-            mysqli_query($mysqli,"UPDATE logins SET login_password = AES_ENCRYPT('$old_login_password','$config_aes_key') WHERE login_id = $login_id");
-        }
-    }
+//    //Update AES key on client_logins if changed
+//    if($old_aes_key != $config_aes_key){
+//        $sql = mysqli_query($mysqli,"SELECT login_id, AES_DECRYPT(login_password, '$old_aes_key') AS old_login_password FROM logins
+//          WHERE company_id = $session_company_id");
+//
+//        while($row = mysqli_fetch_array($sql)){
+//            $login_id = $row['login_id'];
+//            $old_login_password = $row['old_login_password'];
+//
+//            mysqli_query($mysqli,"UPDATE logins SET login_password = AES_ENCRYPT('$old_login_password','$config_aes_key') WHERE login_id = $login_id");
+//        }
+//    }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified general settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
@@ -946,6 +945,38 @@ if(isset($_GET['download_database'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Download', log_description = '$session_name downloaded the database', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Database downloaded";
+}
+
+if(isset($_POST['backup_master_key'])){
+
+    //TODO: Verify the user is authorised to view the key?
+
+    $password = $_POST['password'];
+
+    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = '$session_user_id'");
+    $userRow = mysqli_fetch_array($sql);
+
+    if(password_verify($password, $userRow['user_password'])) {
+        $site_encryption_master_key = decryptUserSpecificKey($userRow['user_specific_encryption_ciphertext'], $password);
+
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Download', log_description = '$session_name retrieved the master encryption key', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Settings', alert_message = '$session_name retrieved the master encryption key', alert_date = NOW(), company_id = $session_company_id");
+
+
+        echo "==============================";
+        echo "<br>Master encryption key:<br>";
+        echo "<b>$site_encryption_master_key</b>";
+        echo "<br>==============================";
+    }
+
+    else {
+        //Log the failure
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Download', log_description = '$session_name attempted to retrieve the master encryption key (failure)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+        $_SESSION['alert_message'] = "Incorrect password.";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
 }
 
 if(isset($_GET['update'])){
@@ -4126,9 +4157,9 @@ if(isset($_POST['add_asset'])){
     if(!empty($_POST['username'])) {
         $asset_id = mysqli_insert_id($mysqli);
         $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
-        $password = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['password'])));
+        $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
 
-        mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_created_at = NOW(), login_asset_id = $asset_id, login_client_id = $client_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_created_at = NOW(), login_asset_id = $asset_id, login_client_id = $client_id, company_id = $session_company_id");
 
     }
 
@@ -4251,12 +4282,12 @@ if(isset($_POST['edit_asset'])){
 
     //If login exists then update the login
     if($login_id > 0){
-        mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_updated_at = NOW() WHERE login_id = $login_id AND company_id = $session_company_id");
+        mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id AND company_id = $session_company_id");
     }else{
     //If Username is filled in then add a login
         if(!empty($username)) {
             
-            mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_created_at = NOW(), login_asset_id = $asset_id, login_client_id = $client_id, company_id = $session_company_id");
+            mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_created_at = NOW(), login_asset_id = $asset_id, login_client_id = $client_id, company_id = $session_company_id");
 
         }
     }
@@ -4338,9 +4369,9 @@ if(isset($_POST['add_software'])){
     if(!empty($_POST['username'])) {
         $software_id = mysqli_insert_id($mysqli);
         $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
-        $password = strip_tags(mysqli_real_escape_string($mysqli,$_POST['password']));
+        $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
 
-        mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_software_id = $software_id, login_created_at = NOW(), login_client_id = $client_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_software_id = $software_id, login_created_at = NOW(), login_client_id = $client_id, company_id = $session_company_id");
 
     }
 
@@ -4362,18 +4393,18 @@ if(isset($_POST['edit_software'])){
     $license = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license'])));
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
     $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
-    $password = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['password'])));
+    $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
 
     mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_type = '$type', software_license = '$license', software_notes = '$notes', software_updated_at = NOW() WHERE software_id = $software_id AND company_id = $session_company_id");
 
     //If login exists then update the login
     if($login_id > 0){
-        mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_updated_at = NOW() WHERE login_id = $login_id AND company_id = $session_company_id");
+        mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id AND company_id = $session_company_id");
     }else{
     //If Username is filled in then add a login
         if(!empty($username)) {
             
-            mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = AES_ENCRYPT('$password','$config_aes_key'), login_created_at = NOW(), login_software_id = $software_id, login_client_id = $client_id, company_id = $session_company_id");
+            mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_created_at = NOW(), login_software_id = $software_id, login_client_id = $client_id, company_id = $session_company_id");
 
         }
     }
@@ -4513,7 +4544,7 @@ if(isset($_GET['export_client_logins_csv'])){
 
     $client_name = $row['client_name'];
     
-    $sql = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Logins-" . date('Y-m-d') . ".csv";
@@ -4527,7 +4558,8 @@ if(isset($_GET['export_client_logins_csv'])){
         
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
-            $lineData = array($row['login_name'], $row['login_username'], $row['login_password'], $row['login_uri'], $row['login_note']);
+            $login_password = decryptLoginEntry($row['login_password']);
+            $lineData = array($row['login_name'], $row['login_username'], $login_password, $row['login_uri'], $row['login_note']);
             fputcsv($f, $lineData, $delimiter);
         }
         
