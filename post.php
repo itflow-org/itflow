@@ -1077,7 +1077,7 @@ if(isset($_POST['encryption_update'])){
 
         //Invalidate user passwords
         //If we don't do this, users won't be able to see the new passwords properly, and could potentially add passwords that can never be decrypted
-        mysqli_query($mysqli, "UPDATE users SET user_password = 'Invalid due to upgrade' WHERE user_id NOT IN ($userion_user_id)");
+        mysqli_query($mysqli, "UPDATE users SET user_password = 'Invalid due to upgrade' WHERE user_id NOT IN ($session_user_id)");
         $extended_log_description = ", invalidated all user passwords";
         echo "Invalidated all user passwords. You must re-set them from this user account.<br>";
     }
