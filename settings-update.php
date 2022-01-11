@@ -102,6 +102,7 @@ if ($config_aes_key) {
                 <input type="password" class="form-control" placeholder="Account Password" name="password" value="" required="">
             </div>
             <br>
+            <p>Warning: This action is irreversible. Do NOT proceed without a backup.</p>
             <button type="submit" class="btn btn-danger" name="encryption_update">Update encryption scheme for this company</button>
         </div>
     </form>
@@ -109,7 +110,7 @@ if ($config_aes_key) {
 }
 else {
     echo "Config AES key is not set for this company.<br>";
-    echo "Please ensure upgrade is required. If you are sure you need to update, ensure the AES key is for this company.";
+    echo "Please ensure upgrade is required. If you are sure you need to update, ensure the AES key is set correctly for this company.";
 }
 
 ?>

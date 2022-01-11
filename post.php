@@ -1039,6 +1039,7 @@ if(isset($_POST['encryption_update'])){
     if(!password_verify($password, $row['user_password'])){
         $_SESSION['alert_message'] = "User password incorrect.";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
     }
 
     //First, check if this user is setup for the new encryption setup
