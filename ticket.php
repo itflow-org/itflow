@@ -97,6 +97,19 @@ if(isset($_GET['ticket_id'])){
   }else{
     $primary_contact_display = "<small class='text-danger'>Needs approval</small>";
   }
+    
+    
+  $ticket_related_open = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status = 'open' AND ticket_contact_id = $contact_id ");
+  $row = mysqli_fetch_array($ticket_related_open);
+  $ticket_related_open = $row['ticket_related_open'];
+  
+  $ticket_related_closed = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'closed' AND ticket_contact_id = $contact_id ");
+  $row = mysqli_fetch_array($ticket_related_closed);
+  $ticket_related_closed = $row['ticket_related_closed'];
+  
+  $ticket_related_total = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_total FROM tickets WHERE ticket_contact_id = $contact_id ");
+  $row = mysqli_fetch_array($ticket_related_total);
+  $ticket_related_total = $row['ticket_related_total'];
 
 ?>
 
@@ -287,6 +300,8 @@ if(isset($_GET['ticket_id'])){
           <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo strtoupper($contact_name); ?></strong>
           <br>
           <i class="fa fa-fw fa-info-circle text-secondary ml-1 mr-2 mb-2"></i><?php echo $primary_contact_display; ?>
+          <br>
+          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i><strong>Related tickets:</strong> Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong>  
           <hr>
           <?php
           if(!empty($location_name)){
