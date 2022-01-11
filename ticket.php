@@ -110,6 +110,18 @@ if(isset($_GET['ticket_id'])){
   $ticket_related_total = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_total FROM tickets WHERE ticket_contact_id = $contact_id ");
   $row = mysqli_fetch_array($ticket_related_total);
   $ticket_related_total = $row['ticket_related_total'];
+    
+    
+  $ticket_total_reply_time = mysqli_query($mysqli,"SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
+  $row = mysqli_fetch_array($ticket_total_reply_time);
+  $ticket_total_reply_time = $row['ticket_total_reply_time'];  
+    
+  $user_name = $row['user_name'];
+          if(empty($user_name)){
+          $user_name_display = "-";
+          }else{
+          $user_name_display = $user_name;
+          }
 
 ?>
 
@@ -382,14 +394,10 @@ if(isset($_GET['ticket_id'])){
     <div class="card card-body mb-3">
       <h4 class="text-secondary">Details</h4>
       <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i><?php echo $ticket_priority_display; ?></div>
-      <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $ticket_assigned_to_display; ?></div>
-      <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i><?php echo $ticket_created_at; ?></div>
-      <?php
-      $ticket_total_reply_time = mysqli_query($mysqli,"SELECT SEC_TO_TIME(SUM(ticket_reply_time_worked)) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
-       $row = mysqli_fetch_array($ticket_total_reply_time);
-        $ticket_total_reply_time = $row['ticket_total_reply_time'];
-        ?>
-        <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i><?php echo $ticket_total_reply_time; ?></div>
+      <div class="ml-1"><i class="fa fa-fw fa-calendar text-secondary mr-2 mb-2"></i>Created on: <?php echo $ticket_created_at; ?> by: <?php echo $ticket_reply_by_display; ?></div>
+      <div class="ml-1"><i class="fa fa-fw fa-user text-secondary outline mr-2 mb-2"></i>Assigned to: <strong><?php echo strtoupper ($ticket_assigned_to_display); ?></strong></div>
+      <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Closed by <?php echo strtoupper ($user_name); ?></a></div>
+      <div class="ml-1"><i class="fa fa-fw fa-check text-secondary mr-2 mb-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?></div>
     </div>
 
     <form action="post.php" method="post">
