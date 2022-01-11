@@ -368,7 +368,13 @@ function generateUserSessionKey($site_encryption_master_key){
     $_SESSION['user_encryption_session_iv'] = $user_encryption_session_iv;
 
     //Give the user "their" key as a cookie
-    setcookie("user_encryption_session_key", $user_encryption_session_key, 0, "/", "", "true", "true");
+    if($config_https_only){
+        setcookie("user_encryption_session_key", $user_encryption_session_key, 0, "/", "", "true", "true");
+    }
+    else {
+        // No secure flag
+        setcookie("user_encryption_session_key", $user_encryption_session_key, 0, "/", "", "false", "true");
+    }
 }
 
 //Decrypts an encrypted password (website/asset login), returns it as a string
