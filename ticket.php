@@ -97,6 +97,31 @@ if(isset($_GET['ticket_id'])){
   }else{
     $primary_contact_display = "<small class='text-danger'>Needs approval</small>";
   }
+    
+    
+  $ticket_related_open = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status = 'open' AND ticket_contact_id = $contact_id ");
+  $row = mysqli_fetch_array($ticket_related_open);
+  $ticket_related_open = $row['ticket_related_open'];
+  
+  $ticket_related_closed = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'closed' AND ticket_contact_id = $contact_id ");
+  $row = mysqli_fetch_array($ticket_related_closed);
+  $ticket_related_closed = $row['ticket_related_closed'];
+  
+  $ticket_related_total = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_total FROM tickets WHERE ticket_contact_id = $contact_id ");
+  $row = mysqli_fetch_array($ticket_related_total);
+  $ticket_related_total = $row['ticket_related_total'];
+    
+    
+  $ticket_total_reply_time = mysqli_query($mysqli,"SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
+  $row = mysqli_fetch_array($ticket_total_reply_time);
+  $ticket_total_reply_time = $row['ticket_total_reply_time'];  
+    
+  $user_name = $row['user_name'];
+          if(empty($user_name)){
+          $user_name_display = "-";
+          }else{
+          $user_name_display = $user_name;
+          }
 
 ?>
 
@@ -269,7 +294,7 @@ if(isset($_GET['ticket_id'])){
 
   <div class="col-md-3">
 
-    <div class="card mb-3">
+    <div class="card card-outline card-dark mb-3">
       <div class="card-body">
         <div>
           <h4 class="text-secondary">Client</h4>
@@ -280,13 +305,15 @@ if(isset($_GET['ticket_id'])){
 
     <?php if(!empty($contact_id)){ ?>
 
-    <div class="card mb-3">
+    <div class="card card-outline card-dark mb-3">
       <div class="card-body">
         <div>
           <h4 class="text-secondary">Contact</h4>
           <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo strtoupper($contact_name); ?></strong>
           <br>
           <i class="fa fa-fw fa-info-circle text-secondary ml-1 mr-2 mb-2"></i><?php echo $primary_contact_display; ?>
+          <br>
+          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i><strong>Related tickets:</strong> Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong>  
           <hr>
           <?php
           if(!empty($location_name)){
@@ -328,7 +355,7 @@ if(isset($_GET['ticket_id'])){
 
     <?php if(!empty($asset_id)){ ?>
 
-    <div class="card mb-3">
+    <div class="card card-outline card-dark mb-3">
       <div class="card-body">
         <div>
           <h4 class="text-secondary">Asset</h4>
@@ -364,17 +391,13 @@ if(isset($_GET['ticket_id'])){
 
     <?php } ?>
 
-    <div class="card card-body mb-3">
+    <div class="card card-body card-outline card-dark mb-3">
       <h4 class="text-secondary">Details</h4>
       <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i><?php echo $ticket_priority_display; ?></div>
-      <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $ticket_assigned_to_display; ?></div>
-      <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i><?php echo $ticket_created_at; ?></div>
-      <?php
-      $ticket_total_reply_time = mysqli_query($mysqli,"SELECT SEC_TO_TIME(SUM(ticket_reply_time_worked)) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
-       $row = mysqli_fetch_array($ticket_total_reply_time);
-        $ticket_total_reply_time = $row['ticket_total_reply_time'];
-        ?>
-        <div class="ml-1"><i class="fa fa-fw fa-clock text-secondary mr-2 mb-2"></i><?php echo $ticket_total_reply_time; ?></div>
+      <div class="ml-1"><i class="fa fa-fw fa-calendar text-secondary mr-2 mb-2"></i>Created on: <?php echo $ticket_created_at; ?> by: <?php echo $ticket_reply_by_display; ?></div>
+      <div class="ml-1"><i class="fa fa-fw fa-user text-secondary outline mr-2 mb-2"></i>Assigned to: <strong><?php echo strtoupper ($ticket_assigned_to_display); ?></strong></div>
+      <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Closed by <?php echo strtoupper ($user_name); ?></a></div>
+      <div class="ml-1"><i class="fa fa-fw fa-check text-secondary mr-2 mb-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?></div>
     </div>
 
     <form action="post.php" method="post">
@@ -411,7 +434,7 @@ if(isset($_GET['ticket_id'])){
     if($ticket_status !== "Closed"){
     ?>
 
-    <div class="card card-body mb-2">
+    <div class="card card-body card-outline card-dark mb-2">
      <div class="">
         <a href="#" class="btn btn-outline-success btn-block">INVOICE</a>
         <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">CLOSE TICKET</a>
