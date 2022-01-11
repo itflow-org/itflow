@@ -307,8 +307,7 @@ function setupFirstUserSpecificKey($user_password, $site_encryption_master_key){
 /*
 For additional users / password changes
 New Users: Requires the admin setting up their account have the their own Specific/Session key configured
-Password Changes: Will use the current info in the session. Maybe a good idea force logout users after a password change, so that upon login new session info is set fresh..
--- This logic will need to be in the pass change function itself
+Password Changes: Will use the current info in the session.
 */
 function encryptUserSpecificKey($user_password){
     $iv = keygen();
