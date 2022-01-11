@@ -294,7 +294,7 @@ if(isset($_GET['ticket_id'])){
 
   <div class="col-md-3">
 
-    <div class="card mb-3">
+    <div class="card card-outline card-dark mb-3">
       <div class="card-body">
         <div>
           <h4 class="text-secondary">Client</h4>
@@ -305,7 +305,7 @@ if(isset($_GET['ticket_id'])){
 
     <?php if(!empty($contact_id)){ ?>
 
-    <div class="card mb-3">
+    <div class="card card-outline card-dark mb-3">
       <div class="card-body">
         <div>
           <h4 class="text-secondary">Contact</h4>
@@ -355,7 +355,7 @@ if(isset($_GET['ticket_id'])){
 
     <?php if(!empty($asset_id)){ ?>
 
-    <div class="card mb-3">
+    <div class="card card-outline card-dark mb-3">
       <div class="card-body">
         <div>
           <h4 class="text-secondary">Asset</h4>
@@ -391,7 +391,7 @@ if(isset($_GET['ticket_id'])){
 
     <?php } ?>
 
-    <div class="card card-body mb-3">
+    <div class="card card-body card-outline card-dark mb-3">
       <h4 class="text-secondary">Details</h4>
       <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i><?php echo $ticket_priority_display; ?></div>
       <div class="ml-1"><i class="fa fa-fw fa-calendar text-secondary mr-2 mb-2"></i>Created on: <?php echo $ticket_created_at; ?> by: <?php echo $ticket_reply_by_display; ?></div>
@@ -434,7 +434,7 @@ if(isset($_GET['ticket_id'])){
     if($ticket_status !== "Closed"){
     ?>
 
-    <div class="card card-body mb-2">
+    <div class="card card-body card-outline card-dark mb-2">
      <div class="">
         <a href="#" class="btn btn-outline-success btn-block">INVOICE</a>
         <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">CLOSE TICKET</a>
