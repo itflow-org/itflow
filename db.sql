@@ -889,6 +889,7 @@ DROP TABLE IF EXISTS `settings`;
 CREATE TABLE `settings` (
   `company_id` int(11) NOT NULL,
   `config_api_key` varchar(200) DEFAULT NULL,
+  `config_aes_key` varchar(250) DEFAULT NULL COMMENT 'Legacy',
   `config_base_url` varchar(200) DEFAULT NULL,
   `config_smtp_host` varchar(200) DEFAULT NULL,
   `config_smtp_port` int(5) DEFAULT NULL,
