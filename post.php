@@ -1030,7 +1030,6 @@ if(isset($_GET['update_db'])){
 
 if(isset($_POST['encryption_update'])){
     $password = $_POST['password'];
-    //$session_company_id
 
     //Get user details
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = '$session_user_id'");
@@ -1038,8 +1037,8 @@ if(isset($_POST['encryption_update'])){
 
     //Verify the users password
     if(!password_verify($password, $row['user_password'])){
-        echo "Password incorrect.";
-        exit();
+        $_SESSION['alert_message'] = "User password incorrect.";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
 
     //First, check if this user is setup for the new encryption setup
@@ -1049,11 +1048,12 @@ if(isset($_POST['encryption_update'])){
         $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
     }
     else{
-        echo "Ciphertext data not found, attempting to adding it.";
+        echo "User ciphertext data not found, attempting to add it.<br>";
         $update_table = mysqli_query($mysqli, "ALTER TABLE `users` ADD `user_specific_encryption_ciphertext` VARCHAR(200) NULL AFTER `user_avatar`; ");
 
         if(!$update_table){
-            echo "Error adding ciphertext column to users table. Either there was a connection/permissions issue or the column already exists due to a upgrade already taking place?<br>";
+            echo "Error adding ciphertext column (user_specific_encryption_ciphertext) to users table.";
+            echo "Either there was a connection/permissions issue or the column already exists due to a upgrade already taking place?<br>";
             exit();
         }
 
@@ -1064,7 +1064,7 @@ if(isset($_POST['encryption_update'])){
         echo "New master key is: $site_encryption_master_key <br>";
         $user_encryption_ciphertext = setupFirstUserSpecificKey($password, $site_encryption_master_key);
 
-        $set_user_specific_key = mysqli_query($mysqli, "UPDATE users SET user_specific_encryption_ciphertext = '$user_encryption_ciphertext' user_id = '$session_user_id'");
+        $set_user_specific_key = mysqli_query($mysqli, "UPDATE users SET user_specific_encryption_ciphertext = '$user_encryption_ciphertext' WHERE user_id = '$session_user_id'");
         if(!$set_user_specific_key){
             echo "Something went wrong adding your user specific key.<br>";
             exit();
@@ -1077,7 +1077,7 @@ if(isset($_POST['encryption_update'])){
         //If we don't do this, users won't be able to see the new passwords properly, and could potentially add passwords that can never be decrypted
         mysqli_query($mysqli, "UPDATE users SET login_password = 'Invalid due to upgrade'");
         $extended_log_description = ", invalidated all user passwords";
-        echo "Invalidated all user passwords. You must re-set them from this user.<br>";
+        echo "Invalidated all user passwords. You must re-set them from this user account.<br>";
     }
 
     //Either way, if we got here we now have the master key as $site_encryption_master_key
@@ -1096,7 +1096,10 @@ if(isset($_POST['encryption_update'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Migrate', log_description = '$session_name upgraded $session_company_id logins to the new encryption scheme$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    echo "Migration for company successful.";
+    echo "Migration for company successful.<br>";
+    $_SESSION['alert_message'] = "Migration for company successful.";
+
+    echo "<a href='/settings-update.php'>Back to settings.</a>";
 
 }
 

@@ -70,7 +70,7 @@ $git_log = shell_exec("git log master..origin/master --pretty=format:'<tr><td>%h
     <center>
         <div class="col-8">
             <div class="alert alert-danger" role="alert">
-                <strong>You only need to continue with this action if you are upgrading/migrating to the new encryption setup.</strong>
+                <strong>You only need to continue with this action if you are upgrading/migrating to the new (post Jan 2022) encryption setup.</strong>
                 <ul>
                     <li>Please take a backup of your current AES config key (for each company), and your 'logins' database table</li>
                     <li>Please ensure you have access to ALL companies registered under this instance, if using multiple companies. Only one user should perform the entire migration.</li>
@@ -86,7 +86,7 @@ echo "Current Company ID: $session_company_id <br>";
 echo "Current User ID: $session_user_id <br>";
 
 if ($config_aes_key) {
-    echo "Current AES key:  $config_aes_key <br><br>";
+    echo "Current (legacy) AES key:  $config_aes_key <br><br>";
     echo "<b>Below are the decrypted credentials for five login entries, please confirm they show and are correct before continuing. <br>Do NOT continue if no entries are shown or if the decrypted passwords are incorrect.</b><br>";
     $sql = mysqli_query($mysqli,"SELECT *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins WHERE (company_id = '$session_company_id' AND login_password IS NOT NULL) LIMIT 5");
     foreach ($sql as $row){
