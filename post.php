@@ -1052,8 +1052,9 @@ if(isset($_POST['encryption_update'])){
         $update_table = mysqli_query($mysqli, "ALTER TABLE `users` ADD `user_specific_encryption_ciphertext` VARCHAR(200) NULL AFTER `user_avatar`; ");
 
         if(!$update_table){
-            echo "Error adding ciphertext column (user_specific_encryption_ciphertext) to users table.";
-            echo "Either there was a connection/permissions issue or the column already exists due to a upgrade already taking place?<br>";
+            echo "Error adding ciphertext column (user_specific_encryption_ciphertext) to users table.<br>";
+            echo "Either there was a connection/permissions issue or the column already exists (due to a upgrade already taking place?)<br>";
+            echo "Quitting to prevent compromising data integrity. Delete the column if you are sure you need to upgrade (presuming it contains no data).<br>";
             exit();
         }
 
@@ -1094,7 +1095,7 @@ if(isset($_POST['encryption_update'])){
     echo "Upgraded $count records.<br>";
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Migrate', log_description = '$session_name upgraded $session_company_id logins to the new encryption scheme$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Migrate', log_description = '$session_name upgraded company ID $session_company_id logins ($count total) to the new encryption scheme$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     echo "Migration for company successful.<br>";
     $_SESSION['alert_message'] = "Migration for company successful.";
