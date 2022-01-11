@@ -6565,11 +6565,12 @@ if(isset($_GET['logout'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Logout', log_action = 'Success', log_description = '$session_name logged out', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id");
 
     session_start();
-    session_destroy();
 
+    setcookie("user_encryption_session_key", '', time() - 3600, "/");
     unset($_COOKIE['user_encryption_session_key']);
-    setcookie("user_encryption_session_key", '', time() - 3600, "/", "", "true", "true");
 
+    session_unset();
+    session_destroy();
 
     header('Location: login.php');
 }

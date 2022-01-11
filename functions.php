@@ -369,12 +369,13 @@ function generateUserSessionKey($site_encryption_master_key){
 
     //Give the user "their" key as a cookie
     //By default, this should be HTTPS but we can change to HTTP for development via the config.php file
+    include('config.php');
     if($config_https_only){
         setcookie("user_encryption_session_key", $user_encryption_session_key, 0, "/", "", "true", "true");
     }
     else{
         setcookie("user_encryption_session_key", $user_encryption_session_key, 0, "/");
-        $_SESSION['alert_message'] = "Unencrypted connection: Using HTTP only.";
+        $_SESSION['alert_message'] = "Unencrypted connection flag set: Using non-secure cookies.";
     }
 }
 
