@@ -41,7 +41,7 @@ if(isset($_GET['o'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS *, AES_DECRYPT(login_password, '$config_aes_key') AS login_password FROM logins 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM logins 
   WHERE login_client_id = $client_id 
   AND (login_name LIKE '%$q%' OR login_username LIKE '%$q%' OR login_uri LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
@@ -112,7 +112,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $login_username_display = "$login_username<button class='btn btn-sm' data-clipboard-text='$login_username'><i class='far fa-copy text-secondary'></i></button>";
             }
-            $login_password = htmlentities($row['login_password']);
+            $login_password = htmlentities(decryptLoginEntry($row['login_password']));
             $login_otp_secret = $row['login_otp_secret'];
             if(empty($login_otp_secret)){
               $otp_display = "-";

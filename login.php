@@ -45,6 +45,13 @@ if(isset($_POST['login'])){
     $user_name = $row['user_name'];
     $user_id = $row['user_id'];
 
+    //Setup encryption session key
+    if(isset($row['user_specific_encryption_ciphertext'])){
+        $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
+        $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
+        generateUserSessionKey($site_encryption_master_key);
+    }
+
     if(empty($token)){
       $_SESSION['logged'] = TRUE;
       mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$user_name successfully logged in', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
