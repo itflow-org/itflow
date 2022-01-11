@@ -889,7 +889,7 @@ DROP TABLE IF EXISTS `settings`;
 CREATE TABLE `settings` (
   `company_id` int(11) NOT NULL,
   `config_api_key` varchar(200) DEFAULT NULL,
-  `config_aes_key` varchar(250) DEFAULT NULL,
+  `config_aes_key` varchar(250) DEFAULT NULL COMMENT 'Legacy',
   `config_base_url` varchar(200) DEFAULT NULL,
   `config_smtp_host` varchar(200) DEFAULT NULL,
   `config_smtp_port` int(5) DEFAULT NULL,
@@ -1163,6 +1163,7 @@ CREATE TABLE `users` (
   `user_email` varchar(200) NOT NULL,
   `user_password` varchar(200) NOT NULL,
   `user_token` varchar(200) DEFAULT NULL,
+  `user_specific_encryption_ciphertext` varchar(200) DEFAULT NULL,
   `user_avatar` varchar(200) DEFAULT NULL,
   `user_created_at` datetime NOT NULL,
   `user_updated_at` datetime DEFAULT NULL,
