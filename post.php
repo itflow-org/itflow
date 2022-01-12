@@ -5080,7 +5080,7 @@ if(isset($_GET['delete_ticket'])){
 
     $_SESSION['alert_message'] = "Ticket deleted";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: tickets.php");
   
 }
 
