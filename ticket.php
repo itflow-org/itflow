@@ -148,6 +148,7 @@ if(isset($_GET['ticket_id'])){
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">Merge</a>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item text-danger" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
       </div>
@@ -449,7 +450,10 @@ if(isset($_GET['ticket_id'])){
 
 </div>
 
-<?php include("edit_ticket_modal.php"); ?>
+<?php
+      include("edit_ticket_modal.php");
+      include("merge_ticket_modal.php");
+?>
 
 <?php
 
