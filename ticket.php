@@ -140,8 +140,8 @@ if(isset($_GET['ticket_id'])){
   <div class="col-9">
     <h3>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <?php echo $ticket_status_display; ?></h3>
   </div>
+  <?php if($ticket_status != "Closed") { ?>
   <div class="col-3">
-
     <div class="dropdown dropleft text-center">
       <button class="btn btn-secondary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown">
         <i class="fas fa-fw fa-ellipsis-v"></i>
@@ -154,6 +154,7 @@ if(isset($_GET['ticket_id'])){
       </div>
     </div>
   </div>
+  <?php } ?>
 </div>
 
 <div class="row">
