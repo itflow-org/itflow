@@ -149,7 +149,7 @@ if(isset($_GET['ticket_id'])){
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item text-danger" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
+        <a class="dropdown-item text-danger" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
       </div>
     </div>
   </div>
