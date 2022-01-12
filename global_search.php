@@ -6,10 +6,10 @@ if(isset($_GET['query'])){
 
   $query = mysqli_real_escape_string($mysqli,$_GET['query']);
 
-  $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY client_id DESC LIMIT 5");
+  $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN locations ON clients.client_id = locations.location_client_id WHERE client_name LIKE '%$query%' AND clients.company_id = $session_company_id ORDER BY client_id DESC LIMIT 5");
   $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY vendor_id DESC LIMIT 5");
   $sql_products = mysqli_query($mysqli,"SELECT * FROM products WHERE product_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY product_id DESC LIMIT 5");
-  $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_description LIKE '%$query%' AND company_id = $session_company_id ORDER BY login_id DESC LIMIT 5");
+  $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY login_id DESC LIMIT 5");
 
 ?>
 
@@ -37,18 +37,18 @@ if(isset($_GET['query'])){
             while($row = mysqli_fetch_array($sql_clients)){
               $client_id = $row['client_id'];
               $client_name = $row['client_name'];
-              $client_phone = $row['client_phone'];
-              if(strlen($client_phone)>2){ 
-                $client_phone = substr($row['client_phone'],0,3)."-".substr($row['client_phone'],3,3)."-".substr($row['client_phone'],6,4);
+              $location_phone = $row['location_phone'];
+              if(strlen($location_phone)>2){
+                $location_phone = substr($row['location_phone'],0,3)."-".substr($row['location_phone'],3,3)."-".substr($row['location_phone'],6,4);
               }
-              $client_email = $row['client_email'];
+              //$client_email = $row['client_email'];
               $client_website = $row['client_website'];
 
             ?>
             <tr>
-              <td><a href="client.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
-              <td><a href="mailto:<?php echo$email; ?>"><?php echo $client_email; ?></a></td>
-              <td><?php echo $client_phone; ?></td>
+              <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a></td>
+              <td><a href="mailto:<?php //echo $email; ?>"><?php //echo $client_email; ?></a></td>
+              <td><?php echo $location_phone; ?></td>
             </tr>
 
             <?php
@@ -149,12 +149,12 @@ if(isset($_GET['query'])){
             <?php
         
             while($row = mysqli_fetch_array($sql_logins)){
-              $login_description = $row['$login_description'];
-              $login_username = $row['$login_username'];
-              $login_password = $row['$login_password'];
+              $login_name = $row['login_name'];
+              $login_username = $row['login_username'];
+              $login_password = decryptLoginEntry($row['login_password']);
             ?>
             <tr>
-              <td><?php echo $login_description; ?></td>
+              <td><?php echo $login_name; ?></td>
               <td><?php echo $login_username; ?></td>
               <td><?php echo $login_password; ?></td>
 
