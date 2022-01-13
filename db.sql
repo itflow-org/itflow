@@ -415,6 +415,7 @@ DROP TABLE IF EXISTS `events`;
 CREATE TABLE `events` (
   `event_id` int(11) NOT NULL AUTO_INCREMENT,
   `event_title` varchar(200) NOT NULL,
+  `event_description` longtext DEFAULT NULL,
   `event_start` datetime NOT NULL,
   `event_end` datetime DEFAULT NULL,
   `event_repeat` varchar(200) DEFAULT NULL,
@@ -889,7 +890,7 @@ DROP TABLE IF EXISTS `settings`;
 CREATE TABLE `settings` (
   `company_id` int(11) NOT NULL,
   `config_api_key` varchar(200) DEFAULT NULL,
-  `config_aes_key` varchar(250) DEFAULT NULL COMMENT 'Legacy',
+  `config_aes_key` varchar(250) DEFAULT NULL,
   `config_base_url` varchar(200) DEFAULT NULL,
   `config_smtp_host` varchar(200) DEFAULT NULL,
   `config_smtp_port` int(5) DEFAULT NULL,
@@ -1163,8 +1164,8 @@ CREATE TABLE `users` (
   `user_email` varchar(200) NOT NULL,
   `user_password` varchar(200) NOT NULL,
   `user_token` varchar(200) DEFAULT NULL,
-  `user_specific_encryption_ciphertext` varchar(200) DEFAULT NULL,
   `user_avatar` varchar(200) DEFAULT NULL,
+  `user_specific_encryption_ciphertext` varchar(200) DEFAULT NULL,
   `user_created_at` datetime NOT NULL,
   `user_updated_at` datetime DEFAULT NULL,
   `user_archived_at` datetime DEFAULT NULL,
@@ -1214,4 +1215,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-08 15:07:57
+-- Dump completed on 2022-01-12 19:48:54
