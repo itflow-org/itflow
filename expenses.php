@@ -69,6 +69,12 @@ if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
   $dtt = "9999-00-00";
 }
 
+if(empty($_GET['canned_date'])){
+  //Prevents lots of undefined variable errors.
+  // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
+  $_GET['canned_date'] = 'custom';
+}
+
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 

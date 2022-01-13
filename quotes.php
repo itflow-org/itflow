@@ -38,6 +38,12 @@ if(isset($_GET['o'])){
   $disp = "ASC";
 }
 
+if(empty($_GET['canned_date'])){
+  //Prevents lots of undefined variable errors.
+  // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
+  $_GET['canned_date'] = 'custom';
+}
+
 //Date Filter
 if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
   $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
@@ -174,7 +180,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $quote_currency_code = $row['quote_currency_code'];
             $quote_created_at = $row['quote_created_at'];
             $client_id = $row['client_id'];
-            $client_name = $row['client_name'];
+            $client_name = htmlentities($row['client_name']);
             $client_email = $row['client_email'];
             $client_currency_code = $row['client_currency_code'];
             $category_id = $row['category_id'];

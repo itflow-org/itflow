@@ -36,6 +36,12 @@
     $disp = "ASC";
   }
 
+  if(empty($_GET['canned_date'])){
+    //Prevents lots of undefined variable errors.
+    // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
+    $_GET['canned_date'] = 'custom';
+  }
+
   //Date Filter
   if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
     $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
