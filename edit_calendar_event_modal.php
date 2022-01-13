@@ -22,6 +22,11 @@
               <input type="text" class="form-control" name="title" value="<?php echo $event_title; ?>" placeholder="Title of the event" required>
             </div>
           </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" rows="3" name="description" placeholder="Enter a description"><?php echo $event_description; ?></textarea>
+          </div>
           
           <div class="form-group">
             <label>Calendar <strong class="text-danger">*</strong></label>
@@ -48,7 +53,7 @@
           </div>
           
           <div class="form-group">
-            <label>Starts <strong class="text-danger">*</strong></label>
+            <label>Start <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
@@ -58,7 +63,7 @@
           </div>
           
           <div class="form-group">
-            <label>Ends <strong class="text-danger">*</strong></label>
+            <label>End <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>

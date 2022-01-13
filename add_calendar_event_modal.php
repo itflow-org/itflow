@@ -11,16 +11,6 @@
         <div class="modal-body bg-white">
           
           <div class="form-group">
-            <label>Title <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
-              </div>
-              <input type="text" class="form-control" name="title" placeholder="Title of the event" required autofocus>
-            </div>
-          </div>
-          
-          <div class="form-group">
             <label>Calendar <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -49,7 +39,22 @@
           </div>
           
           <div class="form-group">
-            <label>Starts <strong class="text-danger">*</strong></label>
+            <label>Title <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
+              </div>
+              <input type="text" class="form-control" name="title" placeholder="Title of the event" required autofocus>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" rows="3" name="description" placeholder="Enter a description"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Start <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
@@ -59,7 +64,7 @@
           </div>
           
           <div class="form-group">
-            <label>Ends <strong class="text-danger">*</strong></label>
+            <label>End <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>

@@ -64,10 +64,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
     //Alert Feedback
     if(!empty($_SESSION['alert_message'])){
         if (!isset($_SESSION['alert_type'])){
-            $_SESSION['alert_type'] = "primary";
+            $_SESSION['alert_type'] = "info";
         }
       ?>
-        <div class="alert alert-info alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
+        <div class="alert alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
           <?php echo $_SESSION['alert_message']; ?>
           <button class='close' data-dismiss='alert'>&times;</button>
         </div>
