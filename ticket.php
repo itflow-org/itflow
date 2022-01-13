@@ -140,19 +140,21 @@ if(isset($_GET['ticket_id'])){
   <div class="col-9">
     <h3>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <?php echo $ticket_status_display; ?></h3>
   </div>
+  <?php if($ticket_status != "Closed") { ?>
   <div class="col-3">
-
     <div class="dropdown dropleft text-center">
       <button class="btn btn-secondary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown">
         <i class="fas fa-fw fa-ellipsis-v"></i>
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">Merge</a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item text-danger" href="post.php?delete_client=<?php echo $client_id; ?>">Delete</a>
+        <a class="dropdown-item text-danger" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
       </div>
     </div>
   </div>
+  <?php } ?>
 </div>
 
 <div class="row">
@@ -449,7 +451,10 @@ if(isset($_GET['ticket_id'])){
 
 </div>
 
-<?php include("edit_ticket_modal.php"); ?>
+<?php
+      include("edit_ticket_modal.php");
+      include("merge_ticket_modal.php");
+?>
 
 <?php
 

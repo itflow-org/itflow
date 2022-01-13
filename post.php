@@ -5080,7 +5080,7 @@ if(isset($_GET['delete_ticket'])){
 
     $_SESSION['alert_message'] = "Ticket deleted";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: tickets.php");
   
 }
 
@@ -5140,6 +5140,74 @@ if(isset($_GET['archive_ticket_reply'])){
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
+}
+
+if(isset($_GET['merge_ticket_get_json_details'])){
+    $merge_into_ticket_number = intval($_GET['merge_into_ticket_number']);
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM tickets
+      LEFT JOIN clients ON ticket_client_id = client_id 
+      LEFT JOIN contacts ON ticket_contact_id = contact_id
+      WHERE ticket_number = '$merge_into_ticket_number' AND tickets.company_id = '$session_company_id'");
+
+    if(mysqli_num_rows($sql) == 0){
+        //Do nothing.
+    }
+    else {
+        //Return ticket, client and contact details for the given ticket number
+        $row = mysqli_fetch_array($sql);
+        echo json_encode($row);
+    }
+}
+
+if(isset($_POST['merge_ticket'])){
+    $ticket_id = intval($_POST['ticket_id']);
+    $merge_into_ticket_number = intval($_POST['merge_into_ticket_number']);
+    $merge_comment = trim(mysqli_real_escape_string($mysqli,$_POST['merge_comment']));
+    $ticket_reply_type = 'Internal';
+
+    //Get current ticket details
+    $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_details FROM tickets WHERE ticket_id = '$ticket_id'");
+    if(mysqli_num_rows($sql) == 0){
+        $_SESSION['alert_message'] = "No ticket with that ID found.";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+    $row = mysqli_fetch_array($sql);
+    $ticket_prefix = trim(mysqli_real_escape_string($mysqli,$row['ticket_prefix']));
+    $ticket_number = trim(mysqli_real_escape_string($mysqli,$row['ticket_number']));
+    $ticket_subject = trim(mysqli_real_escape_string($mysqli,$row['ticket_subject']));
+    $ticket_details = trim(mysqli_real_escape_string($mysqli,$row['ticket_details']));
+
+    //Get merge into ticket id (as it may differ from the number)
+    $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_number = '$merge_into_ticket_number'");
+    if(mysqli_num_rows($sql) == 0){
+        $_SESSION['alert_message'] = "Cannot merge into that ticket.";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+    $merge_row = mysqli_fetch_array($sql);
+    $merge_into_ticket_id = trim(mysqli_real_escape_string($mysqli,$merge_row['ticket_id']));
+
+    if($ticket_number == $merge_into_ticket_number){
+        $_SESSION['alert_message'] = "Cannot merge into the same ticket.";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+
+    //Update current ticket
+    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number merged into $ticket_prefix$merge_into_ticket_number. Comment: $merge_comment', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_created_at = NOW(), ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed', ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
+
+    //Update new ticket
+    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number was merged into this ticket with comment: $merge_comment.<br><b>$ticket_subject</b><br>$ticket_details', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_created_at = NOW(), ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $merge_into_ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Merged', log_description = 'Merged ticket $ticket_prefix$ticket_number into $ticket_prefix$merge_into_ticket_number', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Ticket merged into $ticket_prefix$merge_into_ticket_number.";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
 
 if(isset($_GET['close_ticket'])){
