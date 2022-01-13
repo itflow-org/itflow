@@ -1109,6 +1109,7 @@ if(isset($_POST['add_client'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $location_phone = preg_replace("/[^0-9]/", '',$_POST['location_phone']);
     $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
     $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
     $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
@@ -1116,10 +1117,10 @@ if(isset($_POST['add_client'])){
     $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
     $contact = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact'])));
     $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
-    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
-    $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
+    $contact_phone = preg_replace("/[^0-9]/", '',$_POST['contact_phone']);
+    $contact_extension = preg_replace("/[^0-9]/", '',$_POST['contact_extension']);
+    $contact_mobile = preg_replace("/[^0-9]/", '',$_POST['contact_mobile']);
+    $contact_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_email'])));
     $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
     $referral = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['referral'])));
     $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
@@ -1136,7 +1137,7 @@ if(isset($_POST['add_client'])){
     }
 
     //Add Location
-    if(!empty($address) OR !empty($city) OR !empty($state) OR !empty($zip)){
+    if(!empty($location_phone) OR !empty($address) OR !empty($city) OR !empty($state) OR !empty($zip)){
         mysqli_query($mysqli,"INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_country = '$country', location_created_at = NOW(), location_client_id = $client_id, company_id = $session_company_id");
         
         //Update Primay location in clients
@@ -1149,8 +1150,8 @@ if(isset($_POST['add_client'])){
 
     
     //Add Contact
-    if(!empty($contact) OR !empty($title) OR !empty($phone) OR !empty($mobile) OR !empty($email)){
-        mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$contact', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_photo = '$path', contact_notes = '$notes', contact_created_at = NOW(), contact_client_id = $client_id, company_id = $session_company_id");
+    if(!empty($contact) OR !empty($title) OR !empty($contact_phone) OR !empty($contact_mobile) OR !empty($contact_email)){
+        mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$contact', contact_title = '$title', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_created_at = NOW(), contact_client_id = $client_id, company_id = $session_company_id");
         
         //Update Primay contact in clients
         $contact_id = mysqli_insert_id($mysqli);

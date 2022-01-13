@@ -15,7 +15,7 @@
               <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-toggle="pill" href="#pills-address">Address</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-location">Location</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" data-toggle="pill" href="#pills-contact">Contact</a>
@@ -80,10 +80,31 @@
                 </div>
               </div>
 
+              <div class="form-group">
+                <label>Website</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="website" placeholder="ex. google.com">
+                </div>
+              </div>
+
             </div>
           
-            <div class="tab-pane fade" id="pills-address">
-
+            <div class="tab-pane fade" id="pills-location">
+  
+              <label>Location Phone</label>
+        
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="location_phone" placeholder="Location's Phone Number"> 
+                </div>
+              </div>
+            
               <div class="form-group">
                 <label>Address</label>
                 <div class="input-group">
@@ -163,7 +184,7 @@
                 </div>
               </div>
 
-              <label>Phone</label>
+              <label>Contact Phone</label>
               <div class="form-row">
                 <div class="col-8">
                   <div class="form-group">
@@ -171,43 +192,33 @@
                       <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                       </div>
-                      <input type="text" class="form-control" name="phone" placeholder="Phone Number"> 
+                      <input type="text" class="form-control" name="contact_phone" placeholder="Contact's Phone Number"> 
                     </div>
                   </div>
                 </div>
                 <div class="col-4">
-                  <input type="text" class="form-control" name="extension" placeholder="Extension">
+                  <input type="text" class="form-control" name="contact_extension" placeholder="Extension">
                 </div>
               </div>
 
-              <label>Mobile</label>
+              <label>Contact Mobile</label>
           
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="mobile" placeholder="Mobile Number"> 
+                  <input type="text" class="form-control" name="contact_mobile" placeholder="Contact's Mobile Number"> 
                 </div>
               </div>
               
               <div class="form-group">
-                <label>Email</label>
+                <label>Contact Email</label>
                 <div class="input-group"> 
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                   </div>
-                  <input type="email" class="form-control" name="email" placeholder="Email Address">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Website</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="website" placeholder="ex. google.com">
+                  <input type="email" class="form-control" name="contact_email" placeholder="Contact's Email Address">
                 </div>
               </div>
             
