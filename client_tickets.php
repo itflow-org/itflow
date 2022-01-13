@@ -88,8 +88,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_number&o=<?php echo $disp; ?>">Number</a></th> 
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_subject&o=<?php echo $disp; ?>">Subject</a></th> 
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Contact</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_subject&o=<?php echo $disp; ?>">Email</a></th>           
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Contact</a></th>          
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_priority&o=<?php echo $disp; ?>">Priority</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_status&o=<?php echo $disp; ?>">Status</a>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">Assigned</a></th>
@@ -144,6 +143,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }
             $contact_id = $row['contact_id'];
             $contact_name = $row['contact_name'];
+            if(empty($contact_name)){
+              $contact_display = "-";
+            }else{
+              $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
+            }
             $contact_title = $row['contact_title'];
             $contact_email = $row['contact_email'];
             $contact_phone = $row['contact_phone'];
@@ -160,11 +164,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <tr>
             <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
-             <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
-             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $contact_name; ?></a></td>
-             <td><?php echo $contact_email; ?></td>
-             <td><?php echo $ticket_priority_display; ?></td>
-             <td><?php echo $ticket_status_display; ?></td>                   
+            <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
+            <td><?php echo $contact_display; ?></td>
+            <td><?php echo $ticket_priority_display; ?></td>
+            <td><?php echo $ticket_status_display; ?></td>                   
             <td><?php echo $ticket_assigned_to_display; ?></td>
             <td><?php echo $ticket_updated_at_display; ?></td>
             <td><?php echo $ticket_created_at; ?></td>
