@@ -24,6 +24,7 @@ $sql = mysqli_query($mysqli,"SELECT * FROM events, calendars WHERE event_calenda
 while($row = mysqli_fetch_array($sql)){
   $event_id = $row['event_id'];
   $event_title = $row['event_title'];
+  $event_description = $row['event_description'];
   $event_start = $row['event_start'];
   $event_end = $row['event_end'];
   $event_repeat = $row['event_repeat'];

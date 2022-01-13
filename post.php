@@ -1313,13 +1313,14 @@ if(isset($_POST['add_event'])){
 
     $calendar_id = intval($_POST['calendar']);
     $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $start = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start'])));
     $end = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['end'])));
     $repeat = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['repeat'])));
     $client = intval($_POST['client']);
     $email_event = intval($_POST['email_event']);
 
-    mysqli_query($mysqli,"INSERT INTO events SET event_title = '$title', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_created_at = NOW(), event_calendar_id = $calendar_id, event_client_id = $client, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO events SET event_title = '$title', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_created_at = NOW(), event_calendar_id = $calendar_id, event_client_id = $client, company_id = $session_company_id");
 
     //If email is checked
     if($email_event == 1){
@@ -1389,13 +1390,14 @@ if(isset($_POST['edit_event'])){
     $event_id = intval($_POST['event_id']);
     $calendar_id = intval($_POST['calendar']);
     $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
+    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $start = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start'])));
     $end = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['end'])));
     $repeat = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['repeat'])));
     $client = intval($_POST['client']);
     $email_event = intval($_POST['email_event']);
 
-    mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_updated_at = NOW(), event_calendar_id = $calendar_id, event_client_id = $client WHERE event_id = $event_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_updated_at = NOW(), event_calendar_id = $calendar_id, event_client_id = $client WHERE event_id = $event_id AND company_id = $session_company_id");
 
     //If email is checked
     if($email_event == 1){
