@@ -110,7 +110,6 @@ if(isset($_GET['ticket_id'])){
     $primary_contact_display = "<small class='text-danger'>Needs approval</small>";
   }
     
-    
   //Get Contact Ticket Stats
   $ticket_related_open = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status = 'open' AND ticket_contact_id = $contact_id ");
   $row = mysqli_fetch_array($ticket_related_open);
@@ -127,7 +126,26 @@ if(isset($_GET['ticket_id'])){
   //Get Total Ticket Time  
   $ticket_total_reply_time = mysqli_query($mysqli,"SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
   $row = mysqli_fetch_array($ticket_total_reply_time);
-  $ticket_total_reply_time = $row['ticket_total_reply_time'];  
+  $ticket_total_reply_time = $row['ticket_total_reply_time'];
+
+  //Client Tags
+  $client_tag_name_display_array = array();
+  $client_tag_id_array = array();
+  $sql_client_tags = mysqli_query($mysqli,"SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_tags.client_id = $client_id");
+  while($row = mysqli_fetch_array($sql_client_tags)){
+
+    $client_tag_id = $row['tag_id'];
+    $client_tag_name = $row['tag_name'];
+    $client_tag_color = $row['tag_color'];
+    $client_tag_icon = $row['tag_icon'];
+    if(empty($client_tag_icon)){
+      $client_tag_icon = "tag";
+    }
+  
+    $client_tag_id_array[] = $client_tag_id;
+    $client_tag_name_display_array[] = "<span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon'></i> $client_tag_name</span>";
+  }
+  $client_tags_display = implode(' ', $client_tag_name_display_array);
 
 ?>
 
@@ -313,6 +331,13 @@ if(isset($_GET['ticket_id'])){
           <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i><?php echo $location_phone; ?>
           <br>
           <?php
+          }
+          ?>
+          
+          <?php
+          if(!empty($client_tags_display)){
+            
+            echo "<br>$client_tags_display";
           }
           ?>
         </div>
