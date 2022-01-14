@@ -3623,6 +3623,8 @@ if(isset($_GET['email_invoice'])){
     $contact_extension = $row['contact_extension'];
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $client_website = $row['client_website'];
+    $client_currency_code = $row['client_currency_code'];
+    $client_currency_symbol = htmlentities(get_currency_symbol($client_currency_code)); //Needs HTML entities due to encoding (Â was showing up)
     $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
     $company_name = $row['company_name'];
     $company_country = $row['company_country'];
@@ -3674,7 +3676,7 @@ if(isset($_GET['email_invoice'])){
         }else{
 
             $mail->Subject = "Invoice $invoice_prefix$invoice_number";
-            $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Balance Due: $$balance<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+            $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $client_currency_symbol$invoice_amount<br>Balance Due: $client_currency_symbol$balance<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
             //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         }
         
