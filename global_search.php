@@ -16,7 +16,9 @@ if(isset($_GET['query'])){
 <h3><i class="fa fa-search"></i> Welcome to Global Search...</h3>
 <hr>
 <div class="row">
-  
+
+  <!-- Clients-->
+
   <div class="col-6">
     <div class="card mb-3">
       <div class="card-header">
@@ -61,6 +63,7 @@ if(isset($_GET['query'])){
     </div>
   </div>
 
+  <!-- Vendors -->
   <div class="col-6">
     <div class="card mb-3">
       <div class="card-header">
@@ -96,6 +99,7 @@ if(isset($_GET['query'])){
     </div>
   </div>
 
+  <!-- Products -->
   <div class="col-6">
     <div class="card mb-3">
       <div class="card-header">
@@ -131,6 +135,7 @@ if(isset($_GET['query'])){
     </div>
   </div>
 
+  <!-- Logins -->
   <div class="col-6">
     <div class="card mb-3">
       <div class="card-header">
