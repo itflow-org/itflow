@@ -11,6 +11,7 @@ if(isset($_GET['query'])){
   $sql_products = mysqli_query($mysqli,"SELECT * FROM products WHERE product_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY product_id DESC LIMIT 5");
   $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY login_id DESC LIMIT 5");
 
+  $q = htmlentities($_GET['query']);
 ?>
 
 <h3><i class="fa fa-search"></i> Welcome to Global Search...</h3>
@@ -75,6 +76,7 @@ if(isset($_GET['query'])){
             <tr>
               <th>Name</th>
               <th>Description</th>
+              <th>Phone</th>
             </tr>
           </thead>
           <tbody>
@@ -83,10 +85,12 @@ if(isset($_GET['query'])){
             while($row = mysqli_fetch_array($sql_vendors)){
               $vendor_name = $row['vendor_name'];
               $vendor_description = $row['vendor_description'];
+              $vendor_phone = $row['vendor_phone'];
             ?>
             <tr>
-              <td><?php echo $vendor_name; ?></td>
+              <td><a href="vendors.php?q=<?php echo $q ?>"><?php echo $vendor_name; ?></a></td>
               <td><?php echo $vendor_description; ?></td>
+              <td><?php echo $vendor_phone; ?></td>
             </tr>
 
             <?php
@@ -121,7 +125,7 @@ if(isset($_GET['query'])){
               $product_description = $row['product_description'];
             ?>
             <tr>
-              <td><?php echo $product_name; ?></td>
+              <td><a href="products.php?q=<?php echo $q ?>"><?php echo $product_name; ?></a></td>
               <td><?php echo $product_description; ?></td>
             </tr>
 
@@ -155,12 +159,13 @@ if(isset($_GET['query'])){
         
             while($row = mysqli_fetch_array($sql_logins)){
               $login_name = $row['login_name'];
+              $login_client_id = $row['login_client_id'];
               $login_username = $row['login_username'];
               $login_password = decryptLoginEntry($row['login_password']);
 
             ?>
             <tr>
-              <td><?php echo $login_name; ?></td>
+              <td><a href="client.php?client_id=<?php echo $login_client_id ?>&tab=logins&q=<?php echo $q ?>"><?php echo $login_name; ?></a></td>
               <td><?php echo $login_username; ?></td>
               <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
 
