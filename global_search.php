@@ -9,7 +9,7 @@ if(isset($_GET['query'])){
     $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN locations ON clients.client_id = locations.location_client_id WHERE client_name LIKE '%$query%' AND clients.company_id = $session_company_id ORDER BY client_id DESC LIMIT 5");
     $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY vendor_id DESC LIMIT 5");
     $sql_products = mysqli_query($mysqli,"SELECT * FROM products WHERE product_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY product_id DESC LIMIT 5");
-    $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY login_id DESC LIMIT 5");
+    $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE (login_name LIKE '%$query%' OR login_username LIKE '%$query%') AND company_id = $session_company_id ORDER BY login_id DESC LIMIT 5");
     $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients on tickets.ticket_client_id = clients.client_id WHERE (ticket_subject LIKE '%$query%' OR ticket_number = '$query') AND tickets.company_id = $session_company_id ORDER BY ticket_id DESC LIMIT 5");
 
     $q = htmlentities($_GET['query']);
