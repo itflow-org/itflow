@@ -324,7 +324,7 @@ if(isset($_GET['ticket_id'])){
       <div class="card-body">
         <div>
           <h4 class="text-secondary">Client</h4>
-          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo strtoupper($client_name); ?></strong>
+          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $client_name; ?></strong>
           <?php
           if(!empty($location_phone)){
           ?>
@@ -350,11 +350,11 @@ if(isset($_GET['ticket_id'])){
       <div class="card-body">
         <div>
           <h4 class="text-secondary">Contact</h4>
-          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo strtoupper($contact_name); ?></strong>
+          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $contact_name; ?></strong>
           <br>
           <i class="fa fa-fw fa-info-circle text-secondary ml-1 mr-2 mb-2"></i><?php echo $primary_contact_display; ?>
           <br>
-          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i><strong>Related tickets:</strong> Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong>  
+          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i>Related tickets: Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong>  
           <hr>
           <?php
           if(!empty($location_name)){
@@ -400,7 +400,7 @@ if(isset($_GET['ticket_id'])){
       <div class="card-body">
         <div>
           <h4 class="text-secondary">Asset</h4>
-          <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo strtoupper($asset_name); ?></strong>
+          <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $asset_name; ?></strong>
           <br>
           <?php
           if(!empty($asset_make)){
