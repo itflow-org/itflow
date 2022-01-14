@@ -320,11 +320,10 @@ if(isset($_GET['ticket_id'])){
 
   <div class="col-md-3">
 
-    <div class="card card-outline card-dark mb-3">
+    <div class="card card-outline card-primary mb-3">
       <div class="card-body">
         <div>
-          <h4 class="text-secondary">Client</h4>
-          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $client_name; ?></strong>
+          <h5><strong><?php echo $client_name; ?></strong></h5>
           <?php
           if(!empty($location_phone)){
           ?>
@@ -335,9 +334,8 @@ if(isset($_GET['ticket_id'])){
           ?>
           
           <?php
-          if(!empty($client_tags_display)){
-            
-            echo "<br>$client_tags_display";
+          if(!empty($client_tags_display)){     
+            echo "$client_tags_display";
           }
           ?>
         </div>
