@@ -2953,6 +2953,8 @@ if(isset($_GET['email_quote'])){
     $contact_extension = $row['contact_extension'];
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $client_website = $row['client_website'];
+    $client_currency_code = $row['client_currency_code'];
+    $client_currency_symbol = htmlentities(get_currency_symbol($client_currency_code)); //Needs HTML entities due to encoding (Â was showing up)
     $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
     $company_name = $row['company_name'];
     $company_country = $row['company_country'];
@@ -2993,7 +2995,7 @@ if(isset($_GET['email_quote'])){
         $mail->isHTML(true);                                  // Set email format to HTML
 
         $mail->Subject = "Quote";
-        $mail->Body    = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>Total Cost: $$quote_amount<br><br><br>View and accept your estimate online <a href='https://$base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+        $mail->Body    = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>Total Cost: $client_currency_symbol$quote_amount<br><br><br>View and accept your estimate online <a href='https://$base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
         
         $mail->send();
         echo 'Message has been sent';
