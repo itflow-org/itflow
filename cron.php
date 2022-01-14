@@ -173,6 +173,8 @@ while($row = mysqli_fetch_array($sql_companies)){
         $invoice_due = $row['invoice_due'];
         $invoice_url_key = $row['invoice_url_key'];
         $invoice_amount = $row['invoice_amount'];
+        $invoice_currency_code = $row['invoice_currency_code'];
+        $invoice_currency_symbol = htmlentities(get_currency_symbol($invoice_currency_code)); //Needs HTML entities due to encoding (Â was showing up)
         $client_id = $row['client_id'];
         $client_name = $row['client_name'];
         $contact_name = $row['contact_name'];
@@ -205,7 +207,7 @@ while($row = mysqli_fetch_array($sql_companies)){
           $mail->Subject = "Overdue Invoice $invoice_prefix$invoice_number";
           $mail->Body    = "Hello $contact_name,<br><br>According to our records, we have not received payment for invoice $invoice_prefix$invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $company_phone.
             <br><br>
-            Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+            Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $invoice_currency_symbol$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
           
           $mail->send();
 
@@ -234,11 +236,13 @@ while($row = mysqli_fetch_array($sql_companies)){
       $recurring_next_date = $row['recurring_next_date'];
       $recurring_amount = $row['recurring_amount'];
       $recurring_currency_code = $row['recurring_currency_code'];
+      $recurring_currency_symbol = htmlentities(get_currency_symbol($recurring_currency_code)); //Needs HTML entities due to encoding (Â was showing up)
       $recurring_note = mysqli_real_escape_string($mysqli,$row['recurring_note']); //Escape SQL
       $category_id = $row['recurring_category_id'];
       $client_id = $row['recurring_client_id'];
       $client_name = mysqli_real_escape_string($mysqli,$row['client_name']); //Escape SQL just in case a name is like Safran's etc
       $client_net_terms = $row['client_net_terms'];
+      
 
       //Get the last Invoice Number and add 1 for the new invoice number
       $sql_invoice_number = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $company_id");
@@ -326,7 +330,7 @@ while($row = mysqli_fetch_array($sql_companies)){
           $mail->isHTML(true);                                  // Set email format to HTML
 
           $mail->Subject = "Invoice $invoice_prefix$invoice_number";
-          $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+          $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $recurring_currency_symbol$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
           
           $mail->send();
 
