@@ -152,11 +152,13 @@ if(isset($_GET['query'])){
               $login_name = $row['login_name'];
               $login_username = $row['login_username'];
               $login_password = decryptLoginEntry($row['login_password']);
+
             ?>
             <tr>
               <td><?php echo $login_name; ?></td>
               <td><?php echo $login_username; ?></td>
-              <td><?php echo $login_password; ?></td>
+              <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
+
 
             </tr>
 
