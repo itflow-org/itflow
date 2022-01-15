@@ -1,13 +1,17 @@
 <?php
+/*
+
 // Headers to allow extensions access (CORS)
-$chrome_id = "to-be-confirmed";
-$firefox_id = "to-be-confirmed";
-$http_origin = $_SERVER['HTTP_ORIGIN'];
-if ($http_origin == "$chrome_id" || $http_origin == "$firefox_id")
-{
-    header("Access-Control-Allow-Origin: $http_origin");
-    header("Access-Control-Allow-Credentials: true");
+$chrome_id = "chrome-extension://afgpakhonllnmnomchjhidealcpmnegc";
+$firefox_id = "moz-extension://857479e9-3992-4e99-9a5e-b514d2ad0a82";
+
+if (isset($_SERVER['HTTP_ORIGIN'])) {
+    if($_SERVER['HTTP_ORIGIN'] == $chrome_id OR $_SERVER['HTTP_ORIGIN'] == $firefox_id){
+        header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+        header('Access-Control-Allow-Credentials: true');
+    }
 }
+// Additionally, will require cookies set to SameSite None.
 
 include("config.php");
 include("functions.php");
@@ -60,16 +64,18 @@ if($session_user_role < 4){
 
 if(isset($_GET['host'])){
 
-    $url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['host'])));
+    if(!empty($_GET['host'])){
+        $url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['host'])));
 
-    $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE (login_uri = '$url' AND company_id = '$session_company_id') LIMIT 1");
+        $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE (login_uri = '$url' AND company_id = '$session_company_id') LIMIT 1");
 
-    if(mysqli_num_rows($sql_logins) > 0){
-        $row = mysqli_fetch_array($sql_logins);
-        $data['found'] = "TRUE";
-        $data['username'] = htmlentities($row['login_username']);
-        $data['password'] = decryptLoginEntry($row['login_password']);
-        echo json_encode($data);
+        if(mysqli_num_rows($sql_logins) > 0){
+            $row = mysqli_fetch_array($sql_logins);
+            $data['found'] = "TRUE";
+            $data['username'] = htmlentities($row['login_username']);
+            $data['password'] = decryptLoginEntry($row['login_password']);
+            echo json_encode($data);
+        }
     }
 }
 
