@@ -137,7 +137,7 @@ if(isset($_GET['host'])){
             // Logging
             $login_name = mysqli_real_escape_string($mysqli, $row['login_name']);
             $login_user = mysqli_real_escape_string($mysqli, $row['login_username']);
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Extension requested', log_description = 'Credential $login_name, username $login_user' , log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Extension requested', log_description = 'Credential $login_name, username $login_user', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
         }
     }
