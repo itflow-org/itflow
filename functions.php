@@ -368,10 +368,12 @@ function generateUserSessionKey($site_encryption_master_key){
     $_SESSION['user_encryption_session_iv'] = $user_encryption_session_iv;
 
     //Give the user "their" key as a cookie
-    //By default, this should be HTTPS but we can change to HTTP for development via the config.php file
+    //By default, this should be HTTPS but we can change to HTTP for development via the config.php file (note that the extension won't work without HTTPS)
     include('config.php');
     if($config_https_only){
-        setcookie("user_encryption_session_key", $user_encryption_session_key, 0, "/", "", "true", "true");
+        //setcookie("user_encryption_session_key", $user_encryption_session_key, 0, "/", "", "true", "true", ['samesite' => 'None']);
+        setcookie("user_encryption_session_key", "$user_encryption_session_key", ['path' => '/','secure' => true,'httponly' => true,'samesite' => 'None']);
+
     }
     else{
         setcookie("user_encryption_session_key", $user_encryption_session_key, 0, "/");
