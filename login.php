@@ -24,9 +24,10 @@ if($config_https_only){
     ini_set("session.cookie_secure", True);
 }
 
-session_start();
-
 if(isset($_POST['login'])){
+
+  // Sessions should start after the user has POSTed data
+  session_start();
   
   $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
   $password = $_POST['password'];
