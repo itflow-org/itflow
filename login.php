@@ -45,11 +45,22 @@ if(isset($_POST['login'])){
     $user_name = $row['user_name'];
     $user_id = $row['user_id'];
 
-    //Setup encryption session key
+    // Setup encryption session key
     if(isset($row['user_specific_encryption_ciphertext'])){
         $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
         $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
         generateUserSessionKey($site_encryption_master_key);
+    }
+
+    // Setup extension
+    if(isset($row['user_extension_key']) && !empty($row['user_extension_key'])){
+        // Extension cookie
+        setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/','secure' => true,'httponly' => true,'samesite' => 'None']);
+
+        // Set PHP session in DB so we can access the session encryption data (above)
+        $user_php_session = session_id();
+        mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = '$user_id'");
+
     }
 
     if(empty($token)){
