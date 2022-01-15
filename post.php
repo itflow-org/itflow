@@ -216,9 +216,6 @@ if(isset($_POST['edit_profile'])){
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
     $logout = FALSE;
 
-    var_dump($_POST);
-    exit();
-
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
     
