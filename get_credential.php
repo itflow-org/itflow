@@ -10,10 +10,15 @@ if (isset($_SERVER['HTTP_ORIGIN'])) {
         header('Access-Control-Allow-Credentials: true');
     }
 }
-// Additionally, will require cookies set to SameSite None.
 
 include("config.php");
 include("functions.php");
+
+//SESSION FINGERPRINT
+$ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
+$os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
+$browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
+$user_agent = "$os - $browser";
 
 // Check user is logged in & has extension access
 // We're not using the PHP session as we don't want to potentially expose the session cookie with SameSite None
@@ -21,6 +26,10 @@ if(!isset($_COOKIE['user_extension_key'])){
     $data['found'] = "FALSE";
     $data['message'] = "ITFlow - You are not logged into ITFlow, do not have, or did not send the correct extension key cookie.";
     echo(json_encode($data));
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Extension Failed', log_description = 'Failed login attempt using extension (get_credential.php)', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+
     exit();
 }
 
@@ -28,10 +37,14 @@ if(!isset($_COOKIE['user_extension_key'])){
 $user_extension_key = $_COOKIE['user_extension_key'];
 
 // Check the key isn't empty, less than 17 characters or the word "disabled".
-if(empty($user_extension_key) OR strlen($user_extension_key) < 17 OR strtolower($user_extension_key) == "disabled"){
+if(empty($user_extension_key) OR strlen($user_extension_key) < 16 OR strtolower($user_extension_key) == "disabled"){
     $data['found'] = "FALSE";
     $data['message'] = "ITFlow - You are not logged into ITFlow, do not have, or did not send the correct extension key cookie.";
     echo(json_encode($data));
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Extension Failed', log_description = 'Failed login attempt using extension (get_credential.php)', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+
     exit();
 }
 
@@ -46,6 +59,10 @@ if(mysqli_num_rows($auth_user) < 1 OR !$auth_user){
     $data['found'] = "FALSE";
     $data['message'] = "ITFlow - You are not logged into ITFlow, do not have, or did not send the correct extension key cookie.";
     echo(json_encode($data));
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Extension Failed', log_description = 'Failed login attempt using extension (get_credential.php)', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+
     exit();
 }
 
@@ -54,6 +71,10 @@ if(hash('sha256', $row['user_extension_key']) !== hash('sha256', $_COOKIE['user_
     $data['found'] = "FALSE";
     $data['message'] = "ITFlow - Validation failed.";
     echo(json_encode($data));
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Extension Failed', log_description = 'Failed login attempt using extension (get_credential.php)', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+
     exit();
 }
 
@@ -89,6 +110,11 @@ if($session_user_role < 4){
     $data['found'] = "FALSE";
     $data['message'] = "ITFlow - You are not authorised to use this application.";
     echo(json_encode($data));
+
+    //Logging
+    $user_name = mysqli_real_escape_string($mysqli, $session_name);
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Extension Failed', log_description = '$user_name not authorised to use extension', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $session_user_id");
+
     exit();
 }
 
@@ -110,7 +136,8 @@ if(isset($_GET['host'])){
 
             // Logging
             $login_name = mysqli_real_escape_string($mysqli, $row['login_name']);
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Extension requested', log_description = '$login_name' , log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+            $login_user = mysqli_real_escape_string($mysqli, $row['login_username']);
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Extension requested', log_description = 'Credential $login_name, username $login_user' , log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
         }
     }

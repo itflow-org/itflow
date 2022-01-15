@@ -77,6 +77,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
               <div class="form-check">
                   <input type="checkbox" class="form-check-input" name="extension" id="extension" value="Yes" <?php if(isset($_COOKIE['user_extension_key'])) {echo "checked";} ?>>
                   <label class="form-check-label" for="extension">Extension access enabled?</label>
+                  <p>Note: You must log out and back in again for these changes take effect.</p>
               </div>
           </div>
 
