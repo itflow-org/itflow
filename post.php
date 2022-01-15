@@ -4786,7 +4786,7 @@ if(isset($_POST['add_certificate'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Certificate added";
+    $_SESSION['alert_message'] = "Certificate $certificate_domain added";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -4818,7 +4818,7 @@ if(isset($_POST['edit_certificate'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Certificate updated";
+    $_SESSION['alert_message'] = "Certificate $certificate_domain updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -4832,7 +4832,7 @@ if(isset($_GET['delete_certificate'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Deleted', log_description = '$certificate_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Certificate deleted";
+    $_SESSION['alert_message'] = "Certificate $certificate_domain deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
