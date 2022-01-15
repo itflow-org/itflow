@@ -55,6 +55,7 @@ if(isset($_POST['login'])){
     // Setup extension
     if(isset($row['user_extension_key']) && !empty($row['user_extension_key'])){
         // Extension cookie
+        // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
         setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/','secure' => true,'httponly' => true,'samesite' => 'None']);
 
         // Set PHP session in DB so we can access the session encryption data (above)
