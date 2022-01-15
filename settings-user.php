@@ -72,6 +72,14 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
             <label>Avatar</label>
             <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
           </div>
+
+          <div class="form-group">
+              <div class="form-check">
+                  <input type="checkbox" class="form-check-input" name="extension" id="extension" value="Yes" <?php if(isset($_COOKIE['user_extension_key'])) {echo "checked";} ?>>
+                  <label class="form-check-label" for="extension">Extension access enabled?</label>
+              </div>
+          </div>
+
           <button type="submit" name="edit_profile" class="btn btn-primary mt-3"><i class="fa fa-fw fa-check"></i> Save</button>
           
           

@@ -216,6 +216,9 @@ if(isset($_POST['edit_profile'])){
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
     $logout = FALSE;
 
+    var_dump($_POST);
+    exit();
+
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
     
@@ -273,6 +276,23 @@ if(isset($_POST['edit_profile'])){
 
         $extended_log_description .= ", password changed";
         $logout = TRUE;
+    }
+
+    // Enable extension access, only if it isn't already setup (user doesn't have cookie)
+    if(isset($_POST['extension']) && $_POST['extension'] == 'Yes'){
+        if(!isset($_COOKIE['user_extension_key'])){
+            $extension_key = keygen();
+            mysqli_query($mysqli, "UPDATE users SET user_extension_key = '$extension_key' WHERE user_id = $user_id");
+
+            $extended_log_description .= ", extension access enabled";
+            $logout = TRUE;
+        }
+    }
+
+    // Disable extension access
+    if(!isset($_POST['extension'])){
+        mysqli_query($mysqli, "UPDATE users SET user_extension_key = '' WHERE user_id = $user_id");
+        $extended_log_description .= ", extension access disabled";
     }
 
     //Logging
