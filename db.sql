@@ -1166,6 +1166,7 @@ CREATE TABLE `users` (
   `user_token` varchar(200) DEFAULT NULL,
   `user_avatar` varchar(200) DEFAULT NULL,
   `user_specific_encryption_ciphertext` varchar(200) DEFAULT NULL,
+  `user_extension_key` varchar(18) DEFAULT NULL,
   `user_created_at` datetime NOT NULL,
   `user_updated_at` datetime DEFAULT NULL,
   `user_archived_at` datetime DEFAULT NULL,
