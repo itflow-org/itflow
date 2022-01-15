@@ -31,26 +31,8 @@
             </div>
           </div>
           
-          <div class="form-group">
-            <label>Issued By </label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-              </div>
-              <input type="text" class="form-control" name="issued_by" placeholder="Issued By">
-            </div>
-          </div>
-        
-          <div class="form-group">
-            <label>Expire Date</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-              </div>
-              <input type="date" class="form-control" name="expire"> 
-            </div>
-          </div>
-
+     
+  
           <div class="form-group">
             <label>Public Key </label>
             <div class="input-group">
