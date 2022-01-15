@@ -1,8 +1,12 @@
 <?php
+/*
+
 // Headers to allow extensions access (CORS)
 $chrome_id = "to-be-confirmed";
-$firefox_id = "to-be-confirmed";
+$firefox_id = "moz-extension://857479e9-3992-4e99-9a5e-b514d2ad0a82";
 $http_origin = $_SERVER['HTTP_ORIGIN'];
+// Note, this IF doesn't seem to work currently either.
+// Additionally, will require cookies set to SameSite None.
 if ($http_origin == "$chrome_id" || $http_origin == "$firefox_id")
 {
     header("Access-Control-Allow-Origin: $http_origin");
