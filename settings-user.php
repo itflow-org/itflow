@@ -30,7 +30,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
             <?php }else{ ?>
             	<img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-circle img-fluid">
             <?php } ?> 
-            <h4 class="text-secondary mt-2"><?php echo $session_permission_level_display; ?></h4>
+            <h4 class="text-secondary mt-2"><?php echo $session_user_role_display; ?></h4>
           </center>
 
           <hr>
