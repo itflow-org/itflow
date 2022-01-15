@@ -100,13 +100,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $certificate_expire = $row['certificate_expire'];
             $certificate_updated_at = $row['certificate_updated_at'];
             $certificate_public_key = $row['certificate_public_key'];
+            
+$url = "https://$certificate_domain";
+$orignal_parse = parse_url($url, PHP_URL_HOST);
+$get = stream_context_create(array("ssl" => array("capture_peer_cert" => TRUE)));
+$read = stream_socket_client("ssl://".$orignal_parse.":443", $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $get);
+$cert = stream_context_get_params($read);
+$certinfo = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
+// echo "Name: ".$certinfo['name']."<br/>";
+// echo "Subject: ".$certinfo['subject']['C']." ".$certinfo['subject']['ST']." ".$certinfo['subject']['CN']."<br/>";
+// echo "Issuer: ".$certinfo['issuer']['C']." ".$certinfo['subject']['O']." ".$certinfo['subject']['CN']."<br/>";
+// echo "Version: ".$certinfo['version']."<br/>";
+// echo "Valid from: ".gmdate("Y-m-d",$certinfo['validFrom'])." to ".gmdate("Y-m-d",$certinfo['validTo'])."<br/>"; 
+         // $validFrom = date('Y-m-d H:i:s', $data['validFrom_time_t']);
+         // $validTo = date('Y-m-d H:i:s', $data['validTo_time_t']);
 
           ?>
+       
           <tr>
-            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editCertificateModal<?php echo $certificate_id; ?>"><?php echo $certificate_name; ?></a></td>
+            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editCertificateModal<?php echo $certificate_id; ?>"><?php echo $certinfo['name']; ?></a></td>
             <td><?php echo $certificate_domain; ?></td>
-            <td><?php echo $certificate_issued_by; ?></td>
-            <td><?php echo $certificate_expire; ?></td>
+            <td><?php echo $certinfo['issuer']['C']; ?></td>
+            <td><?php echo date('d-m-Y H:i:s', $certinfo['validTo_time_t']) ; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
