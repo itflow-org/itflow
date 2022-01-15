@@ -4765,8 +4765,7 @@ if(isset($_POST['add_certificate'])){
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $domain = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['domain'])));
-    $issued_by = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['issued_by'])));
-    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
+
     $public_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['public_key'])));
 
     if (!empty($public_key)) {
@@ -4782,7 +4781,7 @@ if(isset($_POST['add_certificate'])){
         $expire = "0000-00-00";
     }
 
-    mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_created_at = NOW(), certificate_public_key = '$public_key', certificate_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_created_at = NOW(), certificate_public_key = '$public_key', certificate_client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -4798,8 +4797,7 @@ if(isset($_POST['edit_certificate'])){
     $certificate_id = intval($_POST['certificate_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $domain = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['domain'])));
-    $issued_by = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['issued_by'])));
-    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
+ 
     $public_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['public_key'])));
 
     if (!empty($public_key)) {
@@ -4815,7 +4813,7 @@ if(isset($_POST['edit_certificate'])){
         $expire = "0000-00-00";
     }
 
-    mysqli_query($mysqli,"UPDATE certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_updated_at = NOW(), certificate_public_key = '$public_key' WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE certificates SET certificate_name = '$name', certificate_domain = '$domain',  certificate_updated_at = NOW(), certificate_public_key = '$public_key' WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
