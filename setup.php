@@ -570,26 +570,18 @@ if(isset($_POST['add_company_settings'])){
 
 if(isset($_POST['add_telemetry'])){
 
-  $comments = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['comments'])));
+  if($_POST['share_data'] == 1){
 
-  $sql = mysqli_query($mysqli,"SELECT * FROM companies LIMIT 1");
-  $row = mysqli_fetch_array($sql);
+    $comments = trim(strip_tags($_POST['comments']));
+    
+    $sql = mysqli_query($mysqli,"SELECT * FROM companies LIMIT 1");
+    $row = mysqli_fetch_array($sql);
 
-  $comments = $_POST['comments'];
-
-
-  if($_POST['company_name'] == 1){
     $company_name = $row['company_name'];   
-  }
-
-  if($_POST['geographics'] == 1){
     $city = $row['company_city'];
     $state = $row['company_state'];
     $country = $row['company_country'];
     $currency = $row['company_currency'];
-  }
-
-  if($_POST['geographics'] == 1 OR $_POST['company_name'] == 1){ 
 
     $postdata = http_build_query(
       array(
@@ -612,7 +604,7 @@ if(isset($_POST['add_telemetry'])){
   
     $context = stream_context_create($opts);
 
-    $result = file_get_contents('https://telemetry.itflow.com', false, $context);
+    $result = file_get_contents('https://telemetry.itflow.org', false, $context);
   
     echo $result;
   
@@ -1017,18 +1009,13 @@ if(isset($_POST['add_telemetry'])){
             </div>
             <div class="card-body">
               <form method="post" autocomplete="off">
-                <h5>Choose the data you would like to share with us</h5>
+                <h5>Would you like to share some data with us?</h5>
 
                 <hr>
 
-                <div class="form-check mb-2">
-                  <input type="checkbox" class="form-check-input" name="company_name" value="1">
-                  <label class="form-check-label ml-2">Company Name</label>
-                </div>
-
                 <div class="form-check">
-                  <input type="checkbox" class="form-check-input" name="geographics" value="1">
-                  <label class="form-check-label ml-2">Basic Geographics <small class="text-secondary"> (Including City, State/Province, Country, and Currency)</small></label>
+                  <input type="checkbox" class="form-check-input" name="share_date" value="1">
+                  <label class="form-check-label ml-2">Share some data <small class="text-secondary"> (Including City, State/Province, Country, Currency and your comments)</small></label>
                 </div>
 
                 <hr>
