@@ -708,7 +708,7 @@ if(isset($_POST['add_telemetry'])){
               </a>
             </li>
             <li class="nav-item">
-              <a href="?company" class="nav-link <?php if(isset($_GET['telemetry'])) { echo "active"; } ?>">
+              <a href="?telemetry" class="nav-link <?php if(isset($_GET['telemetry'])) { echo "active"; } ?>">
                 <i class="nav-icon fas fa-share-alt"></i>
                 <p>Telemetry</p>
               </a>
