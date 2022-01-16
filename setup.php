@@ -993,7 +993,7 @@ if(isset($_POST['add_telemetry'])){
                 
                 <hr>
                 
-                <button type="submit" name="add_company_settings" class="btn btn-primary">Next <i class="fa fa-fw fa-check-circle"></i></button>
+                <button type="submit" name="add_company_settings" class="btn btn-primary">Next <i class="fa fa-fw fa-arrow-circle-right"></i></button>
                   
               </form>
               <?php } ?>
@@ -1014,8 +1014,8 @@ if(isset($_POST['add_telemetry'])){
                 <hr>
 
                 <div class="form-check">
-                  <input type="checkbox" class="form-check-input" name="share_date" value="1">
-                  <label class="form-check-label ml-2">Share some data <small class="text-secondary"> (Including City, State/Province, Country, Currency and your comments)</small></label>
+                  <input type="checkbox" class="form-check-input" name="share_data" value="1">
+                  <label class="form-check-label ml-2">Share <small class="text-secondary"> (Including City, State/Province, Country, Currency and your comments)</small></label>
                 </div>
 
                 <hr>
