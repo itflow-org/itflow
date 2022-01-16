@@ -561,6 +561,64 @@ if(isset($_POST['add_company_settings'])){
 
   mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue', calendar_created_at = NOW(), company_id = $company_id");
 
+
+  $_SESSION['alert_message'] = "Company <strong>$name</strong> created!";
+
+  header("Location: setup.php?telemetry");
+
+}
+
+if(isset($_POST['add_telemetry'])){
+
+  $comments = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['comments'])));
+
+  $sql = mysqli_query($mysqli,"SELECT * FROM companies LIMIT 1");
+  $row = mysqli_fetch_array($sql);
+
+  $comments = $_POST['comments'];
+
+
+  if($_POST['company_name'] == 1){
+    $company_name = $row['company_name'];   
+  }
+
+  if($_POST['geographics'] == 1){
+    $city = $row['company_city'];
+    $state = $row['company_state'];
+    $country = $row['company_country'];
+    $currency = $row['company_currency'];
+  }
+
+  if($_POST['geographics'] == 1 OR $_POST['company_name'] == 1){ 
+
+    $postdata = http_build_query(
+      array(
+        'company_name' => "$company_name",
+        'city' => "$city",
+        'state' => "$state",
+        'country' => "$country",
+        'currency' => "$currency",
+        'comments' => "$comments"
+      )
+    );
+  
+    $opts = array('http' =>
+      array(
+        'method' => 'POST',
+        'header' => 'Content-type: application/x-www-form-urlencoded',
+        'content' => $postdata
+      )
+    );
+  
+    $context = stream_context_create($opts);
+
+    $result = file_get_contents('https://telemetry.itflow.com', false, $context);
+  
+    echo $result;
+  
+  }
+
+  //final setup stages
   $myfile = fopen("config.php", "a");
 
   $txt = "\$config_enable_setup = 0;\n\n";
@@ -647,6 +705,12 @@ if(isset($_POST['add_company_settings'])){
               <a href="?company" class="nav-link <?php if(isset($_GET['company'])) { echo "active"; } ?>">
                 <i class="nav-icon fas fa-building"></i>
                 <p>Company</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="?company" class="nav-link <?php if(isset($_GET['telemetry'])) { echo "active"; } ?>">
+                <i class="nav-icon fas fa-share-alt"></i>
+                <p>Telemetry</p>
               </a>
             </li>
           </ul>
@@ -937,10 +1001,48 @@ if(isset($_POST['add_company_settings'])){
                 
                 <hr>
                 
-                <button type="submit" name="add_company_settings" class="btn btn-primary">Finish and Sign in <i class="fa fa-fw fa-check-circle"></i></button>
+                <button type="submit" name="add_company_settings" class="btn btn-primary">Next <i class="fa fa-fw fa-check-circle"></i></button>
                   
               </form>
               <?php } ?>
+            </div>
+          </div>
+
+
+          <?php }elseif(isset($_GET['telemetry'])){ ?>
+
+          <div class="card card-dark">
+            <div class="card-header">
+              <h3 class="card-title"><i class="fa fa-fw fa-share-alt"></i> Telemetry</h3>
+            </div>
+            <div class="card-body">
+              <form method="post" autocomplete="off">
+                <h5>Choose the data you would like to share with us</h5>
+
+                <hr>
+
+                <div class="form-check mb-2">
+                  <input type="checkbox" class="form-check-input" name="company_name" value="1">
+                  <label class="form-check-label ml-2">Company Name</label>
+                </div>
+
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" name="geographics" value="1">
+                  <label class="form-check-label ml-2">Basic Geographics <small class="text-secondary"> (Including City, State/Province, Country, and Currency)</small></label>
+                </div>
+
+                <hr>
+
+                <div class="form-group">
+                  <label>Comments</label>
+                  <textarea class="form-control" rows="4" name="comments" placeholder="Any Comments"></textarea>
+                </div>
+                
+                <hr>
+                
+                <button type="submit" name="add_telemetry" class="btn btn-primary">Finish and Sign in <i class="fa fa-fw fa-check-circle"></i></button>
+                  
+              </form>
             </div>
           </div>
 

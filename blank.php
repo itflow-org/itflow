@@ -12,15 +12,40 @@
 <h1>Blank Page</h1>
 <hr>
 <p>This is a great starting point for new custom pages.</p>
-<button class="btn clipboard" type="button" data-clipboard-text="Just because you can doesn't mean you should — clipboard.js">
-    Copy to clipboard
-</button>
+
+
 
 <?php 
 
-$user_agent = get_user_agent();
+$company_name = "bum";
 
-echo $user_agent;
+
+$postdata = http_build_query(
+    array(
+      'company_name' => "$company_name",
+      'city' => "$city",
+      'state' => "$state",
+      'country' => "$country",
+      'currency' => "$currency",
+      'comments' => "$comments"
+    )
+  );
+  
+  $opts = array('http' =>
+    array(
+      'method' => 'POST',
+      'header' => 'Content-type: application/x-www-form-urlencoded',
+      'content' => $postdata
+    )
+  );
+  
+  $context = stream_context_create($opts);
+
+  $result = file_get_contents('https://telemetry.itflow.org', false, $context);
+  
+  echo $result;
+
+  header("Location: clients.php");
 
 ?>
 
