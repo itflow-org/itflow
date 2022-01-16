@@ -406,7 +406,7 @@ include("footer.php");
 ?>
 
 <!-- JSON Autocomplete / type ahead -->
-<!-- //TODO: Not sure quite how to make this more modular to include elsewhere, I'll leave design decision that down to you.. -->
+<!-- //TODO: Not sure quite how to make this more modular to include elsewhere, I'll leave that design decision down to you.. -->
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
@@ -419,7 +419,7 @@ include("footer.php");
             select: function (event, ui){
                 $("#name").val(ui.item.label); // Product name field - this seemingly has to referenced as label
                 $("#desc").val(ui.item.description); // Product description field
-                $("#price").val(ui.item.price); // Product description field
+                $("#price").val(ui.item.price); // Product price field
                 return false;
             }
         });
