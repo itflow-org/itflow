@@ -1787,11 +1787,11 @@ if(isset($_POST['add_product'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $cost = floatval($_POST['cost']);
+    $price = floatval($_POST['price']);
     $category = intval($_POST['category']);
     $tax = intval($_POST['tax']);
 
-    mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_currency_code = '$session_company_currency', product_created_at = NOW(), product_tax_id = $tax, product_category_id = $category, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_price = '$price', product_currency_code = '$session_company_currency', product_created_at = NOW(), product_tax_id = $tax, product_category_id = $category, company_id = $session_company_id");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Create', log_description = '$session_name created product $name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -1807,11 +1807,11 @@ if(isset($_POST['edit_product'])){
     $product_id = intval($_POST['product_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $cost = floatval($_POST['cost']);
+    $price = floatval($_POST['price']);
     $category = intval($_POST['category']);
     $tax = intval($_POST['tax']);
 
-    mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_cost = '$cost', product_updated_at = NOW(), product_tax_id = $tax, product_category_id = $category WHERE product_id = $product_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_price = '$price', product_updated_at = NOW(), product_tax_id = $tax, product_category_id = $category WHERE product_id = $product_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");

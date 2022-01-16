@@ -47,8 +47,8 @@
           </div>
           
           <div class="form-group">
-            <label>Cost <strong class="text-danger">*</strong></label>
-            <input type="number" step="0.01" min="0" class="form-control" name="cost" value="<?php echo $product_cost; ?>" required>
+            <label>Price <strong class="text-danger">*</strong></label>
+            <input type="number" step="0.01" min="0" class="form-control" name="price" value="<?php echo $product_price; ?>" required>
           </div>
 
           <div class="form-group">

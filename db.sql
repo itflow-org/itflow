@@ -722,7 +722,7 @@ CREATE TABLE `products` (
   `product_id` int(11) NOT NULL AUTO_INCREMENT,
   `product_name` varchar(200) NOT NULL,
   `product_description` text DEFAULT NULL,
-  `product_cost` decimal(15,2) NOT NULL,
+  `product_price` decimal(15,2) NOT NULL,
   `product_currency_code` varchar(200) NOT NULL,
   `product_created_at` datetime NOT NULL,
   `product_updated_at` datetime DEFAULT NULL,
@@ -1217,4 +1217,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-12 19:48:54
+-- Dump completed on 2022-01-16 15:27:33

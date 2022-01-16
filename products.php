@@ -41,7 +41,7 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM products LEFT JOIN categories ON product_category_id = category_id 
   WHERE products.company_id = $session_company_id 
-  AND (product_name LIKE '%$q%' OR product_description LIKE '%$q%' OR category_name LIKE '%$q%' OR product_cost LIKE '%$q%') 
+  AND (product_name LIKE '%$q%' OR product_description LIKE '%$q%' OR category_name LIKE '%$q%' OR product_price LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -77,7 +77,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=product_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Category</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=product_description&o=<?php echo $disp; ?>">Description</a></th>
-            <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=product_cost&o=<?php echo $disp; ?>">Cost</a></th>
+            <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=product_price&o=<?php echo $disp; ?>">Price</a></th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -93,7 +93,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $product_description_display = $product_description;
             }
-            $product_cost = $row['product_cost'];
+            $product_price = $row['product_price'];
             $product_created_at = $row['product_created_at'];
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
@@ -104,7 +104,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>"><?php echo $product_name; ?></a></td>
             <td><?php echo $category_name; ?></td>
             <td><?php echo $product_description_display; ?></td>
-            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($product_cost,2); ?></td>
+            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($product_price,2); ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
