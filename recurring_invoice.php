@@ -67,6 +67,16 @@ if(isset($_GET['recurring_id'])){
 
   $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE history_recurring_id = $recurring_id ORDER BY history_id DESC");
 
+  //Product autocomplete
+  $products_sql = mysqli_query($mysqli,"SELECT product_name AS label, product_description AS description, product_price AS price FROM products WHERE company_id = $session_company_id");
+
+  if(mysqli_num_rows($products_sql) > 0){
+    while($row = mysqli_fetch_array($products_sql)){
+      $products[] = $row;
+    }
+    $json_products = json_encode($products);
+  }
+
 ?>
 
 <ol class="breadcrumb d-print-none">
@@ -220,10 +230,10 @@ if(isset($_GET['recurring_id'])){
                   <form action="post.php" method="post">
                     <input type="hidden" name="recurring_id" value="<?php echo $recurring_id; ?>">
                     <td></td>            
-                    <td><input type="text" class="form-control" name="name"  placeholder="Item" required></td>
-                    <td><textarea class="form-control"  rows="1" name="description" placeholder="Description"></textarea></td>
-                    <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty" placeholder="QTY"></td>
-                    <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
+                    <td><input type="text" class="form-control" id="name" name="name" placeholder="Item" required></td>
+                    <td><textarea class="form-control"  rows="1" id="desc" name="description" placeholder="Description"></textarea></td>
+                    <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" id="qty" name="qty" placeholder="QTY"></td>
+                    <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" id="price" name="price" placeholder="Price"></td>
                     <td>
                       <select class="form-control select2" name="tax_id" required>
                         <option value="0">None</option>
@@ -353,3 +363,23 @@ if(isset($_GET['recurring_id'])){
 include("footer.php");
 
 ?>
+
+<!-- JSON Autocomplete / type ahead -->
+<link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
+<script src="plugins/jquery-ui/jquery-ui.min.js"></script>
+<script>
+  $(function(){
+    var availableProducts = <?php echo $json_products?>;
+
+    $("#name").autocomplete({
+      source: availableProducts,
+      select: function (event, ui){
+        $("#name").val(ui.item.label); // Product name field - this seemingly has to referenced as label
+        $("#desc").val(ui.item.description); // Product description field
+        $("#qty").val(1); // Product quantity field automatically make it a 1
+        $("#price").val(ui.item.price); // Product price field
+        return false;
+      }
+    });
+  });
+</script>
