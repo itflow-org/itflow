@@ -76,6 +76,17 @@ if(isset($_GET['quote_id'])){
     $quote_badge_color = "secondary";
   }
 
+
+// Product autocomplete
+$product_sql = mysqli_query($mysqli,"SELECT product_name AS label, product_description AS description, product_cost AS price FROM products
+WHERE products.company_id = $session_company_id");
+
+if(mysqli_num_rows($product_sql) > 0){
+    while($row = mysqli_fetch_array($product_sql)) {
+        $products[] = $row;
+    }
+    $json_products = (json_encode($products));
+}
 ?>
 
 <ol class="breadcrumb d-print-none">
@@ -252,10 +263,10 @@ if(isset($_GET['quote_id'])){
                   <form action="post.php" method="post" autocomplete="off">
                     <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
                     <td></td>
-                    <td><input type="text" class="form-control" name="name" placeholder="Item" required></td>
-                    <td><textarea class="form-control" rows="2" name="description" placeholder="Description"></textarea></td>
+                    <td><input type="text" class="form-control" name="name" id="name" placeholder="Item" required></td>
+                    <td><textarea class="form-control" rows="2" name="description" id="desc" placeholder="Description"></textarea></td>
                     <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" name="qty" placeholder="QTY"></td>
-                    <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: right;" name="price" placeholder="Price"></td>
+                    <td><input type="number" step="0.01" min="0" class="form-control" id="price" style="text-align: right;" name="price" placeholder="Price (<?php echo $client_currency_symbol; ?>)"></td>
                     <td>
                       <select class="form-control select2" name="tax_id" required>
                         <option value="0">None</option>
@@ -393,6 +404,27 @@ if(isset($_GET['quote_id'])){
 include("footer.php");
 
 ?>
+
+<!-- JSON Autocomplete / type ahead -->
+<!-- //TODO: Not sure quite how to make this more modular to include elsewhere, I'll leave that design decision down to you.. -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+<script>
+    $( function() {
+        var availableProducts = <?php echo $json_products?>;
+
+        $("#name").autocomplete({
+            source: availableProducts,
+            select: function (event, ui){
+                $("#name").val(ui.item.label); // Product name field - this seemingly has to referenced as label
+                $("#desc").val(ui.item.description); // Product description field
+                $("#price").val(ui.item.price); // Product price field
+                return false;
+            }
+        });
+    } );
+</script>
 
 <script src='plugins/pdfmake/pdfmake.js'></script>
 <script src='plugins/pdfmake/vfs_fonts.js'></script>
