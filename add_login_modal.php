@@ -68,7 +68,10 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="otp_secret" placeholder="Insert secret key">
+                  <input type="password" class="form-control" data-toggle="password" name="otp_secret" placeholder="Insert secret key">
+                  <div class="input-group-append">
+                    <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                  </div>
                 </div>
               </div>
 
