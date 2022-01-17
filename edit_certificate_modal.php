@@ -25,10 +25,11 @@
             <label>Domain <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i>&nbsp;https://</span>
               </div>
               <input type="text" class="form-control" name="domain" placeholder="Domain" value="<?php echo $certificate_domain; ?>" required>
             </div>
+              <p align="right">Fetch</p>
           </div>
 
           <div class="form-group">
