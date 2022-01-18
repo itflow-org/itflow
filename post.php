@@ -4786,7 +4786,8 @@ if(isset($_POST['add_certificate'])){
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
     $public_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['public_key'])));
 
-    if (!empty($public_key)) {
+    // Parse public key data for a manually provided public key
+    if(!empty($public_key) && (empty($expire) && empty($issued_by))) {
         // Parse the public certificate key. If successful, set attributes from the certificate
         $public_key_obj = openssl_x509_parse($_POST['public_key']);
         if ($public_key_obj) {
@@ -4819,7 +4820,8 @@ if(isset($_POST['edit_certificate'])){
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
     $public_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['public_key'])));
 
-    if (!empty($public_key)) {
+    // Parse public key data for a manually provided public key
+    if(!empty($public_key) && (empty($expire) && empty($issued_by))) {
         // Parse the public certificate key. If successful, set attributes from the certificate
         $public_key_obj = openssl_x509_parse($_POST['public_key']);
         if ($public_key_obj) {
@@ -4840,6 +4842,45 @@ if(isset($_POST['edit_certificate'])){
     $_SESSION['alert_message'] = "Certificate updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['fetch_certificate'])){
+    $domain = $_GET['domain'];
+
+    // FQDNs in database shouldn't have a URL scheme, adding one
+    $domain = "https://".$domain;
+
+    // Parse host and port
+    $url = parse_url($domain, PHP_URL_HOST);
+    $port = parse_url($domain, PHP_URL_PORT);
+    // Default port
+    if(!$port){
+        $port = "443";
+    }
+
+    // Get certificate
+    // Using verify peer false to allow for self-signed / internal CA certs
+    $socket = "ssl://$url:$port";
+    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => TRUE, "verify_peer" => FALSE,)));
+    $read = stream_socket_client($socket, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $get);
+    $cert = stream_context_get_params($read);
+    $cert_public_key_obj = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
+    openssl_x509_export($cert['options']['ssl']['peer_certificate'], $export);
+
+    // Process data
+    if($cert_public_key_obj){
+        $cert_data['success'] = "TRUE";
+        $cert_data['expire'] = date('Y-m-d', $cert_public_key_obj['validTo_time_t']);
+        $cert_data['issued_by'] = strip_tags($cert_public_key_obj['issuer']['O']);
+        $cert_data['public_key'] = $export; //nl2br
+    }
+    else{
+        $cert_data['success'] = "FALSE";
+    }
+
+    // Return as JSON
+    echo json_encode($cert_data);
 
 }
 

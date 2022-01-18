@@ -136,3 +136,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 </div>
 
 <?php include("add_certificate_modal.php"); ?>
+
+<script type="text/javascript">
+    function fetchSSL()
+    {
+        // Get the domain name input
+        var domain = document.getElementById("domain").value;
+
+        //Send a GET request to post.php as post.php?fetch_certificate=TRUE&domain=DOMAIN
+        jQuery.get(
+            "post.php",
+            {fetch_certificate: 'TRUE', domain: domain},
+            function(data){
+                //If we get a response from post.php, parse it as JSON
+                const ssl_data = JSON.parse(data);
+
+                if(ssl_data.success == "TRUE"){
+                    // Fill the form fields with the cert data
+                    document.getElementById("issued_by").value = ssl_data.issued_by;
+                    document.getElementById("expire").value = ssl_data.expire;
+                    document.getElementById("public_key").value = ssl_data.public_key;
+                }
+                else{
+                    alert("Error whilst parsing/retrieving details for domain")
+                }
+            }
+        );
+    }
+</script>
