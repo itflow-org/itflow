@@ -25,10 +25,11 @@
             <label>Domain <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i>&nbsp;https://</span>
               </div>
-              <input type="text" class="form-control" name="domain" placeholder="Domain" value="<?php echo $certificate_domain; ?>" required>
+              <input type="text" class="form-control" name="domain" placeholder="Domain" id="domain"  value="<?php echo $certificate_domain; ?>" required>
             </div>
+              <p align="right" onclick="fetchSSL()"><i>Fetch</i></p>
           </div>
 
           <div class="form-group">
@@ -37,7 +38,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
               </div>
-              <input type="text" class="form-control" name="issued_by" placeholder="Issued By" value="<?php echo $certificate_issued_by; ?>">
+              <input type="text" class="form-control" name="issued_by" placeholder="Issued By" id="issued_by" value="<?php echo $certificate_issued_by; ?>">
             </div>
           </div>
         
@@ -47,7 +48,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
               </div>
-              <input type="date" class="form-control" name="expire" value="<?php echo $certificate_expire; ?>"> 
+              <input type="date" class="form-control" name="expire" id="expire" value="<?php echo $certificate_expire; ?>">
             </div>
           </div>
 
@@ -57,7 +58,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
               </div>
-              <textarea class="form-control" name="public_key"><?php echo $certificate_public_key; ?></textarea>
+              <textarea class="form-control" name="public_key" id="public_key"><?php echo $certificate_public_key; ?></textarea>
             </div>
           </div>
 

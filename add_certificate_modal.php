@@ -25,10 +25,11 @@
             <label>Domain <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i>&nbsp;https://</span>
               </div>
-              <input type="text" class="form-control" name="domain" placeholder="Domain name" required>
+              <input type="text" class="form-control" name="domain" id="domain" placeholder="FQDN" required>
             </div>
+              <p align="right" onclick="fetchSSL()"><i>Fetch</i></p>
           </div>
           
           <div class="form-group">
@@ -37,7 +38,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
               </div>
-              <input type="text" class="form-control" name="issued_by" placeholder="Issued By">
+              <input type="text" class="form-control" name="issued_by" id="issued_by" placeholder="Issued By">
             </div>
           </div>
         
@@ -47,7 +48,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
               </div>
-              <input type="date" class="form-control" name="expire"> 
+              <input type="date" class="form-control" name="expire" id="expire">
             </div>
           </div>
 
@@ -57,7 +58,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
               </div>
-              <textarea class="form-control" name="public_key" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
+              <textarea class="form-control" name="public_key" id="public_key" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
             </div>
           </div>
 
