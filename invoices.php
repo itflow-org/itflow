@@ -343,7 +343,7 @@
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
             <td><?php echo $invoice_scope_display; ?></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=invoices"><?php echo $client_name; ?></a></td>
-            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($invoice_amount,2); ?></td>
+            <td class="text-right"><?php echo get_currency_symbol($invoice_currency_code); ?> <?php echo number_format($invoice_amount,2); ?></td>
             <td><?php echo $invoice_date; ?></td>
             <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>
             <td><?php echo $category_name; ?></td>

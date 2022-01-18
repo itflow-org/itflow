@@ -129,7 +129,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 <td><a href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>"><?php echo "$recurring_prefix$recurring_number"; ?></a></td>
                 <td><?php echo $recurring_scope; ?></td>
                 <td><?php echo ucwords($recurring_frequency); ?>ly</td>
-                <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($recurring_amount,2); ?></td>
+                <td class="text-right"><?php echo get_currency_symbol($recurring_currency_code); ?> <?php echo number_format($recurring_amount,2); ?></td>
                 <td><?php echo $recurring_last_sent; ?></td>
                 <td><?php echo $recurring_next_date; ?></td>
                 <td><?php echo $category_name; ?></td>

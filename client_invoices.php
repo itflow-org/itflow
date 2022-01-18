@@ -143,7 +143,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
             <td><?php echo $invoice_scope_display; ?></td>
-            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($invoice_amount,2); ?></td>
+            <td class="text-right"><?php echo get_currency_symbol($invoice_currency_code); ?> <?php echo number_format($invoice_amount,2); ?></td>
             <td><?php echo $invoice_date; ?></td>
             <td><div class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></div></td>
             <td><?php echo $category_name; ?></td>
