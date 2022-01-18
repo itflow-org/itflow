@@ -28,8 +28,10 @@
                 <span class="input-group-text"><i class="fa fa-fw fa-globe"></i>&nbsp;https://</span>
               </div>
               <input type="text" class="form-control" name="domain" placeholder="Domain" id="domain"  value="<?php echo $certificate_domain; ?>" required>
+              <div class="input-group-append">
+                <button type="button" class="btn btn-secondary" onclick="fetchSSL()"><i class="fas fa-fw fa-sync-alt"></i></button>
+              </div>
             </div>
-              <p align="right" onclick="fetchSSL()"><i>Fetch</i></p>
           </div>
 
           <div class="form-group">
