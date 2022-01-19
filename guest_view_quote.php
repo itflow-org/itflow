@@ -239,7 +239,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
 
       <hr class="mt-5">
 
-      <center><?php echo $config_quote_footer; ?></center>
+      <center style="white-space:pre-line"><?php echo $config_quote_footer; ?></center>
     </div>
   </div>
 

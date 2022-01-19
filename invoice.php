@@ -379,7 +379,7 @@ if(isset($_GET['invoice_id'])){
 
     <hr class="d-none d-print-block mt-5">
 
-    <center class="d-none d-print-block"><?php echo $config_invoice_footer; ?></center>
+    <center class="d-none d-print-block" style="white-space:pre-line"><?php echo $config_invoice_footer; ?></center>
   </div>
 </div>
 
