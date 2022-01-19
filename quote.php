@@ -434,14 +434,6 @@ var docDefinition = {
 		title: '<?php echo "$company_name - Quote"; ?>',
 		author: '<?php echo $company_name; ?>'
 	},
-	footer: {
-		columns: [
-			{ 
-				text: <?php echo json_encode($config_quote_footer); ?>,
-				style: 'documentFooterCenter' 
-			},
-		]
-	},
 
 	//watermark: {text: '<?php echo $quote_status; ?>', color: 'lightgrey', opacity: 0.3, bold: true, italics: false},
 
@@ -679,13 +671,18 @@ var docDefinition = {
 		    ]
 		  }, // table
 		  layout: 'lightHorizontalLines'
-		}
+		},
+    // TERMS / FOOTER
+    {
+      text: <?php echo json_encode("$config_quote_footer"); ?>,
+      style: 'documentFooterCenter'  
+    }
 	], //End Content,
 	styles: {
 		// Document Footer
 		documentFooterCenter: {
 			fontSize: 9,
-		  margin: [10,10,10,10],
+		  margin: [10,50,10,10],
 		  alignment:'center'
 		},
 		// Invoice Title

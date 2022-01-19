@@ -527,14 +527,6 @@ var docDefinition = {
 		title: '<?php echo "$company_name - Invoice"; ?>',
 		author: '<?php echo $company_name; ?>'
 	},
-	footer: {
-		columns: [
-			{ 
-				text: <?php echo json_encode($config_invoice_footer); ?>,
-				style: 'documentFooterCenter' 
-			},
-		]
-	},
 
 	//watermark: {text: '<?php echo $invoice_status; ?>', color: 'lightgrey', opacity: 0.3, bold: true, italics: false},
 
@@ -806,14 +798,19 @@ var docDefinition = {
 		    ]
 		  }, // table
 		  layout: 'lightHorizontalLines'
-		}
+		},
+    // TERMS / FOOTER
+    {
+      text: <?php echo json_encode("$config_invoice_footer"); ?>,
+      style: 'documentFooterCenter'  
+    }
 	], //End Content,
 	styles: {
 		// Document Footer
 		documentFooterCenter: {
 			fontSize: 9,
-		  margin: [10,10,10,10],
-		  alignment:'center'
+		  margin: [10,50,10,10],
+		  alignment:'center',
 		},
 		// Invoice Title
 		invoiceTitle: {

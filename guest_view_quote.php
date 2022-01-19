@@ -58,7 +58,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     if(!empty($company_logo)){
       $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
     }
-    $quote_footer = $row['quote_footer'];
+    $config_quote_footer = $row['config_quote_footer'];
 
     $ip = get_ip();
     $os = get_os();
@@ -251,14 +251,6 @@ var docDefinition = {
 	info: {
 		title: '<?php echo "$company_name - Quote"; ?>',
 		author: '<?php echo $company_name; ?>'
-	},
-	footer: {
-		columns: [
-			{ 
-				text: <?php echo json_encode($config_quote_footer); ?>,
-				style: 'documentFooterCenter' 
-			},
-		]
 	},
 
 	//watermark: {text: '<?php echo $quote_status; ?>', color: 'lightgrey', opacity: 0.3, bold: true, italics: false},
@@ -497,13 +489,18 @@ var docDefinition = {
 		    ]
 		  }, // table
 		  layout: 'lightHorizontalLines'
-		}
+		},
+		// TERMS / FOOTER
+    {
+      text: <?php echo json_encode("$config_quote_footer"); ?>,
+      style: 'documentFooterCenter'  
+    }
 	], //End Content,
 	styles: {
 		// Document Footer
 		documentFooterCenter: {
 			fontSize: 9,
-		  margin: [10,10,10,10],
+		  margin: [10,50,10,10],
 		  alignment:'center'
 		},
 		// Invoice Title
