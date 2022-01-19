@@ -278,7 +278,7 @@ if(isset($_GET['invoice_id'])){
                     <a class="text-danger" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash-alt"></i></a>
                   </td>
                   <td><?php echo $item_name; ?></td>
-                  <td><?php echo $item_description; ?></td>
+                  <td><div style="white-space:pre-line"><?php echo $item_description; ?></div></td>
                   <td class="text-center"><?php echo $item_quantity; ?></td>
                   <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_price,2); ?></td>
                   <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_tax,2); ?></td>
@@ -345,7 +345,7 @@ if(isset($_GET['invoice_id'])){
             </div>
           </div>
           <div class="card-body">
-            <?php echo $invoice_note; ?>
+            <div style="white-space:pre-line"><?php echo $invoice_note; ?></div>
           </div>
         </div>
       </div>

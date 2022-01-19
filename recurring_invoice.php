@@ -211,7 +211,7 @@ if(isset($_GET['recurring_id'])){
                     <a class="text-danger" href="post.php?delete_recurring_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash-alt"></i></a>
                   </td>
                   <td><?php echo $item_name; ?></td>
-                  <td><?php echo $item_description; ?></td>
+                  <td><div style="white-space:pre-line"><?php echo $item_description; ?></div></td>
                   <td class="text-center"><?php echo $item_quantity; ?></td>
                   <td class="text-right"><?php echo get_currency_symbol($client_currency_code); ?> <?php echo number_format($item_price,2); ?></td>
                   <td class="text-right"><?php echo get_currency_symbol($client_currency_code); ?> <?php echo number_format($item_tax,2); ?></td>
@@ -278,7 +278,7 @@ if(isset($_GET['recurring_id'])){
             </div>
           </div>
           <div class="card-body">
-            <?php echo $recurring_note; ?>
+            <div style="white-space:pre-line"><?php echo $recurring_note; ?></div>
           </div>
         </div>
       </div>
