@@ -510,7 +510,11 @@ if(isset($_GET['ticket_id'])){
 
 ?>
 
-<!-- Maybe move this to it's own JS file? -->
+
+<?php
+if($ticket_status !== "Closed"){
+?>
+<!-- Ticket Time Tracking JS -->
 <script type="text/javascript">
     // Default values
     var hours = 0;
@@ -560,5 +564,7 @@ if(isset($_GET['ticket_id'])){
         }
     }
 </script>
+
+<?php } ?>
 
 <?php include("footer.php");
