@@ -11,7 +11,7 @@
                 <form action="post.php" method="post" autocomplete="off">
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                     <div class="form-group">
-                        <input type="text" class="form-control" name="tag_name" placeholder="Tag Name" autofocus>
+                        <input type="text" class="form-control" name="tag_name" placeholder="Tag Name" required autofocus>
                     </div>
                     <button type="submit" name="add_document_tag" class="btn btn-primary">Add Tag</button>
                 </form>
@@ -22,7 +22,7 @@
                 <form action="post.php" method="post" autocomplete="off">
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                     <div class="form-group">
-                        <select class="form-select" name="tag_id">
+                        <select class="form-control select2" name="tag_id">
                             <?php
                             foreach($document_tags as $document_tag) {
                                 echo "<option value='$document_tag[tag_id]'>"; echo htmlentities($document_tag['tag_name']); echo "</option>";
