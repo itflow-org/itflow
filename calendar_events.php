@@ -1,5 +1,7 @@
 <?php include("header.php"); ?>
 
+<link href='plugins/fullcalendar/main.min.css' rel='stylesheet' />
+
 <?php 
 
 if(isset($_GET['calendar_id'])){
@@ -40,6 +42,8 @@ while($row = mysqli_fetch_array($sql)){
 ?>
 
 <?php include("footer.php"); ?>
+
+<script src='plugins/fullcalendar/main.min.js'></script>
 
 <script>
 
