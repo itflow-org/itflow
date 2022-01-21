@@ -4275,10 +4275,80 @@ if(isset($_POST['add_asset'])){
 
 }
 
+if(isset($_POST['edit_asset'])){
+
+    $asset_id = intval($_POST['asset_id']);
+    $login_id = intval($_POST['login_id']);
+    $client_id = intval($_POST['client_id']);
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $make = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['make'])));
+    $model = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['model'])));
+    $serial = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial'])));
+    $os = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['os'])));
+    $ip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['ip'])));
+    $mac = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['mac'])));
+    $location = intval($_POST['location']);
+    $vendor = intval($_POST['vendor']);
+    $contact = intval($_POST['contact']);
+    $network = intval($_POST['network']);
+    $purchase_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date'])));
+    if(empty($purchase_date)){
+        $purchase_date = "0000-00-00";
+    }
+    $warranty_expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire'])));
+    if(empty($warranty_expire)){
+        $warranty_expire = "0000-00-00";
+    }
+    $install_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['install_date'])));
+    if(empty($install_date)){
+        $install_date = "0000-00-00";
+    }
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
+    $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
+
+    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_updated_at = NOW(), asset_network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
+
+    //If login exists then update the login
+    if($login_id > 0){
+        mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id AND company_id = $session_company_id");
+    }else{
+    //If Username is filled in then add a login
+        if(!empty($username)) {
+            
+            mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_created_at = NOW(), login_asset_id = $asset_id, login_client_id = $client_id, company_id = $session_company_id");
+
+        }
+    }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Asset updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_asset'])){
+    $asset_id = intval($_GET['delete_asset']);
+
+    mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Deleted', log_description = '$asset_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Asset deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if(isset($_POST["import_client_assets_csv"])){
     $client_id = intval($_POST['client_id']);
-	$file_name = $_FILES["file"]["tmp_name"];
-	$error = FALSE;
+    $file_name = $_FILES["file"]["tmp_name"];
+    $error = FALSE;
 
     //Check file is CSV
     $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
@@ -4348,73 +4418,35 @@ if(isset($_POST["import_client_assets_csv"])){
     }
 }
 
-if(isset($_POST['edit_asset'])){
+if(isset($_GET['download_client_assets_csv_template'])){
+    $client_id = intval($_GET['download_client_assets_csv_template']);
 
-    $asset_id = intval($_POST['asset_id']);
-    $login_id = intval($_POST['login_id']);
-    $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
-    $make = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['make'])));
-    $model = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['model'])));
-    $serial = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial'])));
-    $os = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['os'])));
-    $ip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['ip'])));
-    $mac = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['mac'])));
-    $location = intval($_POST['location']);
-    $vendor = intval($_POST['vendor']);
-    $contact = intval($_POST['contact']);
-    $network = intval($_POST['network']);
-    $purchase_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date'])));
-    if(empty($purchase_date)){
-        $purchase_date = "0000-00-00";
-    }
-    $warranty_expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire'])));
-    if(empty($warranty_expire)){
-        $warranty_expire = "0000-00-00";
-    }
-    $install_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['install_date'])));
-    if(empty($install_date)){
-        $install_date = "0000-00-00";
-    }
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
-    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
-    $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
 
-    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_updated_at = NOW(), asset_network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
-
-    //If login exists then update the login
-    if($login_id > 0){
-        mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id AND company_id = $session_company_id");
-    }else{
-    //If Username is filled in then add a login
-        if(!empty($username)) {
-            
-            mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_created_at = NOW(), login_asset_id = $asset_id, login_client_id = $client_id, company_id = $session_company_id");
-
-        }
-    }
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
-
-    $_SESSION['alert_message'] = "Asset updated";
+    $client_name = $row['client_name'];
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_GET['delete_asset'])){
-    $asset_id = intval($_GET['delete_asset']);
-
-    mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id AND company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Deleted', log_description = '$asset_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
-
-    $_SESSION['alert_message'] = "Asset deleted";
+    $delimiter = ",";
+    $filename = $client_name . "-Assets-Template.csv";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    //create a file pointer
+    $f = fopen('php://memory', 'w');
+    
+    //set column headers
+    $fields = array('Name', 'Type', 'Make', 'Model', 'Serial', 'OS');
+    fputcsv($f, $fields, $delimiter);
+    
+    //move back to beginning of file
+    fseek($f, 0);
+    
+    //set headers to download file rather than displayed
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '";');
+    
+    //output all remaining data on a file pointer
+    fpassthru($f);
+    exit;
   
 }
 
