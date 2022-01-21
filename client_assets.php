@@ -161,7 +161,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="thead-light <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_name&o=<?php echo $disp; ?>">Name</a></th>
-            <?php if($_GET['type'] !== 'virtual' AND $_GET['type'] !== 'server'){ ?>
+            <?php if($_GET['type'] !== 'virtual' AND $_GET['type'] !== 'servers'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_type&o=<?php echo $disp; ?>">Type</a></th>
             <?php } ?>
             <?php if($_GET['type'] !== 'virtual'){ ?>
@@ -312,7 +312,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               ?>
               
             </th>
-            <?php if($_GET['type'] !== 'virtual' AND $_GET['type'] !== 'server'){ ?>
+            <?php if($_GET['type'] !== 'virtual' AND $_GET['type'] !== 'servers'){ ?>
             <td><?php echo $asset_type; ?></td>
             <?php } ?>
             <?php if($_GET['type'] !== 'virtual'){ ?>
