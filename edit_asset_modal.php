@@ -105,7 +105,7 @@
                   <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro" value="<?php echo $asset_os; ?>">
                 </div>
               </div>
-              x<?php } ?>
+              <?php } ?>
             
             </div>
 
@@ -159,6 +159,7 @@
                   </select>
                 </div>
               </div>
+              <?php } ?>
 
               <div class="form-group">
                 <label>Network</label>
@@ -244,7 +245,7 @@
                 </div>
               </div>
 
-              <?php if($asset_type !== 'virtual'){ ?>
+              <?php if($asset_type !== 'Virtual Machine'){ ?>
               <div class="form-group">
                 <label>Purchase Date</label>
                 <div class="input-group">
