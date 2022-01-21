@@ -69,7 +69,7 @@ if(isset($_GET['o'])){
 if(isset($_GET['type']) && ($_GET['type']) == 'workstations'){
   $type_query = "asset_type = 'desktop' OR asset_type = 'laptop'";
 }elseif(isset($_GET['type']) && ($_GET['type']) == 'servers'){
-  $type_query = "asset_type = 'servers'";
+  $type_query = "asset_type = 'server'";
 }elseif(isset($_GET['type']) && ($_GET['type']) == 'virtual'){
   $type_query = "asset_type = 'Virtual Machine'";
 }elseif(isset($_GET['type']) && ($_GET['type']) == 'network'){
@@ -161,9 +161,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="thead-light <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_name&o=<?php echo $disp; ?>">Name</a></th>
+            <?php if($_GET['type'] !== 'virtual' AND $_GET['type'] !== 'server'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_type&o=<?php echo $disp; ?>">Type</a></th>
+            <?php } ?>
+            <?php if($_GET['type'] !== 'virtual'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_make&o=<?php echo $disp; ?>">Make/Model</a></th>
+            <?php } ?>
+            <?php if($_GET['type'] !== 'virtual'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_serial&o=<?php echo $disp; ?>">Serial Number</a></th>
+            <?php } ?>
             <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'other'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_os&o=<?php echo $disp; ?>">Operating System</a></th>
             <?php } ?>
@@ -306,9 +312,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               ?>
               
             </th>
+            <?php if($_GET['type'] !== 'virtual' AND $_GET['type'] !== 'server'){ ?>
             <td><?php echo $asset_type; ?></td>
+            <?php } ?>
+            <?php if($_GET['type'] !== 'virtual'){ ?>
             <td><?php echo "$asset_make $asset_model"; ?></td>
+            <?php } ?>
+            <?php if($_GET['type'] !== 'virtual'){ ?>
             <td><?php echo $asset_serial_display; ?></td>
+            <?php } ?>
             <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'other'){ ?>
             <td><?php echo $asset_os_display; ?></td>
             <?php } ?>
