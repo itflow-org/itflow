@@ -350,6 +350,26 @@ CREATE TABLE `document_tags` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `document_templates`
+--
+
+DROP TABLE IF EXISTS `document_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `document_templates` (
+  `document_template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `document_template_name` varchar(200) NOT NULL,
+  `document_template_content` longtext NOT NULL,
+  `document_template_created_at` datetime NOT NULL,
+  `document_template_updated_at` datetime DEFAULT NULL,
+  `document_template_archived_at` datetime DEFAULT NULL,
+  `document_template_category_id` int(11) DEFAULT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`document_template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `documents`
 --
 
@@ -1217,4 +1237,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-18 16:18:01
+-- Dump completed on 2022-01-21 17:43:42
