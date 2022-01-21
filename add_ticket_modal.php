@@ -108,15 +108,30 @@
             </div>
           </div>
 
-          <?php if(!empty($config_smtp_host)){ ?>
+          <?php if(isset($_GET['client_id'])){ ?>
+            <div class="form-group">
+                <label>Asset</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                    </div>
+                    <select class="form-control select2" name="asset">
+                        <option value="0">- None -</option>
+                        <?php
 
-          <div class="form-group">
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_ticket_updates" value="1" checked>
-              <label class="custom-control-label" for="customControlAutosizing">Email ticket updates <span class="text-secondary"><?php echo $contact_email; ?></span></label>
+                        $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+                        while($row = mysqli_fetch_array($sql_assets)){
+                            $asset_id_select = $row['asset_id'];
+                            $asset_name_select = $row['asset_name'];
+                            ?>
+                            <option <?php if(!empty($asset_id) && $asset_id == $asset_id_select){ echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
+
+                            <?php
+                        }
+                        ?>
+                    </select>
+                </div>
             </div>
-          </div>
-
           <?php } ?>
           
           <div class="form-group">

@@ -58,17 +58,6 @@
               <input type="text" class="form-control" name="subject" value="<?php echo $ticket_subject; ?>" placeholder="Subject" required>
             </div>
           </div>
-          
-          <?php if(!empty($config_smtp_host) AND !empty($contact_email)){ ?>
-
-          <div class="form-group">
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_ticket_updates" value="1" checked>
-              <label class="custom-control-label" for="customControlAutosizing">Email ticket updates <span class="text-secondary"><?php echo $contact_email; ?></span></label>
-            </div>
-          </div>
-
-          <?php } ?>
 
           <div class="form-group">
             <label>Client Contact</label>
