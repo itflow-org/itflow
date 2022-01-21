@@ -66,9 +66,9 @@ if(isset($_GET['o'])){
 }
 
 //Asset Type from GET
-if(isset($_GET['type']) && ($_GET['type']) == 'workstations'){
+if(isset($_GET['type']) && ($_GET['type']) == 'workstation'){
   $type_query = "asset_type = 'desktop' OR asset_type = 'laptop'";
-}elseif(isset($_GET['type']) && ($_GET['type']) == 'servers'){
+}elseif(isset($_GET['type']) && ($_GET['type']) == 'server'){
   $type_query = "asset_type = 'server'";
 }elseif(isset($_GET['type']) && ($_GET['type']) == 'virtual'){
   $type_query = "asset_type = 'Virtual Machine'";
@@ -97,7 +97,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop"></i> Assets</h3>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-fw fa-plus"></i> New Asset</button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-fw fa-plus"></i> New <?php if(!empty($_GET['type'])){ echo ucwords($_GET['type']); }else{ echo "Asset"; } ?></button>
     </div>
   </div>
   <div class="card-body">
@@ -109,7 +109,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php if(!empty($_GET['type'])){ echo ucwords($_GET['type']); }else{ echo "Asset"; } ?>s">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -117,15 +117,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </div>
         <div class="col-sm-6">
           <div class="btn-group btn-group-lg">
-            <a href="?<?php echo $url_query_strings_sb; ?>&type=%" class="btn <?php if($_GET['type'] == '%' OR empty($_GET['type'])){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Assets <span class="right badge badge-light"><?php echo $all_count; ?></span></a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&type=" class="btn <?php if($_GET['type'] == '' OR empty($_GET['type'])){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Assets <span class="right badge badge-light"><?php echo $all_count; ?></span></a>
             <?php
             if($workstation_count > 0){ ?>
-            <a href="?<?php echo $url_query_strings_sb; ?>&type=workstations" class="btn <?php if($_GET['type'] == 'workstations'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop"></i> Workstations <span class="right badge badge-light"><?php echo $workstation_count; ?></span></a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&type=workstation" class="btn <?php if($_GET['type'] == 'workstation'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop"></i> Workstations <span class="right badge badge-light"><?php echo $workstation_count; ?></span></a>
             <?php
             } ?>
             <?php
             if($server_count > 0){ ?>
-            <a href="?<?php echo $url_query_strings_sb; ?>&type=servers" class="btn <?php if($_GET['type'] == 'servers'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-server"></i> Servers <span class="right badge badge-light"><?php echo $server_count; ?></span></a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&type=server" class="btn <?php if($_GET['type'] == 'server'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-server"></i> Servers <span class="right badge badge-light"><?php echo $server_count; ?></span></a>
             <?php
             } ?>
             <?php

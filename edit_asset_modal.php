@@ -62,6 +62,8 @@
                 </div>
               </div>        
               
+              <?php //Do not display Make Model or Serial if Virtual is selected 
+              if($asset_type !== 'virtual'){ ?>
               <div class="form-group">
                 <label>Make <strong class="text-danger">*</strong></label>
                 <div class="input-group">
@@ -91,7 +93,9 @@
                   <input type="text" class="form-control" name="serial" placeholder="Serial number" value="<?php echo $asset_serial; ?>">
                 </div>
               </div>
+              <?php } ?>
 
+              <?php if($asset_type !== 'Phone' AND $asset_type !== 'Mobile Phone' AND $asset_type !== 'Tablet' AND $asset_type !== 'Firewall/Router' AND $asset_type !== 'Switch' AND $asset_type !== 'Access Point' AND $asset_type !== 'Printer' AND $asset_type !== 'Camera' AND $asset_type !== 'TV' AND $asset_type !== 'Other'){ ?>
               <div class="form-group">
                 <label>Operating System</label>
                 <div class="input-group">
@@ -101,6 +105,7 @@
                   <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro" value="<?php echo $asset_os; ?>">
                 </div>
               </div>
+              x<?php } ?>
             
             </div>
 
@@ -130,6 +135,7 @@
                 </div>
               </div>
 
+              <?php if($asset_type !== 'Firewall/Router' AND $asset_type !== 'Switch' AND $asset_type !== 'Access Point' AND $asset_type !== 'Printer' AND $asset_type !== 'Server' AND $asset_type !== 'Virtual Machine'){ ?>
               <div class="form-group">
                 <label>Assigned To</label>
                 <div class="input-group">
@@ -238,6 +244,7 @@
                 </div>
               </div>
 
+              <?php if($asset_type !== 'virtual'){ ?>
               <div class="form-group">
                 <label>Purchase Date</label>
                 <div class="input-group">
@@ -257,6 +264,7 @@
                   <input type="date" class="form-control" name="warranty_expire" value="<?php echo $asset_warranty_expire; ?>">
                 </div>
               </div>
+              <?php } ?>
             
             </div>
 

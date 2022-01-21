@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-desktop"></i> New Asset</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-desktop"></i> New <?php if(!empty($_GET['type'])){ echo ucwords($_GET['type']); }else{ echo "Asset"; } ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -47,7 +47,7 @@
                   <input type="text" class="form-control" name="name" placeholder="Name the asset" required autofocus>
                 </div>
               </div>
-              <?php if($_GET['type'] !== 'virtual' AND $_GET['type'] !== 'servers'){ ?>
+    
               <div class="form-group">
                 <label>Type <strong class="text-danger">*</strong></label>
                 <div class="input-group">
@@ -62,9 +62,9 @@
                   </select>
                 </div>
               </div>
-              <?php } ?>    
               
-              <?php if($_GET['type'] !== 'virtual'){ ?>
+              <?php //Do not display Make Model or Serial if Virtual is selected 
+              if($_GET['type'] !== 'virtual'){ ?>
               <div class="form-group">
                 <label>Make <strong class="text-danger">*</strong></label>
                 <div class="input-group">
@@ -83,11 +83,8 @@
                   </div>
                   <input type="text" class="form-control" name="model" placeholder="Model Number">
                 </div>
-              </div>
-              <?php } ?>
+              </div>              
               
-              <?php //Do not display Serial if Virtual is selected 
-              if($_GET['type'] !== 'virtual'){ ?>
               <div class="form-group">
                 <label>Serial Number</label>
                 <div class="input-group">
