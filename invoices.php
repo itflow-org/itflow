@@ -95,15 +95,15 @@
 
   //Invoice status from GET
   if(isset($_GET['status']) && ($_GET['status']) == 'Draft'){
-    $status = 'Draft';
+    $status_query = 'Draft';
   }elseif(isset($_GET['status']) && ($_GET['status']) == 'Sent'){
-    $status = 'Sent';
+    $status_query = 'Sent';
   }elseif(isset($_GET['status']) && ($_GET['status']) == 'Viewed'){
-    $status = 'Viewed';
+    $status_query = 'Viewed';
   }elseif(isset($_GET['status']) && ($_GET['status']) == 'Partial'){
-    $status = 'Partial';
+    $status_query = 'Partial';
   }else{
-    $status = '%';
+    $status_query = '%';
   }
   
   //Date Filter
@@ -146,7 +146,7 @@
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN categories ON invoice_category_id = category_id
     WHERE invoices.company_id = $session_company_id
-    AND invoice_status LIKE '%$status%'
+    AND (invoice_status LIKE '$status_query')
     AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR category_name LIKE '%$q%') 
     ORDER BY $sb $o LIMIT $record_from, $record_to");
@@ -158,7 +158,7 @@
 <div class="row">
   <div class="col-lg-3">
     <!-- small box -->
-    <a href="?<?php echo $url_query_strings_sb; ?>&?status=Draft" class="small-box bg-secondary">
+    <a href="?<?php echo $url_query_strings_sb; ?>&status=Draft" class="small-box bg-secondary">
       <div class="inner">
         <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_draft,2); ?></h3>
         <p><?php echo $draft_count; ?> Draft</p>
