@@ -47,7 +47,7 @@
                   <input type="text" class="form-control" name="name" placeholder="Name the asset" required autofocus>
                 </div>
               </div>
-              
+              <?php if($_GET['type'] !== 'virtual' AND $_GET['type'] !== 'servers'){ ?>
               <div class="form-group">
                 <label>Type <strong class="text-danger">*</strong></label>
                 <div class="input-group">
@@ -61,8 +61,10 @@
                     <?php } ?>
                   </select>
                 </div>
-              </div>        
+              </div>
+              <?php } ?>    
               
+              <?php if($_GET['type'] !== 'virtual'){ ?>
               <div class="form-group">
                 <label>Make <strong class="text-danger">*</strong></label>
                 <div class="input-group">
@@ -82,7 +84,10 @@
                   <input type="text" class="form-control" name="model" placeholder="Model Number">
                 </div>
               </div>
+              <?php } ?>
               
+              <?php //Do not display Serial if Virtual is selected 
+              if($_GET['type'] !== 'virtual'){ ?>
               <div class="form-group">
                 <label>Serial Number</label>
                 <div class="input-group">
@@ -92,7 +97,9 @@
                   <input type="text" class="form-control" name="serial" placeholder="Serial number">
                 </div>
               </div>
+              <?php } ?>
 
+              <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'other'){ ?>
               <div class="form-group">
                 <label>Operating System</label>
                 <div class="input-group">
@@ -102,6 +109,7 @@
                   <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro">
                 </div>
               </div>
+              <?php } ?>
 
             </div>
 
@@ -131,6 +139,7 @@
                 </div>
               </div>
 
+              <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'servers' AND $_GET['type'] !== 'other'){ ?>
               <div class="form-group">
                 <label>Assigned To</label>
                 <div class="input-group">
@@ -154,6 +163,7 @@
                   </select>
                 </div>
               </div>
+              <?php } ?>
 
               <div class="form-group">
                 <label>Network</label>
@@ -239,6 +249,7 @@
                 </div>
               </div>
 
+              <?php if($_GET['type'] !== 'virtual'){ ?>
               <div class="form-group">
                 <label>Purchase Date</label>
                 <div class="input-group">
@@ -257,6 +268,7 @@
                   <input type="date" class="form-control" name="warranty_expire">
                 </div>
               </div>
+              <?php } ?>
 
             </div>
 
