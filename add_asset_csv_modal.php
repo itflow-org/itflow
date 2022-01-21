@@ -11,10 +11,12 @@
 				<input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 				<div class="modal-body bg-white">
 					<p><strong>Format CSV file with headings & data:</strong><br>Name, Type, Make, Model, Serial, OS</p>
-					<p>Download <a href="post.php?download_client_assets_csv_template=<?php echo $client_id; ?>">sample CSV template</a></p>
-					<div class="form-group">
+					<hr>
+					<div class="form-group my-4">
 						<input type="file" class="form-control-file" name="file" accept=".csv">
 					</div>
+					<hr>
+					<div>Download <a href="post.php?download_client_assets_csv_template=<?php echo $client_id; ?>">sample CSV template</a></div>
 				</div>
 				<div class="modal-footer bg-white">
 					<button type="submit" name="import_client_assets_csv" class="btn btn-primary">Upload</button>
