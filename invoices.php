@@ -224,7 +224,7 @@
 
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
-      <input type="hidden" name="status" value="<?php echo $status; ?>">
+      <input type="hidden" name="status" value="<?php echo $_GET['status']; ?>">
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
