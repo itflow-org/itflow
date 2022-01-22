@@ -66,15 +66,22 @@ if(isset($_GET['o'])){
 }
 
 //Asset Type from GET
-if(isset($_GET['type']) && ($_GET['type']) == 'workstation'){
+if(isset($_GET['type'])){
+    $GET_asset_type = stripcslashes($_GET['type']);
+}
+else {
+    $GET_asset_type = "Any";
+}
+
+if(isset($GET_asset_type) && ($GET_asset_type) == 'workstation'){
   $type_query = "asset_type = 'desktop' OR asset_type = 'laptop'";
-}elseif(isset($_GET['type']) && ($_GET['type']) == 'server'){
+}elseif(isset($GET_asset_type) && ($GET_asset_type) == 'server'){
   $type_query = "asset_type = 'server'";
-}elseif(isset($_GET['type']) && ($_GET['type']) == 'virtual'){
+}elseif(isset($GET_asset_type) && ($GET_asset_type) == 'virtual'){
   $type_query = "asset_type = 'Virtual Machine'";
-}elseif(isset($_GET['type']) && ($_GET['type']) == 'network'){
+}elseif(isset($GET_asset_type) && ($GET_asset_type) == 'network'){
   $type_query = "asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point'";
-}elseif(isset($_GET['type']) && ($_GET['type']) == 'other'){
+}elseif(isset($GET_asset_type) && ($GET_asset_type) == 'other'){
   $type_query = "asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point'";
 }else{
   $type_query = "asset_type LIKE '%'";
@@ -97,19 +104,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop"></i> Assets</h3>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-fw fa-plus"></i> New <?php if(!empty($_GET['type'])){ echo ucwords($_GET['type']); }else{ echo "Asset"; } ?></button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-fw fa-plus"></i> New <?php if(!empty($GET_asset_type)){ echo ucwords($GET_asset_type); }else{ echo "Asset"; } ?></button>
     </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
       <input type="hidden" name="tab" value="<?php echo $_GET['tab']; ?>">
-      <input type="hidden" name="type" value="<?php echo $_GET['type']; ?>">
+      <input type="hidden" name="type" value="<?php echo $GET_asset_type; ?>">
       <div class="row">
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php if(!empty($_GET['type'])){ echo ucwords($_GET['type']); }else{ echo "Asset"; } ?>s">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php if(!empty($GET_asset_type)){ echo ucwords($GET_asset_type); }else{ echo "Asset"; } ?>s">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -117,30 +124,30 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </div>
         <div class="col-sm-6">
           <div class="btn-group btn-group-lg">
-            <a href="?<?php echo $url_query_strings_sb; ?>&type=" class="btn <?php if($_GET['type'] == '' OR empty($_GET['type'])){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Assets <span class="right badge badge-light"><?php echo $all_count; ?></span></a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&type=" class="btn <?php if($GET_asset_type == '' OR empty($GET_asset_type)){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Assets <span class="right badge badge-light"><?php echo $all_count; ?></span></a>
             <?php
             if($workstation_count > 0){ ?>
-            <a href="?<?php echo $url_query_strings_sb; ?>&type=workstation" class="btn <?php if($_GET['type'] == 'workstation'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop"></i> Workstations <span class="right badge badge-light"><?php echo $workstation_count; ?></span></a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&type=workstation" class="btn <?php if($GET_asset_type == 'workstation'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop"></i> Workstations <span class="right badge badge-light"><?php echo $workstation_count; ?></span></a>
             <?php
             } ?>
             <?php
             if($server_count > 0){ ?>
-            <a href="?<?php echo $url_query_strings_sb; ?>&type=server" class="btn <?php if($_GET['type'] == 'server'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-server"></i> Servers <span class="right badge badge-light"><?php echo $server_count; ?></span></a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&type=server" class="btn <?php if($GET_asset_type == 'server'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-server"></i> Servers <span class="right badge badge-light"><?php echo $server_count; ?></span></a>
             <?php
             } ?>
             <?php
             if($virtual_count > 0){ ?>
-            <a href="?<?php echo $url_query_strings_sb; ?>&type=virtual" class="btn <?php if($_GET['type'] == 'virtual'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-cloud"></i> Virtual <span class="right badge badge-light"><?php echo $virtual_count; ?></span></a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&type=virtual" class="btn <?php if($GET_asset_type == 'virtual'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-cloud"></i> Virtual <span class="right badge badge-light"><?php echo $virtual_count; ?></span></a>
             <?php
             } ?>
             <?php
             if($network_count > 0){ ?>
-            <a href="?<?php echo $url_query_strings_sb; ?>&type=network" class="btn <?php if($_GET['type'] == 'network'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-network-wired"></i> Network <span class="right badge badge-light"><?php echo $network_count; ?></span></a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&type=network" class="btn <?php if($GET_asset_type == 'network'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-network-wired"></i> Network <span class="right badge badge-light"><?php echo $network_count; ?></span></a>
             <?php
             } ?>
             <?php
             if($network_count > 0){ ?>
-            <a href="?<?php echo $url_query_strings_sb; ?>&type=other" class="btn <?php if($_GET['type'] == 'other'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-tag"></i> Other <span class="right badge badge-light"><?php echo $other_count; ?></span></a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&type=other" class="btn <?php if($GET_asset_type == 'other'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-tag"></i> Other <span class="right badge badge-light"><?php echo $other_count; ?></span></a>
             <?php
             } ?>
           </div>
@@ -161,20 +168,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="thead-light <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_name&o=<?php echo $disp; ?>">Name</a></th>
-            <?php if($_GET['type'] !== 'virtual' AND $_GET['type'] !== 'servers'){ ?>
+            <?php if($GET_asset_type !== 'virtual' AND $GET_asset_type !== 'servers'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_type&o=<?php echo $disp; ?>">Type</a></th>
             <?php } ?>
-            <?php if($_GET['type'] !== 'virtual'){ ?>
+            <?php if($GET_asset_type !== 'virtual'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_make&o=<?php echo $disp; ?>">Make/Model</a></th>
             <?php } ?>
-            <?php if($_GET['type'] !== 'virtual'){ ?>
+            <?php if($GET_asset_type !== 'virtual'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_serial&o=<?php echo $disp; ?>">Serial Number</a></th>
             <?php } ?>
-            <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'other'){ ?>
+            <?php if($GET_asset_type !== 'network' AND $GET_asset_type !== 'other'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_os&o=<?php echo $disp; ?>">Operating System</a></th>
             <?php } ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_install_date&o=<?php echo $disp; ?>">Install Date</a></th>
-            <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'servers' AND $_GET['type'] !== 'other'){ ?>
+            <?php if($GET_asset_type !== 'network' AND $GET_asset_type !== 'servers' AND $GET_asset_type !== 'other'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Contact</a></th>
             <?php } ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_name&o=<?php echo $disp; ?>">Location</a></th>
@@ -312,20 +319,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               ?>
               
             </th>
-            <?php if($_GET['type'] !== 'virtual' AND $_GET['type'] !== 'servers'){ ?>
+            <?php if($GET_asset_type !== 'virtual' AND $GET_asset_type !== 'servers'){ ?>
             <td><?php echo $asset_type; ?></td>
             <?php } ?>
-            <?php if($_GET['type'] !== 'virtual'){ ?>
+            <?php if($GET_asset_type !== 'virtual'){ ?>
             <td><?php echo "$asset_make $asset_model"; ?></td>
             <?php } ?>
-            <?php if($_GET['type'] !== 'virtual'){ ?>
+            <?php if($GET_asset_type !== 'virtual'){ ?>
             <td><?php echo $asset_serial_display; ?></td>
             <?php } ?>
-            <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'other'){ ?>
+            <?php if($GET_asset_type !== 'network' AND $GET_asset_type !== 'other'){ ?>
             <td><?php echo $asset_os_display; ?></td>
             <?php } ?>
             <td><?php echo $asset_install_date_display; ?></td>
-            <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'other' AND $_GET['type'] !== 'servers'){ ?>
+            <?php if($GET_asset_type !== 'network' AND $GET_asset_type !== 'other' AND $GET_asset_type !== 'servers'){ ?>
             <td><?php echo $contact_name; ?></td>
             <?php } ?>
             <td><?php echo $location_name; ?></td>
