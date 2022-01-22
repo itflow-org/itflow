@@ -72,6 +72,12 @@
           </a>
         </li>
         <li class="nav-item">
+            <a href="scheduled_tickets.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "scheduled_tickets.php") { echo "active"; } ?>">
+               <i class="nav-icon fas fa-sync"></i>
+                <p>Scheduled Tickets</p>
+            </a>
+        </li>
+        <li class="nav-item">
           <a href="vendors.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "vendors.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-building"></i>
             <p>Vendors</p>
