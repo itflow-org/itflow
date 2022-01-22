@@ -36,6 +36,12 @@ if(isset($_GET['o'])){
   $disp = "ASC";
 }
 
+if(empty($_GET['canned_date'])){
+  //Prevents lots of undefined variable errors.
+  // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
+  $_GET['canned_date'] = 'custom';
+}
+
 //Date Filter
 if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
   $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
@@ -69,20 +75,15 @@ if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
   $dtt = "9999-00-00";
 }
 
-if(empty($_GET['canned_date'])){
-  //Prevents lots of undefined variable errors.
-  // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
-  $_GET['canned_date'] = 'custom';
-}
-
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM expenses, categories, vendors, accounts
-  WHERE expense_category_id = category_id
-  AND expense_vendor_id = vendor_id
-  AND expense_account_id = account_id
-  AND expenses.company_id = $session_company_id
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM expenses
+  LEFT JOIN categories ON expense_category_id = category_id
+  LEFT JOIN vendors ON expense_vendor_id = vendor_id
+  LEFT JOIN accounts ON expense_account_id = account_id
+  WHERE expenses.company_id = $session_company_id
+  AND expense_vendor_id > 0
   AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
   AND (vendor_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
   ORDER BY $sb $o LIMIT $record_from, $record_to");
@@ -109,6 +110,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>
+          </div>
+        </div>
+        <div class="col-sm-8">
+          <div class="float-right">
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportExpensesModal"><i class="fa fa-fw fa-download"></i> Export</button>
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importExpensesModal"><i class="fa fa-fw fa-upload"></i> Import</button>
           </div>
         </div>
       </div>
@@ -222,6 +229,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           include("edit_expense_modal.php");
           include("add_expense_copy_modal.php");
           include("add_expense_refund_modal.php");
+          include("export_expenses_modal.php");
           
           }
 

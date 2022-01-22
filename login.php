@@ -21,7 +21,7 @@ ini_set("session.cookie_httponly", True);
 
 // Tell client to only send cookie(s) over HTTPS
 if($config_https_only){
-    ini_set("session.cookie_secure", True);
+  ini_set("session.cookie_secure", True);
 }
 
 if(isset($_POST['login'])){

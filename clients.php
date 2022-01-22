@@ -46,10 +46,10 @@ if(isset($_GET['order'])){
   $order_display = "ASC";
 }
 
-if (empty($_GET['canned_date'])) {
-    //Prevents lots of undefined variable errors.
-    // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
-    $_GET['canned_date'] = 'custom';
+if(empty($_GET['canned_date'])) {
+  //Prevents lots of undefined variable errors.
+  // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
+  $_GET['canned_date'] = 'custom';
 }
 
 //Date Filter

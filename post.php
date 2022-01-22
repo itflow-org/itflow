@@ -2394,6 +2394,62 @@ if(isset($_GET['delete_expense'])){
   
 }
 
+if(isset($_POST['export_expenses_csv'])){
+    $date_from = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_from'])));
+    $date_to = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_to'])));
+    if(!empty($date_from) AND !empty($date_to)){
+        $date_query = "AND DATE(expense_date) BETWEEN '$date_from' AND '$date_to'";
+        $file_name_date = "$date_from-$date_to";
+    }else{
+        $date_query = "";
+        $file_name_date = date('Y-m-d');
+    }
+    
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT * FROM expenses
+      LEFT JOIN categories ON expense_category_id = category_id
+      LEFT JOIN vendors ON expense_vendor_id = vendor_id
+      LEFT JOIN accounts ON expense_account_id = account_id
+      WHERE expenses.company_id = $session_company_id
+      AND expense_vendor_id > 0
+      $date_query
+      ORDER BY expense_date DESC
+    ");
+
+    if(mysqli_num_rows($sql) > 0){
+        $delimiter = ",";
+        $filename = "$session_company_name-Expenses-$file_name_date.csv";
+        
+        //create a file pointer
+        $f = fopen('php://memory', 'w');
+        
+        //set column headers
+        $fields = array('Date', 'Amount', 'Vendor', 'Description', 'Category', 'Account');
+        fputcsv($f, $fields, $delimiter);
+        
+        //output each row of the data, format line as csv and write to file pointer
+        while($row = mysqli_fetch_assoc($sql)){
+            $lineData = array($row['expense_date'], $row['expense_amount'], $row['vendor_name'], $row['expense_description'], $row['category_name'], $row['account_name']);
+            fputcsv($f, $lineData, $delimiter);
+        }
+        
+        //move back to beginning of file
+        fseek($f, 0);
+        
+        //set headers to download file rather than displayed
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+        
+        //output all remaining data on a file pointer
+        fpassthru($f);
+    }
+    
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Export', log_description = '$session_name exported expenses to CSV File', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    exit;
+}
+
 if(isset($_POST['add_transfer'])){
 
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
