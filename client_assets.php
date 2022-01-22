@@ -78,6 +78,7 @@ if(isset($_GET['type']) && ($_GET['type']) == 'workstation'){
   $type_query = "asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point'";
 }else{
   $type_query = "asset_type LIKE '%'";
+  $_GET['type'] = 'all';
 }
 
 //Rebuild URL
@@ -117,7 +118,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </div>
         <div class="col-sm-6">
           <div class="btn-group btn-group-lg">
-            <a href="?<?php echo $url_query_strings_sb; ?>&type=" class="btn <?php if($_GET['type'] == '' OR empty($_GET['type'])){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Assets <span class="right badge badge-light"><?php echo $all_count; ?></span></a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&type=" class="btn <?php if($_GET['type'] == 'all' OR empty($_GET['type'])){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Assets <span class="right badge badge-light"><?php echo $all_count; ?></span></a>
             <?php
             if($workstation_count > 0){ ?>
             <a href="?<?php echo $url_query_strings_sb; ?>&type=workstation" class="btn <?php if($_GET['type'] == 'workstation'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop"></i> Workstations <span class="right badge badge-light"><?php echo $workstation_count; ?></span></a>
