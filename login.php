@@ -31,12 +31,12 @@ if(isset($_POST['login'])){
 
     // Check recent failed login attempts for this IP (more than 10 failed logins in 5 mins)
 
-    // TODO: We can probably just use a count for this, but couldn't make it not count *everything*
-    $ip_failed_logins_sql = mysqli_query($mysqli, "SELECT * FROM logs WHERE log_ip = '$ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 5 MINUTE)");
-    $failed_login_count = mysqli_num_rows($ip_failed_logins_sql);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(log_id) AS failed_login_count FROM logs WHERE log_ip = '$ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
+    
+    $failed_login_count = $row['failed_login_count'];
 
     // Login brute force check
-    if($failed_login_count >= 10){
+    if($failed_login_count >= 3){
 
         // Logging
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
