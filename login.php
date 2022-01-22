@@ -30,24 +30,23 @@ if(isset($_POST['login'])){
     session_start();
 
     // Check recent failed login attempts for this IP (more than 10 failed logins in 5 mins)
-
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(log_id) AS failed_login_count FROM logs WHERE log_ip = '$ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
     
     $failed_login_count = $row['failed_login_count'];
 
     // Login brute force check
-    if($failed_login_count >= 3){
+    if($failed_login_count >= 10){
 
-        // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+      // Logging
+      mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
 
-        // Send an alert only count hits 10 to reduce flooding alerts (using 1 as "default" company)
-        if($failed_login_count == 10){
-            mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Lockout', alert_message = '$ip was locked out for repeated failed login attempts.', alert_date = NOW(), company_id = '1'");
-        }
+      // Send an alert only count hits 10 to reduce flooding alerts (using 1 as "default" company)
+      if($failed_login_count == 10){
+          mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Lockout', alert_message = '$ip was locked out for repeated failed login attempts.', alert_date = NOW(), company_id = '1'");
+      }
 
-        // Inform user
-        $response = '<div class=\'alert alert-danger\'>IP Lockout - Please try again later.<button class=\'close\' data-dismiss=\'alert\'>&times;</button></div>';
+      // Inform user
+      $response = '<div class=\'alert alert-danger\'>IP Lockout - Please try again later.<button class=\'close\' data-dismiss=\'alert\'>&times;</button></div>';
     }
 
     // Passed login brute force check
