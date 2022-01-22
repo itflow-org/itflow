@@ -78,7 +78,7 @@ if(isset($_GET['type']) && ($_GET['type']) == 'workstation'){
   $type_query = "asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point'";
 }else{
   $type_query = "asset_type LIKE '%'";
-  $_GET['type'] = 'all';
+  $_GET['type'] = '';
 }
 
 //Rebuild URL

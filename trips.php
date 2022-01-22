@@ -36,6 +36,12 @@
     $disp = "ASC";
   }
 
+  if(empty($_GET['canned_date'])){
+    //Prevents lots of undefined variable errors.
+    // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
+    $_GET['canned_date'] = 'custom';
+  }
+
   //Date Filter
   if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
     $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
@@ -69,16 +75,13 @@
     $dtt = "9999-00-00";
   }
 
-  if(empty($_GET['canned_date'])){
-    //Prevents lots of undefined variable errors.
-    // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
-    $_GET['canned_date'] = 'custom';
-  }
+  
 
   //Rebuild URL
   $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips LEFT JOIN clients ON trip_client_id = client_id
+  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips 
+    LEFT JOIN clients ON trip_client_id = client_id
     WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR trip_miles LIKE '%$q%' OR client_name LIKE '%$q%')
     AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
     AND trips.company_id = $session_company_id
@@ -113,7 +116,7 @@
         </div>
         <div class="col-sm-8">
           <div class="float-right">
-            <a href="post.php?export_trips_csv" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
+            <button type="button" class="btn btn-default btn-lg" data-toggle="modal" data-target="#exportTripsModal"><i class="fa fa-fw fa-download"></i> Export</button>
           </div>
         </div>
       </div>
@@ -217,6 +220,7 @@
 
           include("add_trip_copy_modal.php");
           include("edit_trip_modal.php");
+          include("export_trips_modal.php");
           
           }
           

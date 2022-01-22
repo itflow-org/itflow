@@ -2399,7 +2399,7 @@ if(isset($_POST['export_expenses_csv'])){
     $date_to = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_to'])));
     if(!empty($date_from) AND !empty($date_to)){
         $date_query = "AND DATE(expense_date) BETWEEN '$date_from' AND '$date_to'";
-        $file_name_date = "$date_from-$date_to";
+        $file_name_date = "$date_from-to-$date_to";
     }else{
         $date_query = "";
         $file_name_date = date('Y-m-d');
@@ -5776,13 +5776,28 @@ if(isset($_GET['force_recurring'])){
 
 } //End Force Recurring
 
-if(isset($_GET['export_trips_csv'])){
-    //get records from database
-    $query = mysqli_query($mysqli,"SELECT * FROM trips WHERE company_id = $session_company_id ORDER BY trip_date DESC");
+if(isset($_POST['export_trips_csv'])){
+    $date_from = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_from'])));
+    $date_to = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_to'])));
+    if(!empty($date_from) AND !empty($date_to)){
+        $date_query = "AND DATE(trip_date) BETWEEN '$date_from' AND '$date_to'";
+        $file_name_date = "$date_from-to-$date_to";
+    }else{
+        $date_query = "";
+        $file_name_date = date('Y-m-d');
+    }
 
-    if($query->num_rows > 0){
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT * FROM trips 
+        LEFT JOIN clients ON trip_client_id = client_id
+        WHERE trips.company_id = $session_company_id
+        $date_query
+        ORDER BY trip_date DESC"
+    );
+
+    if(mysqli_num_rows($sql) > 0){
         $delimiter = ",";
-        $filename = "trips_" . date('Y-m-d') . ".csv";
+        $filename = "$session_company_name-Trips-$file_name_date.csv";
         
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -5792,7 +5807,7 @@ if(isset($_GET['export_trips_csv'])){
         fputcsv($f, $fields, $delimiter);
         
         //output each row of the data, format line as csv and write to file pointer
-        while($row = $query->fetch_assoc()){
+        while($row = mysqli_fetch_assoc($sql)){
             $lineData = array($row['trip_date'], $row['trip_purpose'], $row['trip_source'], $row['trip_destination'], $row['trip_miles']);
             fputcsv($f, $lineData, $delimiter);
         }

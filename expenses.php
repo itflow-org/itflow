@@ -114,8 +114,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </div>
         <div class="col-sm-8">
           <div class="float-right">
-            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportExpensesModal"><i class="fa fa-fw fa-download"></i> Export</button>
-            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importExpensesModal"><i class="fa fa-fw fa-upload"></i> Import</button>
+            <button type="button" class="btn btn-default btn-lg" data-toggle="modal" data-target="#exportExpensesModal"><i class="fa fa-fw fa-download"></i> Export</button>
           </div>
         </div>
       </div>
