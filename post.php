@@ -5179,12 +5179,26 @@ if(isset($_POST['add_scheduled_ticket'])){
     mysqli_query($mysqli, "INSERT INTO scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_start_date = '$start_date', scheduled_ticket_next_run = '$start_date', scheduled_ticket_created_at = NOW(), scheduled_ticket_created_by = '$session_user_id', scheduled_ticket_client_id = '$client_id', scheduled_ticket_contact_id = '$contact', scheduled_ticket_asset_id = '$asset_id', company_id = '$session_company_id'");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Created scheduled ticket for $subject $frequency starting $start_date', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Created scheduled ticket for $subject - $frequency', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Scheduled ticket created.";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if(isset($_GET['delete_scheduled_ticket'])){
+    $scheduled_ticket_id = intval($_GET['delete_scheduled_ticket']);
+
+    // Delete
+    mysqli_query($mysqli, "DELETE FROM scheduled_tickets WHERE scheduled_ticket_id = '$scheduled_ticket_id'");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Deleted', log_description = 'Deleted scheduled ticket $scheduled_ticket_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Scheduled ticket deleted.";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if(isset($_POST['edit_ticket'])){
