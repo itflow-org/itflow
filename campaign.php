@@ -29,14 +29,14 @@ if(isset($_GET['campaign_id'])){
 
   ?>
 
-  <ol class="breadcrumb">
+  <ol class="breadcrumb elevation-2">
     <li class="breadcrumb-item">
       <a href="campaigns.php">Campaigns</a>
     </li>
     <li class="breadcrumb-item active"><?php echo $campaign_name; ?></li>
   </ol>
 
-  <div class="card card-body">
+  <div class="card card-body elevation-3">
     <h6 class="text-secondary">CAMPAIGN</h6>
     <h1><?php echo $campaign_name; ?></h1>
   </div>
@@ -96,7 +96,7 @@ if(isset($_GET['campaign_id'])){
 
 ?>
 
-<div class="card card-dark">
+<div class="card card-dark elevation-3">
   <div class="card-header py-3">
     <h3 class="card-title"><i class="fa fa-fw fa-envelope"></i> Messages</h3>
   </div>
