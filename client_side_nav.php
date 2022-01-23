@@ -15,7 +15,7 @@
           </a>
         </li>
         <div class="sidebar-custom">
-          <center class="text-wrap"><?php echo $client_tags_display; ?></center>
+          <div class="text-wrap"><?php echo $client_tags_display; ?></div>
         </div>
 
         <li class="nav-header mt-3">CLIENT</li>

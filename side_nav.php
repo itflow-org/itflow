@@ -5,7 +5,7 @@
   <div class="sidebar">
 
     <!-- Sidebar Menu -->
-    <nav class="mt-3">
+    <nav class="">
       <?php
       $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id IN ($session_user_company_access)");
       
@@ -13,9 +13,9 @@
 
       ?>
 
-      <div class="dropdown mb-4 ml-3">
+      <div class="dropdown brand-link">
         <a class="" href="#" data-toggle="dropdown">
-          <h3 class="text-light"><?php echo $session_company_name; ?> <small><i class="fa fa-caret-down"></i></small></h3>
+          <h3 class="brand-text text-light mb-0"><?php echo $session_company_name; ?> <small><i class="fa fa-caret-down"></i></small></h3>
         </a>
 
         <ul class="dropdown-menu">
@@ -42,7 +42,7 @@
 
       <?php }else{ ?>
 
-        <h3 class="mb-4 ml-3 text-light"><?php echo $session_company_name; ?></h3>
+        <h3 class="brand-text text-light"><?php echo $session_company_name; ?></h3>
 
       <?php } ?>
 
