@@ -36,12 +36,10 @@ if(isset($_GET['campaign_id'])){
     <li class="breadcrumb-item active"><?php echo $campaign_name; ?></li>
   </ol>
 
-  <div class="card">
-    <div class="card-body">
-      <h1><?php echo $campaign_name; ?></h1>
-    </div>
+  <div class="card card-body">
+    <h6 class="text-secondary">CAMPAIGN</h6>
+    <h1><?php echo $campaign_name; ?></h1>
   </div>
-
 
   <?php
   //Paging
