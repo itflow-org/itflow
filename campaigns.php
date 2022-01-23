@@ -239,6 +239,6 @@
   </div>
 </div>
 
-<?php include("add_campaign_modal.php"); ?>
+<?php include("campaign_add_modal.php"); ?>
 
 <?php include("footer.php");
