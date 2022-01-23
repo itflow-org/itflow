@@ -112,6 +112,11 @@
           </div>
         </div>
         <div class="col-sm-8">
+          <div class="float-right">
+            <a href="#" class="btn btn-lg btn-default"><i class="fa fa-fw fa-pencil-ruler"></i> Draft</a>
+            <a href="#" class="btn btn-lg btn-default"><i class="fa fa-fw fa-clock"></i> Queued</a>
+            <a href="#" class="btn btn-lg btn-default"><i class="fa fa-fw fa-paper-plane"></i> Sent</a>
+          </div>
         </div>
       </div>
       <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
@@ -153,7 +158,11 @@
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_name&o=<?php echo $disp; ?>">Name</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_created_at&o=<?php echo $disp; ?>">Sent</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_created_at&o=<?php echo $disp; ?>">Opened</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_created_at&o=<?php echo $disp; ?>">Clicked</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_created_at&o=<?php echo $disp; ?>">Created</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_scheduled_at&o=<?php echo $disp; ?>">Scheduled</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_status&o=<?php echo $disp; ?>">Status</a></th>
             <th class="text-center">Action</th>
           </tr>
@@ -170,11 +179,32 @@
             $campaign_scheduled_at = $row['campaign_scheduled_at'];
             $campaign_created_at = $row['campaign_created_at'];
 
+            //Set Badge color based off of campaign status
+            if($campaign_status == "Sent"){
+              $campaign_badge_color = "warning text-white";
+            }elseif($campaign_status == "Queued"){
+              $campaign_badge_color = "info";
+            }elseif($campaign_status == "Sending"){
+              $campaign_badge_color = "primary";
+            }elseif($campaign_status == "Sent"){
+              $campaign_badge_color = "success";
+            }else{
+              $campaign_badge_color = "secondary";
+            }
+
           ?>
           <tr>
-            <td><a class="text-dark" href="campaign_details.php?campaign_id=<?php echo $campaign_id; ?>"><?php echo $campaign_name; ?></a></td>
+            <td><a href="campaign_details.php?campaign_id=<?php echo $campaign_id; ?>"><?php echo $campaign_name; ?></a></td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
             <td><?php echo $campaign_created_at; ?></td>
-            <td><?php echo $campaign_status; ?></td>
+            <td><?php echo $campaign_scheduled_at; ?></td>
+            <td>
+              <span class="p-2 badge badge-<?php echo $campaign_badge_color; ?>">
+                <?php echo $campaign_status; ?>
+              </span>
+            </td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

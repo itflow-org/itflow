@@ -1642,7 +1642,6 @@ if(isset($_GET['export_client_vendors_csv'])){
 }
 
 // Campaigns
-
 if(isset($_POST['add_campaign'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -1650,8 +1649,10 @@ if(isset($_POST['add_campaign'])){
     $from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['from_name'])));
     $from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['from_email'])));
     $content = trim(mysqli_real_escape_string($mysqli,$_POST['content']));
+    $status = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['status'])));
+    $scheduled_time = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scheduled_time'])));
     
-    mysqli_query($mysqli,"INSERT INTO campaigns SET campaign_name = '$name', campaign_subject = '$subject', campaign_from_name = '$from_name', campaign_from_email = '$from_email', campaign_content = '$content', campaign_status = 'Draft', campaign_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO campaigns SET campaign_name = '$name', campaign_subject = '$subject', campaign_from_name = '$from_name', campaign_from_email = '$from_email', campaign_content = '$content', campaign_status = '$status', campaign_scheduled_at = '$scheduled_time', campaign_created_at = NOW(), company_id = $session_company_id");
 
     $campaign_id = mysqli_insert_id($mysqli);
 
@@ -1739,7 +1740,10 @@ if(isset($_GET['delete_campaign'])){
     $row = mysqli_fetch_array($sql);
     $campaign_name = $row['campaign_name'];
 
+    //Delete Campaign
     mysqli_query($mysqli,"DELETE FROM campaigns WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
+    //Delete Messages Related to the Campaign
+    mysqli_query($mysqli,"DELETE FROM campaign_messages WHERE message_campaign_id = $campaign_id AND company_id = $session_company_id");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Delete', log_description = '$session_name deleted mail campaign $campaign_name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
