@@ -9,6 +9,8 @@ if(isset($_GET['campaign_id'])){
 
   $campaign_name = $row['campaign_name'];
   $campaign_subject = $row['campaign_subject'];
+  $campaign_from_name = $row['campaign_from_name'];
+  $campaign_from_email = $row['campaign_from_email'];
   $campaign_content = $row['campaign_content'];
   $campaign_status = $row['campaign_status'];
   $campaign_scheduled_at = $row['campaign_scheduled_at'];
@@ -35,10 +37,55 @@ if(isset($_GET['campaign_id'])){
     </li>
     <li class="breadcrumb-item active"><?php echo $campaign_name; ?></li>
   </ol>
+  <div class="row">
+    
+    <div class="col-sm-4">
+      <div class="card card-body card-outline card-dark elevation-2">
+        <h6 class="text-secondary">CAMPAIGN</h6>
+        <h1><?php echo $campaign_name; ?></h1>
+        <div class="p-2 badge badge-pill badge-<?php echo $campaign_badge_color; ?>">
+          <?php echo $campaign_status; ?>
+        </div>
+      </div>
+    </div>
 
-  <div class="card card-body elevation-3">
-    <h6 class="text-secondary">CAMPAIGN</h6>
-    <h1><?php echo $campaign_name; ?></h1>
+    <div class="col-sm-4">
+      <div class="card card-body card-outline card-dark elevation-2">
+        <h6 class="text-secondary">DETAILS</h6>
+        <div class="mb-1"><i class="fa fa-fw fa-bullhorn text-secondary mr-2"></i><strong><?php echo $campaign_subject; ?></strong></div>
+        <div class="mb-1"><i class="fa fa-fw fa-user text-secondary mr-2"></i><strong><?php echo $campaign_from_name; ?></strong> (<?php echo $campaign_from_email; ?>)</div>
+        <div class="mb-1"><i class="fa fa-fw fa-clock text-secondary mr-2"></i><strong><?php echo $campaign_created_at; ?></strong></div>
+      </div>
+    </div>
+
+    <div class="col-sm-1">
+      <div class="card card-body card-outline card-success text-center elevation-2">
+        <h6 class="text-success">Sent</h6>
+        <h1>18</h1>
+      </div>
+    </div>
+    
+    <div class="col-sm-1">
+      <div class="card card-body card-outline card-secondary text-center elevation-2">
+        <h6 class="text-secondary">Opened</h6>
+        <h1>10</h1>
+      </div>
+    </div>
+
+    <div class="col-sm-1">
+      <div class="card card-body card-outline card-info text-center elevation-2">
+        <h6 class="text-info">Clicked</h6>
+        <h1>7</h1>
+      </div>
+    </div>
+
+    <div class="col-sm-1">
+      <div class="card card-body card-outline card-danger text-center elevation-2">
+        <h6 class="text-danger">Failed</h6>
+        <h1>3</h1>
+      </div>
+    </div>
+
   </div>
 
   <?php
