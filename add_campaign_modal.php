@@ -69,12 +69,19 @@
                   $tag_name_select = $row['tag_name'];
                   $tag_color_select = $row['tag_color'];
                   $tag_icon_select = $row['tag_icon'];
+                  //Get Contact Count
+                  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(*) AS client_count FROM clients, client_tags 
+                    WHERE clients.client_id = client_tags.client_id
+                    AND tag_id = $tag_id_select 
+                    AND company_id = $session_company_id 
+                  "));
+                  $client_count = $row['client_count'];
 
                 ?>
                   <li class="list-group-item">
                     <div class="form-check">
                       <input type="checkbox" class="form-check-input" name="tags[]" value="<?php echo $tag_id_select; ?>">
-                      <label class="form-check-label ml-2 badge bg-<?php echo $tag_color_select; ?>"><?php echo "<i class='fa fw fa-$tag_icon_select'></i>"; ?> <?php echo $tag_name_select; ?></label>
+                      <label class="form-check-label ml-2 badge bg-<?php echo $tag_color_select; ?>"><?php echo "<i class='fa fw fa-$tag_icon_select'></i>"; ?> <?php echo $tag_name_select; ?></label><span class="right badge badge-light"><?php echo $client_count; ?></span>
                     </div>
                   </li>
 

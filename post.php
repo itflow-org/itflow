@@ -1655,12 +1655,42 @@ if(isset($_POST['add_campaign'])){
 
     $campaign_id = mysqli_insert_id($mysqli);
 
+    //Create Recipient List based off tags selected
+    if(isset($_POST['tags'])){
+        foreach($_POST['tags'] as $tag){
+            intval($tag);
+            
+            $sql = mysqli_query($mysqli,"SELECT * FROM clients
+                LEFT JOIN contacts ON contacts.contact_id = clients.primary_contact
+                LEFT JOIN client_tags ON clients.client_id = client_tags.client_id   
+                WHERE client_tags.tag_id = $tag 
+                AND clients.company_id = $session_company_id 
+            ");
+
+            while($row = mysqli_fetch_array($sql)){
+                $client_id = $row['client_id'];
+                $client_name = $row['client_name'];
+                $contact_id = $row['contact_id'];
+                $contact_name = $row['contact_name'];
+                $contact_email = $row['contact_email'];
+                
+                //Check to see if the email has already been added if so don't add it
+                $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(message_id) AS count FROM campaign_messages WHERE message_recipient_email = '$contact_email' AND message_campaign_id = $campaign_id"));
+                $count = $row['count'];
+                if($count == 0){
+                    mysqli_query($mysqli,"INSERT INTO campaign_messages SET message_recipient_email = '$contact_email', message_created_at = NOW(), message_client_tag_id = $tag, message_contact_id = $contact_id, message_campaign_id = $campaign_id, company_id = $session_company_id");
+                }
+            }
+        }
+    }
+
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Create', log_description = '$session_name created mail campaign $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Campaign <strong>$name</strong> created";
     
-    header("Location: campaign_details.php?campaign_id=$campaign_id");
+    //header("Location: campaign_details.php?campaign_id=$campaign_id");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if(isset($_POST['edit_campaign'])){

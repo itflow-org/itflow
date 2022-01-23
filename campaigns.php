@@ -172,7 +172,7 @@
 
           ?>
           <tr>
-            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editCampaignModal<?php echo $campaign_id; ?>"><?php echo $campaign_name; ?></a></td>
+            <td><a class="text-dark" href="campaign_details.php?campaign_id=<?php echo $campaign_id; ?>"><?php echo $campaign_name; ?></a></td>
             <td><?php echo $campaign_created_at; ?></td>
             <td><?php echo $campaign_status; ?></td>
             <td>
