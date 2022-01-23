@@ -211,7 +211,7 @@
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="post.php?send_campaign=<?php echo $campaign_id; ?>">Send</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#campaignTestModal<?php echo $campaign_id; ?>">Test</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editCampaignModal<?php echo $campaign_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addCampaignCopyModal<?php echo $campaign_id; ?>">Copy</a>
@@ -226,6 +226,7 @@
 
           include("add_campaign_copy_modal.php");
           include("edit_campaign_modal.php");
+          include("campaign_test_modal.php");
           
           }
           
