@@ -85,6 +85,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                                                                   ON service_assets.asset_id = logins.login_asset_id
                                                                 LEFT JOIN networks
                                                                   ON assets.asset_network_id = networks.network_id
+                                                                LEFT JOIN locations
+                                                                  ON assets.asset_location_id = locations.location_id
                                                                 WHERE service_id = '$service_id'");
 
                     // Associated logins

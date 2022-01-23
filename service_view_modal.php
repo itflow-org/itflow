@@ -38,33 +38,67 @@
 
                             <!-- Networks -->
                             <?php
+                            if($sql_assets){
+
+                                $network_names = [];
+                                $network_vlans = [];
+
+                                // Reset the $sql_assets pointer to the start - as we've already cycled through once
+                                mysqli_data_seek($sql_assets, 0);
+
+                                // Get networks linked to assets - push their name and vlan to arrays
+                                while($row = mysqli_fetch_array($sql_assets)){
+                                    if(!empty($row['network_name'])){
+                                        array_push($network_names, $row['network_name']);
+                                        array_push($network_vlans, $row['network_vlan']);
+                                    }
+                                }
+
+                                // Remove duplicates
+                                $network_names = array_unique($network_names);
+                                $network_vlans = array_unique($network_vlans);
+
+                                // Display
+                                if(!empty($network_names)){ ?>
+                                    <h5><i class="nav-icon fas fa-network-wired"></i> Networks</h5>
+                                    <ul>
+                                <?php
+                                }
+                                foreach($network_names as $network){
+                                    foreach($network_vlans as $vlan){
+                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=networks&q=$network\">$network (VLAN: $vlan)</a></li>";
+                                    }
+                                }
+
+                                // Not showing/haven't added explicitly linked networks - can't see a need for a network that doesn't have an asset on it?
+                                // Can add at a later date if there is a use case for this
+                                ?>
+                                </ul>
+                            <?php
+                            }
+                            ?>
+
+                            <!-- Domains -->
+                            <?php
                             if($sql_assets){ ?>
-                                <h5><i class="nav-icon fas fa-network-wired"></i> Networks</h5>
+                                <h5><i class="nav-icon fas fa-map-marker-alt"></i> Locations</h5>
                                 <ul>
                                     <?php
-                                    // Reset the $sql_assets pointer to the start - as we've already cycled this once
+
+                                    // Reset the $sql_assets pointer to the start - as we've already cycled through once
                                     mysqli_data_seek($sql_assets, 0);
 
-                                    // Showing networks linked to assets
+                                    // Showing linked locations (from assets)
                                     while($row = mysqli_fetch_array($sql_assets)){
-                                        if(!empty($row['network_name'])){
-                                            echo "<li><a href=\"client.php?client_id=$client_id&tab=networks&q=$row[network_name]\">$row[network_name] (VLAN: $row[network_vlan])</a></li>";
+                                        if(!empty($row['location_name'])){
+                                            echo "<li><a href=\"client.php?client_id=$client_id&tab=locations&q=$row[location_name]\">$row[location_name]</a></li>";
                                         }
                                     }
-
-                                    // Not showing/haven't added explicitly linked networks - can't see a need for a network that doesn't have an asset on it?
-                                    // Can add at a later date if there is a use case for this
                                     ?>
                                 </ul>
                                 <?php
                             }
                             ?>
-
-                            <h5><i class="nav-icon fas fa-map-marker-alt"></i> Locations</h5>
-                            <ul>
-                                <li>Location XYZ</li>
-                                <li>Location DEF</li>
-                            </ul>
 
                             <!-- Domains -->
                             <?php
