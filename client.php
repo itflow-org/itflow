@@ -66,7 +66,7 @@ if(isset($_GET['client_id'])){
     }
   
     $client_tag_id_array[] = $client_tag_id;
-    $client_tag_name_display_array[] = "<span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon'></i> $client_tag_name</span>";
+    $client_tag_name_display_array[] = "<div class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon'></i> $client_tag_name</div> ";
   }
   $client_tags_display = implode('', $client_tag_name_display_array);
 
