@@ -40,7 +40,7 @@ if(isset($_GET['campaign_id'])){
   <div class="row">
     
     <div class="col-sm-4">
-      <div class="card card-body card-outline card-dark elevation-2">
+      <div class="card card-body elevation-2">
         <h6 class="text-secondary">CAMPAIGN</h6>
         <h1><?php echo $campaign_name; ?></h1>
         <div class="p-2 badge badge-pill badge-<?php echo $campaign_badge_color; ?>">
@@ -50,7 +50,7 @@ if(isset($_GET['campaign_id'])){
     </div>
 
     <div class="col-sm-4">
-      <div class="card card-body card-outline card-dark elevation-2">
+      <div class="card card-body elevation-2">
         <h6 class="text-secondary">DETAILS</h6>
         <div class="mb-1"><i class="fa fa-fw fa-bullhorn text-secondary mr-2"></i><strong><?php echo $campaign_subject; ?></strong></div>
         <div class="mb-1"><i class="fa fa-fw fa-user text-secondary mr-2"></i><strong><?php echo $campaign_from_name; ?></strong> (<?php echo $campaign_from_email; ?>)</div>
