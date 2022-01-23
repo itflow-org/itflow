@@ -99,7 +99,6 @@ if(isset($_GET['quote_id'])){
   <span class="ml-3 p-2 badge badge-<?php echo $quote_badge_color; ?>"><?php echo $quote_status; ?></span>
 </ol>
 
-
 <div class="card">
   <div class="card-header d-print-none">
 

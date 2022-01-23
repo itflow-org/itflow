@@ -66,7 +66,7 @@
 
         <li class="nav-header mt-3">SUPPORT</li>
         <li class="nav-item">
-          <a href="tickets.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tickets.php") { echo "active"; } ?>">
+          <a href="tickets.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tickets.php" OR basename($_SERVER["PHP_SELF"]) == "ticket.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tags"></i>
             <p>Tickets</p>
           </a>
@@ -91,9 +91,9 @@
         </li>
 
         <li class="nav-item">
-          <a href="campaigns.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "campaigns.php") { echo "active"; } ?>">
+          <a href="campaigns.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "campaigns.php" OR basename($_SERVER["PHP_SELF"]) == "campaign.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-envelope"></i>
-            <p>Mail List</p>
+            <p>Campaigns</p>
           </a>
         </li>
 
