@@ -128,6 +128,33 @@ CREATE TABLE `calendars` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `campaign_messages`
+--
+
+DROP TABLE IF EXISTS `campaign_messages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `campaign_messages` (
+  `message_id` int(11) NOT NULL AUTO_INCREMENT,
+  `message_recipient_email` varchar(250) NOT NULL,
+  `message_ip` varchar(200) DEFAULT NULL,
+  `message_queued_at` datetime DEFAULT NULL,
+  `message_sent_at` datetime DEFAULT NULL,
+  `message_delivered_at` datetime DEFAULT NULL,
+  `message_bounced_at` datetime DEFAULT NULL,
+  `message_opened_at` datetime DEFAULT NULL,
+  `message_clicked_at` datetime DEFAULT NULL,
+  `message_created_at` datetime NOT NULL,
+  `message_updated_at` datetime DEFAULT NULL,
+  `message_client_tag_id` int(11) NOT NULL,
+  `message_contact_id` int(11) NOT NULL,
+  `message_campaign_id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`message_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `campaigns`
 --
 
@@ -1237,4 +1264,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-21 17:43:42
+-- Dump completed on 2022-01-22 23:53:49
