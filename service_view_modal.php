@@ -226,15 +226,15 @@
                             }
                             ?>
 
-                            <h5><i class="nav-icon fas fa-lock"></i> Certificates</h5>
-                            <ul>
-                                <li>SSLs related to a domain - Coming soon!</li>
-                            </ul>
-
-                            <h5><i class="nav-icon fas fa-hdd"></i> Backed up by</h5>
-                            <ul>
-                                <li>Asset - Coming soon!</li>
-                            </ul>
+<!--                            <h5><i class="nav-icon fas fa-lock"></i> Certificates</h5>-->
+<!--                            <ul>-->
+<!--                                <li>SSLs related to a domain - Coming soon!</li>-->
+<!--                            </ul>-->
+<!---->
+<!--                            <h5><i class="nav-icon fas fa-hdd"></i> Backed up by</h5>-->
+<!--                            <ul>-->
+<!--                                <li>Asset - Coming soon!</li>-->
+<!--                            </ul>-->
 
 
                             <!-- Documents -->
@@ -252,12 +252,10 @@
                             }
                             ?>
 
-                            <h5><i class="nav-icon fas fa-file-alt"></i> Services</h5>
-                            <ul>
-                                <li>Related Service - Coming soon!</li>
-                            </ul>
-
-
+<!--                            <h5><i class="nav-icon fas fa-file-alt"></i> Services</h5>-->
+<!--                            <ul>-->
+<!--                                <li>Related Service - Coming soon!</li>-->
+<!--                            </ul>-->
 
                         </div>
                 </div>
