@@ -91,11 +91,11 @@
 
 ?>
 
-<div class="card card-dark">
+<div class="card card-dark elevation-3">
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-envelope"></i> Mailing Campaigns</h3>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCampaignModal"><i class="fas fa-fw fa-plus"></i> New Campaign</button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#campaignAddModal"><i class="fas fa-fw fa-plus"></i> New Campaign</button>
     </div>
   </div>
 
@@ -194,7 +194,7 @@
 
           ?>
           <tr>
-            <td><a href="campaign_details.php?campaign_id=<?php echo $campaign_id; ?>"><?php echo $campaign_name; ?></a></td>
+            <td><a href="campaign.php?campaign_id=<?php echo $campaign_id; ?>"><?php echo $campaign_name; ?></a></td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
@@ -213,8 +213,8 @@
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#campaignTestModal<?php echo $campaign_id; ?>">Test</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editCampaignModal<?php echo $campaign_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addCampaignCopyModal<?php echo $campaign_id; ?>">Copy</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#campaignEditModal<?php echo $campaign_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#campaignCopyModal<?php echo $campaign_id; ?>">Copy</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item text-danger" href="post.php?delete_campaign=<?php echo $campaign_id; ?>">Delete</a>
                 </div>
@@ -224,8 +224,8 @@
 
           <?php
 
-          include("add_campaign_copy_modal.php");
-          include("edit_campaign_modal.php");
+          include("campaign_copy_modal.php");
+          include("campaign_edit_modal.php");
           include("campaign_test_modal.php");
           
           }
@@ -239,6 +239,6 @@
   </div>
 </div>
 
-<?php include("add_campaign_modal.php"); ?>
+<?php include("campaign_add_modal.php"); ?>
 
 <?php include("footer.php");

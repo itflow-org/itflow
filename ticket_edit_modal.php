@@ -1,4 +1,4 @@
-<div class="modal" id="editTicketModal<?php echo $ticket_id; ?>" tabindex="-1">
+<div class="modal" id="ticketEditModal<?php echo $ticket_id; ?>" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
       <div class="modal-header">

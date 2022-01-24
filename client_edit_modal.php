@@ -1,4 +1,4 @@
-<div class="modal" id="editClientModal<?php echo $client_id; ?>" tabindex="-1">
+<div class="modal" id="clientEditModal<?php echo $client_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">

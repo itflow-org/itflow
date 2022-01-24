@@ -66,7 +66,7 @@ if(isset($_GET['client_id'])){
     }
   
     $client_tag_id_array[] = $client_tag_id;
-    $client_tag_name_display_array[] = "<span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon'></i> $client_tag_name</span>";
+    $client_tag_name_display_array[] = "<div class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon'></i> $client_tag_name</div> ";
   }
   $client_tags_display = implode('', $client_tag_name_display_array);
 
@@ -244,9 +244,9 @@ $location_phone = formatPhoneNumber($location_phone);
             <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>">Export PDF<br><small class="text-secondary">(without passwords)</small></a>
             <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>&passwords">Export PDF<br><small class="text-secondary">(with passwords)</small></a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#clientEditModal<?php echo $client_id; ?>">Edit</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">Delete</a>
+            <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#clientDeleteModal<?php echo $client_id; ?>">Delete</a>
           </div>
         </div>
       </div>
@@ -257,9 +257,9 @@ $location_phone = formatPhoneNumber($location_phone);
 <?php 
   
   include("client_routes.php");
-  include("edit_client_modal.php");
+  include("client_edit_modal.php");
   include("add_quick_modal.php");
-  include("delete_client_modal.php");
+  include("client_delete_modal.php");
 
   }
 

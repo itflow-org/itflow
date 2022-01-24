@@ -1,11 +1,11 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-primary d-print-none">
+<aside class="main-sidebar sidebar-dark-primary elevation-3 d-print-none">
 
   <!-- Sidebar -->
   <div class="sidebar">
 
     <!-- Sidebar Menu -->
-    <nav class="mt-3">
+    <nav class="">
       <?php
       $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id IN ($session_user_company_access)");
       
@@ -13,9 +13,9 @@
 
       ?>
 
-      <div class="dropdown mb-4 ml-3">
+      <div class="dropdown brand-link">
         <a class="" href="#" data-toggle="dropdown">
-          <h3 class="text-light"><?php echo $session_company_name; ?> <small><i class="fa fa-caret-down"></i></small></h3>
+          <h3 class="brand-text text-light mb-0"><?php echo $session_company_name; ?> <small><i class="fa fa-caret-down"></i></small></h3>
         </a>
 
         <ul class="dropdown-menu">
@@ -42,7 +42,7 @@
 
       <?php }else{ ?>
 
-        <h3 class="mb-4 ml-3 text-light"><?php echo $session_company_name; ?></h3>
+        <h3 class="brand-text text-light"><?php echo $session_company_name; ?></h3>
 
       <?php } ?>
 
@@ -66,7 +66,7 @@
 
         <li class="nav-header mt-3">SUPPORT</li>
         <li class="nav-item">
-          <a href="tickets.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tickets.php") { echo "active"; } ?>">
+          <a href="tickets.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tickets.php" OR basename($_SERVER["PHP_SELF"]) == "ticket.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tags"></i>
             <p>Tickets</p>
           </a>
@@ -91,9 +91,9 @@
         </li>
 
         <li class="nav-item">
-          <a href="campaigns.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "campaigns.php") { echo "active"; } ?>">
+          <a href="campaigns.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "campaigns.php" OR basename($_SERVER["PHP_SELF"]) == "campaign.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-envelope"></i>
-            <p>Mail List</p>
+            <p>Campaigns</p>
           </a>
         </li>
 
@@ -103,7 +103,7 @@
 
         <li class="nav-header mt-3">SALES</li>
         <li class="nav-item">
-          <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "quotes.php") { echo "active"; } ?>">
+          <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "quotes.php" OR basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-file-invoice"></i>
             <p>Quotes</p>
           </a>
@@ -121,7 +121,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a href="recurring.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "recurring.php") { echo "active"; } ?>">
+          <a href="recurring.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "recurring.php" OR basename($_SERVER["PHP_SELF"]) == "recurring_invoice.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-sync-alt"></i>
             <p>Recurring</p>
           </a>
@@ -170,8 +170,8 @@
           </a>
         </li>
 
-        <li class="nav-item has-treeview">
-          <a href="#" class="nav-link">
+        <li class="nav-item has-treeview <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_summary.php" OR basename($_SERVER["PHP_SELF"]) == "report_expense_summary.php" OR basename($_SERVER["PHP_SELF"]) == "report_tax_summary.php" OR basename($_SERVER["PHP_SELF"]) == "report_profit_loss.php") { echo "menu-open"; } ?>">
+          <a href="#" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_summary.php" OR basename($_SERVER["PHP_SELF"]) == "report_expense_summary.php" OR basename($_SERVER["PHP_SELF"]) == "report_tax_summary.php" OR basename($_SERVER["PHP_SELF"]) == "report_profit_loss.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-chart-area"></i>
             <p>
               Reports
@@ -212,8 +212,8 @@
 
         <li class="nav-header mt-3">SETTINGS</li>
         
-        <li class="nav-item has-treeview">
-          <a href="#" class="nav-link">
+        <li class="nav-item has-treeview <?php if(basename($_SERVER["PHP_SELF"]) == "settings-general.php" OR basename($_SERVER["PHP_SELF"]) == "categories.php" OR basename($_SERVER["PHP_SELF"]) == "tags.php" OR basename($_SERVER["PHP_SELF"]) == "custom_links.php" OR basename($_SERVER["PHP_SELF"]) == "taxes.php" OR basename($_SERVER["PHP_SELF"]) == "users.php" OR basename($_SERVER["PHP_SELF"]) == "companies.php" OR basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "menu-open"; } ?>">
+          <a href="#" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-general.php" OR basename($_SERVER["PHP_SELF"]) == "categories.php" OR basename($_SERVER["PHP_SELF"]) == "tags.php" OR basename($_SERVER["PHP_SELF"]) == "custom_links.php" OR basename($_SERVER["PHP_SELF"]) == "taxes.php" OR basename($_SERVER["PHP_SELF"]) == "users.php" OR basename($_SERVER["PHP_SELF"]) == "companies.php" OR basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-cog"></i>
             <p>
               Settings

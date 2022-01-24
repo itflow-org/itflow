@@ -1,4 +1,4 @@
-<div class="modal" id="deleteClientModal<?php echo $client_id; ?>" tabindex="-1">
+<div class="modal" id="clientDeleteModal<?php echo $client_id; ?>" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-body">
