@@ -928,6 +928,66 @@ CREATE TABLE `scheduled_tickets` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `services`
+--
+
+DROP TABLE IF EXISTS `services`;
+CREATE TABLE IF NOT EXISTS `services` (
+  `service_id` int(11) NOT NULL AUTO_INCREMENT,
+  `service_name` varchar(200) CHARACTER SET latin1 NOT NULL,
+  `service_description` varchar(200) CHARACTER SET latin1 NOT NULL,
+  `service_category` varchar(20) CHARACTER SET latin1 NOT NULL,
+  `service_importance` varchar(10) CHARACTER SET latin1 NOT NULL,
+  `service_notes` text CHARACTER SET latin1 NOT NULL,
+  `service_created_at` datetime NOT NULL,
+  `service_updated_at` datetime DEFAULT NULL,
+  `service_review_due` date DEFAULT NULL,
+  `service_client_id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`service_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Table structure for table `service_assets`
+--
+
+DROP TABLE IF EXISTS `service_assets`;
+CREATE TABLE IF NOT EXISTS `service_assets` (
+  `service_id` int(11) NOT NULL,
+  `asset_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Table structure for table `service_domains`
+--
+
+DROP TABLE IF EXISTS `service_domains`;
+CREATE TABLE IF NOT EXISTS `service_domains` (
+ `service_id` int(11) NOT NULL,
+ `domain_id` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Table structure for table `service_logins`
+--
+
+DROP TABLE IF EXISTS `service_logins`;
+CREATE TABLE IF NOT EXISTS `service_logins` (
+  `service_id` int(11) NOT NULL,
+  `login_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Table structure for table `service_urls`
+--
+
+DROP TABLE IF EXISTS `service_urls`;
+CREATE TABLE IF NOT EXISTS `service_urls` (
+  `service_id` int(11) NOT NULL,
+  `service_uri` varchar(250) CHARACTER SET latin1 NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
 -- Table structure for table `settings`
 --
 
