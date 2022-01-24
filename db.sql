@@ -957,6 +957,18 @@ CREATE TABLE IF NOT EXISTS `service_assets` (
   `asset_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+--
+-- Table structure for table `service_contacts`
+--
+
+DROP TABLE IF EXISTS `service_contacts`;
+CREATE TABLE IF NOT EXISTS `service_contacts` (
+  `service_id` int(11) NOT NULL,
+  `contact_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 --
 -- Table structure for table `service_domains`
 --
@@ -986,6 +998,18 @@ CREATE TABLE IF NOT EXISTS `service_urls` (
   `service_id` int(11) NOT NULL,
   `service_uri` varchar(250) CHARACTER SET latin1 NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+--
+-- Table structure for table `service_vendors`
+--
+
+DROP TABLE IF EXISTS `service_vendors`;
+CREATE TABLE IF NOT EXISTS `service_vendors` (
+ `service_id` int(11) NOT NULL,
+ `vendor_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 --
 -- Table structure for table `settings`

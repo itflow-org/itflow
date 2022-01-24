@@ -140,16 +140,35 @@
                             <h4>Additional Related Items</h4>
                             <br>
 
-                            <h5><i class="nav-icon fas fa-users"></i> Vendors</h5>
-                            <ul>
-                                <li>Contoso Developer</li>
-                            </ul>
+                            <!-- Vendors -->
+                            <?php
+                            if($sql_vendors){ ?>
+                                <h5><i class="nav-icon fas fa-users"></i> Vendors</h5>
+                                <ul>
+                                    <?php
+                                    while($row = mysqli_fetch_array($sql_vendors)){
+                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=vendors&q=$row[vendor_name]\">$row[vendor_name]</a></li>";
+                                    }
+                                    ?>
+                                </ul>
+                                <?php
+                            }
+                            ?>
 
-                            <h5><i class="nav-icon fas fa-building"></i> Contacts</h5>
-                            <ul>
-                                <li>Client Contact</li>
-                                <li>Developer Contact</li>
-                            </ul>
+                            <!-- Contacts -->
+                            <?php
+                            if($sql_contacts){ ?>
+                                <h5><i class="nav-icon fas fa-building"></i> Contacts</h5>
+                                <ul>
+                                    <?php
+                                    while($row = mysqli_fetch_array($sql_contacts)){
+                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=contacts&q=$row[contact_name]\">$row[contact_name]</a></li>";
+                                    }
+                                    ?>
+                                </ul>
+                                <?php
+                            }
+                            ?>
 
                             <!-- Logins -->
                             <?php
@@ -195,7 +214,6 @@
                                         }
                                     }
 
-
                                     // Showing explicitly linked URLs
                                     while($row = mysqli_fetch_array($sql_urls)){
                                         if(!empty($row['service_uri'])){
@@ -210,12 +228,12 @@
 
                             <h5><i class="nav-icon fas fa-lock"></i> Certificates</h5>
                             <ul>
-                                <li>SSLs related to a domain</li>
+                                <li>SSLs related to a domain - Coming soon!</li>
                             </ul>
 
                             <h5><i class="nav-icon fas fa-hdd"></i> Backed up by</h5>
                             <ul>
-                                <li>Asset</li>
+                                <li>Asset - Coming soon!</li>
                             </ul>
 
                             <h5><i class="nav-icon fas fa-file-alt"></i> Documents</h5>

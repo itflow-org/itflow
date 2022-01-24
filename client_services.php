@@ -105,6 +105,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                     $sql_urls = mysqli_query($mysqli, "SELECT * FROM service_urls
                                                                 WHERE service_id = '$service_id'");
 
+                    // Associated Vendors
+                    $sql_vendors = mysqli_query($mysqli, "SELECT * FROM service_vendors
+                                                              LEFT JOIN vendors
+                                                                ON service_vendors.vendor_id = vendors.vendor_id
+                                                              WHERE service_id = '$service_id'");
+
+                    // Associated Contacts
+                    $sql_contacts = mysqli_query($mysqli, "SELECT * FROM service_contacts
+                                                              LEFT JOIN contacts
+                                                                ON service_contacts.contact_id = contacts.contact_id
+                                                              WHERE service_id = '$service_id'");
 
                     include("service_view_modal.php");
                     //include("service_edit_modal.php");
