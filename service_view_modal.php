@@ -23,7 +23,7 @@
 
                             <!-- Assets -->
                             <?php
-                            if($sql_assets){ ?>
+                            if(mysqli_num_rows($sql_assets) > 0){ ?>
                                 <h5><i class="nav-icon fas fa-desktop"></i> Assets</h5>
                                 <ul>
                                     <?php
@@ -114,7 +114,7 @@
 
                             <!-- Domains -->
                             <?php
-                            if($sql_domains){ ?>
+                            if(mysqli_num_rows($sql_domains) > 0){ ?>
                                 <h5><i class="nav-icon fas fa-globe"></i> Domains</h5>
                                 <ul>
                                     <?php
@@ -142,7 +142,7 @@
 
                             <!-- Vendors -->
                             <?php
-                            if($sql_vendors){ ?>
+                            if(mysqli_num_rows($sql_vendors) > 0){ ?>
                                 <h5><i class="nav-icon fas fa-users"></i> Vendors</h5>
                                 <ul>
                                     <?php
@@ -157,7 +157,7 @@
 
                             <!-- Contacts -->
                             <?php
-                            if($sql_contacts){ ?>
+                            if(mysqli_num_rows($sql_contacts) > 0){ ?>
                                 <h5><i class="nav-icon fas fa-building"></i> Contacts</h5>
                                 <ul>
                                     <?php
@@ -172,7 +172,7 @@
 
                             <!-- Logins -->
                             <?php
-                            if($sql_assets OR $sql_logins){ ?>
+                            if(mysqli_num_rows($sql_assets) > 0 OR mysqli_num_rows($sql_logins) > 0){ ?>
                                 <h5><i class="nav-icon fas fa-key"></i> Logins</h5>
                                 <ul>
                                     <?php
@@ -239,7 +239,7 @@
 
                             <!-- Documents -->
                             <?php
-                            if($sql_docs){ ?>
+                            if(mysqli_num_rows($sql_docs) > 0){ ?>
                                 <h5><i class="nav-icon fas fa-file-alt"></i> Documents</h5>
                                 <ul>
                                     <?php
