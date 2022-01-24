@@ -236,14 +236,25 @@
                                 <li>Asset - Coming soon!</li>
                             </ul>
 
-                            <h5><i class="nav-icon fas fa-file-alt"></i> Documents</h5>
-                            <ul>
-                                <li>SOP: New user for client finance app</li>
-                            </ul>
+
+                            <!-- Documents -->
+                            <?php
+                            if($sql_docs){ ?>
+                                <h5><i class="nav-icon fas fa-file-alt"></i> Documents</h5>
+                                <ul>
+                                    <?php
+                                    while($row = mysqli_fetch_array($sql_docs)){
+                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=documents&q=$row[document_name]\">$row[document_name]</a></li>";
+                                    }
+                                    ?>
+                                </ul>
+                                <?php
+                            }
+                            ?>
 
                             <h5><i class="nav-icon fas fa-file-alt"></i> Services</h5>
                             <ul>
-                                <li>Related Service</li>
+                                <li>Related Service - Coming soon!</li>
                             </ul>
 
 

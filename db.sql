@@ -970,6 +970,16 @@ CREATE TABLE IF NOT EXISTS `service_contacts` (
 
 
 --
+-- Table structure for table `service_documents`
+--
+
+DROP TABLE IF EXISTS `service_documents`;
+CREATE TABLE IF NOT EXISTS `service_documents` (
+ `service_id` int(11) NOT NULL,
+ `document_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
 -- Table structure for table `service_domains`
 --
 
