@@ -78,23 +78,35 @@
                             }
                             ?>
 
-                            <!-- Domains -->
+                            <!-- Locations -->
                             <?php
-                            if($sql_assets){ ?>
-                                <h5><i class="nav-icon fas fa-map-marker-alt"></i> Locations</h5>
-                                <ul>
-                                    <?php
+                            if($sql_assets){
 
-                                    // Reset the $sql_assets pointer to the start - as we've already cycled through once
-                                    mysqli_data_seek($sql_assets, 0);
+                                $location_names = [];
 
-                                    // Showing linked locations (from assets)
-                                    while($row = mysqli_fetch_array($sql_assets)){
-                                        if(!empty($row['location_name'])){
-                                            echo "<li><a href=\"client.php?client_id=$client_id&tab=locations&q=$row[location_name]\">$row[location_name]</a></li>";
-                                        }
+                                // Reset the $sql_assets pointer to the start - as we've already cycled through once
+                                mysqli_data_seek($sql_assets, 0);
+
+                                // Get locations linked to assets - push their name and vlan to arrays
+                                while($row = mysqli_fetch_array($sql_assets)){
+                                    if(!empty($row['location_name'])){
+                                        array_push($location_names, $row['location_name']);
                                     }
-                                    ?>
+                                }
+
+                                // Remove duplicates
+                                $location_names = array_unique($location_names);
+
+                                // Display
+                                if(!empty($location_names)){ ?>
+                                    <h5><i class="nav-icon fas fa-map-marker-alt"></i> Locations</h5>
+                                    <ul>
+                                    <?php
+                                }
+                                foreach($location_names as $location){
+                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=locations&q=$location\">$location</a></li>";
+                                }
+                                ?>
                                 </ul>
                                 <?php
                             }
