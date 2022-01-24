@@ -29,6 +29,19 @@ if(isset($_GET['campaign_id'])){
     $campaign_badge_color = "secondary";
   }
 
+  //Get Stat Counts
+  $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_sent_at IS NOT NULL AND message_campaign_id = $campaign_id");
+  $sent_count = mysqli_num_rows($sql);
+  
+  $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_opened_at IS NOT NULL AND message_campaign_id = $campaign_id");
+  $open_count = mysqli_num_rows($sql);
+
+  $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_clicked_at IS NOT NULL AND message_campaign_id = $campaign_id");
+  $click_count = mysqli_num_rows($sql);
+
+  $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_bounced_at IS NOT NULL AND message_campaign_id = $campaign_id");
+  $fail_count = mysqli_num_rows($sql);
+
   ?>
 
   <ol class="breadcrumb elevation-2">
@@ -61,28 +74,28 @@ if(isset($_GET['campaign_id'])){
     <div class="col-sm-1">
       <div class="card card-body card-outline card-success text-center elevation-2">
         <h6 class="text-success">Sent</h6>
-        <h1>18</h1>
+        <h1><?php echo $sent_count; ?></h1>
       </div>
     </div>
     
     <div class="col-sm-1">
       <div class="card card-body card-outline card-secondary text-center elevation-2">
         <h6 class="text-secondary">Opened</h6>
-        <h1>10</h1>
+        <h1><?php echo $open_count; ?></h1>
       </div>
     </div>
 
     <div class="col-sm-1">
       <div class="card card-body card-outline card-info text-center elevation-2">
         <h6 class="text-info">Clicked</h6>
-        <h1>7</h1>
+        <h1><?php echo $click_count; ?></h1>
       </div>
     </div>
 
     <div class="col-sm-1">
       <div class="card card-body card-outline card-danger text-center elevation-2">
         <h6 class="text-danger">Failed</h6>
-        <h1>3</h1>
+        <h1><?php echo $fail_count; ?></h1>
       </div>
     </div>
 
@@ -171,7 +184,9 @@ if(isset($_GET['campaign_id'])){
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Contact Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_email&o=<?php echo $disp; ?>">Email</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=message_ip&o=<?php echo $disp; ?>">IP</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=message_sent_at&o=<?php echo $disp; ?>">Sent</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=message_opened_at&o=<?php echo $disp; ?>">Opened</a></th>
           </tr>
         </thead>
         <tbody>
@@ -179,19 +194,26 @@ if(isset($_GET['campaign_id'])){
       
           while($row = mysqli_fetch_array($sql)){
             $message_id = $row['message_id'];
+            $message_ip = $row['message_ip'];
+            $message_user_agent = $row['message_user_agent'];
+            $message_sent_at = $row['message_sent_at'];
+            $message_opened_at = $row['message_opened_at'];
+            
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
             $contact_id = $row['contact_id'];
             $contact_name = $row['contact_name'];
             $contact_email = $row['contact_email'];
-            $message_sent_at = $row['message_sent_at'];
+            
 
           ?>
           <tr>
             <td><?php echo $client_name; ?></td>
             <td><?php echo $contact_name; ?></td>
             <td><?php echo $contact_email; ?></td>
+            <td><?php echo $message_ip; ?></td>
             <td><?php echo $message_sent_at; ?></td>
+            <td><?php echo $message_opened_at; ?></td>
           </tr>
 
           <?php

@@ -192,12 +192,25 @@
               $campaign_badge_color = "secondary";
             }
 
+            //Get Stat Counts
+            $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_sent_at IS NOT NULL AND message_campaign_id = $campaign_id");
+            $sent_count = mysqli_num_rows($sql);
+            
+            $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_opened_at IS NOT NULL AND message_campaign_id = $campaign_id");
+            $open_count = mysqli_num_rows($sql);
+
+            $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_clicked_at IS NOT NULL AND message_campaign_id = $campaign_id");
+            $click_count = mysqli_num_rows($sql);
+
+            $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_bounced_at IS NOT NULL AND message_campaign_id = $campaign_id");
+            $fail_count = mysqli_num_rows($sql);
+
           ?>
           <tr>
             <td><a href="campaign.php?campaign_id=<?php echo $campaign_id; ?>"><?php echo $campaign_name; ?></a></td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
+            <td class="text-success"><?php echo $sent_count; ?></td>
+            <td class="text-secondary"><?php echo $open_count; ?></td>
+            <td class="text-info"><?php echo $click_count; ?></td>
             <td><?php echo $campaign_created_at; ?></td>
             <td><?php echo $campaign_scheduled_at; ?></td>
             <td>

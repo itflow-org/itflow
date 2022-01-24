@@ -49,6 +49,7 @@ while($row = mysqli_fetch_array($sql_companies)){
           
     while($row = mysqli_fetch_array($sql_messages)){
       $message_id = $row['message_id'];
+      $message_hash = $row['message_hash'];
       $client_id = $row['client_id'];
       $client_name = $row['client_name'];
       $contact_id = $row['contact_id'];
@@ -80,6 +81,8 @@ while($row = mysqli_fetch_array($sql_companies)){
         $mail->Subject = "$campaign_subject";
         $mail->Body    = "Hello $contact_name,<br><br>$campaign_content
           <br><br>
+          <img src='https://$config_base_url/campaign_track.php?message_id=$message_id&message_hash=$message_hash'>
+
           <br><br><br>~<br>$company_name<br>$company_phone";
         
         $mail->send();

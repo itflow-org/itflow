@@ -1676,10 +1676,12 @@ if(isset($_POST['add_campaign'])){
                 $contact_email = $row['contact_email'];
                 
                 //Check to see if the email has already been added if so don't add it
-                $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(message_id) AS count FROM campaign_messages WHERE message_recipient_email = '$contact_email' AND message_campaign_id = $campaign_id"));
+                $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(message_id) AS count FROM campaign_messages WHERE message_contact_id = $contact_id AND message_campaign_id = $campaign_id"));
                 $count = $row['count'];
                 if($count == 0){
-                    mysqli_query($mysqli,"INSERT INTO campaign_messages SET message_recipient_email = '$contact_email', message_created_at = NOW(), message_client_tag_id = $tag, message_contact_id = $contact_id, message_campaign_id = $campaign_id, company_id = $session_company_id");
+                    //Generate Unique hash 
+                    $message_hash = keygen();
+                    mysqli_query($mysqli,"INSERT INTO campaign_messages SET message_hash = '$message_hash', message_created_at = NOW(), message_client_tag_id = $tag, message_contact_id = $contact_id, message_campaign_id = $campaign_id, company_id = $session_company_id");
                 }
             }
         }
