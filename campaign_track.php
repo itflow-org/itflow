@@ -32,7 +32,7 @@ if(isset($_GET['message_id'])){
         $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
         $referer = $_SERVER['HTTP_REFERER'];
         $user_agent = $_SERVER['HTTP_USER_AGENT'];
-        mysqli_query($mysqli,"UPDATE campaign_messages SET message_ip = '$ip', message_referer = '$referer', message_user_agent = '$user_agent', message_browser_details = '$browser', message_opened_at = NOW() WHERE message_id = $message_id");
+        mysqli_query($mysqli,"UPDATE campaign_messages SET message_ip = '$ip', message_referer = '$referer', message_user_agent = '$user_agent', message_opened_at = NOW() WHERE message_id = $message_id");
     }
 }
 

@@ -136,8 +136,10 @@ DROP TABLE IF EXISTS `campaign_messages`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `campaign_messages` (
   `message_id` int(11) NOT NULL AUTO_INCREMENT,
-  `message_recipient_email` varchar(250) NOT NULL,
+  `message_hash` varchar(250) NOT NULL,
   `message_ip` varchar(200) DEFAULT NULL,
+  `message_referer` varchar(250) DEFAULT NULL,
+  `message_user_agent` varchar(250) DEFAULT NULL,
   `message_queued_at` datetime DEFAULT NULL,
   `message_sent_at` datetime DEFAULT NULL,
   `message_delivered_at` datetime DEFAULT NULL,
@@ -169,8 +171,6 @@ CREATE TABLE `campaigns` (
   `campaign_from_email` varchar(200) NOT NULL,
   `campaign_content` longtext NOT NULL,
   `campaign_status` varchar(20) NOT NULL,
-  `campaign_sent_count` int(11) DEFAULT NULL,
-  `campaign_open_count` int(11) DEFAULT NULL,
   `campaign_scheduled_at` datetime DEFAULT NULL,
   `campaign_created_at` datetime NOT NULL,
   `campaign_updated_at` datetime DEFAULT NULL,
@@ -1264,4 +1264,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-22 23:53:49
+-- Dump completed on 2022-01-24 18:29:37
