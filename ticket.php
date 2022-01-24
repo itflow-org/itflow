@@ -171,8 +171,8 @@ if(isset($_GET['ticket_id'])){
         <i class="fas fa-fw fa-ellipsis-v"></i>
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">Merge</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#ticketEditModal<?php echo $ticket_id; ?>">Edit</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#ticketMergeModal<?php echo $ticket_id; ?>">Merge</a>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item text-danger" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
       </div>
@@ -295,7 +295,7 @@ if(isset($_GET['ticket_id'])){
               <i class="fas fa-fw fa-ellipsis-v"></i>
             </button>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketReplyModal<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i> Edit</a>
+              <a class="dropdown-item" href="#" data-toggle="modal" data-target="#ticketReplyEditModal<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i> Edit</a>
               <div class="dropdown-divider"></div>
               <a class="dropdown-item text-danger" href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-trash text-danger"></i> Archive</a>
             </div>
@@ -310,7 +310,7 @@ if(isset($_GET['ticket_id'])){
 
     <?php
 
-    include("edit_ticket_reply_modal.php");
+    include("ticket_reply_edit_modal.php");
 
     }
 
@@ -320,73 +320,69 @@ if(isset($_GET['ticket_id'])){
 
   <div class="col-md-3">
 
-    <div class="card card-outline card-primary mb-3">
-      <div class="card-body">
-        <div>
-          <h5><strong><?php echo $client_name; ?></strong></h5>
-          <?php
-          if(!empty($location_phone)){
-          ?>
-          <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i><?php echo $location_phone; ?>
-          <br>
-          <?php
-          }
-          ?>
-          
-          <?php
-          if(!empty($client_tags_display)){     
-            echo "$client_tags_display";
-          }
-          ?>
-        </div>
+    <div class="card card-body card-outline card-primary mb-3">
+      <div>
+        <h5><strong><?php echo $client_name; ?></strong></h5>
+        <?php
+        if(!empty($location_phone)){
+        ?>
+        <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i><?php echo $location_phone; ?>
+        <br>
+        <?php
+        }
+        ?>
+        
+        <?php
+        if(!empty($client_tags_display)){     
+          echo "$client_tags_display";
+        }
+        ?>
       </div>
     </div>
 
     <?php if(!empty($contact_id)){ ?>
 
-    <div class="card card-outline card-dark mb-3">
-      <div class="card-body">
-        <div>
-          <h4 class="text-secondary">Contact</h4>
-          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $contact_name; ?></strong>
-          <br>
-          <i class="fa fa-fw fa-info-circle text-secondary ml-1 mr-2 mb-2"></i><?php echo $primary_contact_display; ?>
-          <br>
-          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i>Related tickets: Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong>  
-          <hr>
-          <?php
-          if(!empty($location_name)){
-          ?>
-          <i class="fa fa-fw fa-map-marker-alt text-secondary ml-1 mr-2 mb-2"></i><?php echo $location_name; ?>
-          <br>
-          <?php
-          }
-          ?>
-          <?php
-          if(!empty($contact_email)){
-          ?>
-          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
-          <br>
-          <?php
-          }
-          ?>
-          <?php
-          if(!empty($contact_phone)){
-          ?>
-          <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i><?php echo $contact_phone; ?>
-          <br>
-          <?php
-          }
-          ?>
-          <?php
-          if(!empty($contact_mobile)){
-          ?>
-          <i class="fa fa-fw fa-mobile text-secondary ml-1 mr-2 mb-2"></i><?php echo $contact_mobile; ?>
-          <br>
-          <?php
-          }
-          ?>
-        </div>
+    <div class="card card-body card-outline card-dark mb-3">
+      <div>
+        <h4 class="text-secondary">Contact</h4>
+        <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $contact_name; ?></strong>
+        <br>
+        <i class="fa fa-fw fa-info-circle text-secondary ml-1 mr-2 mb-2"></i><?php echo $primary_contact_display; ?>
+        <br>
+        <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i>Related tickets: Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong>  
+        <hr>
+        <?php
+        if(!empty($location_name)){
+        ?>
+        <i class="fa fa-fw fa-map-marker-alt text-secondary ml-1 mr-2 mb-2"></i><?php echo $location_name; ?>
+        <br>
+        <?php
+        }
+        ?>
+        <?php
+        if(!empty($contact_email)){
+        ?>
+        <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
+        <br>
+        <?php
+        }
+        ?>
+        <?php
+        if(!empty($contact_phone)){
+        ?>
+        <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i><?php echo $contact_phone; ?>
+        <br>
+        <?php
+        }
+        ?>
+        <?php
+        if(!empty($contact_mobile)){
+        ?>
+        <i class="fa fa-fw fa-mobile text-secondary ml-1 mr-2 mb-2"></i><?php echo $contact_mobile; ?>
+        <br>
+        <?php
+        }
+        ?>
       </div>
     </div>
 
@@ -394,37 +390,35 @@ if(isset($_GET['ticket_id'])){
 
     <?php if(!empty($asset_id)){ ?>
 
-    <div class="card card-outline card-dark mb-3">
-      <div class="card-body">
-        <div>
-          <h4 class="text-secondary">Asset</h4>
-          <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $asset_name; ?></strong>
-          <br>
-          <?php
-          if(!empty($asset_make)){
-          ?>
-          <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i><?php echo "$asset_make $asset_model"; ?>
-          <br>
-          <?php
-          }
-          ?>
-          <?php
-          if(!empty($asset_serial)){
-          ?>
-          <i class="fa fa-fw fa-barcode text-secondary ml-1 mr-2 mb-2"></i><?php echo $asset_serial; ?>
-          <br>
-          <?php
-          }
-          ?>
-          <?php
-          if(!empty($asset_os)){
-          ?>
-          <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i><?php echo $asset_os; ?>
-          <br>
-          <?php
-          }
-          ?>
-        </div>
+    <div class="card card-body card-outline card-dark mb-3">
+      <div>
+        <h4 class="text-secondary">Asset</h4>
+        <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $asset_name; ?></strong>
+        <br>
+        <?php
+        if(!empty($asset_make)){
+        ?>
+        <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i><?php echo "$asset_make $asset_model"; ?>
+        <br>
+        <?php
+        }
+        ?>
+        <?php
+        if(!empty($asset_serial)){
+        ?>
+        <i class="fa fa-fw fa-barcode text-secondary ml-1 mr-2 mb-2"></i><?php echo $asset_serial; ?>
+        <br>
+        <?php
+        }
+        ?>
+        <?php
+        if(!empty($asset_os)){
+        ?>
+        <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i><?php echo $asset_os; ?>
+        <br>
+        <?php
+        }
+        ?>
       </div>
     </div>
 
@@ -498,8 +492,8 @@ if(isset($_GET['ticket_id'])){
 </div>
 
 <?php
-      include("edit_ticket_modal.php");
-      include("merge_ticket_modal.php");
+      include("ticket_edit_modal.php");
+      include("ticket_merge_modal.php");
 ?>
 
 <?php
