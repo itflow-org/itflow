@@ -147,8 +147,8 @@
                 <p>
                     Services
                     <?php
-                    if($num_assets > 0){ ?>
-                        <span class="right badge badge-light">3<?php //echo $num_assets; ?></span>
+                    if($num_services > 0){ ?>
+                        <span class="right badge badge-light"><?php echo $num_services; ?></span>
                     <?php } ?>
                 </p>
             </a>
