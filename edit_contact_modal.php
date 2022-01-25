@@ -121,9 +121,9 @@
 
             <div class="tab-pane fade" id="pills-photo<?php echo $contact_id; ?>">
 
-              <center>
+              <center class="mb-3">
                 <?php if(!empty($contact_photo)){ ?>
-                <img class="img-circle" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>" height="256" width="256">
+                <img class="img-fluid" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
                 <?php }else{ ?>
                 <span class="fa-stack fa-4x">
                   <i class="fa fa-circle fa-stack-2x text-secondary"></i>
@@ -133,7 +133,6 @@
               </center>
 
               <div class="form-group">
-                <label>Upload Photo</label>
                 <input type="file" class="form-control-file" name="file">
               </div>
 

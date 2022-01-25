@@ -99,6 +99,8 @@
     LEFT JOIN clients ON ticket_client_id = client_id
     LEFT JOIN contacts ON ticket_contact_id = contact_id 
     LEFT JOIN users ON ticket_assigned_to = user_id
+    LEFT JOIN assets ON ticket_asset_id = asset_id
+    LEFT JOIN locations ON ticket_location_id = location_id
     WHERE tickets.company_id = $session_company_id
     AND ticket_status LIKE '%$status%'
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'

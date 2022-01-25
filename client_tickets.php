@@ -42,6 +42,8 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM tickets 
   LEFT JOIN contacts ON ticket_contact_id = contact_id
   LEFT JOIN users ON ticket_assigned_to = user_id
+  LEFT JOIN assets ON ticket_asset_id = asset_id
+  LEFT JOIN locations ON ticket_location_id = location_id
   WHERE ticket_client_id = $client_id
   AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%')
   ORDER BY $sb $o LIMIT $record_from, $record_to");
@@ -54,7 +56,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> Tickets</h3>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i> New Ticket</button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ticketAddModal"><i class="fas fa-fw fa-plus"></i> New Ticket</button>
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addScheduledTicketModal"><i class="fas fa-fw fa-plus"></i> Scheduled Ticket</button>
     </div>
   </div>
@@ -177,7 +179,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#ticketEditModal<?php echo $ticket_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item text-danger" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
                 </div>
@@ -187,7 +189,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
 
-          include("edit_ticket_modal.php");
+          include("ticket_edit_modal.php");
           }
 
           ?>
@@ -200,6 +202,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-include("add_ticket_modal.php");
+include("ticket_add_modal.php");
 include("add_scheduled_ticket_modal.php");
 ?>

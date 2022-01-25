@@ -158,12 +158,12 @@
 
             <div class="tab-pane fade" id="pills-photo<?php echo $location_id; ?>">
 
-              <center>
+              <center class="mb-3">
                 <?php if(!empty($location_photo)){ ?>
                 <img class="img-fluid" src="<?php echo "uploads/clients/$session_company_id/$client_id/$location_photo"; ?>">
                 <?php } ?>
               </center>
-              
+
               <div class="form-group">
                 <input type="file" class="form-control-file" name="file">
               </div>

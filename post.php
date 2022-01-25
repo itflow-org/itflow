@@ -1155,7 +1155,7 @@ if(isset($_POST['add_client'])){
 
     //Add Location
     if(!empty($location_phone) OR !empty($address) OR !empty($city) OR !empty($state) OR !empty($zip)){
-        mysqli_query($mysqli,"INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_country = '$country', location_created_at = NOW(), location_client_id = $client_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$location_phone', location_country = '$country', location_created_at = NOW(), location_client_id = $client_id, company_id = $session_company_id");
         
         //Update Primay location in clients
         $location_id = mysqli_insert_id($mysqli);
