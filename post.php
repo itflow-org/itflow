@@ -1650,9 +1650,9 @@ if(isset($_POST['add_campaign'])){
     $from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['from_email'])));
     $content = trim(mysqli_real_escape_string($mysqli,$_POST['content']));
     $status = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['status'])));
-    $scheduled_time = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scheduled_time'])));
+    $scheduled_at = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scheduled_at'])));
     
-    mysqli_query($mysqli,"INSERT INTO campaigns SET campaign_name = '$name', campaign_subject = '$subject', campaign_from_name = '$from_name', campaign_from_email = '$from_email', campaign_content = '$content', campaign_status = '$status', campaign_scheduled_at = '$scheduled_time', campaign_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO campaigns SET campaign_name = '$name', campaign_subject = '$subject', campaign_from_name = '$from_name', campaign_from_email = '$from_email', campaign_content = '$content', campaign_status = '$status', campaign_scheduled_at = '$scheduled_at', campaign_created_at = NOW(), company_id = $session_company_id");
 
     $campaign_id = mysqli_insert_id($mysqli);
 
@@ -1704,13 +1704,43 @@ if(isset($_POST['edit_campaign'])){
     $from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['from_name'])));
     $from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['from_email'])));
     $content = trim(mysqli_real_escape_string($mysqli,$_POST['content']));
+    $status = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['status'])));
+    $scheduled_at = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scheduled_at'])));
 
-    mysqli_query($mysqli,"UPDATE campaigns SET SET campaign_name = '$name', campaign_subject = '$subject', campaign_from_name = '$from_name', campaign_from_email = '$from_email', campaign_content = '$content', campaign_updated_at = NOW() WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE campaigns SET SET campaign_name = '$name', campaign_subject = '$subject', campaign_from_name = '$from_name', campaign_from_email = '$from_email', campaign_content = '$content', campaign_status = 'Draft', campaign_scheduled_at = '$scheduled_at', campaign_updated_at = NOW() WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Modify', log_description = '$session_name modified mail campaign $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Campaign <strong>$name</strong> modified";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if(isset($_GET['copy_campaign'])){
+
+    $campaign_id = intval($_GET['copy_campaign']);
+    
+    $sql = mysqli_query($mysqli,"SELECT * FROM campaigns WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
+
+    $row = mysqli_fetch_array($sql);
+
+    $name = $row['campaign_name'];
+    $subject = $row['campaign_subject'];
+    $from_name = $row['campaign_from_name'];
+    $from_email = $row['campaign_from_email'];
+    $content = $row['campaign_content'];
+    $status = $row['campaign_status'];
+    $scheduled_at = $row['campaign_scheduled_at'];
+
+    mysqli_query($mysqli,"INSERT INTO campaigns SET campaign_name = '$name (COPY)', campaign_subject = '$subject', campaign_from_name = '$from_name', campaign_from_email = '$from_email', campaign_content = '$content', campaign_status = 'Draft', campaign_scheduled_at = '$scheduled_at', campaign_created_at = NOW(), company_id = $session_company_id");
+
+    $new_campaign_id = mysqli_insert_id($mysqli);
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Copy', log_description = '$session_name copied mail campaign $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Campaign <strong>$campaign_name</strong> copied";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -1756,8 +1786,10 @@ if(isset($_GET['delete_campaign'])){
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if(isset($_GET['send_campaign'])){
-    $campaign_id = intval($_GET['send_campaign']);
+if(isset($_POST['test_campaign'])){
+    $campaign_id = intval($_POST['campaign_id']);
+    $name_to = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name_to'])));
+    $email_to = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email_to'])));
 
     $sql = mysqli_query($mysqli,"SELECT * FROM campaigns WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
 
@@ -1768,51 +1800,36 @@ if(isset($_GET['send_campaign'])){
     $campaign_from_name = $row['campaign_from_name'];
     $campaign_from_email = $row['campaign_from_email'];
     $campaign_content = $row['campaign_content'];
-    $campaign_status = $row['campaign_status'];
-    $campaign_scheduled_at = $row['campaign_scheduled_at'];
-    $campaign_created_at = $row['campaign_created_at'];
 
-    $contact_name = "";
-    $emailsArray = [""];
+    $mail = new PHPMailer(true);
 
-    foreach($emailsArray as $contact_email){
+    //Mail Server Settings
 
-        $mail = new PHPMailer(true);
+    $mail->SMTPDebug = 2;                                       // Enable verbose debug output
+    $mail->isSMTP();                                            // Set mailer to use SMTP
+    $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+    $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+    $mail->Username   = $config_smtp_username;                     // SMTP username
+    $mail->Password   = $config_smtp_password;                               // SMTP password
+    $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+    $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
-        try{
+    //Recipients
+    $mail->setFrom("$campaign_from_email", "$campaign_from_name");
+    $mail->addAddress("$email_to", "$name_to");     // Add a recipient
 
-            //Mail Server Settings
+    // Content
+    $mail->isHTML(true);                                  // Set email format to HTML
+    $mail->Subject = "[Test] $campaign_subject";
+    $mail->Body    = "Hi $name_to,<br><br>$campaign_content";
 
-            //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
-            $mail->isSMTP();                                            // Set mailer to use SMTP
-            $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-            $mail->Username   = $config_smtp_username;                     // SMTP username
-            $mail->Password   = $config_smtp_password;                               // SMTP password
-            $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
-            $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+    $mail->send();
+    echo 'Message has been sent';
 
-            
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Test', log_description = '$session_name sent a test campaign named $campaign_name to $email_to', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
-            //Recipients
-            $mail->setFrom("$campaign_from_email", "$campaign_from_name");
-            $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
-
-            // Content
-            $mail->isHTML(true);                                  // Set email format to HTML
-            $mail->Subject = "$campaign_subject";
-            $mail->Body    = "Hi $contact_name,<br><br>$campaign_content";
-
-            $mail->send();
-            echo 'Message has been sent';
-
-        }catch (Exception $e){
-            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-        }
-    }
-
-    //Logging of email sent
-    //mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Emailed', log_description = 'Emailed $client_name to email $client_email - $title', log_created_at = NOW(), log_client_id = $client, company_id = $session_company_id, log_user_id = $session_user_id");
+    $_SESSION['alert_message'] = "Test email to <strong>$email_to</strong> for <strong>$campaign_name</strong> sent successfully";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

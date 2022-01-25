@@ -158,9 +158,9 @@
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_name&o=<?php echo $disp; ?>">Name</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_created_at&o=<?php echo $disp; ?>">Sent</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_created_at&o=<?php echo $disp; ?>">Opened</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_created_at&o=<?php echo $disp; ?>">Clicked</a></th>
+            <th class="text-center">Sent</th>
+            <th class="text-center">Opened</th>
+            <th class="text-center">Clicked</th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_created_at&o=<?php echo $disp; ?>">Created</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_scheduled_at&o=<?php echo $disp; ?>">Scheduled</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=campaign_status&o=<?php echo $disp; ?>">Status</a></th>
@@ -174,6 +174,8 @@
             $campaign_id = $row['campaign_id'];
             $campaign_name = $row['campaign_name'];
             $campaign_subject = $row['campaign_subject'];
+            $campaign_from_name = $row['campaign_from_name'];
+            $campaign_from_email = $row['campaign_from_email'];
             $campaign_content = $row['campaign_content'];
             $campaign_status = $row['campaign_status'];
             $campaign_scheduled_at = $row['campaign_scheduled_at'];
@@ -193,24 +195,24 @@
             }
 
             //Get Stat Counts
-            $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_sent_at IS NOT NULL AND message_campaign_id = $campaign_id");
-            $sent_count = mysqli_num_rows($sql);
+            $sql_sent = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_sent_at IS NOT NULL AND message_campaign_id = $campaign_id");
+            $sent_count = mysqli_num_rows($sql_sent);
             
-            $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_opened_at IS NOT NULL AND message_campaign_id = $campaign_id");
-            $open_count = mysqli_num_rows($sql);
+            $sql_open = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_opened_at IS NOT NULL AND message_campaign_id = $campaign_id");
+            $open_count = mysqli_num_rows($sql_open);
 
-            $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_clicked_at IS NOT NULL AND message_campaign_id = $campaign_id");
-            $click_count = mysqli_num_rows($sql);
+            $sql_click = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_clicked_at IS NOT NULL AND message_campaign_id = $campaign_id");
+            $click_count = mysqli_num_rows($sql_click);
 
-            $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_bounced_at IS NOT NULL AND message_campaign_id = $campaign_id");
-            $fail_count = mysqli_num_rows($sql);
+            $sql_fail = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_bounced_at IS NOT NULL AND message_campaign_id = $campaign_id");
+            $fail_count = mysqli_num_rows($sql_fail);
 
           ?>
           <tr>
             <td><a href="campaign.php?campaign_id=<?php echo $campaign_id; ?>"><?php echo $campaign_name; ?></a></td>
-            <td class="text-success"><?php echo $sent_count; ?></td>
-            <td class="text-secondary"><?php echo $open_count; ?></td>
-            <td class="text-info"><?php echo $click_count; ?></td>
+            <td class="text-success text-center"><?php echo $sent_count; ?></td>
+            <td class="text-secondary text-center"><?php echo $open_count; ?></td>
+            <td class="text-info text-center"><?php echo $click_count; ?></td>
             <td><?php echo $campaign_created_at; ?></td>
             <td><?php echo $campaign_scheduled_at; ?></td>
             <td>
@@ -226,8 +228,10 @@
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#campaignTestModal<?php echo $campaign_id; ?>">Test</a>
                   <div class="dropdown-divider"></div>
+                  <?php if($campaign_status == 'Draft' OR $campaign_status == 'Queued'){ ?>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#campaignEditModal<?php echo $campaign_id; ?>">Edit</a>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#campaignCopyModal<?php echo $campaign_id; ?>">Copy</a>
+                  <?php } ?>
+                  <a class="dropdown-item" href="post.php?copy_campaign=<?php echo $campaign_id; ?>">Copy</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item text-danger" href="post.php?delete_campaign=<?php echo $campaign_id; ?>">Delete</a>
                 </div>

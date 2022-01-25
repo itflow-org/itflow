@@ -77,7 +77,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                   </div>
-                  <input type="datetime-local" class="form-control" name="scheduled_time" placeholder="Schedule Date and Time" value="<?php echo $campaign_scheduled_at; ?>">
+                  <input type="datetime-local" class="form-control" name="scheduled_at" placeholder="Schedule Date and Time" value="<?php echo $campaign_scheduled_at; ?>">
                 </div>
               </div>
 
