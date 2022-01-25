@@ -93,6 +93,30 @@
                 </div>
               </div>
 
+              <div class="form-group">
+                <label>Location</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                  </div>
+                  <select class="form-control select2" name="location">
+                    <option value="">- Location -</option>
+                    <?php 
+                    
+                    $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE (location_archived_at > '$network_created_at' OR location_archived_at IS NULL) AND location_client_id = $client_id ORDER BY location_name ASC"); 
+                    while($row = mysqli_fetch_array($sql_locations)){
+                      $location_id_select = $row['location_id'];
+                      $location_name_select = $row['location_name'];
+                    ?>
+                    <option <?php if($contact_location_id == $location_id_select){ echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
+                    
+                    <?php
+                    }
+                    ?>
+                  </select>
+                </div>
+              </div>
+
             </div>
 
             <div class="tab-pane fade" id="pills-photo<?php echo $contact_id; ?>">

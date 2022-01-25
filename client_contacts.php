@@ -39,7 +39,11 @@ if(isset($_GET['o'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM contacts WHERE contact_archived_at IS NULL AND (contact_name LIKE '%$q%') AND contact_client_id = $client_id ORDER BY $sb $o LIMIT $record_from, $record_to");
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM contacts 
+  LEFT JOIN locations ON location_id = contact_location_id
+  WHERE contact_archived_at IS NULL 
+  AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%' OR contact_phone LIKE '%$q%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$q%' OR contact_email LIKE '%$q%') 
+  AND contact_client_id = $client_id ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
@@ -86,6 +90,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_email&o=<?php echo $disp; ?>">Email</a></th>
             <th>Phone</th>
             <th>Mobile</th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_name&o=<?php echo $disp; ?>">Location</a></th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -128,7 +133,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
             }else{
               $primary_contact_display = "<small class='text-danger'>Needs approval</small>";
-            }            
+            }
+            $contact_location_id = $row['contact_location_id'];
+            $location_name = $row['location_name'];
+            if(empty($location_name)){
+              $location_name_display = "-";
+            }else{
+              $location_name_display = $location_name;
+            }          
       
           ?>
           <tr>
@@ -156,6 +168,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $contact_email_display; ?></td>
             <td><?php echo $contact_phone_display; ?> <?php if(!empty($contact_extension)){ echo "x$contact_extension"; } ?></td>
             <td><?php echo $contact_mobile_display; ?></td>
+            <td><?php echo $location_name_display; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

@@ -3934,12 +3934,13 @@ if(isset($_POST['add_contact'])){
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $primary_contact = intval($_POST['primary_contact']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $location_id = intval($_POST['location']);
 
     if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_created_at = NOW(), contact_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_created_at = NOW(), contact_location_id = $location_id, contact_client_id = $client_id, company_id = $session_company_id");
 
     $contact_id = mysqli_insert_id($mysqli);
 
@@ -4011,6 +4012,7 @@ if(isset($_POST['edit_contact'])){
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $primary_contact = intval($_POST['primary_contact']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $location_id = intval($_POST['location']);
 
     $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
 
@@ -4018,7 +4020,7 @@ if(isset($_POST['edit_contact'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_location_id = $location_id, contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     //Update Primay contact in clients if primary contact is checked
     if($primary_contact > 0){
