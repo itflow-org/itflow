@@ -104,18 +104,16 @@
 
             <div class="tab-pane fade" id="pills-recipients">
   
-              <label>Select Recipients <strong class="text-danger">*</strong></label>
-
+              <label>Select Tags <strong class="text-danger">*</strong></label>
+              
               <ul class="list-group mb-3">
-
+                
                 <?php
                 $sql_tags_select = mysqli_query($mysqli,"SELECT * FROM tags WHERE tag_type = 1 AND company_id = $session_company_id ORDER BY tag_name ASC");
 
                 while($row = mysqli_fetch_array($sql_tags_select)){
                   $tag_id_select = $row['tag_id'];
                   $tag_name_select = $row['tag_name'];
-                  $tag_color_select = $row['tag_color'];
-                  $tag_icon_select = $row['tag_icon'];
                   //Get Contact Count
                   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(*) AS client_count FROM clients, client_tags 
                     WHERE clients.client_id = client_tags.client_id
@@ -128,7 +126,7 @@
                   <li class="list-group-item">
                     <div class="form-check">
                       <input type="checkbox" class="form-check-input" name="tags[]" value="<?php echo $tag_id_select; ?>">
-                      <label class="form-check-label ml-2 badge bg-<?php echo $tag_color_select; ?>"><?php echo "<i class='fa fw fa-$tag_icon_select'></i>"; ?> <?php echo $tag_name_select; ?></label><span class="right badge badge-light"><?php echo $client_count; ?></span>
+                      <label class="form-check-label ml-2"><?php echo $tag_name_select; ?> (<?php echo $client_count; ?> subscribers)</label>
                     </div>
                   </li>
 

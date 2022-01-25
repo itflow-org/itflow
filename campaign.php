@@ -30,17 +30,16 @@ if(isset($_GET['campaign_id'])){
   }
 
   //Get Stat Counts
-  $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_sent_at IS NOT NULL AND message_campaign_id = $campaign_id");
-  $sent_count = mysqli_num_rows($sql);
-  
-  $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_opened_at IS NOT NULL AND message_campaign_id = $campaign_id");
-  $open_count = mysqli_num_rows($sql);
-
-  $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_clicked_at IS NOT NULL AND message_campaign_id = $campaign_id");
-  $click_count = mysqli_num_rows($sql);
-
-  $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_bounced_at IS NOT NULL AND message_campaign_id = $campaign_id");
-  $fail_count = mysqli_num_rows($sql);
+  //Subscribers
+  $subscriber_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM campaign_messages WHERE message_campaign_id = $campaign_id"));
+  //Sent
+  $sent_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM campaign_messages WHERE message_sent_at IS NOT NULL AND message_campaign_id = $campaign_id"));
+  //Opem
+  $open_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM campaign_messages WHERE message_opened_at IS NOT NULL AND message_campaign_id = $campaign_id"));
+  //Click
+  $click_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM campaign_messages WHERE message_clicked_at IS NOT NULL AND message_campaign_id = $campaign_id"));
+  //Fail
+  $fail_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM campaign_messages WHERE message_bounced_at IS NOT NULL AND message_campaign_id = $campaign_id"));
 
   ?>
 
@@ -54,7 +53,15 @@ if(isset($_GET['campaign_id'])){
     
     <div class="col-sm-4">
       <div class="card card-body elevation-2">
-        <h6 class="text-secondary">CAMPAIGN</h6>
+        <div class="row">
+          <div class="col">
+            <a class="text-secondary" href="#" data-toggle="modal" data-target="#campaignEditModal<?php echo $campaign_id; ?>"><i class="fa fa-fw fa-edit ml-2 float-right"></i></a>
+            <a class="text-secondary" href="#" data-toggle="modal" data-target="#campaignCopyModal<?php echo $campaign_id; ?>"><i class="fa fa-fw fa-copy ml-2 float-right"></i></a>
+            <a class="text-secondary" href="#" data-toggle="modal" data-target="#campaignTestModal<?php echo $campaign_id; ?>"><i class="fa fa-fw fa-wrench ml-2 float-right"></i></a>
+            <h6 class="text-secondary">CAMPAIGN</h6>
+          </div>
+        </div>
+        
         <h1><?php echo $campaign_name; ?></h1>
         <div class="p-2 badge badge-pill badge-<?php echo $campaign_badge_color; ?>">
           <?php echo $campaign_status; ?>
@@ -184,9 +191,9 @@ if(isset($_GET['campaign_id'])){
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Contact Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_email&o=<?php echo $disp; ?>">Email</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=message_ip&o=<?php echo $disp; ?>">IP</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=message_sent_at&o=<?php echo $disp; ?>">Sent</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=message_opened_at&o=<?php echo $disp; ?>">Opened</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=message_ip&o=<?php echo $disp; ?>">IP</a></th>
           </tr>
         </thead>
         <tbody>
@@ -211,9 +218,9 @@ if(isset($_GET['campaign_id'])){
             <td><?php echo $client_name; ?></td>
             <td><?php echo $contact_name; ?></td>
             <td><?php echo $contact_email; ?></td>
-            <td><?php echo $message_ip; ?></td>
             <td><?php echo $message_sent_at; ?></td>
             <td><?php echo $message_opened_at; ?></td>
+            <td><?php echo $message_ip; ?></td>
           </tr>
 
           <?php
@@ -229,6 +236,14 @@ if(isset($_GET['campaign_id'])){
   </div>
 </div>
 
-<?php } ?>
+<?php
 
-<?php include("footer.php");
+include("campaign_copy_modal.php");
+include("campaign_edit_modal.php");
+include("campaign_test_modal.php");
+
+} 
+
+?>
+
+<?php include("footer.php"); ?>

@@ -158,14 +158,13 @@
 
             <div class="tab-pane fade" id="pills-photo<?php echo $location_id; ?>">
 
+              <center>
+                <?php if(!empty($location_photo)){ ?>
+                <img class="img-fluid" src="<?php echo "uploads/clients/$session_company_id/$client_id/$location_photo"; ?>">
+                <?php } ?>
+              </center>
+              
               <div class="form-group">
-
-                <center>
-                  <?php if(!empty($location_photo)){ ?>
-                  <img class="img-fluid rounded-circle" src="<?php echo "uploads/clients/$session_company_id/$client_id/$location_photo"; ?>" height="256" width="256">
-                  <?php } ?>
-                </center>
-
                 <input type="file" class="form-control-file" name="file">
               </div>
 
