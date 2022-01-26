@@ -117,8 +117,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                                                                 ON service_contacts.contact_id = contacts.contact_id
                                                               WHERE service_id = '$service_id'");
 
+                    // Associated Documents
+                    $sql_docs = mysqli_query($mysqli, "SELECT * FROM service_documents
+                                                              LEFT JOIN documents
+                                                                ON service_documents.document_id = documents.document_id
+                                                              WHERE service_id = '$service_id'");
+
+
+
                     include("service_view_modal.php");
-                    //include("service_edit_modal.php");
                 }
                 ?>
 
@@ -127,3 +134,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </div>
     </div>
 </div>
+
+<?php include("service_add_modal.php"); ?>
