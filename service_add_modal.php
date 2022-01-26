@@ -91,8 +91,14 @@
                                 <p></p>
                                 <select class="form-select" id="contacts" name="contacts" multiple="multiple">
                                     <option value="">- Contacts -</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
+                                    <?php
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = '$client_id'");
+                                    while($row = mysqli_fetch_array($sql)){
+                                        $contact_id = $row['contact_id'];
+                                        $contact_name = $row['contact_name'];
+                                        echo "<option value=\"$contact_id\">$contact_name</option>";
+                                    }
+                                    ?>
                                 </select>
                             </div>
 
@@ -101,8 +107,14 @@
                                 <p></p>
                                 <select class="form-select" id="vendors" name="vendors" multiple="multiple">
                                     <option value="">- Vendors -</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
+                                    <?php
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = '$client_id'");
+                                    while($row = mysqli_fetch_array($sql)){
+                                        $vendor_id = $row['vendor_id'];
+                                        $vendor_name = $row['vendor_name'];
+                                        echo "<option value=\"$vendor_id\">$vendor_name</option>";
+                                    }
+                                    ?>
                                 </select>
                             </div>
 
@@ -111,8 +123,14 @@
                                 <p></p>
                                 <select class="form-select" id="locations" name="locations" multiple="multiple">
                                     <option value="">- Locations -</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
+                                    <?php
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = '$client_id'");
+                                    while($row = mysqli_fetch_array($sql)){
+                                        $location_id = $row['location_id'];
+                                        $location_name = $row['location_name'];
+                                        echo "<option value=\"$location_id\">$location_name</option>";
+                                    }
+                                    ?>
                                 </select>
                             </div>
 
@@ -121,8 +139,14 @@
                                 <p></p>
                                 <select class="form-select" id="documents" name="documents" multiple="multiple">
                                     <option value="">- Documents -</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
+                                    <?php
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = '$client_id'");
+                                    while($row = mysqli_fetch_array($sql)){
+                                        $document_id = $row['document_id'];
+                                        $document_name = $row['document_name'];
+                                        echo "<option value=\"$document_id\">$document_name</option>";
+                                    }
+                                    ?>
                                 </select>
                             </div>
                         </div>
@@ -134,18 +158,30 @@
                                 <p></p>
                                 <select class="form-select" id="assets" name="assets" multiple="multiple">
                                     <option value="">- Assets -</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
+                                    <?php
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = '$client_id'");
+                                    while($row = mysqli_fetch_array($sql)){
+                                        $asset_id = $row['asset_id'];
+                                        $asset_name = $row['asset_name'];
+                                        echo "<option value=\"$asset_id\">$asset_name</option>";
+                                    }
+                                    ?>
                                 </select>
                             </div>
 
                             <div class="form-group">
                                 <label for="logins">Logins</label>
-                                <p class="text-muted">Logins associated to assets will show as related automatically</p>
+                                <p class="text-muted">Logins associated to related assets will show as related automatically</p>
                                 <select class="form-select" id="logins" name="logins" multiple="multiple">
                                     <option value="">- Logins -</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
+                                    <?php
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id = '$client_id'");
+                                    while($row = mysqli_fetch_array($sql)){
+                                        $login_id = $row['login_id'];
+                                        $login_name = $row['login_name'];
+                                        echo "<option value=\"$login_id\">$login_name</option>";
+                                    }
+                                    ?>
                                 </select>
                             </div>
 
@@ -154,8 +190,14 @@
                                 <p class="text-muted">Networks associated to assets will show as related automatically</p>
                                 <select class="form-select" id="networks" name="networks" multiple="multiple">
                                     <option value="">- Networks -</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
+                                    <?php
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_client_id = '$client_id'");
+                                    while($row = mysqli_fetch_array($sql)){
+                                        $network_id = $row['network_id'];
+                                        $network_name = $row['network_name'];
+                                        echo "<option value=\"$network_id\">$network_name</option>";
+                                    }
+                                    ?>
                                 </select>
                             </div>
 
