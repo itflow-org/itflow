@@ -5472,6 +5472,79 @@ if(isset($_GET['export_client_tickets_csv'])){
   
 }
 
+if(isset($_POST['add_service'])){
+    $client_id = intval($_POST['client_id']);
+    $service_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $service_description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
+    $service_category = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['category']))); //TODO: Needs integration with company categories
+    $service_importance = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['importance'])));
+    $service_notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
+
+    // Create Service
+    $service_sql = mysqli_query($mysqli, "INSERT INTO services SET service_name = '$service_name', service_description = '$service_description', service_category = '$service_category', service_importance = '$service_importance', service_notes = '$service_notes', service_created_at = NOW(), service_client_id = '$client_id', company_id = '$session_company_id'");
+
+    // TODO: Support for URLs
+
+    // Create links to assets
+    if($service_sql){
+        $service_id = $mysqli->insert_id;
+
+        $service_contact_ids = $_POST['contacts'];
+        foreach($service_contact_ids as $contact_id){
+            if(intval($contact_id)){
+                mysqli_query($mysqli, "INSERT INTO service_contacts SET service_id = '$service_id', contact_id = '$contact_id'");
+            }
+        }
+
+        $service_vendor_ids = $_POST['vendors'];
+        foreach($service_vendor_ids as $vendor_id){
+            if(intval($vendor_id)){
+                mysqli_query($mysqli, "INSERT INTO service_vendors SET service_id = '$service_id', vendor_id = '$vendor_id'");
+            }
+        }
+
+        $service_document_ids = $_POST['documents'];
+        foreach($service_document_ids as $document_id){
+            if(intval($document_id)){
+                mysqli_query($mysqli, "INSERT INTO service_documents SET service_id = '$service_id', document_id = '$document_id'");
+            }
+        }
+
+        $service_asset_ids = $_POST['assets'];
+        foreach($service_asset_ids as $asset_id){
+            if(intval($asset_id)){
+                mysqli_query($mysqli, "INSERT INTO service_assets SET service_id = '$service_id', asset_id = '$asset_id'");
+            }
+        }
+
+        $service_login_ids = $_POST['logins'];
+        foreach($service_login_ids as $login_id){
+            if(intval($login_id)){
+                mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = '$service_id', login_id = '$login_id'");
+            }
+        }
+
+        $service_domain_ids = $_POST['domains'];
+        foreach($service_domain_ids as $domain_id){
+            if(intval($domain_id)){
+                mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = '$service_id', domain_id = '$domain_id'");
+            }
+        }
+
+        $_SESSION['alert_message'] = "Service added";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+    }
+    else{
+        $_SESSION['alert_message'] = "Something went wrong (SQL)";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
+
+
+
+
+}
+
 if(isset($_POST['add_file'])){
     $client_id = intval($_POST['client_id']);
     $new_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['new_name'])));

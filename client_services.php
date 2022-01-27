@@ -77,7 +77,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
                 <?php
 
-                    // Associated Assets (and their logins/networks)
+                    // Associated Assets (and their logins/networks/locations)
                     $sql_assets = mysqli_query($mysqli, "SELECT * FROM service_assets 
                                                                 LEFT JOIN assets 
                                                                   ON service_assets.asset_id = assets.asset_id

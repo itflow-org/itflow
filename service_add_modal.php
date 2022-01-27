@@ -60,7 +60,7 @@
                                    <div class="input-group-prepend">
                                        <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
                                    </div>
-                                   <input type="text" class="form-control" name="name" placeholder="Category" autofocus>
+                                   <input type="text" class="form-control" name="category" placeholder="Category" autofocus>
                                </div>
                            </div>
 
@@ -79,7 +79,7 @@
                             </div>
 
                             <!-- TODO: We need a way of adding multiple (optional) URLs? Ideas? -->
-                            <div class="form-group">
+                            <!-- <div class="form-group">
                                 <label>URL</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -87,7 +87,7 @@
                                     </div>
                                     <input type="text" class="form-control" name="url" placeholder="URL" autofocus>
                                 </div>
-                            </div>
+                            </div> -->
 
                             <div class="form-group">
                                 <label>Notes</label>
