@@ -95,7 +95,6 @@
                             </div>
                         </div>
 
-
                         <div class="tab-pane fade" id="pills-general">
                             <div class="form-group">
                                 <label for="contacts">Contacts</label>
@@ -144,6 +143,9 @@
                                     ?>
                                 </select>
                             </div>
+
+                            <!-- TODO: Services related to other services & certificates -->
+
                         </div>
 
 
