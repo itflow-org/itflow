@@ -1,7 +1,17 @@
 <?php
 
+// Search query
+if(isset($_GET['q'])){
+    $q = mysqli_real_escape_string($mysqli,$_GET['q']);
+}else{
+    $q = "";
+}
+
+// Current tab
+$tab = htmlentities($_GET['tab']);
+
 // Overview SQL query
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM services WHERE service_client_id = '$client_id'");
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM services WHERE service_client_id = '$client_id' AND (service_name LIKE '%$q%' OR service_description LIKE '%$q%')");
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 ?>
@@ -14,6 +24,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     </div>
 
     <div class="card-body">
+
+        <form autocomplete="off">
+            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <input type="hidden" name="tab" value="<?php echo $tab; ?>">
+            <div class="input-group">
+                <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php echo ucwords($tab); ?>">
+                <div class="input-group-append">
+                    <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
+                </div>
+            </div>
+        </form>
+        <hr>
+
         <div class="table-responsive">
             <table class="table table-striped table-borderless table-hover">
                 <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
