@@ -206,8 +206,14 @@
                                 <p></p>
                                 <select class="form-select" id="domains" name="domains" multiple="multiple">
                                     <option value="">- Domains -</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
+                                    <?php
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = '$client_id'");
+                                    while($row = mysqli_fetch_array($sql)){
+                                        $domain_id = $row['domain_id'];
+                                        $domain_name = $row['domain_name'];
+                                        echo "<option value=\"$domain_id\">$domain_name</option>";
+                                    }
+                                    ?>
                                 </select>
                             </div>
                         </div>
