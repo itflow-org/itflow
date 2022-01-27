@@ -199,32 +199,32 @@
                             ?>
 
                             <!-- URLs -->
-                            <?php
-                            if($sql_logins OR $sql_urls){ ?>
-                                <h5><i class="nav-icon fas fa-link"></i> URLs</h5>
-                                <ul>
-                                    <?php
-                                    // Reset the $sql_assets pointer to the start
-                                    mysqli_data_seek($sql_assets, 0);
-
-                                    // Showing URLs linked to logins
-                                    while($row = mysqli_fetch_array($sql_assets)){
-                                        if(!empty($row['login_uri'])){
-                                            echo "<li><a href=\"$row[login_uri]\">$row[login_uri]</a></li>";
-                                        }
-                                    }
-
-                                    // Showing explicitly linked URLs
-                                    while($row = mysqli_fetch_array($sql_urls)){
-                                        if(!empty($row['service_uri'])){
-                                            echo "<li><a href=\"$row[service_uri]\">$row[service_uri]</a></li>";
-                                        }
-                                    }
-                                    ?>
-                                </ul>
-                                <?php
-                            }
-                            ?>
+<!--                            --><?php
+//                            if($sql_logins OR $sql_urls){ ?>
+<!--                                <h5><i class="nav-icon fas fa-link"></i> URLs</h5>-->
+<!--                                <ul>-->
+<!--                                    --><?php
+//                                    // Reset the $sql_assets pointer to the start
+//                                    mysqli_data_seek($sql_assets, 0);
+//
+//                                    // Showing URLs linked to logins
+//                                    while($row = mysqli_fetch_array($sql_assets)){
+//                                        if(!empty($row['login_uri'])){
+//                                            echo "<li><a href=\"$row[login_uri]\">$row[login_uri]</a></li>";
+//                                        }
+//                                    }
+//
+//                                    // Showing explicitly linked URLs
+//                                    while($row = mysqli_fetch_array($sql_urls)){
+//                                        if(!empty($row['service_uri'])){
+//                                            echo "<li><a href=\"$row[service_uri]\">$row[service_uri]</a></li>";
+//                                        }
+//                                    }
+//                                    ?>
+<!--                                </ul>-->
+<!--                                --><?php
+//                            }
+//                            ?>
 
 <!--                            <h5><i class="nav-icon fas fa-lock"></i> Certificates</h5>-->
 <!--                            <ul>-->
