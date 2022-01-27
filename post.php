@@ -5539,10 +5539,31 @@ if(isset($_POST['add_service'])){
         $_SESSION['alert_message'] = "Something went wrong (SQL)";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
+}
 
+if(isset($_GET['delete_service'])){
+    $service_id = intval($_GET['delete_service']);
 
+    // Delete service
+    $delete_sql = mysqli_query($mysqli, "DELETE FROM services WHERE service_id = '$service_id' AND company_id = '$session_company_id'");
 
+    // Delete relations
+    // TODO: Convert this to a join delete
+    if($delete_sql){
+        mysqli_query($mysqli, "DELETE FROM service_contacts WHERE service_id = '$service_id'");
+        mysqli_query($mysqli, "DELETE FROM service_vendors WHERE service_id = '$service_id'");
+        mysqli_query($mysqli, "DELETE FROM service_documents WHERE service_id = '$service_id'");
+        mysqli_query($mysqli, "DELETE FROM service_assets WHERE service_id = '$service_id'");
+        mysqli_query($mysqli, "DELETE FROM service_logins WHERE service_id = '$service_id'");
+        mysqli_query($mysqli, "DELETE FROM service_domains WHERE service_id = '$service_id'");
 
+        $_SESSION['alert_message'] = "Service deleted";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
+    else{
+        $_SESSION['alert_message'] = "Something went wrong (SQL)";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
 }
 
 if(isset($_POST['add_file'])){
