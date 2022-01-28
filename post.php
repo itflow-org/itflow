@@ -5489,45 +5489,57 @@ if(isset($_POST['add_service'])){
     if($service_sql){
         $service_id = $mysqli->insert_id;
 
-        $service_contact_ids = $_POST['contacts'];
-        foreach($service_contact_ids as $contact_id){
-            if(intval($contact_id)){
-                mysqli_query($mysqli, "INSERT INTO service_contacts SET service_id = '$service_id', contact_id = '$contact_id'");
+        if(!empty($_POST['contacts'])){
+            $service_contact_ids = $_POST['contacts'];
+            foreach($service_contact_ids as $contact_id){
+                if(intval($contact_id)){
+                    mysqli_query($mysqli, "INSERT INTO service_contacts SET service_id = '$service_id', contact_id = '$contact_id'");
+                }
             }
         }
 
-        $service_vendor_ids = $_POST['vendors'];
-        foreach($service_vendor_ids as $vendor_id){
-            if(intval($vendor_id)){
-                mysqli_query($mysqli, "INSERT INTO service_vendors SET service_id = '$service_id', vendor_id = '$vendor_id'");
+        if(!empty($_POST['vendors'])){
+            $service_vendor_ids = $_POST['vendors'];
+            foreach($service_vendor_ids as $vendor_id){
+                if(intval($vendor_id)){
+                    mysqli_query($mysqli, "INSERT INTO service_vendors SET service_id = '$service_id', vendor_id = '$vendor_id'");
+                }
             }
         }
 
-        $service_document_ids = $_POST['documents'];
-        foreach($service_document_ids as $document_id){
-            if(intval($document_id)){
-                mysqli_query($mysqli, "INSERT INTO service_documents SET service_id = '$service_id', document_id = '$document_id'");
+        if(!empty($_POST['documents'])){
+            $service_document_ids = $_POST['documents'];
+            foreach($service_document_ids as $document_id){
+                if(intval($document_id)){
+                    mysqli_query($mysqli, "INSERT INTO service_documents SET service_id = '$service_id', document_id = '$document_id'");
+                }
             }
         }
 
-        $service_asset_ids = $_POST['assets'];
-        foreach($service_asset_ids as $asset_id){
-            if(intval($asset_id)){
-                mysqli_query($mysqli, "INSERT INTO service_assets SET service_id = '$service_id', asset_id = '$asset_id'");
+        if(!empty($_POST['assets'])){
+            $service_asset_ids = $_POST['assets'];
+            foreach($service_asset_ids as $asset_id){
+                if(intval($asset_id)){
+                    mysqli_query($mysqli, "INSERT INTO service_assets SET service_id = '$service_id', asset_id = '$asset_id'");
+                }
             }
         }
 
-        $service_login_ids = $_POST['logins'];
-        foreach($service_login_ids as $login_id){
-            if(intval($login_id)){
-                mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = '$service_id', login_id = '$login_id'");
+        if(!empty($_POST['logins'])){
+            $service_login_ids = $_POST['logins'];
+            foreach($service_login_ids as $login_id){
+                if(intval($login_id)){
+                    mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = '$service_id', login_id = '$login_id'");
+                }
             }
         }
 
-        $service_domain_ids = $_POST['domains'];
-        foreach($service_domain_ids as $domain_id){
-            if(intval($domain_id)){
-                mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = '$service_id', domain_id = '$domain_id'");
+        if(!empty($_POST['logins'])){
+            $service_domain_ids = $_POST['domains'];
+            foreach($service_domain_ids as $domain_id){
+                if(intval($domain_id)){
+                    mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = '$service_id', domain_id = '$domain_id'");
+                }
             }
         }
 
