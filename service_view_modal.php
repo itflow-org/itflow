@@ -27,6 +27,9 @@
                                 <h5><i class="nav-icon fas fa-desktop"></i> Assets</h5>
                                 <ul>
                                     <?php
+                                    // Reset the $sql_assets pointer to the start - as we've already cycled through once
+                                    mysqli_data_seek($sql_assets, 0);
+
                                     while($row = mysqli_fetch_array($sql_assets)){
                                         echo "<li><a href=\"client.php?client_id=$client_id&tab=assets&q=$row[asset_name]\">$row[asset_name]</a></li>";
                                     }
@@ -43,7 +46,7 @@
                                 $network_names = [];
                                 $network_vlans = [];
 
-                                // Reset the $sql_assets pointer to the start - as we've already cycled through once
+                                // Reset the $sql_assets pointer to the start
                                 mysqli_data_seek($sql_assets, 0);
 
                                 // Get networks linked to assets - push their name and vlan to arrays
@@ -118,6 +121,9 @@
                                 <h5><i class="nav-icon fas fa-globe"></i> Domains</h5>
                                 <ul>
                                     <?php
+                                    // Reset the $sql_domains pointer to the start
+                                    mysqli_data_seek($sql_domains, 0);
+
                                     // Showing linked domains
                                     while($row = mysqli_fetch_array($sql_domains)){
                                         if(!empty($row['domain_name'])){
@@ -142,6 +148,9 @@
 
                             <!-- Vendors -->
                             <?php
+                            // Reset the $sql_vendors pointer to the start
+                            mysqli_data_seek($sql_vendors, 0);
+
                             if(mysqli_num_rows($sql_vendors) > 0){ ?>
                                 <h5><i class="nav-icon fas fa-users"></i> Vendors</h5>
                                 <ul>
@@ -161,6 +170,9 @@
                                 <h5><i class="nav-icon fas fa-building"></i> Contacts</h5>
                                 <ul>
                                     <?php
+                                    // Reset the $sql_contacts pointer to the start
+                                    mysqli_data_seek($sql_contacts, 0);
+
                                     while($row = mysqli_fetch_array($sql_contacts)){
                                         echo "<li><a href=\"client.php?client_id=$client_id&tab=contacts&q=$row[contact_name]\">$row[contact_name]</a></li>";
                                     }
@@ -176,7 +188,7 @@
                                 <h5><i class="nav-icon fas fa-key"></i> Logins</h5>
                                 <ul>
                                     <?php
-                                    // Reset the $sql_assets pointer to the start - as we've already cycled this once
+                                    // Reset the $sql_assets pointer to the start
                                     mysqli_data_seek($sql_assets, 0);
 
                                     // Showing logins linked to assets
@@ -243,6 +255,9 @@
                                 <h5><i class="nav-icon fas fa-file-alt"></i> Documents</h5>
                                 <ul>
                                     <?php
+                                    // Reset the $sql_docs pointer to the start
+                                    mysqli_data_seek($sql_docs, 0);
+
                                     while($row = mysqli_fetch_array($sql_docs)){
                                         echo "<li><a href=\"client.php?client_id=$client_id&tab=documents&q=$row[document_name]\">$row[document_name]</a></li>";
                                     }
