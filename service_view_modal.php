@@ -43,34 +43,31 @@
                             <?php
                             if($sql_assets){
 
-                                $network_names = [];
-                                $network_vlans = [];
+                                $networks = [];
 
                                 // Reset the $sql_assets pointer to the start
                                 mysqli_data_seek($sql_assets, 0);
 
-                                // Get networks linked to assets - push their name and vlan to arrays
+                                // Get networks linked to assets - push name to array
                                 while($row = mysqli_fetch_array($sql_assets)){
                                     if(!empty($row['network_name'])){
-                                        array_push($network_names, $row['network_name']);
-                                        array_push($network_vlans, $row['network_vlan']);
+                                        $network_data = "$row[network_name]:$row[network_vlan]";
+                                        array_push($networks, $network_data);
                                     }
                                 }
 
                                 // Remove duplicates
-                                $network_names = array_unique($network_names);
-                                $network_vlans = array_unique($network_vlans);
+                                $networks = array_unique($networks);
 
                                 // Display
-                                if(!empty($network_names)){ ?>
+                                if(!empty($networks)){ ?>
                                     <h5><i class="nav-icon fas fa-network-wired"></i> Networks</h5>
                                     <ul>
                                 <?php
                                 }
-                                foreach($network_names as $network){
-                                    foreach($network_vlans as $vlan){
-                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=networks&q=$network\">$network (VLAN: $vlan)</a></li>";
-                                    }
+                                foreach($networks as $network){
+                                        $network = explode(":", $network);
+                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=networks&q=$network[0]\">$network[0] (VLAN $network[1])</a></li>";
                                 }
 
                                 // Not showing/haven't added explicitly linked networks - can't see a need for a network that doesn't have an asset on it?
