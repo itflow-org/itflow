@@ -1000,17 +1000,6 @@ CREATE TABLE IF NOT EXISTS `service_logins` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Table structure for table `service_urls`
---
-
-DROP TABLE IF EXISTS `service_urls`;
-CREATE TABLE IF NOT EXISTS `service_urls` (
-  `service_id` int(11) NOT NULL,
-  `service_uri` varchar(250) CHARACTER SET latin1 NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
---
 -- Table structure for table `service_vendors`
 --
 
