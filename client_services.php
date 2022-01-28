@@ -55,7 +55,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 while($row = mysqli_fetch_array($sql)){
                 $service_id = $row['service_id'];
                 $service_name = $row['service_name'];
-                $service_description= $row['service_description'];
+                $service_description = $row['service_description'];
                 $service_category = $row['service_category'];
                 $service_importance = $row['service_importance'];
                 $service_notes = $row['service_notes'];
@@ -73,31 +73,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                     $service_importance_display = "-";
                 }
 
-                ?>
-
-                <tr>
-                    <!-- Name/Category/Updated/Importance from DB -->
-                    <td><a href="#" data-toggle="modal" data-target="#viewServiceModal<?php echo $service_id; ?>"> <?php echo $service_name ?></a></td>
-                    <td><a> <?php echo $service_category ?></a></td>
-                    <td><a> <?php echo $service_updated_at ?></a></td>
-                    <td><a> <?php echo $service_importance ?></a></td>
-
-                    <!-- Action -->
-                    <td>
-                        <div class="dropdown dropleft text-center">
-                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editServiceModal<?php//echo $service_id; ?>">Edit</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger" href="post.php?delete_service=<?php echo $service_id; ?>">Delete</a>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-
-                <?php
 
                     // Associated Assets (and their logins/networks/locations)
                     $sql_assets = mysqli_query($mysqli, "SELECT * FROM service_assets 
@@ -145,9 +120,34 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                                                                 ON service_documents.document_id = documents.document_id
                                                               WHERE service_id = '$service_id'");
 
-
-
+                    include("service_edit_modal.php");
                     include("service_view_modal.php");
+
+                ?>
+
+                <tr>
+                    <!-- Name/Category/Updated/Importance from DB -->
+                    <td><a href="#" data-toggle="modal" data-target="#viewServiceModal<?php echo $service_id; ?>"> <?php echo $service_name ?></a></td>
+                    <td><a> <?php echo $service_category ?></a></td>
+                    <td><a> <?php echo $service_updated_at ?></a></td>
+                    <td><a> <?php echo $service_importance ?></a></td>
+
+                    <!-- Action -->
+                    <td>
+                        <div class="dropdown dropleft text-center">
+                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editServiceModal<?php echo $service_id; ?>">Edit</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger" href="post.php?delete_service=<?php echo $service_id; ?>">Delete</a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <?php
                 }
                 ?>
 
