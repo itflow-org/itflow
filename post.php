@@ -5543,6 +5543,9 @@ if(isset($_POST['add_service'])){
             }
         }
 
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Service', log_action = 'Create', log_description = '$session_name created service $service_name', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
+
         $_SESSION['alert_message'] = "Service added";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -5628,6 +5631,9 @@ if(isset($_POST['edit_service'])){
         }
     }
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Service', log_action = 'Modified', log_description = '$session_name modified service $service_name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
     $_SESSION['alert_message'] = "Service updated";
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -5648,6 +5654,9 @@ if(isset($_GET['delete_service'])){
         mysqli_query($mysqli, "DELETE FROM service_assets WHERE service_id = '$service_id'");
         mysqli_query($mysqli, "DELETE FROM service_logins WHERE service_id = '$service_id'");
         mysqli_query($mysqli, "DELETE FROM service_domains WHERE service_id = '$service_id'");
+
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Service', log_action = 'Deleted', log_description = '$session_name deleted service $service_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
         $_SESSION['alert_message'] = "Service deleted";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
