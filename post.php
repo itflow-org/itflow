@@ -5553,6 +5553,86 @@ if(isset($_POST['add_service'])){
     }
 }
 
+if(isset($_POST['edit_service'])){
+    $client_id = intval($_POST['client_id']);
+    $service_id = intval($_POST['service_id']);
+    $service_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $service_description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
+    $service_category = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['category']))); //TODO: Needs integration with company categories
+    $service_importance = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['importance'])));
+    $service_notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
+
+    // Update main service details
+    mysqli_query($mysqli, "UPDATE services SET service_name = '$service_name', service_description = '$service_description', service_category = '$service_category', service_importance = '$service_importance', service_notes = '$service_notes', service_updated_at = NOW() WHERE service_id = '$service_id' AND company_id = '$session_company_id'");
+
+    // Unlink existing relations/assets
+    mysqli_query($mysqli, "DELETE FROM service_contacts WHERE service_id = '$service_id'");
+    mysqli_query($mysqli, "DELETE FROM service_vendors WHERE service_id = '$service_id'");
+    mysqli_query($mysqli, "DELETE FROM service_documents WHERE service_id = '$service_id'");
+    mysqli_query($mysqli, "DELETE FROM service_assets WHERE service_id = '$service_id'");
+    mysqli_query($mysqli, "DELETE FROM service_logins WHERE service_id = '$service_id'");
+    mysqli_query($mysqli, "DELETE FROM service_domains WHERE service_id = '$service_id'");
+
+    // Relink
+    if(!empty($_POST['contacts'])){
+        $service_contact_ids = $_POST['contacts'];
+        foreach($service_contact_ids as $contact_id){
+            if(intval($contact_id)){
+                mysqli_query($mysqli, "INSERT INTO service_contacts SET service_id = '$service_id', contact_id = '$contact_id'");
+            }
+        }
+    }
+
+    if(!empty($_POST['vendors'])){
+        $service_vendor_ids = $_POST['vendors'];
+        foreach($service_vendor_ids as $vendor_id){
+            if(intval($vendor_id)){
+                mysqli_query($mysqli, "INSERT INTO service_vendors SET service_id = '$service_id', vendor_id = '$vendor_id'");
+            }
+        }
+    }
+
+    if(!empty($_POST['documents'])){
+        $service_document_ids = $_POST['documents'];
+        foreach($service_document_ids as $document_id){
+            if(intval($document_id)){
+                mysqli_query($mysqli, "INSERT INTO service_documents SET service_id = '$service_id', document_id = '$document_id'");
+            }
+        }
+    }
+
+    if(!empty($_POST['assets'])){
+        $service_asset_ids = $_POST['assets'];
+        foreach($service_asset_ids as $asset_id){
+            if(intval($asset_id)){
+                mysqli_query($mysqli, "INSERT INTO service_assets SET service_id = '$service_id', asset_id = '$asset_id'");
+            }
+        }
+    }
+
+    if(!empty($_POST['logins'])){
+        $service_login_ids = $_POST['logins'];
+        foreach($service_login_ids as $login_id){
+            if(intval($login_id)){
+                mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = '$service_id', login_id = '$login_id'");
+            }
+        }
+    }
+
+    if(!empty($_POST['logins'])){
+        $service_domain_ids = $_POST['domains'];
+        foreach($service_domain_ids as $domain_id){
+            if(intval($domain_id)){
+                mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = '$service_id', domain_id = '$domain_id'");
+            }
+        }
+    }
+
+    $_SESSION['alert_message'] = "Service updated";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_GET['delete_service'])){
     $service_id = intval($_GET['delete_service']);
 

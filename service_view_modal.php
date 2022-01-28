@@ -188,8 +188,9 @@
                                 <h5><i class="nav-icon fas fa-key"></i> Logins</h5>
                                 <ul>
                                     <?php
-                                    // Reset the $sql_assets pointer to the start
+                                    // Reset the $sql_assets/logins pointer to the start
                                     mysqli_data_seek($sql_assets, 0);
+                                    mysqli_data_seek($sql_logins, 0);
 
                                     // Showing logins linked to assets
                                     while($row = mysqli_fetch_array($sql_assets)){
