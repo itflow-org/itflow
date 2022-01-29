@@ -31,15 +31,15 @@ if(isset($_GET['campaign_id'])){
 
   //Get Stat Counts
   //Subscribers
-  $subscriber_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM campaign_messages WHERE message_campaign_id = $campaign_id"));
+  $subscriber_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_campaign_id = $campaign_id"));
   //Sent
-  $sent_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM campaign_messages WHERE message_sent_at IS NOT NULL AND message_campaign_id = $campaign_id"));
+  $sent_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_sent_at IS NOT NULL AND message_campaign_id = $campaign_id"));
   //Opem
-  $open_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM campaign_messages WHERE message_opened_at IS NOT NULL AND message_campaign_id = $campaign_id"));
+  $open_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_opened_at IS NOT NULL AND message_campaign_id = $campaign_id"));
   //Click
-  $click_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM campaign_messages WHERE message_clicked_at IS NOT NULL AND message_campaign_id = $campaign_id"));
+  $click_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_clicked_at IS NOT NULL AND message_campaign_id = $campaign_id"));
   //Fail
-  $fail_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM campaign_messages WHERE message_bounced_at IS NOT NULL AND message_campaign_id = $campaign_id"));
+  $fail_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_bounced_at IS NOT NULL AND message_campaign_id = $campaign_id"));
 
   ?>
 

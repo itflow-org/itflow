@@ -64,10 +64,9 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     $config_stripe_publishable = $row['config_stripe_publishable'];
     $config_stripe_secret = $row['config_stripe_secret'];
 
-    $ip = get_ip();
-    $os = get_os();
-    $browser = get_web_browser();
-    $device = get_device();
+    $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
+    $os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
+    $browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
 
     //Set Badge color based off of invoice status
     if($invoice_status == "Sent"){
@@ -90,9 +89,11 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     }
 
     //Mark viewed in history
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed - $ip - $os - $browser - $device', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed - $ip - $os - $browser', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
 
-    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice Viewed', alert_message = 'Invoice $invoice_number has been viewed by $client_name - $ip - $os - $browser - $device', alert_date = NOW(), company_id = $company_id");
+    //Prevent SQL Error if client_name has ' in their name example Bill's Market
+    $client_name_escaped = mysqli_escape_string($mysqli,$client_name);
+    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice Viewed', alert_message = 'Invoice $invoice_number has been viewed by $client_name_escaped - $ip - $os - $browser', alert_date = NOW(), company_id = $company_id");
 
     $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 

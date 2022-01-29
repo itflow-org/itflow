@@ -1836,7 +1836,7 @@ if(isset($_POST['test_campaign'])){
 
     //Mail Server Settings
 
-    $mail->SMTPDebug = 2;                                       // Enable verbose debug output
+    //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
     $mail->isSMTP();                                            // Set mailer to use SMTP
     $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
     $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
