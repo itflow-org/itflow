@@ -58,6 +58,9 @@ if(isset($_GET['tab'])){
   elseif($_GET['tab'] == "documents"){
     include("client_documents.php");
   }
+  elseif($_GET['tab'] == "services"){
+      include("client_services.php");
+  }
 }
 else{
   include("client_overview.php");

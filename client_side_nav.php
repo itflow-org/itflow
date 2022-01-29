@@ -142,6 +142,19 @@
         </li>
 
         <li class="nav-item">
+            <a href="?client_id=<?php echo $client_id; ?>&tab=services" class="nav-link <?php if($_GET['tab'] == "services") { echo "active"; } ?>">
+                <i class="nav-icon fas fa-stream"></i>
+                <p>
+                    Services
+                    <?php
+                    if($num_services > 0){ ?>
+                        <span class="right badge badge-light"><?php echo $num_services; ?></span>
+                    <?php } ?>
+                </p>
+            </a>
+        </li>
+
+        <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=vendors" class="nav-link <?php if($_GET['tab'] == "vendors") { echo "active"; } ?>">
             <i class="nav-icon fas fa-building"></i>
             <p>

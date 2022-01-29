@@ -99,6 +99,9 @@ if(isset($_GET['client_id'])){
 
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND ticket_status = 'Open' AND ticket_client_id = $client_id"));
   $num_open_tickets = $row['num'];
+
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('service_id') AS num FROM services WHERE service_client_id = $client_id"));
+  $num_services = $row['num'];
   
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id"));
   $num_vendors = $row['num'];
