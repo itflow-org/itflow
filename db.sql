@@ -218,6 +218,7 @@ CREATE TABLE `certificates` (
   `certificate_created_at` datetime NOT NULL,
   `certificate_updated_at` datetime DEFAULT NULL,
   `certificate_archived_at` datetime DEFAULT NULL,
+  `certificate_domain_id` int(11) DEFAULT NULL,
   `certificate_client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`certificate_id`)
