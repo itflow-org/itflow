@@ -5356,12 +5356,62 @@ if(isset($_POST['add_ticket_reply'])){
         $ticket_reply_type = 'Internal';
     }
 
+    // Add reply
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_time_worked = '$ticket_reply_time_worked', ticket_reply_type = '$ticket_reply_type', ticket_reply_created_at = NOW(), ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
-    //UPDATE Ticket Last Response Field 
+    // Update Ticket Last Response Field
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = '$ticket_status', ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
-    //Logging
+    // Send e-mail to client if public update & email is setup
+    if($ticket_reply_type == 'Public' && !empty($config_smtp_host)){
+
+        $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject FROM tickets 
+                                                    LEFT JOIN clients ON ticket_client_id = client_id 
+                                                    LEFT JOIN contacts ON ticket_contact_id = contact_id 
+                                                  WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id");
+        $ticket_details = mysqli_fetch_array($ticket_sql);
+
+        $contact_name = $ticket_details['contact_name'];
+        $contact_email = $ticket_details['contact_email'];
+
+        $ticket_prefix = $ticket_details['ticket_prefix'];
+        $ticket_number = $ticket_details['ticket_number'];
+        $ticket_subject = $ticket_details['ticket_subject'];
+
+        if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
+
+            $mail = new PHPMailer(true);
+
+            try{
+                //Mail Server Settings
+                $mail->SMTPDebug = 2;                                       // Enable verbose debug output
+                $mail->isSMTP();                                            // Set mailer to use SMTP
+                $mail->Host       = $config_smtp_host;                      // Specify main and backup SMTP servers
+                $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+                $mail->Username   = $config_smtp_username;                  // SMTP username
+                $mail->Password   = $config_smtp_password;                  // SMTP password
+                $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+                $mail->Port       = $config_smtp_port;                      // TCP port to connect to
+
+                //Recipients
+                $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+                $mail->addAddress("$contact_email", "$contact_name");       // Add a recipient
+
+                // Content
+                $mail->isHTML(true);                                        // Set email format to HTML
+
+                $mail->Subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
+                $mail->Body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br><br>~<br>$session_company_name";
+                $mail->send();
+            }
+            catch(Exception $e){
+                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            }
+        }
+    }
+    //End Mail IF Try-Catch
+
+    // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Created', log_description = '$ticket_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Posted an update";
