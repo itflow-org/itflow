@@ -1,0 +1,15 @@
+
+name: PHPLint
+
+on: [pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Check PHP syntax errors
+      uses: overtrue/phplint@4.1.0
