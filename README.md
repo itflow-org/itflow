@@ -30,7 +30,7 @@
     ·
     <a href="https://github.com/johnnyq/itflow/issues">Report Bug</a>
     ·
-    <a href="https://github.com/johnnyq/itflow/issues">Request Feature</a>
+    <a href="https://forum.itflow.org/t/features">Request Feature</a>
   </p>
 </div>
 
@@ -77,7 +77,6 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
 * Git
   ```sh
   sudo apt install git
@@ -193,7 +192,7 @@ See the [forum](https://forum.itflow.org) and the [open issues](https://github.c
 ## Support & Contributions
 
 ### Forum
-For assistance using ITFlow, general discussions, and feature requests please use the community <a href="https://forum.itflow.org">forum</a>.
+For assistance using ITFlow, feature requests, and general ideas/discussions please use the community <a href="https://forum.itflow.org">forum</a>.
 For bugs, please raise an [issue](https://github.com/johnnyq/itflow/issues).
 
 ### Contributing
