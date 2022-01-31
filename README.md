@@ -45,7 +45,7 @@
 - You're a busy MSP with 101 things to do. 
 - Information about your clients is unorganised and unstructured: scattered in random tickets or folders - when you do eventually find it, it's out of date. 
 - For some tickets, you spend longer looking for the relevant documentation than actually working the ticket. 
-- On top of the technical day to day, you also have to take care of the financial side of the business - consistent pricing, invoicing/billing and accounting. 
+- On top of the technical day to day, you also have to take care of the financial side of the business - consistent pricing, quotes/invoicing, and accounting. 
 
 ### The Solution: ITFlow
 - ITFlow consolidates common MSP needs (ticketing, wiki/docs, CMDB and accounting) into one system to help you do what you do best - IT.
