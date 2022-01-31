@@ -78,6 +78,16 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label>Backup</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-hdd"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="backup" placeholder="Backup strategy" autofocus>
+                                </div>
+                            </div>
+
                             <!-- TODO: We need a way of adding multiple (optional) URLs? Ideas? -->
                             <!-- <div class="form-group">
                                 <label>URL</label>
