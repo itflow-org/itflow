@@ -58,6 +58,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 $service_description = $row['service_description'];
                 $service_category = $row['service_category'];
                 $service_importance = $row['service_importance'];
+                $service_backup = $row['service_backup'];
                 $service_notes = $row['service_notes'];
                 $service_updated_at = $row['service_updated_at'];
                 $service_review_due = $row['service_review_due'];
