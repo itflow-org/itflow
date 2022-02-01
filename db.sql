@@ -939,6 +939,7 @@ CREATE TABLE IF NOT EXISTS `services` (
   `service_description` varchar(200) CHARACTER SET latin1 NOT NULL,
   `service_category` varchar(20) CHARACTER SET latin1 NOT NULL,
   `service_importance` varchar(10) CHARACTER SET latin1 NOT NULL,
+  `service_backup` varchar(200) CHARACTER SET latin1 DEFAULT NULL,
   `service_notes` text CHARACTER SET latin1 NOT NULL,
   `service_created_at` datetime NOT NULL,
   `service_updated_at` datetime DEFAULT NULL,

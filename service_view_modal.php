@@ -14,8 +14,9 @@
                     <div class="col-8 border-right">
                         <div class="col-12">
                             <h4>Service Overview: <?php echo $service_name; ?></h4>
-                            <p>Service Importance: <?php echo $service_importance_display; ?>
-                            <p><?php echo $service_description; ?></p>
+                            <b>Importance:</b> <?php echo $service_importance_display; ?> <br>
+                            <b>Description:</b> <?php echo $service_description; ?> <br>
+                            <b>Backup Info:</b> <?php echo $service_backup; ?> <br><br>
 
                             <h5><i class="nav-icon fas fa-sticky-note"></i> Notes</h5>
                             <p><?php echo $service_notes; ?></p>
