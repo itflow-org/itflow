@@ -7,6 +7,7 @@ include("check_login.php");
 require("vendor/PHPMailer-6.5.1/src/PHPMailer.php");
 require("vendor/PHPMailer-6.5.1/src/SMTP.php");
 
+// Initiate PHPMailer
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -5216,13 +5217,19 @@ if(isset($_GET['export_client_domains_csv'])){
 }
 
 if(isset($_POST['add_ticket'])){
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+
+    // Initiate HTML Purifier
+    $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier = new HTMLPurifier($purifier_config);
 
     $client_id = intval($_POST['client']);
     $assigned_to = intval($_POST['assigned_to']);
     $contact = intval($_POST['contact']);
     $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
     $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
-    $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
+    $dirty_details = mysqli_real_escape_string($mysqli,$_POST['details']);
+    $details = $purifier->purify($dirty_details);
     $asset_id = intval($_POST['asset']);
 
     if($client_id > 0 AND $contact == 0){
@@ -5343,9 +5350,15 @@ if(isset($_GET['delete_ticket'])){
 }
 
 if(isset($_POST['add_ticket_reply'])){
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+
+    // Initiate HTML Purifier
+    $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier = new HTMLPurifier($purifier_config);
 
     $ticket_id = intval($_POST['ticket_id']);
-    $ticket_reply = trim(mysqli_real_escape_string($mysqli,$_POST['ticket_reply']));
+    $dirty = trim(mysqli_real_escape_string($mysqli,$_POST['ticket_reply']));
+    $ticket_reply = $purifier->purify($dirty);
     $ticket_status = trim(mysqli_real_escape_string($mysqli,$_POST['status']));
     $ticket_reply_time_worked = trim(mysqli_real_escape_string($mysqli,$_POST['time']));
 
