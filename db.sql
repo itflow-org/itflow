@@ -929,17 +929,97 @@ CREATE TABLE `scheduled_tickets` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `service_assets`
+--
+
+DROP TABLE IF EXISTS `service_assets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `service_assets` (
+  `service_id` int(11) NOT NULL,
+  `asset_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `service_contacts`
+--
+
+DROP TABLE IF EXISTS `service_contacts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `service_contacts` (
+  `service_id` int(11) NOT NULL,
+  `contact_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `service_documents`
+--
+
+DROP TABLE IF EXISTS `service_documents`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `service_documents` (
+  `service_id` int(11) NOT NULL,
+  `document_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `service_domains`
+--
+
+DROP TABLE IF EXISTS `service_domains`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `service_domains` (
+  `service_id` int(11) NOT NULL,
+  `domain_id` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `service_logins`
+--
+
+DROP TABLE IF EXISTS `service_logins`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `service_logins` (
+  `service_id` int(11) NOT NULL,
+  `login_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `service_vendors`
+--
+
+DROP TABLE IF EXISTS `service_vendors`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `service_vendors` (
+  `service_id` int(11) NOT NULL,
+  `vendor_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `services`
 --
 
 DROP TABLE IF EXISTS `services`;
-CREATE TABLE IF NOT EXISTS `services` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `services` (
   `service_id` int(11) NOT NULL AUTO_INCREMENT,
   `service_name` varchar(200) CHARACTER SET latin1 NOT NULL,
   `service_description` varchar(200) CHARACTER SET latin1 NOT NULL,
   `service_category` varchar(20) CHARACTER SET latin1 NOT NULL,
   `service_importance` varchar(10) CHARACTER SET latin1 NOT NULL,
-  `service_backup` varchar(200) CHARACTER SET latin1 DEFAULT NULL,
+  `service_backup` varchar(200) DEFAULT NULL,
   `service_notes` text CHARACTER SET latin1 NOT NULL,
   `service_created_at` datetime NOT NULL,
   `service_updated_at` datetime DEFAULT NULL,
@@ -948,69 +1028,7 @@ CREATE TABLE IF NOT EXISTS `services` (
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`service_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Table structure for table `service_assets`
---
-
-DROP TABLE IF EXISTS `service_assets`;
-CREATE TABLE IF NOT EXISTS `service_assets` (
-  `service_id` int(11) NOT NULL,
-  `asset_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
---
--- Table structure for table `service_contacts`
---
-
-DROP TABLE IF EXISTS `service_contacts`;
-CREATE TABLE IF NOT EXISTS `service_contacts` (
-  `service_id` int(11) NOT NULL,
-  `contact_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
---
--- Table structure for table `service_documents`
---
-
-DROP TABLE IF EXISTS `service_documents`;
-CREATE TABLE IF NOT EXISTS `service_documents` (
- `service_id` int(11) NOT NULL,
- `document_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Table structure for table `service_domains`
---
-
-DROP TABLE IF EXISTS `service_domains`;
-CREATE TABLE IF NOT EXISTS `service_domains` (
- `service_id` int(11) NOT NULL,
- `domain_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Table structure for table `service_logins`
---
-
-DROP TABLE IF EXISTS `service_logins`;
-CREATE TABLE IF NOT EXISTS `service_logins` (
-  `service_id` int(11) NOT NULL,
-  `login_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Table structure for table `service_vendors`
---
-
-DROP TABLE IF EXISTS `service_vendors`;
-CREATE TABLE IF NOT EXISTS `service_vendors` (
- `service_id` int(11) NOT NULL,
- `vendor_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `settings`
@@ -1349,4 +1367,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-24 18:29:37
+-- Dump completed on 2022-02-01 16:24:45
