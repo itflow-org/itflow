@@ -39,9 +39,16 @@
 
 [![ITFlow][product-screenshot]]()
 
-<b>ITFlow is a free & open-source solution for IT service management, documentation, and accounting & invoicing.</b>
-- ITFlow consolidates common MSP requirements (ticketing, wiki/docs, CMDB and accounting) into one tool.
-- ITFlow is primarily targeted towards Managed Service Providers but may also be suitable for internal IT departments.
+<b>ITFlow is a free & open-source solution for IT service management, documentation, and accounting.</b>
+
+### The Problem
+- You're a busy MSP with 101 things to do. 
+- Information about your clients is unorganised and unstructured: scattered in random tickets or folders - when you do eventually find it, it's out of date. 
+- For some tickets, you spend longer looking for the relevant documentation than actually working the ticket. 
+- On top of the technical day to day, you also have to take care of the financial side of the business - consistent pricing, quotes/invoicing, and accounting. 
+
+### The Solution: ITFlow
+- ITFlow consolidates common MSP needs (ticketing, wiki/docs, CMDB and accounting) into one system to help you do what you do best - IT.
 
 ### In Beta
 * This project is still in early beta and is considered a **work in progress**.  Many changes are being performed and may cause breakage upon updates. 
