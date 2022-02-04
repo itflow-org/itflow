@@ -14,13 +14,13 @@ if(!isset($_GET['api_key']) OR empty($_GET['api_key'])) {
 
 // Validate API key from GET request
 $api_key = mysqli_real_escape_string($mysqli,$_GET['api_key']);
-$sql = mysqli_query($mysqli,"SELECT * FROM api_keys, companies WHERE api_keys.company_id = companies.company_id AND api_keys.api_key_secret = '$api_key'");
+$sql = mysqli_query($mysqli,"SELECT * FROM api_keys, companies WHERE api_keys.company_id = companies.company_id AND api_keys.api_key_secret = '$api_key' AND api_key_expire > NOW()");
 if(mysqli_num_rows($sql) != 1){
     // Invalid Key
     header("HTTP/1.1 401 Unauthorized");
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Incorrect Key', log_description = 'Failed', log_created_at = NOW()");
 
-    echo "Incorrect API Key.";
+    echo "Incorrect or expired API Key.";
     exit();
 }
 
