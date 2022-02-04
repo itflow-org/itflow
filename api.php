@@ -13,8 +13,8 @@ if(!isset($_GET['api_key']) OR empty($_GET['api_key'])) {
 }
 
 // Validate API key from GET request
-$config_api_key = mysqli_real_escape_string($mysqli,$_GET['api_key']);
-$sql = mysqli_query($mysqli,"SELECT * FROM settings, companies WHERE settings.company_id = companies.company_id AND settings.config_api_key = '$config_api_key'");
+$api_key = mysqli_real_escape_string($mysqli,$_GET['api_key']);
+$sql = mysqli_query($mysqli,"SELECT * FROM api_keys, companies WHERE api_keys.company_id = companies.company_id AND api_keys.api_key_secret = '$api_key'");
 if(mysqli_num_rows($sql) != 1){
     // Invalid Key
     header("HTTP/1.1 401 Unauthorized");

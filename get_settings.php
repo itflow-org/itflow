@@ -5,7 +5,6 @@ $sql_settings = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = 
 $row = mysqli_fetch_array($sql_settings);
 
 //General
-$config_api_key = $row['config_api_key'];
 $config_aes_key = $row['config_aes_key']; //Legacy
 $config_base_url = $row['config_base_url'];
 

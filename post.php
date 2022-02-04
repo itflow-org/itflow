@@ -402,8 +402,9 @@ if(isset($_GET['delete_user'])){
 if(isset($_POST['add_api_key'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $secret = trim(mysqli_real_escape_string($mysqli,$_POST['secret']));
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
+    // Gen a Key
+    $secret = keygen();
 
     mysqli_query($mysqli,"INSERT INTO api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_expire = '$expire', api_key_created_at = NOW(), company_id = $session_company_id");
 
@@ -422,10 +423,9 @@ if(isset($_POST['edit_api_key'])){
 
     $api_key_id = intval($_POST['api_key_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $secret = trim(mysqli_real_escape_string($mysqli,$_POST['secret']));
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
 
-    mysqli_query($mysqli,"UPDATE api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_expire = '$expire', api_key_updated_at = NOW() WHERE api_key_id = $api_key_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE api_keys SET api_key_name = '$name', api_key_expire = '$expire', api_key_updated_at = NOW() WHERE api_key_id = $api_key_id AND company_id = $session_company_id");
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Modify', log_description = '$session_name modified API Key $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
@@ -737,25 +737,9 @@ if(isset($_POST['verify'])){
 
 if(isset($_POST['edit_general_settings'])){
 
-    $config_api_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_api_key'])));
-    //$old_aes_key = $config_aes_key;
-    //$config_aes_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_aes_key'])));
     $config_base_url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url'])));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_api_key = '$config_api_key', config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
-
-//    //Update AES key on client_logins if changed
-//    if($old_aes_key != $config_aes_key){
-//        $sql = mysqli_query($mysqli,"SELECT login_id, AES_DECRYPT(login_password, '$old_aes_key') AS old_login_password FROM logins
-//          WHERE company_id = $session_company_id");
-//
-//        while($row = mysqli_fetch_array($sql)){
-//            $login_id = $row['login_id'];
-//            $old_login_password = $row['old_login_password'];
-//
-//            mysqli_query($mysqli,"UPDATE logins SET login_password = AES_ENCRYPT('$old_login_password','$config_aes_key') WHERE login_id = $login_id");
-//        }
-//    }
+    mysqli_query($mysqli,"UPDATE settings SET config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified general settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");

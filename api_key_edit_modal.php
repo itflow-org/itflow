@@ -23,19 +23,6 @@
           </div>
 
           <div class="form-group">
-            <label>Secret <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-              </div>
-              <input type="password" class="form-control" data-toggle="password" name="secret" placeholder="Enter a Secret" autocomplete="new-password" value="<?php echo $api_key_secret; ?>" required>
-              <div class="input-group-append">
-                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group">
             <label>Expiration Date</label>
             <div class="input-group">
               <div class="input-group-prepend">
