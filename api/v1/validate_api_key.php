@@ -52,16 +52,16 @@ if(isset($_POST['api_key'])){
 if(isset($api_key)){
     $api_key = mysqli_real_escape_string($mysqli,$api_key);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM settings, companies WHERE settings.company_id = companies.company_id AND settings.config_api_key = '$api_key'");
+    $sql = mysqli_query($mysqli,"SELECT * FROM api_keys, companies WHERE api_keys.company_id = companies.company_id AND api_key_secret = '$api_key' AND api_key_expire > NOW()");
 
     // Failed
     if(mysqli_num_rows($sql) != 1){
         // Invalid Key
         header("HTTP/1.1 401 Unauthorized");
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Incorrect Key', log_description = 'Failed from $ip', log_created_at = NOW()");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired Key', log_ip = '$ip', log_user_agent = '$session_user_agent', log_created_at = NOW()");
 
         $return_arr['success'] = "False";
-        $return_arr['message'] = "API Key authentication failure.";
+        $return_arr['message'] = "API Key authentication failure or expired.";
 
         header("HTTP/1.1 401 Unauthorized");
         echo json_encode($return_arr);
