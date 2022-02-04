@@ -10,11 +10,14 @@ include("functions.php");
 
 //SESSION FINGERPRINT
 $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
-$os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
-$browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
+//$os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
+//$browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
 //$device = strip_tags(mysqli_real_escape_string($mysqli,get_device()));
 
-$user_agent = "$os - $browser";
+//$user_agent = "$os - $browser";
+// Get user agent
+$user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
+
 
 // HTTP Only cookies
 ini_set("session.cookie_httponly", True);
