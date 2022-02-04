@@ -4561,9 +4561,14 @@ if(isset($_POST["import_client_assets_csv"])){
         $file = fopen($file_name, "r");
         fgetcsv($file, 1000, ","); // Skip first line
         $asset_count = 0;
+        $duplicate_count = 0;
+        $duplicate_detect = 0;
         while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
             if(isset($column[0])){
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
+                if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_name = '$name' AND asset_client_id = $client_id")) > 0){
+                    $duplicate_detect = 1;
+                }
             }
             if(isset($column[1])){
                 $type = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[1])));
@@ -4596,17 +4601,22 @@ if(isset($_POST["import_client_assets_csv"])){
             }
             // Potentially import the rest in the future?
 
-            //Add
-            mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_created_at = NOW(), asset_contact_id = $contact, asset_location_id = $location, asset_client_id = $client_id, company_id = $session_company_id");
-
-            $asset_count = $asset_count + 1;
+            
+            // Check if duplicate was detected
+            if($duplicate_detect == 0){
+                //Add
+                mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_created_at = NOW(), asset_contact_id = $contact, asset_location_id = $location, asset_client_id = $client_id, company_id = $session_company_id");
+                $asset_count = $asset_count + 1;
+            }else{
+                $duplicate_count = $duplicate_count + 1;
+            }  
         }
         fclose($file);
 
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Import', log_description = '$session_name imported $asset_count asset(s) via CSV file', log_created_at = NOW(), company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
 
-        $_SESSION['alert_message'] = "$asset_count Asset(s) added";
+        $_SESSION['alert_message'] = "$asset_count Asset(s) with added $duplicate_count duplicate(s)";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
     //Check for any errors, if there are notify user and redirect
