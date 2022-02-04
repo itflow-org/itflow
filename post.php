@@ -4632,7 +4632,7 @@ if(isset($_GET['download_client_assets_csv_template'])){
     $f = fopen('php://memory', 'w');
     
     //set column headers
-    $fields = array('Name', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Contact', 'Location');
+    $fields = array('Name', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Assigned To', 'Location');
     fputcsv($f, $fields, $delimiter);
     
     //move back to beginning of file

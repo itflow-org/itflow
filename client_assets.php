@@ -176,7 +176,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <?php } ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_install_date&o=<?php echo $disp; ?>">Install Date</a></th>
             <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'servers' AND $_GET['type'] !== 'other'){ ?>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Contact</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Assigned To</a></th>
             <?php } ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_name&o=<?php echo $disp; ?>">Location</a></th>
             <th class="text-center">Action</th>  
