@@ -8,6 +8,8 @@ header('Content-Type: application/json');
 
 // Get user IP
 $ip = mysqli_real_escape_string($mysqli,get_ip());
+// Get user agent
+$user_agent = mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']);
 
 // Setup return array
 $return_arr = array();
@@ -58,7 +60,7 @@ if(isset($api_key)){
     if(mysqli_num_rows($sql) != 1){
         // Invalid Key
         header("HTTP/1.1 401 Unauthorized");
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired Key', log_ip = '$ip', log_user_agent = '$session_user_agent', log_created_at = NOW()");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired Key', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
 
         $return_arr['success'] = "False";
         $return_arr['message'] = "API Key authentication failure or expired.";

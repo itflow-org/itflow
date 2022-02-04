@@ -1,12 +1,18 @@
-<?php include("config.php"); ?>
-
 <?php
+
+include("functions.php");
+include("config.php");
+
+// Get user IP
+$ip = mysqli_real_escape_string($mysqli,get_ip());
+// Get user agent
+$user_agent = mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']);
 
 // Check API key is provided in GET request as 'api_key'
 if(!isset($_GET['api_key']) OR empty($_GET['api_key'])) {
     // Missing key
     header("HTTP/1.1 401 Unauthorized");
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'No Key', log_description = 'No API Key specified', log_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'No API Key specified', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
 
     echo "Missing the API Key.";
     exit();
@@ -18,7 +24,7 @@ $sql = mysqli_query($mysqli,"SELECT * FROM api_keys, companies WHERE api_keys.co
 if(mysqli_num_rows($sql) != 1){
     // Invalid Key
     header("HTTP/1.1 401 Unauthorized");
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Incorrect Key', log_description = 'Failed', log_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired key', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
 
     echo "Incorrect or expired API Key.";
     exit();
@@ -42,13 +48,13 @@ if(isset($_GET['cid'])){
     //Alert when call comes through
     mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Inbound Call', alert_message = 'Inbound call from $name - $cid', alert_date = NOW(), company_id = $company_id");
     //Log When call comes through
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Call', log_action = 'Inbound', log_description = 'Inbound call from $name - $cid', log_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Call', log_action = 'Inbound', log_description = 'Inbound call from $name - $cid', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), company_id = $company_id");
 
 }
 
 if(isset($_GET['incoming_call'])){
 
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'call', log_description = 'incoming', log_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'call', log_description = 'incoming', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), company_id = $company_id");
 
 }
 
@@ -66,7 +72,7 @@ if(isset($_GET['primary_contact_numbers'])){
     }
 
     //Log
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Client Numbers', log_description = 'Client Phone Numbers were pulled', log_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Client Numbers', log_description = 'Client Phone Numbers were pulled', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), company_id = $company_id");
 
 }
 
@@ -123,7 +129,7 @@ if(isset($_GET['phonebook'])){
     echo '</AddressBook>';
 
     //Log
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Phonebook', log_description = 'XML Phonebook Downloaded', log_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Phonebook', log_description = 'XML Phonebook Downloaded', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), company_id = $company_id");
 
 
 }
@@ -141,7 +147,7 @@ if(isset($_GET['primary_contact_emails'])){
     }
 
     //Log
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Client Emails', log_description = 'Client Emails were pulled', log_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Client Emails', log_description = 'Client Emails were pulled', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), company_id = $company_id");
 
 
 }
@@ -166,7 +172,7 @@ if(isset($_GET['account_balance'])){
     echo $balance;
 
     //Log
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Account Balance', log_description = 'Client $client_id checked their balance which had a balance of $balance', log_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Account Balance', log_description = 'Client $client_id checked their balance which had a balance of $balance', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), company_id = $company_id");
 
 }
 
@@ -183,7 +189,7 @@ if(isset($_GET['add_asset']) && isset($_GET['client_id'])) {
     mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_created_at = NOW(), asset_client_id = $client_id, company_id = $company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Asset Created', log_description = '$name', log_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Asset Created', log_description = '$name', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), company_id = $company_id");
 
     echo "Asset added!";
 }
