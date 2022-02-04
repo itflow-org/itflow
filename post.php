@@ -4551,7 +4551,7 @@ if(isset($_POST["import_client_assets_csv"])){
     //(Else)Check column count (name, type, make, model, serial, os)
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
-    if(!$error & count($f_columns) != 6) {
+    if(!$error & count($f_columns) != 8) {
         $error = TRUE;
         $_SESSION['alert_message'] = "Bad column count.";
     }
@@ -4580,10 +4580,24 @@ if(isset($_POST["import_client_assets_csv"])){
             if(isset($column[5])){
                 $os = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[5])));
             }
+            if(isset($column[6])){
+                $contact = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[6])));
+                $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$contact' AND contact_client_id = $client_id");
+                $row = mysqli_fetch_assoc($sql_contact);
+                $contact_id = $row['contact_id'];
+                $contact = intval($contact_id);
+            }
+            if(isset($column[7])){
+                $location = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[7])));
+                $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
+                $row = mysqli_fetch_assoc($sql_location);
+                $location_id = $row['location_id'];
+                $location = intval($location_id);
+            }
             // Potentially import the rest in the future?
 
             //Add
-            mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_created_at = NOW(), asset_client_id = $client_id, company_id = $session_company_id");
+            mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_created_at = NOW(), asset_contact_id = $contact, asset_location_id = $location, asset_client_id = $client_id, company_id = $session_company_id");
 
             $asset_count = $asset_count + 1;
         }
@@ -4618,7 +4632,7 @@ if(isset($_GET['download_client_assets_csv_template'])){
     $f = fopen('php://memory', 'w');
     
     //set column headers
-    $fields = array('Name', 'Type', 'Make', 'Model', 'Serial', 'OS');
+    $fields = array('Name', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Contact', 'Location');
     fputcsv($f, $fields, $delimiter);
     
     //move back to beginning of file
