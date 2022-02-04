@@ -63,10 +63,11 @@ DROP TABLE IF EXISTS `api_keys`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `api_keys` (
   `api_key_id` int(11) NOT NULL AUTO_INCREMENT,
+  `api_key_name` varchar(255) NOT NULL,
   `api_key_secret` varchar(255) NOT NULL,
-  `api_key_description` varchar(255) DEFAULT NULL,
   `api_key_created_at` datetime NOT NULL,
-  `api_key_expire` datetime NOT NULL,
+  `api_key_updated_at` datetime DEFAULT NULL,
+  `api_key_expire` date NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`api_key_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1367,4 +1368,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-01 16:24:45
+-- Dump completed on 2022-02-03 19:11:34

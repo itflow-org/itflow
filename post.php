@@ -398,6 +398,63 @@ if(isset($_GET['delete_user'])){
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
 }
+// API Key
+if(isset($_POST['add_api_key'])){
+
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $secret = trim(mysqli_real_escape_string($mysqli,$_POST['secret']));
+    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
+
+    mysqli_query($mysqli,"INSERT INTO api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_expire = '$expire', api_key_created_at = NOW(), company_id = $session_company_id");
+
+    $api_key_id = mysqli_insert_id($mysqli);
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Create', log_description = '$session_name created API Key $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "API Key <strong>$name</strong> created";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_api_key'])){
+
+    $api_key_id = intval($_POST['api_key_id']);
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $secret = trim(mysqli_real_escape_string($mysqli,$_POST['secret']));
+    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
+
+    mysqli_query($mysqli,"UPDATE api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_expire = '$expire', api_key_updated_at = NOW() WHERE api_key_id = $api_key_id AND company_id = $session_company_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Modify', log_description = '$session_name modified API Key $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "API Key <strong>$name</strong> updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_api_key'])){
+    $api_key_id = intval($_GET['delete_api_key']);
+
+    // Get API Key Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM api_keys WHERE api_key_id = $api_key_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $name = $row['api_key_name'];
+
+    mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_id = $api_key_id AND company_id = $session_company_id");
+
+    // Logging   
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Delete', log_description = '$session_name deleted user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "API Key <strong>$name</strong> deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
 
 if(isset($_POST['add_company'])){
 

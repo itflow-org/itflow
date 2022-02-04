@@ -229,7 +229,7 @@
             </li>
             <li class="nav-item">
               <a href="tags.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tags.php") { echo "active"; } ?>">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="fa fa-tag nav-icon"></i>
                 <p>Tags</p>
               </a>
             </li>
@@ -247,19 +247,25 @@
             </li>
             <li class="nav-item">
               <a href="users.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "users.php") { echo "active"; } ?>">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-user nav-icon"></i>
                 <p>Users</p>
               </a>
             </li>
             <li class="nav-item">
+              <a href="api_keys.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "api_keys.php") { echo "active"; } ?>">
+                <i class="fas fa-key nav-icon"></i>
+                <p>API Keys</p>
+              </a>
+            </li>
+            <li class="nav-item">
               <a href="companies.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "companies.php") { echo "active"; } ?>">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-building nav-icon"></i>
                 <p>Companies</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="logs.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "active"; } ?>">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-eye nav-icon"></i>
                 <p>Audit Logs</p>
               </a>
             </li>
