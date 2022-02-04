@@ -33,7 +33,7 @@ if(isset($_GET['cid'])){
 
     $cid = intval($_GET['cid']);
 
-    $sql = mysqli_query($mysqli,"SELECT client_name AS name FROM clients WHERE client_phone = $cid AND company_id = $company_id UNION SELECT contact_name AS name FROM contacts WHERE contact_phone = $cid AND company_id = $company_id UNION SELECT contact_name AS name FROM contacts WHERE contact_mobile = $cid AND company_id = $company_id UNION SELECT location_name AS name FROM locations WHERE location_phone = $cid AND company_id = $company_id UNION SELECT vendor_name AS name FROM vendors WHERE vendor_phone = $cid AND company_id = $company_id");
+    $sql = mysqli_query($mysqli,"SELECT contact_name AS name FROM contacts WHERE contact_phone = $cid AND company_id = $company_id UNION SELECT contact_name AS name FROM contacts WHERE contact_mobile = $cid AND company_id = $company_id UNION SELECT location_name AS name FROM locations WHERE location_phone = $cid AND company_id = $company_id UNION SELECT vendor_name AS name FROM vendors WHERE vendor_phone = $cid AND company_id = $company_id");
 
     $row = mysqli_fetch_array($sql);
     $name = $row['name'];
@@ -52,15 +52,17 @@ if(isset($_GET['incoming_call'])){
 
 }
 
-if(isset($_GET['client_numbers'])){
+if(isset($_GET['primary_contact_numbers'])){
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $company_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id WHERE clients.company_id = $company_id");
 
     while($row = mysqli_fetch_array($sql)){
         $client_name = $row['client_name'];
-        $client_phone = $row['client_phone'];
+        $contact_name = $row['contact_name'];
+        $contact_phone = $row['contact_phone'];
+        $contact_mobile = $row['contact_mobile'];
 
-        echo "$client_name - $client_phone<br>";
+        echo "$client_name - $contact_name - $contact_phone - $contact_mobile<br>";
     }
 
     //Log
@@ -77,30 +79,13 @@ if(isset($_GET['phonebook'])){
     echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
     echo '<AddressBook>';
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $company_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id WHERE clients.company_id = $company_id");
 
     while($row = mysqli_fetch_array($sql)){
         $client_name = $row['client_name'];
-        $client_phone = $row['client_phone'];
-
-        ?>
-        <Contact>
-            <LastName><?php echo $client_name; ?></LastName>
-            <Phone>
-                <phonenumber><?php echo $client_phone; ?></phonenumber>
-            </Phone>
-            <Groups>
-                <groupid>0</groupid>
-            </Groups>
-        </Contact>
-        <?php
-    }
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE company_id = $company_id");
-
-    while($row = mysqli_fetch_array($sql)){
-        $vendor_name = $row['contact_name'];
-        $vendor_phone = $row['contact_phone'];
+        $contact_name = $row['contact_name'];
+        $contact_phone = $row['contact_phone'];
+        $contact_mobile = $row['contact_mobile'];
 
         ?>
         <Contact>
@@ -109,10 +94,9 @@ if(isset($_GET['phonebook'])){
                 <phonenumber><?php echo $contact_phone; ?></phonenumber>
             </Phone>
             <Groups>
-                <groupid>1</groupid>
+                <groupid>0</groupid>
             </Groups>
         </Contact>
-
         <?php
     }
 
@@ -129,7 +113,7 @@ if(isset($_GET['phonebook'])){
                 <phonenumber><?php echo $vendor_phone; ?></phonenumber>
             </Phone>
             <Groups>
-                <groupid>2</groupid>
+                <groupid>1</groupid>
             </Groups>
         </Contact>
 
@@ -144,15 +128,16 @@ if(isset($_GET['phonebook'])){
 
 }
 
-if(isset($_GET['client_emails'])){
+if(isset($_GET['primary_contact_emails'])){
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $company_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id WHERE clients.company_id = $company_id");
 
     while($row = mysqli_fetch_array($sql)){
         $client_name = $row['client_name'];
-        $client_email = $row['client_email'];
+        $contact_name = $row['contact_name'];
+        $contact_email = $row['contact_email'];
 
-        echo "$client_name - $client_email<br>";
+        echo "$client_name - $contact_name - $contact_email<br>";
     }
 
     //Log
@@ -166,12 +151,12 @@ if(isset($_GET['account_balance'])){
     $client_id = intval($_GET['account_balance']);
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
-    $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' AND company_id = $company_id");
+    $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' AND company_id = $company_id");
     $row = mysqli_fetch_array($sql_invoice_amounts);
 
     $invoice_amounts = $row['invoice_amounts'];
 
-    $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payments.invoice_id = invoices.invoice_id AND invoices.client_id = $client_id AND payments.company_id = $company_id");
+    $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoices.invoice_id AND invoice_client_id = $client_id AND payments.company_id = $company_id");
     $row = mysqli_fetch_array($sql_amount_paid);
 
     $amount_paid = $row['amount_paid'];
