@@ -7,9 +7,9 @@ include(__DIR__ . "../../../config.php");
 header('Content-Type: application/json');
 
 // Get user IP
-$ip = mysqli_real_escape_string($mysqli,get_ip());
+$ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
 // Get user agent
-$user_agent = mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']);
+$user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
 
 // Setup return array
 $return_arr = array();

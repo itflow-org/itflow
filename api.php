@@ -4,9 +4,9 @@ include("functions.php");
 include("config.php");
 
 // Get user IP
-$ip = mysqli_real_escape_string($mysqli,get_ip());
+$ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
 // Get user agent
-$user_agent = mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']);
+$user_agent = stip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
 
 // Check API key is provided in GET request as 'api_key'
 if(!isset($_GET['api_key']) OR empty($_GET['api_key'])) {
