@@ -10,8 +10,8 @@ if($_SERVER['REQUEST_METHOD'] !== "GET"){
 }
 
 // Specific asset query via ID
-if(isset($_GET['id'])){
-    $id = intval($_GET['id']);
+if(isset($_GET['asset_id'])){
+    $id = intval($_GET['asset_id']);
     $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_id = '$id' AND company_id = '$company_id'");
 }
 
