@@ -261,8 +261,8 @@ $location_phone = formatPhoneNumber($location_phone);
   
   include("client_routes.php");
   include("client_edit_modal.php");
-  include("add_quick_modal.php");
   include("client_delete_modal.php");
+  include("category_quick_add_modal.php");
 
   }
 

@@ -171,7 +171,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
 
-          include("edit_software_modal.php");
+          include("client_software_edit_modal.php");
           }
           
           ?>
@@ -183,4 +183,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_software_modal.php"); ?>
+<?php include("client_software_add_modal.php"); ?>

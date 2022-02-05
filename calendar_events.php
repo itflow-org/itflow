@@ -14,8 +14,8 @@ if(isset($_GET['calendar_id'])){
   
 <?php 
   
-  include("add_calendar_event_modal.php");
-  include("add_calendar_modal.php");
+  include("calendar_event_add_modal.php");
+  include("calendar_add_modal.php");
   include("add_quick_modal.php");
 
 ?>
@@ -35,7 +35,7 @@ while($row = mysqli_fetch_array($sql)){
   $calendar_color = $row['calendar_color'];
   $client_id = $row['event_client_id'];
 
-  include("edit_calendar_event_modal.php");
+  include("calendar_event_edit_modal.php");
 
 }
 

@@ -238,8 +238,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
             
-            include("edit_quote_modal.php");
-            include("add_quote_copy_modal.php");
+            include("quote_edit_modal.php");
+            include("quote_copy_modal.php");
 
           }
 
@@ -254,8 +254,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <?php 
   
-  include("add_quote_modal.php"); 
-  include("add_quick_modal.php");
+  include("quote_add_modal.php"); 
+  include("category_quick_add_modal.php");
   
   include("footer.php");
 

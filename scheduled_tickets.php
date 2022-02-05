@@ -75,7 +75,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 </tr>
 
                 <?php
-                include("scheduled_tickets_edit_modal.php");
+                include("scheduled_ticket_edit_modal.php");
                 }
                 ?>
 

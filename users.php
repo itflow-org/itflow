@@ -170,7 +170,7 @@
 
           <?php
 
-          include("edit_user_modal.php");
+          include("user_edit_modal.php");
           include("user_companies_modal.php");
           include("user_clients_modal.php");
           
@@ -187,7 +187,7 @@
 
 <?php
   
-  include("add_user_modal.php");
+  include("user_add_modal.php");
   
   include("footer.php");
 

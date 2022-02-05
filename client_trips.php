@@ -148,8 +148,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
 
-          include("add_trip_copy_modal.php");
-          include("edit_trip_modal.php");
+          include("trip_copy_modal.php");
+          include("trip_edit_modal.php");
           }
           
           ?>
@@ -161,4 +161,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_trip_modal.php"); ?>
+<?php include("trip_add_modal.php"); ?>

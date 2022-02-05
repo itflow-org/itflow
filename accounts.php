@@ -122,7 +122,7 @@
           </tr>
 
           <?php
-          include("edit_account_modal.php");
+          include("account_edit_modal.php");
           }
           ?>
 
@@ -135,7 +135,7 @@
 
 <?php
 
-  include("add_account_modal.php");
+  include("account_add_modal.php");
   
   include("footer.php");
 

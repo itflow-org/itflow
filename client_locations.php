@@ -145,7 +145,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <a class="dropdown-item text-danger" href="post.php?delete_location=<?php echo $location_id; ?>">Delete</a>
                 </div>
               </div> 
-              <?php include("edit_location_modal.php"); ?>     
+              <?php include("client_location_edit_modal.php"); ?>     
             </td>
           </tr>
 
@@ -162,4 +162,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_location_modal.php"); ?>
+<?php include("client_location_add_modal.php"); ?>

@@ -163,8 +163,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
 
-          include("edit_quote_modal.php");
-          include("add_quote_copy_modal.php");
+          include("quote_edit_modal.php");
+          include("quote_copy_modal.php");
           }
 
           ?>
@@ -176,4 +176,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_quote_modal.php"); ?>
+<?php include("quote_add_modal.php"); ?>

@@ -150,7 +150,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <div class="col-md-2">
           <div class="float-right">
             <a href="post.php?export_client_<?php echo $_GET['tab']; ?>_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
-            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addAssetCSVModal"><i class="fa fa-fw fa-upload"></i> Import</button>
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importAssetModal"><i class="fa fa-fw fa-upload"></i> Import</button>
           </div>
         </div>
 
@@ -344,7 +344,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
           
-          include("edit_asset_modal.php");
+          include("client_asset_edit_modal.php");
           }
           
           ?>
@@ -357,6 +357,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-include("add_asset_modal.php");
-include("add_asset_csv_modal.php");
+include("client_asset_add_modal.php");
+include("client_asset_import_modal.php");
 ?>

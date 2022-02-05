@@ -133,7 +133,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
 
-          include("edit_domain_modal.php");
+          include("client_domain_edit_modal.php");
           }
           
           ?>
@@ -145,4 +145,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_domain_modal.php"); ?>
+<?php include("client_domain_add_modal.php"); ?>

@@ -202,7 +202,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               </div>
               <?php
 
-              include("edit_revenue_modal.php");
+              include("revenue_edit_modal.php");
 
               ?>      
             </td>
@@ -223,7 +223,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <?php 
 
-  include("add_revenue_modal.php");
+  include("revenue_add_modal.php");
   include("add_quick_modal.php");
 
   include("footer.php");

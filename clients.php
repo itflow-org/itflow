@@ -340,6 +340,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 </div>
 
 <?php include("client_add_modal.php"); ?>
-<?php include("add_quick_modal.php"); ?>
+<?php include("category_quick_add_modal.php"); ?>
 
 <?php include("footer.php"); ?>

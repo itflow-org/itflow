@@ -287,7 +287,7 @@ if(isset($_GET['invoice_id'])){
 
                 <?php 
 
-                include("edit_item_modal.php");
+                include("item_edit_modal.php");
 
                 }
 
@@ -484,12 +484,12 @@ if(isset($_GET['invoice_id'])){
 </div>
 
 <?php 
-  include("add_payment_modal.php");
-  include("add_invoice_copy_modal.php");
-  include("add_invoice_recurring_modal.php");
-  include("edit_invoice_modal.php");
+  include("invoice_payment_add_modal.php");
+  include("invoice_copy_modal.php");
+  include("invoice_recurring_add_modal.php");
+  include("invoice_edit_modal.php");
   include("invoice_note_modal.php");
-  include("add_quick_modal.php");
+  include("category_quick_add_modal.php");
   
   } 
 }

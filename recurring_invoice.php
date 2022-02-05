@@ -220,7 +220,7 @@ if(isset($_GET['recurring_id'])){
 
                 <?php
 
-                include("edit_item_modal.php"); 
+                include("item_edit_modal.php"); 
 
                 }
 
@@ -354,9 +354,9 @@ if(isset($_GET['recurring_id'])){
 
 <?php 
   
-  include("edit_recurring_modal.php");
-  include("recurring_note_modal.php");
-  include("add_quick_modal.php");
+  include("recurring_invoice_edit_modal.php");
+  include("recurring_invoice_note_modal.php");
+  include("category_quick_add_modal.php");
 
 }
 

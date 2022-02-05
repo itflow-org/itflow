@@ -218,9 +218,9 @@
 
           <?php
 
-          include("add_trip_copy_modal.php");
-          include("edit_trip_modal.php");
-          include("export_trips_modal.php");
+          include("trip_copy_modal.php");
+          include("trip_edit_modal.php");
+          include("trip_export_modal.php");
           
           }
           
@@ -233,6 +233,6 @@
   </div>
 </div>
 
-<?php include("add_trip_modal.php"); ?>
+<?php include("trip_add_modal.php"); ?>
 
 <?php include("footer.php");

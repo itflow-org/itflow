@@ -224,7 +224,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=recurring" class="nav-link <?php if($_GET['tab'] == "recurring") { echo "active"; } ?>">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=recurring_invoices" class="nav-link <?php if($_GET['tab'] == "recurring_invoices") { echo "active"; } ?>">
             <i class="nav-icon fas fa-sync-alt"></i>
             <p>
               Recurring

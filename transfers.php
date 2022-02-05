@@ -203,7 +203,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
 
-          include("edit_transfer_modal.php");
+          include("transfer_edit_modal.php");
         
           }
           
@@ -216,6 +216,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_transfer_modal.php"); ?>
+<?php include("transfer_add_modal.php"); ?>
 
 <?php include("footer.php");

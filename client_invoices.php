@@ -173,8 +173,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
           
-          include("add_invoice_copy_modal.php");
-          include("edit_invoice_modal.php");
+          include("invoice_copy_modal.php");
+          include("invoice_edit_modal.php");
           }
 
           ?>
@@ -186,4 +186,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_invoice_modal.php"); ?>
+<?php include("invoice_add_modal.php"); ?>

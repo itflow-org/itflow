@@ -148,7 +148,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
           
-          include("edit_network_modal.php");
+          include("client_network_edit_modal.php");
           }
           
           ?>
@@ -160,4 +160,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_network_modal.php"); ?>
+<?php include("client_network_add_modal.php"); ?>

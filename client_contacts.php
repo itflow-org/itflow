@@ -188,7 +188,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
           
-          include("edit_contact_modal.php");
+          include("client_contact_edit_modal.php");
 
           }
           
@@ -201,4 +201,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_contact_modal.php"); ?>
+<?php include("client_contact_add_modal.php"); ?>

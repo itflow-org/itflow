@@ -1,4 +1,4 @@
-<div class="modal" id="addAssetCSVModal" tabindex="-1">
+<div class="modal" id="importAssetModal" tabindex="-1">
 	<div class="modal-dialog">
 		<div class="modal-content bg-dark">
 			<div class="modal-header">

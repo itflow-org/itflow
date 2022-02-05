@@ -132,7 +132,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
 
           <?php
 
-          include("edit_tag_modal.php");
+          include("tag_edit_modal.php");
 
           }
 
@@ -147,7 +147,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
 
 <?php 
 
-  include("add_tag_modal.php");
+  include("tag_add_modal.php");
 
   include("footer.php");
 

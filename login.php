@@ -93,7 +93,7 @@ if(isset($_POST['login'])){
                 $_SESSION['logged'] = TRUE;
                 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$user_name successfully logged in', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
 
-                header("Location: dashboard.php");
+                header("Location: dashboard_financial.php");
             } else {
                 $token_field = "<div class='input-group mb-3'>
                 <input type='text' class='form-control' placeholder='Token' name='current_code' autofocus>
@@ -110,7 +110,7 @@ if(isset($_POST['login'])){
                     $_SESSION['logged'] = TRUE;
                     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login 2FA', log_action = 'Success', log_description = '$user_name successfully logged in using 2FA', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
                     //header("Location: $config_start_page");
-                    header("Location: dashboard.php");
+                    header("Location: dashboard_financial.php");
                 } else {
                     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$user_name failed 2FA', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
 

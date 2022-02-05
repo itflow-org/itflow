@@ -179,7 +179,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
           
-          include("edit_vendor_modal.php");
+          include("vendor_edit_modal.php");
           }
           
           ?>
@@ -193,4 +193,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_vendor_modal.php"); ?>
+<?php include("vendor_add_modal.php"); ?>

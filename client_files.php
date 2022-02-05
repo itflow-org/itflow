@@ -54,7 +54,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
           </div>
          
           <?php 
-          include("view_file_modal.php");
+          include("client_file_view_modal.php");
           } 
           ?>
       </div>
@@ -101,4 +101,4 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
   </div>
 </div>
 
-<?php include("add_file_modal.php"); ?>
+<?php include("client_file_add_modal.php"); ?>

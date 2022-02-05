@@ -114,7 +114,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
 
-          include("edit_custom_link_modal.php");
+          include("custom_link_edit_modal.php");
 
           }
 
@@ -129,7 +129,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <?php 
 
-  include("add_custom_link_modal.php");
+  include("custom_link_add_modal.php");
 
   include("footer.php");
 

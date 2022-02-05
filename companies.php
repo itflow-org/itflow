@@ -138,7 +138,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
           
-          include("edit_company_modal.php");
+          include("company_edit_modal.php");
           }
           
           ?>
@@ -150,6 +150,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_company_modal.php"); ?>
+<?php include("company_add_modal.php"); ?>
 
 <?php include("footer.php");

@@ -251,7 +251,7 @@ if(isset($_GET['quote_id'])){
 
                 <?php
 
-                include("edit_item_modal.php");
+                include("item_edit_modal.php");
 
                 }
 
@@ -391,11 +391,11 @@ if(isset($_GET['quote_id'])){
 </div>
 
 <?php 
-  include("edit_quote_modal.php");
-  include("add_quote_to_invoice_modal.php");
-  include("add_quote_copy_modal.php");
+  include("quote_edit_modal.php");
+  include("quote_to_invoice_modal.php");
+  include("quote_copy_modal.php");
   include("quote_note_modal.php");
-  include("add_quick_modal.php");
+  include("category_quick_add_modal.php");
 
 } 
 

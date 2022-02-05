@@ -146,8 +146,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                                                             ON service_documents.document_id = documents.document_id
                                                           WHERE service_id = '$service_id'");
 
-                    include("service_edit_modal.php");
-                    include("service_view_modal.php");
+                    include("client_service_edit_modal.php");
+                    include("client_service_view_modal.php");
 
                 }
                 ?>
@@ -158,4 +158,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     </div>
 </div>
 
-<?php include("service_add_modal.php"); ?>
+<?php include("client_service_add_modal.php"); ?>

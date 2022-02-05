@@ -140,7 +140,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
 
           //$colors_diff = array_diff($colors_array,$colors_used_array);
 
-          include("edit_category_modal.php");
+          include("category_edit_modal.php");
 
           }
 
@@ -155,7 +155,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
 
 <?php 
 
-  include("add_category_modal.php");
+  include("category_add_modal.php");
 
   include("footer.php");
 

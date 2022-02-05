@@ -169,13 +169,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <a class="dropdown-item text-danger" href="post.php?delete_document=<?php echo $document_id; ?>">Delete</a>
                 </div>
               </div>
-              <?php include("view_document_modal.php"); ?>      
+              <?php include("client_document_view_modal.php"); ?>      
             </td>
           </tr>
 
           <?php
           
-          include("edit_document_modal.php");
+          include("client_document_edit_modal.php");
           }
 
           ?>
@@ -187,5 +187,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_document_modal.php"); ?>
-<?php include("manage_document_tags_modal.php"); ?>
+<?php include("client_document_add_modal.php"); ?>
+<?php include("client_document_tags_modal.php"); ?>

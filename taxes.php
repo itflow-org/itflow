@@ -77,7 +77,7 @@ $num_rows = mysqli_num_rows($sql);
 
           <?php
 
-          include("edit_tax_modal.php");
+          include("tax_edit_modal.php");
           }
           
           if($num_rows == 0){
@@ -95,7 +95,7 @@ $num_rows = mysqli_num_rows($sql);
 
 <?php
   
-  include("add_tax_modal.php");
+  include("tax_add_modal.php");
 
   include("footer.php");
 

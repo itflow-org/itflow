@@ -155,7 +155,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
           
-          include("edit_login_modal.php");
+          include("client_login_edit_modal.php");
           }
           
           ?>
@@ -167,4 +167,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_login_modal.php"); ?>
+<?php include("client_login_add_modal.php"); ?>

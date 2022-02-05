@@ -124,7 +124,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
 
-          include("edit_certificate_modal.php");
+          include("client_certificate_edit_modal.php");
           }
           
           ?>
@@ -136,7 +136,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_certificate_modal.php"); ?>
+<?php include("client_certificate_add_modal.php"); ?>
 
 <script type="text/javascript">
     function fetchSSL()

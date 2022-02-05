@@ -225,10 +225,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
 
-          include("edit_expense_modal.php");
-          include("add_expense_copy_modal.php");
-          include("add_expense_refund_modal.php");
-          include("export_expenses_modal.php");
+          include("expense_edit_modal.php");
+          include("expense_copy_modal.php");
+          include("expense_refund_modal.php");
+          include("expense_export_modal.php");
           
           }
 
@@ -241,7 +241,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("add_expense_modal.php"); ?>
-<?php include("add_quick_modal.php"); ?>
+<?php include("expense_add_modal.php"); ?>
+<?php include("category_quick_add_modal.php"); ?>
 
 <?php include("footer.php");
