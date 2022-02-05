@@ -1040,7 +1040,6 @@ DROP TABLE IF EXISTS `settings`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `settings` (
   `company_id` int(11) NOT NULL,
-  `config_aes_key` varchar(250) DEFAULT NULL,
   `config_base_url` varchar(200) DEFAULT NULL,
   `config_smtp_host` varchar(200) DEFAULT NULL,
   `config_smtp_port` int(5) DEFAULT NULL,
@@ -1367,4 +1366,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-04 15:58:24
+-- Dump completed on 2022-02-05 16:40:40
