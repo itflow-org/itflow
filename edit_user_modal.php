@@ -14,7 +14,7 @@
           
           <center class="mb-3">
             <?php if(!empty($user_avatar)){ ?>
-            <img class="img-size-100 img-circle" src="<?php echo "uploads/users/$user_id/$user_avatar"; ?>">
+            <img class="img-fluid" src="<?php echo "uploads/users/$user_id/$user_avatar"; ?>">
             <?php }else{ ?>
             <span class="fa-stack fa-4x">
               <i class="fa fa-circle fa-stack-2x text-secondary"></i>

@@ -28,7 +28,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
             <?php if(empty($session_avatar)){ ?>
             	<i class="fas fa-user-circle fa-8x text-secondary"></i>
             <?php }else{ ?>
-            	<img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-circle img-fluid">
+            	<img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-fluid">
             <?php } ?> 
             <h4 class="text-secondary mt-2"><?php echo $session_user_role_display; ?></h4>
           </center>
