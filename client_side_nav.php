@@ -277,6 +277,15 @@
 
         <?php } ?>
 
+        <li class="nav-header mt-3">MORE</li>
+
+        <li class="nav-item">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=logs" class="nav-link <?php if($_GET['tab'] == "logs") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-book"></i>
+            <p>Logs</p>
+          </a>
+        </li>
+
       </ul>
     </nav>
     <!-- /.sidebar-menu -->

@@ -61,6 +61,9 @@ if(isset($_GET['tab'])){
   elseif($_GET['tab'] == "services"){
       include("client_services.php");
   }
+  elseif($_GET['tab'] == "logs"){
+      include("client_logs.php");
+  }
 }
 else{
   include("client_overview.php");
