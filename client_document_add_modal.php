@@ -16,7 +16,6 @@
           </div>
           <?php
           if($document_tags) {
-            foreach($document_tags as $document_tag) {
           ?>
             <!-- Document Tags select start -->
           <div class="form-group">
@@ -25,6 +24,9 @@
                       <span class="fa fa-fw fa-tag"></span> <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu">
+                <?php
+                foreach($document_tags as $document_tag) {
+                    ?>
                     <li>
                         <div class="form-check">
                             <label>
@@ -32,12 +34,14 @@
                             </label>
                         </div>
                     </li>
+                    <?php
+                    }
+                    ?>
                   </ul>
               </div>
           </div>
             <!-- Document tags select end -->
           <?php
-            }
           }
           ?>
           
