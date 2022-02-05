@@ -45,7 +45,7 @@ if(isset($_GET['switch_company'])){
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Switch', log_description = '$session_name tried to switch to company $company_name but does not have permission', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
     }
     
-    header("Location: dashboard.php");
+    header("Location: dashboard_financial.php");
   
 }
 
