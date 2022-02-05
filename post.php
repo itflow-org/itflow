@@ -5282,9 +5282,9 @@ if(isset($_GET['export_client_domains_csv'])){
 }
 
 if(isset($_POST['add_ticket'])){
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
 
-    // Initiate HTML Purifier
+    // HTML Purifier
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
     $purifier = new HTMLPurifier($purifier_config);
 
@@ -5293,8 +5293,7 @@ if(isset($_POST['add_ticket'])){
     $contact = intval($_POST['contact']);
     $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
     $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
-    $dirty_details = mysqli_real_escape_string($mysqli,$_POST['details']);
-    $details = $purifier->purify($dirty_details);
+    $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
     $asset_id = intval($_POST['asset']);
 
     if($client_id > 0 AND $contact == 0){
@@ -5320,11 +5319,17 @@ if(isset($_POST['add_ticket'])){
 }
 
 if(isset($_POST['add_scheduled_ticket'])){
+
+    // HTML Purifier
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+    $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier = new HTMLPurifier($purifier_config);
+
     $client_id = intval($_POST['client']);
     $contact = intval($_POST['contact']);
     $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
     $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
-    $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
+    $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
     $asset_id = intval($_POST['asset']);
     $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
     $start_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date'])));
@@ -5348,11 +5353,17 @@ if(isset($_POST['add_scheduled_ticket'])){
 }
 
 if(isset($_POST['edit_scheduled_ticket'])){
+
+    // HTML Purifier
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+    $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier = new HTMLPurifier($purifier_config);
+
     $client_id = intval($_POST['client_id']);
     $ticket_id = intval($_POST['ticket_id']);
     $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
     $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
-    $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
+    $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
     $asset_id = intval($_POST['asset']);
     $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
     $next_run_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['next_date'])));
@@ -5385,12 +5396,17 @@ if(isset($_GET['delete_scheduled_ticket'])){
 
 if(isset($_POST['edit_ticket'])){
 
+    // HTML Purifier
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+    $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier = new HTMLPurifier($purifier_config);
+
     $ticket_id = intval($_POST['ticket_id']);
     $assigned_to = intval($_POST['assigned_to']);
     $contact_id = intval($_POST['contact']);
     $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
     $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
-    $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
+    $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
     $asset_id = intval($_POST['asset']);
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_updated_at = NOW(), ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
@@ -5437,17 +5453,16 @@ if(isset($_GET['delete_ticket'])){
 }
 
 if(isset($_POST['add_ticket_reply'])){
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
 
-    // Initiate HTML Purifier
+    // HTML Purifier
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
     $purifier = new HTMLPurifier($purifier_config);
 
     $ticket_id = intval($_POST['ticket_id']);
-    $dirty = trim(mysqli_real_escape_string($mysqli,$_POST['ticket_reply']));
-    $ticket_reply = $purifier->purify($dirty);
-    $ticket_status = trim(mysqli_real_escape_string($mysqli,$_POST['status']));
-    $ticket_reply_time_worked = trim(mysqli_real_escape_string($mysqli,$_POST['time']));
+    $ticket_reply = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['ticket_reply']))));
+    $ticket_status = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['status'])));
+    $ticket_reply_time_worked = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['time'])));
 
     if(isset($_POST['public_reply_type'])){
         $ticket_reply_type = 'Public';
@@ -5522,8 +5537,13 @@ if(isset($_POST['add_ticket_reply'])){
 
 if(isset($_POST['edit_ticket_reply'])){
 
+    // HTML Purifier
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+    $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier = new HTMLPurifier($purifier_config);
+
     $ticket_reply_id = intval($_POST['ticket_reply_id']);
-    $ticket_reply = trim(mysqli_real_escape_string($mysqli,$_POST['ticket_reply']));
+    $ticket_reply = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['ticket_reply']))));
 
     mysqli_query($mysqli,"UPDATE ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_updated_at = NOW() WHERE ticket_reply_id = $ticket_reply_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
@@ -5571,7 +5591,7 @@ if(isset($_GET['merge_ticket_get_json_details'])){
 if(isset($_POST['merge_ticket'])){
     $ticket_id = intval($_POST['ticket_id']);
     $merge_into_ticket_number = intval($_POST['merge_into_ticket_number']);
-    $merge_comment = trim(mysqli_real_escape_string($mysqli,$_POST['merge_comment']));
+    $merge_comment = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['merge_comment'])));
     $ticket_reply_type = 'Internal';
 
     //Get current ticket details
@@ -5955,10 +5975,15 @@ if(isset($_GET['delete_file'])){
 
 if(isset($_POST['add_document'])){
 
+    // HTML Purifier
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+    $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier = new HTMLPurifier($purifier_config);
+
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $tags_ids = $_POST['tags_ids'];
-    $content = trim(mysqli_real_escape_string($mysqli,$_POST['content']));
+    $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
 
     // Document add query
     $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_created_at = NOW(), document_client_id = $client_id, company_id = $session_company_id");
@@ -5982,10 +6007,15 @@ if(isset($_POST['add_document'])){
 
 if(isset($_POST['edit_document'])){
 
+    // HTML Purifier
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+    $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier = new HTMLPurifier($purifier_config);
+
     $document_id = intval($_POST['document_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $tags_ids = $_POST['tags_ids'];
-    $content = trim(mysqli_real_escape_string($mysqli,$_POST['content']));
+    $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
 
     // Document edit query
     mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_updated_at = NOW() WHERE document_id = $document_id AND company_id = $session_company_id");
