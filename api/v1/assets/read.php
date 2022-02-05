@@ -9,9 +9,9 @@ if($_SERVER['REQUEST_METHOD'] !== "GET"){
     exit();
 }
 
-// Specific asset query via ID
-if(isset($_GET['id'])){
-    $id = intval($_GET['id']);
+// Asset via ID (single)
+if(isset($_GET['asset_id'])){
+    $id = intval($_GET['asset_id']);
     $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_id = '$id' AND company_id = '$company_id'");
 }
 
@@ -22,8 +22,8 @@ elseif(isset($_GET['asset_type'])){
 }
 
 // Asset query via name
-elseif(isset($_GET['name'])){
-    $name = mysqli_real_escape_string($mysqli,$_GET['name']);
+elseif(isset($_GET['asset_name'])){
+    $name = mysqli_real_escape_string($mysqli,$_GET['asset_name']);
     $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_name = '$name' AND company_id = '$company_id' ORDER BY asset_id LIMIT $limit OFFSET $offset");
 }
 
@@ -39,28 +39,10 @@ elseif(isset($_GET['asset_client_id'])){
     $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = '$client' AND company_id = '$company_id' ORDER BY asset_id LIMIT $limit OFFSET $offset");
 }
 
-// All asset query
+// All assets
 else{
     $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE company_id = '$company_id' ORDER BY asset_id LIMIT $limit OFFSET $offset");
 }
 
-
 // Output
-if($sql && mysqli_num_rows($sql) > 0){
-    $return_arr['success'] = "True";
-    $return_arr['count'] = mysqli_num_rows($sql);
-
-    $row = array();
-    while($row = mysqli_fetch_array($sql)){
-        $return_arr['data'][] = $row;
-    }
-
-    echo json_encode($return_arr);
-    exit();
-}
-else{
-    $return_arr['success'] = "False";
-    $return_arr['message'] = "No asset(s) (with that ID) for this company";
-    echo json_encode($return_arr);
-    exit();
-}
+include("../read_output.php");
