@@ -1,4 +1,4 @@
-<div class="modal" id="productAddModal" tabindex="-1">
+<div class="modal" id="addProductModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">

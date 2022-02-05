@@ -1,4 +1,4 @@
-<div class="modal" id="clientAddModal" tabindex="-1">
+<div class="modal" id="addClientModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">

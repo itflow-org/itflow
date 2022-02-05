@@ -247,9 +247,9 @@ $location_phone = formatPhoneNumber($location_phone);
             <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>">Export PDF<br><small class="text-secondary">(without passwords)</small></a>
             <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>&passwords">Export PDF<br><small class="text-secondary">(with passwords)</small></a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#clientEditModal<?php echo $client_id; ?>">Edit</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#clientDeleteModal<?php echo $client_id; ?>">Delete</a>
+            <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">Delete</a>
           </div>
         </div>
       </div>

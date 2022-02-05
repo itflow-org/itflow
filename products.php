@@ -52,7 +52,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-box"></i> Products</h3>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#productAddModal"><i class="fas fa-fw fa-plus"></i> New Product</button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProductModal"><i class="fas fa-fw fa-plus"></i> New Product</button>
     </div>
   </div>
 
@@ -101,7 +101,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           ?>
           <tr>
-            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#productEditModal<?php echo $product_id; ?>"><?php echo $product_name; ?></a></td>
+            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>"><?php echo $product_name; ?></a></td>
             <td><?php echo $category_name; ?></td>
             <td><?php echo $product_description_display; ?></td>
             <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($product_price,2); ?></td>
@@ -111,7 +111,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#productEditModal<?php echo $product_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item text-danger" href="post.php?delete_product=<?php echo $product_id; ?>">Delete</a>
                 </div>

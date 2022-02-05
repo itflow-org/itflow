@@ -1,4 +1,4 @@
-<div class="modal" id="ticketAddModal" tabindex="-1">
+<div class="modal" id="addTicketModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
       <div class="modal-header">

@@ -171,8 +171,8 @@ if(isset($_GET['ticket_id'])){
         <i class="fas fa-fw fa-ellipsis-v"></i>
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#ticketEditModal<?php echo $ticket_id; ?>">Edit</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#ticketMergeModal<?php echo $ticket_id; ?>">Merge</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">Merge</a>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item text-danger" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
       </div>
@@ -295,7 +295,7 @@ if(isset($_GET['ticket_id'])){
               <i class="fas fa-fw fa-ellipsis-v"></i>
             </button>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="#" data-toggle="modal" data-target="#ticketReplyEditModal<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i> Edit</a>
+              <a class="dropdown-item" href="#" data-toggle="modal" data-target="#replyEditTicketModal<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i> Edit</a>
               <div class="dropdown-divider"></div>
               <a class="dropdown-item text-danger" href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-trash text-danger"></i> Archive</a>
             </div>
