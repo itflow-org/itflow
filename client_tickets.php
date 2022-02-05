@@ -203,5 +203,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <?php
 include("ticket_add_modal.php");
-include("add_scheduled_ticket_modal.php");
+include("scheduled_ticket_add_modal.php");
 ?>

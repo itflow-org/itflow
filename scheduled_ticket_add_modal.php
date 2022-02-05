@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-tag"></i> New Scheduled Ticket</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-sync"></i> New Scheduled Ticket</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -64,7 +64,7 @@
                         <label>Frequency <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-calendar-plus"></i></span>
                             </div>
                             <select class="form-control select2" name="frequency" required>
                                 <option>Weekly</option>
@@ -77,9 +77,9 @@
                         <label>Starting date <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                             </div>
-                            <input class="form-control" type="date" min="<?php echo date("Y-m-d"); ?>" name="start_date">
+                            <input class="form-control" type="date" min="<?php echo date("Y-m-d"); ?>" name="start_date" required>
                         </div>
                     </div>
 

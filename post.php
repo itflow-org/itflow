@@ -5326,8 +5326,8 @@ if(isset($_POST['add_scheduled_ticket'])){
     $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
     $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
     $asset_id = intval($_POST['asset']);
-    $frequency = trim(mysqli_real_escape_string($mysqli,$_POST['frequency']));
-    $start_date = mysqli_real_escape_string($mysqli,$_POST['start_date']);
+    $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
+    $start_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date'])));
 
     if($client_id > 0 AND $contact == 0){
         $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
@@ -5342,6 +5342,28 @@ if(isset($_POST['add_scheduled_ticket'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Created scheduled ticket for $subject - $frequency', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Scheduled ticket created.";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_scheduled_ticket'])){
+    $client_id = intval($_POST['client_id']);
+    $ticket_id = intval($_POST['ticket_id']);
+    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
+    $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
+    $details = trim(mysqli_real_escape_string($mysqli,$_POST['details']));
+    $asset_id = intval($_POST['asset']);
+    $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
+    $next_run_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['next_date'])));
+
+    // Edit scheduled ticket
+    mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_next_run = '$next_run_date', scheduled_ticket_updated_at = NOW(), scheduled_ticket_asset_id = '$asset_id', company_id = '$session_company_id' WHERE scheduled_ticket_id = '$ticket_id'");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Updated scheduled ticket for $subject - $frequency', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Scheduled ticket updated.";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
