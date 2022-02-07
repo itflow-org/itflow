@@ -13,8 +13,7 @@
                     <!-- Main/Left side -->
                     <div class="col-8 border-right">
                         <div class="col-12">
-                            <h4>Service Overview: <?php echo $service_name; ?></h4>
-                            <b>Importance:</b> <?php echo $service_importance_display; ?> <br>
+                            <h4>Service Overview: <?php echo "$service_name $service_importance_display"; ?></h4>
                             <b>Description:</b> <?php echo $service_description; ?> <br>
                             <b>Backup Info:</b> <?php echo $service_backup; ?> <br><br>
 
