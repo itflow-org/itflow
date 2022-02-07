@@ -32,7 +32,13 @@
                                     mysqli_data_seek($sql_assets, 0);
 
                                     while($row = mysqli_fetch_array($sql_assets)){
-                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=assets&q=$row[asset_name]\">$row[asset_name]</a></li>";
+                                        if(!empty($row['asset_ip'])){
+                                            $ip = '('.$row["asset_ip"].')';
+                                        }
+                                        else{
+                                            $ip = '';
+                                        }
+                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=assets&q=$row[asset_name]\">$row[asset_name] </a>$ip</li>";
                                     }
                                     ?>
                                 </ul>
@@ -68,7 +74,7 @@
                                 }
                                 foreach($networks as $network){
                                         $network = explode(":", $network);
-                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=networks&q=$network[0]\">$network[0] (VLAN $network[1])</a></li>";
+                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=networks&q=$network[0]\">$network[0] </a>(VLAN $network[1])</li>";
                                 }
 
                                 // Not showing/haven't added explicitly linked networks - can't see a need for a network that doesn't have an asset on it?
