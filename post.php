@@ -4,8 +4,8 @@ include("config.php");
 include("functions.php");
 include("check_login.php");
 
-require("vendor/PHPMailer-6.5.1/src/PHPMailer.php");
-require("vendor/PHPMailer-6.5.1/src/SMTP.php");
+require("plugins/PHPMailer/src/PHPMailer.php");
+require("plugins/PHPMailer/src/SMTP.php");
 
 // Initiate PHPMailer
 use PHPMailer\PHPMailer\PHPMailer;
