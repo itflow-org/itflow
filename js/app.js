@@ -62,7 +62,7 @@ function hideTooltip(btn) {
 
 // Clipboard
 
-var clipboard = new ClipboardJS('button');
+var clipboard = new ClipboardJS('.clipboardjs');
 
 clipboard.on('success', function(e) {
   setTooltip(e.trigger, 'Copied!');

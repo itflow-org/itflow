@@ -31,7 +31,7 @@
   <link href='plugins/daterangepicker/daterangepicker.css' rel='stylesheet' />
   <link href="plugins/summernote/summernote-bs4.min.css" rel="stylesheet">
   <link href="plugins/toastr/toastr.min.css" rel="stylesheet">
-  <link href="plugins/dropzone/min/dropzone.min.css" rel="stylesheet">
+  <!-- <link href="plugins/dropzone/min/dropzone.min.css" rel="stylesheet"> -->
 
 </head>
 <body class="hold-transition sidebar-mini">

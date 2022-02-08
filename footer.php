@@ -24,7 +24,7 @@
 	<script src="plugins/summernote/summernote-bs4.min.js"></script>
 	<script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
 	<script src="plugins/clipboardjs/clipboard.min.js"></script>
-	<script src="plugins/dropzone/min/dropzone.min.js"></script>
+	<!-- <script src="plugins/dropzone/min/dropzone.min.js"></script> -->
 	<!-- AdminLTE App -->
 	<script src="dist/js/adminlte.min.js"></script>
 	<script src="js/app.js"></script>

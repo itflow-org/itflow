@@ -123,7 +123,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             if(empty($contact_email)){
               $contact_email_display = "-";
             }else{
-              $contact_email_display = "<a href='mailto:$contact_email'>$contact_email</a><button class='btn btn-sm' data-clipboard-text='$contact_email'><i class='far fa-copy text-secondary'></i></button>";
+              $contact_email_display = "<a href='mailto:$contact_email'>$contact_email</a><button class='btn btn-sm clipboardjs' data-clipboard-text='$contact_email'><i class='far fa-copy text-secondary'></i></button>";
             }
             $contact_photo = $row['contact_photo'];
             $contact_initials = initials($contact_name);

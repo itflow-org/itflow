@@ -104,13 +104,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             if(empty($login_uri)){
               $login_uri_display = "-";
             }else{
-              $login_uri_display = "$login_uri<button class='btn btn-sm' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button>";
+              $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button>";
             }
             $login_username = $row['login_username'];
             if(empty($login_username)){
               $login_username_display = "-";
             }else{
-              $login_username_display = "$login_username<button class='btn btn-sm' data-clipboard-text='$login_username'><i class='far fa-copy text-secondary'></i></button>";
+              $login_username_display = "$login_username<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_username'><i class='far fa-copy text-secondary'></i></button>";
             }
             $login_password = htmlentities(decryptLoginEntry($row['login_password']));
             $login_otp_secret = $row['login_otp_secret'];
@@ -118,7 +118,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $otp_display = "-";
             }else{
               $otp = TokenAuth6238::getTokenCode($login_otp_secret,$rangein30s = 3);
-              $otp_display = "<i class='far fa-clock text-secondary'></i> $otp<button class='btn btn-sm' data-clipboard-text='$otp'><i class='far fa-copy text-secondary'></i></button>";
+              $otp_display = "<i class='far fa-clock text-secondary'></i> $otp<button class='btn btn-sm clipboardjs' data-clipboard-text='$otp'><i class='far fa-copy text-secondary'></i></button>";
             }
             $login_note = $row['login_note'];
             $login_vendor_id = $row['login_vendor_id'];
@@ -136,7 +136,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $login_uri_display; ?></td>
             <td><?php echo $login_username_display; ?></td>
             <td>
-              <a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
+              <a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
             </td>
             <td><?php echo $otp_display; ?></td>
             <td>
