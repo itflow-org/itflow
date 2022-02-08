@@ -13,8 +13,7 @@
                     <!-- Main/Left side -->
                     <div class="col-8 border-right">
                         <div class="col-12">
-                            <h4>Service Overview: <?php echo $service_name; ?></h4>
-                            <b>Importance:</b> <?php echo $service_importance_display; ?> <br>
+                            <h4>Service Overview: <?php echo "$service_name $service_importance_display"; ?></h4>
                             <b>Description:</b> <?php echo $service_description; ?> <br>
                             <b>Backup Info:</b> <?php echo $service_backup; ?> <br><br>
 
@@ -32,7 +31,13 @@
                                     mysqli_data_seek($sql_assets, 0);
 
                                     while($row = mysqli_fetch_array($sql_assets)){
-                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=assets&q=$row[asset_name]\">$row[asset_name]</a></li>";
+                                        if(!empty($row['asset_ip'])){
+                                            $ip = '('.$row["asset_ip"].')';
+                                        }
+                                        else{
+                                            $ip = '';
+                                        }
+                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=assets&q=$row[asset_name]\">$row[asset_name] </a>$ip</li>";
                                     }
                                     ?>
                                 </ul>
@@ -68,7 +73,7 @@
                                 }
                                 foreach($networks as $network){
                                         $network = explode(":", $network);
-                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=networks&q=$network[0]\">$network[0] (VLAN $network[1])</a></li>";
+                                        echo "<li><a href=\"client.php?client_id=$client_id&tab=networks&q=$network[0]\">$network[0] </a>(VLAN $network[1])</li>";
                                 }
 
                                 // Not showing/haven't added explicitly linked networks - can't see a need for a network that doesn't have an asset on it?
@@ -210,32 +215,35 @@
                             ?>
 
                             <!-- URLs -->
-<!--                            --><?php
-//                            if($sql_logins OR $sql_urls){ ?>
-<!--                                <h5><i class="nav-icon fas fa-link"></i> URLs</h5>-->
-<!--                                <ul>-->
-<!--                                    --><?php
-//                                    // Reset the $sql_assets pointer to the start
-//                                    mysqli_data_seek($sql_assets, 0);
-//
-//                                    // Showing URLs linked to logins
-//                                    while($row = mysqli_fetch_array($sql_assets)){
-//                                        if(!empty($row['login_uri'])){
-//                                            echo "<li><a href=\"$row[login_uri]\">$row[login_uri]</a></li>";
-//                                        }
-//                                    }
-//
-//                                    // Showing explicitly linked URLs
-//                                    while($row = mysqli_fetch_array($sql_urls)){
-//                                        if(!empty($row['service_uri'])){
-//                                            echo "<li><a href=\"$row[service_uri]\">$row[service_uri]</a></li>";
-//                                        }
-//                                    }
-//                                    ?>
-<!--                                </ul>-->
-<!--                                --><?php
-//                            }
-//                            ?>
+                            <?php
+                            if($sql_logins OR $sql_assets){ ?>
+                                <h5><i class="nav-icon fas fa-link"></i> URLs</h5>
+                                <ul>
+                                    <?php
+                                    // Reset the $sql_logins pointer to the start
+                                    mysqli_data_seek($sql_logins, 0);
+
+                                    // Showing URLs linked to logins
+                                    while($row = mysqli_fetch_array($sql_logins)){
+                                        if(!empty($row['login_uri'])){
+                                            echo "<li><a href=\"https://$row[login_uri]\">$row[login_uri]</a></li>";
+                                        }
+                                    }
+
+                                    // Reset the $sql_assets pointer to the start
+                                    mysqli_data_seek($sql_assets, 0);
+
+                                    // Show URLs linked to assets, that also have logins
+                                    while($row = mysqli_fetch_array($sql_assets)){
+                                        if(!empty($row['login_uri'])){
+                                            echo "<li><a href=\"https://$row[login_uri]\">$row[login_uri]</a></li>";
+                                        }
+                                    }
+                                    ?>
+                                </ul>
+                                <?php
+                            }
+                            ?>
 
 <!--                            <h5><i class="nav-icon fas fa-lock"></i> Certificates</h5>-->
 <!--                            <ul>-->
