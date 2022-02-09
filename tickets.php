@@ -139,11 +139,11 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
 ?>
 <div class="card card-dark">
   <div class="card-header py-2">
-    <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> <strong>TICKETS: </strong> 
-      <small>
-        <a href="?<?php echo $url_query_strings_sb; ?>&status=%"><?php echo $total_tickets; ?> Total</a> |
-        <a href="?<?php echo $url_query_strings_sb; ?>&status=Open"><?php echo $total_tickets_open; ?> Open</a> |
-        <a href="?<?php echo $url_query_strings_sb; ?>&status=Closed"> <?php echo $total_tickets_closed; ?> Closed</a>
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> Tickets 
+      <small class="ml-3">
+        <a href="?<?php echo $url_query_strings_sb; ?>&status=%"><strong><?php echo $total_tickets; ?></strong> Total</a> |
+        <a href="?<?php echo $url_query_strings_sb; ?>&status=Open"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
+        <a href="?<?php echo $url_query_strings_sb; ?>&status=Closed"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
       </small>
     </h3>
  
@@ -170,15 +170,15 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
         <div class="col-sm-8">
           <div class="btn-group float-right">
             <button class="btn btn-lg btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown">
-              <i class="fa fa-fw fa-envelope"></i> My Tickets | <strong> <?php echo number_format($total_tickets_assigned); ?></strong>
+              <i class="fa fa-fw fa-envelope"></i> My Tickets | <strong> <?php echo $total_tickets_assigned; ?></strong>
             </button>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="#"> <strong> <?php echo number_format($total_tickets_assigned); ?></strong> | Unanswered</a>
-              <a class="dropdown-item" href="#"> <strong> <?php echo number_format($total_tickets_assigned); ?></strong> | Answered</a>
+              <a class="dropdown-item" href="#"><strong> <?php echo $total_tickets_assigned; ?></strong> | Unanswered</a>
+              <a class="dropdown-item" href="#"><strong> <?php echo $total_tickets_assigned; ?></strong> | Answered</a>
               <div class="dropdown-divider"></div>
               <a class="dropdown-item " href="#">Closed by me</a>
             </div>
-            <a href="#" class="btn btn-lg btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i> Unassigned Tickets | <strong> <?php echo number_format($total_tickets_unassigned); ?></strong></a>
+            <a href="#" class="btn btn-lg btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i> Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong></a>
             <a href="#" class="btn btn-lg btn-outline-info"><i class="fa fa-fw fa-cogs"></i> Tasks</a>
           </div>
         </div>
