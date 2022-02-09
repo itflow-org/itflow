@@ -140,58 +140,46 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
 <div class="card card-dark">
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> <strong>TICKETS:  </strong> 
-          <small><a href="?<?php echo $url_query_strings_sb; ?>&status=%"><?php echo number_format($total_tickets); ?> Total  </a>|
-           <a href="?<?php echo $url_query_strings_sb; ?>&status=Open"><?php echo number_format($total_tickets_open); ?> Open </a>|
-          <a href="?<?php echo $url_query_strings_sb; ?>&status=Closed"> <?php echo number_format($total_tickets_closed); ?> Closed</a></small></h3>
+      <small>
+        <a href="?<?php echo $url_query_strings_sb; ?>&status=%"><?php echo number_format($total_tickets); ?> Total  </a>|
+        <a href="?<?php echo $url_query_strings_sb; ?>&status=Open"><?php echo number_format($total_tickets_open); ?> Open </a>|
+        <a href="?<?php echo $url_query_strings_sb; ?>&status=Closed"> <?php echo number_format($total_tickets_closed); ?> Closed</a>
+      </small>
+    </h3>
  
     <div class='card-tools'>
-          <div class="float-left"> 
+      <div class="float-left"> 
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i> New Ticket</button>
 
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i> New Ticket</button>
-
-</div></div>
+      </div>
+    </div>
   </div>
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
       <input type="hidden" name="status" value="<?php echo $status; ?>"> 
       <div class="row">
-  
         <div class="col-sm-4">
-
           <div class="input-group">
-
             <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Tickets">
             <div class="input-group-append">
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-
             </div>
-
-
           </div>
-     
         </div>
         <div class="col-sm-8">
-
           <div class="btn-group float-right">
-    
-    
-   <button class="btn btn-lg btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <i class="fa fa-fw fa-envelope"></i> My Tickets | <strong> <?php echo number_format($total_tickets_assigned); ?></strong>
-  </button>
-  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <a class="dropdown-item " href="#"> <strong> <?php echo number_format($total_tickets_assigned); ?></strong> | Unanswered</a>
-    <a class="dropdown-item " href="#"> <strong> <?php echo number_format($total_tickets_assigned); ?></strong> | Answered</a>
-    <div class="dropdown-divider"></div>
-    <a class="dropdown-item " href="#">Closed by me</a>
-  </div>
-    
-            <a href="#" class="btn btn-lg  btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i> Unassigned Tickets | <strong> <?php echo number_format($total_tickets_unassigned); ?></strong></a>
-            <a href="#" class="btn btn-lg  btn-outline-info"><i class="fa fa-fw  fa-cogs"></i> Tasks</a>
-</div>
-
-  
-         
+            <button class="btn btn-lg btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+              <i class="fa fa-fw fa-envelope"></i> My Tickets | <strong> <?php echo number_format($total_tickets_assigned); ?></strong>
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="#"> <strong> <?php echo number_format($total_tickets_assigned); ?></strong> | Unanswered</a>
+              <a class="dropdown-item" href="#"> <strong> <?php echo number_format($total_tickets_assigned); ?></strong> | Answered</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item " href="#">Closed by me</a>
+            </div>
+            <a href="#" class="btn btn-lg btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i> Unassigned Tickets | <strong> <?php echo number_format($total_tickets_unassigned); ?></strong></a>
+            <a href="#" class="btn btn-lg btn-outline-info"><i class="fa fa-fw fa-cogs"></i> Tasks</a>
           </div>
         </div>
       </div>
@@ -316,11 +304,11 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
 
           <tr>
             <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
-             <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
-             <td><?php echo $contact_display; ?></td>
-             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></td>
-             <td><?php echo $ticket_priority_display; ?></td>
-             <td><?php echo $ticket_status_display; ?></td>                   
+            <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
+            <td><?php echo $contact_display; ?></td>
+            <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></td>
+            <td><?php echo $ticket_priority_display; ?></td>
+            <td><?php echo $ticket_status_display; ?></td>                   
             <td><?php echo $ticket_assigned_to_display; ?></td>
             <td><?php echo $ticket_updated_at_display; ?></td>
             <td><?php echo $ticket_created_at; ?></td>
