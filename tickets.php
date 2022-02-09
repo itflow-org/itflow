@@ -117,7 +117,7 @@ $row = mysqli_fetch_array($sql_total_tickets);
 $total_tickets = $row['total_tickets'];
 
 //Get Total tickets open
-$sql_total_tickets_open = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS total_tickets_open FROM `tickets` WHERE `ticket_status` = 'open' AND company_id = $session_company_id");
+$sql_total_tickets_open = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_status = 'open' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_tickets_open);
 $total_tickets_open = $row['total_tickets_open'];
 
@@ -132,7 +132,7 @@ $row = mysqli_fetch_array($sql_total_tickets_unassigned);
 $total_tickets_unassigned = $row['total_tickets_unassigned'];
 
 //Get Total tickets assigned to me
-$sql_total_tickets_assigned = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS total_tickets_assigned FROM tickets WHERE ticket_assigned_to = $user_id AND ticket_status = 'open' AND company_id = $session_company_id");
+$sql_total_tickets_assigned = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS total_tickets_assigned FROM tickets WHERE ticket_assigned_to = $session_user_id AND ticket_status = 'open' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_tickets_assigned);
 $total_tickets_assigned = $row['total_tickets_assigned'];
 
