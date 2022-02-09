@@ -109,38 +109,93 @@
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
-?>
 
+
+//Get Total tickets 
+$sql_total_tickets = mysqli_query($mysqli,"SELECT COUNT(`ticket_id`) AS total_tickets FROM `tickets` WHERE company_id = $session_company_id ;");
+$row = mysqli_fetch_array($sql_total_tickets);
+$total_tickets = $row['total_tickets'];
+
+//Get Total tickets open
+$sql_total_tickets_open = mysqli_query($mysqli,"SELECT COUNT(`ticket_id`) AS total_tickets_open FROM `tickets` WHERE `ticket_status` = 'open' AND company_id = $session_company_id ;");
+$row = mysqli_fetch_array($sql_total_tickets_open);
+$total_tickets_open = $row['total_tickets_open'];
+
+//Get Total tickets closed
+$sql_total_tickets_closed = mysqli_query($mysqli,"SELECT COUNT(DISTINCT `ticket_status`) AS total_tickets_closed FROM `tickets` WHERE `ticket_status` = 'closed' AND company_id = $session_company_id ;");
+$row = mysqli_fetch_array($sql_total_tickets_closed);
+$total_tickets_closed = $row['total_tickets_closed'];
+
+//Get Unnassigned tickets
+$sql_total_tickets_unassigned = mysqli_query($mysqli,"SELECT COUNT(`ticket_id`) AS total_tickets_unassigned FROM `tickets`  WHERE ticket_assigned_to = '0' AND ticket_status = 'open' AND company_id = $session_company_id;");
+$row = mysqli_fetch_array($sql_total_tickets_unassigned);
+$total_tickets_unassigned = $row['total_tickets_unassigned'];
+
+//Get Total tickets assigned to me
+$sql_total_tickets_assigned = mysqli_query($mysqli,"SELECT COUNT(`ticket_id`) AS total_tickets_assigned FROM `tickets` WHERE ticket_assigned_to = '$user_id' AND ticket_status = 'open' AND company_id = $session_company_id;");
+$row = mysqli_fetch_array($sql_total_tickets_assigned);
+$total_tickets_assigned = $row['total_tickets_assigned'];
+
+?>
 <div class="card card-dark">
   <div class="card-header py-2">
-    <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> Tickets</h3>
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> <strong>TICKETS:  </strong> 
+          <small><a href="?<?php echo $url_query_strings_sb; ?>&status=%"><?php echo number_format($total_tickets); ?> Total  </a>|
+           <a href="?<?php echo $url_query_strings_sb; ?>&status=Open"><?php echo number_format($total_tickets_open); ?> Open </a>|
+          <a href="?<?php echo $url_query_strings_sb; ?>&status=Closed"> <?php echo number_format($total_tickets_closed); ?> Closed</a></small></h3>
+ 
     <div class='card-tools'>
+          <div class="float-left"> 
+
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i> New Ticket</button>
-    </div>
+
+</div></div>
   </div>
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
       <input type="hidden" name="status" value="<?php echo $status; ?>"> 
       <div class="row">
+  
         <div class="col-sm-4">
+
           <div class="input-group">
+
             <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Tickets">
             <div class="input-group-append">
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+
             </div>
+
+
           </div>
-        
+     
         </div>
         <div class="col-sm-8">
-          <div class="btn-group float-right">
-            <a href="?<?php echo $url_query_strings_sb; ?>&status=%" class="btn <?php if($status == '%'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Tickets</a>
-            <a href="?<?php echo $url_query_strings_sb; ?>&status=Open" class="btn <?php if($status == 'Open'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Open Tickets</a>
-            <a href="?<?php echo $url_query_strings_sb; ?>&status=Closed" class="btn <?php if($status == 'Closed'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Closed Tickets</a>
 
+          <div class="btn-group float-right">
+    
+    
+   <button class="btn btn-lg btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <i class="fa fa-fw fa-envelope"></i> My Tickets | <strong> <?php echo number_format($total_tickets_assigned); ?></strong>
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <a class="dropdown-item " href="#"> <strong> <?php echo number_format($total_tickets_assigned); ?></strong> | Unanswered</a>
+    <a class="dropdown-item " href="#"> <strong> <?php echo number_format($total_tickets_assigned); ?></strong> | Answered</a>
+    <div class="dropdown-divider"></div>
+    <a class="dropdown-item " href="#">Closed by me</a>
+  </div>
+    
+            <a href="#" class="btn btn-lg  btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i> Unassigned Tickets | <strong> <?php echo number_format($total_tickets_unassigned); ?></strong></a>
+            <a href="#" class="btn btn-lg  btn-outline-info"><i class="fa fa-fw  fa-cogs"></i> Tasks</a>
+</div>
+
+  
+         
           </div>
         </div>
       </div>
+
       <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
         <div class="row">
           <div class="col-md-2">
