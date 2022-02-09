@@ -139,13 +139,7 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
 ?>
 <div class="card card-dark elevation-3">
   <div class="card-header py-2">
-    <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> Tickets 
-      <small class="ml-3">
-        <a href="?<?php echo $url_query_strings_sb; ?>&status=%"><strong><?php echo $total_tickets; ?></strong> Total</a> |
-        <a href="?<?php echo $url_query_strings_sb; ?>&status=Open"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
-        <a href="?<?php echo $url_query_strings_sb; ?>&status=Closed"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
-      </small>
-    </h3>
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> Tickets</h3>
  
     <div class='card-tools'>
       <div class="float-left"> 
@@ -154,6 +148,81 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
       </div>
     </div>
   </div>
+        
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <!-- a class="navbar-brand" href="#">Navbar</a -->
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+
+   <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+         All open | </strong><?php echo $total_tickets_open; ?></strong>
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="#">Agent 1 | </strong><?php echo $total_tickets_assigned; ?></strong> </a>
+          <a class="dropdown-item" href="#">Agent 2 | </strong><?php echo $total_tickets_assigned; ?></strong></a>
+          <a class="dropdown-item" href="#">Agent 3 | </strong><?php echo $total_tickets_assigned; ?></strong></a>
+          <a class="dropdown-item" href="#">Agent 4 | </strong><?php echo $total_tickets_assigned; ?></strong></a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item text-danger" href="#">UNASSIGNED | </strong><?php echo $total_tickets_unassigned; ?></strong></a>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+         Action
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="#">Claim</a>
+          <a class="dropdown-item" href="#">Assign to agent</a>
+          <a class="dropdown-item" href="#">Merge tickets</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">Close</a>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link text-danger"><i class="fa fa-fw fa-exclamation-triangle"></i> Unassigned | <strong> <?php echo $total_tickets_unassigned; ?></strong></a>
+      </li>
+        
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+         <i class="fa fa-fw fa-envelope"></i> My Tickets | <strong> <?php echo $total_tickets_assigned; ?></strong>
+        
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="#"><strong> <?php echo $total_tickets_assigned; ?></strong> | Unanswered</a>
+              <a class="dropdown-item" href="#"><strong> <?php echo $total_tickets_assigned; ?></strong> | Answered</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item " href="#">Closed by me</a>
+        </div>
+      </li>
+        
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+         Closed tickets | <strong> <?php echo $total_tickets_closed; ?></strong> 
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="#">Today</a>
+          <a class="dropdown-item" href="#">Yesterday</a>
+          <a class="dropdown-item" href="#">This week</a>
+          <a class="dropdown-item" href="#">This month</a>
+       
+        </div>
+      </li>
+        
+      <li class="nav-item">
+        <a class="nav-link disabled" href="#">Tasks</a>
+      </li>
+    </ul>
+  </div>
+
+</nav>
+        
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
       <input type="hidden" name="status" value="<?php echo $status; ?>"> 
@@ -166,24 +235,17 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>
           </div>
+        
         </div>
         <div class="col-sm-8">
-          <div class="btn-group btn-group-lg float-right">
-            <button class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown">
-              <i class="fa fa-fw fa-envelope"></i> My Tickets | <strong> <?php echo $total_tickets_assigned; ?></strong>
-            </button>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="#"><strong> <?php echo $total_tickets_assigned; ?></strong> | Unanswered</a>
-              <a class="dropdown-item" href="#"><strong> <?php echo $total_tickets_assigned; ?></strong> | Answered</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item " href="#">Closed by me</a>
-            </div>
-            <a href="#" class="btn btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i> Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong></a>
-            <a href="#" class="btn  btn-outline-info"><i class="fa fa-fw fa-cogs"></i> Tasks</a>
+          <div class="btn-group float-right">
+            <a href="?<?php echo $url_query_strings_sb; ?>&status=%" class="btn <?php if($status == '%'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Tickets</a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&status=Open" class="btn <?php if($status == 'Open'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Open Tickets</a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&status=Closed" class="btn <?php if($status == 'Closed'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Closed Tickets</a>
+
           </div>
         </div>
       </div>
-
       <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
         <div class="row">
           <div class="col-md-2">
