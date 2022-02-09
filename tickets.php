@@ -112,38 +112,38 @@
 
 
 //Get Total tickets 
-$sql_total_tickets = mysqli_query($mysqli,"SELECT COUNT(`ticket_id`) AS total_tickets FROM `tickets` WHERE company_id = $session_company_id ;");
+$sql_total_tickets = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS total_tickets FROM tickets WHERE company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_tickets);
 $total_tickets = $row['total_tickets'];
 
 //Get Total tickets open
-$sql_total_tickets_open = mysqli_query($mysqli,"SELECT COUNT(`ticket_id`) AS total_tickets_open FROM `tickets` WHERE `ticket_status` = 'open' AND company_id = $session_company_id ;");
+$sql_total_tickets_open = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS total_tickets_open FROM `tickets` WHERE `ticket_status` = 'open' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_tickets_open);
 $total_tickets_open = $row['total_tickets_open'];
 
 //Get Total tickets closed
-$sql_total_tickets_closed = mysqli_query($mysqli,"SELECT COUNT(DISTINCT `ticket_status`) AS total_tickets_closed FROM `tickets` WHERE `ticket_status` = 'closed' AND company_id = $session_company_id ;");
+$sql_total_tickets_closed = mysqli_query($mysqli,"SELECT COUNT(DISTINCT 'ticket_status') AS total_tickets_closed FROM tickets WHERE ticket_status = 'closed' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_tickets_closed);
 $total_tickets_closed = $row['total_tickets_closed'];
 
 //Get Unnassigned tickets
-$sql_total_tickets_unassigned = mysqli_query($mysqli,"SELECT COUNT(`ticket_id`) AS total_tickets_unassigned FROM `tickets`  WHERE ticket_assigned_to = '0' AND ticket_status = 'open' AND company_id = $session_company_id;");
+$sql_total_tickets_unassigned = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS total_tickets_unassigned FROM tickets WHERE ticket_assigned_to = 0 AND ticket_status = 'open' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_tickets_unassigned);
 $total_tickets_unassigned = $row['total_tickets_unassigned'];
 
 //Get Total tickets assigned to me
-$sql_total_tickets_assigned = mysqli_query($mysqli,"SELECT COUNT(`ticket_id`) AS total_tickets_assigned FROM `tickets` WHERE ticket_assigned_to = '$user_id' AND ticket_status = 'open' AND company_id = $session_company_id;");
+$sql_total_tickets_assigned = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS total_tickets_assigned FROM tickets WHERE ticket_assigned_to = $user_id AND ticket_status = 'open' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_tickets_assigned);
 $total_tickets_assigned = $row['total_tickets_assigned'];
 
 ?>
 <div class="card card-dark">
   <div class="card-header py-2">
-    <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> <strong>TICKETS:  </strong> 
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> <strong>TICKETS: </strong> 
       <small>
-        <a href="?<?php echo $url_query_strings_sb; ?>&status=%"><?php echo number_format($total_tickets); ?> Total  </a>|
-        <a href="?<?php echo $url_query_strings_sb; ?>&status=Open"><?php echo number_format($total_tickets_open); ?> Open </a>|
-        <a href="?<?php echo $url_query_strings_sb; ?>&status=Closed"> <?php echo number_format($total_tickets_closed); ?> Closed</a>
+        <a href="?<?php echo $url_query_strings_sb; ?>&status=%"><?php echo $total_tickets; ?> Total</a> |
+        <a href="?<?php echo $url_query_strings_sb; ?>&status=Open"><?php echo $total_tickets_open; ?> Open</a> |
+        <a href="?<?php echo $url_query_strings_sb; ?>&status=Closed"> <?php echo $total_tickets_closed; ?> Closed</a>
       </small>
     </h3>
  
