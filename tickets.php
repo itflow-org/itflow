@@ -137,7 +137,7 @@ $row = mysqli_fetch_array($sql_total_tickets_assigned);
 $total_tickets_assigned = $row['total_tickets_assigned'];
 
 ?>
-<div class="card card-dark">
+<div class="card card-dark elevation-3">
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> Tickets 
       <small class="ml-3">
@@ -168,8 +168,8 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
           </div>
         </div>
         <div class="col-sm-8">
-          <div class="btn-group float-right">
-            <button class="btn btn-lg btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+          <div class="btn-group btn-group-lg float-right">
+            <button class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown">
               <i class="fa fa-fw fa-envelope"></i> My Tickets | <strong> <?php echo $total_tickets_assigned; ?></strong>
             </button>
             <div class="dropdown-menu">
@@ -178,8 +178,8 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
               <div class="dropdown-divider"></div>
               <a class="dropdown-item " href="#">Closed by me</a>
             </div>
-            <a href="#" class="btn btn-lg btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i> Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong></a>
-            <a href="#" class="btn btn-lg btn-outline-info"><i class="fa fa-fw fa-cogs"></i> Tasks</a>
+            <a href="#" class="btn btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i> Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong></a>
+            <a href="#" class="btn  btn-outline-info"><i class="fa fa-fw fa-cogs"></i> Tasks</a>
           </div>
         </div>
       </div>
