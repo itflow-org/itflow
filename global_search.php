@@ -9,8 +9,9 @@ if(isset($_GET['query'])){
     $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN locations ON clients.client_id = locations.location_client_id WHERE client_name LIKE '%$query%' AND clients.company_id = $session_company_id ORDER BY client_id DESC LIMIT 5");
     $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY vendor_id DESC LIMIT 5");
     $sql_products = mysqli_query($mysqli,"SELECT * FROM products WHERE product_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY product_id DESC LIMIT 5");
-    $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE (login_name LIKE '%$query%' OR login_username LIKE '%$query%') AND company_id = $session_company_id ORDER BY login_id DESC LIMIT 5");
+    $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents LEFT JOIN clients on document_client_id = clients.client_id WHERE document_name LIKE '%$query%' AND documents.company_id = $session_company_id ORDER BY document_id DESC LIMIT 5");
     $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients on tickets.ticket_client_id = clients.client_id WHERE (ticket_subject LIKE '%$query%' OR ticket_number = '$query') AND tickets.company_id = $session_company_id ORDER BY ticket_id DESC LIMIT 5");
+    $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE (login_name LIKE '%$query%' OR login_username LIKE '%$query%') AND company_id = $session_company_id ORDER BY login_id DESC LIMIT 5");
 
     $q = htmlentities($_GET['query']);
     ?>
@@ -140,37 +141,35 @@ if(isset($_GET['query'])){
             </div>
         </div>
 
-        <!-- Logins -->
+        <!-- Documents -->
         <div class="col-6">
             <div class="card mb-3">
                 <div class="card-header">
-                    <h6 class="mt-1"><i class="fa fa-key"></i> Logins</h6>
+                    <h6 class="mt-1"><i class="fa fa-file-alt"></i> Documents</h6>
                 </div>
                 <div class="card-body">
                     <table class="table table-striped table-borderless">
                         <thead>
                         <tr>
-                            <th>Description</th>
-                            <th>Username</th>
-                            <th>Password</th>
+                            <th>Document</th>
+                            <th>Client</th>
+                            <th>Updated</th>
                         </tr>
                         </thead>
                         <tbody>
                         <?php
 
-                        while($row = mysqli_fetch_array($sql_logins)){
-                            $login_name = $row['login_name'];
-                            $login_client_id = $row['login_client_id'];
-                            $login_username = $row['login_username'];
-                            $login_password = decryptLoginEntry($row['login_password']);
+                        while($row = mysqli_fetch_array($sql_documents)){
+                            $document_name = $row['document_name'];
+                            $document_client_id = $row['document_client_id'];
+                            $document_client = $row['client_name'];
+                            $document_updated = $row['document_updated_at'];
 
                             ?>
                             <tr>
-                                <td><a href="client.php?client_id=<?php echo $login_client_id ?>&tab=logins&q=<?php echo $q ?>"><?php echo $login_name; ?></a></td>
-                                <td><?php echo $login_username; ?></td>
-                                <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
-
-
+                                <td><a href="client.php?client_id=<?php echo $document_client_id ?>&tab=documents&q=<?php echo $q ?>"><?php echo $document_name; ?></a></td>
+                                <td><?php echo $document_client ?></td>
+                                <td><?php echo $document_updated ?></td>
                             </tr>
 
                             <?php
@@ -182,6 +181,7 @@ if(isset($_GET['query'])){
                 </div>
             </div>
         </div>
+
 
         <!-- Tickets -->
         <div class="col-6">
@@ -212,6 +212,49 @@ if(isset($_GET['query'])){
                                 <td><a href="ticket.php?ticket_id=<?php echo $ticket_id ?>"><?php echo $ticket_subject; ?></a></td>
                                 <td><?php echo $ticket_client; ?></td>
                                 <td><?php echo $ticket_status; ?></td>
+
+                            </tr>
+
+                            <?php
+                        }
+                        ?>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logins -->
+        <div class="col-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mt-1"><i class="fa fa-key"></i> Logins</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-borderless">
+                        <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Username</th>
+                            <th>Password</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+
+                        while($row = mysqli_fetch_array($sql_logins)){
+                            $login_name = $row['login_name'];
+                            $login_client_id = $row['login_client_id'];
+                            $login_username = $row['login_username'];
+                            $login_password = decryptLoginEntry($row['login_password']);
+
+                            ?>
+                            <tr>
+                                <td><a href="client.php?client_id=<?php echo $login_client_id ?>&tab=logins&q=<?php echo $q ?>"><?php echo $login_name; ?></a></td>
+                                <td><?php echo $login_username; ?></td>
+                                <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
+
 
                             </tr>
 
