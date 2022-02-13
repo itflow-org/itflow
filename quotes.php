@@ -226,7 +226,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuoteModal<?php echo $quote_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">Copy</a>
                   <div class="dropdown-divider"></div>
-                  <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
+                  <?php if(!empty($config_smtp_host)){ ?>
                   <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send</a>
                   <div class="dropdown-divider"></div>
                   <?php } ?>
