@@ -306,7 +306,6 @@
             $invoice_created_at = $row['invoice_created_at'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
-            $client_email = $row['client_email'];
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
             $client_currency_code = $row['client_currency_code'];
@@ -361,7 +360,7 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
                   <div class="dropdown-divider"></div>
-                  <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
+                  <?php if(!empty($config_smtp_host)){ ?>
                   <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send</a>
                   <div class="dropdown-divider"></div>
                   <?php } ?>
