@@ -1,4 +1,58 @@
-<?php 
+<?php
+
+?>
+
+<script>
+    function populateNetworkEditModal(client_id, network_id) {
+        //alert (network_id)
+
+        // Send a GET request to post.php as post.php?network_get_json_details=true&client_id=NUM&network_id=NUM
+        jQuery.get(
+            "post.php",
+            {network_get_json_details: 'true', client_id: client_id, network_id: network_id},
+            function(data){
+
+                // If we get a response from post.php, parse it as JSON
+                const response = JSON.parse(data);
+
+                // Access the network (only one!) and locations (possibly multiple)
+                const network = response.network[0];
+                const locations = response.locations;
+
+                // Populate the network modal fields
+                document.getElementById("edit_network_name_header").innerText = " " + network.network_name;
+                document.getElementById("edit_network_id").value = network_id;
+                document.getElementById("edit_network_name").value = network.network_name;
+                document.getElementById("edit_network_vlan").value = network.network_vlan;
+                document.getElementById("edit_network_cidr").value = network.network;
+                document.getElementById("edit_network_gw").value = network.network_gateway;
+                document.getElementById("edit_network_dhcp").value = network.network_dhcp_range;
+
+                // Select the location dropdown
+                var location_dropdown = document.getElementById("edit_network_location");
+
+                // Clear location dropdown
+                var i, L = location_dropdown.options.length -1;
+                for(i = L; i >= 0; i--) {
+                    location_dropdown.remove(i);
+                }
+                location_dropdown[location_dropdown.length] = new Option('- Location -', '0');
+
+                // Populate location dropdown
+                locations.forEach(location => {
+                    if(parseInt(location.location_id) == parseInt(network.network_location_id)){
+                        location_dropdown[location_dropdown.length] = new Option(location.location_name, location.location_id, true, true);
+                    }
+                    else{
+                        location_dropdown[location_dropdown.length] = new Option(location.location_name, location.location_id);
+                    }
+                });
+            }
+        );
+    }
+</script>
+
+<?php
 
 //Paging
 if(isset($_GET['p'])){
@@ -113,7 +167,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $network_dhcp_range_display = $network_dhcp_range;
             }
-            $network_created_at = $row['network_created_at'];
             $network_location_id = $row['network_location_id'];
             $location_name = $row['location_name'];
             if(empty($location_name)){
@@ -126,7 +179,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <th>
               <i class="fa fa-fw fa-network-wired text-secondary"></i> 
-              <a class="text-dark" href="#" data-toggle="modal" data-target="#editNetworkModal<?php echo $network_id; ?>"><?php echo $network_name; ?></a></th>
+              <a class="text-dark" href="#" data-toggle="modal" onclick="populateNetworkEditModal(<?php echo $client_id, ",", $network_id ?>)" data-target="#editNetworkModal"><?php echo $network_name; ?></a></th>
             <td><?php echo $network_vlan_display; ?></td>
             <td><?php echo $network; ?></td>
             <td><?php echo $network_gateway; ?></td>
@@ -138,7 +191,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editNetworkModal<?php echo $network_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateNetworkEditModal(<?php echo $client_id, ",", $network_id ?>)" data-target="#editNetworkModal">Edit</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item text-danger" href="post.php?delete_network=<?php echo $network_id; ?>">Delete</a>
                 </div>
@@ -147,8 +200,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           </tr>
 
           <?php
-          
-          include("client_network_edit_modal.php");
+
           }
           
           ?>
@@ -160,4 +212,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("client_network_add_modal.php"); ?>
+<?php
+
+include("client_network_edit_modal.php");
+include("client_network_add_modal.php");
+
+?>
