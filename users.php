@@ -147,7 +147,7 @@
                 <div class="text-secondary"><?php echo $user_name; ?></div>
               </a>
             </td>
-            <td><a href="mailto:<?php echo $email; ?>"><?php echo $user_email; ?></a></td>
+            <td><a href="mailto:<?php echo $user_email; ?>"><?php echo $user_email; ?></a></td>
             <td><?php echo $user_role_display; ?></td>
             <td>-</td>
             <td><?php echo $log_created_at; ?> <br> <small class="text-secondary"><?php echo $last_login; ?></small></td>
