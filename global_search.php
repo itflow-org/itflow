@@ -16,9 +16,11 @@ if(isset($_GET['query'])){
     $q = htmlentities($_GET['query']);
     ?>
 
-    <h3><i class="fa fa-search"></i> Welcome to Global Search...</h3>
+    <h4 class="text-center"><i class="fa fa-search"></i> Search all things</h4>
     <hr>
     <div class="row">
+        
+        <?php if(mysqli_num_rows($sql_clients) > 0){ ?> 
 
         <!-- Clients-->
 
@@ -66,6 +68,10 @@ if(isset($_GET['query'])){
             </div>
         </div>
 
+        <?php } ?>
+
+        <?php if(mysqli_num_rows($sql_vendors) > 0){ ?>
+
         <!-- Vendors -->
         <div class="col-6">
             <div class="card mb-3">
@@ -105,6 +111,10 @@ if(isset($_GET['query'])){
             </div>
         </div>
 
+        <?php } ?>
+
+        <?php if(mysqli_num_rows($sql_products) > 0){ ?>
+
         <!-- Products -->
         <div class="col-6">
             <div class="card mb-3">
@@ -140,6 +150,10 @@ if(isset($_GET['query'])){
                 </div>
             </div>
         </div>
+
+        <?php } ?>
+
+        <?php if(mysqli_num_rows($sql_documents) > 0){ ?>
 
         <!-- Documents -->
         <div class="col-6">
@@ -182,6 +196,9 @@ if(isset($_GET['query'])){
             </div>
         </div>
 
+        <?php } ?>
+
+        <?php if(mysqli_num_rows($sql_tickets) > 0){ ?>
 
         <!-- Tickets -->
         <div class="col-6">
@@ -225,6 +242,10 @@ if(isset($_GET['query'])){
             </div>
         </div>
 
+        <?php } ?>
+
+        <?php if(mysqli_num_rows($sql_logins) > 0){ ?>
+
         <!-- Logins -->
         <div class="col-6">
             <div class="card mb-3">
@@ -253,7 +274,7 @@ if(isset($_GET['query'])){
                             <tr>
                                 <td><a href="client.php?client_id=<?php echo $login_client_id ?>&tab=logins&q=<?php echo $q ?>"><?php echo $login_name; ?></a></td>
                                 <td><?php echo $login_username; ?></td>
-                                <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
+                                <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
 
 
                             </tr>
@@ -267,6 +288,8 @@ if(isset($_GET['query'])){
                 </div>
             </div>
         </div>
+
+        <?php } ?>
 
     </div>
 

@@ -9,9 +9,9 @@
   </ul>
   
   <!-- SEARCH FORM -->
-  <form class="form-inline ml-auto mr-5" action="global_search.php">
+  <form class="form-inline mx-auto" action="global_search.php">
     <div class="input-group input-group-sm">
-      <input class="form-control form-control-navbar" type="search" placeholder="Search" name="query">
+      <input class="form-control form-control-navbar" type="search" placeholder="Search all things" name="query" value="<?php if(isset($_GET['query'])){ echo $_GET['query']; } ?>">
       <div class="input-group-append">
         <button class="btn btn-navbar" type="submit">
           <i class="fas fa-search"></i>
