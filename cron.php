@@ -121,17 +121,15 @@ while($row = mysqli_fetch_array($sql_companies)){
         $new_config_ticket_next_number = $config_ticket_next_number + 1;
         mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = '$company_id'");
 
+        // Raise the ticket
         mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $created_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, company_id = $company_id");
 
-        //Logging
+        // Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created scheduled $frequency ticket - $subject', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id, log_user_id = $created_id");
 
-        //Set the next run date
+        // Set the next run date
         if($frequency == "weekly"){
-          //NOTE: We seemingly have to initialize a new datetime for each loop.
-          //Otherwise it stacks the dates of $now / $tomorrow, e.g. by the third scheduled ticket it will schedule the next run for three weeks/months out instead of one
-          //This isn't clean but it works
-          //TODO: Refactor this
+          // Note: We seemingly have to initialize a new datetime for each loop to avoid stacking the dates
           $now = new DateTime();
           $next_run = date_add($now, date_interval_create_from_date_string('1 week 1 day'));
         }
@@ -139,8 +137,20 @@ while($row = mysqli_fetch_array($sql_companies)){
           $now = new DateTime();
           $next_run = date_add($now, date_interval_create_from_date_string('1 month 1 day'));
         }
+        elseif($frequency == "quarterly"){
+          $now = new DateTime();
+          $next_run = date_add($now, date_interval_create_from_date_string('3 months 1 day'));
+        }
+        elseif($frequency == "biannually"){
+          $now = new DateTime();
+          $next_run = date_add($now, date_interval_create_from_date_string('6 months 1 day'));
+        }
+        elseif($frequency == "annually"){
+          $now = new DateTime();
+          $next_run = date_add($now, date_interval_create_from_date_string('12 months 1 day'));
+        }
 
-        //Update the run date
+        // Update the run date
         $next_run = $next_run->format('Y-m-d');
         $a = mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_next_run = '$next_run' WHERE scheduled_ticket_id = '$schedule_id'");
 

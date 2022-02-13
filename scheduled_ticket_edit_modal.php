@@ -21,6 +21,9 @@
                             <select class="form-control select2" name="frequency" required>
                                 <option <?php if($scheduled_ticket_frequency == "Weekly") {echo "selected";} ?>>Weekly</option>
                                 <option <?php if($scheduled_ticket_frequency == "Monthly") {echo "selected";} ?>>Monthly</option>
+                                <option <?php if($scheduled_ticket_frequency == "Quarterly") {echo "selected";} ?>>Quarterly</option>
+                                <option <?php if($scheduled_ticket_frequency == "Biannually") {echo "selected";} ?>>Biannually</option>
+                                <option <?php if($scheduled_ticket_frequency == "Annually") {echo "selected";} ?>>Annually</option>
                             </select>
                         </div>
                     </div>

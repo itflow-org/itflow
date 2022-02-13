@@ -69,6 +69,9 @@
                             <select class="form-control select2" name="frequency" required>
                                 <option>Weekly</option>
                                 <option>Monthly</option>
+                                <option>Quarterly</option>
+                                <option>Biannually</option>
+                                <option>Annually</option>
                             </select>
                         </div>
                     </div>
