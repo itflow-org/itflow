@@ -56,8 +56,7 @@ if(isset($_POST['login'])){
     else{
         $email = strip_tags(mysqli_real_escape_string($mysqli, $_POST['email']));
         $password = $_POST['password'];
-        $current_code = strip_tags(mysqli_real_escape_string($mysqli, $_POST['current_code']));
-        if (!empty($current_code)) {
+        if(isset($_POST['current_code'])){
             $current_code = strip_tags(mysqli_real_escape_string($mysqli, $_POST['current_code']));
         }
         $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_email = '$email'");
