@@ -238,7 +238,7 @@ if(isset($_GET['campaign_id'])){
 
 <?php
 
-include("campaign_copy_modal.php");
+//include("campaign_copy_modal.php"); --Doesnt Exist Yet
 include("campaign_edit_modal.php");
 include("campaign_test_modal.php");
 

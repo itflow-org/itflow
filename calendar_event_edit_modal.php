@@ -104,10 +104,11 @@
                 <option value="">- Client -</option>
                 <?php 
                 
-                $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC"); 
+                $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN contacts ON primary_contact = contact_id WHERE clients.company_id = $session_company_id ORDER BY client_name ASC"); 
                 while($row = mysqli_fetch_array($sql_clients)){
                   $client_id_select = $row['client_id'];
                   $client_name_select = $row['client_name'];
+                  $contact_email_select = $row['contact_email'];
                 ?>
                   <option <?php if($client_id == $client_id_select){ echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
                 
@@ -120,10 +121,10 @@
 
           <?php } ?>
 
-          <?php if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
+          <?php if(!empty($config_smtp_host)){ ?>
           <div class="custom-control custom-checkbox">
             <input type="checkbox" class="custom-control-input" id="customControlAutosizing<?php echo $event_id; ?>" name="email_event" value="1" >
-            <label class="custom-control-label" for="customControlAutosizing<?php echo $event_id; ?>">Email Event (<?php echo $client_email; ?>)</label>
+            <label class="custom-control-label" for="customControlAutosizing<?php echo $event_id; ?>">Email Event</label>
           </div>
           <?php } ?>
 

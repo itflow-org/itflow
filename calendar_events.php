@@ -16,7 +16,7 @@ if(isset($_GET['calendar_id'])){
   
   include("calendar_event_add_modal.php");
   include("calendar_add_modal.php");
-  include("add_quick_modal.php");
+  include("category_quick_add_modal.php");
 
 ?>
 

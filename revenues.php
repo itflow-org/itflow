@@ -224,7 +224,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 <?php 
 
   include("revenue_add_modal.php");
-  include("add_quick_modal.php");
+  include("category_quick_add_modal.php");
 
   include("footer.php");
 

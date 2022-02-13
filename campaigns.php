@@ -242,7 +242,7 @@
 
           <?php
 
-          include("campaign_copy_modal.php");
+          //include("campaign_copy_modal.php"); --doesnt exist yet
           include("campaign_edit_modal.php");
           include("campaign_test_modal.php");
           
