@@ -6475,7 +6475,7 @@ if(isset($_GET['export_client_pdf'])){
 
 ?>
 
-    <script src='plugins/pdfmake/pdfmake.js'></script>
+    <script src='plugins/pdfmake/pdfmake.min.js'></script>
     <script src='plugins/pdfmake/vfs_fonts.js'></script>
     <script>
 
