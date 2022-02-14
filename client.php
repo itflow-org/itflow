@@ -94,11 +94,8 @@ if(isset($_GET['client_id'])){
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('asset_id') AS num FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id"));
   $num_assets = $row['num'];
 
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND ticket_client_id = $client_id"));
-  $num_tickets = $row['num'];
-
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND ticket_status = 'Open' AND ticket_client_id = $client_id"));
-  $num_open_tickets = $row['num'];
+  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND ticket_status != 'Closed' AND ticket_client_id = $client_id"));
+  $num_active_tickets = $row['num'];
 
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('service_id') AS num FROM services WHERE service_client_id = $client_id"));
   $num_services = $row['num'];
@@ -235,7 +232,7 @@ $location_phone = formatPhoneNumber($location_phone);
       <?php } ?>
       <div class="col-md-2 border-left">
         <h4 class="text-secondary">Support</h4>
-        <h6 class="ml-1 text-secondary">Open Tickets <div class="text-dark float-right"><?php echo $num_open_tickets; ?></div></h6>
+        <h6 class="ml-1 text-secondary">Open Tickets <div class="text-dark float-right"><?php echo $num_active_tickets; ?></div></h6>
       </div>
       <div class="col-md-1 border-left">
         <div class="dropdown dropleft text-center">
