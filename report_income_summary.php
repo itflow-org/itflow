@@ -1,6 +1,17 @@
 <?php include("header.php"); ?>
 <?php 
 
+function roundUpToNearestMultiple($n, $increment = 1000)
+{
+    return (int) ($increment * ceil($n / $increment));
+}
+
+if(isset($_GET['year'])){
+  $year = intval($_GET['year']);
+}else{
+  $year = date('Y');
+}
+
 if(isset($_GET['year'])){
   $year = intval($_GET['year']);
 }else{
@@ -36,6 +47,9 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
 
       </select>
     </form>
+
+    <canvas id="cashFlow" width="100%" height="20"></canvas>
+
     <div class="table-responsive">
       <table class="table table-striped">
         <thead>
@@ -139,4 +153,87 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
   </div>
 </div>
 
-<?php include("footer.php");
+<?php include("footer.php"); ?>
+
+<script>
+// Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#292b2c';
+
+// Area Chart Example
+var ctx = document.getElementById("cashFlow");
+var myLineChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    datasets: [{
+      label: "Income",
+      fill: false,
+      borderColor: "#007bff",
+      pointBackgroundColor: "#007bff",
+      pointBorderColor: "#007bff",
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: "#007bff",
+      pointHitRadius: 50,
+      pointBorderWidth: 2,
+      data: [
+      <?php
+      for($month = 1; $month<=12; $month++) {
+          $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month AND payments.company_id = $session_company_id");
+          $row = mysqli_fetch_array($sql_payments);
+          $payments_for_month = $row['payment_amount_for_month'];
+
+          $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month AND company_id = $session_company_id");
+          $row = mysqli_fetch_array($sql_revenues);
+          $revenues_for_month = $row['revenue_amount_for_month'];
+
+          $income_for_month = $payments_for_month + $revenues_for_month;
+          
+          if($income_for_month > 0 AND $income_for_month > $largest_income_month){
+            $largest_income_month = $income_for_month;
+          }
+          
+
+        ?>
+          <?php echo "$income_for_month,"; ?>
+        
+        <?php
+        
+        }
+
+        ?>
+
+      ],
+    }],
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'date'
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          maxTicksLimit: 12
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: <?php $max = max(1000, $largest_income_month, $largest_invoice_month); echo roundUpToNearestMultiple($max); ?>,
+          maxTicksLimit: 5
+        },
+        gridLines: {
+          color: "rgba(0, 0, 0, .125)",
+        }
+      }],
+    },
+    legend: {
+      display: false
+    }
+  }
+});
+
+</script>

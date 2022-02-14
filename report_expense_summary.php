@@ -1,6 +1,17 @@
 <?php include("header.php"); ?>
 <?php 
 
+function roundUpToNearestMultiple($n, $increment = 1000)
+{
+    return (int) ($increment * ceil($n / $increment));
+}
+
+if(isset($_GET['year'])){
+  $year = intval($_GET['year']);
+}else{
+  $year = date('Y');
+}
+
 if(isset($_GET['year'])){
   $year = intval($_GET['year']);
 }else{
@@ -36,6 +47,9 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
 
       </select>
     </form>
+
+    <canvas id="cashFlow" width="100%" height="20"></canvas>
+
     <div class="table-responsive">
       <table class="table table-striped">
         <thead class="text-dark">
@@ -122,4 +136,85 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
   </div>
 </div>
 
-<?php include("footer.php");
+<?php include("footer.php"); ?>
+
+<script>
+// Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#292b2c';
+
+// Area Chart Example
+var ctx = document.getElementById("cashFlow");
+var myLineChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    datasets: [{
+      label: "Expense",
+      lineTension: 0.3,
+      fill: false,
+      borderColor: "#dc3545",
+      pointBackgroundColor: "#dc3545",
+      pointBorderColor: "#dc3545",
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: "#dc3545",
+      pointHitRadius: 50,
+      pointBorderWidth: 2,
+      data: [
+      <?php
+      
+      $largest_expense_month = 0;
+      
+      for($month = 1; $month<=12; $month++) {
+          $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND expenses.company_id = $session_company_id");
+          $row = mysqli_fetch_array($sql_expenses);
+          $expenses_for_month = $row['expense_amount_for_month'];
+          
+          if($expenses_for_month > 0 AND $expenses_for_month > $largest_expense_month){
+            $largest_expense_month = $expenses_for_month;
+          }
+          
+
+        ?>
+          <?php echo "$expenses_for_month,"; ?>
+        
+        <?php
+        
+        }
+
+        ?>
+
+      ],
+    }],
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'date'
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          maxTicksLimit: 12
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: <?php $max = max(1000, $largest_expense_month, $largest_income_month, $largest_invoice_month); echo roundUpToNearestMultiple($max); ?>,
+          maxTicksLimit: 5
+        },
+        gridLines: {
+          color: "rgba(0, 0, 0, .125)",
+        }
+      }],
+    },
+    legend: {
+      display: false
+    }
+  }
+});
+
+</script>
