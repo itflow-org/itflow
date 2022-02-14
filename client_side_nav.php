@@ -134,8 +134,8 @@
             <p>
               Tickets
               <?php 
-              if($num_tickets > 0){ ?>
-              <span class="right badge badge-light"><?php echo $num_tickets; ?></span>
+              if($num_active_tickets > 0){ ?>
+              <span class="right badge badge-light"><?php echo $num_active_tickets; ?></span>
               <?php } ?>
             </p>
           </a>
