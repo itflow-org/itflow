@@ -124,9 +124,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                                                             ON service_domains.domain_id = domains.domain_id
                                                           WHERE service_id = '$service_id'");
 
-                    // Associated URLs
-                    $sql_urls = mysqli_query($mysqli, "SELECT * FROM service_urls
-                                                            WHERE service_id = '$service_id'");
+                    // Associated URLs ---- REMOVED for now
+                    //$sql_urls = mysqli_query($mysqli, "SELECT * FROM service_urls
+                                                            //WHERE service_id = '$service_id'");
 
                     // Associated Vendors
                     $sql_vendors = mysqli_query($mysqli, "SELECT * FROM service_vendors
