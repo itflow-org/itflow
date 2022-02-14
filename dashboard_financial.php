@@ -510,6 +510,45 @@ var myLineChart = new Chart(ctx, {
       ],
     },
     {
+      label: "LY Income",
+      fill: false,
+      borderColor: "#9932CC",
+      pointBackgroundColor: "#9932CC",
+      pointBorderColor: "#9932CC",
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: "#9932CC",
+      pointHitRadius: 50,
+      pointBorderWidth: 2,
+      data: [
+      <?php
+      for($month = 1; $month<=12; $month++) {
+          $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year-1 AND MONTH(payment_date) = $month AND payments.company_id = $session_company_id");
+          $row = mysqli_fetch_array($sql_payments);
+          $payments_for_month = $row['payment_amount_for_month'];
+
+          $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year-1 AND MONTH(revenue_date) = $month AND company_id = $session_company_id");
+          $row = mysqli_fetch_array($sql_revenues);
+          $revenues_for_month = $row['revenue_amount_for_month'];
+
+          $income_for_month = $payments_for_month + $revenues_for_month;
+          
+          if($income_for_month > 0 AND $income_for_month > $largest_income_month){
+            $largest_income_month = $income_for_month;
+          }
+          
+
+        ?>
+          <?php echo "$income_for_month,"; ?>
+        
+        <?php
+        
+        }
+
+        ?>
+
+      ],
+    },
+    {
     label: "Projected",
       fill: false,
       borderColor: "black",
