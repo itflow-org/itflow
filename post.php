@@ -6484,15 +6484,7 @@ if(isset($_GET['export_client_pdf'])){
             title: '<?php echo $client_name; ?>- IT Documentation',
             author: <?php echo json_encode($session_company_name); ?>
         },
-        footer: {
-            columns: [
-                { 
-                    text: <?php echo json_encode($client_name); ?>,
-                    style: 'documentFooterCenter' 
-                },
-            ]
-        },
-
+        
         pageMargins: [ 15, 15, 15, 15 ],
 
         content: [
@@ -6561,6 +6553,7 @@ if(isset($_GET['export_client_pdf'])){
             },
 
             //Contacts Start
+            <?php if(mysqli_num_rows($sql_contacts) > 0){ ?>
             { 
                 text: 'Contacts', 
                 style: 'title'
@@ -6636,9 +6629,11 @@ if(isset($_GET['export_client_pdf'])){
                     ]
                 }
             },
+            <?php } ?>
             //Contact END
 
             //Locations Start
+            <?php if(mysqli_num_rows($sql_locations) > 0){ ?>
             { 
                 text: 'Locations', 
                 style: 'title'
@@ -6693,9 +6688,11 @@ if(isset($_GET['export_client_pdf'])){
                     ]
                 }
             },
+            <?php } ?>
             //Locations END
 
             //Vendors Start
+            <?php if(mysqli_num_rows($sql_vendors) > 0){ ?>
             { 
                 text: 'Vendors', 
                 style: 'title'
@@ -6767,10 +6764,12 @@ if(isset($_GET['export_client_pdf'])){
                     ]
                 }
             },
+            <?php } ?>
             //Vendors END
 
             //Logins Start
             <?php if(isset($_GET['passwords'])){ ?>
+            <?php if(mysqli_num_rows($sql_logins) > 0){ ?>
             { 
                 text: 'Logins', 
                 style: 'title'
@@ -6840,10 +6839,16 @@ if(isset($_GET['export_client_pdf'])){
                     ]
                 }
             },
-            <?php } ?>
+            <?php 
+            
+            }
+            } 
+
+            ?>
             //Logins END
 
             //Assets Start
+            <?php if(mysqli_num_rows($sql_assets) > 0){ ?>
             { 
                 text: 'Assets', 
                 style: 'title'
@@ -6944,9 +6949,11 @@ if(isset($_GET['export_client_pdf'])){
                     ]
                 }
             },
+            <?php } ?>
             //Assets END
 
             //Software Start
+            <?php if(mysqli_num_rows($sql_software) > 0){ ?>
             { 
                 text: 'Software', 
                 style: 'title'
@@ -7007,9 +7014,11 @@ if(isset($_GET['export_client_pdf'])){
                     ]
                 }
             },
+            <?php } ?>
             //Software END
 
             //Networks Start
+            <?php if(mysqli_num_rows($sql_networks) > 0){ ?>
             { 
                 text: 'Networks', 
                 style: 'title'
@@ -7079,9 +7088,11 @@ if(isset($_GET['export_client_pdf'])){
                     ]
                 }
             },
+            <?php } ?>
             //Networks END
 
             //Domains Start
+            <?php if(mysqli_num_rows($sql_domains) > 0){ ?>
             { 
                 text: 'Domains', 
                 style: 'title'
@@ -7124,9 +7135,11 @@ if(isset($_GET['export_client_pdf'])){
                     ]
                 }
             },
+            <?php } ?>
             //Domains END
 
             //Certificates Start
+            <?php if(mysqli_num_rows($sql_certficates) > 0){ ?>
             { 
                 text: 'Certificates', 
                 style: 'title'
@@ -7187,6 +7200,7 @@ if(isset($_GET['export_client_pdf'])){
                     ]
                 }
             },
+            <?php } ?>
             //Certificates END
 
 
