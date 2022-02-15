@@ -6467,7 +6467,12 @@ if(isset($_GET['export_client_pdf'])){
     if(isset($_GET['passwords'])){
         $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
     }
-    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_type ASC");
+    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id ORDER BY asset_type ASC");
+    $sql_asset_workstations = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id AND (asset_type = 'desktop' OR asset_type = 'laptop') ORDER BY asset_name ASC");
+    $sql_asset_servers = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND asset_type = 'server' ORDER BY asset_name ASC");
+    $sql_asset_vms = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND asset_type = 'virtual machine' ORDER BY asset_name ASC");
+    $sql_asset_network = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND (asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point') ORDER BY asset_type ASC");
+    $sql_asset_other = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id AND (asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point') ORDER BY asset_type ASC");
     $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_client_id = $client_id ORDER BY network_name ASC");
     $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_client_id = $client_id ORDER BY domain_name ASC");
     $sql_certficates = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_client_id = $client_id ORDER BY certificate_name ASC");
@@ -6484,7 +6489,7 @@ if(isset($_GET['export_client_pdf'])){
             title: '<?php echo $client_name; ?>- IT Documentation',
             author: <?php echo json_encode($session_company_name); ?>
         },
-        
+
         pageMargins: [ 15, 15, 15, 15 ],
 
         content: [
@@ -6494,7 +6499,6 @@ if(isset($_GET['export_client_pdf'])){
             },
 
             {
-                //layout: 'lightHorizontalLines', // optional
                 layout: 'lightHorizontalLines',
                 table: {
                     body: [
@@ -6851,7 +6855,16 @@ if(isset($_GET['export_client_pdf'])){
             <?php if(mysqli_num_rows($sql_assets) > 0){ ?>
             { 
                 text: 'Assets', 
-                style: 'title'
+                style: 'assetTitle'
+            },
+            <?php } ?>
+            //Assets END
+
+            //Asset Workstations Start
+            <?php if(mysqli_num_rows($sql_asset_workstations) > 0){ ?>
+            { 
+                text: 'Workstations', 
+                style: 'assetSubTitle'
             },
 
             {
@@ -6889,11 +6902,15 @@ if(isset($_GET['export_client_pdf'])){
                             { 
                                 text: 'Install Date', 
                                 style: 'itemHeader'
+                            },
+                            { 
+                                text: 'Assigned To', 
+                                style: 'itemHeader'
                             }
                         ],
                         
                         <?php
-                        while($row = mysqli_fetch_array($sql_assets)){
+                        while($row = mysqli_fetch_array($sql_asset_workstations)){
                             $asset_type = $row['asset_type'];
                             $asset_name = $row['asset_name'];
                             $asset_make = $row['asset_make'];
@@ -6906,6 +6923,7 @@ if(isset($_GET['export_client_pdf'])){
                             $asset_warranty_expire = $row['asset_warranty_expire'];
                             $asset_install_date = $row['asset_install_date'];
                             $asset_notes = $row['asset_notes'];
+                            $contact_name = $row['contact_name'];
                         ?>
 
                         [ 
@@ -6940,6 +6958,10 @@ if(isset($_GET['export_client_pdf'])){
                             {
                                 text: <?php echo json_encode($asset_install_date); ?>,
                                 style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($contact_name); ?>,
+                                style: 'item'
                             }
                         ],
 
@@ -6950,7 +6972,395 @@ if(isset($_GET['export_client_pdf'])){
                 }
             },
             <?php } ?>
-            //Assets END
+            //Asset Workstation END
+
+            //Assets Servers Start
+            <?php if(mysqli_num_rows($sql_asset_servers) > 0){ ?>
+            { 
+                text: 'Servers', 
+                style: 'assetSubTitle'
+            },
+
+            {
+                table: {
+                    body: [
+                        [
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Model', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Serial', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'OS', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'IP', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Purchase Date', 
+                                style: 'itemHeader'
+                            },
+                            { 
+                                text: 'Warranty Expire', 
+                                style: 'itemHeader'
+                            },
+                            { 
+                                text: 'Install Date', 
+                                style: 'itemHeader'
+                            }
+                        ],
+                        
+                        <?php
+                        while($row = mysqli_fetch_array($sql_asset_servers)){
+                            $asset_type = $row['asset_type'];
+                            $asset_name = $row['asset_name'];
+                            $asset_make = $row['asset_make'];
+                            $asset_model = $row['asset_model'];
+                            $asset_serial = $row['asset_serial'];
+                            $asset_os = $row['asset_os'];
+                            $asset_ip = $row['asset_ip'];
+                            $asset_mac = $row['asset_mac'];
+                            $asset_purchase_date = $row['asset_purchase_date'];
+                            $asset_warranty_expire = $row['asset_warranty_expire'];
+                            $asset_install_date = $row['asset_install_date'];
+                            $asset_notes = $row['asset_notes'];
+                        ?>
+
+                        [ 
+                            {
+                                text: <?php echo json_encode($asset_name); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode("$asset_make $asset_model"); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_serial); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_os); ?>,
+                                style: 'item'
+                            },
+
+                                text: <?php echo json_encode($asset_ip); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_purchase_date); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_warranty_expire); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_install_date); ?>,
+                                style: 'item'
+                            }
+                        ],
+
+                        <?php
+                        }
+                        ?>
+                    ]
+                }
+            },
+            <?php } ?>
+            //Asset Servers END
+
+            //Asset VMs Start
+            <?php if(mysqli_num_rows($sql_asset_vms) > 0){ ?>
+            { 
+                text: 'Virtual Machines', 
+                style: 'assetSubTitle'
+            },
+
+            {
+                table: {
+                    body: [
+                        [
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'OS', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'IP', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Install Date', 
+                                style: 'itemHeader'
+                            }
+                        ],
+                        
+                        <?php
+                        while($row = mysqli_fetch_array($sql_asset_vms)){
+                            $asset_type = $row['asset_type'];
+                            $asset_name = $row['asset_name'];
+                            $asset_make = $row['asset_make'];
+                            $asset_model = $row['asset_model'];
+                            $asset_serial = $row['asset_serial'];
+                            $asset_os = $row['asset_os'];
+                            $asset_ip = $row['asset_ip'];
+                            $asset_mac = $row['asset_mac'];
+                            $asset_purchase_date = $row['asset_purchase_date'];
+                            $asset_warranty_expire = $row['asset_warranty_expire'];
+                            $asset_install_date = $row['asset_install_date'];
+                            $asset_notes = $row['asset_notes'];
+                        ?>
+
+                        [ 
+                            {
+                                text: <?php echo json_encode($asset_name); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_os); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_ip); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_install_date); ?>,
+                                style: 'item'
+                            }
+                        ],
+
+                        <?php
+                        }
+                        ?>
+                    ]
+                }
+            },
+            <?php } ?>
+            //Asset VMs END
+
+            //Assets Network Devices Start
+            <?php if(mysqli_num_rows($sql_asset_network) > 0){ ?>
+            { 
+                text: 'Network Devices', 
+                style: 'assetSubTitle'
+            },
+
+            {
+                table: {
+                    body: [
+                        [
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Type', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Model', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Serial', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'IP', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Purchase Date', 
+                                style: 'itemHeader'
+                            },
+                            { 
+                                text: 'Warranty Expire', 
+                                style: 'itemHeader'
+                            },
+                            { 
+                                text: 'Install Date', 
+                                style: 'itemHeader'
+                            }
+                        ],
+                        
+                        <?php
+                        while($row = mysqli_fetch_array($sql_asset_network)){
+                            $asset_type = $row['asset_type'];
+                            $asset_name = $row['asset_name'];
+                            $asset_make = $row['asset_make'];
+                            $asset_model = $row['asset_model'];
+                            $asset_serial = $row['asset_serial'];
+                            $asset_os = $row['asset_os'];
+                            $asset_ip = $row['asset_ip'];
+                            $asset_mac = $row['asset_mac'];
+                            $asset_purchase_date = $row['asset_purchase_date'];
+                            $asset_warranty_expire = $row['asset_warranty_expire'];
+                            $asset_install_date = $row['asset_install_date'];
+                            $asset_notes = $row['asset_notes'];
+                        ?>
+
+                        [ 
+                            {
+                                text: <?php echo json_encode($asset_name); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_type); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode("$asset_make $asset_model"); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_serial); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_ip); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_purchase_date); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_warranty_expire); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_install_date); ?>,
+                                style: 'item'
+                            }
+                        ],
+
+                        <?php
+                        }
+                        ?>
+                    ]
+                }
+            },
+            <?php } ?>
+            //Asset Network Devices END
+
+            //Asset Other Start
+            <?php if(mysqli_num_rows($sql_asset_other) > 0){ ?>
+            { 
+                text: 'Other Devices', 
+                style: 'assetSubTitle'
+            },
+
+            {
+                table: {
+                    body: [
+                        [
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Type', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Model', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Serial', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'IP', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Purchase Date', 
+                                style: 'itemHeader'
+                            },
+                            { 
+                                text: 'Warranty Expire', 
+                                style: 'itemHeader'
+                            },
+                            { 
+                                text: 'Install Date', 
+                                style: 'itemHeader'
+                            }
+                        ],
+                        
+                        <?php
+                        while($row = mysqli_fetch_array($sql_asset_other)){
+                            $asset_type = $row['asset_type'];
+                            $asset_name = $row['asset_name'];
+                            $asset_make = $row['asset_make'];
+                            $asset_model = $row['asset_model'];
+                            $asset_serial = $row['asset_serial'];
+                            $asset_os = $row['asset_os'];
+                            $asset_ip = $row['asset_ip'];
+                            $asset_mac = $row['asset_mac'];
+                            $asset_purchase_date = $row['asset_purchase_date'];
+                            $asset_warranty_expire = $row['asset_warranty_expire'];
+                            $asset_install_date = $row['asset_install_date'];
+                            $asset_notes = $row['asset_notes'];
+                        ?>
+
+                        [ 
+                            {
+                                text: <?php echo json_encode($asset_name); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_type); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode("$asset_make $asset_model"); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_serial); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_ip); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_purchase_date); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_warranty_expire); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($asset_install_date); ?>,
+                                style: 'item'
+                            }
+                        ],
+
+                        <?php
+                        }
+                        ?>
+                    ]
+                }
+            },
+            <?php } ?>
+            //Asset Other END
 
             //Software Start
             <?php if(mysqli_num_rows($sql_software) > 0){ ?>
@@ -7211,6 +7621,17 @@ if(isset($_GET['export_client_pdf'])){
             title: {
                 fontSize: 15,
                 margin: [0,20,0,5],
+                bold: true
+            },
+            assetTitle: {
+                fontSize: 15,
+                margin: [0,20,0,0],
+                bold: true
+            },
+            //Asset Subtitle
+            assetSubTitle: {
+                fontSize: 10,
+                margin: [0,10,0,5],
                 bold: true
             },
             //Item Header
