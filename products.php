@@ -91,7 +91,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             if(empty($product_description)){
               $product_description_display = "-";
             }else{
-              $product_description_display = $product_description;
+              $product_description_display = "<div style='white-space:pre-line'>$product_description</div>";
             }
             $product_price = $row['product_price'];
             $product_created_at = $row['product_created_at'];
