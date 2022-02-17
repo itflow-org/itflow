@@ -21,10 +21,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-sync"></i> Scheduled Tickets</h3>
     </div>
 
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-striped table-borderless table-hover">
-                <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+    <?php
+    if($num_rows[0] == 0){
+        echo "<center><h2 class='text-secondary mt-5'>Nothing to see here</h2><br>";
+    }
+    else {
+        ?>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-borderless table-hover">
+                    <thead class="<?php if ($num_rows[0] == 0) {
+                        echo "d-none";
+                    } ?>">
                     <tr>
                         <th><a class="text-dark">Client</a></th>
                         <th><a class="text-dark">Subject</a></th>
@@ -34,55 +42,60 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
                         <th class="text-center">Action</th>
                     </tr>
-                </thead>
-                <tbody>
-                <?php
+                    </thead>
+                    <tbody>
+                    <?php
 
-                while($row = mysqli_fetch_array($sql)){
-                    $scheduled_ticket_id = $row['scheduled_ticket_id'];
-                    $scheduled_ticket_client_id = $row['client_id'];
-                    $scheduled_ticket_category = $row['scheduled_ticket_category'];
-                    $scheduled_ticket_subject = $row['scheduled_ticket_subject'];
-                    $scheduled_ticket_details = $row['scheduled_ticket_details'];
-                    $scheduled_ticket_priority = $row['scheduled_ticket_priority'];
-                    $scheduled_ticket_frequency = $row['scheduled_ticket_frequency'];
-                    $scheduled_ticket_start_date = $row['scheduled_ticket_start_date'];
-                    $scheduled_ticket_next_run = $row['scheduled_ticket_next_run'];
-                    $scheduled_ticket_client_name = $row['client_name'];
-                    $scheduled_ticket_contact_id = $row['scheduled_ticket_contact_id'];
-                    $scheduled_ticket_asset_id = $row['scheduled_ticket_asset_id'];
-                ?>
+                    while ($row = mysqli_fetch_array($sql)) {
+                        $scheduled_ticket_id = $row['scheduled_ticket_id'];
+                        $scheduled_ticket_client_id = $row['client_id'];
+                        $scheduled_ticket_category = $row['scheduled_ticket_category'];
+                        $scheduled_ticket_subject = $row['scheduled_ticket_subject'];
+                        $scheduled_ticket_details = $row['scheduled_ticket_details'];
+                        $scheduled_ticket_priority = $row['scheduled_ticket_priority'];
+                        $scheduled_ticket_frequency = $row['scheduled_ticket_frequency'];
+                        $scheduled_ticket_start_date = $row['scheduled_ticket_start_date'];
+                        $scheduled_ticket_next_run = $row['scheduled_ticket_next_run'];
+                        $scheduled_ticket_client_name = $row['client_name'];
+                        $scheduled_ticket_contact_id = $row['scheduled_ticket_contact_id'];
+                        $scheduled_ticket_asset_id = $row['scheduled_ticket_asset_id'];
+                        ?>
 
-                <tr>
-                    <td><a> <?php echo $scheduled_ticket_client_name ?></a></td>
-                    <td><a> <?php echo $scheduled_ticket_subject ?></a></td>
-                    <td><a> <?php echo $scheduled_ticket_priority ?></a></td>
-                    <td><a> <?php echo $scheduled_ticket_frequency ?></a></td>
-                    <td><a> <?php echo $scheduled_ticket_next_run ?></a></td>
+                        <tr>
+                            <td><a> <?php echo $scheduled_ticket_client_name ?></a></td>
+                            <td><a> <?php echo $scheduled_ticket_subject ?></a></td>
+                            <td><a> <?php echo $scheduled_ticket_priority ?></a></td>
+                            <td><a> <?php echo $scheduled_ticket_frequency ?></a></td>
+                            <td><a> <?php echo $scheduled_ticket_next_run ?></a></td>
 
-                    <td>
-                        <div class="dropdown dropleft text-center">
-                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editScheduledTicketModal<?php echo $scheduled_ticket_id; ?>">Edit</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger" href="post.php?delete_scheduled_ticket=<?php echo $scheduled_ticket_id; ?>">Delete</a>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
+                            <td>
+                                <div class="dropdown dropleft text-center">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                           data-target="#editScheduledTicketModal<?php echo $scheduled_ticket_id; ?>">Edit</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger"
+                                           href="post.php?delete_scheduled_ticket=<?php echo $scheduled_ticket_id; ?>">Delete</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
 
-                <?php
-                include("scheduled_ticket_edit_modal.php");
-                }
-                ?>
+                        <?php
+                        include("scheduled_ticket_edit_modal.php");
+                    }
+                    ?>
 
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+        <?php
+    }
+    ?>
 </div>
 
 
