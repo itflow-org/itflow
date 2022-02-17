@@ -88,11 +88,8 @@
               </div>
               <select class="form-control select2" name="role" required>
                 <option value="">- Role -</option>
-                <option <?php if($user_role == 6){ echo "selected"; } ?> value="6">Global Admininstrator</option>
-                <option <?php if($user_role == 5){ echo "selected"; } ?> value="5">Administrator</option>
-                <option <?php if($user_role == 4){ echo "selected"; } ?> value="4">Technician</option>
-                <option <?php if($user_role == 3){ echo "selected"; } ?> value="3">IT Contractor</option>
-                <option <?php if($user_role == 2){ echo "selected"; } ?> value="2">Client</option>
+                <option <?php if($user_role == 3){ echo "selected"; } ?> value="5">Administrator</option>
+                <option <?php if($user_role == 2){ echo "selected"; } ?> value="4">Technician</option>
                 <option <?php if($user_role == 1){ echo "selected"; } ?> value="1">Accountant</option>
               </select>
             </div>

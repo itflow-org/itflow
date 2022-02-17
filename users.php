@@ -87,16 +87,10 @@
             $user_avatar = $row['user_avatar'];
             $user_default_company = $row['user_default_company'];
             $user_role = $row['user_role'];
-            if($user_role == 6){
-              $user_role_display = "Global Administrator";
-            }elseif($user_role == 5){
+            if($user_role == 3){
               $user_role_display = "Administrator";
-            }elseif($user_role == 4){
-              $user_role_display = "Technician";
-            }elseif($user_role == 3){
-              $user_role_display = "IT Contractor";
             }elseif($user_role == 2){
-              $user_role_display = "Client";
+              $user_role_display = "Technician";
             }else{
               $user_role_display = "Accountant";  
             }
@@ -160,7 +154,6 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserCompaniesModal<?php echo $user_id; ?>">Company Access</a>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserClientsModal<?php echo $user_id; ?>">Client Access</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item text-danger" href="post.php?archive_user=<?php echo $user_id; ?>">Archive</a>
                 </div>
@@ -172,7 +165,6 @@
 
           include("user_edit_modal.php");
           include("user_companies_modal.php");
-          include("user_clients_modal.php");
           
           }
       

@@ -75,11 +75,8 @@
               </div>
               <select class="form-control select2" name="role" required>
                 <option value="">- Role -</option>
-                <option value="6">Global Administrator</option>
-                <option value="5">Administrator</option>
-                <option value="4">Technician</option>
-                <option value="3">IT Contractor</option>
-                <option value="2">Client</option>
+                <option value="3">Administrator</option>
+                <option value="2">Technician</option>
                 <option value="1">Accountant</option>
               </select>
             </div>

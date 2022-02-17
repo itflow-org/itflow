@@ -54,6 +54,10 @@ $config_stripe_enable = $row['config_stripe_enable'];
 $config_stripe_publishable = $row['config_stripe_publishable'];
 $config_stripe_secret = $row['config_stripe_secret'];
 
+//Currency
+
+$config_currency_format = "US_en";
+
 $colors_array = array(
     'green',
     'olive',

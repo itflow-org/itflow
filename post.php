@@ -330,30 +330,6 @@ if(isset($_POST['edit_user_companies'])){
 
 }
 
-if(isset($_POST['edit_user_clients'])){
-
-    $user_id = intval($_POST['user_id']);
-    
-    mysqli_query($mysqli,"DELETE FROM user_clients WHERE user_id = $user_id");
-
-    foreach($_POST['clients'] as $client){
-        intval($client);
-        mysqli_query($mysqli,"INSERT INTO user_clients SET user_id = $user_id, client_id = $client");
-    }
-    
-    //Logging
-    //Get User Name
-    $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
-    $row = mysqli_fetch_array($sql);
-    $name = $row['user_name'];
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name updated client permissions for user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "Client <strong>$client_imploded</strong> added to user $user_id!";
-    
-    header("Location: users.php");
-
-}
-
 if(isset($_GET['archive_user'])){
     $user_id = intval($_GET['archive_user']);
 
@@ -383,7 +359,6 @@ if(isset($_GET['delete_user'])){
     mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_closed_by = $user_id");
     mysqli_query($mysqli,"DELETE FROM ticket_replies WHERE ticket_reply_by = $user_id");
     mysqli_query($mysqli,"DELETE FROM user_companies WHERE user_id = $user_id");
-    mysqli_query($mysqli,"DELETE FROM user_clients WHERE user_id = $user_id");
 
     //Logging
     //Get User Name

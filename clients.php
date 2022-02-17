@@ -1,12 +1,5 @@
 <?php include("header.php");
 
-// Role / Client Access Permission Check
-if($session_user_role == 2){
-  $permission_sql = "AND client_id IN ($session_user_client_access)";
-}else{
-  $permission_sql = "";
-}
-
 //Paging
 if(isset($_GET['p'])){
   $p = intval($_GET['p']);
@@ -94,7 +87,7 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients
   WHERE (client_name LIKE '%$query%' OR client_type LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_name LIKE '%$query%' OR contact_phone LIKE '%$query%' 
   OR contact_mobile LIKE '%$query%' OR location_address LIKE '%$query%' OR location_city LIKE '%$query%' OR location_state LIKE '%$query%' OR location_zip LIKE '%$query%') 
   AND DATE(client_created_at) BETWEEN '$date_from' AND '$date_to'
-  AND clients.company_id = $session_company_id $permission_sql
+  AND clients.company_id = $session_company_id
   ORDER BY $sortby $order LIMIT $record_from, $record_to
 ");
 

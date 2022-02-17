@@ -28,6 +28,5 @@
 	<!-- AdminLTE App -->
 	<script src="dist/js/adminlte.min.js"></script>
 	<script src="js/app.js"></script>
-
 	</body>
 </html>

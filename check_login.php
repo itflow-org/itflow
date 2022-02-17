@@ -40,16 +40,10 @@
 	$session_token = $row['user_token'];
 	$session_company_id = $row['user_default_company'];
 	$session_user_role = $row['user_role'];
-  if($session_user_role == 6){
-    $session_user_role_display = "Global Administrator";
-  }elseif($session_user_role == 5){
+  if($session_user_role == 3){
     $session_user_role_display = "Administrator";
-  }elseif($session_user_role == 4){
-    $session_user_role_display = "Technician";
-  }elseif($session_user_role == 3){
-    $session_user_role_display = "IT Contractor";
   }elseif($session_user_role == 2){
-    $session_user_role_display = "Client";
+    $session_user_role_display = "Technician";
   }else{
     $session_user_role_display = "Accountant";
   }
@@ -68,14 +62,6 @@
     session_destroy();
     header('Location: login.php');
   }
-
-  //LOAD USER CLIENT ACCESS PERMISSIONS
-  $session_user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_clients WHERE user_id = $session_user_id");
-  $session_user_client_access_array = array();
-  while($row = mysqli_fetch_array($session_user_client_access_sql)){
-  	$session_user_client_access_array[] = $row['client_id'];
-  }
-  $session_user_client_access = implode(',',$session_user_client_access_array);
 
 	$sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $session_company_id");
 	$row = mysqli_fetch_array($sql);
@@ -100,5 +86,8 @@
 	//Get unAcked Alert Count for the badge on the top nav
 	$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('alert_id') AS num FROM alerts WHERE alert_ack_date IS NULL AND company_id = $session_company_id"));
   $num_alerts = $row['num'];
+
+  //Set Currency Format
+  $currency_format = numfmt_create('en-US', NumberFormatter::CURRENCY);
 
 ?>

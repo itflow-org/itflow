@@ -13,4 +13,11 @@
 <hr>
 <p>This is a great starting point for new custom pages.</p>
 
+<?php 
+
+$fmt = numfmt_create( 'us_EN', NumberFormatter::CURRENCY );
+echo numfmt_format_currency($fmt, -199.99, "USD")."\n"; 
+
+?>
+
 <?php include("footer.php"); ?>
