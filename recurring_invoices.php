@@ -206,7 +206,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $recurring_next_date; ?></td>
             <td><?php echo $recurring_scope; ?></td>
             <td><?php echo ucwords($recurring_frequency); ?>ly</td>
-            <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=recurring"><?php echo $client_name; ?></a></td>
+            <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=recurring_invoices"><?php echo $client_name; ?></a></td>
             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code); ?></td>
             <td><?php echo $recurring_last_sent; ?></td>
             <td><?php echo $category_name; ?></td>
