@@ -1,13 +1,13 @@
 <?php
 	
 	if(!isset($_SESSION)){
-        // HTTP Only cookies
-        ini_set("session.cookie_httponly", True);
-        if($config_https_only){
-            // Tell client to only send cookie(s) over HTTPS
-            ini_set("session.cookie_secure", True);
-        }
-        session_start();
+	  // HTTP Only cookies
+	  ini_set("session.cookie_httponly", True);
+	  if($config_https_only){
+	  	// Tell client to only send cookie(s) over HTTPS
+	    ini_set("session.cookie_secure", True);
+	  }
+	  session_start();
 	}
 
 	//Check to see if setup is enabled
@@ -21,12 +21,13 @@
     die;
 	}
 
-	//SESSION FINGERPRINT
+	// SESSION FINGERPRINT
 	$session_ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
 	$session_os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
 	//$session_browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
 	//$session_device = strip_tags(mysqli_real_escape_string($mysqli,get_device()));
 	//$session_user_agent = "$session_os - $session_browser";
+	
 	// Get user agent
 	$session_user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
 
@@ -73,9 +74,9 @@
 	include("get_settings.php");
 
 	//Detects if using an apple device and uses apple maps instead of google
-	$iPod    = stripos($_SERVER['HTTP_USER_AGENT'],"iPod");
-	$iPhone  = stripos($_SERVER['HTTP_USER_AGENT'],"iPhone");
-	$iPad    = stripos($_SERVER['HTTP_USER_AGENT'],"iPad");
+	$iPod = stripos($_SERVER['HTTP_USER_AGENT'],"iPod");
+	$iPhone = stripos($_SERVER['HTTP_USER_AGENT'],"iPhone");
+	$iPad = stripos($_SERVER['HTTP_USER_AGENT'],"iPad");
 
 	if($iPod || $iPhone || $iPad){
 		$session_map_source = "apple";

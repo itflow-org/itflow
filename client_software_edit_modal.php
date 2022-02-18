@@ -39,6 +39,16 @@
                   <input type="text" class="form-control" name="name" placeholder="Software name" value="<?php echo $software_name; ?>" required>
                 </div>
               </div>
+
+              <div class="form-group">
+                <label>Version</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="version" placeholder="Software version" value="<?php echo $software_version; ?>">
+                </div>
+              </div>
               
               <div class="form-group">
                 <label>Type <strong class="text-danger">*</strong></label>
@@ -53,6 +63,16 @@
                   </select>
                 </div>
               </div>
+
+              <div class="form-group">
+                <label>License Type</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="license_type" placeholder="License type" value="<?php echo $software_license_type; ?>"> 
+                </div>
+              </div>
             
               <div class="form-group">
                 <label>License</label>
@@ -60,7 +80,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="license" placeholder="License key" value="<?php echo $software_license; ?>" required> 
+                  <input type="text" class="form-control" name="license" placeholder="License key" value="<?php echo $software_license; ?>"> 
                 </div>
               </div>
 

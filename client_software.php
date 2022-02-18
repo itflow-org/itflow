@@ -96,7 +96,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           while($row = mysqli_fetch_array($sql)){
             $software_id = $row['software_id'];
             $software_name = $row['software_name'];
+            $software_version = $row['software_version'];
             $software_type = $row['software_type'];
+            $software_license_type = $row['software_license_type'];
             $software_license = $row['software_license'];
             if(empty($software_license)){
               $software_license_display = "-";

@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.5.13-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.5.15-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: pittpc_crm
 -- ------------------------------------------------------
--- Server version	10.5.13-MariaDB-1:10.5.13+maria~focal
+-- Server version	10.5.15-MariaDB-1:10.5.15+maria~focal
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -412,6 +412,7 @@ CREATE TABLE `documents` (
   `document_created_at` datetime NOT NULL,
   `document_updated_at` datetime DEFAULT NULL,
   `document_archived_at` datetime DEFAULT NULL,
+  `document_folder_id` int(11) DEFAULT NULL,
   `document_client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`document_id`)
@@ -527,6 +528,21 @@ CREATE TABLE `files` (
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`file_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `folders`
+--
+
+DROP TABLE IF EXISTS `folders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `folders` (
+  `folder_id` int(11) NOT NULL AUTO_INCREMENT,
+  `folder_name` varchar(200) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`folder_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1087,7 +1103,9 @@ DROP TABLE IF EXISTS `software`;
 CREATE TABLE `software` (
   `software_id` int(11) NOT NULL AUTO_INCREMENT,
   `software_name` varchar(200) NOT NULL,
+  `software_version` varchar(200) DEFAULT NULL,
   `software_type` varchar(200) NOT NULL,
+  `software_license_type` varchar(200) DEFAULT NULL,
   `software_license` varchar(200) DEFAULT NULL,
   `software_notes` text DEFAULT NULL,
   `software_created_at` datetime NOT NULL,
@@ -1098,6 +1116,34 @@ CREATE TABLE `software` (
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`software_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `software_assets`
+--
+
+DROP TABLE IF EXISTS `software_assets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `software_assets` (
+  `software_id` int(11) NOT NULL,
+  `asset_id` int(11) NOT NULL,
+  PRIMARY KEY (`software_id`,`asset_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `software_contacts`
+--
+
+DROP TABLE IF EXISTS `software_contacts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `software_contacts` (
+  `software_id` int(11) NOT NULL,
+  `contact_id` int(11) NOT NULL,
+  PRIMARY KEY (`software_id`,`contact_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1242,20 +1288,6 @@ CREATE TABLE `trips` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `user_clients`
---
-
-DROP TABLE IF EXISTS `user_clients`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `user_clients` (
-  `user_id` int(11) NOT NULL,
-  `client_id` int(11) NOT NULL,
-  PRIMARY KEY (`user_id`,`client_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `user_companies`
 --
 
@@ -1366,4 +1398,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-05 16:40:40
+-- Dump completed on 2022-02-18  0:26:14

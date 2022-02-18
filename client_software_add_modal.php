@@ -38,6 +38,16 @@
                   <input type="text" class="form-control" name="name" placeholder="Software name" required autofocus>
                 </div>
               </div>
+
+              <div class="form-group">
+                <label>Version</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="version" placeholder="Software version">
+                </div>
+              </div>
               
               <div class="form-group">
                 <label>Type <strong class="text-danger">*</strong></label>
@@ -54,6 +64,16 @@
                 </div>
               </div>
             
+              <div class="form-group">
+                <label>License Type</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="license_type" placeholder="License type"> 
+                </div>
+              </div>
+
               <div class="form-group">
                 <label>License</label>
                 <div class="input-group">

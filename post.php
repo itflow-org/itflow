@@ -4599,11 +4599,13 @@ if(isset($_POST['add_software'])){
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['version'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
     $license = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license'])));
+    $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license_type'])));
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
-    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_type = '$type', software_license = '$license', software_notes = '$notes', software_created_at = NOW(), software_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license = '$license', software_license_type = '$license_type', software_notes = '$notes', software_created_at = NOW(), software_client_id = $client_id, company_id = $session_company_id");
 
     if(!empty($_POST['username'])) {
         $software_id = mysqli_insert_id($mysqli);
@@ -4628,13 +4630,15 @@ if(isset($_POST['edit_software'])){
     $software_id = intval($_POST['software_id']);
     $login_id = intval($_POST['login_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['version'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
     $license = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license'])));
+    $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license_type'])));
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
     $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
     $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
 
-    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_type = '$type', software_license = '$license', software_notes = '$notes', software_updated_at = NOW() WHERE software_id = $software_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license = '$license', software_license_type = '$license_type', software_notes = '$notes', software_updated_at = NOW() WHERE software_id = $software_id AND company_id = $session_company_id");
 
     //If login exists then update the login
     if($login_id > 0){
