@@ -979,6 +979,19 @@ CREATE TABLE `service_assets` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `service_certificates`
+--
+
+DROP TABLE IF EXISTS `service_certificates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `service_certificates` (
+  `service_id` int(11) NOT NULL,
+  `certificate_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `service_contacts`
 --
 

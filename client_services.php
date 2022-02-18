@@ -123,6 +123,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                                                           LEFT JOIN domains
                                                             ON service_domains.domain_id = domains.domain_id
                                                           WHERE service_id = '$service_id'");
+                    // Associated Certificates
+                    $sql_certificates = mysqli_query($mysqli, "SELECT * FROM service_certificates
+                                                          LEFT JOIN certificates
+                                                            ON service_certificates.certificate_id = certificates.certificate_id
+                                                          WHERE service_id = '$service_id'");
 
                     // Associated URLs ---- REMOVED for now
                     //$sql_urls = mysqli_query($mysqli, "SELECT * FROM service_urls

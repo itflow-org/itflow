@@ -89,17 +89,6 @@
                                 </div>
                             </div>
 
-                            <!-- TODO: We need a way of adding multiple (optional) URLs? Ideas? -->
-                            <!-- <div class="form-group">
-                                <label>URL</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="url" placeholder="URL" autofocus>
-                                </div>
-                            </div> -->
-
                             <div class="form-group">
                                 <label>Notes</label>
                                 <textarea class="form-control" rows="3" placeholder="Enter some notes" name="note"><?php echo $service_notes ?></textarea>
@@ -184,7 +173,7 @@
                                 </select>
                             </div>
 
-                            <!-- TODO: Services related to other services & certificates -->
+                            <!-- TODO: Services related to other services -->
 
                         </div>
 
@@ -262,6 +251,31 @@
                                     ?>
                                 </select>
                             </div>
+
+                            <div class="form-group">
+                                <label for="certificates">Certificates</label>
+                                <p></p>
+                                <select class="form-select" id="certificates" name="certificates[]" multiple="multiple">
+                                    <option value="">- Certificates -</option>
+                                    <?php
+                                    $selected_ids = array_column(mysqli_fetch_all($sql_certificates,MYSQLI_ASSOC), "certificate_id");
+
+                                    $sql_all = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id = '$client_id'");
+                                    while($row_all = mysqli_fetch_array($sql_all)){
+                                        $cert_id = $row_all['certificate_id'];
+                                        $cert_name = $row_all['certificate_name'];
+
+                                        if(in_array($cert_id, $selected_ids)){
+                                            echo "<option value=\"$cert_id\" selected>$cert_name</option>";
+                                        }
+                                        else{
+                                            echo "<option value=\"$cert_id\">$cert_name</option>";
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+
                         </div>
 
                     </div>
