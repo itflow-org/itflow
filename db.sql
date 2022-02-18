@@ -305,6 +305,7 @@ CREATE TABLE `contacts` (
   `contact_id` int(11) NOT NULL AUTO_INCREMENT,
   `contact_name` varchar(200) NOT NULL,
   `contact_title` varchar(200) DEFAULT NULL,
+  `contact_department` int(11) DEFAULT NULL,
   `contact_email` varchar(200) DEFAULT NULL,
   `contact_phone` varchar(200) DEFAULT NULL,
   `contact_extension` varchar(200) DEFAULT NULL,
@@ -360,6 +361,24 @@ CREATE TABLE `custom_links` (
   `custom_link_created_at` datetime NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`custom_link_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `departments`
+--
+
+DROP TABLE IF EXISTS `departments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `departments` (
+  `department_id` int(11) NOT NULL AUTO_INCREMENT,
+  `department_name` varchar(200) NOT NULL,
+  `department_created_at` datetime NOT NULL,
+  `department_updated_at` datetime DEFAULT NULL,
+  `department_archived_at` datetime DEFAULT NULL,
+  `department_client_id` int(11) NOT NULL,
+  PRIMARY KEY (`department_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1401,4 +1420,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-18  1:08:36
+-- Dump completed on 2022-02-18  1:31:30
