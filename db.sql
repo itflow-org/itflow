@@ -1106,7 +1106,10 @@ CREATE TABLE `software` (
   `software_version` varchar(200) DEFAULT NULL,
   `software_type` varchar(200) NOT NULL,
   `software_license_type` varchar(200) DEFAULT NULL,
-  `software_license` varchar(200) DEFAULT NULL,
+  `software_key` varchar(200) DEFAULT NULL,
+  `software_seats` int(11) DEFAULT NULL,
+  `software_purchase` date DEFAULT NULL,
+  `software_expire` date DEFAULT NULL,
   `software_notes` text DEFAULT NULL,
   `software_created_at` datetime NOT NULL,
   `software_updated_at` datetime DEFAULT NULL,
@@ -1398,4 +1401,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-18  0:26:14
+-- Dump completed on 2022-02-18  1:08:36

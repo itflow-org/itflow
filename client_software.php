@@ -41,7 +41,7 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM software LEFT JOIN logins ON login_software_id = software_id
   WHERE software_client_id = $client_id 
-  AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_license LIKE '%$q%') 
+  AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -85,7 +85,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=software_name&o=<?php echo $disp; ?>">Software</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=software_type&o=<?php echo $disp; ?>">Type</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=software_license&o=<?php echo $disp; ?>">License</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=software_license_type&o=<?php echo $disp; ?>">License Type</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=software_seats&o=<?php echo $disp; ?>">Seats</a></th>
             <th></th>
             <th class="text-center">Action</th>
           </tr>
@@ -99,12 +100,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $software_version = $row['software_version'];
             $software_type = $row['software_type'];
             $software_license_type = $row['software_license_type'];
-            $software_license = $row['software_license'];
-            if(empty($software_license)){
-              $software_license_display = "-";
-            }else{
-              $software_license_display = $software_license;
-            }
+            $software_key = $row['software_key'];
+            $software_seats = $row['software_seats'];
+            $software_purchase = $row['software_purchase'];
+            $software_expire = $row['software_expire'];
             $software_notes = $row['software_notes'];
 
             $login_id = $row['login_id'];
@@ -113,9 +112,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           ?>
           <tr>
-            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>"><?php echo $software_name; ?></a></td>
+            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>"><?php echo "$software_name<br><span class='text-secondary'>$software_version</span>"; ?></a></td>
             <td><?php echo $software_type; ?></td>
-            <td><?php echo $software_license_display; ?></td>
+            <td><?php echo $software_license_type; ?></td>
+            <td><?php echo $software_seats; ?></td>
             <td>
               <?php
               if($login_id > 0){

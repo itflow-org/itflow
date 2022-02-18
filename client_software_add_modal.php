@@ -75,12 +75,42 @@
               </div>
 
               <div class="form-group">
-                <label>License</label>
+                <label>Seats</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                  </div>
+                  <input type="number" class="form-control" name="seats" placeholder="Number of seats"> 
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>License Key</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="license" placeholder="License key"> 
+                  <input type="text" class="form-control" name="key" placeholder="License key"> 
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Purchase Date</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                  </div>
+                  <input type="date" class="form-control" name="purchase"> 
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Expire</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                  </div>
+                  <input type="date" class="form-control" name="expire"> 
                 </div>
               </div>
 

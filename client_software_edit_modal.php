@@ -73,14 +73,44 @@
                   <input type="text" class="form-control" name="license_type" placeholder="License type" value="<?php echo $software_license_type; ?>"> 
                 </div>
               </div>
+
+              <div class="form-group">
+                <label>Seats</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                  </div>
+                  <input type="number" class="form-control" name="seats" placeholder="Number of seats" value="<?php echo $software_seats; ?>"> 
+                </div>
+              </div>
             
               <div class="form-group">
-                <label>License</label>
+                <label>License Key</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="license" placeholder="License key" value="<?php echo $software_license; ?>"> 
+                  <input type="text" class="form-control" name="key" placeholder="License key" value="<?php echo $software_key; ?>"> 
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Purchase Date</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                  </div>
+                  <input type="date" class="form-control" name="purchase" value="<?php echo $software_purchase; ?>"> 
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Expire</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                  </div>
+                  <input type="date" class="form-control" name="expire" value="<?php echo $software_expire; ?>"> 
                 </div>
               </div>
 
