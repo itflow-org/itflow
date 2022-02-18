@@ -93,8 +93,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </thead>
         <tbody>
           <?php
-      
-          while($row = mysqli_fetch_array($sql)){
+    
+          while($row = mysqli_fetch_array($sql)){    
             $software_id = $row['software_id'];
             $software_name = $row['software_name'];
             $software_version = $row['software_version'];
@@ -106,6 +106,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $software_expire = $row['software_expire'];
             $software_notes = $row['software_notes'];
 
+            $seat_count = 0;
+
+            // Asset Licenses
+            $asset_licenses_sql = mysqli_query($mysqli,"SELECT asset_id FROM software_assets WHERE software_id = $software_id");
+            $asset_licenses_array = array();
+            while($row = mysqli_fetch_array($asset_licenses_sql)){
+              $asset_licenses_array[] = $row['asset_id'];
+              $seat_count = $seat_count + 1;
+            }
+            $asset_licenses = implode(',',$asset_licenses_array);
+
+            // Contact Licenses
+            $contact_licenses_sql = mysqli_query($mysqli,"SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
+            $contact_licenses_array = array();
+            while($row = mysqli_fetch_array($contact_licenses_sql)){
+              $contact_licenses_array[] = $row['contact_id'];
+              $seat_count = $seat_count + 1;
+            }
+            $contact_licenses = implode(',',$contact_licenses_array);
+
+            // Get Login
             $login_id = $row['login_id'];
             $login_username = $row['login_username'];
             $login_password = decryptLoginEntry($row['login_password']);
@@ -115,7 +136,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>"><?php echo "$software_name<br><span class='text-secondary'>$software_version</span>"; ?></a></td>
             <td><?php echo $software_type; ?></td>
             <td><?php echo $software_license_type; ?></td>
-            <td><?php echo $software_seats; ?></td>
+            <td><?php echo "$seat_count / $software_seats"; ?></td>
             <td>
               <?php
               if($login_id > 0){
@@ -155,6 +176,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
               <?php
               }
+
               ?>
             </td>
             <td>

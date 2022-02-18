@@ -4665,6 +4665,22 @@ if(isset($_POST['add_software'])){
 
     mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = '$seats', software_purchase = '$purchase', software_expire = '$expire', software_notes = '$notes', software_created_at = NOW(), software_client_id = $client_id, company_id = $session_company_id");
 
+    // Add Asset Licenses
+    if(!empty($_POST['assets'])){
+        foreach($_POST['assets'] as $asset){
+            intval($asset);
+            mysqli_query($mysqli,"INSERT INTO software_assets SET software_id = $software_id, asset_id = $asset");
+        }
+    }
+
+    // Add Contact Licenses
+    if(!empty($_POST['contacts'])){
+        foreach($_POST['contacts'] as $contact){
+            intval($contact);
+            mysqli_query($mysqli,"INSERT INTO software_contacts SET software_id = $software_id, contact_id = $contact");
+        }
+    }
+
     if(!empty($_POST['username'])) {
         $software_id = mysqli_insert_id($mysqli);
         $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
@@ -4706,6 +4722,25 @@ if(isset($_POST['edit_software'])){
     $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
 
     mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = '$purchase', software_expire = '$expire', software_notes = '$notes', software_updated_at = NOW() WHERE software_id = $software_id AND company_id = $session_company_id");
+
+
+    // Update Asset Licenses
+    mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
+    if(!empty($_POST['assets'])){
+        foreach($_POST['assets'] as $asset){
+            intval($asset);
+            mysqli_query($mysqli,"INSERT INTO software_assets SET software_id = $software_id, asset_id = $asset");
+        }
+    }
+
+    // Update Contact Licenses
+    mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
+    if(!empty($_POST['contacts'])){
+        foreach($_POST['contacts'] as $contact){
+            intval($contact);
+            mysqli_query($mysqli,"INSERT INTO software_contacts SET software_id = $software_id, contact_id = $contact");
+        }
+    }
 
     //If login exists then update the login
     if($login_id > 0){

@@ -17,6 +17,12 @@
               <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $software_id; ?>">Details</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-device-licenses<?php echo $software_id; ?>">Device Licenses</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-user-licenses<?php echo $software_id; ?>">User Licenses</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $software_id; ?>">Notes</a>
             </li>
             <li class="nav-item">
@@ -70,7 +76,12 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="license_type" placeholder="License type" value="<?php echo $software_license_type; ?>"> 
+                  <select class="form-control select2" name="license_type">
+                    <option value="">- Select a License Type -</option>
+                    <?php foreach($license_types_array as $license_type_select) { ?>
+                    <option <?php if($license_type_select == $software_license_type){ echo "selected"; } ?>><?php echo $license_type_select; ?></option>
+                    <?php } ?>
+                  </select> 
                 </div>
               </div>
 
@@ -114,6 +125,69 @@
                 </div>
               </div>
 
+            </div>
+
+            <div class="tab-pane fade" id="pills-device-licenses<?php echo $software_id; ?>">
+
+              <div class="alert alert-info">
+                Select Assets that are licensed for this software
+              </div>
+
+              <ul class="list-group">
+
+                <?php
+                $sql_assets_select = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+
+                while($row = mysqli_fetch_array($sql_assets_select)){
+                  $asset_id_select = $row['asset_id'];
+                  $asset_name_select = $row['asset_name'];
+
+                ?>
+                  <li class="list-group-item">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" name="assets[]" value="<?php echo $asset_id_select; ?>" <?php if(in_array($asset_id_select,$asset_licenses_array)){ echo "checked"; } ?>>
+                      <label class="form-check-label ml-2"><?php echo $asset_name_select; ?></label>
+                    </div>
+                  </li>
+
+                <?php
+                }
+                ?>
+
+              </ul>
+            
+            </div>
+
+            <div class="tab-pane fade" id="pills-user-licenses<?php echo $software_id; ?>">
+
+              <div class="alert alert-info">
+                Select Users that are licensed for this software
+              </div>
+
+              <ul class="list-group">
+
+                <?php
+                $sql_contacts_select = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+
+                while($row = mysqli_fetch_array($sql_contacts_select)){
+                  $contact_id_select = $row['contact_id'];
+                  $contact_name_select = $row['contact_name'];
+                  $contact_email_select = $row['contact_email'];
+
+                ?>
+                  <li class="list-group-item">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" name="contacts[]" value="<?php echo $contact_id_select; ?>" <?php if(in_array("$contact_id_select",$contact_licenses_array)){ echo "checked"; } ?>>
+                      <label class="form-check-label ml-2"><?php echo "$contact_name_select - $contact_email_select"; ?></label>
+                    </div>
+                  </li>
+
+                <?php
+                }
+                ?>
+
+              </ul>
+            
             </div>
 
             <div class="tab-pane fade" id="pills-notes<?php echo $software_id; ?>">

@@ -16,6 +16,12 @@
               <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-device-licenses">Device Licenses</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-user-licenses">User Licenses</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
             </li>
             <li class="nav-item">
@@ -63,14 +69,19 @@
                   </select> 
                 </div>
               </div>
-            
+
               <div class="form-group">
                 <label>License Type</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="license_type" placeholder="License type"> 
+                  <select class="form-control select2" name="license_type">
+                    <option value="">- Select a License Type -</option>
+                    <?php foreach($license_types_array as $license_type) { ?>
+                    <option><?php echo $license_type; ?></option>
+                    <?php } ?>
+                  </select> 
                 </div>
               </div>
 
@@ -114,6 +125,69 @@
                 </div>
               </div>
 
+            </div>
+
+            <div class="tab-pane fade" id="pills-device-licenses">
+
+              <div class="alert alert-info">
+                Select Assets that are licensed for this software
+              </div>
+
+              <ul class="list-group">
+
+                <?php
+                $sql = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+
+                while($row = mysqli_fetch_array($sql)){
+                  $asset_id = $row['asset_id'];
+                  $asset_name = $row['asset_name'];
+
+                ?>
+                  <li class="list-group-item">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" name="assets[]" value="<?php echo $asset_id; ?>">
+                      <label class="form-check-label ml-2"><?php echo $asset_name; ?></label>
+                    </div>
+                  </li>
+
+                <?php
+                }
+                ?>
+
+              </ul>
+            
+            </div>
+
+            <div class="tab-pane fade" id="pills-user-licenses">
+
+              <div class="alert alert-info">
+                Select Users that are licensed for this software
+              </div>
+
+              <ul class="list-group">
+
+                <?php
+                $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+
+                while($row = mysqli_fetch_array($sql)){
+                  $contact_id = $row['contact_id'];
+                  $contact_name = $row['contact_name'];
+                  $contact_email = $row['contact_email'];
+
+                ?>
+                  <li class="list-group-item">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" name="contacts[]" value="<?php echo $contact_id; ?>">
+                      <label class="form-check-label ml-2"><?php echo "$contact_name - $contact_email"; ?></label>
+                    </div>
+                  </li>
+
+                <?php
+                }
+                ?>
+
+              </ul>
+            
             </div>
 
             <div class="tab-pane fade" id="pills-notes">

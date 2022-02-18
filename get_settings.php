@@ -887,4 +887,9 @@ $software_types_array = array(
 	'Other'
 );
 
+$license_types_array = array(
+    'Device',
+    'User'
+);
+
 ?>
