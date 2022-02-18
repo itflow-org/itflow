@@ -101,13 +101,6 @@
             }
             $user_company_access = implode(',',$user_company_access_array);
 
-            $user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_clients WHERE user_id = $user_id");
-            $user_client_access_array = array();
-            while($row = mysqli_fetch_array($user_client_access_sql)){
-              $user_client_access_array[] = $row['client_id'];
-            }
-            $user_client_access = implode(',',$user_client_access_array);
-
             $user_initials = initials($user_name);
 
             $sql_last_login = mysqli_query($mysqli,"SELECT * FROM logs 
