@@ -25,10 +25,18 @@
   </li>
 
   <li class="nav-item">
-    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-invoice-quotes.php") { echo "active"; } ?>" 
-      href="settings-invoice-quotes.php">
+    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-invoice.php") { echo "active"; } ?>" 
+      href="settings-invoice.php">
       <i class="fa fa-fw fa-2x fa-file"></i><br>
-      Invoice / Quote
+      Invoice
+    </a> 
+  </li>
+
+  <li class="nav-item">
+    <a class="nav-link <?php if(basename($_SERVER["REQUEST_URI"]) == "settings-quote.php") { echo "active"; } ?>" 
+      href="settings-quote.php">
+      <i class="fa fa-fw fa-2x fa-file"></i><br>
+      Quote
     </a> 
   </li>
 

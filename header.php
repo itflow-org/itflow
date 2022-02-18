@@ -1,5 +1,9 @@
 <?php 
 
+  // Calculate Execution time start
+  // uncomment for test
+  //$time_start = microtime(true);
+
   include("config.php");
   include_once("functions.php");
   include("check_login.php");

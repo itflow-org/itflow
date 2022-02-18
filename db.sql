@@ -1094,13 +1094,19 @@ CREATE TABLE `settings` (
   `config_invoice_prefix` varchar(200) DEFAULT NULL,
   `config_invoice_next_number` int(11) DEFAULT NULL,
   `config_invoice_footer` text DEFAULT NULL,
+  `config_invoice_from_name` varchar(200) DEFAULT NULL,
+  `config_invoice_from_email` varchar(200) DEFAULT NULL,
   `config_recurring_prefix` varchar(200) DEFAULT NULL,
   `config_recurring_next_number` int(11) NOT NULL,
   `config_quote_prefix` varchar(200) DEFAULT NULL,
   `config_quote_next_number` int(11) DEFAULT NULL,
   `config_quote_footer` text DEFAULT NULL,
+  `config_quote_from_name` varchar(200) DEFAULT NULL,
+  `config_quote_from_email` varchar(200) DEFAULT NULL,
   `config_ticket_prefix` varchar(200) DEFAULT NULL,
   `config_ticket_next_number` int(11) DEFAULT NULL,
+  `config_ticket_from_name` varchar(200) DEFAULT NULL,
+  `config_ticket_from_email` varchar(200) DEFAULT NULL,
   `config_enable_cron` tinyint(1) DEFAULT NULL,
   `config_recurring_auto_send_invoice` tinyint(1) DEFAULT NULL,
   `config_enable_alert_domain_expire` tinyint(1) DEFAULT NULL,
@@ -1421,4 +1427,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-18 11:13:32
+-- Dump completed on 2022-02-18 15:24:49

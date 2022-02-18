@@ -24,6 +24,8 @@ while($row = mysqli_fetch_array($sql_companies)){
   $config_enable_cron = $row['config_enable_cron'];
   $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
   $config_invoice_prefix = $row['config_invoice_prefix'];
+  $config_invoice_from_email = $row['config_invoice_from_email'];
+  $config_invoice_from_name = $row['config_invoice_from_name'];
   $config_smtp_host = $row['config_smtp_host'];
   $config_smtp_username = $row['config_smtp_username'];
   $config_smtp_password = $row['config_smtp_password'];
@@ -211,7 +213,7 @@ while($row = mysqli_fetch_array($sql_companies)){
           $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
           //Recipients
-          $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+          $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
           $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
           // Content
@@ -335,7 +337,7 @@ while($row = mysqli_fetch_array($sql_companies)){
           $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
           //Recipients
-          $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+          $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
           $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
           // Content

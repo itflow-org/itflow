@@ -30,3 +30,13 @@
 	<script src="js/app.js"></script>
 	</body>
 </html>
+
+<?php 
+
+// Calculate Execution time Uncomment for test
+
+//$time_end = microtime(true);
+//$execution_time = ($time_end - $time_start);
+//echo 'Total Execution Time: '.number_format((float) $execution_time, 10) .' seconds';
+
+?>

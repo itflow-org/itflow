@@ -1,13 +1,13 @@
 <?php
 
-//Query Settings
+// Query Settings
 $sql_settings = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_settings);
 
-//General
+// General
 $config_base_url = $row['config_base_url'];
 
-//Mail
+// Mail
 $config_smtp_host = $row['config_smtp_host'];
 $config_smtp_port = $row['config_smtp_port'];
 $config_smtp_username = $row['config_smtp_username'];
@@ -15,7 +15,7 @@ $config_smtp_password = $row['config_smtp_password'];
 $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
 
-//Defaults
+// Defaults
 $config_default_transfer_from_account = $row['config_default_transfer_from_account'];
 $config_default_transfer_to_account = $row['config_default_transfer_to_account'];
 $config_default_payment_account = $row['config_default_payment_account'];
@@ -25,21 +25,29 @@ $config_default_expense_payment_method = $row['config_default_expense_payment_me
 $config_default_calendar = $row['config_default_calendar'];
 $config_default_net_terms = $row['config_default_net_terms'];
 
-//Invoice/Quote
+// Invoice
 $config_invoice_prefix = $row['config_invoice_prefix'];
 $config_invoice_next_number = $row['config_invoice_next_number'];
 $config_invoice_footer = $row['config_invoice_footer'];
+$config_invoice_from_name = $row['config_invoice_from_name'];
+$config_invoice_from_email = $row['config_invoice_from_email'];
 
+// Recurring
 $config_recurring_prefix = $row['config_recurring_prefix'];
 $config_recurring_next_number = $row['config_recurring_next_number'];
 
+// Quotes
 $config_quote_prefix = $row['config_quote_prefix'];
 $config_quote_next_number = $row['config_quote_next_number'];
 $config_quote_footer = $row['config_quote_footer'];
+$config_quote_from_name = $row['config_quote_from_name'];
+$config_quote_from_email = $row['config_quote_from_email'];
 
-//Tickets
+// Tickets
 $config_ticket_prefix = $row['config_ticket_prefix'];
 $config_ticket_next_number = $row['config_ticket_next_number'];
+$config_ticket_from_name = $row['config_ticket_from_name'];
+$config_ticket_from_email = $row['config_ticket_from_email'];
 
 //Alerts
 $config_enable_cron = $row['config_enable_cron'];

@@ -738,6 +738,32 @@ if(isset($_POST['edit_mail_settings'])){
 
     mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
 
+
+    //Update From Email and From Name if Invoice/Quote or Ticket fields are blank
+    if(empty($config_invoice_from_name)){
+        mysqli_query($mysqli,"UPDATE settings SET config_invoice_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
+    }
+
+    if(empty($config_invoice_from_email)){
+        mysqli_query($mysqli,"UPDATE settings SET config_invoice_from_email = '$config_mail_from_email' WHERE company_id = $session_company_id");
+    }
+
+    if(empty($config_quote_from_name)){
+        mysqli_query($mysqli,"UPDATE settings SET config_quote_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
+    }
+
+    if(empty($config_quote_from_email)){
+        mysqli_query($mysqli,"UPDATE settings SET config_quote_from_email = '$config_mail_from_email' WHERE company_id = $session_company_id");
+    }
+
+    if(empty($config_ticket_from_name)){
+        mysqli_query($mysqli,"UPDATE settings SET config_ticket_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
+    }
+
+    if(empty($config_ticket_from_email)){
+        mysqli_query($mysqli,"UPDATE settings SET config_ticket_from_email = '$config_mail_from_email' WHERE company_id = $session_company_id");
+    }
+
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified mail settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
@@ -783,23 +809,42 @@ if(isset($_POST['test_email'])){
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if(isset($_POST['edit_invoice_quote_settings'])){
+if(isset($_POST['edit_invoice_settings'])){
 
     $config_invoice_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_prefix'])));
     $config_invoice_next_number = intval($_POST['config_invoice_next_number']);
     $config_invoice_footer = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer'])));
+    $config_invoice_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_from_email'])));
+    $config_invoice_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_from_name'])));
+
     $config_recurring_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_recurring_prefix'])));
     $config_recurring_next_number = intval($_POST['config_recurring_next_number']);
+
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer', config_invoice_from_email = '$config_invoice_from_email', config_invoice_from_name = '$config_invoice_from_name', config_recurring_prefix = '$config_recurring_prefix', config_recurring_next_number = $config_recurring_next_number WHERE company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = 'Invoice settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Invoice Settings updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_quote_settings'])){
+
     $config_quote_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_prefix'])));
     $config_quote_next_number = intval($_POST['config_quote_next_number']);
     $config_quote_footer = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_footer'])));
+    $config_quote_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_from_email'])));
+    $config_quote_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_from_name'])));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer', config_recurring_prefix = '$config_recurring_prefix', config_recurring_next_number = $config_recurring_next_number, config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer', config_quote_from_email = '$config_quote_from_email', config_quote_from_name = '$config_quote_from_name' WHERE company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified invoice / quote settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = 'Quote settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Invoice / Quote Settings updated";
+    $_SESSION['alert_message'] = "Quote Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -809,11 +854,13 @@ if(isset($_POST['edit_ticket_settings'])){
 
     $config_ticket_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_prefix'])));
     $config_ticket_next_number = intval($_POST['config_ticket_next_number']);
+    $config_ticket_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_from_email'])));
+    $config_ticket_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_from_name'])));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name' WHERE company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified ticket settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = 'Ticket settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Ticket Settings updated";
 
@@ -3085,7 +3132,7 @@ if(isset($_GET['email_quote'])){
         $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
         //Recipients
-        $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+        $mail->setFrom($config_quote_from_email, $config_quote_from_name);
         $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
         // Attachments
@@ -3578,7 +3625,7 @@ if(isset($_POST['add_payment'])){
                   $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
                   //Recipients
-                  $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+                  $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
                   $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
                   // Content
@@ -3614,7 +3661,7 @@ if(isset($_POST['add_payment'])){
                   $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
                   //Recipients
-                  $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+                  $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
                   $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
                   // Content
@@ -3761,7 +3808,7 @@ if(isset($_GET['email_invoice'])){
         $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
         //Recipients
-        $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+        $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
         $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
         // Content
@@ -5450,7 +5497,7 @@ if(isset($_POST['add_ticket_reply'])){
                 $mail->Port       = $config_smtp_port;                      // TCP port to connect to
 
                 //Recipients
-                $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+                $mail->setFrom($config_ticket_from_email, $config_ticket_from_name);
                 $mail->addAddress("$contact_email", "$contact_name");       // Add a recipient
 
                 // Content
@@ -6151,7 +6198,7 @@ if(isset($_GET['force_recurring'])){
             $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
             //Recipients
-            $mail->setFrom($config_mail_from_email, $config_mail_from_name);
+            $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
             $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
             // Content
