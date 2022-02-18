@@ -154,7 +154,7 @@
                                 </select>
                             </div>
 
-                            <!-- TODO: Services related to other services & certificates -->
+                            <!-- TODO: Services related to other services -->
 
                         </div>
 
@@ -203,6 +203,23 @@
                                         $domain_id = $row['domain_id'];
                                         $domain_name = $row['domain_name'];
                                         echo "<option value=\"$domain_id\">$domain_name</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="certificates">Certificates</label>
+                                <p></p>
+                                <select class="form-select" id="certificates" name="certificates[]" multiple="multiple">
+                                    <option value="">- Certificates -</option>
+                                    <?php
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id = '$client_id'");
+                                    while($row = mysqli_fetch_array($sql)){
+                                        $cert_id = $row['certificate_id'];
+                                        $cert_name = $row['certificate_name'];
+                                        $cert_domain = $row['certificate_domain'];
+                                        echo "<option value=\"$cert_id\">$cert_name ($cert_domain)</option>";
                                     }
                                     ?>
                                 </select>

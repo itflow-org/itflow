@@ -5656,8 +5656,6 @@ if(isset($_POST['add_service'])){
     // Create Service
     $service_sql = mysqli_query($mysqli, "INSERT INTO services SET service_name = '$service_name', service_description = '$service_description', service_category = '$service_category', service_importance = '$service_importance', service_backup = '$service_backup', service_notes = '$service_notes', service_created_at = NOW(), service_client_id = '$client_id', company_id = '$session_company_id'");
 
-    // TODO: Support for URLs
-
     // Create links to assets
     if($service_sql){
         $service_id = $mysqli->insert_id;
@@ -5707,11 +5705,20 @@ if(isset($_POST['add_service'])){
             }
         }
 
-        if(!empty($_POST['logins'])){
+        if(!empty($_POST['domains'])){
             $service_domain_ids = $_POST['domains'];
             foreach($service_domain_ids as $domain_id){
                 if(intval($domain_id)){
                     mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = '$service_id', domain_id = '$domain_id'");
+                }
+            }
+        }
+
+        if(!empty($_POST['certificates'])){
+            $service_cert_ids = $_POST['certificates'];
+            foreach($service_cert_ids as $cert_id){
+                if(intval($cert_id)){
+                    mysqli_query($mysqli, "INSERT INTO service_certificates SET service_id = '$service_id', certificate_id = '$cert_id'");
                 }
             }
         }
@@ -5749,6 +5756,7 @@ if(isset($_POST['edit_service'])){
     mysqli_query($mysqli, "DELETE FROM service_assets WHERE service_id = '$service_id'");
     mysqli_query($mysqli, "DELETE FROM service_logins WHERE service_id = '$service_id'");
     mysqli_query($mysqli, "DELETE FROM service_domains WHERE service_id = '$service_id'");
+    mysqli_query($mysqli, "DELETE FROM service_certificates WHERE service_id = '$service_id'");
 
     // Relink
     if(!empty($_POST['contacts'])){
@@ -5796,11 +5804,20 @@ if(isset($_POST['edit_service'])){
         }
     }
 
-    if(!empty($_POST['logins'])){
+    if(!empty($_POST['domains'])){
         $service_domain_ids = $_POST['domains'];
         foreach($service_domain_ids as $domain_id){
             if(intval($domain_id)){
                 mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = '$service_id', domain_id = '$domain_id'");
+            }
+        }
+    }
+
+    if(!empty($_POST['certificates'])){
+        $service_cert_ids = $_POST['certificates'];
+        foreach($service_cert_ids as $cert_id){
+            if(intval($cert_id)){
+                mysqli_query($mysqli, "INSERT INTO service_certificates SET service_id = '$service_id', certificate_id = '$cert_id'");
             }
         }
     }
@@ -5828,6 +5845,7 @@ if(isset($_GET['delete_service'])){
         mysqli_query($mysqli, "DELETE FROM service_assets WHERE service_id = '$service_id'");
         mysqli_query($mysqli, "DELETE FROM service_logins WHERE service_id = '$service_id'");
         mysqli_query($mysqli, "DELETE FROM service_domains WHERE service_id = '$service_id'");
+        mysqli_query($mysqli, "DELETE FROM service_certificates WHERE service_id = '$service_id'");
 
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Service', log_action = 'Deleted', log_description = '$session_name deleted service $service_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");

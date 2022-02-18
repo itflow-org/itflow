@@ -139,6 +139,27 @@
                             }
                             ?>
 
+                            <!-- Certificates -->
+                            <?php
+                            if(mysqli_num_rows($sql_certificates) > 0){ ?>
+                                <h5><i class="nav-icon fas fa-lock"></i> Certificates</h5>
+                                <ul>
+                                    <?php
+                                    // Reset the $sql_certificates pointer to the start
+                                    mysqli_data_seek($sql_certificates, 0);
+
+                                    // Showing linked domains
+                                    while($row = mysqli_fetch_array($sql_certificates)){
+                                        if(!empty($row['certificate_name'])){
+                                            echo "<li><a href=\"client.php?client_id=$client_id&tab=certificates&q=$row[certificate_name]\">$row[certificate_name] ($row[certificate_domain])</a></li>";
+                                        }
+                                    }
+                                    ?>
+                                </ul>
+                                <?php
+                            }
+                            ?>
+
                         </div>
                     </div>
 
@@ -244,17 +265,6 @@
                                 <?php
                             }
                             ?>
-
-<!--                            <h5><i class="nav-icon fas fa-lock"></i> Certificates</h5>-->
-<!--                            <ul>-->
-<!--                                <li>SSLs related to a domain - Coming soon!</li>-->
-<!--                            </ul>-->
-<!---->
-<!--                            <h5><i class="nav-icon fas fa-hdd"></i> Backed up by</h5>-->
-<!--                            <ul>-->
-<!--                                <li>Asset - Coming soon!</li>-->
-<!--                            </ul>-->
-
 
                             <!-- Documents -->
                             <?php
