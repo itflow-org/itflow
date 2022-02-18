@@ -58,13 +58,14 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     if(!empty($company_logo)){
       $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
     }
+    $company_locale = $row['company_locale'];
     $config_invoice_footer = $row['config_invoice_footer'];
     $config_stripe_enable = $row['config_stripe_enable'];
     $config_stripe_publishable = $row['config_stripe_publishable'];
     $config_stripe_secret = $row['config_stripe_secret'];
 
     //Set Currency Format
-    $currency_format = numfmt_create('en-US', NumberFormatter::CURRENCY);
+    $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
     $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
     $os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));

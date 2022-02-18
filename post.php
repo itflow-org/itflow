@@ -442,9 +442,10 @@ if(isset($_POST['add_company'])){
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
+    $locale = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['locale'])));
     $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
-
-    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_currency = '$currency_code', company_created_at = NOW()");
+    
+    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code',company_created_at = NOW()");
 
     $company_id = mysqli_insert_id($mysqli);
     $config_base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
@@ -540,6 +541,7 @@ if(isset($_POST['edit_company'])){
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
+    $locale = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['locale'])));
     $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
 
     $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
@@ -593,7 +595,7 @@ if(isset($_POST['edit_company'])){
         }
     }
 
-    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_currency = '$currency_code', company_updated_at = NOW() WHERE company_id = $company_id");
+    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code', company_updated_at = NOW() WHERE company_id = $company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Modify', log_description = '$session_name modified company $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");

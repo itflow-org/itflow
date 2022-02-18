@@ -286,6 +286,7 @@ CREATE TABLE `companies` (
   `company_email` varchar(200) DEFAULT NULL,
   `company_website` varchar(200) DEFAULT NULL,
   `company_logo` varchar(250) DEFAULT NULL,
+  `company_locale` varchar(200) DEFAULT NULL,
   `company_currency` varchar(200) NOT NULL,
   `company_created_at` datetime NOT NULL,
   `company_updated_at` datetime DEFAULT NULL,
@@ -1420,4 +1421,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-18  1:31:30
+-- Dump completed on 2022-02-18 11:13:32

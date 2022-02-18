@@ -20,6 +20,7 @@ while($row = mysqli_fetch_array($sql_companies)){
   $company_phone = formatPhoneNumber($row['company_phone']);
   $company_email = $row['company_email'];
   $company_website = $row['company_website'];
+  $company_locale = $row['company_locale'];
   $config_enable_cron = $row['config_enable_cron'];
   $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
   $config_invoice_prefix = $row['config_invoice_prefix'];
@@ -32,18 +33,18 @@ while($row = mysqli_fetch_array($sql_companies)){
   $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
   $config_base_url = $row['config_base_url'];
 
-  //Set Currency Format
-  $currency_format = numfmt_create('en-US', NumberFormatter::CURRENCY);
-
-  //Tickets
+  // Tickets
   $config_ticket_prefix = $row['config_ticket_prefix'];
   $config_ticket_next_number = $row['config_ticket_next_number'];
 
+  // Set Currency Format
+  $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
+
   if($config_enable_cron == 1){
 
-    //GET ALERTS
+    // GET ALERTS
 
-    //DOMAINS EXPIRING 
+    // DOMAINS EXPIRING 
 
     $domainAlertArray = [1,7,14,30,90,120];
 
@@ -69,7 +70,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
     }
 
-    //CERTIFICATES EXPIRING 
+    // CERTIFICATES EXPIRING 
 
     $certificateAlertArray = [1,7,14,30,90,120];
 
@@ -96,7 +97,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
     }
 
-    //Scheduled tickets
+    // Scheduled tickets
 
     // Get date now, and calculate tomorrow's date (presuming this is being run at 11 PM)
     $now = new DateTime();

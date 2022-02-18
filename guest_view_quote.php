@@ -58,10 +58,11 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     if(!empty($company_logo)){
       $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
     }
+    $company_locale = $row['company_locale'];
     $config_quote_footer = $row['config_quote_footer'];
 
     //Set Currency Format
-  	$currency_format = numfmt_create('en-US', NumberFormatter::CURRENCY);
+  	$currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
     $ip = get_ip();
     $os = get_os();
