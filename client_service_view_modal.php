@@ -148,7 +148,7 @@
                                     // Reset the $sql_certificates pointer to the start
                                     mysqli_data_seek($sql_certificates, 0);
 
-                                    // Showing linked domains
+                                    // Showing linked certs
                                     while($row = mysqli_fetch_array($sql_certificates)){
                                         if(!empty($row['certificate_name'])){
                                             echo "<li><a href=\"client.php?client_id=$client_id&tab=certificates&q=$row[certificate_name]\">$row[certificate_name] ($row[certificate_domain])</a></li>";
