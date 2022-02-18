@@ -185,7 +185,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <td><a href="#" data-toggle="modal" data-target="#editRevenueModal<?php echo $revenue_id; ?>"><?php echo $revenue_date; ?></a></td>
             <td><?php echo $category_name; ?></td>
-            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($revenue_amount,2); ?></td>
+            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $revenue_amount, $revenue_currency_code); ?></td>
             <td><?php echo $revenue_payment_method; ?></td>
             <td><?php echo $revenue_reference_display; ?></td>
             <td><?php echo $account_name; ?></td>
