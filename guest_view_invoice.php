@@ -291,7 +291,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     </div>
   </div>
   
-  <script src='plugins/pdfmake/pdfmake.js'></script>
+  <script src='plugins/pdfmake/pdfmake.min.js'></script>
 <script src='plugins/pdfmake/vfs_fonts.js'></script>
 <script>
 
@@ -892,7 +892,7 @@ var docDefinition = {
                 $payment_id = $row['payment_id'];
                 $payment_date = $row['payment_date'];
                 $payment_amount = $row['payment_amount'];
-                $payment_currency_code = $row['payment_currency_code']
+                $payment_currency_code = $row['payment_currency_code'];
                 $payment_method = $row['payment_method'];
                 $payment_reference = $row['payment_reference'];
                 if(strtotime($payment_date) > strtotime($invoice_due)){

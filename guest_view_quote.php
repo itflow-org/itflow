@@ -185,9 +185,9 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
 	                  <td><?php echo $item_name; ?></td>
 	                  <td><div style="white-space:pre-line"><?php echo $item_description; ?></div></td>
 	                  <td class="text-center"><?php echo $item_quantity; ?></td>
-	                  <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_price,2); ?></td>
-	                  <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_tax,2); ?></td>
-	                  <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_total,2); ?></td>  
+	                  <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $quote_currency_code); ?></td>
+	                  <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $quote_currency_code); ?></td>
+	                  <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $quote_currency_code); ?></td>  
 	                </tr>
 
 	                <?php 
@@ -217,23 +217,23 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
             <tbody>    
               <tr class="border-bottom">
                 <td>Subtotal</td>
-                <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($sub_total,2); ?></td>
+                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?></td>
               </tr>
               <?php if($discount > 0){ ?>
               <tr class="border-bottom">
                 <td>Discount</td>
-                <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($quote_discount,2); ?></td>          
+                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code); ?></td>          
               </tr>
               <?php } ?>
               <?php if($total_tax > 0){ ?>
               <tr class="border-bottom">
                 <td>Tax</td>
-                <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($total_tax,2); ?></td>        
+                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?></td>        
               </tr>
               <?php } ?>
               <tr class="border-bottom">
                 <td><strong>Total</strong></td>
-                <td class="text-right"><strong><?php echo $client_currency_symbol; ?> <?php echo number_format($quote_amount,2); ?></strong></td>
+                <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></strong></td>
               </tr>
             </tbody>
           </table>
@@ -246,7 +246,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     </div>
   </div>
 
-  <script src='plugins/pdfmake/pdfmake.js'></script>
+  <script src='plugins/pdfmake/pdfmake.min.js'></script>
 <script src='plugins/pdfmake/vfs_fonts.js'></script>
 <script>
 
@@ -413,15 +413,15 @@ var docDefinition = {
 		          style:'itemQty'
 		        }, 
 		        {
-		        	text:'<?php echo $client_currency_symbol; ?> <?php echo number_format($item_price,2); ?>',
+		        	text:'<?php echo numfmt_format_currency($currency_format, $item_price, $quote_currency_code); ?>',
 		         	style:'itemNumber'
 		        }, 
 		        {
-		          text:'<?php echo $client_currency_symbol; ?> <?php echo number_format($item_tax,2); ?>',
+		          text:'<?php echo numfmt_format_currency($currency_format, $item_tax, $quote_currency_code); ?>',
 		          style:'itemNumber'
 		        }, 
 		        {
-		          text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($item_total,2); ?>',
+		          text: '<?php echo numfmt_format_currency($currency_format, $item_total, $quote_currency_code); ?>',
 		          style:'itemNumber'
 		        } 
 		    	],
@@ -463,7 +463,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        }, 
 		        { 
-		         	text:'<?php echo $client_currency_symbol; ?> <?php echo number_format($sub_total,2); ?>',
+		         	text:'<?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -474,7 +474,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        },
 		        {
-		         	text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($total_tax,2); ?>',
+		         	text: '<?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -485,7 +485,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        }, 
 		        {
-		         	text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($quote_amount,2); ?>',
+		         	text: '<?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
