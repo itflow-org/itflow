@@ -213,9 +213,9 @@ if(isset($_GET['recurring_id'])){
                   <td><?php echo $item_name; ?></td>
                   <td><div style="white-space:pre-line"><?php echo $item_description; ?></div></td>
                   <td class="text-center"><?php echo $item_quantity; ?></td>
-                  <td class="text-right"><?php echo get_currency_symbol($client_currency_code); ?> <?php echo number_format($item_price,2); ?></td>
-                  <td class="text-right"><?php echo get_currency_symbol($client_currency_code); ?> <?php echo number_format($item_tax,2); ?></td>
-                  <td class="text-right"><?php echo get_currency_symbol($client_currency_code); ?> <?php echo number_format($item_total,2); ?></td>  
+                  <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $recurring_currency_code); ?></td>
+                  <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $recurring_currency_code); ?></td>
+                  <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $recurring_currency_code); ?></td>  
                 </tr>
 
                 <?php
@@ -287,17 +287,17 @@ if(isset($_GET['recurring_id'])){
           <tbody>    
             <tr class="border-bottom">
               <td>Subtotal</td>
-              <td class="text-right"><?php echo get_currency_symbol($client_currency_code); ?> <?php echo number_format($sub_total,2); ?></td>
+              <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $recurring_currency_code); ?></td>
             </tr>
             <?php if($total_tax > 0){ ?>
             <tr class="border-bottom">
               <td>Tax</td>
-              <td class="text-right"><?php echo get_currency_symbol($client_currency_code); ?> <?php echo number_format($total_tax,2); ?></td>        
+              <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $recurring_currency_code); ?></td>        
             </tr>
             <?php } ?>
             <tr class="border-bottom">
               <td><strong>Amount</strong></td>
-              <td class="text-right"><strong><?php echo get_currency_symbol($client_currency_code); ?> <?php echo number_format($recurring_amount,2); ?></strong></td>
+              <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code); ?></strong></td>
             </tr>
           </tbody>
         </table>

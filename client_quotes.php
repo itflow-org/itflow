@@ -134,7 +134,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <td><a href="quote.php?quote_id=<?php echo $quote_id; ?>"><?php echo "$quote_prefix$quote_number"; ?></a></td>
             <td><?php echo $quote_scope_display; ?></td>
-            <td class="text-right"><?php echo get_currency_symbol($quote_currency_code); ?> <?php echo number_format($quote_amount,2); ?></td>
+            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
             <td><?php echo $quote_date; ?></td>
             <td><?php echo $category_name; ?></td>
             <td>

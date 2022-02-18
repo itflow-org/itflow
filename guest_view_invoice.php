@@ -42,7 +42,6 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $client_website = $row['client_website'];
     $client_currency_code = $row['client_currency_code'];
-    $client_currency_symbol = get_currency_symbol($client_currency_code);
     $client_net_terms = $row['client_net_terms'];
     if($client_net_terms == 0){
       $client_net_terms = $config_default_net_terms;
@@ -63,6 +62,9 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     $config_stripe_enable = $row['config_stripe_enable'];
     $config_stripe_publishable = $row['config_stripe_publishable'];
     $config_stripe_secret = $row['config_stripe_secret'];
+
+    //Set Currency Format
+    $currency_format = numfmt_create('en-US', NumberFormatter::CURRENCY);
 
     $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
     $os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
@@ -229,9 +231,9 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
                     <td><?php echo $item_name; ?></td>
                     <td><div style="white-space:pre-line"><?php echo $item_description; ?></div></td>
                     <td class="text-center"><?php echo $item_quantity; ?></td>
-                    <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_price,2); ?></td>
-                    <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_tax,2); ?></td>
-                    <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_total,2); ?></td>  
+                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $invoice_currency_code); ?></td>
+                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $invoice_currency_code); ?></td>
+                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>  
                   </tr>
 
                   <?php 
@@ -260,23 +262,23 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
             <tbody>    
               <tr class="border-bottom">
                 <td>Subtotal</td>
-                <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($sub_total,2); ?></td>
+                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?></td>
               </tr>
               <?php if($total_tax > 0){ ?>
               <tr class="border-bottom">
                 <td>Tax</td>
-                <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($total_tax,2); ?></td>        
+                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code); ?></td>        
               </tr>
               <?php } ?>
               <?php if($amount_paid > 0){ ?>
               <tr class="border-bottom">
                 <td><div class="text-success">Paid to Date</div></td>
-                <td class="text-right text-success"><?php echo $client_currency_symbol; ?> <?php echo number_format($amount_paid,2); ?></td>
+                <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
               </tr>
               <?php } ?>
               <tr class="border-bottom">
                 <td><strong>Balance Due</strong></td>
-                <td class="text-right"><strong><?php echo $client_currency_symbol; ?> <?php echo number_format($balance,2); ?></strong></td>
+                <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>
               </tr>
             </tbody>
           </table>
@@ -467,15 +469,15 @@ var docDefinition = {
 		          style:'itemQty'
 		        }, 
 		        {
-		        	text:'<?php echo $client_currency_symbol; ?> <?php echo number_format($item_price,2); ?>',
+		        	text:'<?php echo numfmt_format_currency($currency_format, $item_price, $invoice_currency_code); ?>',
 		         	style:'itemNumber'
 		        }, 
 		        {
-		          text:'<?php echo $client_currency_symbol; ?> <?php echo number_format($item_tax,2); ?>',
+		          text:'<?php echo numfmt_format_currency($currency_format, $item_tax, $invoice_currency_code); ?>',
 		          style:'itemNumber'
 		        }, 
 		        {
-		          text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($item_total,2); ?>',
+		          text: '<?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?>',
 		          style:'itemNumber'
 		        } 
 		    	],
@@ -517,7 +519,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        }, 
 		        { 
-		         	text:'<?php echo $client_currency_symbol; ?> <?php echo number_format($sub_total,2); ?>',
+		         	text:'<?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -528,7 +530,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        },
 		        {
-		         	text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($total_tax,2); ?>',
+		         	text: '<?php echo numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -539,7 +541,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        }, 
 		        {
-		         	text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($invoice_amount,2); ?>',
+		         	text: '<?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -550,7 +552,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        },
 		        {
-		          text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($amount_paid,2); ?>',
+		          text: '<?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -561,7 +563,7 @@ var docDefinition = {
 		          style:'itemsFooterTotalTitle'
 		        },
 		        {
-		        	text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($balance,2); ?>',
+		        	text: '<?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?>',
 		          
 		          style:'itemsFooterTotalTitle'
 		        }
@@ -744,6 +746,7 @@ var docDefinition = {
               $invoice_date = $row['invoice_date'];
               $invoice_due = $row['invoice_due'];
               $invoice_amount = $row['invoice_amount'];
+              $invoice_currency_code = $row['invoice_currency_code'];
               $invoice_url_key = $row['invoice_url_key'];
               $invoice_tally_total = $invoice_amount + $invoice_tally_total;
               $difference = time() - strtotime($invoice_due);
@@ -755,7 +758,7 @@ var docDefinition = {
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td class="text-danger text-bold"><?php echo $invoice_due; ?> (<?php echo $days; ?> Days Late)</td>
-                <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo $invoice_amount; ?></td>
+                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
               </tr>
 
             <?php 
@@ -803,6 +806,7 @@ var docDefinition = {
               $invoice_date = $row['invoice_date'];
               $invoice_due = $row['invoice_due'];
               $invoice_amount = $row['invoice_amount'];
+              $invoice_currency_code = $row['invoice_currency_code'];
               $invoice_url_key = $row['invoice_url_key'];
               $invoice_tally_total = $invoice_amount + $invoice_tally_total;
               $difference = strtotime($invoice_due) - time();
@@ -814,7 +818,7 @@ var docDefinition = {
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td><?php echo $invoice_due; ?> (Due in <?php echo $days; ?> Days)</td>
-                <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo $invoice_amount; ?></td>
+                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
               </tr>
 
             <?php 
@@ -863,6 +867,7 @@ var docDefinition = {
               $invoice_date = $row['invoice_date'];
               $invoice_due = $row['invoice_due'];
               $invoice_amount = $row['invoice_amount'];
+              $invoice_currency_code = $row['invoice_currency_code'];
               $invoice_url_key = $row['invoice_url_key'];
               $invoice_tally_total = $invoice_amount + $invoice_tally_total;
 
@@ -872,7 +877,7 @@ var docDefinition = {
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td><?php echo $invoice_due; ?></td>
-                <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo $invoice_amount; ?></td>
+                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
               </tr>
 
               <tr>
@@ -887,6 +892,7 @@ var docDefinition = {
                 $payment_id = $row['payment_id'];
                 $payment_date = $row['payment_date'];
                 $payment_amount = $row['payment_amount'];
+                $payment_currency_code = $row['payment_currency_code']
                 $payment_method = $row['payment_method'];
                 $payment_reference = $row['payment_reference'];
                 if(strtotime($payment_date) > strtotime($invoice_due)){
@@ -904,7 +910,7 @@ var docDefinition = {
               ?>
 
                 <tr>
-                  <td colspan="4"><?php echo $payment_date; ?> - <?php echo $client_currency_symbol; ?> <?php echo $payment_amount; ?> - <?php echo $payment_method; ?> - <?php echo $payment_reference; ?> - <?php echo $days; ?> <?php echo $payment_note; ?></td>
+                  <td colspan="4"><?php echo $payment_date; ?> - <?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?> - <?php echo $payment_method; ?> - <?php echo $payment_reference; ?> - <?php echo $days; ?> <?php echo $payment_note; ?></td>
                 </tr>
               <?php
 

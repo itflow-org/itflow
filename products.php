@@ -94,6 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $product_description_display = "<div style='white-space:pre-line'>$product_description</div>";
             }
             $product_price = $row['product_price'];
+            $product_currency_code = $row['product_currency_code'];
             $product_created_at = $row['product_created_at'];
             $category_id = $row['category_id'];
             $category_name = $row['category_name'];
@@ -104,7 +105,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>"><?php echo $product_name; ?></a></td>
             <td><?php echo $category_name; ?></td>
             <td><?php echo $product_description_display; ?></td>
-            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($product_price,2); ?></td>
+            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $product_price, $product_currency_code); ?></td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

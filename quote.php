@@ -39,7 +39,6 @@ if(isset($_GET['quote_id'])){
   $contact_mobile = formatPhoneNumber($row['contact_mobile']);
   $client_website = $row['client_website'];
   $client_currency_code = $row['client_currency_code'];
-  $client_currency_symbol = get_currency_symbol($client_currency_code);
   $client_net_terms = $row['client_net_terms'];
   if($client_net_terms == 0){
     $client_net_terms = $config_default_net_terms;
@@ -244,9 +243,9 @@ if(isset($_GET['quote_id'])){
                   <td><?php echo $item_name; ?></td>
                   <td><div style="white-space:pre-line"><?php echo $item_description; ?></div></td>
                   <td class="text-center"><?php echo $item_quantity; ?></td>
-                  <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_price,2); ?></td>
-                  <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($item_tax,2); ?></td>
-                  <td class="text-right"><?php echo $client_currency_symbol; ?><?php echo number_format($item_total,2); ?></td>  
+                  <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $quote_currency_code); ?></td>
+                  <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $quote_currency_code); ?></td>
+                  <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $quote_currency_code); ?></td>  
                 </tr>
 
                 <?php
@@ -319,17 +318,17 @@ if(isset($_GET['quote_id'])){
           <tbody>    
             <tr class="border-bottom">
               <td>Subtotal</td>
-              <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($sub_total,2); ?></td>
+              <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?></td>
             </tr>
             <?php if($total_tax > 0){ ?>
             <tr class="border-bottom">
               <td>Tax</td>
-              <td class="text-right"><?php echo $client_currency_symbol; ?> <?php echo number_format($total_tax,2); ?></td>        
+              <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?></td>        
             </tr>
             <?php } ?>
             <tr class="border-bottom">
               <td><strong>Total</strong></td>
-              <td class="text-right"><strong><?php echo $client_currency_symbol; ?> <?php echo number_format($quote_amount,2); ?></strong></td>
+              <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></strong></td>
             </tr>
           </tbody>
         </table>
@@ -424,7 +423,7 @@ include("footer.php");
   });
 </script>
 
-<script src='plugins/pdfmake/pdfmake.js'></script>
+<script src='plugins/pdfmake/pdfmake.min.js'></script>
 <script src='plugins/pdfmake/vfs_fonts.js'></script>
 <script>
 
@@ -591,15 +590,15 @@ var docDefinition = {
 		          style:'itemQty'
 		        }, 
 		        {
-		        	text:'<?php echo $client_currency_symbol; ?> <?php echo number_format($item_price,2); ?>',
+		        	text:'<?php echo numfmt_format_currency($currency_format, $item_price, $quote_currency_code); ?>',
 		         	style:'itemNumber'
 		        }, 
 		        {
-		          text:'<?php echo $client_currency_symbol; ?> <?php echo number_format($item_tax,2); ?>',
+		          text:'<?php echo numfmt_format_currency($currency_format, $item_tax, $quote_currency_code); ?>',
 		          style:'itemNumber'
 		        }, 
 		        {
-		          text:'<?php echo $client_currency_symbol; ?> <?php echo number_format($item_total,2); ?>',
+		          text:'<?php echo numfmt_format_currency($currency_format, $item_total, $quote_currency_code); ?>',
 		          style:'itemNumber'
 		        } 
 		    	],
@@ -641,7 +640,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        }, 
 		        { 
-		         	text:'<?php echo $client_currency_symbol; ?> <?php echo number_format($sub_total,2); ?>',
+		         	text:'<?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -652,7 +651,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        },
 		        {
-		         	text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($total_tax,2); ?>',
+		         	text: '<?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],
@@ -663,7 +662,7 @@ var docDefinition = {
 		          style:'itemsFooterSubTitle'
 		        }, 
 		        {
-		         	text: '<?php echo $client_currency_symbol; ?> <?php echo number_format($quote_amount,2); ?>',
+		         	text: '<?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?>',
 		          style:'itemsFooterSubValue'
 		        }
 		      ],

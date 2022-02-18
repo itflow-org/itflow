@@ -227,7 +227,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
             $row = mysqli_fetch_array($sql_amount_paid);
             
-            $amount_paid = $row['amount_paid'];
+            $smount_paid = $row['amount_paid'];
 
             $balance = $invoice_amounts - $amount_paid;
             //set Text color on balance
@@ -298,9 +298,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               ?>
             </td>
             <td class="text-right">
-              Balance: <span class="<?php echo $balance_text_color; ?>"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($balance,2); ?></span>
+              Balance: <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
               <br>
-              Paid: <?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($amount_paid,2); ?>
+              Paid: <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
             </td>
             <td>
               <div class="dropdown dropleft text-center">

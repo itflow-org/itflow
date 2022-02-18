@@ -160,7 +160,7 @@
     <!-- small box -->
     <a href="?<?php echo $url_query_strings_sb; ?>&status=Draft" class="small-box bg-secondary">
       <div class="inner">
-        <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_draft,2); ?></h3>
+        <h3><?php echo numfmt_format_currency($currency_format, $total_draft, $session_company_currency); ?></h3>
         <p><?php echo $draft_count; ?> Draft</p>
       </div>
       <div class="icon">
@@ -174,7 +174,7 @@
     <!-- small box -->
     <a href="?<?php echo $url_query_strings_sb; ?>&status=Sent" class="small-box bg-warning">
       <div class="inner text-white">
-        <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_sent,2); ?></h3>
+        <h3><?php echo numfmt_format_currency($currency_format, $total_sent, $session_company_currency); ?></h3>
         <p><?php echo $sent_count; ?> Sent</p>
       </div>
       <div class="icon">
@@ -188,7 +188,7 @@
     <!-- small box -->
     <a href="?<?php echo $url_query_strings_sb; ?>&status=Viewed" class="small-box bg-info">
       <div class="inner">
-        <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_viewed,2); ?></h3>
+        <h3><?php echo numfmt_format_currency($currency_format, $total_viewed, $session_company_currency); ?></h3>
         <p><?php echo $viewed_count; ?> Viewed</p>
       </div>
       <div class="icon">
@@ -202,7 +202,7 @@
     <!-- small box -->
     <a href="?<?php echo $url_query_strings_sb; ?>&status=Partial" class="small-box bg-primary">
       <div class="inner">
-        <h3><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_partial,2); ?></h3>
+        <h3><?php echo numfmt_format_currency($currency_format, $total_partial, $session_company_currency); ?></h3>
         <p><?php echo $partial_count; ?> Partial</p>
       </div>
       <div class="icon">
@@ -342,7 +342,7 @@
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
             <td><?php echo $invoice_scope_display; ?></td>
             <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=invoices"><?php echo $client_name; ?></a></td>
-            <td class="text-right"><?php echo get_currency_symbol($invoice_currency_code); ?> <?php echo number_format($invoice_amount,2); ?></td>
+            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
             <td><?php echo $invoice_date; ?></td>
             <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>
             <td><?php echo $category_name; ?></td>

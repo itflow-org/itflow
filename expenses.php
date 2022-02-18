@@ -172,6 +172,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $expense_id = $row['expense_id'];
             $expense_date = $row['expense_date'];
             $expense_amount = $row['expense_amount'];
+            $expense_currency_code = $row['expense_currency_code'];
             $expense_description = $row['expense_description'];
             $expense_receipt = $row['expense_receipt'];
             $expense_reference = $row['expense_reference'];
@@ -193,7 +194,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <tr>
             <td><?php echo $receipt_attached; ?> <a class="text-dark" href="#" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>"><?php echo $expense_date; ?></a></td>
-            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($expense_amount,2); ?></td>
+            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code); ?></td>
             <td><?php echo $vendor_name; ?></td>
             <td><?php echo truncate($expense_description,50); ?></td>
             <td><?php echo $category_name; ?></td>

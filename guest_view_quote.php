@@ -27,6 +27,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     $quote_status = $row['quote_status'];
     $quote_date = $row['quote_date'];
     $quote_amount = $row['quote_amount'];
+    $quote_currency_code = $row['quote_currency_code'];
     $quote_note = $row['quote_note'];
     $category_id = $row['category_id'];
     $client_id = $row['client_id'];
@@ -41,7 +42,6 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $client_website = $row['client_website'];
     $client_currency_code = $row['client_currency_code'];
-    $client_currency_symbol = get_currency_symbol($client_currency_code);
     $client_net_terms = $row['client_net_terms'];
     if($client_net_terms == 0){
       $client_net_terms = $config_default_net_terms;
@@ -59,6 +59,9 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
       $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
     }
     $config_quote_footer = $row['config_quote_footer'];
+
+    //Set Currency Format
+  	$currency_format = numfmt_create('en-US', NumberFormatter::CURRENCY);
 
     $ip = get_ip();
     $os = get_os();

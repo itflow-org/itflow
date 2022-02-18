@@ -101,6 +101,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $invoice_number = $row['invoice_number'];
             $invoice_status = $row['invoice_status'];
             $invoice_amount = $row['invoice_amount'];
+            $invoice_currency_code = $row['invoice_currency_code'];
             $invoice_date = $row['invoice_date'];
             $payment_date = $row['payment_date'];
             $payment_method = $row['payment_method'];
@@ -111,6 +112,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $payment_reference_display = $payment_reference;
             }
             $payment_amount = $row['payment_amount'];
+            $payment_currency_code = $row['payment_currency_code'];
             $account_name = $row['account_name'];
 
       
@@ -119,8 +121,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $payment_date; ?></td>
             <td><?php echo $invoice_date; ?></td>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
-            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($invoice_amount,2); ?></td>
-            <td class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($payment_amount,2); ?></td>
+            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
+            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
             <td><?php echo $payment_method; ?></td>
             <td><?php echo $payment_reference_display; ?></td>
             <td><?php echo $account_name; ?></td>
