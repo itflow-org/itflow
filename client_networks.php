@@ -2,55 +2,7 @@
 
 ?>
 
-<script>
-    function populateNetworkEditModal(client_id, network_id) {
-        //alert (network_id)
 
-        // Send a GET request to post.php as post.php?network_get_json_details=true&client_id=NUM&network_id=NUM
-        jQuery.get(
-            "post.php",
-            {network_get_json_details: 'true', client_id: client_id, network_id: network_id},
-            function(data){
-
-                // If we get a response from post.php, parse it as JSON
-                const response = JSON.parse(data);
-
-                // Access the network (only one!) and locations (possibly multiple)
-                const network = response.network[0];
-                const locations = response.locations;
-
-                // Populate the network modal fields
-                document.getElementById("edit_network_name_header").innerText = " " + network.network_name;
-                document.getElementById("edit_network_id").value = network_id;
-                document.getElementById("edit_network_name").value = network.network_name;
-                document.getElementById("edit_network_vlan").value = network.network_vlan;
-                document.getElementById("edit_network_cidr").value = network.network;
-                document.getElementById("edit_network_gw").value = network.network_gateway;
-                document.getElementById("edit_network_dhcp").value = network.network_dhcp_range;
-
-                // Select the location dropdown
-                var location_dropdown = document.getElementById("edit_network_location");
-
-                // Clear location dropdown
-                var i, L = location_dropdown.options.length -1;
-                for(i = L; i >= 0; i--) {
-                    location_dropdown.remove(i);
-                }
-                location_dropdown[location_dropdown.length] = new Option('- Location -', '0');
-
-                // Populate location dropdown
-                locations.forEach(location => {
-                    if(parseInt(location.location_id) == parseInt(network.network_location_id)){
-                        location_dropdown[location_dropdown.length] = new Option(location.location_name, location.location_id, true, true);
-                    }
-                    else{
-                        location_dropdown[location_dropdown.length] = new Option(location.location_name, location.location_id);
-                    }
-                });
-            }
-        );
-    }
-</script>
 
 <?php
 
@@ -218,3 +170,53 @@ include("client_network_edit_modal.php");
 include("client_network_add_modal.php");
 
 ?>
+
+<script>
+    function populateNetworkEditModal(client_id, network_id) {
+        //alert (network_id)
+
+        // Send a GET request to post.php as post.php?network_get_json_details=true&client_id=NUM&network_id=NUM
+        jQuery.get(
+            "post.php",
+            {network_get_json_details: 'true', client_id: client_id, network_id: network_id},
+            function(data){
+
+                // If we get a response from post.php, parse it as JSON
+                const response = JSON.parse(data);
+
+                // Access the network (only one!) and locations (possibly multiple)
+                const network = response.network[0];
+                const locations = response.locations;
+
+                // Populate the network modal fields
+                document.getElementById("edit_network_name_header").innerText = " " + network.network_name;
+                document.getElementById("edit_network_id").value = network_id;
+                document.getElementById("edit_network_name").value = network.network_name;
+                document.getElementById("edit_network_vlan").value = network.network_vlan;
+                document.getElementById("edit_network_cidr").value = network.network;
+                document.getElementById("edit_network_gw").value = network.network_gateway;
+                document.getElementById("edit_network_dhcp").value = network.network_dhcp_range;
+
+                // Select the location dropdown
+                var location_dropdown = document.getElementById("edit_network_location");
+
+                // Clear location dropdown
+                var i, L = location_dropdown.options.length -1;
+                for(i = L; i >= 0; i--) {
+                    location_dropdown.remove(i);
+                }
+                location_dropdown[location_dropdown.length] = new Option('- Location -', '0');
+
+                // Populate location dropdown
+                locations.forEach(location => {
+                    if(parseInt(location.location_id) == parseInt(network.network_location_id)){
+                        location_dropdown[location_dropdown.length] = new Option(location.location_name, location.location_id, true, true);
+                    }
+                    else{
+                        location_dropdown[location_dropdown.length] = new Option(location.location_name, location.location_id);
+                    }
+                });
+            }
+        );
+    }
+</script>

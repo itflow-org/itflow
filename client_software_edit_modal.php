@@ -136,17 +136,19 @@
               <ul class="list-group">
 
                 <?php
-                $sql_assets_select = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+                $sql_assets_select = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
 
                 while($row = mysqli_fetch_array($sql_assets_select)){
                   $asset_id_select = $row['asset_id'];
                   $asset_name_select = $row['asset_name'];
+                  $asset_type_select = $row['asset_type'];
+                  $contact_name_select = $row['contact_name'];
 
                 ?>
                   <li class="list-group-item">
                     <div class="form-check">
                       <input type="checkbox" class="form-check-input" name="assets[]" value="<?php echo $asset_id_select; ?>" <?php if(in_array($asset_id_select,$asset_licenses_array)){ echo "checked"; } ?>>
-                      <label class="form-check-label ml-2"><?php echo $asset_name_select; ?></label>
+                      <label class="form-check-label ml-2"><?php echo "$asset_name_select - $contact_name_select"; ?></label>
                     </div>
                   </li>
 

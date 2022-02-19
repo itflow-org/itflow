@@ -136,17 +136,19 @@
               <ul class="list-group">
 
                 <?php
-                $sql = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+                $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
 
                 while($row = mysqli_fetch_array($sql)){
                   $asset_id = $row['asset_id'];
                   $asset_name = $row['asset_name'];
+                  $asset_type = $row['asset_type'];
+                  $contact_name = $row['contact_name'];
 
                 ?>
                   <li class="list-group-item">
                     <div class="form-check">
                       <input type="checkbox" class="form-check-input" name="assets[]" value="<?php echo $asset_id; ?>">
-                      <label class="form-check-label ml-2"><?php echo $asset_name; ?></label>
+                      <label class="form-check-label ml-2"><?php echo "$asset_name - $contact_name"; ?></label>
                     </div>
                   </li>
 
