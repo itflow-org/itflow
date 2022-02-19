@@ -69,7 +69,7 @@ if($item_type == "Document"){
     echo "<br>";
     echo $doc_content;
 
-    // Update file view count
+    // Update document view count
     $new_item_views = $item_views + 1;
     mysqli_query($mysqli, "UPDATE shared_items SET item_views = '$new_item_views' WHERE item_id = '$item_id'");
 
