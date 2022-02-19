@@ -1275,6 +1275,28 @@ if(isset($_GET['delete_client'])){
     header("Location: " . $_SERVER["HTTP_REFERER"]); 
 }
 
+if(isset($_GET['share_generate_link'])){
+    $client_id = intval($_GET['client_id']);
+    $item_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['type'])));
+    $item_id = intval($_GET['id']);
+    $item_note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['note'])));
+    $item_view_limit = intval($_GET['views']);
+    $item_expires = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['expires'])));
+    $item_key = keygen();
+
+    // Insert entry into DB
+    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = '1', item_key = '$item_key', item_type = '$item_type', item_related_id = '$item_id', item_note = '$item_note', item_view_limit = '$item_view_limit', item_created_at = NOW(), item_expire_at = '$item_expires', item_client_id = '$client_id'");
+    $share_id = $mysqli->insert_id;
+
+    // Return URL
+    $url = "$config_base_url/guest_view_item.php?id=$share_id&key=$item_key";
+    echo json_encode($url);
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'Create', log_description = '$session_name created shared link for $item_type - Item ID: $item_id', log_client_id = '$client_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+}
+
 if(isset($_POST['add_calendar'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
