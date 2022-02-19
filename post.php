@@ -4968,16 +4968,14 @@ if(isset($_GET['network_get_json_details'])){
     $network_id = intval($_GET['network_id']);
     $client_id = intval($_GET['client_id']);
 
-    $network_sql = mysqli_query($mysqli,"SELECT * FROM networks 
-  WHERE network_id = $network_id
-  AND network_client_id = $client_id");
+    $network_sql = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_id = $network_id AND network_client_id = $client_id");
     while($row = mysqli_fetch_array($network_sql)){
         $response['network'][] = $row;
     }
 
-    $locations_sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations
-  WHERE location_client_id = '$client_id'
-  AND company_id = '$session_company_id'");
+    $locations_sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations 
+        WHERE location_client_id = '$client_id' AND company_id = '$session_company_id'"
+    );
     while($row = mysqli_fetch_array($locations_sql)){
         $response['locations'][] = $row;
     }
