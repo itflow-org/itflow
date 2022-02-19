@@ -227,7 +227,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
             $row = mysqli_fetch_array($sql_amount_paid);
             
-            $smount_paid = $row['amount_paid'];
+            $amount_paid = $row['amount_paid'];
 
             $balance = $invoice_amounts - $amount_paid;
             //set Text color on balance

@@ -881,9 +881,11 @@ $asset_types_array = array(
 );
 
 $software_types_array = array(
-	'Operating System',
-	'Web App',
-	'Desktop App',
+	'SaaS',
+	'Application',
+    'Mobile',
+    'System Software',
+    'Operating System',
 	'Other'
 );
 
