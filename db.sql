@@ -1091,6 +1091,30 @@ CREATE TABLE `settings` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `shared_items`
+--
+
+DROP TABLE IF EXISTS `shared_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE IF NOT EXISTS `shared_items` (
+  `item_id` int(11) NOT NULL AUTO_INCREMENT,
+  `item_active` int(1) NOT NULL,
+  `item_key` varchar(255) NOT NULL,
+  `item_type` varchar(255) NOT NULL,
+  `item_related_id` int(11) NOT NULL,
+  `item_encrypted_credential` varchar(255) DEFAULT NULL,
+  `item_note` varchar(255) DEFAULT NULL,
+  `item_views` int(11) NOT NULL,
+  `item_view_limit` int(11) DEFAULT NULL,
+  `item_created_at` datetime NOT NULL,
+  `item_expire_at` datetime DEFAULT NULL,
+  `item_client_id` int(11) NOT NULL,
+  PRIMARY KEY (`item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `software`
 --
 
