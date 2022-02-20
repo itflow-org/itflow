@@ -894,4 +894,10 @@ $license_types_array = array(
     'User'
 );
 
+$document_types_array = array(
+    '0'=>'Document',
+    '1'=>'Template',
+    '2'=>'Global Template'
+);
+
 ?>

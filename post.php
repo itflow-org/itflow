@@ -6065,17 +6065,19 @@ if(isset($_POST['add_document'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $tags_ids = $_POST['tags_ids'];
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
+    $template = intval($_POST['template']);
+    $folder = intval($_POST['folder']);
 
     // Document add query
-    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_created_at = NOW(), document_client_id = $client_id, company_id = $session_company_id");
+    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_created_at = NOW(), document_template = $template, document_folder_id = $folder, document_client_id = $client_id, company_id = $session_company_id");
     $document_id = $mysqli->insert_id;
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Created', log_description = '$details', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
     // Add tags
-    foreach($tags_ids as $tag_id) {
-        if (intval($tag_id)) {
+    foreach($tags_ids as $tag_id){
+        if(intval($tag_id)){
             mysqli_query($mysqli, "INSERT INTO documents_tagged SET document_id = '$document_id', tag_id = '$tag_id'");
         }
     }
@@ -6097,9 +6099,11 @@ if(isset($_POST['edit_document'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $tags_ids = $_POST['tags_ids'];
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
+    $template = intval($_POST['template']);
+    $folder = intval($_POST['folder']);
 
     // Document edit query
-    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_updated_at = NOW() WHERE document_id = $document_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_updated_at = NOW(), document_template = $template, document_folder_id = $folder WHERE document_id = $document_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Note', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");

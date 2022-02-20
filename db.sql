@@ -399,26 +399,6 @@ CREATE TABLE `document_tags` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `document_templates`
---
-
-DROP TABLE IF EXISTS `document_templates`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `document_templates` (
-  `document_template_id` int(11) NOT NULL AUTO_INCREMENT,
-  `document_template_name` varchar(200) NOT NULL,
-  `document_template_content` longtext NOT NULL,
-  `document_template_created_at` datetime NOT NULL,
-  `document_template_updated_at` datetime DEFAULT NULL,
-  `document_template_archived_at` datetime DEFAULT NULL,
-  `document_template_category_id` int(11) DEFAULT NULL,
-  `company_id` int(11) NOT NULL,
-  PRIMARY KEY (`document_template_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `documents`
 --
 
@@ -432,6 +412,7 @@ CREATE TABLE `documents` (
   `document_created_at` datetime NOT NULL,
   `document_updated_at` datetime DEFAULT NULL,
   `document_archived_at` datetime DEFAULT NULL,
+  `document_template` tinyint(1) NOT NULL,
   `document_folder_id` int(11) DEFAULT NULL,
   `document_client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -1139,7 +1120,7 @@ CREATE TABLE `settings` (
 DROP TABLE IF EXISTS `shared_items`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `shared_items` (
+CREATE TABLE `shared_items` (
   `item_id` int(11) NOT NULL AUTO_INCREMENT,
   `item_active` int(1) NOT NULL,
   `item_key` varchar(255) NOT NULL,
@@ -1464,4 +1445,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-18 18:02:48
+-- Dump completed on 2022-02-20 17:01:28

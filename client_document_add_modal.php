@@ -51,8 +51,35 @@
         </div>
         
         <div class="modal-footer bg-white">
+          
+          <div class="form-group mr-auto">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
+              </div>
+              <select class="form-control" name="template">
+                <option value="0">Document</option>
+                <option value="1">Template</option>
+                <option value="3">Global Template</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group ml-auto">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
+              </div>
+              <select class="form-control" name="folder">
+                <option value="">- Select Folder -
+                <option value="">/</option>
+              </select>
+            </div>
+          </div>
+
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="add_document" class="btn btn-primary">Save</button>
+
         </div>
       </form>
     </div>

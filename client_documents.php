@@ -55,12 +55,14 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 $sql_no_tag = "SELECT SQL_CALC_FOUND_ROWS * FROM documents
   WHERE document_client_id = $client_id
   AND documents.company_id = $session_company_id
+  AND document_template = 0
   AND (document_name LIKE '%$q%' OR document_content LIKE '%$q%')
   ORDER BY $sb $o LIMIT $record_from, $record_to";
 
 $sql_with_tag = "SELECT SQL_CALC_FOUND_ROWS * FROM documents
   LEFT JOIN documents_tagged ON documents.document_id = documents_tagged.document_id
   WHERE document_client_id = $client_id
+  AND document_template = 0
   AND documents.company_id = $session_company_id
   AND (document_name LIKE '%$q%' OR document_content LIKE '%$q%')
   AND documents_tagged.tag_id LIKE '%$tag%'
@@ -81,9 +83,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-alt"></i> Documents</h3>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDocumentModal"><i class="fas fa-fw fa-plus"></i> New Document</button>
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#manageTagsModal"><i class="fas fa-fw fa-tags"></i> Tags</button>
+      
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="fas fa-fw fa-plus"></i> New Document</button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentModal">New Document</a>
+          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentFromTemplateModal">From Template</a>
+          <div class="dropdown-divider text-dark"></div>
+          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#manageTagsModal"><i class="fas fa-fw fa-tags"></i> Tags</a>
+        </div>
+      </div>
+
     </div>
+
+
   </div>
   <div class="card-body">
       <div class="form-group">
