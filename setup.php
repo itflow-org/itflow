@@ -893,7 +893,7 @@ if(isset($_POST['add_user'])){
   }
 
   //Create Settings
-  mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id, user_role = 6, user_default_company = 1");
+  mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id, user_role = 3, user_default_company = 1");
   
   $_SESSION['alert_message'] = "User <strong>$name</strong> created!";
 
