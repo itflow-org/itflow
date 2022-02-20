@@ -47,10 +47,10 @@ $item_note = $row['item_note'];
 $item_views = intval($row['item_views']);
 $item_created = $row['item_created_at'];
 $item_expire = $row['item_expire_at'];
-$item_client_id = $row['item_client_id'];
+$client_id = $row['item_client_id'];
 
 if($item_type == "Document"){
-    $doc_sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = '$item_related_id' AND document_client_id = '$item_client_id' LIMIT 1");
+    $doc_sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = '$item_related_id' AND document_client_id = '$client_id' LIMIT 1");
     $doc_row = mysqli_fetch_array($doc_sql);
 
     if(mysqli_num_rows($doc_sql) !== 1 OR !$doc_row){
@@ -73,13 +73,12 @@ if($item_type == "Document"){
     $new_item_views = $item_views + 1;
     mysqli_query($mysqli, "UPDATE shared_items SET item_views = '$new_item_views' WHERE item_id = '$item_id'");
 
-    // Logging // TODO: Need to add IP, etc.
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'Viewed', log_description = 'Viewed shared $item_type link - Item ID: $item_id', log_client_id = '$item_client_id', log_created_at = NOW(), company_id = '1'");
-
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Viewed shared $item_type via link - Item ID: $item_id', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
 
 }
 elseif($item_type == "File"){
-    $file_sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = '$item_related_id' AND file_client_id = '$item_client_id' LIMIT 1");
+    $file_sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = '$item_related_id' AND file_client_id = '$client_id' LIMIT 1");
     $file_row = mysqli_fetch_array($file_sql);
 
     if(mysqli_num_rows($file_sql) !== 1 OR !$file_row){
@@ -101,7 +100,7 @@ elseif($item_type == "File"){
 elseif($item_type == "Login"){
     $encryption_key = $_GET['ek'];
 
-    $login_sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_id = '$item_related_id' AND login_client_id = '$item_client_id' LIMIT 1");
+    $login_sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_id = '$item_related_id' AND login_client_id = '$client_id' LIMIT 1");
     $login_row = mysqli_fetch_array($login_sql);
     if(mysqli_num_rows($login_sql) !== 1 OR !$login_row){
         echo "<div class=\"alert alert-danger\" role=\"alert\">Error retrieving login.</div>";
@@ -130,6 +129,12 @@ elseif($item_type == "Login"){
     echo "<p>OTP: $login_otp</p>";
     echo "<p>Notes: $login_notes</p>";
 
+    // Update login view count
+    $new_item_views = $item_views + 1;
+    mysqli_query($mysqli, "UPDATE shared_items SET item_views = '$new_item_views' WHERE item_id = '$item_id'");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Viewed shared $item_type via link - Item ID: $item_id', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
 
 }
 

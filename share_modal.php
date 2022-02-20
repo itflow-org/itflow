@@ -62,6 +62,7 @@
                     </div>
                     <button class="form-control" onclick="event.preventDefault(); generateShareLink()">Share</button>
                 </form>
+                <p><i>Note: Login passwords are shared "as is" and will not update</i></p>
 
                 <hr>
 

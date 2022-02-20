@@ -3,6 +3,9 @@
   include("config.php");
   include("functions.php");
 
+$ip = trim(strip_tags(mysqli_real_escape_string($mysqli,get_ip())));
+$user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
+
 ?>
 
 <!DOCTYPE html>

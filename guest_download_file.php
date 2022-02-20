@@ -1,6 +1,10 @@
 <?php
+// Not including the guest header as we don't want any HTML output
 include("config.php");
 include("functions.php");
+$ip = trim(strip_tags(mysqli_real_escape_string($mysqli,get_ip())));
+$user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
+
 if(isset($_GET['id']) AND isset($_GET['key'])){
     $item_id = intval($_GET['id']);
     $item_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['key'])));
@@ -53,12 +57,12 @@ if(isset($_GET['id']) AND isset($_GET['key'])){
     header('Content-Disposition: attachment; filename=download.' .$file_ext);
     readfile($file_path);
 
-
-    // Update file view count & logging
+    // Update file view count
     $new_item_views = $item_views + 1;
     mysqli_query($mysqli, "UPDATE shared_items SET item_views = '$new_item_views' WHERE item_id = '$item_id'");
 
-
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Downloaded shared file via link - Item ID: $item_id', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
 
 
 }

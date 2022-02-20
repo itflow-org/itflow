@@ -1308,12 +1308,32 @@ if(isset($_GET['share_generate_link'])){
     $item_expires = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['expires'])));
     $item_key = keygen();
 
+    if($item_type == "Login"){
+        $login = mysqli_query($mysqli, "SELECT login_password FROM logins WHERE login_id = '$item_id' AND login_client_id = '$client_id' LIMIT 1");
+        $row = mysqli_fetch_array($login);
+
+        $login_password_cleartext = decryptLoginEntry($row['login_password']);
+        $login_encryption_key = keygen();
+        $iv = keygen();
+        $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $login_encryption_key, 0, $iv);
+
+        $item_encrypted_credential = $iv . $ciphertext;
+    }
+    else{
+        $item_encrypted_credential = '';
+    }
+
     // Insert entry into DB
-    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = '1', item_key = '$item_key', item_type = '$item_type', item_related_id = '$item_id', item_note = '$item_note', item_view_limit = '$item_view_limit', item_created_at = NOW(), item_expire_at = '$item_expires', item_client_id = '$client_id'");
+    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = '1', item_key = '$item_key', item_type = '$item_type', item_related_id = '$item_id', item_encrypted_credential = '$item_encrypted_credential', item_note = '$item_note', item_view_limit = '$item_view_limit', item_created_at = NOW(), item_expire_at = '$item_expires', item_client_id = '$client_id'");
     $share_id = $mysqli->insert_id;
 
     // Return URL
-    $url = "$config_base_url/guest_view_item.php?id=$share_id&key=$item_key";
+    if($item_type == "Login"){
+        $url = "$config_base_url/guest_view_item.php?id=$share_id&key=$item_key&ek=$login_encryption_key";
+    }
+    else{
+        $url = "$config_base_url/guest_view_item.php?id=$share_id&key=$item_key";
+    }
     echo json_encode($url);
 
     // Logging
