@@ -94,7 +94,7 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
   ```
 * PHP
   ```sh
-  sudo apt install php libapache2-mod-php
+  sudo apt install php libapache2-mod-php php-intl
   ```
 * MariaDB
   ```sh
