@@ -5766,7 +5766,7 @@ if(isset($_POST['add_service'])){
     $service_category = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['category']))); //TODO: Needs integration with company categories
     $service_importance = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['importance'])));
     $service_backup = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['backup'])));
-    $service_notes = trim(htmlentities(mysqli_real_escape_string($mysqli,$_POST['note'])));
+    $service_notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
 
     // Create Service
     $service_sql = mysqli_query($mysqli, "INSERT INTO services SET service_name = '$service_name', service_description = '$service_description', service_category = '$service_category', service_importance = '$service_importance', service_backup = '$service_backup', service_notes = '$service_notes', service_created_at = NOW(), service_client_id = '$client_id', company_id = '$session_company_id'");
@@ -5859,7 +5859,7 @@ if(isset($_POST['edit_service'])){
     $service_category = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['category']))); //TODO: Needs integration with company categories
     $service_importance = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['importance'])));
     $service_backup = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['backup'])));
-    $service_notes = trim(htmlentities(mysqli_real_escape_string($mysqli,$_POST['note'])));
+    $service_notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
 
     // Update main service details
     mysqli_query($mysqli, "UPDATE services SET service_name = '$service_name', service_description = '$service_description', service_category = '$service_category', service_importance = '$service_importance', service_backup = '$service_backup', service_notes = '$service_notes', service_updated_at = NOW() WHERE service_id = '$service_id' AND company_id = '$session_company_id'");
