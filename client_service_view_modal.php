@@ -18,7 +18,7 @@
                             <b>Backup Info:</b> <?php echo $service_backup; ?> <br><br>
 
                             <h5><i class="nav-icon fas fa-sticky-note"></i> Notes</h5>
-                            <?php echo nl2br($service_notes); ?>
+                            <div style="white-space: pre-line"><?php echo $service_notes; ?></div>
                             <hr>
 
                             <!-- Assets -->
