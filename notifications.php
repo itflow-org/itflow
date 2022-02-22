@@ -2,7 +2,7 @@
 
 <?php 
 
-$sql = mysqli_query($mysqli,"SELECT * FROM notifications WHERE notification_dismissed_at IS NULL AND company_id = $session_company_id ORDER BY notification_id DESC"); 
+$sql = mysqli_query($mysqli,"SELECT * FROM notifications LEFT JOIN clients ON notification_client_id = client_id WHERE notification_dismissed_at IS NULL AND notifications.company_id = $session_company_id ORDER BY notification_id DESC");
 
 ?>
 
@@ -25,6 +25,7 @@ $sql = mysqli_query($mysqli,"SELECT * FROM notifications WHERE notification_dism
             <th>Timestamp</th>
             <th>Type</th>
             <th>Notification</th>
+            <th>Client</th>
             <th class="text-center">Dismiss</th>
           </tr>
         </thead>
@@ -36,12 +37,20 @@ $sql = mysqli_query($mysqli,"SELECT * FROM notifications WHERE notification_dism
             $notification_type = $row['notification_type'];
             $notification = $row['notification'];
             $notification_timestamp = $row['notification_timestamp'];
+            $client_name = $row['client_name'];
+            $client_id = $row['client_id'];
+            if(empty($client_name)){
+              $client_name_display = "-";
+            }else{
+              $client_name_display = "<a href='client.php?client_id=$client_id&tab=notifications'>$client_name</a>";
+            }
 
           ?>
           <tr class="row-danger">
             <td><?php echo $notification_timestamp; ?></td>
             <td><?php echo $notification_type; ?></td>
             <td><?php echo $notification; ?></td>
+            <td><?php echo $client_name_display; ?></td>
             <td class="text-center"><a class="btn btn-info btn-sm" href="post.php?dismiss_notification=<?php echo $notification_id; ?>"><i class="fa fa-check"></a></td>
           </tr>
 
