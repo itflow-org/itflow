@@ -86,7 +86,7 @@ if ($total_found_rows > 10) {
 }
           
 if($total_found_rows == 0){
-	echo "<center><i class='far fa-fw fa-6x fa-meh-rolling-eyes text-secondary'></i><h3 class='text-secondary mt-2'>Records? whattt</h3></center>";
+	echo "<center class='my-3'><i class='far fa-fw fa-6x fa-meh-rolling-eyes text-secondary'></i><h3 class='text-secondary mt-3'>No Results</h3></center>";
 }
 
 ?>
