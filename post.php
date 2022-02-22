@@ -3132,6 +3132,7 @@ if(isset($_GET['email_quote'])){
     $quote_id = $row['quote_id'];
     $quote_prefix = $row['quote_prefix'];
     $quote_number = $row['quote_number'];
+    $quote_scope = $row['quote_scope'];
     $quote_status = $row['quote_status'];
     $quote_date = $row['quote_date'];
     $quote_amount = $row['quote_amount'];
@@ -3185,8 +3186,8 @@ if(isset($_GET['email_quote'])){
         // Content
         $mail->isHTML(true);                                  // Set email format to HTML
 
-        $mail->Subject = "Quote";
-        $mail->Body    = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href='https://$base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+        $mail->Subject = "Quote [$quote_scope]";
+        $mail->Body    = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href='https://$base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>Sales<br>$config_quote_from_email<br>$company_phone";
         
         $mail->send();
         echo 'Message has been sent';
@@ -3673,7 +3674,7 @@ if(isset($_POST['add_payment'])){
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
                   $mail->Subject = "Payment Recieved - Invoice $invoice_prefix$invoice_number";
-                  $mail->Body    = "Hello $contact_name,<br><br>We have recieved your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $payment_currency_code) . " for invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $payment_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>$company_phone";
+                  $mail->Body    = "Hello $contact_name,<br><br>We have recieved your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $payment_currency_code) . " for invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $payment_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';
@@ -3709,7 +3710,7 @@ if(isset($_POST['add_payment'])){
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
                   $mail->Subject = "Partial Payment Recieved - Invoice $invoice_prefix$invoice_number";
-                  $mail->Body    = "Hello $contact_name,<br><br>We have recieved partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $payment_currency_code) . " and it has been applied to invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $payment_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>$company_phone";
+                  $mail->Body    = "Hello $contact_name,<br><br>We have recieved partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $payment_currency_code) . " and it has been applied to invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $payment_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';
@@ -3859,12 +3860,12 @@ if(isset($_GET['email_invoice'])){
         if($invoice_status == 'Paid'){
 
             $mail->Subject = "Invoice $invoice_prefix$invoice_number Copy";
-            $mail->Body    = "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Automated Billing Department<br>$company_phone";
+            $mail->Body    = "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
         }else{
 
             $mail->Subject = "Invoice $invoice_prefix$invoice_number";
-            $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+            $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
             //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         }
         
@@ -5543,18 +5544,21 @@ if(isset($_POST['add_ticket_reply'])){
     // Send e-mail to client if public update & email is setup
     if($ticket_reply_type == 'Public' && !empty($config_smtp_host)){
 
-        $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject FROM tickets 
-                                                    LEFT JOIN clients ON ticket_client_id = client_id 
-                                                    LEFT JOIN contacts ON ticket_contact_id = contact_id 
-                                                  WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id");
-        $ticket_details = mysqli_fetch_array($ticket_sql);
+        $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
+            LEFT JOIN clients ON ticket_client_id = client_id 
+            LEFT JOIN contacts ON ticket_contact_id = contact_id
+            LEFT JOIN companies ON tickets.company_id = companies.company_id
+            WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id
+        ");
+        
+        $row = mysqli_fetch_array($ticket_sql);
 
-        $contact_name = $ticket_details['contact_name'];
-        $contact_email = $ticket_details['contact_email'];
-
-        $ticket_prefix = $ticket_details['ticket_prefix'];
-        $ticket_number = $ticket_details['ticket_number'];
-        $ticket_subject = $ticket_details['ticket_subject'];
+        $contact_name = $row['contact_name'];
+        $contact_email = $row['contact_email'];
+        $ticket_prefix = $row['ticket_prefix'];
+        $ticket_number = $row['ticket_number'];
+        $ticket_subject = $row['ticket_subject'];
+        $company_phone = formatPhoneNumber($row['company_phone']);
 
         if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
 
@@ -5579,7 +5583,7 @@ if(isset($_POST['add_ticket_reply'])){
                 $mail->isHTML(true);                                        // Set email format to HTML
 
                 $mail->Subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
-                $mail->Body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br><br>~<br>$session_company_name";
+                $mail->Body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
                 $mail->send();
             }
             catch(Exception $e){
