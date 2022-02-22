@@ -80,7 +80,8 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM logs
   LEFT JOIN users ON log_user_id = user_id
-  WHERE (log_type LIKE '%$q%' OR log_action LIKE '%$q%' OR log_description LIKE '%$q%' OR log_ip LIKE '%$q%' OR log_user_agent LIKE '%$q%' OR user_name LIKE '%$q%')
+  LEFT JOIN clients ON log_client_id = client_id
+  WHERE (log_type LIKE '%$q%' OR log_action LIKE '%$q%' OR log_description LIKE '%$q%' OR log_ip LIKE '%$q%' OR log_user_agent LIKE '%$q%' OR user_name LIKE '%$q%' OR client_name LIKE '%$q%')
   AND DATE(log_created_at) BETWEEN '$dtf' AND '$dtt'
   ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
@@ -146,6 +147,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_created_at&o=<?php echo $disp; ?>">Timestamp</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">User</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_type&o=<?php echo $disp; ?>">Type</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_action&o=<?php echo $disp; ?>">Action</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_description&o=<?php echo $disp; ?>">Description</a></th>
@@ -171,12 +173,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $user_name_display = $user_name;
             }
+            $client_name = $row['client_name'];
+            $client_id = $row['client_id'];
+            if(empty($client_name)){
+              $client_name_display = "-";
+            }else{
+              $client_name_display = "<a href='client.php?client_id=$client_id&tab=logs'>$client_name</a>";
+            }
           
           ?>
           
           <tr>
             <td><?php echo $log_created_at; ?></td>
             <td><?php echo $user_name_display; ?></td>
+            <td><?php echo $client_name_display; ?></td>
             <td><?php echo $log_type; ?></td>
             <td><?php echo $log_action; ?></td>
             <td><?php echo $log_description; ?></td>

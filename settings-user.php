@@ -186,11 +186,11 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
             $log_created_at = $row['log_created_at'];
 
             if($log_action == 'Created'){
-              $log_icon = "plus";
+              $log_icon = "plus text-success";
             }elseif($log_action == 'Modified'){
-              $log_icon = "edit";
+              $log_icon = "edit text-info";
             }elseif($log_action == 'Deleted'){
-              $log_icon = "trash-alt";
+              $log_icon = "trash-alt text-danger";
             }else{
               $log_icon = "pencil";
             }
