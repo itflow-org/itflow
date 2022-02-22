@@ -147,7 +147,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $location_name_display = "-";
             }else{
               $location_name_display = $location_name;
-            }          
+            }
+            $department_id = $row['department_id'];          
       
           ?>
           <tr>

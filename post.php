@@ -3958,6 +3958,7 @@ if(isset($_POST['add_contact'])){
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
+    $department = intval($_POST['department']);
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
@@ -3970,7 +3971,7 @@ if(isset($_POST['add_contact'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_created_at = NOW(), contact_location_id = $location_id, contact_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_created_at = NOW(), contact_department_id = $department, contact_location_id = $location_id, contact_client_id = $client_id, company_id = $session_company_id");
 
     $contact_id = mysqli_insert_id($mysqli);
 
@@ -4036,6 +4037,7 @@ if(isset($_POST['edit_contact'])){
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
+    $department = intval($_POST['department']);
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
@@ -4050,7 +4052,7 @@ if(isset($_POST['edit_contact'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_location_id = $location_id, contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_department_id = $department, contact_location_id = $location_id, contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     //Update Primay contact in clients if primary contact is checked
     if($primary_contact > 0){
@@ -4157,12 +4159,12 @@ if(isset($_GET['export_client_contacts_csv'])){
         $f = fopen('php://memory', 'w');
         
         //set column headers
-        $fields = array('Name', 'Title', 'Department', 'Email', 'Phone', 'Mobile', 'Notes');
+        $fields = array('Name', 'Title', 'Department', 'Email', 'Phone', 'Ext', 'Mobile', 'Notes');
         fputcsv($f, $fields, $delimiter);
         
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
-            $lineData = array($row['contact_name'], $row['contact_title'], $row['department_name'], $row['contact_email'], $row['contact_phone'], $row['contact_mobile'], $row['contact_notes']);
+            $lineData = array($row['contact_name'], $row['contact_title'], $row['department_name'], $row['contact_email'], formatPhoneNumber($row['contact_phone']), $row['contact_extension'], formatPhoneNumber($row['contact_mobile']), $row['contact_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
         
@@ -4395,6 +4397,70 @@ if(isset($_GET['export_client_locations_csv'])){
         fpassthru($f);
     }
     exit;
+  
+}
+
+// Client Departments
+if(isset($_POST['add_department'])){
+
+    $client_id = intval($_POST['client_id']);
+    $department_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department_name'])));
+
+    mysqli_query($mysqli,"INSERT INTO departments SET department_name = '$department_name', department_created_at = NOW(), department_client_id = $client_id, company_id = $session_company_id");
+
+    $contact_id = mysqli_insert_id($mysqli);
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Create', log_description = '$department_name', log_created_at = NOW(), company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] .= "Department added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_department'])){
+
+    $department_id = intval($_POST['department_id']);
+    $client_id = intval($_POST['client_id']);
+    $department_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department_name'])));
+
+    mysqli_query($mysqli,"UPDATE departments SET department_name = '$department_name', department_updated_at = NOW() WHERE department_id = $department_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Modify', log_description = '$department_name', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] .= "Department updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['archive_department'])){
+    $department_id = intval($_GET['archive_department']);
+
+    mysqli_query($mysqli,"UPDATE departments SET department_archived_at = NOW() WHERE department_id = $department_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Archive', log_description = '$department_id', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Department Archived!";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_department'])){
+    $department_id = intval($_GET['delete_department']);
+
+    mysqli_query($mysqli,"DELETE FROM departments WHERE department_id = $department_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$department_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Department deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
   
 }
 
@@ -6717,7 +6783,11 @@ if(isset($_GET['export_client_pdf'])){
                             { 
                                 text: 'Title', 
                                 style: 'itemHeader' 
-                            }, 
+                            },
+                            { 
+                                text: 'Department', 
+                                style: 'itemHeader' 
+                            },  
                             { 
                                 text: 'Email', 
                                 style: 'itemHeader' 
@@ -6725,7 +6795,7 @@ if(isset($_GET['export_client_pdf'])){
                             { 
                                 text: 'Phone', 
                                 style: 'itemHeader' 
-                            }, 
+                            },
                             { 
                                 text: 'Mobile',
                                 style: 'itemHeader' 
@@ -6764,7 +6834,7 @@ if(isset($_GET['export_client_pdf'])){
                                 style: 'item'
                             },
                             {
-                                text: <?php echo json_encode($contact_phone); ?>,
+                                text: <?php echo json_encode("$contact_phone $contact_extension"); ?>,
                                 style: 'item'
                             },
                             {

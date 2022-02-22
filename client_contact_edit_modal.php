@@ -56,6 +56,30 @@
                 </div>
               </div>
 
+              <div class="form-group">
+                <label>Department</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                  </div>
+                  <select class="form-control select2" name="department">
+                    <option value="">- Department -</option>
+                    <?php 
+                    
+                    $sql_departments = mysqli_query($mysqli,"SELECT * FROM departments WHERE department_client_id = $client_id ORDER BY department_name ASC"); 
+                    while($row = mysqli_fetch_array($sql_departments)){
+                      $department_id_select = $row['department_id'];
+                      $department_name_select = $row['department_name'];
+                    ?>
+                    <option <?php if($department_id_select == $department_id){ echo "selected"; } ?> value="<?php echo $department_id_select; ?>"><?php echo $department_name_select; ?></option>
+                    
+                    <?php
+                    }
+                    ?>
+                  </select>
+                </div>
+              </div>
+
               <label>Phone</label>
               <div class="form-row">
                 <div class="col-8">

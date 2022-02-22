@@ -7,6 +7,9 @@ if(isset($_GET['tab'])){
   elseif($_GET['tab'] == "locations"){
     include("client_locations.php");
   }
+  if($_GET['tab'] == "departments"){
+    include("client_departments.php");
+  }
   elseif($_GET['tab'] == "assets"){
     include("client_assets.php");
   }
