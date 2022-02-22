@@ -149,7 +149,7 @@ if(isset($_GET['client_id'])){
 
 <?php
 
-include("inc_side_nav.php");
+include("client_side_nav.php");
 include("inc_wrapper.php");
 include("inc_alert_feedback.php");
 
