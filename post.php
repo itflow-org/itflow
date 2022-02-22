@@ -2326,7 +2326,7 @@ if(isset($_GET['dismiss_notification'])){
 
     $notification_id = intval($_GET['dismiss_notification']);
 
-    mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = CURDATE() WHERE notification_id = $notification_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = CURDATE(), notification_dismissed_by = $session_user_id WHERE notification_id = $notification_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Notifications', log_action = 'Modify', log_description = '$Notification Dismissed', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -2347,7 +2347,7 @@ if(isset($_GET['dismiss_all_notifications'])){
         $notification_id = $row['notification_id'];
         $notification_dismissed_at = $row['notification_dismissed_at'];
 
-        mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = CURDATE() WHERE notification_id = $notification_id");
+        mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = CURDATE(), notification_dismissed_by = $session_user_id WHERE notification_id = $notification_id");
     
     }
 
