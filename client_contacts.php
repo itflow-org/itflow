@@ -41,8 +41,9 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM contacts 
   LEFT JOIN locations ON location_id = contact_location_id
+  LEFT JOIN departments ON contact_department_id = department_id
   WHERE contact_archived_at IS NULL 
-  AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%' OR contact_phone LIKE '%$q%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$q%' OR contact_email LIKE '%$q%') 
+  AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%' OR contact_phone LIKE '%$q%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$q%' OR contact_email LIKE '%$q%' OR department_name LIKE '%$q%') 
   AND contact_client_id = $client_id ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -86,7 +87,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="thead-light <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th class="text-center"><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Name</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_title&o=<?php echo $disp; ?>">Title</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=department_name&o=<?php echo $disp; ?>">Department</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_email&o=<?php echo $disp; ?>">Email</a></th>
             <th>Phone</th>
             <th>Mobile</th>
@@ -104,7 +105,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             if(empty($contact_title)){
               $contact_title_display = "-";
             }else{
-              $contact_title_display = $contact_title;
+              $contact_title_display = "<small class='text-secondary'>$contact_title</small>";
+            }
+            $department_name = $row['department_name'];
+            if(empty($department_name)){
+              $department_name_display = "-";
+            }else{
+              $department_name_display = $department_name;
             }
             $contact_phone = formatPhoneNumber($row['contact_phone']);
             if(empty($contact_phone)){
@@ -160,11 +167,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 
                 <?php } ?>
                 <div class="text-dark"><?php echo $contact_name; ?></div>
+                <div><?php echo $contact_title_display; ?></div>
                 <div><?php echo $primary_contact_display; ?></div>
               </a>
             </th>
             
-            <td><?php echo $contact_title_display; ?></td>
+            <td><?php echo $department_name_display; ?></td>
             <td><?php echo $contact_email_display; ?></td>
             <td><?php echo $contact_phone_display; ?> <?php if(!empty($contact_extension)){ echo "x$contact_extension"; } ?></td>
             <td><?php echo $contact_mobile_display; ?></td>
