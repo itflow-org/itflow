@@ -1,4 +1,4 @@
-<?php include("inc_all.php"); ?>
+<?php include("inc_all_reports.php"); ?>
 <?php 
 
 function roundUpToNearestMultiple($n, $increment = 1000)

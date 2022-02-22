@@ -176,40 +176,11 @@
           </a>
         </li>
 
-        <li class="nav-item has-treeview <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_summary.php" OR basename($_SERVER["PHP_SELF"]) == "report_expense_summary.php" OR basename($_SERVER["PHP_SELF"]) == "report_tax_summary.php" OR basename($_SERVER["PHP_SELF"]) == "report_profit_loss.php") { echo "menu-open"; } ?>">
-          <a href="#" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_summary.php" OR basename($_SERVER["PHP_SELF"]) == "report_expense_summary.php" OR basename($_SERVER["PHP_SELF"]) == "report_tax_summary.php" OR basename($_SERVER["PHP_SELF"]) == "report_profit_loss.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-chart-area"></i>
-            <p>
-              Reports
-              <i class="right fas fa-angle-left"></i>
-            </p>
+        <li class="nav-item">
+          <a href="report_income_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
+            <i class="fas fa-chart-bar nav-icon"></i>
+            <p>Reports</p>
           </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="report_income_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Income</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="report_expense_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_expense_summary.php") { echo "active"; } ?>">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Expense</p>
-              </a>
-            </li>
-             <li class="nav-item">
-              <a href="report_tax_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_tax_summary.php") { echo "active"; } ?>">
-                <i class="fas fa-percent nav-icon"></i>
-                <p>Tax Summary</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="report_profit_loss.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_profit_loss.php") { echo "active"; } ?>">
-                <i class="fas fa-balance-scale nav-icon"></i>
-                <p>Profit & Loss</p>
-              </a>
-            </li>
-          </ul>
         </li>
 
         <?php } ?>
