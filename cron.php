@@ -53,9 +53,9 @@ while($row = mysqli_fetch_array($sql_companies)){
     foreach($domainAlertArray as $day){
 
       //Get Domains Expiring
-      $sql = mysqli_query($mysqli,"SELECT * FROM domains, clients 
-        WHERE domain_client_id = client_id 
-        AND domain_expire = CURDATE() + INTERVAL $day DAY
+      $sql = mysqli_query($mysqli,"SELECT * FROM domains
+        LEFT JOIN clients ON domain_client_id = client_id 
+        WHERE domain_expire = CURDATE() + INTERVAL $day DAY
         AND domains.company_id = $company_id"
       );
 
@@ -66,7 +66,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         $client_id = $row['client_id'];
         $client_name = $row['client_name'];
 
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Domain', notification = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', notification_timestamp = NOW(), company_id = $company_id");
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Domain', notification = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
       }
 
@@ -79,9 +79,9 @@ while($row = mysqli_fetch_array($sql_companies)){
     foreach($certificateAlertArray as $day){
 
       //Get Domains Expiring
-      $sql = mysqli_query($mysqli,"SELECT * FROM certificates, clients 
-        WHERE certificate_client_id = client_id 
-        AND certificate_expire = CURDATE() + INTERVAL $day DAY
+      $sql = mysqli_query($mysqli,"SELECT * FROM certificates
+        LEFT JOIN clients ON certificate_client_id = client_id 
+        WHERE certificate_expire = CURDATE() + INTERVAL $day DAY
         AND certificates.company_id = $company_id"
       );
 
@@ -93,7 +93,33 @@ while($row = mysqli_fetch_array($sql_companies)){
         $client_id = $row['client_id'];
         $client_name = $row['client_name'];
 
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Certificate', notification = 'Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire', notification_timestamp = NOW(), company_id = $company_id");
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Certificate', notification = 'Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+
+      }
+
+    }
+
+    // CERTIFICATES EXPIRING 
+
+    $warranty_alert_array = [1,7,14,30,90,120];
+
+    foreach($$warranty_alert_array as $day){
+
+      //Get Asset Warranty Expiring
+      $sql = mysqli_query($mysqli,"SELECT * FROM assets 
+        LEFT JOIN clients ON asset_client_id = client_id
+        WHERE asset_warranty_expire = CURDATE() + INTERVAL $day DAY
+        AND assets.company_id = $company_id"
+      );
+
+      while($row = mysqli_fetch_array($sql)){
+        $asset_id = $row['asset_id'];
+        $asset_name = $row['asset_name'];
+        $asset_warranty_expire = $row['asset_warranty_expire'];
+        $client_id = $row['client_id'];
+        $client_name = $row['client_name'];
+
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Asset', notification = 'Asset $asset_name warranty for $client_name will expire in $day Days on $asset_warranty_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
       }
 
@@ -240,7 +266,7 @@ while($row = mysqli_fetch_array($sql_companies)){
     //Send Recurring Invoices that match todays date and are active
 
     //Loop through all recurring that match today's date and is active
-    $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring, clients WHERE client_id = recurring_client_id AND recurring_next_date = CURDATE() AND recurring_status = 1 AND recurring.company_id = $company_id");
+    $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring LEFT JOIN clients ON client_id = recurring_client_id WHERE recurring_next_date = CURDATE() AND recurring_status = 1 AND recurring.company_id = $company_id");
 
     while($row = mysqli_fetch_array($sql_recurring)){
       $recurring_id = $row['recurring_id'];

@@ -751,6 +751,7 @@ CREATE TABLE `notifications` (
   `notification_timestamp` datetime NOT NULL,
   `notification_dismissed_at` datetime DEFAULT NULL,
   `notification_dismissed_by` int(11) DEFAULT NULL,
+  `notification_client_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`notification_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -1448,4 +1449,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-21 21:19:40
+-- Dump completed on 2022-02-21 21:41:35
