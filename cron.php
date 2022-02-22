@@ -99,7 +99,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
     }
 
-    // CERTIFICATES EXPIRING 
+    // Asset Warranties Expiring 
 
     $warranty_alert_array = [1,7,14,30,90,120];
 
@@ -189,7 +189,7 @@ while($row = mysqli_fetch_array($sql_companies)){
       }
     }
 
-    //PAST DUE INVOICE ALERTS
+    // PAST DUE INVOICE ALERTS
     //$invoiceAlertArray = [$config_invoice_overdue_reminders];
     $invoiceAlertArray = [30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620];
 
@@ -221,7 +221,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
 
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Invoice', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_timestamp = NOW(), company_id = $company_id");
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Invoice', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
         $mail = new PHPMailer(true);
 
