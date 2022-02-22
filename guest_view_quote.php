@@ -206,11 +206,13 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
 
       <div class="row mb-4">
         <div class="col-sm-7">
+          <?php if(!empty($quote_note)){ ?>
           <div class="card">
             <div class="card-body">
               <div style="white-space:pre-line"><?php echo $quote_note; ?></div>
             </div>
           </div>
+        	<?php } ?>
         </div>
 
         <div class="col-sm-3 offset-sm-2">

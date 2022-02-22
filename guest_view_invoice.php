@@ -252,11 +252,13 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
 
       <div class="row mb-4">
         <div class="col-sm-7">
+          <?php if(!empty($invoice_note)){ ?>
           <div class="card">
             <div class="card-body">
               <div style="white-space:pre-line"><?php echo $invoice_note; ?></div>
             </div>
           </div>
+          <?php } ?>
         </div>
         <div class="col-sm-3 offset-sm-2">
           <table class="table table-borderless">
