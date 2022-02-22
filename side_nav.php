@@ -46,6 +46,18 @@
 
       <?php } ?>
 
+      <form class="form-inline mb-2" action="global_search.php">
+        <div class="input-group">
+          <input class="form-control form-control-sidebar" type="search" placeholder="Search" name="query" value="<?php if(isset($_GET['query'])){ echo $_GET['query']; } ?>">
+          <div class="input-group-append">
+            <button class="btn btn-sidebar" type="submit">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+
+
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
 
         <li class="nav-item">
