@@ -193,9 +193,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $quote_badge_color = "warning text-white";
             }elseif($quote_status == "Viewed"){
               $quote_badge_color = "primary";
-            }elseif($quote_status == "Approved"){
+            }elseif($quote_status == "Accepted"){
               $quote_badge_color = "success";
-            }elseif($quote_status == "Rejected"){
+            }elseif($quote_status == "Declined"){
               $quote_badge_color = "danger";
             }elseif($quote_status == "Invoiced"){
               $quote_badge_color = "info";

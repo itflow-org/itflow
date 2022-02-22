@@ -3,6 +3,8 @@
   include("config.php");
   include("functions.php");
 
+session_start();
+
 $ip = trim(strip_tags(mysqli_real_escape_string($mysqli,get_ip())));
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
 
@@ -40,3 +42,22 @@ $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_A
       <!-- Main content -->
       <div class="content">
         <div class="container">
+
+          <?php
+          //Alert Feedback
+          if(!empty($_SESSION['alert_message'])){
+              if (!isset($_SESSION['alert_type'])){
+                  $_SESSION['alert_type'] = "info";
+              }
+            ?>
+              <div class="alert alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
+                <?php echo $_SESSION['alert_message']; ?>
+                <button class='close' data-dismiss='alert'>&times;</button>
+              </div>
+            <?php
+            
+            unset($_SESSION['alert_type']);
+            unset($_SESSION['alert_message']);
+
+          }
+          ?>
