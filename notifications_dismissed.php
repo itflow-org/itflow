@@ -35,8 +35,8 @@ if(isset($_GET['o'])){
     $disp = "ASC";
   }
 }else{
-  $o = "ASC";
-  $disp = "DESC";
+  $o = "DESC";
+  $disp = "ASC";
 }
 
 //Date From and Date To Filter
