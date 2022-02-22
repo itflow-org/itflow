@@ -1,4 +1,4 @@
-<?php include("header.php");
+<?php include("inc_all.php");
   
 //Paging
 if(isset($_GET['p'])){

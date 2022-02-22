@@ -1,4 +1,4 @@
-<?php include("header.php"); 
+<?php include("inc_all.php"); 
 
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);

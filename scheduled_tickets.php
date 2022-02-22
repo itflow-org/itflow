@@ -1,5 +1,5 @@
 <?php
-include("header.php");
+include("inc_all.php");
 
 //Paging
 if(isset($_GET['p'])){

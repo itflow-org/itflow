@@ -1,4 +1,4 @@
-<?php include("header.php"); ?>
+<?php include("inc_all.php"); ?>
 
 <?php include("settings-nav.php"); ?>
 

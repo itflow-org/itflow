@@ -1,6 +1,6 @@
 <?php 
   
-  include("header.php");
+  include("inc_all.php");
   
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Sent' AND company_id = $session_company_id"));
   $sent_count = $row['num'];

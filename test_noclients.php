@@ -1,4 +1,4 @@
-<?php include("header.php"); ?>
+<?php include("inc_all.php"); ?>
 
 <div class="row justify-content-md-center">
 	<div class="col-md-5">

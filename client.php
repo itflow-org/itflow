@@ -1,6 +1,9 @@
 <?php include("config.php"); ?>
 <?php include("functions.php"); ?>
 <?php include("check_login.php"); ?>
+<?php include("header.php"); ?>
+<?php include("top_nav.php"); ?>
+
 
 <?php 
 
@@ -144,7 +147,13 @@ if(isset($_GET['client_id'])){
 
 ?>
 
-<?php include("header.php"); ?>
+<?php
+
+include("inc_side_nav.php");
+include("inc_wrapper.php");
+include("inc_alert_feedback.php");
+
+?>
 
 <?php
 

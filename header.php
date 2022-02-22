@@ -4,10 +4,6 @@
   // uncomment for test
   //$time_start = microtime(true);
 
-  include("config.php");
-  include_once("functions.php");
-  include("check_login.php");
-
 ?>
 
 <!DOCTYPE html>
@@ -40,48 +36,3 @@
 </head>
 <body class="hold-transition sidebar-mini">
   <div class="wrapper text-sm">
-    <?php include("top_nav.php"); ?>
-
-    <?php 
-    
-    if(basename(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)) == "client.php"){
-      include("client_side_nav.php");
-    //}elseif(basename(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)) == "settings-general.php"){
-      //include("admin_side_nav.php");
-    }else{
-      include("side_nav.php");
-    } 
-    
-    ?>
-    
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-
-      <!-- Main content -->
-      <div class="content mt-3">
-        <div class="container-fluid">
-
-    <?php
-    //Alert Feedback
-    if(!empty($_SESSION['alert_message'])){
-        if (!isset($_SESSION['alert_type'])){
-            $_SESSION['alert_type'] = "info";
-        }
-      ?>
-        <div class="alert alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
-          <?php echo $_SESSION['alert_message']; ?>
-          <button class='close' data-dismiss='alert'>&times;</button>
-        </div>
-      <?php
-      
-      unset($_SESSION['alert_type']);
-      unset($_SESSION['alert_message']);
-
-    }
-
-    //Set Records Per Page
-    if(empty($_SESSION['records_per_page'])){
-      $_SESSION['records_per_page'] = 10;
-    }
-
-    ?>

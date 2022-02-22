@@ -1,4 +1,4 @@
-<?php include("header.php");
+<?php include("inc_all.php");
 
 if(isset($_GET['campaign_id'])){
   $campaign_id = intval($_GET['campaign_id']);

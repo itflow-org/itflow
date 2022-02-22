@@ -1,4 +1,4 @@
-<?php include("header.php"); ?>
+<?php include("inc_all.php"); ?>
 	<!-- Breadcrumbs-->
 	<ol class="breadcrumb">
 	  <li class="breadcrumb-item">

@@ -1,6 +1,6 @@
 <?php 
 
-include("header.php"); 
+include("inc_all.php"); 
 
 if(isset($_GET['invoice_id'])){
 
