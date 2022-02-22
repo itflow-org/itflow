@@ -85,9 +85,9 @@
 		$session_map_source = "google";
 	}
 
-	//Get unAcked Alert Count for the badge on the top nav
-	$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('alert_id') AS num FROM alerts WHERE alert_ack_date IS NULL AND company_id = $session_company_id"));
-  $num_alerts = $row['num'];
+	//Get Notification Count for the badge on the top nav
+	$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('notification_id') AS num FROM notifications WHERE notification_dismissed_at IS NULL AND company_id = $session_company_id"));
+  $num_notifications = $row['num'];
 
   //Set Currency Format
   $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);

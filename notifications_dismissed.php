@@ -22,7 +22,7 @@ if(isset($_GET['q'])){
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
-  $sb = "alert_date";
+  $sb = "notification_timestamp";
 }
 
 //Column Order Filter
@@ -52,7 +52,7 @@ if(!empty($_GET['dtf'])){
 
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM alerts WHERE (alert_type LIKE '%$q%' OR alert_message LIKE '%$q%') AND DATE(alert_date) BETWEEN '$dtf' AND '$dtt' AND company_id = $session_company_id AND alert_ack_date IS NOT NULL ORDER BY $sb $o LIMIT $record_from, $record_to"); 
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM notifications LEFT JOIN users ON notification_dismissed_by = user_id WHERE (notification_type LIKE '%$q%' OR notification LIKE '%$q%' OR user_name LIKE '%$q%') AND DATE(notification_timestamp) BETWEEN '$dtf' AND '$dtt' AND company_id = $session_company_id AND notification_dismissed_at IS NOT NULL ORDER BY $sb $o LIMIT $record_from, $record_to"); 
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
@@ -60,14 +60,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
   <div class="card-header py-3">
-    <h3 class="card-title"><i class="fa fa-fw fa-exclamation-triangle"></i> Archived Alerts</h3>
+    <h3 class="card-title"><i class="fa fa-fw fa-bell"></i> Dismissed Notications</h3>
   </div>
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Alerts">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Dismissed Notifications">
             <div class="input-group-append">
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>
@@ -98,28 +98,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <table class="table table-hover">
         <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=alert_date&o=<?php echo $disp; ?>">Alert Date <i class="fa fa-sort-numeric<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=alert_type&o=<?php echo $disp; ?>">Type <i class="fa fa-sort-alpha<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=alert_message&o=<?php echo $disp; ?>">Alert <i class="fa fa-sort-alpha<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=alert_ack_date&o=<?php echo $disp; ?>">Ack Date <i class="fa fa-sort-numeric<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification_timestamp&o=<?php echo $disp; ?>">Timestamp <i class="fa fa-sort-numeric<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification_type&o=<?php echo $disp; ?>">Type <i class="fa fa-sort-alpha<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification&o=<?php echo $disp; ?>">Notification <i class="fa fa-sort-alpha<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification_dismissed_at&o=<?php echo $disp; ?>">Dismissed At <i class="fa fa-sort-numeric<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">Dismissed By <i class="fa fa-sort-numeric<?php if($disp=='ASC'){ echo "-up"; }else{ echo "-down"; }?>"></i></a></th>
           </tr>
         </thead>
         <tbody>
           <?php
       
           while($row = mysqli_fetch_array($sql)){
-            $alert_id = $row['alert_id'];
-            $alert_date = $row['alert_date'];
-            $alert_type = $row['alert_type'];
-            $alert_message = $row['alert_message'];
-            $alert_ack_date = $row['alert_ack_date'];
+            $notification_id = $row['notification_id'];
+            $notification_timestamp = $row['notification_timestamp'];
+            $notification_type = $row['notification_type'];
+            $notification = $row['notification'];
+            $notification_dismissed_at = $row['notification_dismissed_at'];
+            $user_name = $row['user_name'];
 
           ?>
           <tr>
-            <td><?php echo $alert_date; ?></td>
-            <td><?php echo $alert_type; ?></td>
-            <td><?php echo $alert_message; ?></td>
-            <td><?php echo $alert_ack_date; ?></td>
+            <td><?php echo $notification_timestamp; ?></td>
+            <td><?php echo $notification_type; ?></td>
+            <td><?php echo $notification; ?></td>
+            <td><?php echo $notification_dismissed_at; ?></td>
+            <td><?php echo $user_name; ?></td>
 
           <?php
           

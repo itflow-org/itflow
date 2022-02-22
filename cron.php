@@ -44,7 +44,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
   if($config_enable_cron == 1){
 
-    // GET ALERTS
+    // GET Notifications
 
     // DOMAINS EXPIRING 
 
@@ -66,7 +66,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         $client_id = $row['client_id'];
         $client_name = $row['client_name'];
 
-        mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Domain', alert_message = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', alert_date = NOW(), company_id = $company_id");
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Domain', notification = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', notification_timestamp = NOW(), company_id = $company_id");
 
       }
 
@@ -93,7 +93,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         $client_id = $row['client_id'];
         $client_name = $row['client_name'];
 
-        mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Certificate', alert_message = 'Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire', alert_date = NOW(), company_id = $company_id");
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Certificate', notification = 'Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire', notification_timestamp = NOW(), company_id = $company_id");
 
       }
 
@@ -195,7 +195,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
 
-        mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Invoice', alert_message = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', alert_date = NOW(), company_id = $company_id");
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Invoice', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_timestamp = NOW(), company_id = $company_id");
 
         $mail = new PHPMailer(true);
 
@@ -295,7 +295,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
       mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
 
-      mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Recurring', alert_message = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', alert_date = NOW(), company_id = $company_id");
+      mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Recurring', notification = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', notification_timestamp = NOW(), company_id = $company_id");
 
       //Update recurring dates
 
@@ -360,7 +360,7 @@ while($row = mysqli_fetch_array($sql_companies)){
       } //End if Autosend is on
     } //End Recurring Invoices Loop
     //Send Alert to inform Cron was run
-    mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Cron', alert_message = 'Cron.php successfully executed', alert_date = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron.php successfully executed', notification_timestamp = NOW(), company_id = $company_id");
   } //End Cron Check
 
 } //End Company Loop through

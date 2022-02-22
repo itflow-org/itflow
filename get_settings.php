@@ -49,7 +49,7 @@ $config_ticket_next_number = $row['config_ticket_next_number'];
 $config_ticket_from_name = $row['config_ticket_from_name'];
 $config_ticket_from_email = $row['config_ticket_from_email'];
 
-//Alerts
+// Alerts
 $config_enable_cron = $row['config_enable_cron'];
 
 $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
@@ -57,14 +57,18 @@ $config_enable_alert_domain_expire = $row['config_enable_alert_domain_expire'];
 $config_send_invoice_reminders = $row['config_send_invoice_reminders'];
 $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
 
-//Online Payment
+// Online Payment
 $config_stripe_enable = $row['config_stripe_enable'];
 $config_stripe_publishable = $row['config_stripe_publishable'];
 $config_stripe_secret = $row['config_stripe_secret'];
 
-//Currency
+// Currency
 
 $config_currency_format = "US_en";
+
+// Theme
+$config_enable_dark_mode = "dark_mode";
+
 
 $colors_array = array(
     'green',

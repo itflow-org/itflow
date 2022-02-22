@@ -38,7 +38,7 @@
   <!-- <link href="plugins/dropzone/min/dropzone.min.css" rel="stylesheet"> -->
 
 </head>
-<body class="hold-transition sidebar-mini">
+<body class="hold-transition sidebar-mini dark-mod accent-purple <?php echo $config_enable_dark_mode; ?>">
   <div class="wrapper text-sm">
     <?php include("top_nav.php"); ?>
 

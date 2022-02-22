@@ -12,10 +12,10 @@
   <ul class="navbar-nav ml-auto">
     <!-- Notifications -->
     <li class="nav-item">
-      <a class="nav-link" href="alerts.php">
+      <a class="nav-link" href="notifications.php">
         <i class="fas fa-bell mr-2"></i>
-        <?php if($num_alerts > 0){ ?>
-        <span class="badge badge-danger navbar-badge"><?php echo $num_alerts; ?></span>
+        <?php if($num_notifications > 0){ ?>
+        <span class="badge badge-danger navbar-badge"><?php echo $num_notifications; ?></span>
         <?php } ?>
       </a>
     </li>
@@ -23,7 +23,7 @@
     <li class="nav-item dropdown user-menu">
       <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
         <?php if(empty($session_avatar)){ ?>
-        	<i class="fas fa-user-circle"></i>
+        	<i class="fas fa-user"></i>
         <?php }else{ ?>
         <img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="user-image img-circle">
         <?php } ?>

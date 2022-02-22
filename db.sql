@@ -37,24 +37,6 @@ CREATE TABLE `accounts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `alerts`
---
-
-DROP TABLE IF EXISTS `alerts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `alerts` (
-  `alert_id` int(11) NOT NULL AUTO_INCREMENT,
-  `alert_type` varchar(200) NOT NULL,
-  `alert_message` varchar(255) NOT NULL,
-  `alert_date` datetime NOT NULL,
-  `alert_ack_date` datetime DEFAULT NULL,
-  `company_id` int(11) NOT NULL,
-  PRIMARY KEY (`alert_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `api_keys`
 --
 
@@ -541,6 +523,8 @@ DROP TABLE IF EXISTS `folders`;
 CREATE TABLE `folders` (
   `folder_id` int(11) NOT NULL AUTO_INCREMENT,
   `folder_name` varchar(200) NOT NULL,
+  `parent_folder` int(11) DEFAULT NULL,
+  `folder_client_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`folder_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -750,6 +734,25 @@ CREATE TABLE `networks` (
   `network_client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`network_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `notifications`
+--
+
+DROP TABLE IF EXISTS `notifications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `notifications` (
+  `notification_id` int(11) NOT NULL AUTO_INCREMENT,
+  `notification_type` varchar(200) NOT NULL,
+  `notification` varchar(255) NOT NULL,
+  `notification_timestamp` datetime NOT NULL,
+  `notification_dismissed_at` datetime DEFAULT NULL,
+  `notification_dismissed_by` int(11) DEFAULT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`notification_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1445,4 +1448,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-20 17:01:28
+-- Dump completed on 2022-02-21 21:19:40

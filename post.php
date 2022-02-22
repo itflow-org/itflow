@@ -637,7 +637,7 @@ if(isset($_GET['delete_company'])){
     //Delete Company and all relational data A-Z
 
     mysqli_query($mysqli,"DELETE FROM accounts WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM alerts WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM notifications WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM assets WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM calendars WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM categories WHERE company_id = $company_id");
@@ -1044,7 +1044,7 @@ if(isset($_POST['backup_master_key'])){
 
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Download', log_description = '$session_name retrieved the master encryption key', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
-        mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Settings', alert_message = '$session_name retrieved the master encryption key', alert_date = NOW(), company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Settings', notification = '$session_name retrieved the master encryption key', notification_timestamp = NOW(), company_id = $session_company_id");
 
 
         echo "==============================";
@@ -2322,41 +2322,41 @@ if(isset($_GET['delete_custom_link'])){
 }
 //End Custom Link
 
-if(isset($_GET['alert_ack'])){
+if(isset($_GET['dismiss_notification'])){
 
-    $alert_id = intval($_GET['alert_ack']);
+    $notification_id = intval($_GET['dismiss_notification']);
 
-    mysqli_query($mysqli,"UPDATE alerts SET alert_ack_date = CURDATE() WHERE alert_id = $alert_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = CURDATE() WHERE notification_id = $notification_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Alerts', log_action = 'Modify', log_description = '$alert_id Acknowledged', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Notifications', log_action = 'Modify', log_description = '$Notification Dismissed', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Alert Acknowledged";
+    $_SESSION['alert_message'] = "Notification Dismissed";
     
-    header("Location: alerts.php");
+    header("Location: notifications.php");
 
 }
 
-if(isset($_GET['ack_all_alerts'])){
+if(isset($_GET['dismiss_all_notifications'])){
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM alerts WHERE company_id = $session_company_id AND alert_ack_date IS NULL");
+    $sql = mysqli_query($mysqli,"SELECT * FROM notifications WHERE company_id = $session_company_id AND notification_dismissed_at IS NULL");
 
-    $num_alerts = mysqli_num_rows($sql);
+    $num_notifications = mysqli_num_rows($sql);
     
     while($row = mysqli_fetch_array($sql)){
-        $alert_id = $row['alert_id'];
-        $alert_ack_date = $row['alert_ack_date'];
+        $notification_id = $row['notification_id'];
+        $notification_dismissed_at = $row['notification_dismissed_at'];
 
-        mysqli_query($mysqli,"UPDATE alerts SET alert_ack_date = CURDATE() WHERE alert_id = $alert_id");
+        mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = CURDATE() WHERE notification_id = $notification_id");
     
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Alerts', log_action = 'Modifed', log_description = 'Acknowledged all alerts', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Notifications', log_action = 'Modifed', log_description = 'Dismissed all notifications', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
     
-    $_SESSION['alert_message'] = "$num_alerts Alerts Acknowledged";
+    $_SESSION['alert_message'] = "$num_notifications Notifications Dismissed";
     
-    header("Location: alerts.php");
+    header("Location: notifications.php");
 
 }
 
