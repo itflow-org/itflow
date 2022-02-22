@@ -7,6 +7,7 @@ if(isset($_GET['query'])){
     $query = mysqli_real_escape_string($mysqli,$_GET['query']);
 
     $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN locations ON clients.client_id = locations.location_client_id WHERE client_name LIKE '%$query%' AND clients.company_id = $session_company_id ORDER BY client_id DESC LIMIT 5");
+    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN clients ON client_id = contact_client_id WHERE contact_name LIKE '%$query%' AND contacts.company_id = $session_company_id ORDER BY contact_id DESC LIMIT 5");
     $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY vendor_id DESC LIMIT 5");
     $sql_products = mysqli_query($mysqli,"SELECT * FROM products WHERE product_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY product_id DESC LIMIT 5");
     $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents LEFT JOIN clients on document_client_id = clients.client_id WHERE document_name LIKE '%$query%' AND documents.company_id = $session_company_id ORDER BY document_id DESC LIMIT 5");
@@ -44,11 +45,7 @@ if(isset($_GET['query'])){
                         while($row = mysqli_fetch_array($sql_clients)){
                             $client_id = $row['client_id'];
                             $client_name = $row['client_name'];
-                            $location_phone = $row['location_phone'];
-                            if(strlen($location_phone)>2){
-                                $location_phone = substr($row['location_phone'],0,3)."-".substr($row['location_phone'],3,3)."-".substr($row['location_phone'],6,4);
-                            }
-                            //$client_email = $row['client_email'];
+                            $location_phone = formatPhoneNumber($row['location_phone']);
                             $client_website = $row['client_website'];
 
                             ?>
@@ -56,6 +53,59 @@ if(isset($_GET['query'])){
                                 <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a></td>
                                 <td><a href="mailto:<?php //echo $email; ?>"><?php //echo $client_email; ?></a></td>
                                 <td><?php echo $location_phone; ?></td>
+                            </tr>
+
+                            <?php
+                        }
+                        ?>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <?php } ?>
+
+        <?php if(mysqli_num_rows($sql_contacts) > 0){ ?> 
+
+        <!-- Contacts-->
+
+        <div class="col-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mt-1"><i class="fa fa-users"></i> Contacts</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-borderless">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Cell</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+
+                        while($row = mysqli_fetch_array($sql_contacts)){
+                            $contact_id = $row['contact_id'];
+                            $contact_name = $row['contact_name'];
+                            $contact_title = $row['contact_title'];
+                            $contact_phone = formatPhoneNumber($row['contact_phone']);
+                            $contact_extension = $row['contact_extension'];
+                            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+                            $contact_email = $row['contact_email'];
+                            $client_id = $row['client_id'];
+                            $client_name = $row['client_name'];
+
+                            ?>
+                            <tr>
+                                <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $contact_name; ?></a></td>
+                                <td><?php echo $contact_email; ?></td>
+                                <td><?php echo "$contact_phone $contact_extension"; ?></td>
+                                <td><?php echo $contact_mobile; ?></td>
                             </tr>
 
                             <?php
