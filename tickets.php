@@ -402,14 +402,16 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
                         ?>
 
                         <tr>
-                            <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span
-                                            class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a>
+                            <td>
+                                <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
+                                    <span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span>
+                                </a>
                             </td>
                             <td>
                                 <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
                             </td>
                             <td>
-                                <a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a>
+                                <strong><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></strong>
                                 <br>
                                 <?php echo $contact_display; ?>
                             </td>
