@@ -300,9 +300,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               ?>
             </td>
             <td class="text-right">
-              Balance: <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
+              <span class="text-secondary">Balance</span> <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
               <br>
-              Paid: <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
+              <span class="text-secondary">Paid</span> <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
             </td>
             <td>
               <div class="dropdown dropleft text-center">
