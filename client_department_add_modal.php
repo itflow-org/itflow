@@ -15,7 +15,7 @@
             <label>Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
               </div>
               <input type="text" class="form-control" name="department_name" placeholder="Department name ex. Financial" required autofocus>
             </div>

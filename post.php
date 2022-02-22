@@ -6750,6 +6750,16 @@ if(isset($_GET['export_client_pdf'])){
                             }
                         ],
                         [ 
+                            {
+                                text: 'Contact',
+                                style: 'itemHeader' 
+                            }, 
+                            {
+                                text: <?php echo json_encode($contact_name); ?>, 
+                                style: 'item'
+                            }
+                        ],
+                        [ 
                             { 
                                 text: 'Email',
                                 style: 'itemHeader'

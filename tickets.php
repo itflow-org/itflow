@@ -174,7 +174,7 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
 ?>
     <div class="card card-dark elevation-3">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> Tickets
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-ticket-alt"></i> Tickets
                 <small class="ml-3">
                     <a href="?status=%"><strong><?php echo $total_tickets; ?></strong> Total</a> |
                     <a href="?status=Open"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |

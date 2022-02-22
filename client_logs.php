@@ -52,7 +52,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
   <div class="card-header">
-    <h3 class="card-title"><i class="fa fa-fw fa-book"></i> Logs</h3>
+    <h3 class="card-title"><i class="fa fa-fw fa-eye"></i> Logs</h3>
   </div>
 
   <div class="card-body">

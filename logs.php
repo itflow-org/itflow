@@ -1,4 +1,4 @@
-<?php include("inc_all.php");
+<?php include("inc_all_admin.php");
 
 //Paging
 if(isset($_GET['p'])){
@@ -92,7 +92,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
   <div class="card-header">
-    <h3 class="card-title"><i class="fa fa-fw fa-book"></i> Audit Logs <?php echo $extended_query; ?></h3>
+    <h3 class="card-title"><i class="fa fa-fw fa-eye"></i> Audit Logs <?php echo $extended_query; ?></h3>
   </div>
   <div class="card-body">
     <form class="mb-4" autocomplete="off">

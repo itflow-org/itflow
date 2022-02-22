@@ -19,18 +19,18 @@ $git_log = shell_exec("git log master..origin/master --pretty=format:'<tr><td>%h
 
 <div class="card card-dark">
   <div class="card-header">
-    <h3 class="card-title"><i class="fa fa-fw fa-wrench"></i> Update</h3>
+    <h3 class="card-title"><i class="fas fa-fw fa-arrow-alt-circle-up"></i> Update</h3>
   </div>
   <div class="card-body">
     <center>
-      <h5><small class="text-secondary">Current Version</small><br><?php echo $current_version; ?></h5>
       <?php if(!empty($git_log)){ ?>
-      <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fa fa-fw fa-4x fa-check-square"></i><br>Update<br>App</a>
+      <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fas fa-fw fa-4x fa-arrow-alt-circle-up mb-1"></i><h5>Update App</h5></a>
       <?php
       }else{
       ?>
-      <a class="btn btn-dark btn-lg my-4" href="post.php?update_db"><i class="fa fa-fw fa-4x fa-check-square"></i><br>Update<br>Database Structure</a>
-      <h3 class="text-success">Congratulations you are up to date!</h3>
+      <a class="btn btn-dark btn-lg my-4" href="post.php?update_db"><i class="fas fa-fw fa-4x fa-arrow-alt-circle-up mb-1"></i><h5>Update Database</h5></a>
+      <h3 class="text-success"><i class="fas fa-check-square"></i> Latest version</h3>
+      <small class="text-secondary"><?php echo $current_version; ?></small>
       <?php
       }
       ?>

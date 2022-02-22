@@ -76,7 +76,7 @@
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=software" class="nav-link <?php if($_GET['tab'] == "software") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-rocket"></i>
+            <i class="nav-icon fas fa-cube"></i>
             <p>
               Software
               <?php 
@@ -143,7 +143,7 @@
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=tickets" class="nav-link <?php if($_GET['tab'] == "tickets") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-tags"></i>
+            <i class="nav-icon fas fa-ticket-alt"></i>
             <p>
               Tickets
               <?php 
@@ -294,7 +294,7 @@
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=logs" class="nav-link <?php if($_GET['tab'] == "logs") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-book"></i>
+            <i class="nav-icon fas fa-eye"></i>
             <p>Logs</p>
           </a>
         </li>
