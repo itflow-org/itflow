@@ -4148,7 +4148,7 @@ if(isset($_GET['export_client_contacts_csv'])){
     $client_name = $row['client_name'];
     
     //Contacts
-    $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN departments ON contact_department_id = department_id WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Contacts-" . date('Y-m-d') . ".csv";
@@ -4157,12 +4157,12 @@ if(isset($_GET['export_client_contacts_csv'])){
         $f = fopen('php://memory', 'w');
         
         //set column headers
-        $fields = array('Name', 'Title', 'Email', 'Phone', 'Mobile', 'Notes');
+        $fields = array('Name', 'Title', 'Department', 'Email', 'Phone', 'Mobile', 'Notes');
         fputcsv($f, $fields, $delimiter);
         
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
-            $lineData = array($row['contact_name'], $row['contact_title'], $row['contact_email'], $row['contact_phone'], $row['contact_mobile'], $row['contact_notes']);
+            $lineData = array($row['contact_name'], $row['contact_title'], $row['department_name'], $row['contact_email'], $row['contact_phone'], $row['contact_mobile'], $row['contact_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
         
@@ -6602,7 +6602,7 @@ if(isset($_GET['export_client_pdf'])){
     $contact_email = $row['contact_email'];
     $client_website = $row['client_website'];
 
-    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN departments ON contact_department_id = department_id WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
     $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id ORDER BY location_name ASC");
     $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
     if(isset($_GET['passwords'])){
@@ -6743,6 +6743,7 @@ if(isset($_GET['export_client_pdf'])){
                             }
                             $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                             $contact_email = $row['contact_email'];
+                            $department_name = $row['department_name'];
                         ?>
 
                         [ 
@@ -6752,6 +6753,10 @@ if(isset($_GET['export_client_pdf'])){
                             },
                             {
                                 text: <?php echo json_encode($contact_title); ?>,
+                                style: 'item'
+                            },
+                            {
+                                text: <?php echo json_encode($department_name); ?>,
                                 style: 'item'
                             },
                             {
