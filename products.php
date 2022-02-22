@@ -86,8 +86,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $product_id = $row['product_id'];
-            $product_name = $row['product_name'];
-            $product_description = $row['product_description'];
+            $product_name = htmlentities($row['product_name']);
+            $product_description = htmlentities($row['product_description']);
             if(empty($product_description)){
               $product_description_display = "-";
             }else{

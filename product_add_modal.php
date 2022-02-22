@@ -48,7 +48,7 @@
           
           <div class="form-group">
             <label>Price <strong class="text-danger">*</strong></label>
-            <input type="number" step="0.01" min="0" class="form-control" name="price" placeholder="Price (<?php echo get_currency_symbol($session_company_currency); ?>)" required>
+            <input type="number" step="0.01" min="0" class="form-control" name="price" placeholder="Price" required>
           </div>
 
           <div class="form-group">
