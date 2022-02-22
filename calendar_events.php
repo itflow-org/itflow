@@ -22,7 +22,7 @@ if(isset($_GET['calendar_id'])){
 
 <?php
 //loop through IDs and create a modal for each
-$sql = mysqli_query($mysqli,"SELECT * FROM events, calendars WHERE event_calendar_id = calendar_id AND calendars.company_id = $session_company_id");
+$sql = mysqli_query($mysqli,"SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id WHERE calendars.company_id = $session_company_id");
 while($row = mysqli_fetch_array($sql)){
   $event_id = $row['event_id'];
   $event_title = $row['event_title'];
@@ -74,7 +74,7 @@ while($row = mysqli_fetch_array($sql)){
         },
         events: [
           <?php
-          $sql = mysqli_query($mysqli,"SELECT * FROM events, calendars WHERE event_calendar_id = calendar_id AND calendars.company_id = $session_company_id");
+          $sql = mysqli_query($mysqli,"SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id WHERE calendars.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
             $event_id = $row['event_id'];
             $event_title = $row['event_title'];
@@ -90,7 +90,7 @@ while($row = mysqli_fetch_array($sql)){
           
           <?php
           //Invoices Created
-          $sql = mysqli_query($mysqli,"SELECT * FROM clients, invoices WHERE client_id = invoice_client_id AND clients.company_id = $session_company_id");
+          $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN invoices ON client_id = invoice_client_id WHERE clients.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
             $event_id = $row['invoice_id'];
             $event_title = $row['invoice_prefix'] . $row['invoice_number'] . " " . $row['invoice_scope'];
@@ -102,7 +102,7 @@ while($row = mysqli_fetch_array($sql)){
 
           <?php
           //Quotes Created
-          $sql = mysqli_query($mysqli,"SELECT * FROM clients, quotes WHERE client_id = quote_client_id AND clients.company_id = $session_company_id");
+          $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN quotes ON client_id = quote_client_id WHERE clients.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
             $event_id = $row['quote_id'];
             $event_title = $row['quote_prefix'] . $row['quote_number'] . " " . $row['quote_scope'];
@@ -114,7 +114,7 @@ while($row = mysqli_fetch_array($sql)){
 
           <?php
           //Tickets Created
-          $sql = mysqli_query($mysqli,"SELECT * FROM clients, tickets WHERE client_id = ticket_client_id AND clients.company_id = $session_company_id");
+          $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN tickets ON client_id = ticket_client_id WHERE clients.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
             $event_id = $row['ticket_id'];
             $event_title = $row['ticket_prefix'] . $row['ticket_number'] . " " . $row['ticket_subject'];
@@ -126,7 +126,7 @@ while($row = mysqli_fetch_array($sql)){
 
           <?php
           //Vendors Added Created
-          $sql = mysqli_query($mysqli,"SELECT * FROM clients, vendors WHERE client_id = vendor_client_id AND clients.company_id = $session_company_id");
+          $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN vendors ON client_id = vendor_client_id WHERE clients.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
             $event_id = $row['vendor_id'];
             $event_title = $row['vendor_name'];
