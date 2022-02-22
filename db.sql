@@ -291,7 +291,7 @@ CREATE TABLE `contacts` (
   `contact_email` varchar(200) DEFAULT NULL,
   `contact_phone` varchar(200) DEFAULT NULL,
   `contact_extension` varchar(200) DEFAULT NULL,
-  `contact_mobile` varchar(200) DEFAULT '''NULL''',
+  `contact_mobile` varchar(200) DEFAULT NULL,
   `contact_photo` varchar(200) DEFAULT NULL,
   `contact_notes` text DEFAULT NULL,
   `contact_created_at` datetime NOT NULL,
