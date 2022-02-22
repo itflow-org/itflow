@@ -46,6 +46,11 @@
         <!-- Menu Footer-->
         <li class="user-footer">
           <a href="settings-user.php" class="btn btn-default btn-flat">Profile</a>
+          <?php if($session_user_role > 2){ ?>
+
+          <a href="settings-general.php" class="btn btn-dark btn-flat ml-4">Admin</a>
+
+          <?php } ?>
           <a href="post.php?logout" class="btn btn-default btn-flat float-right">Sign out</a>
         </li>
       </ul>

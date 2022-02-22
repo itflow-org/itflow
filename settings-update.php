@@ -1,6 +1,4 @@
-<?php include("inc_all.php"); ?>
-
-<?php include("settings-nav.php"); ?>
+<?php include("inc_all_admin.php"); ?>
 
 <?php
 
