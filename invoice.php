@@ -369,7 +369,7 @@ if(isset($_GET['invoice_id'])){
             <?php } ?>
             <tr class="border-bottom">
               <td><strong>Balance Due</strong></td>
-              <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></strong></td>
+              <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>
             </tr>
           </tbody>
         </table>
@@ -467,7 +467,7 @@ if(isset($_GET['invoice_id'])){
               ?>
               <tr>
                 <td><?php echo $payment_date; ?></td>
-                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $payment_currency_code); ?></td>
+                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
                 <td><?php echo $payment_reference; ?></td>
                 <td><?php echo $account_name; ?></td>
                 <td class="text-center"><a class="btn btn-danger btn-sm" href="post.php?delete_payment=<?php echo $payment_id; ?>"><i class="fa fa-trash"></i></a></td>
