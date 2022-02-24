@@ -1,14 +1,14 @@
-<div class="modal" id="editCertificateModal<?php echo $certificate_id; ?>" tabindex="-1">
+<div class="modal" id="editCertificateModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-lock"></i> <?php echo $certificate_name ?></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-lock"></i><span id="editHeader"></span></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="certificate_id" value="<?php echo $certificate_id; ?>">
+                <input type="hidden" name="certificate_id" value="" id="editCertificateId">
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
@@ -17,7 +17,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Certificate name" value="<?php echo $certificate_name; ?>" required>
+                            <input type="text" class="form-control" id="editCertificateName" name="name" placeholder="Certificate name" value="" required>
                         </div>
                     </div>
 
@@ -27,9 +27,9 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-globe"></i>&nbsp;https://</span>
                             </div>
-                            <input type="text" class="form-control" name="domain" placeholder="Domain" id="domain"  value="<?php echo $certificate_domain; ?>" required>
+                            <input type="text" class="form-control" id="editDomain" name="domain" placeholder="Domain" value="" required>
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-secondary" onclick="fetchSSL()"><i class="fas fa-fw fa-sync-alt"></i></button>
+                                <button type="button" class="btn btn-secondary" onclick="fetchSSL('edit')"><i class="fas fa-fw fa-sync-alt"></i></button>
                             </div>
                         </div>
                     </div>
@@ -40,7 +40,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="issued_by" placeholder="Issued By" id="issued_by" value="<?php echo $certificate_issued_by; ?>">
+                            <input type="text" class="form-control" id="editIssuedBy" name="issued_by" placeholder="Issued By" value="">
                         </div>
                     </div>
 
@@ -50,7 +50,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             </div>
-                            <input type="date" class="form-control" name="expire" id="expire" value="<?php echo $certificate_expire; ?>">
+                            <input type="date" class="form-control" id="editExpire" name="expire"  value="">
                         </div>
                     </div>
 
@@ -60,7 +60,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                             </div>
-                            <textarea class="form-control" name="public_key" id="public_key"><?php echo $certificate_public_key; ?></textarea>
+                            <textarea class="form-control" id="editPublicKey" name="public_key"></textarea>
                         </div>
                     </div>
 
@@ -70,21 +70,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                             </div>
-                            <select class="form-control select2" name="domain_id">
-                                <option value="">- Domain -</option>
-                                <?php
-                                $domains_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = '$client_id'");
-                                while($domain_row = mysqli_fetch_array($domains_sql)){
-                                    $domain_id = $domain_row['domain_id'];
-                                    $domain_name = $domain_row['domain_name'];
-                                    if($certificate_domain_id == $domain_id){
-                                        echo "<option value=\"$domain_id\" selected>$domain_name</option>";
-                                    }
-                                    else{
-                                        echo "<option value=\"$domain_id\">$domain_name</option>";
-                                    }
-                                }
-                                ?>
+                            <select class="form-control select2" id="editDomainId" name="domain_id">
                             </select>
                         </div>
                     </div>

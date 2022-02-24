@@ -98,13 +98,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $certificate_domain = $row['certificate_domain'];
             $certificate_issued_by = $row['certificate_issued_by'];
             $certificate_expire = $row['certificate_expire'];
-            $certificate_updated_at = $row['certificate_updated_at'];
-            $certificate_public_key = $row['certificate_public_key'];
-            $certificate_domain_id = $row['certificate_domain_id'];
 
           ?>
           <tr>
-            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editCertificateModal<?php echo $certificate_id; ?>"><?php echo $certificate_name; ?></a></td>
+            <td><a class="text-dark" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal"><?php echo $certificate_name; ?></a></td>
             <td><?php echo $certificate_domain; ?></td>
             <td><?php echo $certificate_issued_by; ?></td>
             <td><?php echo $certificate_expire; ?></td>
@@ -114,7 +111,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editCertificateModal<?php echo $certificate_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal">Edit</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item text-danger" href="post.php?delete_certificate=<?php echo $certificate_id; ?>">Delete</a>
                 </div>
@@ -123,10 +120,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           </tr>
 
           <?php
-
-          include("client_certificate_edit_modal.php");
           }
-          
           ?>
 
         </tbody>
@@ -136,13 +130,78 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("client_certificate_add_modal.php"); ?>
+<?php
+include("client_certificate_edit_modal.php");
+include("client_certificate_add_modal.php");
+?>
+
+<script>
+    function populateCertificateEditModal(client_id, certificate_id) {
+
+        // Send a GET request to post.php as post.php?certificate_get_json_details=true&client_id=NUM&certificate_id=NUM
+        jQuery.get(
+            "post.php",
+            {certificate_get_json_details: 'true', client_id: client_id, certificate_id: certificate_id},
+            function(data){
+
+                // If we get a response from post.php, parse it as JSON
+                const response = JSON.parse(data);
+
+                // Access the certificate (one) and domains (multiple)
+                const certificate = response.certificate[0];
+                const domains = response.domains;
+
+                // Populate the cert modal fields
+                document.getElementById("editHeader").innerText = " " + certificate.certificate_name;
+                document.getElementById("editCertificateId").value = certificate_id;
+                document.getElementById("editCertificateName").value = certificate.certificate_name;
+                document.getElementById("editDomain").value = certificate.certificate_domain;
+                document.getElementById("editIssuedBy").value = certificate.certificate_issued_by;
+                document.getElementById("editExpire").value = certificate.certificate_expire;
+                document.getElementById("editPublicKey").value = certificate.certificate_public_key;
+
+                // Select the domain dropdown
+                var domainDropdown = document.getElementById("editDomainId");
+
+                // Clear domain dropdown
+                var i, L = domainDropdown.options.length -1;
+                for(i = L; i >= 0; i--) {
+                    domainDropdown.remove(i);
+                }
+                domainDropdown[domainDropdown.length] = new Option('- Domain -', '0');
+
+                // Populate domain dropdown
+                domains.forEach(domain => {
+                    if(parseInt(domain.domain_id) == parseInt(certificate.certificate_domain_id)){
+                        // Selected domain
+                        domainDropdown[domainDropdown.length] = new Option(domain.domain_name, domain.domain_id, true, true);
+                    }
+                    else{
+                        domainDropdown[domainDropdown.length] = new Option(domain.domain_name, domain.domain_id);
+                    }
+                });
+            }
+        );
+    }
+</script>
 
 <script type="text/javascript">
-    function fetchSSL()
+    function fetchSSL(type)
     {
-        // Get the domain name input
-        var domain = document.getElementById("domain").value;
+        // Get the domain name input & issued/expire/key fields, based on whether this is a new cert or updating an existing
+        if(type == 'new'){
+            var domain = document.getElementById("domain").value;
+            var issuedBy = document.getElementById("issuedBy");
+            var expire = document.getElementById("expire");
+            var publicKey = document.getElementById("publicKey");
+
+        }
+        if(type == 'edit'){
+            var domain = document.getElementById("editDomain").value;
+            var issuedBy = document.getElementById("editIssuedBy");
+            var expire = document.getElementById("editExpire");
+            var publicKey = document.getElementById("editPublicKey");
+        }
 
         //Send a GET request to post.php as post.php?fetch_certificate=TRUE&domain=DOMAIN
         jQuery.get(
@@ -154,9 +213,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
                 if(ssl_data.success == "TRUE"){
                     // Fill the form fields with the cert data
-                    document.getElementById("issued_by").value = ssl_data.issued_by;
-                    document.getElementById("expire").value = ssl_data.expire;
-                    document.getElementById("public_key").value = ssl_data.public_key;
+                    issuedBy.value = ssl_data.issued_by;
+                    expire.value = ssl_data.expire;
+                    publicKey.value = ssl_data.public_key;
                 }
                 else{
                     alert("Error whilst parsing/retrieving details for domain")

@@ -29,7 +29,7 @@
                             </div>
                             <input type="text" class="form-control" name="domain" id="domain" placeholder="FQDN" required>
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-secondary" onclick="fetchSSL()"><i class="fas fa-fw fa-sync-alt"></i></button>
+                                <button type="button" class="btn btn-secondary" onclick="fetchSSL('new')"><i class="fas fa-fw fa-sync-alt"></i></button>
                             </div>
                         </div>
                     </div>
@@ -40,7 +40,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="issued_by" id="issued_by" placeholder="Issued By">
+                            <input type="text" class="form-control" name="issued_by" id="issuedBy" placeholder="Issued By">
                         </div>
                     </div>
 
@@ -60,7 +60,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                             </div>
-                            <textarea class="form-control" name="public_key" id="public_key" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
+                            <textarea class="form-control" name="public_key" id="publicKey" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
                         </div>
                     </div>
 

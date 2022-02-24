@@ -5217,7 +5217,30 @@ if(isset($_POST['edit_certificate'])){
 
 }
 
+if(isset($_GET['certificate_get_json_details'])){
+    $certificate_id = intval($_GET['certificate_id']);
+    $client_id = intval($_GET['client_id']);
+
+    $cert_sql = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_id = $certificate_id AND certificate_client_id = $client_id");
+    while($row = mysqli_fetch_array($cert_sql)){
+        $response['certificate'][] = $row;
+    }
+
+    $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name FROM domains 
+        WHERE domain_client_id = '$client_id' AND company_id = '$session_company_id'"
+    );
+    while($row = mysqli_fetch_array($domains_sql)){
+        $response['domains'][] = $row;
+    }
+
+    echo json_encode($response);
+}
+
 if(isset($_GET['fetch_certificate'])){
+    // PHP doesn't appreciate attempting SSL sockets to non-existent domains
+    if(empty($_GET['domain'])){
+        exit();
+    }
     $domain = $_GET['domain'];
 
     // FQDNs in database shouldn't have a URL scheme, adding one
