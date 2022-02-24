@@ -477,7 +477,7 @@ if(isset($_GET['ticket_id'])){
 
     <div class="card card-body card-outline card-dark mb-2">
      <div class="">
-        <a href="#" class="btn btn-outline-success btn-block">INVOICE</a>
+<!--        <a href="#" class="btn btn-outline-success btn-block">INVOICE</a>-->
         <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">CLOSE TICKET</a>
       </div>
     </div>
