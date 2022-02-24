@@ -5163,13 +5163,15 @@ if(isset($_POST['add_certificate'])){
         $public_key_obj = openssl_x509_parse($_POST['public_key']);
         if ($public_key_obj) {
             $expire = date('Y-m-d', $public_key_obj['validTo_time_t']);
-            $issued_by = strip_tags($public_key_obj['issuer']['O']);
+            $issued_by = strip_tags(mysqli_real_escape_string($mysqli,$public_key_obj['issuer']['O']));
         }
     }
 
     if(empty($expire)){
         $expire = "0000-00-00";
     }
+
+
 
     mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_created_at = NOW(), certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
 
@@ -5198,7 +5200,7 @@ if(isset($_POST['edit_certificate'])){
         $public_key_obj = openssl_x509_parse($_POST['public_key']);
         if ($public_key_obj) {
             $expire = date('Y-m-d', $public_key_obj['validTo_time_t']);
-            $issued_by = strip_tags($public_key_obj['issuer']['O']);
+            $issued_by = strip_tags(mysqli_real_escape_string($mysqli,$public_key_obj['issuer']['O']));
         }
     }
 
