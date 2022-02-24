@@ -113,11 +113,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $ticket_status = $row['ticket_status'];
             $ticket_created_at = $row['ticket_created_at'];
             $ticket_updated_at = $row['ticket_updated_at'];
-            if(empty($ticket_updated_at)){
-              $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
-            }else{
-              $ticket_updated_at_display = $ticket_updated_at;
-            }
+              if (empty($ticket_updated_at)) {
+                  if($ticket_status == "Closed"){
+                      $ticket_updated_at_display = "<p>Never</p>";
+                  }
+                  else{
+                      $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
+                  }
+              } else {
+                  $ticket_updated_at_display = $ticket_updated_at;
+              }
             $ticket_closed_at = $row['ticket_closed_at'];
             
             if($ticket_status == "Open"){
@@ -137,12 +142,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $ticket_priority_display = "-";
             }
-            $ticket_assigned_to = $row['ticket_assigned_to'];
-            if(empty($ticket_assigned_to)){
-              $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
-            }else{
-              $ticket_assigned_to_display = $row['user_name'];
-            }
+              $ticket_assigned_to = $row['ticket_assigned_to'];
+              if (empty($ticket_assigned_to)) {
+                  if($ticket_status == "Closed"){
+                      $ticket_assigned_to_display = "<p>Not Assigned</p>";
+                  }
+                  else{
+                      $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
+                  }
+              } else {
+                  $ticket_assigned_to_display = $row['user_name'];
+              }
             $contact_id = $row['contact_id'];
             $contact_name = $row['contact_name'];
             if(empty($contact_name)){

@@ -40,20 +40,29 @@ if (isset($_GET['o'])) {
 if (!isset($_GET['status'])) {
     // If nothing is set, assume we only want to see open tickets
     $status = 'Open';
+    $ticket_status_snippet = "ticket_status != 'Closed'";
 } elseif (isset($_GET['status']) && ($_GET['status']) == 'Open') {
     $status = 'Open';
+    $ticket_status_snippet = "ticket_status != 'Closed'";
 } elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
     $status = 'Closed';
+    $ticket_status_snippet = "ticket_status = 'Closed'";
 } else {
     $status = '%';
+    $ticket_status_snippet = "ticket_status LIKE '%'";
 }
 
-// Unassigned ticket filter
-// TODO: Eventually use this as an "assigned" parameter allowing for the filtering of tickets by who they are assigned to - for use with "My tickets"
-if (isset($_GET['unassigned'])) {
-    $view_unassigned_only = TRUE;
-} else {
-    $view_unassigned_only = FALSE;
+// Ticket assignment status filter
+if (isset($_GET['assigned']) & !empty($_GET['assigned'])) {
+    if ($_GET['assigned'] == 'unassigned') {
+        $ticket_assigned_filter = '0';
+    } else {
+        $ticket_assigned_filter = intval($_GET['assigned']);
+    }
+}
+else{
+    // Default - any
+    $ticket_assigned_filter = '';
 }
 
 //Date Filter
@@ -97,59 +106,25 @@ if ($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])) {
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o, 'status' => $status)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o, 'status' => $status, 'assigned' => $ticket_assigned_filter)));
 
 // Main ticket query:
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM tickets 
+LEFT JOIN clients ON ticket_client_id = client_id
+LEFT JOIN contacts ON ticket_contact_id = contact_id 
+LEFT JOIN users ON ticket_assigned_to = user_id
+LEFT JOIN assets ON ticket_asset_id = asset_id
+LEFT JOIN locations ON ticket_location_id = location_id
+WHERE tickets.company_id = $session_company_id
+AND ticket_assigned_to LIKE '%$ticket_assigned_filter%'
+AND $ticket_status_snippet
+AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
+AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR user_name LIKE '%$q%')
+ORDER BY $sb $o LIMIT $record_from, $record_to");
 
-// Separate queries for Unassigned, Open / Closed tickets as Open tickets need to include tickets in state "Working" and "On Hold" as well as "Open".
-if ($view_unassigned_only) {
-    $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM tickets 
-    LEFT JOIN clients ON ticket_client_id = client_id
-    LEFT JOIN contacts ON ticket_contact_id = contact_id 
-    LEFT JOIN users ON ticket_assigned_to = user_id
-    LEFT JOIN assets ON ticket_asset_id = asset_id
-    LEFT JOIN locations ON ticket_location_id = location_id
-    WHERE tickets.company_id = $session_company_id
-    AND ticket_assigned_to = '0'
-    AND ticket_status != 'Closed'
-    AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
-    AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR user_name LIKE '%$q%')
-    ORDER BY $sb $o LIMIT $record_from, $record_to");
-}
-elseif ($status == "Open") {
-    $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM tickets 
-    LEFT JOIN clients ON ticket_client_id = client_id
-    LEFT JOIN contacts ON ticket_contact_id = contact_id 
-    LEFT JOIN users ON ticket_assigned_to = user_id
-    LEFT JOIN assets ON ticket_asset_id = asset_id
-    LEFT JOIN locations ON ticket_location_id = location_id
-    WHERE tickets.company_id = $session_company_id
-    AND ticket_status != 'Closed'
-    AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
-    AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR user_name LIKE '%$q%')
-    ORDER BY $sb $o LIMIT $record_from, $record_to");
-}
-else {
-    $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM tickets 
-    LEFT JOIN clients ON ticket_client_id = client_id
-    LEFT JOIN contacts ON ticket_contact_id = contact_id 
-    LEFT JOIN users ON ticket_assigned_to = user_id
-    LEFT JOIN assets ON ticket_asset_id = asset_id
-    LEFT JOIN locations ON ticket_location_id = location_id
-    WHERE tickets.company_id = $session_company_id
-    AND ticket_status LIKE '%$status%'
-    AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
-    AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR user_name LIKE '%$q%')
-    ORDER BY $sb $o LIMIT $record_from, $record_to");
-}
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
-
-//Get Total tickets 
-$sql_total_tickets = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets FROM tickets WHERE company_id = $session_company_id");
-$row = mysqli_fetch_array($sql_total_tickets);
-$total_tickets = $row['total_tickets'];
 
 //Get Total tickets open
 $sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_status != 'Closed' AND company_id = $session_company_id");
@@ -157,7 +132,7 @@ $row = mysqli_fetch_array($sql_total_tickets_open);
 $total_tickets_open = $row['total_tickets_open'];
 
 //Get Total tickets closed
-$sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(DISTINCT 'ticket_status') AS total_tickets_closed FROM tickets WHERE ticket_status = 'closed' AND company_id = $session_company_id");
+$sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_status = 'Closed' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_tickets_closed);
 $total_tickets_closed = $row['total_tickets_closed'];
 
@@ -169,14 +144,13 @@ $total_tickets_unassigned = $row['total_tickets_unassigned'];
 //Get Total tickets assigned to me
 $sql_total_tickets_assigned = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_assigned FROM tickets WHERE ticket_assigned_to = $session_user_id AND ticket_status != 'Closed' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_tickets_assigned);
-$total_tickets_assigned = $row['total_tickets_assigned'];
+$user_active_assigned_tickets = $row['total_tickets_assigned'];
 
 ?>
     <div class="card card-dark elevation-3">
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-ticket-alt"></i> Tickets
                 <small class="ml-3">
-                    <a href="?status=%"><strong><?php echo $total_tickets; ?></strong> Total</a> |
                     <a href="?status=Open"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
                     <a href="?status=Closed"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
                 </small>
@@ -210,20 +184,15 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
                         <div class="btn-group btn-group-lg float-right">
                             <button class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton"
                                     data-toggle="dropdown">
-                                <i class="fa fa-fw fa-envelope"></i> My Tickets |
-                                <strong> <?php echo $total_tickets_assigned; ?></strong>
+                                <i class="fa fa-fw fa-envelope"></i> My Tickets
                             </button>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item"
-                                   href="#"><strong> <?php echo $total_tickets_assigned; ?></strong> | Unanswered</a>
-                                <a class="dropdown-item"
-                                   href="#"><strong> <?php echo $total_tickets_assigned; ?></strong> | Answered</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item " href="#">Closed by me</a>
+                                <a class="dropdown-item" href="?status=Open&assigned=<?php echo $session_user_id ?>">Active tickets (<?php echo $user_active_assigned_tickets ?>)</a>
+                                <a class="dropdown-item " href="?status=Closed&assigned=<?php echo $session_user_id ?>">Closed tickets</a>
                             </div>
-                            <a href="?unassigned" class="btn btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i>
+                            <a href="?assigned=unassigned" class="btn btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i>
                                 Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong></a>
-                            <a href="#" class="btn  btn-outline-info"><i class="fa fa-fw fa-cogs"></i> Tasks</a>
+<!--                            <a href="#" class="btn  btn-outline-info"><i class="fa fa-fw fa-cogs"></i> Tasks</a>-->
                         </div>
                     </div>
                 </div>
@@ -297,6 +266,27 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
                                 </select>
                             </div>
                         </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Assigned to</label>
+                                <select class="form-control" name="assigned">
+                                    <option value="" <?php if($ticket_assigned_filter == ""){echo "selected";}?> >Any</option>
+                                    <option value="unassigned"<?php if($ticket_assigned_filter == "0"){echo "selected";}?> >Unassigned</option>
+
+                                    <?php
+                                    $sql_assign_to = mysqli_query($mysqli,"SELECT * FROM users ORDER BY user_name ASC");
+                                    while($row = mysqli_fetch_array($sql_assign_to)){
+                                        $user_id = $row['user_id'];
+                                        $user_name = $row['user_name'];
+                                        ?>
+                                        <option <?php if($ticket_assigned_filter == $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                        <?php
+                                    }
+                                    ?>
+
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -348,7 +338,12 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
                         $ticket_created_at = $row['ticket_created_at'];
                         $ticket_updated_at = $row['ticket_updated_at'];
                         if (empty($ticket_updated_at)) {
-                            $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
+                            if($ticket_status == "Closed"){
+                                $ticket_updated_at_display = "<p>Never</p>";
+                            }
+                            else{
+                                $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
+                            }
                         } else {
                             $ticket_updated_at_display = $ticket_updated_at;
                         }
@@ -388,7 +383,12 @@ $total_tickets_assigned = $row['total_tickets_assigned'];
                         }
                         $ticket_assigned_to = $row['ticket_assigned_to'];
                         if (empty($ticket_assigned_to)) {
-                            $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
+                            if($ticket_status == "Closed"){
+                                $ticket_assigned_to_display = "<p>Not Assigned</p>";
+                            }
+                            else{
+                                $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
+                            }
                         } else {
                             $ticket_assigned_to_display = $row['user_name'];
                         }

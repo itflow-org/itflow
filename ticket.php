@@ -103,18 +103,18 @@ if(isset($_GET['ticket_id'])){
     $ticket_assigned_to_display = $row['user_name'];
   }
 
-  if($contact_id == $primary_contact){
-     $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
-  }else{
-    $primary_contact_display = "<small class='text-danger'>Needs approval</small>";
-  }
+//  if($contact_id == $primary_contact){
+//     $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
+//  }else{
+//    $primary_contact_display = "<small class='text-danger'>Needs approval</small>";
+//  }
     
   //Get Contact Ticket Stats
-  $ticket_related_open = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status = 'open' AND ticket_contact_id = $contact_id ");
+  $ticket_related_open = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");
   $row = mysqli_fetch_array($ticket_related_open);
   $ticket_related_open = $row['ticket_related_open'];
   
-  $ticket_related_closed = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'closed' AND ticket_contact_id = $contact_id ");
+  $ticket_related_closed = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'Closed' AND ticket_contact_id = $contact_id ");
   $row = mysqli_fetch_array($ticket_related_closed);
   $ticket_related_closed = $row['ticket_related_closed'];
   
@@ -346,8 +346,8 @@ if(isset($_GET['ticket_id'])){
         <h4 class="text-secondary">Contact</h4>
         <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $contact_name; ?></strong>
         <br>
-        <i class="fa fa-fw fa-info-circle text-secondary ml-1 mr-2 mb-2"></i><?php echo $primary_contact_display; ?>
-        <br>
+<!--        <i class="fa fa-fw fa-info-circle text-secondary ml-1 mr-2 mb-2"></i>--><?php //echo $primary_contact_display; ?>
+<!--        <br>-->
         <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i>Related tickets: Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong>  
         <hr>
         <?php
