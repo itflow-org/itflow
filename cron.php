@@ -44,9 +44,77 @@ while($row = mysqli_fetch_array($sql_companies)){
 
   if($config_enable_cron == 1){
 
-    // GET Notifications
+    // DATABASE BACKUP
+    $backup_dir = "backups/";
 
-    // DOMAINS EXPIRING 
+    // Get All Table Names From the Database
+    $tables = array();
+    $sql = "SHOW TABLES";
+    $result = mysqli_query($mysqli, $sql);
+    while ($row = mysqli_fetch_row($result)) {
+      $tables[] = $row[0];
+    }
+
+    $sqlScript = "";
+    foreach ($tables as $table) {
+
+      // Prepare SQLscript for creating table structure
+      $query = "SHOW CREATE TABLE $table";
+      $result = mysqli_query($mysqli, $query);
+      $row = mysqli_fetch_row($result);
+
+      $sqlScript .= "\n\n" . $row[1] . ";\n\n";
+
+      $query = "SELECT * FROM $table";
+      $result = mysqli_query($mysqli, $query);
+
+      $columnCount = mysqli_num_fields($result);
+
+      // Prepare SQLscript for dumping data for each table
+      for ($i = 0; $i < $columnCount; $i ++) {
+        while ($row = mysqli_fetch_row($result)) {
+          $sqlScript .= "INSERT INTO $table VALUES(";
+          for ($j = 0; $j < $columnCount; $j ++) {
+            $row[$j] = $row[$j];
+
+            if (isset($row[$j])) {
+              $sqlScript .= '"' . $row[$j] . '"';
+            } else {
+              $sqlScript .= '""';
+            }
+            if ($j < ($columnCount - 1)) {
+              $sqlScript .= ',';
+            }
+          }
+          $sqlScript .= ");\n";
+        }
+      }
+      $sqlScript .= "\n";
+    }
+
+    // Save the SQL script to a backup file
+    if(!empty($sqlScript)) {
+      $random_string = key32gen();
+      if(!empty($random_string)){
+        $backup_file_name = date('Y-m-d') . '_backup__' . $random_string . '.sql';
+        $fileHandler = fopen($backup_dir . '/' .$backup_file_name, 'w+');
+        $number_of_lines = fwrite($fileHandler, $sqlScript);
+        fclose($fileHandler);
+      }
+    }
+
+    // Delete backups older than 30 days
+    $now = time();
+    foreach (glob($backup_dir."*.sql") as $file) {
+      if(time() - filectime($file) > 2592000){
+        unlink($file);
+      }
+    }
+
+
+    // GET NOTIFICATIONS
+
+    // DOMAINS EXPIRING
 
     $domainAlertArray = [1,7,14,30,90,120];
 
@@ -72,7 +140,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
     }
 
-    // CERTIFICATES EXPIRING 
+    // CERTIFICATES EXPIRING
 
     $certificateAlertArray = [1,7,14,30,90,120];
 
@@ -99,11 +167,11 @@ while($row = mysqli_fetch_array($sql_companies)){
 
     }
 
-    // Asset Warranties Expiring 
+    // Asset Warranties Expiring
 
     $warranty_alert_array = [1,7,14,30,90,120];
 
-    foreach($$warranty_alert_array as $day){
+    foreach($warranty_alert_array as $day){
 
       //Get Asset Warranty Expiring
       $sql = mysqli_query($mysqli,"SELECT * FROM assets 
@@ -205,7 +273,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         AND invoices.company_id = $company_id
         ORDER BY invoice_number DESC"
       );
-            
+
       while($row = mysqli_fetch_array($sql)){
         $invoice_id = $row['invoice_id'];
         $invoice_prefix = $row['invoice_prefix'];
@@ -249,14 +317,14 @@ while($row = mysqli_fetch_array($sql_companies)){
           $mail->Body    = "Hello $contact_name,<br><br>According to our records, we have not received payment for invoice $invoice_prefix$invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $company_phone.
             <br><br>
             Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
-          
+
           $mail->send();
 
           mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
 
         }catch (Exception $e) {
-            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-            mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+          echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+          mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
         } //End Mail Try
 
       }
@@ -282,13 +350,13 @@ while($row = mysqli_fetch_array($sql_companies)){
       $client_id = $row['recurring_client_id'];
       $client_name = mysqli_real_escape_string($mysqli,$row['client_name']); //Escape SQL just in case a name is like Safran's etc
       $client_net_terms = $row['client_net_terms'];
-      
+
 
       //Get the last Invoice Number and add 1 for the new invoice number
       $sql_invoice_number = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $company_id");
       $row = mysqli_fetch_array($sql_invoice_number);
       $config_invoice_next_number = $row['config_invoice_next_number'];
-      
+
       $new_invoice_number = $config_invoice_next_number;
       $new_config_invoice_next_number = $config_invoice_next_number + 1;
       mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $company_id");
@@ -299,7 +367,7 @@ while($row = mysqli_fetch_array($sql_companies)){
       mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $new_invoice_number, invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_currency_code = '$recurring_currency_code', invoice_note = '$recurring_note', invoice_category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), invoice_client_id = $client_id, company_id = $company_id");
 
       $new_invoice_id = mysqli_insert_id($mysqli);
-      
+
       //Copy Items from original recurring invoice to new invoice
       $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id ORDER BY item_id ASC");
 
@@ -316,7 +384,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
         //Insert Items into New Invoice
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = '$item_quantity', item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), item_tax_id = $tax_id, item_invoice_id = $new_invoice_id, company_id = $company_id");
-        
+
       }
 
       mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
@@ -371,7 +439,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
           $mail->Subject = "Invoice $invoice_prefix$invoice_number";
           $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
-          
+
           $mail->send();
 
           mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Emailed Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
@@ -380,8 +448,8 @@ while($row = mysqli_fetch_array($sql_companies)){
           mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW(), invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id");
 
         }catch (Exception $e) {
-            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-            mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Cron Failed to send Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+          echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+          mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Cron Failed to send Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
         } //End Mail Try
       } //End if Autosend is on
     } //End Recurring Invoices Loop
