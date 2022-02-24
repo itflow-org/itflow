@@ -15,187 +15,255 @@ use PHPMailer\PHPMailer\Exception;
 $sql_companies = mysqli_query($mysqli,"SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id");
 
 while($row = mysqli_fetch_array($sql_companies)){
-  $company_id = $row['company_id'];
-  $company_name = $row['company_name'];
-  $company_phone = formatPhoneNumber($row['company_phone']);
-  $company_email = $row['company_email'];
-  $company_website = $row['company_website'];
-  $company_locale = $row['company_locale'];
-  $config_enable_cron = $row['config_enable_cron'];
-  $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
-  $config_invoice_prefix = $row['config_invoice_prefix'];
-  $config_invoice_from_email = $row['config_invoice_from_email'];
-  $config_invoice_from_name = $row['config_invoice_from_name'];
-  $config_smtp_host = $row['config_smtp_host'];
-  $config_smtp_username = $row['config_smtp_username'];
-  $config_smtp_password = $row['config_smtp_password'];
-  $config_smtp_port = $row['config_smtp_port'];
-  $config_mail_from_email = $row['config_mail_from_email'];
-  $config_mail_from_name = $row['config_mail_from_name'];
-  $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
-  $config_base_url = $row['config_base_url'];
+    $company_id = $row['company_id'];
+    $company_name = $row['company_name'];
+    $company_phone = formatPhoneNumber($row['company_phone']);
+    $company_email = $row['company_email'];
+    $company_website = $row['company_website'];
+    $company_locale = $row['company_locale'];
+    $config_enable_cron = $row['config_enable_cron'];
+    $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
+    $config_invoice_prefix = $row['config_invoice_prefix'];
+    $config_invoice_from_email = $row['config_invoice_from_email'];
+    $config_invoice_from_name = $row['config_invoice_from_name'];
+    $config_smtp_host = $row['config_smtp_host'];
+    $config_smtp_username = $row['config_smtp_username'];
+    $config_smtp_password = $row['config_smtp_password'];
+    $config_smtp_port = $row['config_smtp_port'];
+    $config_mail_from_email = $row['config_mail_from_email'];
+    $config_mail_from_name = $row['config_mail_from_name'];
+    $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
+    $config_base_url = $row['config_base_url'];
 
-  // Tickets
-  $config_ticket_prefix = $row['config_ticket_prefix'];
-  $config_ticket_next_number = $row['config_ticket_next_number'];
+    // Tickets
+    $config_ticket_prefix = $row['config_ticket_prefix'];
+    $config_ticket_next_number = $row['config_ticket_next_number'];
 
-  // Set Currency Format
-  $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
+    // Set Currency Format
+    $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
-  if($config_enable_cron == 1){
+    if($config_enable_cron == 1){
 
-    // GET Notifications
+        // DATABASE BACKUP
+        $backup_dir = "backups/";
 
-    // DOMAINS EXPIRING 
+        // Get All Table Names From the Database
+        $tables = array();
+        $sql = "SHOW TABLES";
+        $result = mysqli_query($mysqli, $sql);
+        while ($row = mysqli_fetch_row($result)) {
+            $tables[] = $row[0];
+        }
 
-    $domainAlertArray = [1,7,14,30,90,120];
+        $sqlScript = "";
+        foreach ($tables as $table) {
 
-    foreach($domainAlertArray as $day){
+            // Prepare SQLscript for creating table structure
+            $query = "SHOW CREATE TABLE $table";
+            $result = mysqli_query($mysqli, $query);
+            $row = mysqli_fetch_row($result);
 
-      //Get Domains Expiring
-      $sql = mysqli_query($mysqli,"SELECT * FROM domains
+            $sqlScript .= "\n\n" . $row[1] . ";\n\n";
+
+            $query = "SELECT * FROM $table";
+            $result = mysqli_query($mysqli, $query);
+
+            $columnCount = mysqli_num_fields($result);
+
+            // Prepare SQLscript for dumping data for each table
+            for ($i = 0; $i < $columnCount; $i ++) {
+                while ($row = mysqli_fetch_row($result)) {
+                    $sqlScript .= "INSERT INTO $table VALUES(";
+                    for ($j = 0; $j < $columnCount; $j ++) {
+                        $row[$j] = $row[$j];
+
+                        if (isset($row[$j])) {
+                            $sqlScript .= '"' . $row[$j] . '"';
+                        } else {
+                            $sqlScript .= '""';
+                        }
+                        if ($j < ($columnCount - 1)) {
+                            $sqlScript .= ',';
+                        }
+                    }
+                    $sqlScript .= ");\n";
+                }
+            }
+            $sqlScript .= "\n";
+        }
+
+        // Save the SQL script to a backup file
+        if(!empty($sqlScript)) {
+            $random_string = key32gen();
+            if(!empty($random_string)){
+                $backup_file_name = date('Y-m-d') . '_backup__' . $random_string . '.sql';
+                $fileHandler = fopen($backup_dir . '/' .$backup_file_name, 'w+');
+                $number_of_lines = fwrite($fileHandler, $sqlScript);
+                fclose($fileHandler);
+            }
+        }
+
+        // Delete backups older than 30 days
+        $now = time();
+        foreach (glob($backup_dir."*.sql") as $file) {
+            if(time() - filectime($file) > 2592000){
+                unlink($file);
+            }
+        }
+
+
+        // GET NOTIFICATIONS
+
+        // DOMAINS EXPIRING
+
+        $domainAlertArray = [1,7,14,30,90,120];
+
+        foreach($domainAlertArray as $day){
+
+            //Get Domains Expiring
+            $sql = mysqli_query($mysqli,"SELECT * FROM domains
         LEFT JOIN clients ON domain_client_id = client_id 
         WHERE domain_expire = CURDATE() + INTERVAL $day DAY
         AND domains.company_id = $company_id"
-      );
+            );
 
-      while($row = mysqli_fetch_array($sql)){
-        $domain_id = $row['domain_id'];
-        $domain_name = $row['domain_name'];
-        $domain_expire = $row['domain_expire'];
-        $client_id = $row['client_id'];
-        $client_name = $row['client_name'];
+            while($row = mysqli_fetch_array($sql)){
+                $domain_id = $row['domain_id'];
+                $domain_name = $row['domain_name'];
+                $domain_expire = $row['domain_expire'];
+                $client_id = $row['client_id'];
+                $client_name = $row['client_name'];
 
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Domain', notification = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Domain', notification = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
-      }
+            }
 
-    }
+        }
 
-    // CERTIFICATES EXPIRING 
+        // CERTIFICATES EXPIRING
 
-    $certificateAlertArray = [1,7,14,30,90,120];
+        $certificateAlertArray = [1,7,14,30,90,120];
 
-    foreach($certificateAlertArray as $day){
+        foreach($certificateAlertArray as $day){
 
-      //Get Domains Expiring
-      $sql = mysqli_query($mysqli,"SELECT * FROM certificates
+            //Get Domains Expiring
+            $sql = mysqli_query($mysqli,"SELECT * FROM certificates
         LEFT JOIN clients ON certificate_client_id = client_id 
         WHERE certificate_expire = CURDATE() + INTERVAL $day DAY
         AND certificates.company_id = $company_id"
-      );
+            );
 
-      while($row = mysqli_fetch_array($sql)){
-        $certificate_id = $row['certificate_id'];
-        $certificate_name = $row['certificate_name'];
-        $certificate_domain = $row['certificate_domain'];
-        $certificate_expire = $row['certificate_expire'];
-        $client_id = $row['client_id'];
-        $client_name = $row['client_name'];
+            while($row = mysqli_fetch_array($sql)){
+                $certificate_id = $row['certificate_id'];
+                $certificate_name = $row['certificate_name'];
+                $certificate_domain = $row['certificate_domain'];
+                $certificate_expire = $row['certificate_expire'];
+                $client_id = $row['client_id'];
+                $client_name = $row['client_name'];
 
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Certificate', notification = 'Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Certificate', notification = 'Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
-      }
+            }
 
-    }
+        }
 
-    // Asset Warranties Expiring 
+        // Asset Warranties Expiring
 
-    $warranty_alert_array = [1,7,14,30,90,120];
+        $warranty_alert_array = [1,7,14,30,90,120];
 
-    foreach($$warranty_alert_array as $day){
+        foreach($warranty_alert_array as $day){
 
-      //Get Asset Warranty Expiring
-      $sql = mysqli_query($mysqli,"SELECT * FROM assets 
+            //Get Asset Warranty Expiring
+            $sql = mysqli_query($mysqli,"SELECT * FROM assets 
         LEFT JOIN clients ON asset_client_id = client_id
         WHERE asset_warranty_expire = CURDATE() + INTERVAL $day DAY
         AND assets.company_id = $company_id"
-      );
+            );
 
-      while($row = mysqli_fetch_array($sql)){
-        $asset_id = $row['asset_id'];
-        $asset_name = $row['asset_name'];
-        $asset_warranty_expire = $row['asset_warranty_expire'];
-        $client_id = $row['client_id'];
-        $client_name = $row['client_name'];
+            while($row = mysqli_fetch_array($sql)){
+                $asset_id = $row['asset_id'];
+                $asset_name = $row['asset_name'];
+                $asset_warranty_expire = $row['asset_warranty_expire'];
+                $client_id = $row['client_id'];
+                $client_name = $row['client_name'];
 
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Asset', notification = 'Asset $asset_name warranty for $client_name will expire in $day Days on $asset_warranty_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Asset', notification = 'Asset $asset_name warranty for $client_name will expire in $day Days on $asset_warranty_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
-      }
+            }
 
-    }
-
-    // Scheduled tickets
-
-    // Get date now, and calculate tomorrow's date (presuming this is being run at 11 PM)
-    $now = new DateTime();
-    $tomorrow = date_add($now, date_interval_create_from_date_string('1 day'));
-    $tomorrow_text = $tomorrow->format('Y-m-d');
-
-    // Get scheduled tickets for tomorrow
-    $sql_scheduled_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_next_run = '$tomorrow_text'");
-
-    if(mysqli_num_rows($sql_scheduled_tickets) > 0){
-      while($row = mysqli_fetch_array($sql_scheduled_tickets)){
-        $schedule_id = $row['scheduled_ticket_id'];
-        $subject = $row['scheduled_ticket_subject'];
-        $details = $row['scheduled_ticket_details'];
-        $priority = $row['scheduled_ticket_priority'];
-        $frequency = strtolower($row['scheduled_ticket_frequency']);
-        $created_id = $row['scheduled_ticket_created_by'];
-        $client_id = $row['scheduled_ticket_client_id'];
-        $contact_id = $row['scheduled_ticket_contact_id'];
-        $asset_id = $row['scheduled_ticket_asset_id'];
-        $company_id = $row['company_id'];
-
-        //Get the next Ticket Number and add 1 for the new ticket number
-        $ticket_number = $config_ticket_next_number;
-        $new_config_ticket_next_number = $config_ticket_next_number + 1;
-        mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = '$company_id'");
-
-        // Raise the ticket
-        mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $created_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, company_id = $company_id");
-
-        // Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created scheduled $frequency ticket - $subject', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id, log_user_id = $created_id");
-
-        // Set the next run date
-        if($frequency == "weekly"){
-          // Note: We seemingly have to initialize a new datetime for each loop to avoid stacking the dates
-          $now = new DateTime();
-          $next_run = date_add($now, date_interval_create_from_date_string('1 week 1 day'));
-        }
-        elseif($frequency == "monthly"){
-          $now = new DateTime();
-          $next_run = date_add($now, date_interval_create_from_date_string('1 month 1 day'));
-        }
-        elseif($frequency == "quarterly"){
-          $now = new DateTime();
-          $next_run = date_add($now, date_interval_create_from_date_string('3 months 1 day'));
-        }
-        elseif($frequency == "biannually"){
-          $now = new DateTime();
-          $next_run = date_add($now, date_interval_create_from_date_string('6 months 1 day'));
-        }
-        elseif($frequency == "annually"){
-          $now = new DateTime();
-          $next_run = date_add($now, date_interval_create_from_date_string('12 months 1 day'));
         }
 
-        // Update the run date
-        $next_run = $next_run->format('Y-m-d');
-        $a = mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_next_run = '$next_run' WHERE scheduled_ticket_id = '$schedule_id'");
+        // Scheduled tickets
 
-      }
-    }
+        // Get date now, and calculate tomorrow's date (presuming this is being run at 11 PM)
+        $now = new DateTime();
+        $tomorrow = date_add($now, date_interval_create_from_date_string('1 day'));
+        $tomorrow_text = $tomorrow->format('Y-m-d');
 
-    // PAST DUE INVOICE Notifications
-    //$invoiceAlertArray = [$config_invoice_overdue_reminders];
-    $invoiceAlertArray = [30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620];
+        // Get scheduled tickets for tomorrow
+        $sql_scheduled_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_next_run = '$tomorrow_text'");
 
-    foreach($invoiceAlertArray as $day){
+        if(mysqli_num_rows($sql_scheduled_tickets) > 0){
+            while($row = mysqli_fetch_array($sql_scheduled_tickets)){
+                $schedule_id = $row['scheduled_ticket_id'];
+                $subject = $row['scheduled_ticket_subject'];
+                $details = $row['scheduled_ticket_details'];
+                $priority = $row['scheduled_ticket_priority'];
+                $frequency = strtolower($row['scheduled_ticket_frequency']);
+                $created_id = $row['scheduled_ticket_created_by'];
+                $client_id = $row['scheduled_ticket_client_id'];
+                $contact_id = $row['scheduled_ticket_contact_id'];
+                $asset_id = $row['scheduled_ticket_asset_id'];
+                $company_id = $row['company_id'];
 
-      $sql = mysqli_query($mysqli,"SELECT * FROM invoices
+                //Get the next Ticket Number and add 1 for the new ticket number
+                $ticket_number = $config_ticket_next_number;
+                $new_config_ticket_next_number = $config_ticket_next_number + 1;
+                mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = '$company_id'");
+
+                // Raise the ticket
+                mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $created_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, company_id = $company_id");
+
+                // Logging
+                mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created scheduled $frequency ticket - $subject', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id, log_user_id = $created_id");
+
+                // Set the next run date
+                if($frequency == "weekly"){
+                    // Note: We seemingly have to initialize a new datetime for each loop to avoid stacking the dates
+                    $now = new DateTime();
+                    $next_run = date_add($now, date_interval_create_from_date_string('1 week 1 day'));
+                }
+                elseif($frequency == "monthly"){
+                    $now = new DateTime();
+                    $next_run = date_add($now, date_interval_create_from_date_string('1 month 1 day'));
+                }
+                elseif($frequency == "quarterly"){
+                    $now = new DateTime();
+                    $next_run = date_add($now, date_interval_create_from_date_string('3 months 1 day'));
+                }
+                elseif($frequency == "biannually"){
+                    $now = new DateTime();
+                    $next_run = date_add($now, date_interval_create_from_date_string('6 months 1 day'));
+                }
+                elseif($frequency == "annually"){
+                    $now = new DateTime();
+                    $next_run = date_add($now, date_interval_create_from_date_string('12 months 1 day'));
+                }
+
+                // Update the run date
+                $next_run = $next_run->format('Y-m-d');
+                $a = mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_next_run = '$next_run' WHERE scheduled_ticket_id = '$schedule_id'");
+
+            }
+        }
+
+        // PAST DUE INVOICE Notifications
+        //$invoiceAlertArray = [$config_invoice_overdue_reminders];
+        $invoiceAlertArray = [30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620];
+
+        foreach($invoiceAlertArray as $day){
+
+            $sql = mysqli_query($mysqli,"SELECT * FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
         LEFT JOIN contacts ON contact_id = primary_contact
         WHERE invoice_status NOT LIKE 'Draft'
@@ -204,190 +272,190 @@ while($row = mysqli_fetch_array($sql_companies)){
         AND DATE_ADD(invoice_due, INTERVAL $day DAY) = CURDATE()
         AND invoices.company_id = $company_id
         ORDER BY invoice_number DESC"
-      );
-            
-      while($row = mysqli_fetch_array($sql)){
-        $invoice_id = $row['invoice_id'];
-        $invoice_prefix = $row['invoice_prefix'];
-        $invoice_number = $row['invoice_number'];
-        $invoice_status = $row['invoice_status'];
-        $invoice_date = $row['invoice_date'];
-        $invoice_due = $row['invoice_due'];
-        $invoice_url_key = $row['invoice_url_key'];
-        $invoice_amount = $row['invoice_amount'];
-        $invoice_currency_code = $row['invoice_currency_code'];
-        $client_id = $row['client_id'];
-        $client_name = $row['client_name'];
-        $contact_name = $row['contact_name'];
-        $contact_email = $row['contact_email'];
+            );
 
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Invoice', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+            while($row = mysqli_fetch_array($sql)){
+                $invoice_id = $row['invoice_id'];
+                $invoice_prefix = $row['invoice_prefix'];
+                $invoice_number = $row['invoice_number'];
+                $invoice_status = $row['invoice_status'];
+                $invoice_date = $row['invoice_date'];
+                $invoice_due = $row['invoice_due'];
+                $invoice_url_key = $row['invoice_url_key'];
+                $invoice_amount = $row['invoice_amount'];
+                $invoice_currency_code = $row['invoice_currency_code'];
+                $client_id = $row['client_id'];
+                $client_name = $row['client_name'];
+                $contact_name = $row['contact_name'];
+                $contact_email = $row['contact_email'];
 
-        $mail = new PHPMailer(true);
+                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Invoice', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
-        try{
+                $mail = new PHPMailer(true);
 
-          //Mail Server Settings
+                try{
 
-          $mail->SMTPDebug = 2;                                       // Enable verbose debug output
-          $mail->isSMTP();                                            // Set mailer to use SMTP
-          $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-          $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-          $mail->Username   = $config_smtp_username;                     // SMTP username
-          $mail->Password   = $config_smtp_password;                               // SMTP password
-          $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
-          $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+                    //Mail Server Settings
 
-          //Recipients
-          $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
-          $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
+                    $mail->SMTPDebug = 2;                                       // Enable verbose debug output
+                    $mail->isSMTP();                                            // Set mailer to use SMTP
+                    $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+                    $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+                    $mail->Username   = $config_smtp_username;                     // SMTP username
+                    $mail->Password   = $config_smtp_password;                               // SMTP password
+                    $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+                    $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
-          // Content
-          $mail->isHTML(true);                                  // Set email format to HTML
+                    //Recipients
+                    $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
+                    $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
-          $mail->Subject = "Overdue Invoice $invoice_prefix$invoice_number";
-          $mail->Body    = "Hello $contact_name,<br><br>According to our records, we have not received payment for invoice $invoice_prefix$invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $company_phone.
+                    // Content
+                    $mail->isHTML(true);                                  // Set email format to HTML
+
+                    $mail->Subject = "Overdue Invoice $invoice_prefix$invoice_number";
+                    $mail->Body    = "Hello $contact_name,<br><br>According to our records, we have not received payment for invoice $invoice_prefix$invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $company_phone.
             <br><br>
             Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
-          
-          $mail->send();
 
-          mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
+                    $mail->send();
 
-        }catch (Exception $e) {
-            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-            mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
-        } //End Mail Try
+                    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
 
-      }
+                }catch (Exception $e) {
+                    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+                } //End Mail Try
 
-    }
+            }
 
-    //Send Recurring Invoices that match todays date and are active
+        }
 
-    //Loop through all recurring that match today's date and is active
-    $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring LEFT JOIN clients ON client_id = recurring_client_id WHERE recurring_next_date = CURDATE() AND recurring_status = 1 AND recurring.company_id = $company_id");
+        //Send Recurring Invoices that match todays date and are active
 
-    while($row = mysqli_fetch_array($sql_recurring)){
-      $recurring_id = $row['recurring_id'];
-      $recurring_scope = $row['recurring_scope'];
-      $recurring_frequency = $row['recurring_frequency'];
-      $recurring_status = $row['recurring_status'];
-      $recurring_last_sent = $row['recurring_last_sent'];
-      $recurring_next_date = $row['recurring_next_date'];
-      $recurring_amount = $row['recurring_amount'];
-      $recurring_currency_code = $row['recurring_currency_code'];
-      $recurring_note = mysqli_real_escape_string($mysqli,$row['recurring_note']); //Escape SQL
-      $category_id = $row['recurring_category_id'];
-      $client_id = $row['recurring_client_id'];
-      $client_name = mysqli_real_escape_string($mysqli,$row['client_name']); //Escape SQL just in case a name is like Safran's etc
-      $client_net_terms = $row['client_net_terms'];
-      
+        //Loop through all recurring that match today's date and is active
+        $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring LEFT JOIN clients ON client_id = recurring_client_id WHERE recurring_next_date = CURDATE() AND recurring_status = 1 AND recurring.company_id = $company_id");
 
-      //Get the last Invoice Number and add 1 for the new invoice number
-      $sql_invoice_number = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $company_id");
-      $row = mysqli_fetch_array($sql_invoice_number);
-      $config_invoice_next_number = $row['config_invoice_next_number'];
-      
-      $new_invoice_number = $config_invoice_next_number;
-      $new_config_invoice_next_number = $config_invoice_next_number + 1;
-      mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $company_id");
+        while($row = mysqli_fetch_array($sql_recurring)){
+            $recurring_id = $row['recurring_id'];
+            $recurring_scope = $row['recurring_scope'];
+            $recurring_frequency = $row['recurring_frequency'];
+            $recurring_status = $row['recurring_status'];
+            $recurring_last_sent = $row['recurring_last_sent'];
+            $recurring_next_date = $row['recurring_next_date'];
+            $recurring_amount = $row['recurring_amount'];
+            $recurring_currency_code = $row['recurring_currency_code'];
+            $recurring_note = mysqli_real_escape_string($mysqli,$row['recurring_note']); //Escape SQL
+            $category_id = $row['recurring_category_id'];
+            $client_id = $row['recurring_client_id'];
+            $client_name = mysqli_real_escape_string($mysqli,$row['client_name']); //Escape SQL just in case a name is like Safran's etc
+            $client_net_terms = $row['client_net_terms'];
 
-      //Generate a unique URL key for clients to access
-      $url_key = keygen();
 
-      mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $new_invoice_number, invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_currency_code = '$recurring_currency_code', invoice_note = '$recurring_note', invoice_category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), invoice_client_id = $client_id, company_id = $company_id");
+            //Get the last Invoice Number and add 1 for the new invoice number
+            $sql_invoice_number = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $company_id");
+            $row = mysqli_fetch_array($sql_invoice_number);
+            $config_invoice_next_number = $row['config_invoice_next_number'];
 
-      $new_invoice_id = mysqli_insert_id($mysqli);
-      
-      //Copy Items from original recurring invoice to new invoice
-      $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id ORDER BY item_id ASC");
+            $new_invoice_number = $config_invoice_next_number;
+            $new_config_invoice_next_number = $config_invoice_next_number + 1;
+            mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $company_id");
 
-      while($row = mysqli_fetch_array($sql_invoice_items)){
-        $item_id = $row['item_id'];
-        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']); //SQL Escape incase of ,
-        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']); //SQL Escape incase of ,
-        $item_quantity = $row['item_quantity'];
-        $item_price = $row['item_price'];
-        $item_subtotal = $row['item_subtotal'];
-        $item_tax = $row['item_tax'];
-        $item_total = $row['item_total'];
-        $tax_id = $row['item_tax_id'];
+            //Generate a unique URL key for clients to access
+            $url_key = keygen();
 
-        //Insert Items into New Invoice
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = '$item_quantity', item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), item_tax_id = $tax_id, item_invoice_id = $new_invoice_id, company_id = $company_id");
-        
-      }
+            mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $new_invoice_number, invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_currency_code = '$recurring_currency_code', invoice_note = '$recurring_note', invoice_category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), invoice_client_id = $client_id, company_id = $company_id");
 
-      mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+            $new_invoice_id = mysqli_insert_id($mysqli);
 
-      mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Recurring', notification = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', notification_timestamp = NOW(), company_id = $company_id");
+            //Copy Items from original recurring invoice to new invoice
+            $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id ORDER BY item_id ASC");
 
-      //Update recurring dates
+            while($row = mysqli_fetch_array($sql_invoice_items)){
+                $item_id = $row['item_id'];
+                $item_name = mysqli_real_escape_string($mysqli,$row['item_name']); //SQL Escape incase of ,
+                $item_description = mysqli_real_escape_string($mysqli,$row['item_description']); //SQL Escape incase of ,
+                $item_quantity = $row['item_quantity'];
+                $item_price = $row['item_price'];
+                $item_subtotal = $row['item_subtotal'];
+                $item_tax = $row['item_tax'];
+                $item_total = $row['item_total'];
+                $tax_id = $row['item_tax_id'];
 
-      mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
+                //Insert Items into New Invoice
+                mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = '$item_quantity', item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), item_tax_id = $tax_id, item_invoice_id = $new_invoice_id, company_id = $company_id");
 
-      if($config_recurring_auto_send_invoice == 1){
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoices
+            }
+
+            mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+
+            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Recurring', notification = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', notification_timestamp = NOW(), company_id = $company_id");
+
+            //Update recurring dates
+
+            mysqli_query($mysqli,"UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
+
+            if($config_recurring_auto_send_invoice == 1){
+                $sql = mysqli_query($mysqli,"SELECT * FROM invoices
           LEFT JOIN clients ON invoice_client_id = client_id
           LEFT JOIN contacts ON contact_id = primary_contact
           WHERE invoice_id = $new_invoice_id
           AND invoices.company_id = $company_id"
-        );
+                );
 
-        $row = mysqli_fetch_array($sql);
-        $invoice_prefix = $row['invoice_prefix'];
-        $invoice_number = $row['invoice_number'];
-        $invoice_date = $row['invoice_date'];
-        $invoice_due = $row['invoice_due'];
-        $invoice_amount = $row['invoice_amount'];
-        $invoice_url_key = $row['invoice_url_key'];
-        $client_id = $row['client_id'];
-        $client_name = $row['client_name'];
-        $contact_name = $row['contact_name'];
-        $contact_email = $row['contact_email'];
+                $row = mysqli_fetch_array($sql);
+                $invoice_prefix = $row['invoice_prefix'];
+                $invoice_number = $row['invoice_number'];
+                $invoice_date = $row['invoice_date'];
+                $invoice_due = $row['invoice_due'];
+                $invoice_amount = $row['invoice_amount'];
+                $invoice_url_key = $row['invoice_url_key'];
+                $client_id = $row['client_id'];
+                $client_name = $row['client_name'];
+                $contact_name = $row['contact_name'];
+                $contact_email = $row['contact_email'];
 
-        $mail = new PHPMailer(true);
+                $mail = new PHPMailer(true);
 
-        try{
+                try{
 
-          //Mail Server Settings
+                    //Mail Server Settings
 
-          //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
-          $mail->isSMTP();                                            // Set mailer to use SMTP
-          $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-          $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-          $mail->Username   = $config_smtp_username;                     // SMTP username
-          $mail->Password   = $config_smtp_password;                               // SMTP password
-          $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
-          $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+                    //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+                    $mail->isSMTP();                                            // Set mailer to use SMTP
+                    $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+                    $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+                    $mail->Username   = $config_smtp_username;                     // SMTP username
+                    $mail->Password   = $config_smtp_password;                               // SMTP password
+                    $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+                    $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
-          //Recipients
-          $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
-          $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
+                    //Recipients
+                    $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
+                    $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
-          // Content
-          $mail->isHTML(true);                                  // Set email format to HTML
+                    // Content
+                    $mail->isHTML(true);                                  // Set email format to HTML
 
-          $mail->Subject = "Invoice $invoice_prefix$invoice_number";
-          $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
-          
-          $mail->send();
+                    $mail->Subject = "Invoice $invoice_prefix$invoice_number";
+                    $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice online click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
-          mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Emailed Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+                    $mail->send();
 
-          //Update Invoice Status to Sent
-          mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW(), invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id");
+                    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Emailed Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
 
-        }catch (Exception $e) {
-            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-            mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Cron Failed to send Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
-        } //End Mail Try
-      } //End if Autosend is on
-    } //End Recurring Invoices Loop
-    //Send Alert to inform Cron was run
-    mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron.php successfully executed', notification_timestamp = NOW(), company_id = $company_id");
-  } //End Cron Check
+                    //Update Invoice Status to Sent
+                    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW(), invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id");
+
+                }catch (Exception $e) {
+                    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Cron Failed to send Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+                } //End Mail Try
+            } //End if Autosend is on
+        } //End Recurring Invoices Loop
+        //Send Alert to inform Cron was run
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron.php successfully executed', notification_timestamp = NOW(), company_id = $company_id");
+    } //End Cron Check
 
 } //End Company Loop through
 
