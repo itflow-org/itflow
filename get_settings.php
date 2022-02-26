@@ -7,6 +7,11 @@ $row = mysqli_fetch_array($sql_settings);
 // General
 $config_base_url = $row['config_base_url'];
 
+// Mesh Central
+$config_meshcentral_uri = $row['config_meshcentral_uri'];
+$config_meshcentral_user = $row['config_meshcentral_user'];
+$config_meshcentral_secret = decryptLoginEntry($row['config_meshcentral_secret']);
+
 // Mail
 $config_smtp_host = $row['config_smtp_host'];
 $config_smtp_port = $row['config_smtp_port'];

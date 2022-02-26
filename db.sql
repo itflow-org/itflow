@@ -77,6 +77,7 @@ CREATE TABLE `assets` (
   `asset_install_date` date DEFAULT NULL,
   `asset_reciept` varchar(200) DEFAULT NULL,
   `asset_notes` text DEFAULT NULL,
+  `asset_meshcentral_id` varchar(200) NOT NULL,
   `asset_created_at` datetime NOT NULL,
   `asset_updated_at` datetime DEFAULT NULL,
   `asset_archived_at` datetime DEFAULT NULL,
@@ -238,6 +239,7 @@ CREATE TABLE `clients` (
   `client_currency_code` varchar(200) NOT NULL,
   `client_net_terms` int(10) NOT NULL,
   `client_notes` text DEFAULT NULL,
+  `client_meshcentral_group` varchar(200) NOT NULL,
   `client_created_at` datetime NOT NULL,
   `client_updated_at` datetime DEFAULT NULL,
   `client_archived_at` datetime DEFAULT NULL,
@@ -1114,6 +1116,9 @@ CREATE TABLE `settings` (
   `config_stripe_enable` tinyint(1) DEFAULT NULL,
   `config_stripe_publishable` varchar(255) DEFAULT NULL,
   `config_stripe_secret` varchar(255) DEFAULT NULL,
+  `config_meshcentral_uri` varchar(200) NOT NULL,
+  `config_meshcentral_user` varchar(200) NOT NULL,
+  `config_meshcentral_secret` varchar(200) NOT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
