@@ -299,7 +299,7 @@ if(isset($_GET['invoice_id'])){
                     <td><input type="text" class="form-control" id="name" name="name" placeholder="Item" required></td>
                     <td><textarea class="form-control" rows="2" id="desc" name="description" placeholder="Description"></textarea></td>
                     <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" id="qty" name="qty" placeholder="QTY"></td>
-                    <td><input type="number" step="0.01" class="form-control" style="text-align: right;" id="price" name="price" placeholder="Price (<?php echo $client_currency_symbol; ?>)"></td>
+                    <td><input type="number" step="0.01" class="form-control" style="text-align: right;" id="price" name="price" placeholder="Price (<?php echo $invoice_currency_code; ?>)"></td>
                     <td>             
                       <select class="form-control select2" name="tax_id" required>
                         <option value="0">None</option>
