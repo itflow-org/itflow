@@ -98,7 +98,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop"></i> Assets</h3>
     <div class="card-tools">
-      <?php if(!empty($client_meshcentral_group)) { ?><button type="button" class="btn btn-primary" onclick="window.open('plugins/meshctrl/mesh.php', '', '_blank,width=500,height=500')"><i class="fas fa-fw fa-sync"></i> Sync Assets</button><?php } ?>
+      <?php if(!empty($client_meshcentral_group)) { ?><button type="button" class="btn btn-primary" onclick="window.open('plugins/meshctrl/meshcentral_asset_sync.php', '', '_blank,width=500,height=500')"><i class="fas fa-fw fa-sync"></i> Sync Assets</button><?php } ?>
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-fw fa-plus"></i> New <?php if(!empty($_GET['type'])){ echo ucwords($_GET['type']); }else{ echo "Asset"; } ?></button>
     </div>
   </div>

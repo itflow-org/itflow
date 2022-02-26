@@ -82,12 +82,8 @@ foreach($mesh_devices as $device){
           echo "Created new asset $name";
         }
       }
-
-
     }
-
   }
-
 }
 
 echo "<br><br>";
