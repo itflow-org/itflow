@@ -79,7 +79,7 @@
                   $user_id_select = $row['user_id'];
                   $user_name_select = $row['user_name'];
                 ?>
-                  <option <?php if($trip_user_id = $user_id_select){ echo "selected"; } ?> value="<?php echo $user_id_select; ?>"><?php echo $user_name_select; ?></option>
+                  <option <?php if($trip_user_id == $user_id_select){ echo "selected"; } ?> value="<?php echo $user_id_select; ?>"><?php echo $user_name_select; ?></option>
                 
                 <?php
                 }

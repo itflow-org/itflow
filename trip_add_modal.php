@@ -77,7 +77,7 @@
                   $user_id = $row['user_id'];
                   $user_name = $row['user_name'];
                 ?>
-                  <option <?php if($session_user_id = $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                  <option <?php if($session_user_id == $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                 
                 <?php
                 }
