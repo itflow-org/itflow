@@ -140,7 +140,7 @@ include("client_certificate_add_modal.php");
 
         // Send a GET request to post.php as post.php?certificate_get_json_details=true&client_id=NUM&certificate_id=NUM
         jQuery.get(
-            "post.php",
+            "ajax.php",
             {certificate_get_json_details: 'true', client_id: client_id, certificate_id: certificate_id},
             function(data){
 
@@ -203,10 +203,10 @@ include("client_certificate_add_modal.php");
             var publicKey = document.getElementById("editPublicKey");
         }
 
-        //Send a GET request to post.php as post.php?fetch_certificate=TRUE&domain=DOMAIN
+        //Send a GET request to post.php as post.php?certificate_fetch_parse_json_details=TRUE&domain=DOMAIN
         jQuery.get(
-            "post.php",
-            {fetch_certificate: 'TRUE', domain: domain},
+            "ajax.php",
+            {certificate_fetch_parse_json_details: 'TRUE', domain: domain},
             function(data){
                 //If we get a response from post.php, parse it as JSON
                 const ssl_data = JSON.parse(data);
