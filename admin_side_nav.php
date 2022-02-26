@@ -112,6 +112,14 @@
           </a> 
         </li>
 
+        <li class="nav-item">
+          <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-api.php") { echo "active"; } ?>"
+             href="settings-api.php">
+              <i class="nav-icon fas fa-key"></i>
+              <p>API</p>
+          </a>
+        </li>
+
         <li class="nav-header mt-3">MORE SETTINGS</li>
 
         <li class="nav-item">

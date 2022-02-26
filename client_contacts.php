@@ -139,7 +139,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             if($contact_id == $primary_contact){
                 $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
             }else{
-              $primary_contact_display = "<small class='text-danger'>Needs approval</small>";
+              $primary_contact_display = FALSE;
             }
             $contact_location_id = $row['contact_location_id'];
             $location_name = $row['location_name'];
