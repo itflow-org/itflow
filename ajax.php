@@ -11,7 +11,7 @@ include("functions.php");
 include("check_login.php");
 
 /*
- * Fetches SSL certificates from remote hosts & returns the relevant info (host, issuer, expiry)
+ * Fetches SSL certificates from remote hosts & returns the relevant info (issuer, expiry, public key)
  */
 if(isset($_GET['certificate_fetch_parse_json_details'])){
   // PHP doesn't appreciate attempting SSL sockets to non-existent domains
