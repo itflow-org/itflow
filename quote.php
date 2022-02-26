@@ -263,7 +263,7 @@ if(isset($_GET['quote_id'])){
                     <td><input type="text" class="form-control" name="name" id="name" placeholder="Item" required></td>
                     <td><textarea class="form-control" rows="2" name="description" id="desc" placeholder="Description"></textarea></td>
                     <td><input type="number" step="0.01" min="0" class="form-control" id="qty" style="text-align: center;" name="qty" placeholder="QTY"></td>
-                    <td><input type="number" step="0.01" min="0" class="form-control" id="price" style="text-align: right;" name="price" placeholder="Price (<?php echo $client_currency_symbol; ?>)"></td>
+                    <td><input type="number" step="0.01" min="0" class="form-control" id="price" style="text-align: right;" name="price" placeholder="Price (<?php echo $quote_currency_code; ?>)"></td>
                     <td>
                       <select class="form-control select2" id="tax" name="tax_id" required>
                         <option value="0">None</option>
