@@ -717,7 +717,7 @@ if(isset($_POST['edit_general_settings'])){
     $config_base_url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url'])));
     $mesh_uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_uri'])));
     $mesh_user = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_user'])));
-    $mesh_secret = encryptLoginEntry((mysqli_real_escape_string($mysqli,$_POST['meshcentral_secret'])));
+    $mesh_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_secret'])));
 
     mysqli_query($mysqli,"UPDATE settings SET config_base_url = '$config_base_url', config_meshcentral_uri = '$mesh_uri', config_meshcentral_user = '$mesh_user', config_meshcentral_secret = '$mesh_secret' WHERE company_id = $session_company_id");
 

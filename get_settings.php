@@ -10,7 +10,7 @@ $config_base_url = $row['config_base_url'];
 // Mesh Central
 $config_meshcentral_uri = $row['config_meshcentral_uri'];
 $config_meshcentral_user = $row['config_meshcentral_user'];
-$config_meshcentral_secret = decryptLoginEntry($row['config_meshcentral_secret']);
+$config_meshcentral_secret = $row['config_meshcentral_secret'];
 
 // Mail
 $config_smtp_host = $row['config_smtp_host'];
