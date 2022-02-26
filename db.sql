@@ -291,7 +291,7 @@ CREATE TABLE `contacts` (
   `contact_email` varchar(200) DEFAULT NULL,
   `contact_phone` varchar(200) DEFAULT NULL,
   `contact_extension` varchar(200) DEFAULT NULL,
-  `contact_mobile` varchar(200) DEFAULT '''NULL''',
+  `contact_mobile` varchar(200) DEFAULT NULL,
   `contact_photo` varchar(200) DEFAULT NULL,
   `contact_notes` text DEFAULT NULL,
   `contact_created_at` datetime NOT NULL,
@@ -1451,4 +1451,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-26 11:15:13
+-- Dump completed on 2022-02-26 11:19:56
