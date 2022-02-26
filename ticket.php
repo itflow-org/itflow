@@ -70,12 +70,14 @@ if(isset($_GET['ticket_id'])){
   $contact_mobile = formatPhoneNumber($row['contact_mobile']);
 
   $asset_id = $row['asset_id'];
+  $asset_ip = htmlentities($row['asset_ip']);
   $asset_name = htmlentities($row['asset_name']);
   $asset_type = htmlentities($row['asset_type']);
   $asset_make = htmlentities($row['asset_make']);
   $asset_model = htmlentities($row['asset_model']);
   $asset_serial = htmlentities($row['asset_serial']);
   $asset_os = htmlentities($row['asset_os']);
+  $asset_warranty_expire = $row['asset_warranty_expire'];
 
   $location_name = $row['location_name'];
   $location_address = $row['location_address'];
@@ -145,6 +147,18 @@ if(isset($_GET['ticket_id'])){
     $client_tag_name_display_array[] = "<span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon'></i> $client_tag_name</span>";
   }
   $client_tags_display = implode(' ', $client_tag_name_display_array);
+  
+  // Get the asset warranty expiry 
+ $date = date('Y-m-d H:i:s');
+ $dt_value = $asset_warranty_expire; //sample date
+ $warranty_check = date('m/d/Y',strtotime('-8 hours'));
+
+ if($dt_value <= $date){
+    $dt_value = "Expired on $asset_warranty_expire"; $color ='red';
+ }else{
+   $color = 'green';
+ } 
+
 
 ?>
 
@@ -392,20 +406,7 @@ if(isset($_GET['ticket_id'])){
     <div class="card card-body card-outline card-dark mb-3">
       <div>
         <h4 class="text-secondary">Asset</h4>
-        <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $asset_name; ?></strong>
-        <br>
-        <?php
-        if(!empty($asset_make)){
-        ?>
-        <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i><?php echo "$asset_make $asset_model"; ?>
-        <br>
-        <?php
-        }
-        ?>
-        <?php
-        if(!empty($asset_serial)){
-        ?>
-        <i class="fa fa-fw fa-barcode text-secondary ml-1 mr-2 mb-2"></i><?php echo $asset_serial; ?>
+        <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i> Asset name: <strong><?php echo $asset_name; ?></strong> 
         <br>
         <?php
         }
@@ -413,7 +414,38 @@ if(isset($_GET['ticket_id'])){
         <?php
         if(!empty($asset_os)){
         ?>
-        <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i><?php echo $asset_os; ?>
+        <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> OS: <?php echo $asset_os; ?>
+        <br>
+        <?php
+        if(!empty($asset_ip)){
+        ?>
+        <i class="fa fa-fw fa-network-wired text-secondary ml-1 mr-2 mb-2"></i> IP: <?php echo "$asset_ip"; ?>
+        <br>
+        <?php
+        }
+        ?>
+        <?php
+        if(!empty($asset_make)){
+        ?>
+        <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> Model: <?php echo "$asset_make $asset_model"; ?>
+        <br>
+        <?php
+        }
+        ?>
+
+        <?php
+        if(!empty($asset_serial)){
+        ?>
+        <i class="fa fa-fw fa-barcode text-secondary ml-1 mr-2 mb-2"></i> Service Tag: <?php echo $asset_serial; ?>
+        <br>
+
+        <?php
+        }
+        ?>
+        <?php
+        if(!empty($asset_warranty_expire)){
+        ?>
+        <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> Warranty expire: <strong><font color="<?php echo $color?>" > <?php echo $dt_value?></font></strong>
         <br>
         <?php
         }
