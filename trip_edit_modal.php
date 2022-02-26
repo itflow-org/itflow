@@ -64,6 +64,31 @@
             <textarea rows="4" class="form-control" placeholder="Enter a purpose" name="purpose" required><?php echo $trip_purpose; ?></textarea>
           </div>
 
+          <div class="form-group">
+            <label>Driver</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+              </div>
+              <select class="form-control select2" name="user" required>
+                <option value="">- Driver -</option>
+                <?php 
+                
+                // WIP Need to only show users within the session company
+                $sql_trips = mysqli_query($mysqli,"SELECT * FROM users ORDER BY user_name ASC"); 
+                while($row = mysqli_fetch_array($sql_trips)){
+                  $user_id_select = $row['user_id'];
+                  $user_name_select = $row['user_name'];
+                ?>
+                  <option <?php if($trip_user_id = $user_id_select){ echo "selected"; } ?> value="<?php echo $user_id_select; ?>"><?php echo $user_name_select; ?></option>
+                
+                <?php
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+
           <?php if(isset($_GET['client_id'])){ ?>
           <input type="hidden" name="client" value="<?php echo $client_id; ?>">
           <?php }else{ ?>

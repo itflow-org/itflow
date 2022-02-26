@@ -82,7 +82,8 @@
 
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips 
     LEFT JOIN clients ON trip_client_id = client_id
-    WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR trip_miles LIKE '%$q%' OR client_name LIKE '%$q%')
+    LEFT JOIN users ON trip_user_id = user_id
+    WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR trip_miles LIKE '%$q%' OR client_name LIKE '%$q%' OR user_name LIKE '%$q%')
     AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
     AND trips.company_id = $session_company_id
     ORDER BY $sb $o LIMIT $record_from, $record_to"
@@ -160,6 +161,7 @@
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_date&o=<?php echo $disp; ?>">Date</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">Driver</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_purpose&o=<?php echo $disp; ?>">Purpose</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_source&o=<?php echo $disp; ?>">Source</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_destination&o=<?php echo $disp; ?>">Destination</a></th>
@@ -177,6 +179,7 @@
             $trip_source = $row['trip_source'];
             $trip_destination = $row['trip_destination'];
             $trip_miles = $row['trip_miles'];
+            $trip_user_id = $row['trip_user_id'];
             $round_trip = $row['round_trip'];
             $client_id = $row['client_id'];
             $client_name = $row['client_name'];
@@ -190,11 +193,18 @@
             }else{
               $round_trip_display = "";
             }
+            $user_name = $row['user_name'];
+            if(empty($user_name)){
+              $user_name_display = "-";
+            }else{
+              $user_name_display = $user_name;
+            }
 
           ?>
           <tr>
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>"><?php echo $trip_date; ?></a></td>
             <td><?php echo $client_name_display; ?></td>
+            <td><?php echo $user_name_display; ?></td>
             <td><?php echo $trip_purpose; ?></td>
             <td><?php echo $trip_source; ?></td>
             <td><?php echo $trip_destination; ?></td>

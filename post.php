@@ -1968,9 +1968,10 @@ if(isset($_POST['add_trip'])){
     $miles = floatval($_POST['miles']);
     $roundtrip = intval($_POST['roundtrip']);
     $purpose = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose'])));
+    $user_id = intval($_POST['user']);
     $client_id = intval($_POST['client']);
 
-    mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_created_at = NOW(), trip_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_created_at = NOW(), trip_user_id = $user_id, trip_client_id = $client_id, company_id = $session_company_id");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Create', log_description = '$session_name logged trip to $destination', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
@@ -1990,9 +1991,10 @@ if(isset($_POST['edit_trip'])){
     $miles = floatval($_POST['miles']);
     $roundtrip = intval($_POST['roundtrip']);
     $purpose = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose'])));
+    $user_id = intval($_POST['user']);
     $client_id = intval($_POST['client']);
 
-    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_updated_at = NOW(), trip_client_id = $client_id WHERE trip_id = $trip_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_updated_at = NOW(), trip_user_id = $user_id, trip_client_id = $client_id WHERE trip_id = $trip_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Modified', log_description = '$date', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");

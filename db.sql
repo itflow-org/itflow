@@ -291,7 +291,7 @@ CREATE TABLE `contacts` (
   `contact_email` varchar(200) DEFAULT NULL,
   `contact_phone` varchar(200) DEFAULT NULL,
   `contact_extension` varchar(200) DEFAULT NULL,
-  `contact_mobile` varchar(200) DEFAULT NULL,
+  `contact_mobile` varchar(200) DEFAULT '''NULL''',
   `contact_photo` varchar(200) DEFAULT NULL,
   `contact_notes` text DEFAULT NULL,
   `contact_created_at` datetime NOT NULL,
@@ -1281,7 +1281,7 @@ CREATE TABLE `tickets` (
   `ticket_archived_at` datetime DEFAULT NULL,
   `ticket_closed_at` datetime DEFAULT NULL,
   `ticket_created_by` int(11) NOT NULL,
-  `ticket_assigned_to` int(11) NOT NULL DEFAULT '0',
+  `ticket_assigned_to` int(11) NOT NULL DEFAULT 0,
   `ticket_closed_by` int(11) DEFAULT NULL,
   `ticket_vendor_id` int(11) DEFAULT NULL,
   `ticket_client_id` int(11) DEFAULT NULL,
@@ -1333,6 +1333,7 @@ CREATE TABLE `trips` (
   `trip_created_at` datetime NOT NULL,
   `trip_updated_at` datetime DEFAULT NULL,
   `trip_archived_at` datetime DEFAULT NULL,
+  `trip_user_id` int(11) NOT NULL DEFAULT 0,
   `trip_client_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`trip_id`)
@@ -1450,4 +1451,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-22 13:13:37
+-- Dump completed on 2022-02-26 11:15:13

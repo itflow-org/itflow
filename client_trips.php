@@ -48,8 +48,9 @@ if(isset($_GET['dtf'])){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips  
-  WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%')
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips
+  LEFT JOIN users ON trip_user_id = user_id
+  WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR user_name LIKE '%$q%')
   AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
   AND company_id = $session_company_id
   AND trip_client_id = $client_id
@@ -96,6 +97,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_date&o=<?php echo $disp; ?>">Date</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">Driver</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_purpose&o=<?php echo $disp; ?>">Purpose</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_source&o=<?php echo $disp; ?>">From</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_destination&o=<?php echo $disp; ?>">To</a></th>
@@ -113,6 +115,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $trip_source = $row['trip_source'];
             $trip_destination = $row['trip_destination'];
             $trip_miles = $row['trip_miles'];
+            $trip_user_id = $row['trip_user_id'];
             $round_trip = $row['round_trip'];
             $client_id = $row['trip_client_id'];
 
@@ -121,10 +124,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $round_trip_display = "";
             }
+            $user_name = $row['user_name'];
+            if(empty($user_name)){
+              $user_name_display = "-";
+            }else{
+              $user_name_display = $user_name;
+            }
 
           ?>
           <tr>
             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>"><?php echo $trip_date; ?></a></td>
+            <td><?php echo $user_name_display; ?></td>
             <td><?php echo $trip_purpose; ?></td>
             <td><?php echo $trip_source; ?></td>
             <td><?php echo $trip_destination; ?></td>
