@@ -170,7 +170,7 @@ function populateNetworkEditModal(client_id, network_id) {
   
   // Send a GET request to post.php as post.php?network_get_json_details=true&client_id=NUM&network_id=NUM
   jQuery.get(
-    "post.php",
+    "ajax.php",
     {network_get_json_details: 'true', client_id: client_id, network_id: network_id},
     function(data){
 
