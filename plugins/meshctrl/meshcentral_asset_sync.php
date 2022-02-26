@@ -1,6 +1,6 @@
 <?php
 /*
- * mesh_asset_sync.php
+ * meshcentral_asset_sync.php
  * Wrapper around meshctrl.js to pull device data from Mesh Central
  * meshctrl.js is written in Node and requires npm packages minimist & ws
  */
