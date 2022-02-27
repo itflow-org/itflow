@@ -97,7 +97,7 @@ if(isset($_GET['ticket_id'])){
   $ticket_created_by_sql = mysqli_query($mysqli,"SELECT user_name FROM users WHERE user_id = $ticket_created_by");
   $row = mysqli_fetch_array($ticket_created_by_sql);
   $ticket_created_by_display = $row['user_name'];
-  
+
   //Ticket Assigned To
   if(empty($ticket_assigned_to)){
     $ticket_assigned_to_display = "<span class='text-danger'>Not Assigned</span>";
@@ -110,21 +110,21 @@ if(isset($_GET['ticket_id'])){
 //  }else{
 //    $primary_contact_display = "<small class='text-danger'>Needs approval</small>";
 //  }
-    
+
   //Get Contact Ticket Stats
   $ticket_related_open = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");
   $row = mysqli_fetch_array($ticket_related_open);
   $ticket_related_open = $row['ticket_related_open'];
-  
+
   $ticket_related_closed = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'Closed' AND ticket_contact_id = $contact_id ");
   $row = mysqli_fetch_array($ticket_related_closed);
   $ticket_related_closed = $row['ticket_related_closed'];
-  
+
   $ticket_related_total = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_total FROM tickets WHERE ticket_contact_id = $contact_id ");
   $row = mysqli_fetch_array($ticket_related_total);
   $ticket_related_total = $row['ticket_related_total'];
-    
-  //Get Total Ticket Time  
+
+  //Get Total Ticket Time
   $ticket_total_reply_time = mysqli_query($mysqli,"SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
   $row = mysqli_fetch_array($ticket_total_reply_time);
   $ticket_total_reply_time = $row['ticket_total_reply_time'];
@@ -142,22 +142,26 @@ if(isset($_GET['ticket_id'])){
     if(empty($client_tag_icon)){
       $client_tag_icon = "tag";
     }
-  
+
     $client_tag_id_array[] = $client_tag_id;
     $client_tag_name_display_array[] = "<span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon'></i> $client_tag_name</span>";
   }
   $client_tags_display = implode(' ', $client_tag_name_display_array);
-  
-  // Get the asset warranty expiry 
+
+ // Get & format asset warranty expiry
  $date = date('Y-m-d H:i:s');
  $dt_value = $asset_warranty_expire; //sample date
  $warranty_check = date('m/d/Y',strtotime('-8 hours'));
 
  if($dt_value <= $date){
-    $dt_value = "Expired on $asset_warranty_expire"; $color ='red';
+    $dt_value = "Expired on $asset_warranty_expire"; $warranty_status_color ='red';
  }else{
-   $color = 'green';
- } 
+   $warranty_status_color = 'green';
+ }
+
+  if($asset_warranty_expire == '0000-00-00'){
+    $dt_value = "None"; $warranty_status_color ='red';
+  }
 
 
 ?>
@@ -345,9 +349,9 @@ if(isset($_GET['ticket_id'])){
         <?php
         }
         ?>
-        
+
         <?php
-        if(!empty($client_tags_display)){     
+        if(!empty($client_tags_display)){
           echo "$client_tags_display";
         }
         ?>
@@ -363,7 +367,7 @@ if(isset($_GET['ticket_id'])){
         <br>
 <!--        <i class="fa fa-fw fa-info-circle text-secondary ml-1 mr-2 mb-2"></i>--><?php //echo $primary_contact_display; ?>
 <!--        <br>-->
-        <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i>Related tickets: Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong>  
+        <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i>Related tickets: Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong>
         <hr>
         <?php
         if(!empty($location_name)){
@@ -423,34 +427,30 @@ if(isset($_GET['ticket_id'])){
 
     <!-- Ticket asset details card -->
     <?php if(!empty($asset_id)){ ?>
-    <div class="card card-body card-outline card-dark mb-3">
-      <div>
-        <h4 class="text-secondary">Asset</h4>
-        <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i> Asset name: <strong><?php echo $asset_name; ?></strong> 
-        <br>
-        <?php
-        if(!empty($asset_os)) {
-          ?>
-          <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> OS: <?php echo $asset_os; ?>
+      <div class="card card-body card-outline card-dark mb-3">
+        <div>
+          <h4 class="text-secondary">Asset</h4>
+          <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i> Asset name: <strong><?php echo $asset_name; ?></strong>
           <br>
-          <?php
-          if (!empty($asset_ip)) {
-            ?>
+
+          <?php if(!empty($asset_os)) { ?>
+            <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> OS: <?php echo $asset_os; ?>
+            <br>
+            <?php
+          }
+
+          if (!empty($asset_ip)) { ?>
             <i class="fa fa-fw fa-network-wired text-secondary ml-1 mr-2 mb-2"></i> IP: <?php echo "$asset_ip"; ?>
             <br>
             <?php
           }
-          ?>
-          <?php
-          if (!empty($asset_make)) {
-            ?>
+
+          if (!empty($asset_make)) { ?>
             <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> Model: <?php echo "$asset_make $asset_model"; ?>
             <br>
             <?php
           }
-          ?>
 
-          <?php
           if (!empty($asset_serial)) {
             ?>
             <i class="fa fa-fw fa-barcode text-secondary ml-1 mr-2 mb-2"></i> Service Tag: <?php echo $asset_serial; ?>
@@ -458,21 +458,17 @@ if(isset($_GET['ticket_id'])){
 
             <?php
           }
-          ?>
-          <?php
+
           if (!empty($asset_warranty_expire)) {
             ?>
-            <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> Warranty expire: <strong><font
-                      color="<?php echo $color ?>"> <?php echo $dt_value ?></font></strong>
+            <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> Warranty expires: <strong><font color="<?php echo $warranty_status_color ?>"> <?php echo $dt_value ?></font></strong>
             <br>
             <?php
           }
-        }
-        ?>
+          ?>
       </div>
     </div>
-
-    <?php } ?>
+  <?php } ?>
 
     <form action="post.php" method="post">
       <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
