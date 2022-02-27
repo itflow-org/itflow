@@ -179,7 +179,7 @@ if(isset($_GET['ticket_id'])){
 
 <div class="row mb-3">
   <div class="col-9">
-    <h3>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <?php echo $ticket_status_display; ?></h3>
+    <h3><i class="fas fa-fw fa-ticket-alt text-secondary"></i> Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <?php echo $ticket_status_display; ?></h3>
   </div>
   <?php if($ticket_status != "Closed") { ?>
   <div class="col-3">
@@ -367,7 +367,7 @@ if(isset($_GET['ticket_id'])){
         <br>
 <!--        <i class="fa fa-fw fa-info-circle text-secondary ml-1 mr-2 mb-2"></i>--><?php //echo $primary_contact_display; ?>
 <!--        <br>-->
-        <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i>Related tickets: Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong>
+        <span class="ml-1">Related tickets: Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong></span>
         <hr>
         <?php
         if(!empty($location_name)){
@@ -396,7 +396,7 @@ if(isset($_GET['ticket_id'])){
         <?php
         if(!empty($contact_mobile)){
         ?>
-        <i class="fa fa-fw fa-mobile text-secondary ml-1 mr-2 mb-2"></i><?php echo $contact_mobile; ?>
+        <i class="fa fa-fw fa-mobile-alt text-secondary ml-1 mr-2 mb-2"></i><?php echo $contact_mobile; ?>
         <br>
         <?php
         }
@@ -421,7 +421,7 @@ if(isset($_GET['ticket_id'])){
         <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Closed by: <?php echo strtoupper($ticket_closed_by_display); ?></a></div>
       <?php } ?>
       <?php if(!empty($ticket_total_reply_time)){ ?>
-        <div class="ml-1"><i class="fa fa-fw fa-check text-secondary mr-2 mb-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?></div>
+        <div class="ml-1"><i class="far fa-fw fa-clock text-secondary mr-2 mb-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?></div>
       <?php } ?>
     </div>
 
@@ -430,30 +430,30 @@ if(isset($_GET['ticket_id'])){
       <div class="card card-body card-outline card-dark mb-3">
         <div>
           <h4 class="text-secondary">Asset</h4>
-          <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i> Asset name: <strong><?php echo $asset_name; ?></strong>
+          <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $asset_name; ?></strong>
           <br>
 
           <?php if(!empty($asset_os)) { ?>
-            <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> OS: <?php echo $asset_os; ?>
+            <i class="fab fa-fw fa-microsoft text-secondary ml-1 mr-2 mb-2"></i><?php echo $asset_os; ?>
             <br>
             <?php
           }
 
           if (!empty($asset_ip)) { ?>
-            <i class="fa fa-fw fa-network-wired text-secondary ml-1 mr-2 mb-2"></i> IP: <?php echo "$asset_ip"; ?>
+            <i class="fa fa-fw fa-network-wired text-secondary ml-1 mr-2 mb-2"></i><?php echo "$asset_ip"; ?>
             <br>
             <?php
           }
 
           if (!empty($asset_make)) { ?>
-            <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> Model: <?php echo "$asset_make $asset_model"; ?>
+            <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i>Model: <?php echo "$asset_make $asset_model"; ?>
             <br>
             <?php
           }
 
           if (!empty($asset_serial)) {
             ?>
-            <i class="fa fa-fw fa-barcode text-secondary ml-1 mr-2 mb-2"></i> Service Tag: <?php echo $asset_serial; ?>
+            <i class="fa fa-fw fa-barcode text-secondary ml-1 mr-2 mb-2"></i>Service Tag: <?php echo $asset_serial; ?>
             <br>
 
             <?php
@@ -461,11 +461,66 @@ if(isset($_GET['ticket_id'])){
 
           if (!empty($asset_warranty_expire)) {
             ?>
-            <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> Warranty expires: <strong><font color="<?php echo $warranty_status_color ?>"> <?php echo $dt_value ?></font></strong>
+            <i class="far fa-fw fa-calendar-alt text-secondary ml-1 mr-2 mb-2"></i>Warranty expires: <strong><font color="<?php echo $warranty_status_color ?>"> <?php echo $dt_value ?></font></strong>
             <br>
             <?php
           }
           ?>
+
+          <?php
+          $sql_asset_tickets = mysqli_query($mysqli,"SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");
+          $ticket_asset_count = mysqli_num_rows($sql_asset_tickets);
+
+          if($ticket_asset_count > 0 ){
+          ?>
+
+            <button class="btn btn-block btn-secondary" data-toggle="modal" data-target="#assetTicketsModal">Service History (<?php echo $ticket_asset_count; ?>)</button>
+
+            <div class="modal" id="assetTicketsModal" tabindex="-1">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content bg-dark">
+                  <div class="modal-header">
+                    <h5 class="modal-title"><i class="fa fa-fw fa-desktop"></i> <?php echo $asset_name; ?></h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                      <span>&times;</span>
+                    </button>
+                  </div>
+                    
+                  <div class="modal-body bg-white">
+                    <?php
+                    // Query is run from client_assets.php
+                    while($row = mysqli_fetch_array($sql_asset_tickets)){
+                      $ticket_id = $row['ticket_id'];
+                      $ticket_prefix = $row['ticket_prefix'];
+                      $ticket_number = $row['ticket_number'];
+                      $ticket_subject = $row['ticket_subject'];
+                      $ticket_status = $row['ticket_status'];
+                      $ticket_created_at = $row['ticket_created_at'];
+                      $ticket_updated_at = $row['ticket_updated_at'];
+                      ?>
+                    <p>
+                      <i class="fas fa-fw fa-ticket-alt"></i>
+                      Ticket: <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo "$ticket_prefix$ticket_number" ?></a> on <?php echo $ticket_created_at; ?> <?php echo $ticket_subject; ?>
+                    </p>
+                    <?php 
+                    }
+                    ?>
+                  </div>
+                  <div class="modal-footer bg-white">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+
+          <?php
+
+          }
+
+          ?>
+
       </div>
     </div>
   <?php } ?>

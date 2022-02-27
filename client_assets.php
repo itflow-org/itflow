@@ -268,6 +268,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $login_id = $row['login_id'];
             $login_username = $row['login_username'];
             $login_password = decryptLoginEntry($row['login_password']);
+
+            $sql_tickets = mysqli_query($mysqli,"SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");
+            $ticket_count = mysqli_num_rows($sql_tickets);
       
           ?>
           <tr>
@@ -337,6 +340,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">Edit</a>
+                  <?php if($ticket_count > 0){ ?>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#assetTicketsModal<?php echo $asset_id; ?>">Tickets (<?php echo $ticket_count; ?>)</a>
+                  <?php } ?>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item text-danger" href="post.php?delete_asset=<?php echo $asset_id; ?>">Delete</a>
                 </div>
@@ -347,6 +353,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <?php
           
           include("client_asset_edit_modal.php");
+          include("client_asset_tickets_modal.php");
           }
           
           ?>

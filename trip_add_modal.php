@@ -72,7 +72,7 @@
                 <?php 
                 
                 // WIP Need to only show users within the session company
-                $sql = mysqli_query($mysqli,"SELECT * FROM users ORDER BY user_name ASC"); 
+                $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id IN('$session_user_company_access') ORDER BY user_name ASC"); 
                 while($row = mysqli_fetch_array($sql)){
                   $user_id = $row['user_id'];
                   $user_name = $row['user_name'];
