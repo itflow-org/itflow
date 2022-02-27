@@ -333,6 +333,7 @@ if(isset($_GET['ticket_id'])){
 
   <div class="col-md-3">
 
+    <!-- Client card -->
     <div class="card card-body card-outline card-primary mb-3">
       <div>
         <h5><strong><?php echo $client_name; ?></strong></h5>
@@ -353,8 +354,8 @@ if(isset($_GET['ticket_id'])){
       </div>
     </div>
 
+    <!-- Client contact card -->
     <?php if(!empty($contact_id)){ ?>
-
     <div class="card card-body card-outline card-dark mb-3">
       <div>
         <h4 class="text-secondary">Contact</h4>
@@ -401,77 +402,77 @@ if(isset($_GET['ticket_id'])){
 
     <?php } ?>
 
-    <?php if(!empty($asset_id)){ ?>
+    <!-- Ticket Details card -->
+    <div class="card card-body card-outline card-dark mb-3">
+      <h4 class="text-secondary">Details</h4>
+      <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i><?php echo $ticket_priority_display; ?></div>
+      <div class="ml-1"><i class="fa fa-fw fa-calendar text-secondary mr-2 mb-2"></i>Created on: <?php echo $ticket_created_at; ?></div>
+      <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Created by: <?php echo $ticket_created_by_display; ?></div>
+      <?php
+      if($ticket_status == "Closed"){
+        $sql_closed_by = mysqli_query($mysqli,"SELECT * FROM tickets, users WHERE ticket_closed_by = user_id");
+        $row = mysqli_fetch_array($sql_closed_by);
+        $ticket_closed_by_display = $row['user_name'];
+        ?>
+        <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Closed by: <?php echo strtoupper($ticket_closed_by_display); ?></a></div>
+      <?php } ?>
+      <?php if(!empty($ticket_total_reply_time)){ ?>
+        <div class="ml-1"><i class="fa fa-fw fa-check text-secondary mr-2 mb-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?></div>
+      <?php } ?>
+    </div>
 
+    <!-- Ticket asset details card -->
+    <?php if(!empty($asset_id)){ ?>
     <div class="card card-body card-outline card-dark mb-3">
       <div>
         <h4 class="text-secondary">Asset</h4>
         <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2 mb-2"></i> Asset name: <strong><?php echo $asset_name; ?></strong> 
         <br>
         <?php
-        }
-        ?>
-        <?php
-        if(!empty($asset_os)){
-        ?>
-        <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> OS: <?php echo $asset_os; ?>
-        <br>
-        <?php
-        if(!empty($asset_ip)){
-        ?>
-        <i class="fa fa-fw fa-network-wired text-secondary ml-1 mr-2 mb-2"></i> IP: <?php echo "$asset_ip"; ?>
-        <br>
-        <?php
-        }
-        ?>
-        <?php
-        if(!empty($asset_make)){
-        ?>
-        <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> Model: <?php echo "$asset_make $asset_model"; ?>
-        <br>
-        <?php
-        }
-        ?>
+        if(!empty($asset_os)) {
+          ?>
+          <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> OS: <?php echo $asset_os; ?>
+          <br>
+          <?php
+          if (!empty($asset_ip)) {
+            ?>
+            <i class="fa fa-fw fa-network-wired text-secondary ml-1 mr-2 mb-2"></i> IP: <?php echo "$asset_ip"; ?>
+            <br>
+            <?php
+          }
+          ?>
+          <?php
+          if (!empty($asset_make)) {
+            ?>
+            <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> Model: <?php echo "$asset_make $asset_model"; ?>
+            <br>
+            <?php
+          }
+          ?>
 
-        <?php
-        if(!empty($asset_serial)){
-        ?>
-        <i class="fa fa-fw fa-barcode text-secondary ml-1 mr-2 mb-2"></i> Service Tag: <?php echo $asset_serial; ?>
-        <br>
+          <?php
+          if (!empty($asset_serial)) {
+            ?>
+            <i class="fa fa-fw fa-barcode text-secondary ml-1 mr-2 mb-2"></i> Service Tag: <?php echo $asset_serial; ?>
+            <br>
 
-        <?php
-        }
-        ?>
-        <?php
-        if(!empty($asset_warranty_expire)){
-        ?>
-        <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> Warranty expire: <strong><font color="<?php echo $color?>" > <?php echo $dt_value?></font></strong>
-        <br>
-        <?php
+            <?php
+          }
+          ?>
+          <?php
+          if (!empty($asset_warranty_expire)) {
+            ?>
+            <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i> Warranty expire: <strong><font
+                      color="<?php echo $color ?>"> <?php echo $dt_value ?></font></strong>
+            <br>
+            <?php
+          }
         }
         ?>
       </div>
     </div>
 
     <?php } ?>
-
-    <div class="card card-body card-outline card-dark mb-3">
-      <h4 class="text-secondary">Details</h4>
-      <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i><?php echo $ticket_priority_display; ?></div>
-      <div class="ml-1"><i class="fa fa-fw fa-calendar text-secondary mr-2 mb-2"></i>Created on: <?php echo $ticket_created_at; ?></div>
-      <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Created by: <?php echo $ticket_created_by_display; ?></div>
-      <?php 
-        if($ticket_status == "Closed"){
-          $sql_closed_by = mysqli_query($mysqli,"SELECT * FROM tickets, users WHERE ticket_closed_by = user_id");
-          $row = mysqli_fetch_array($sql_closed_by);
-          $ticket_closed_by_display = $row['user_name'];
-      ?>
-      <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Closed by: <?php echo strtoupper($ticket_closed_by_display); ?></a></div>
-      <?php } ?>
-      <?php if(!empty($ticket_total_reply_time)){ ?>
-      <div class="ml-1"><i class="fa fa-fw fa-check text-secondary mr-2 mb-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?></div>
-      <?php } ?>
-    </div>
 
     <form action="post.php" method="post">
       <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
