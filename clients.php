@@ -193,6 +193,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_net_terms = $row['client_net_terms'];
             $client_referral = $row['client_referral'];
             $client_notes = $row['client_notes'];
+            $client_meshcentral_group = $row['client_meshcentral_group'];
             $client_created_at = $row['client_created_at'];
             $client_updated_at = $row['client_updated_at'];
 

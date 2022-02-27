@@ -715,8 +715,11 @@ if(isset($_POST['verify'])){
 if(isset($_POST['edit_general_settings'])){
 
     $config_base_url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url'])));
+    $mesh_uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_uri'])));
+    $mesh_user = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_user'])));
+    $mesh_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_secret'])));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_base_url = '$config_base_url', config_meshcentral_uri = '$mesh_uri', config_meshcentral_user = '$mesh_user', config_meshcentral_secret = '$mesh_secret' WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified general settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
@@ -1195,8 +1198,9 @@ if(isset($_POST['edit_client'])){
     $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
     $net_terms = intval($_POST['net_terms']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $mesh_group = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_group'])));
 
-    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', client_meshcentral_group = '$mesh_group', client_updated_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
 
     //Tags
     //Delete existing tags
