@@ -4780,6 +4780,8 @@ if(isset($_POST['add_software'])){
 
     mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = '$seats', software_purchase = '$purchase', software_expire = '$expire', software_notes = '$notes', software_created_at = NOW(), software_client_id = $client_id, company_id = $session_company_id");
 
+    $software_id = $mysqli->lastInsertId();
+
     // Add Asset Licenses
     if(!empty($_POST['assets'])){
         foreach($_POST['assets'] as $asset){
@@ -4882,6 +4884,10 @@ if(isset($_GET['delete_software'])){
     $software_id = intval($_GET['delete_software']);
 
     mysqli_query($mysqli,"DELETE FROM software WHERE software_id = $software_id AND company_id = $session_company_id");
+
+    // Remove Software Relations 
+    mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
+    mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Deleted', log_description = '$software_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
