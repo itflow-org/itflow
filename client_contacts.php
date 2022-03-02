@@ -13,8 +13,16 @@ if(isset($_GET['p'])){
   
 if(isset($_GET['q'])){
   $q = mysqli_real_escape_string($mysqli,$_GET['q']);
+  //Phone Numbers
+  $n = preg_replace("/[^0-9]/", '',$q);
+  if(empty($n)){
+    $n = $q;
+  }
+
 }else{
   $q = "";
+  //Phone Numbers
+  $n = "";
 }
 
 if(!empty($_GET['sb'])){
@@ -43,7 +51,7 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM contacts
   LEFT JOIN locations ON location_id = contact_location_id
   LEFT JOIN departments ON contact_department_id = department_id
   WHERE contact_archived_at IS NULL 
-  AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%' OR contact_phone LIKE '%$q%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$q%' OR contact_email LIKE '%$q%' OR department_name LIKE '%$q%') 
+  AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%'  OR contact_email LIKE '%$q%' OR department_name LIKE '%$q%' OR contact_phone LIKE '%$n%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$n%')
   AND contact_client_id = $client_id ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -148,7 +156,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $location_name_display = $location_name;
             }
-            $department_id = $row['department_id'];          
+            $department_id = $row['department_id'];
+
+            // Related Assets Query
+            //$sql_related_assets = mysqli_query($mysqli,"SELECT * FROM contact_assets LEFT JOIN assets ON assets.asset_id = contact_assets.asset_id WHERE contact_assets.contact_id = $contact_id ORDER BY assets.asset_id DESC");
+            //$asset_count = mysqli_num_rows($sql_related_assets);
+
+            // Related Logins Query
+            //$sql_related_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_contact_id = $contact_id AND company_id = $session_company_id ORDER BY login_id DESC");
+            //$login_count = mysqli_num_rows($sql_related_logins);
+
+            // Related Software Query
+            //$sql_related_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_contact_id = $contact_id AND company_id = $session_company_id ORDER BY software_id DESC");
+            //$software_count = mysqli_num_rows($sql_related_software);
       
           ?>
           <tr>
