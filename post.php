@@ -5372,6 +5372,7 @@ if(isset($_POST['add_ticket'])){
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
     $purifier = new HTMLPurifier($purifier_config);
 
     $client_id = intval($_POST['client']);
@@ -5409,6 +5410,7 @@ if(isset($_POST['add_scheduled_ticket'])){
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
     $purifier = new HTMLPurifier($purifier_config);
 
     $client_id = intval($_POST['client']);
@@ -5443,6 +5445,7 @@ if(isset($_POST['edit_scheduled_ticket'])){
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
     $purifier = new HTMLPurifier($purifier_config);
 
     $client_id = intval($_POST['client_id']);
@@ -5485,6 +5488,7 @@ if(isset($_POST['edit_ticket'])){
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
     $purifier = new HTMLPurifier($purifier_config);
 
     $ticket_id = intval($_POST['ticket_id']);
@@ -5543,6 +5547,7 @@ if(isset($_POST['add_ticket_reply'])){
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
     $purifier = new HTMLPurifier($purifier_config);
 
     $ticket_id = intval($_POST['ticket_id']);
@@ -5629,6 +5634,7 @@ if(isset($_POST['edit_ticket_reply'])){
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
     $purifier = new HTMLPurifier($purifier_config);
 
     $ticket_reply_id = intval($_POST['ticket_reply_id']);
@@ -6067,6 +6073,7 @@ if(isset($_POST['add_document'])){
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
     $purifier = new HTMLPurifier($purifier_config);
 
     $client_id = intval($_POST['client_id']);
@@ -6101,6 +6108,7 @@ if(isset($_POST['edit_document'])){
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
     $purifier = new HTMLPurifier($purifier_config);
 
     $document_id = intval($_POST['document_id']);
