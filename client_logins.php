@@ -121,6 +121,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $otp_display = "<i class='far fa-clock text-secondary'></i> $otp<button class='btn btn-sm clipboardjs' data-clipboard-text='$otp'><i class='far fa-copy text-secondary'></i></button>";
             }
             $login_note = $row['login_note'];
+            $login_contact_id = $row['login_contact_id'];
             $login_vendor_id = $row['login_vendor_id'];
             $login_asset_id = $row['login_asset_id'];
             $login_software_id = $row['login_software_id'];

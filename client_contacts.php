@@ -159,16 +159,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $department_id = $row['department_id'];
 
             // Related Assets Query
-            //$sql_related_assets = mysqli_query($mysqli,"SELECT * FROM contact_assets LEFT JOIN assets ON assets.asset_id = contact_assets.asset_id WHERE contact_assets.contact_id = $contact_id ORDER BY assets.asset_id DESC");
-            //$asset_count = mysqli_num_rows($sql_related_assets);
+            $sql_related_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_contact_id = $contact_id AND company_id = $session_company_id ORDER BY asset_id DESC");
+            $asset_count = mysqli_num_rows($sql_related_assets);
 
             // Related Logins Query
-            //$sql_related_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_contact_id = $contact_id AND company_id = $session_company_id ORDER BY login_id DESC");
-            //$login_count = mysqli_num_rows($sql_related_logins);
+            $sql_related_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_contact_id = $contact_id AND company_id = $session_company_id ORDER BY login_id DESC");
+            $login_count = mysqli_num_rows($sql_related_logins);
 
             // Related Software Query
-            //$sql_related_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_contact_id = $contact_id AND company_id = $session_company_id ORDER BY software_id DESC");
-            //$software_count = mysqli_num_rows($sql_related_software);
+            $sql_related_software = mysqli_query($mysqli,"SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
+            $software_count = mysqli_num_rows($sql_related_software);
+
+            // Related Tickets Query
+            $sql_related_tickets = mysqli_query($mysqli,"SELECT * FROM tickets WHERE ticket_contact_id = $contact_id AND company_id = $session_company_id ORDER BY ticket_id DESC");
+            $ticket_count = mysqli_num_rows($sql_related_tickets);
+
+            // Related Documents Query
+            $sql_related_documents = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_contact_id = $contact_id AND company_id = $session_company_id ORDER BY document_id DESC");
+            $document_count = mysqli_num_rows($sql_related_documents);
+
+            // Related Files Query
+            $sql_related_files = mysqli_query($mysqli,"SELECT * FROM files WHERE file_contact_id = $contact_id AND company_id = $session_company_id ORDER BY file_id DESC");
+            $file_count = mysqli_num_rows($sql_related_documents);
       
           ?>
           <tr>
@@ -204,6 +216,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#contactDetailsModal<?php echo $contact_id; ?>">View Details</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">Edit</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item text-danger" href="post.php?archive_contact=<?php echo $contact_id; ?>">Archive</a>
@@ -212,12 +225,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 </div>
               </div> 
             </td>
-            
           </tr>
 
           <?php
           
           include("client_contact_edit_modal.php");
+          include("client_contact_details_modal.php");
 
           }
           

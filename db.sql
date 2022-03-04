@@ -84,7 +84,7 @@ CREATE TABLE `assets` (
   `asset_login_id` int(11) DEFAULT NULL,
   `asset_vendor_id` int(11) DEFAULT NULL,
   `asset_location_id` int(11) DEFAULT NULL,
-  `asset_contact_id` int(11) DEFAULT NULL,
+  `asset_contact_id` int(11) NOT NULL DEFAULT 0,
   `asset_network_id` int(11) DEFAULT NULL,
   `asset_client_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
@@ -399,6 +399,7 @@ CREATE TABLE `documents` (
   `document_archived_at` datetime DEFAULT NULL,
   `document_template` tinyint(1) NOT NULL,
   `document_folder_id` int(11) DEFAULT NULL,
+  `document_contact_id` int(11) NOT NULL DEFAULT 0,
   `document_client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`document_id`)
@@ -510,6 +511,7 @@ CREATE TABLE `files` (
   `file_created_at` datetime NOT NULL,
   `file_updated_at` datetime DEFAULT NULL,
   `file_archived_at` datetime DEFAULT NULL,
+  `file_contact_id` int(11) NOT NULL DEFAULT 0,
   `file_client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`file_id`)
@@ -660,6 +662,7 @@ CREATE TABLE `logins` (
   `login_created_at` datetime NOT NULL,
   `login_updated_at` datetime DEFAULT NULL,
   `login_archived_at` datetime DEFAULT NULL,
+  `login_contact_id` int(11) NOT NULL DEFAULT 0,
   `login_vendor_id` int(11) DEFAULT NULL,
   `login_asset_id` int(11) DEFAULT NULL,
   `login_software_id` int(11) DEFAULT NULL,
@@ -1456,4 +1459,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-27 16:53:14
+-- Dump completed on 2022-03-04  0:23:29

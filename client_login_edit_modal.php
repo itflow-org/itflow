@@ -99,6 +99,30 @@
             <div class="tab-pane fade" id="pills-relation<?php echo $login_id; ?>">
 
               <div class="form-group">
+                <label>Contact</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                  </div>
+                  <select class="form-control" name="contact">
+                    <option value="">- Contact -</option>
+                    <?php 
+                    
+                    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC"); 
+                    while($row = mysqli_fetch_array($sql_contacts)){
+                      $contact_id_select = $row['contact_id'];
+                      $contact_name_select = $row['contact_name'];
+                    ?>
+                      <option <?php if($login_contact_id == $contact_id_select){ echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
+                    
+                    <?php
+                    }
+                    ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
                 <label>Vendor</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
