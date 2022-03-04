@@ -2803,7 +2803,7 @@ if(isset($_POST['add_invoice_recurring'])){
 
     $_SESSION['alert_message'] = "Created recurring Invoice from this Invoice";
     
-    header("Location: recurring.php?recurring_id=$recurring_id");
+    header("Location: recurring_invoice.php?recurring_id=$recurring_id");
 
 }
 
