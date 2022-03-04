@@ -17,7 +17,7 @@ if(isset($_GET['accept_quote'], $_GET['company_id'], $_GET['url_key'])){
     
         mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id");
 
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Accepted', history_description = 'Client accepted Quote!', history_created_at = NOW(), history_quote_id = $quote_id, company_id = $company_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Accepted', history_description = 'Client accepted Quote!', history_created_at = NOW(), history_quote_id = $quote_id, company_id = $company_id");
 
         $_SESSION['alert_message'] = "Quote Accepted";
         
@@ -40,7 +40,7 @@ if(isset($_GET['decline_quote'], $_GET['company_id'], $_GET['url_key'])){
 
         mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id");
 
-        mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Declined', history_description = 'Client declined Quote!', history_created_at = NOW(), history_quote_id = $quote_id, company_id = $company_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Declined', history_description = 'Client declined Quote!', history_created_at = NOW(), history_quote_id = $quote_id, company_id = $company_id");
 
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = "Quote Declined";

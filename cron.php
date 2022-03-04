@@ -320,11 +320,11 @@ while($row = mysqli_fetch_array($sql_companies)){
 
           $mail->send();
 
-          mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
+          mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
 
         }catch (Exception $e) {
           echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-          mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+          mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
         } //End Mail Try
 
       }
@@ -387,7 +387,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
       }
 
-      mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+      mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
 
       mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Recurring', notification = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', notification_timestamp = NOW(), company_id = $company_id");
 
@@ -442,14 +442,14 @@ while($row = mysqli_fetch_array($sql_companies)){
 
           $mail->send();
 
-          mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Sent', history_description = 'Cron Emailed Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+          mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
 
           //Update Invoice Status to Sent
           mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW(), invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id");
 
         }catch (Exception $e) {
           echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-          mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = 'Draft', history_description = 'Cron Failed to send Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+          mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Cron Failed to send Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
         } //End Mail Try
       } //End if Autosend is on
     } //End Recurring Invoices Loop

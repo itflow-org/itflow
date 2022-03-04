@@ -92,7 +92,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     }
 
     //Mark viewed in history
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$invoice_status', history_description = 'Invoice viewed - $ip - $os - $browser', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = '$invoice_status', history_description = 'Invoice viewed - $ip - $os - $browser', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
 
     //Prevent SQL Error if client_name has ' in their name example Bill's Market
     $client_name_escaped = mysqli_escape_string($mysqli,$client_name);

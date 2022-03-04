@@ -368,13 +368,13 @@ if(isset($_GET['quote_id'])){
             <?php
       
             while($row = mysqli_fetch_array($sql_history)){
-              $history_date = $row['history_date'];
+              $history_created_at = $row['history_created_at'];
               $history_status = $row['history_status'];
               $history_description = $row['history_description'];
              
             ?>
             <tr>
-              <td><?php echo $history_date; ?></td>
+              <td><?php echo $history_created_at; ?></td>
               <td><?php echo $history_status; ?></td>
               <td><?php echo $history_description; ?></td>
             </tr>

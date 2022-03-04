@@ -544,7 +544,6 @@ DROP TABLE IF EXISTS `history`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `history` (
   `history_id` int(11) NOT NULL AUTO_INCREMENT,
-  `history_date` date NOT NULL,
   `history_status` varchar(200) NOT NULL,
   `history_description` varchar(200) NOT NULL,
   `history_created_at` datetime NOT NULL,
@@ -1459,4 +1458,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-04  0:23:29
+-- Dump completed on 2022-03-04  0:40:43

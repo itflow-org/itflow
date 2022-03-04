@@ -75,7 +75,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     }
 
     //Mark viewed in history
-    mysqli_query($mysqli,"INSERT INTO history SET history_date = CURDATE(), history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser - $device', history_created_at = NOW(), history_quote_id = $quote_id, company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser - $device', history_created_at = NOW(), history_quote_id = $quote_id, company_id = $company_id");
 
     mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Quote Viewed', notification = 'Quote $quote_number has been viewed by $client_name - $ip - $os - $browser - $device', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
