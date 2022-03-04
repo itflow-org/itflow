@@ -4780,7 +4780,7 @@ if(isset($_POST['add_software'])){
 
     mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = '$seats', software_purchase = '$purchase', software_expire = '$expire', software_notes = '$notes', software_created_at = NOW(), software_client_id = $client_id, company_id = $session_company_id");
 
-    $software_id = $mysqli->lastInsertId();
+    $software_id = mysqli_insert_id($mysqli);
 
     // Add Asset Licenses
     if(!empty($_POST['assets'])){
