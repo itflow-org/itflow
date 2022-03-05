@@ -6,9 +6,14 @@ if(isset($_GET['query'])){
 
     $query = mysqli_real_escape_string($mysqli,$_GET['query']);
 
+    $phone_query = preg_replace("/[^0-9]/", '',$query);
+    if(empty($phone_query)){
+        $phone_query = $query;
+    }
+
     $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN locations ON clients.client_id = locations.location_client_id WHERE client_name LIKE '%$query%' AND clients.company_id = $session_company_id ORDER BY client_id DESC LIMIT 5");
-    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN clients ON client_id = contact_client_id WHERE contact_name LIKE '%$query%' AND contacts.company_id = $session_company_id ORDER BY contact_id DESC LIMIT 5");
-    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY vendor_id DESC LIMIT 5");
+    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN clients ON client_id = contact_client_id LEFT JOIN departments ON contact_department_id = department_id WHERE (contact_name LIKE '%$query%' OR contact_title LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_phone LIKE '%$phone_query%' OR contact_mobile LIKE '%$phone_query%') AND contacts.company_id = $session_company_id ORDER BY contact_id DESC LIMIT 5");
+    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%') AND company_id = $session_company_id ORDER BY vendor_id DESC LIMIT 5");
     $sql_products = mysqli_query($mysqli,"SELECT * FROM products WHERE product_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY product_id DESC LIMIT 5");
     $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents LEFT JOIN clients on document_client_id = clients.client_id WHERE document_name LIKE '%$query%' AND documents.company_id = $session_company_id ORDER BY document_id DESC LIMIT 5");
     $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients on tickets.ticket_client_id = clients.client_id WHERE (ticket_subject LIKE '%$query%' OR ticket_number = '$query') AND tickets.company_id = $session_company_id ORDER BY ticket_id DESC LIMIT 5");
@@ -35,7 +40,6 @@ if(isset($_GET['query'])){
                         <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Email</th>
                             <th>Phone</th>
                         </tr>
                         </thead>
@@ -51,7 +55,6 @@ if(isset($_GET['query'])){
                             ?>
                             <tr>
                                 <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a></td>
-                                <td><a href="mailto:<?php //echo $email; ?>"><?php //echo $client_email; ?></a></td>
                                 <td><?php echo $location_phone; ?></td>
                             </tr>
 
@@ -99,10 +102,13 @@ if(isset($_GET['query'])){
                             $contact_email = $row['contact_email'];
                             $client_id = $row['client_id'];
                             $client_name = $row['client_name'];
+                            $department_name = $row['department_name'];
 
                             ?>
                             <tr>
-                                <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $contact_name; ?></a></td>
+                                <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $contact_name; ?></a>
+                                    <br><small class="text-secondary"><?php echo $contact_title; ?></small>
+                                </td>
                                 <td><?php echo $contact_email; ?></td>
                                 <td><?php echo "$contact_phone $contact_extension"; ?></td>
                                 <td><?php echo $contact_mobile; ?></td>
@@ -143,7 +149,7 @@ if(isset($_GET['query'])){
                         while($row = mysqli_fetch_array($sql_vendors)){
                             $vendor_name = $row['vendor_name'];
                             $vendor_description = $row['vendor_description'];
-                            $vendor_phone = $row['vendor_phone'];
+                            $vendor_phone = formatPhoneNumber($row['vendor_phone']);
                             ?>
                             <tr>
                                 <td><a href="vendors.php?q=<?php echo $q ?>"><?php echo $vendor_name; ?></a></td>

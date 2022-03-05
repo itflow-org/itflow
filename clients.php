@@ -16,8 +16,14 @@ if(isset($_GET['p'])){
 //Custom Query Filter  
 if(isset($_GET['query'])){
   $query = mysqli_real_escape_string($mysqli,$_GET['query']);
+  //Phone Numbers
+  $phone_query = preg_replace("/[^0-9]/", '',$query);
+  if(empty($phone_query)){
+    $phone_query = $query;
+  }
 }else{
   $query = "";
+  $number_query = "";
 }
 
 //Column Filter
@@ -86,8 +92,8 @@ $url_query_strings_sortby = http_build_query(array_merge($_GET,array('sortby' =>
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients 
   LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contact_archived_at IS NULL
   LEFT JOIN locations ON clients.primary_location = locations.location_id AND location_archived_at IS NULL
-  WHERE (client_name LIKE '%$query%' OR client_type LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_name LIKE '%$query%' OR contact_phone LIKE '%$query%' 
-  OR contact_mobile LIKE '%$query%' OR location_address LIKE '%$query%' OR location_city LIKE '%$query%' OR location_state LIKE '%$query%' OR location_zip LIKE '%$query%') 
+  WHERE (client_name LIKE '%$query%' OR client_type LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_name LIKE '%$query%' OR contact_phone LIKE '%$phone_query%' 
+  OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$query%' OR location_city LIKE '%$query%' OR location_state LIKE '%$query%' OR location_zip LIKE '%$query%') 
   AND DATE(client_created_at) BETWEEN '$date_from' AND '$date_to'
   AND clients.company_id = $session_company_id
   ORDER BY $sortby $order LIMIT $record_from, $record_to

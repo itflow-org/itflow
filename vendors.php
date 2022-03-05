@@ -13,8 +13,14 @@ if(isset($_GET['p'])){
   
 if(isset($_GET['q'])){
   $q = mysqli_real_escape_string($mysqli,$_GET['q']);
+  //Phone Numbers
+  $phone_query = preg_replace("/[^0-9]/", '',$q);
+  if(empty($phone_query)){
+    $phone_query = $q;
+  }
 }else{
   $q = "";
+  $phone_query = "";
 }
 
 //Column Filter
@@ -53,7 +59,7 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM vendors 
   WHERE vendor_client_id = 0 
   AND DATE(vendor_created_at) BETWEEN '$dtf' AND '$dtt'
-  AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%')
+  AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' OR vendor_website LIKE '%$q%' OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_phone LIKE '%$phone_query%')
   AND vendor_archived_at IS NULL
   AND company_id = $session_company_id
   ORDER BY $sb $o LIMIT $record_from, $record_to");
