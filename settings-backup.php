@@ -19,10 +19,9 @@
     </div>
     <div class="card-body">
         <center>
-            <!--<a class="btn btn-primary btn-lg p-3" href="post.php?download_database"><i class="fa fa-fw fa-4x fa-key"></i><br><br>Get AES Master Key</a> -->
             <form action="post.php" method="POST">
                 <div class="input-group col-3">
-                    <input type="password" class="form-control" placeholder="Account Password" name="password" value="" required="">
+                    <input type="password" class="form-control" placeholder="Account Password" name="password" autocomplete="new-password" required>
                 </div>
                 <br>
                 <div class="input-group col-3 offset-2">

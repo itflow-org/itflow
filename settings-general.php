@@ -46,12 +46,12 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-keyboard"></i></span>
           </div>
-          <input type="password" class="form-control" name="meshcentral_secret" placeholder="Auto-generated on MeshCentral" value="<?php echo $config_meshcentral_secret; ?>">
+          <input type="password" class="form-control" name="meshcentral_secret" placeholder="Auto-generated on MeshCentral" value="<?php echo $config_meshcentral_secret; ?>" autocomplete="new-password">
         </div>
       </div>
 
       <div class="form-group">
-        <div class="alert alert-warning" role="alert">
+        <div class="alert alert-warning">
           This token/user only requires <b>read access</b> to MeshCentral and is stored in <b>plaintext</b>.
         </div>
       </div>

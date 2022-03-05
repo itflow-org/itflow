@@ -216,7 +216,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                   </div>
-                  <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password">
+                  <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password" autocomplete="new-password">
                   <div class="input-group-append">
                     <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                   </div>

@@ -43,7 +43,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
           </div>
-          <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="Password" value="<?php echo $config_smtp_password; ?>" required>
+          <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="Password" value="<?php echo $config_smtp_password; ?>" autocomplete="new-password" required>
           <div class="input-group-append">
             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
           </div>
