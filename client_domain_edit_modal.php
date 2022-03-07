@@ -1,82 +1,110 @@
-<div class="modal" id="editDomainModal<?php echo $domain_id; ?>" tabindex="-1">
+<div class="modal" id="editDomainModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-globe"></i> <?php echo $domain_name ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-lock"></i><span id="editHeader"></span></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-        <input type="hidden" name="domain_id" value="<?php echo $domain_id; ?>">
-        <div class="modal-body bg-white">    
-          
-          <div class="form-group">
-            <label>Domain Name <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-              </div>
-              <input type="text" class="form-control" name="name" placeholder="Domain name exmaple.com" value="<?php echo $domain_name; ?>" required>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>Domain Registrar</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-              </div>
-              <select class="form-control select2" name="registrar">
-                <option value="">- Vendor -</option>
-                <?php 
-                
-                $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id"); 
-                while($row = mysqli_fetch_array($sql_vendors)){
-                  $vendor_id_select = $row['vendor_id'];
-                  $vendor_name_select = $row['vendor_name'];
-                ?>
-                <option <?php if($domain_registrar == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
-                
-                <?php
-                }
-                ?>
-              </select>
-            </div>
-          </div>
+        <input type="hidden" name="domain_id" value="" id="editDomainId">
+        <div class="modal-body bg-white">
 
-          <div class="form-group">
-            <label>Webhost</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+          <ul class="nav nav-pills nav-justified mb-3">
+            <li class="nav-item">
+              <a class="nav-link active" data-toggle="pill" href="#pills-overview">Overview</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-records">Records</a>
+            </li>
+          </ul>
+
+          <hr>
+
+          <div class="tab-content">
+
+            <div class="tab-pane fade show active" id="pills-overview">
+
+              <div class="form-group">
+                <label>Domain Name <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="name" id="editDomainName"  placeholder="Domain name example.com" value="" required>
+                </div>
               </div>
-              <select class="form-control select2" name="webhost">
-                <option value="">- Vendor -</option>
-                <?php 
-                
-                $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id"); 
-                while($row = mysqli_fetch_array($sql_vendors)){
-                  $vendor_id_select = $row['vendor_id'];
-                  $vendor_name_select = $row['vendor_name'];
-                ?>
-                <option <?php if($domain_webhost == $vendor_id_select){ echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
-                
-                <?php
-                }
-                ?>
-              </select>
-            </div>
-          </div>
-        
-          <div class="form-group">
-            <label>Expire Date</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+
+              <div class="form-group">
+                <label>Domain Registrar</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                  </div>
+                  <select class="form-control select2" name="registrar" id="editRegistrarId">
+                  </select>
+                </div>
               </div>
-              <input type="date" class="form-control" name="expire" value="<?php echo $domain_expire; ?>"> 
+
+              <div class="form-group">
+                <label>Webhost</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                  </div>
+                  <select class="form-control select2" name="webhost" id="editWebhostId">
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Expire Date</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                  </div>
+                  <input type="date" class="form-control" id="editExpire" name="expire" value="">
+                </div>
+              </div>
+
             </div>
+
+            <div class="tab-pane fade" id="pills-records">
+
+              <div class="form-group">
+                <label>Name Servers</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-crown"></i></span>
+                  </div>
+                  <textarea class="form-control" id="editNameServers" name="name_servers" disabled></textarea>
+                </div>
+              </div>
+
+
+              <div class="form-group">
+                <label>MX Records</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-mail-bulk"></i></span>
+                  </div>
+                  <textarea class="form-control" id="editMailServers" name="mail_servers" disabled></textarea>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Raw WHOIS</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-search-plus"></i></span>
+                  </div>
+                  <textarea class="form-control" id="editRawWhois" name="raw_whois" rows="8" disabled></textarea>
+                </div>
+              </div>
+
+            </div>
+
           </div>
 
         </div>

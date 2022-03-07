@@ -77,6 +77,28 @@ if(isset($_GET['certificate_get_json_details'])){
 }
 
 /*
+ * Looks up info for a given domain ID from the database, used to dynamically populate modal fields
+ */
+if(isset($_GET['domain_get_json_details'])){
+  $domain_id = intval($_GET['domain_id']);
+  $client_id = intval($_GET['client_id']);
+
+  // Individual domain lookup
+  $cert_sql = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_id = $domain_id AND domain_client_id = $client_id");
+  while($row = mysqli_fetch_array($cert_sql)){
+    $response['domain'][] = $row;
+  }
+
+  // Get all registrars/webhosts (vendors) for this client that could be linked to this domain
+  $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id");
+  while($row = mysqli_fetch_array($vendor_sql)){
+    $response['vendors'][] = $row;
+  }
+
+  echo json_encode($response);
+}
+
+/*
  * Looks up info on the ticket number provided, used to populate the ticket merge modal
  */
 if(isset($_GET['merge_ticket_get_json_details'])){
