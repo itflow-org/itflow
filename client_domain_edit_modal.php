@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-lock"></i><span id="editHeader"></span></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-globe"></i><span id="editHeader"></span></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
