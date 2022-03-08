@@ -77,7 +77,7 @@ CREATE TABLE `assets` (
   `asset_install_date` date DEFAULT NULL,
   `asset_reciept` varchar(200) DEFAULT NULL,
   `asset_notes` text DEFAULT NULL,
-  `client_meshcentral_group` varchar(200) DEFAULT NULL,
+  `asset_meshcentral_id` varchar(200) DEFAULT NULL,
   `asset_created_at` datetime NOT NULL,
   `asset_updated_at` datetime DEFAULT NULL,
   `asset_archived_at` datetime DEFAULT NULL,
