@@ -85,8 +85,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=domain_name&o=<?php echo $disp; ?>">Domain</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_name&o=<?php echo $disp; ?>">Registrar</a></th>
-            <th>WebHost</th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=domain_expire&o=<?php echo $disp; ?>">Expire</a></th>
+            <th>Web Host</th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=domain_expire&o=<?php echo $disp; ?>">Expires</a></th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
@@ -113,7 +113,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           ?>
           <tr>
-            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editDomainModal<?php echo $domain_id; ?>"><?php echo $domain_name; ?></a></td>
+            <td><a class="text-dark" href="#" data-toggle="modal" onclick="populateDomainEditModal(<?php echo $client_id, ",", $domain_id ?>)" data-target="#editDomainModal"><?php echo $domain_name; ?></a></td>
             <td><?php echo $domain_registrar_name; ?></td>
             <td><?php echo $domain_webhost_name; ?></td>
             <td><?php echo $domain_expire; ?></td>
@@ -123,7 +123,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editDomainModal<?php echo $domain_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateDomainEditModal(<?php echo $client_id, ",", $domain_id ?>)" data-target="#editDomainModal">Edit</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item text-danger" href="post.php?delete_domain=<?php echo $domain_id; ?>">Delete</a>
                 </div>
@@ -132,10 +132,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           </tr>
 
           <?php
-
-          include("client_domain_edit_modal.php");
           }
-          
           ?>
 
         </tbody>
@@ -145,4 +142,82 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("client_domain_add_modal.php"); ?>
+<?php
+include("client_domain_edit_modal.php");
+include("client_domain_add_modal.php");
+?>
+
+<script>
+    function populateDomainEditModal(client_id, domain_id) {
+
+        // Send a GET request to post.php as post.php?domain_get_json_details=true&client_id=NUM&domain_id=NUM
+        jQuery.get(
+            "ajax.php",
+            {domain_get_json_details: 'true', client_id: client_id, domain_id: domain_id},
+            function(data){
+
+                // If we get a response from post.php, parse it as JSON
+                const response = JSON.parse(data);
+
+                // Access the domain info (one), registrars (multiple) and webhosts (multiple_
+                const domain = response.domain[0];
+                const vendors = response.vendors;
+
+                // Populate the domain modal fields
+                document.getElementById("editHeader").innerText = " " + domain.domain_name;
+                document.getElementById("editDomainId").value = domain_id;
+                document.getElementById("editDomainName").value = domain.domain_name;
+                document.getElementById("editExpire").value = domain.domain_expire;
+                document.getElementById("editNameServers").value = domain.domain_name_servers;
+                document.getElementById("editMailServers").value = domain.domain_mail_servers;
+                document.getElementById("editRawWhois").value = domain.domain_raw_whois;
+
+                /* DROPDOWNS */
+
+                // Registrar dropdown
+                var registrarDropdown = document.getElementById("editRegistrarId");
+
+                // Clear registrar dropdown
+                var i, L = registrarDropdown.options.length -1;
+                for(i = L; i >= 0; i--) {
+                    registrarDropdown.remove(i);
+                }
+                registrarDropdown[registrarDropdown.length] = new Option('- Vendor -', '0');
+
+                // Populate dropdown
+                vendors.forEach(vendor => {
+                    if(parseInt(vendor.vendor_id) == parseInt(domain.domain_registrar)){
+                        // Selected domain
+                        registrarDropdown[registrarDropdown.length] = new Option(vendor.vendor_name, vendor.vendor_id, true, true);
+                    }
+                    else{
+                        registrarDropdown[registrarDropdown.length] = new Option(vendor.vendor_name, vendor.vendor_id);
+                    }
+                });
+
+                // Webhost dropdown
+                var webhostDropdown = document.getElementById("editWebhostId");
+
+                // Clear registrar dropdown
+                var i, L = webhostDropdown.options.length -1;
+                for(i = L; i >= 0; i--) {
+                    webhostDropdown.remove(i);
+                }
+                webhostDropdown[webhostDropdown.length] = new Option('- Vendor -', '0');
+
+                // Populate dropdown
+                vendors.forEach(vendor => {
+                    if(parseInt(vendor.vendor_id) == parseInt(domain.domain_webhost)){
+                        // Selected domain
+                        webhostDropdown[webhostDropdown.length] = new Option(vendor.vendor_name, vendor.vendor_id, true, true);
+                    }
+                    else{
+                        webhostDropdown[webhostDropdown.length] = new Option(vendor.vendor_name, vendor.vendor_id);
+                    }
+                });
+
+
+            }
+        );
+    }
+</script>
