@@ -147,6 +147,11 @@ $row = mysqli_fetch_array($sql_total_tickets_assigned);
 $user_active_assigned_tickets = $row['total_tickets_assigned'];
 
 ?>
+<style>
+.popover {
+    max-width: 600px;
+}
+</style>
     <div class="card card-dark elevation-3">
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-ticket-alt"></i> Tickets
@@ -408,7 +413,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                                 </a>
                             </td>
                             <td>
-                                <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
+                              <a tabindex="0" href="ticket.php?ticket_id=<?php echo $ticket_id; ?>" data-toggle="popover" data-html="true" title="<?php echo $ticket_subject; ?>" data-trigger="hover" data-content="<?php echo $ticket_details; ?>"><?php echo $ticket_subject; ?></a>
                             </td>
                             <td>
                                 <strong><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></strong>
