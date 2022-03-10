@@ -413,7 +413,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                                 </a>
                             </td>
                             <td>
-                              <a tabindex="0" href="ticket.php?ticket_id=<?php echo $ticket_id; ?>" data-toggle="popover" data-html="true" title="<?php echo $ticket_subject; ?>" data-trigger="hover" data-content="<?php echo $ticket_details; ?>"><?php echo $ticket_subject; ?></a>
+                              <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
                             </td>
                             <td>
                                 <strong><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></strong>
