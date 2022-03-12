@@ -1,7 +1,10 @@
 <?php
 
 if(isset($_GET['tab'])){
-  if($_GET['tab'] == "contacts"){
+  if($_GET['tab'] == "overview"){
+    include("client_overview.php");
+  }
+  elseif($_GET['tab'] == "contacts"){
     include("client_contacts.php");
   }
   elseif($_GET['tab'] == "locations"){

@@ -18,6 +18,13 @@
           <div class="text-wrap"><?php echo $client_tags_display; ?></div>
         </div>
 
+        <li class="nav-item mt-3">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=overview" class="nav-link <?php if($_GET['tab'] == "overview") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-tachometer-alt"></i>
+            <p>Overview</p>
+          </a>
+        </li>
+
         <li class="nav-header mt-3">CLIENT</li>
 
         <li class="nav-item">
