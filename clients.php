@@ -249,7 +249,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           ?>
           <tr>
             <td>
-              <strong><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a></strong>
+              <strong><a href="client.php?client_id=<?php echo $client_id; ?>&tab=overview"><?php echo $client_name; ?></a></strong>
               <?php
               if(!empty($client_type)){
               ?>
