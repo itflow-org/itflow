@@ -38,6 +38,7 @@ if(isset($_GET['ticket_id'])){
   $ticket_priority = $row['ticket_priority'];
   $ticket_status = $row['ticket_status'];
   $ticket_created_at = $row['ticket_created_at'];
+  $ticket_date = date('Y-m-d',strtotime($ticket_created_at));
   $ticket_updated_at = $row['ticket_updated_at'];
   $ticket_closed_at = $row['ticket_closed_at'];
   $ticket_created_by = $row['ticket_created_by'];
@@ -561,7 +562,7 @@ if(isset($_GET['ticket_id'])){
 
     <div class="card card-body card-outline card-dark mb-2">
      <div class="">
-<!--        <a href="#" class="btn btn-outline-success btn-block">INVOICE</a>-->
+        <a href="#" class="btn btn-outline-success btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">INVOICE</a>
         <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">CLOSE TICKET</a>
       </div>
     </div>
@@ -577,6 +578,7 @@ if(isset($_GET['ticket_id'])){
 <?php
       include("ticket_edit_modal.php");
       include("ticket_merge_modal.php");
+      include("ticket_invoice_add_modal.php");
 ?>
 
 <?php

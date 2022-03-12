@@ -5760,6 +5760,98 @@ if(isset($_GET['close_ticket'])){
     
 }
 
+if(isset($_POST['add_invoice_from_ticket'])){
+    
+    $ticket_id = intval($_GET['ticket_id']);
+    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
+    $category = intval($_POST['category']);
+    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
+
+    $sql = mysqli_query($mysqli, "SELECT * FROM tickets 
+        LEFT JOIN clients ON ticket_client_id = client_id
+        LEFT JOIN contacts ON ticket_contact_id = contact_id 
+        LEFT JOIN assets ON ticket_asset_id = asset_id
+        LEFT JOIN locations ON ticket_location_id = location_id
+        WHERE ticket_id = $ticket_id
+        AND tickets.company_id = $session_company_id"
+    );
+
+    $row = mysqli_fetch_array($sql);
+    $client_id = $row['client_id'];
+    $client_net_terms = $row['client_net_terms'];
+    if($client_net_terms == 0){
+        $client_net_terms = $config_default_net_terms;
+    }
+
+    $ticket_prefix = $row['ticket_prefix'];
+    $ticket_number = $row['ticket_number'];
+    $ticket_category = $row['ticket_category'];
+    $ticket_subject = $row['ticket_subject'];
+    $ticket_created_at = $row['ticket_created_at'];
+    $ticket_updated_at = $row['ticket_updated_at'];
+    $ticket_closed_at = $row['ticket_closed_at'];
+
+    $contact_id = $row['contact_id'];
+    $contact_name = $row['contact_name'];
+    $contact_email = $row['contact_email'];
+
+    $asset_id = $row['asset_id'];
+
+    $location_name = $row['location_name'];
+
+
+    //Get the last Invoice Number and add 1 for the new invoice number
+    $invoice_number = $config_invoice_next_number;
+    $new_config_invoice_next_number = $config_invoice_next_number + 1;
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
+
+    //Generate a unique URL key for clients to access
+    $url_key = keygen();
+
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_currency_code = '$session_company_currency', invoice_category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_created_at = NOW(), invoice_client_id = $client_id, company_id = $session_company_id");
+    $invoice_id = mysqli_insert_id($mysqli);
+    
+    //Add Item
+    $item_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['item_name'])));
+    $item_description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['item_description'])));
+    $qty = floatval($_POST['qty']);
+    $price = floatval($_POST['price']);
+    $tax_id = intval($_POST['tax_id']);
+    
+    $subtotal = $price * $qty;
+    
+    if($tax_id > 0){
+        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $row = mysqli_fetch_array($sql);
+        $tax_percent = $row['tax_percent'];
+        $tax_amount = $subtotal * $tax_percent / 100;
+    }else{
+        $tax_amount = 0;
+    }
+    
+    $total = $subtotal + $tax_amount;
+
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_created_at = NOW(), item_tax_id = $tax_id, item_invoice_id = $invoice_id, company_id = $session_company_id");
+
+    //Update Invoice Balances
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+
+    $new_invoice_amount = $row['invoice_amount'] + $total;
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created from Ticket $ticket_prefix$ticket_number', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $session_company_id");
+    
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Created', log_description = '$config_invoice_prefix$invoice_number created from Ticket $ticket_prefix$ticket_number', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Invoice created from ticket";
+    
+    header("Location: invoice.php?invoice_id=$invoice_id");
+}
+
 if(isset($_GET['export_client_tickets_csv'])){
     $client_id = intval($_GET['export_client_tickets_csv']);
 
