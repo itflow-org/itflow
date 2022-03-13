@@ -61,8 +61,8 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
                         $contact_extension = $row['contact_extension'];
                         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                         $contact_email = $row['contact_email'];
-                        $client_id = $row['client_id'];
-                        $client_name = $row['client_name'];
+                        //$client_id = $row['client_id'];
+                        //$client_name = $row['client_name'];
                         $department_name = $row['department_name'];
 
                         ?>
