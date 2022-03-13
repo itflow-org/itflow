@@ -5283,17 +5283,27 @@ if(isset($_POST['add_domain'])){
     // NS, MX and WHOIS data
     if(filter_var($name, FILTER_VALIDATE_DOMAIN) && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')){
         $domain = escapeshellarg($name);
+        $a = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short $domain")));
         $ns = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short NS $domain")));
         $mx = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short MX $domain")));
         $whois = trim(strip_tags(mysqli_real_escape_string($mysqli,shell_exec("whois -H $domain | sed 's/   //g' | head -30"))));
+
+        // Get expiry date for com/org/net domains - This is very hacky. An API would be better.
+        if(!empty($whois && $expire == '0000-00-00')){
+            if(substr($_POST['name'], -3) == 'com' OR substr($_POST['name'], -3) == 'org' OR substr($_POST['name'], -3) == 'net'){
+                $pos = strpos($whois, 'Registry Expiry Date:');
+                $expire = substr($whois, $pos+22,10);
+            }
+        }
     }
     else{
-      $ns = '';
-      $mx = '';
-      $whois = '';
+        $a = '';
+        $ns = '';
+        $mx = '';
+        $whois = '';
     }
 
-    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_created_at = NOW(), domain_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_created_at = NOW(), domain_client_id = $client_id, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Created', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
@@ -5312,22 +5322,30 @@ if(isset($_POST['edit_domain'])){
     $webhost = intval($_POST['webhost']);
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
     if(empty($expire)){
-        $expire = "0000-00-00";
+      $expire = "0000-00-00";
     }
 
     // A, NS, MX and WHOIS data
     if(filter_var($name, FILTER_VALIDATE_DOMAIN) && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')){
-      $domain = escapeshellarg($name);
-      $a = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short $domain")));
-      $ns = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short NS $domain")));
-      $mx = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short MX $domain")));
-      $whois = trim(strip_tags(mysqli_real_escape_string($mysqli,shell_exec("whois -H $domain | sed 's/   //g' | head -30"))));
+        $domain = escapeshellarg($name);
+        $a = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short $domain")));
+        $ns = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short NS $domain")));
+        $mx = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short MX $domain")));
+        $whois = trim(strip_tags(mysqli_real_escape_string($mysqli,shell_exec("whois -H $domain | sed 's/   //g' | head -30"))));
+
+        // Get expiry date for com/org/net domains - This is very hacky. An API would be better.
+        if(!empty($whois)){
+            if(substr($_POST['name'], -3) == 'com' OR substr($_POST['name'], -3) == 'org' OR substr($_POST['name'], -3) == 'net'){
+                $pos = strpos($whois, 'Registry Expiry Date:');
+                $expire = substr($whois, $pos+22,10);
+            }
+        }
     }
     else{
-      $a = '';
-      $ns = '';
-      $mx = '';
-      $whois = '';
+        $a = '';
+        $ns = '';
+        $mx = '';
+        $whois = '';
     }
 
     mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_updated_at = NOW() WHERE domain_id = $domain_id AND company_id = $session_company_id");
