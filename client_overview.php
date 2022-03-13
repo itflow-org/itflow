@@ -46,7 +46,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
     <div class="col-2">
 
-      <div class="card card-outline card-danger mb-3">
+      <div class="card card-outline card-primary mb-3">
         <div class="card-body">
           <h5 class="card-title mb-2"><i class="fa fa-sticky-note"></i> Client Notes</h5>
           <textarea class="form-control" id="clientNotes" onblur="updateClientNotes(<?php echo $client_id ?>)"><?php echo $client_notes ?></textarea>
