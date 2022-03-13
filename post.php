@@ -5315,20 +5315,22 @@ if(isset($_POST['edit_domain'])){
         $expire = "0000-00-00";
     }
 
-    // NS, MX and WHOIS data
+    // A, NS, MX and WHOIS data
     if(filter_var($name, FILTER_VALIDATE_DOMAIN) && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')){
       $domain = escapeshellarg($name);
+      $a = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short $domain")));
       $ns = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short NS $domain")));
       $mx = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short MX $domain")));
       $whois = trim(strip_tags(mysqli_real_escape_string($mysqli,shell_exec("whois -H $domain | sed 's/   //g' | head -30"))));
     }
     else{
+      $a = '';
       $ns = '';
       $mx = '';
       $whois = '';
     }
 
-    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_updated_at = NOW() WHERE domain_id = $domain_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_updated_at = NOW() WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modified', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");

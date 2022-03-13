@@ -168,6 +168,7 @@ include("client_domain_add_modal.php");
                 document.getElementById("editDomainId").value = domain_id;
                 document.getElementById("editDomainName").value = domain.domain_name;
                 document.getElementById("editExpire").value = domain.domain_expire;
+                document.getElementById("editDomainIP").value = domain.domain_ip;
                 document.getElementById("editNameServers").value = domain.domain_name_servers;
                 document.getElementById("editMailServers").value = domain.domain_mail_servers;
                 document.getElementById("editRawWhois").value = domain.domain_raw_whois;
