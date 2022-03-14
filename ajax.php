@@ -142,3 +142,15 @@ if(isset($_GET['network_get_json_details'])){
 
   echo json_encode($response);
 }
+
+if(isset($_POST['client_set_notes'])){
+  $client_id = intval($_POST['client_id']);
+  $notes = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['notes'])));
+
+  // Update notes
+  mysqli_query($mysqli, "UPDATE clients SET client_notes = '$notes' WHERE client_id = '$client_id'");
+
+  // Logging
+  mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modify', log_description = '$session_name modified client notes', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
+}
