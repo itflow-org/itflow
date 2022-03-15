@@ -93,7 +93,6 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
             </tbody>
           </table>
->>>>>>> 7b816e0879511ef11bd8642294103cbeaa3bf01e
         </div>
       </div>
     </div>
