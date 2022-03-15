@@ -40,12 +40,52 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 <hr>
 <div class="row">
 
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-primary"><i class="far fa-flag"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Open</span>
+                <span class="info-box-number">410</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-success"><i class="far fa-flag"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Stale</span>
+                <span class="info-box-number">410</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-danger"><i class="far fa-user"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Items Expiring</span>
+                <span class="info-box-number">410</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-info"><i class="far fa-flag"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Bookmarks</span>
+                <span class="info-box-number">410</span>
+            </div>
+        </div>
+    </div>
+
     <?php if(mysqli_num_rows($sql_contacts) > 0){ ?> 
 
     <!-- Contacts-->
 
     <div class="col-6">
-        
+    
         <div class="card card-outline card-primary mb-3">
             <div class="card-body">
                 <h5 class="card-title mb-2"><i class="fa fa-users"></i> Recent Contacts</h5>
