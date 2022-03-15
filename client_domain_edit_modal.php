@@ -73,6 +73,16 @@
             <div class="tab-pane fade" id="pills-records">
 
               <div class="form-group">
+                <label>Domain IP(s)</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
+                  </div>
+                  <textarea class="form-control" id="editDomainIP" name="domain_ip" rows="1" disabled></textarea>
+                </div>
+              </div>
+
+              <div class="form-group">
                 <label>Name Servers</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
@@ -89,7 +99,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-mail-bulk"></i></span>
                   </div>
-                  <textarea class="form-control" id="editMailServers" name="mail_servers" disabled></textarea>
+                  <textarea class="form-control" id="editMailServers" name="mail_servers" rows="1" disabled></textarea>
                 </div>
               </div>
 
