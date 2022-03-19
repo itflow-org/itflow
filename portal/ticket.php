@@ -48,26 +48,54 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
   <div class="container">
 
     <h2>Ticket Details - <?php echo $ticket['ticket_subject'] ?></h2>
-    <p>State: <?php echo $ticket['ticket_status'] ?></p>
-    <p>Priority: <?php echo $ticket['ticket_priority'] ?></p>
+    <p>
+      Reference: <?php echo $ticket['ticket_prefix'], $ticket['ticket_number'] ?>
+      <br>
+      State: <?php echo $ticket['ticket_status'] ?>
+      <br>
+      Priority: <?php echo $ticket['ticket_priority'] ?>
+    </p>
 
     <hr>
 
+    <?php if($ticket['ticket_status'] !== "Closed") { ?>
+
+      <div class="form-group">
+        <form action="portal_post.php" method="post">
+          <div class="form-group">
+            <textarea class="form-control" name="comment" placeholder="Add comments.."></textarea>
+          </div>
+          <input type="hidden" name="ticket_id" value="<?php echo $ticket['ticket_id'] ?>">
+          <button type="submit" class="btn btn-primary" name="add_ticket_comment">Add comment</button>
+        </form>
+      </div>
+      <hr>
+
+    <?php } ?>
+
     <?php
-    $sql = mysqli_query($mysqli,"SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL AND ticket_reply_type = 'Public' ORDER BY ticket_reply_id DESC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id LEFT JOIN contacts ON ticket_reply_by = contact_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL AND ticket_reply_type != 'Internal' ORDER BY ticket_reply_id DESC");
 
     while($row = mysqli_fetch_array($sql)){;
       $ticket_reply_id = $row['ticket_reply_id'];
       $ticket_reply = $row['ticket_reply'];
       $ticket_reply_created_at = $row['ticket_reply_created_at'];
       $ticket_reply_by = $row['ticket_reply_by'];
-      $ticket_reply_by_display = $row['user_name'];
-      $user_id = $row['user_id'];
-      $user_avatar = $row['user_avatar'];
-      $user_initials = initials($row['user_name']);
+      $ticket_reply_type = $row['ticket_reply_type'];
+
+      if($ticket_reply_type == "Client"){
+        $ticket_reply_by_display = $row['contact_name'];
+        $user_initials = initials($row['contact_name']);
+      }
+      else{
+        $ticket_reply_by_display = $row['user_name'];
+        $user_id = $row['user_id'];
+        $user_avatar = $row['user_avatar'];
+        $user_initials = initials($row['user_name']);
+      }
       ?>
 
-      <div class="card card-outline card-info mb-3">
+      <div class="card card-outline <?php if($ticket_reply_type == 'Client') {echo "card-warning"; } else{ echo "card-info"; } ?> mb-3">
         <div class="card-header">
           <h3 class="card-title">
             <div class="media">

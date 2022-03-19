@@ -79,11 +79,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])){
     <h2><?php echo $config_app_name; ?> - Client Portal Login</h2>
 
     <form action="login.php" method="post">
-      <input class="form-control" type="text" name="email" placeholder="someone@example.com">
+      <div class="form-group">
+        <input class="form-control" type="text" name="email" placeholder="someone@example.com">
+        <input class="form-control" type="password" name="password" placeholder="Pa$$word">
+      </div>
 
-      <input class="form-control" type="password" name="password" placeholder="Pa$$word">
-
-      <button class="btn-primary" type="submit" name="login">Login</button>
+      <button class="btn btn-primary" type="submit" name="login">Login</button>
     </form>
     <?php
       if(!empty($_SESSION['login_message'])){
