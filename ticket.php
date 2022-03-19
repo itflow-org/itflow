@@ -266,7 +266,7 @@ if(isset($_GET['ticket_id'])){
     <?php } ?>
 
     <?php
-    $sql = mysqli_query($mysqli,"SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL ORDER BY ticket_reply_id DESC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id LEFT JOIN contacts ON ticket_reply_by = contact_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL ORDER BY ticket_reply_id DESC");
 
       while($row = mysqli_fetch_array($sql)){;
         $ticket_reply_id = $row['ticket_reply_id'];
@@ -275,14 +275,21 @@ if(isset($_GET['ticket_id'])){
         $ticket_reply_created_at = $row['ticket_reply_created_at'];
         $ticket_reply_updated_at = $row['ticket_reply_updated_at'];
         $ticket_reply_by = $row['ticket_reply_by'];
-        $ticket_reply_by_display = $row['user_name'];
-        $user_id = $row['user_id'];
-        $user_avatar = $row['user_avatar'];
-        $user_initials = initials($row['user_name']);
-        $ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
+
+        if($ticket_reply_type == "Client"){
+          $ticket_reply_by_display = $row['contact_name'];
+          $user_initials = initials($row['contact_name']);
+        }
+        else{
+          $ticket_reply_by_display = $row['user_name'];
+          $user_id = $row['user_id'];
+          $user_avatar = $row['user_avatar'];
+          $user_initials = initials($row['user_name']);
+          $ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
+        }
     ?>
 
-    <div class="card card-outline <?php if($ticket_reply_type == 'Internal'){ echo "card-dark"; }else{ echo "card-info"; } ?> mb-3">
+    <div class="card card-outline <?php if($ticket_reply_type == 'Internal'){ echo "card-dark"; } elseif($ticket_reply_type == 'Client') {echo "card-warning"; } else{ echo "card-info"; } ?> mb-3">
       <div class="card-header">
         <h3 class="card-title">
           <div class="media">
@@ -302,7 +309,9 @@ if(isset($_GET['ticket_id'])){
               <br>
               <small class="text-muted"><?php echo $ticket_reply_created_at; ?> <?php if(!empty($ticket_reply_updated_at)){ echo "modified: $ticket_reply_updated_at"; } ?></small>
               <br>
-              <small class="text-muted">Time worked: <?php echo date_format($ticket_reply_time_worked, 'H:i:s'); ?></small>
+              <?php if($ticket_reply_type !== "Client") { ?>
+                <small class="text-muted">Time worked: <?php echo date_format($ticket_reply_time_worked, 'H:i:s'); ?></small>
+              <?php } ?>
             </div>
           </div>
         </h3>
