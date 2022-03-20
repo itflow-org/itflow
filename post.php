@@ -718,8 +718,10 @@ if(isset($_POST['edit_general_settings'])){
     $mesh_uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_uri'])));
     $mesh_user = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_user'])));
     $mesh_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_secret'])));
+    $azure_client_id = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['azure_client_id'])));
+    $azure_client_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['azure_client_secret'])));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_base_url = '$config_base_url', config_meshcentral_uri = '$mesh_uri', config_meshcentral_user = '$mesh_user', config_meshcentral_secret = '$mesh_secret' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_base_url = '$config_base_url', config_meshcentral_uri = '$mesh_uri', config_meshcentral_user = '$mesh_user', config_meshcentral_secret = '$mesh_secret', config_azure_client_id = '$azure_client_id', config_azure_client_secret = '$azure_client_secret' WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified general settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
@@ -3972,12 +3974,14 @@ if(isset($_POST['add_contact'])){
     $primary_contact = intval($_POST['primary_contact']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
     $location_id = intval($_POST['location']);
+    $auth_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['auth_method'])));
 
-    if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
+
+  if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_created_at = NOW(), contact_department_id = $department, contact_location_id = $location_id, contact_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_created_at = NOW(), contact_department_id = $department, contact_location_id = $location_id, contact_client_id = $client_id, company_id = $session_company_id");
 
     $contact_id = mysqli_insert_id($mysqli);
 
@@ -4051,6 +4055,8 @@ if(isset($_POST['edit_contact'])){
     $primary_contact = intval($_POST['primary_contact']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
     $location_id = intval($_POST['location']);
+    $auth_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['auth_method'])));
+    $password = $_POST['contact_password'];
 
     $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
 
@@ -4058,14 +4064,20 @@ if(isset($_POST['edit_contact'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_department_id = $department, contact_location_id = $location_id, contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_department_id = $department, contact_location_id = $location_id, contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
-    //Update Primay contact in clients if primary contact is checked
+    // Update Primary contact in clients if primary contact is checked
     if($primary_contact > 0){
         mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");
     }
 
-    //Check to see if a file is attached
+    // Set password
+    if(!empty($password)){
+      $password_hash = password_hash($password, PASSWORD_DEFAULT);
+      mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_client_id = '$client_id'");
+    }
+
+    // Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
     
     // get details of the uploaded file
@@ -5658,7 +5670,7 @@ if(isset($_POST['add_ticket_reply'])){
                 $mail->isHTML(true);                                        // Set email format to HTML
 
                 $mail->Subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
-                $mail->Body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+                $mail->Body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
                 $mail->send();
             }
             catch(Exception $e){
@@ -5688,7 +5700,7 @@ if(isset($_POST['edit_ticket_reply'])){
     $ticket_reply_id = intval($_POST['ticket_reply_id']);
     $ticket_reply = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['ticket_reply']))));
 
-    mysqli_query($mysqli,"UPDATE ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_updated_at = NOW() WHERE ticket_reply_id = $ticket_reply_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"UPDATE ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_updated_at = NOW() WHERE ticket_reply_id = $ticket_reply_id AND ticket_reply_type != 'Client' AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update Modify', log_action = 'Modified', log_description = '$ticket_update_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");

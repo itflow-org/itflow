@@ -139,6 +139,20 @@
                 </div>
               </div>
 
+              <div class="form-group">
+                <label>Portal Login</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
+                  </div>
+                  <select class="form-control select2" name="auth_method">
+                    <option value="">- None -</option>
+                    <option value="local">Local</option>
+                    <option value="azure">Azure</option>
+                  </select>
+                </div>
+              </div>
+
             </div>
 
             <div class="tab-pane fade" id="pills-photo">

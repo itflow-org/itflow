@@ -157,6 +157,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $location_name_display = $location_name;
             }
             $department_id = $row['department_id'];
+            $auth_method = $row['contact_auth_method'];
 
             // Related Assets Query
             $sql_related_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_contact_id = $contact_id AND company_id = $session_company_id ORDER BY asset_id DESC");

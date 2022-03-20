@@ -4,74 +4,81 @@
  * Ticket detail page
  */
 
-include('../config.php');
-include('../functions.php');
-include('check_login.php');
-
-if(!isset($_SESSION)){
-  // HTTP Only cookies
-  ini_set("session.cookie_httponly", True);
-  if($config_https_only){
-    // Tell client to only send cookie(s) over HTTPS
-    ini_set("session.cookie_secure", True);
-  }
-  session_start();
-}
+require_once("inc_portal.php");
 
 if(isset($_GET['id']) && intval($_GET['id'])) {
   $ticket_id = intval($_GET['id']);
-  $ticket_sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_client_id = '$session_client_id'");
+
+  if($session_contact_id == $session_client_primary_contact_id){
+    $ticket_sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_client_id = '$session_client_id'");
+  }
+  else{
+    $ticket_sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_client_id = '$session_client_id' AND ticket_contact_id = '$session_contact_id'");
+  }
+
   $ticket = mysqli_fetch_array($ticket_sql);
 
   if ($ticket) {
     ?>
 
-    <!DOCTYPE html>
-    <html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title><?php echo $config_app_name; ?> | Client Portal - Tickets</title>
+    <h2><i class="fas fa-fw fa-ticket-alt text-secondary"></i> Ticket details: <?php echo $ticket['ticket_prefix'], $ticket['ticket_number'] ?></h2>
 
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><?php echo $ticket['ticket_subject'] ?></h3>
+      </div>
+      <div class="card-body">
+        <p>
+          <b>State:</b> <?php echo $ticket['ticket_status'] ?>
+          <br>
+          <b>Priority:</b> <?php echo $ticket['ticket_priority'] ?>
+        </p>
+        <?php echo $ticket['ticket_details'] ?>
+      </div>
+    </div>
 
-    <!-- Theme style -->
-    <link rel="stylesheet" href="../dist/css/adminlte.min.css">
-
-    <!-- Google Font: Source Sans Pro -->
-    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-  </head>
-  <div class="container">
-
-    <h2>Ticket Details - <?php echo $ticket['ticket_subject'] ?></h2>
-    <p>
-      Reference: <?php echo $ticket['ticket_prefix'], $ticket['ticket_number'] ?>
-      <br>
-      State: <?php echo $ticket['ticket_status'] ?>
-      <br>
-      Priority: <?php echo $ticket['ticket_priority'] ?>
-    </p>
-
-    <hr>
+    <!-- Either show the reply comments box, ticket smiley feedback, or thanks for feedback -->
 
     <?php if($ticket['ticket_status'] !== "Closed") { ?>
-
       <div class="form-group">
         <form action="portal_post.php" method="post">
           <div class="form-group">
             <textarea class="form-control" name="comment" placeholder="Add comments.."></textarea>
           </div>
           <input type="hidden" name="ticket_id" value="<?php echo $ticket['ticket_id'] ?>">
-          <button type="submit" class="btn btn-primary" name="add_ticket_comment">Add comment</button>
+          <button type="submit" class="btn btn-primary" name="add_ticket_comment">Save reply</button>
         </form>
       </div>
-      <hr>
+    <?php }
+
+    elseif(empty($ticket['ticket_feedback'])) { ?>
+
+      <h4>Rate your ticket</h4>
+
+      <form action="portal_post.php" method="post">
+        <input type="hidden" name="ticket_id" value="<?php echo $ticket['ticket_id'] ?>">
+
+        <button type="submit" class="btn btn-primary btn-lg" name="add_ticket_feedback" value="Good" onclick="this.form.submit()">
+          <span class="fa fa-smile" aria-hidden="true"></span> Good
+        </button>
+
+        <button type="submit" class="btn btn-danger btn-lg" name="add_ticket_feedback" value="Bad" onclick="this.form.submit()">
+          <span class="fa fa-frown" aria-hidden="true"></span> Bad
+        </button>
+      </form>
+
+    <?php }
+
+    else{ ?>
+
+      <h4>Rated <?php echo $ticket['ticket_feedback'] ?> -- Thanks for your feedback!</h4>
 
     <?php } ?>
+
+    <!-- End comments/feedback -->
+
+    <hr><br>
 
     <?php
     $sql = mysqli_query($mysqli,"SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id LEFT JOIN contacts ON ticket_reply_by = contact_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL AND ticket_reply_type != 'Internal' ORDER BY ticket_reply_id DESC");
@@ -80,6 +87,7 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
       $ticket_reply_id = $row['ticket_reply_id'];
       $ticket_reply = $row['ticket_reply'];
       $ticket_reply_created_at = $row['ticket_reply_created_at'];
+      $ticket_reply_updated_at = $row['ticket_reply_updated_at'];
       $ticket_reply_by = $row['ticket_reply_by'];
       $ticket_reply_type = $row['ticket_reply_type'];
 
@@ -103,9 +111,9 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
                 <img src="<?php echo "../uploads/users/$user_id/$user_avatar"; ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
               <?php }else{ ?>
                 <span class="fa-stack fa-2x">
-              <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-              <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
-            </span>
+            <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+            <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
+          </span>
                 <?php
               }
               ?>
@@ -113,7 +121,7 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
               <div class="media-body">
                 <?php echo $ticket_reply_by_display; ?>
                 <br>
-                <small class="text-muted"><?php echo $ticket_reply_created_at; ?> <?php if(!empty($ticket_reply_updated_at)){ echo "modified: $ticket_reply_updated_at"; } ?></small>
+                <small class="text-muted"><?php echo $ticket_reply_created_at; ?> <?php if(!empty($ticket_reply_updated_at)){ echo "(edited: $ticket_reply_updated_at)"; } ?></small>
               </div>
             </div>
           </h3>
@@ -131,9 +139,6 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
     ?>
 
 
-  </div>
-
-
     <?php
   }
   else{
@@ -143,3 +148,5 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
 else{
   header("Location: index.php");
 }
+
+require_once("portal_footer.php");
