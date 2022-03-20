@@ -20,32 +20,23 @@ if(!isset($_SESSION)){
 $sql_settings = mysqli_query($mysqli,"SELECT config_azure_client_id, config_azure_client_secret FROM settings WHERE company_id = '1'");
 $settings = mysqli_fetch_array($sql_settings);
 
-//$client_id = "e821e3a6-02c8-40e8-9f22-b84d951a62e7";
-//$client_secret = "axL7Q~hKbmIwqa3DoxJLy4p88AdBz96XAcNZW";
-
 $client_id = $settings['config_azure_client_id'];
 $client_secret = $settings['config_azure_client_secret'];
 
-//$redirect_uri = "https://$config_base_url/portal/login_microsoft.php";
-$redirect_uri = "http://localhost/itflow/portal/login_microsoft.php";
+$redirect_uri = "https://$config_base_url/portal/login_microsoft.php";
 
 # https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
-## {tenant} is set to organistions to allow any MS Work/School account - See above for valid values. Must be used in conjunction with the correct setting on the App Registration
 $auth_code_url = "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize";
 $token_grant_url = "https://login.microsoftonline.com/organizations/oauth2/v2.0/token";
 
 // Initial Login Request, via Microsoft
 // Returns a authorization code if login was successful
 if ($_SERVER['REQUEST_METHOD'] == "GET"){
-//if ($_GET['action'] == 'login'){
 
   $params = array (
     'client_id' => $client_id,
     'redirect_uri' => $redirect_uri,
-
-    #'response_type' =>'token',
     'response_type' => 'code',
-
     'response_mode' =>'form_post',
     'scope' => 'https://graph.microsoft.com/User.Read',
     'state' => session_id());
@@ -73,12 +64,9 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()){
   curl_setopt($ch, CURLOPT_POSTFIELDS,
   http_build_query($params));
   curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // DEBUG ONLY - WAMP
+  #curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // DEBUG ONLY - WAMP
 
   $access_token_response = json_decode(curl_exec($ch),1);
-  //curl_close ($ch);
-  //var_dump($ch);
-  //var_dump($access_token_response);
 
   // Check if we have an access token
   // If we do, send a request to Microsoft Graph API to get user info
@@ -89,7 +77,7 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()){
       'Content-type: application/json'));
     curl_setopt ($ch, CURLOPT_URL, "https://graph.microsoft.com/v1.0/me/");
     curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // DEBUG ONLY - WAMP
+    #curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // DEBUG ONLY - WAMP
 
     $msgraph_response = json_decode (curl_exec ($ch), 1);
 
@@ -113,6 +101,8 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()){
         $_SESSION['contact_id'] = $row['contact_id'];
         $_SESSION['company_id'] = $row['company_id'];
         $_SESSION['login_method'] = "azure";
+
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $upn successfully logged in via Azure', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $row[contact_client_id]");
 
         header("Location: index.php");
 
