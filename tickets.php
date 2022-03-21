@@ -274,7 +274,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Assigned to</label>
-                                <select class="form-control" name="assigned">
+                                <select class="form-control select2" name="assigned">
                                     <option value="" <?php if($ticket_assigned_filter == ""){echo "selected";}?> >Any</option>
                                     <option value="unassigned"<?php if($ticket_assigned_filter == "0"){echo "selected";}?> >Unassigned</option>
 
