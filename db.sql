@@ -1125,6 +1125,8 @@ CREATE TABLE `settings` (
   `config_meshcentral_uri` varchar(200) DEFAULT NULL,
   `config_meshcentral_user` varchar(200) DEFAULT NULL,
   `config_meshcentral_secret` varchar(200) DEFAULT NULL,
+  `config_azure_client_id` varchar(200) DEFAULT NULL,
+  `config_azure_client_secret` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;

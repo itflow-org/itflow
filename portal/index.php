@@ -4,69 +4,61 @@
  * Landing / Home page for the client portal
  */
 
-include('../config.php');
-include('../functions.php');
-include('check_login.php');
+require_once("inc_portal.php");
 
-if(!isset($_SESSION)){
-  // HTTP Only cookies
-  ini_set("session.cookie_httponly", True);
-  if($config_https_only){
-    // Tell client to only send cookie(s) over HTTPS
-    ini_set("session.cookie_secure", True);
-  }
-  session_start();
+// Ticket status from GET
+if (!isset($_GET['status'])) {
+  // If nothing is set, assume we only want to see open tickets
+  $status = 'Open';
+  $ticket_status_snippet = "ticket_status != 'Closed'";
+} elseif (isset($_GET['status']) && ($_GET['status']) == 'Open') {
+  $status = 'Open';
+  $ticket_status_snippet = "ticket_status != 'Closed'";
+} elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
+  $status = 'Closed';
+  $ticket_status_snippet = "ticket_status = 'Closed'";
+} else {
+  $status = '%';
+  $ticket_status_snippet = "ticket_status LIKE '%'";
 }
 
-$contact_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_id = '$session_contact_id' AND contact_client_id = '$session_client_id' LIMIT 1");
-$contact_row = mysqli_fetch_array($contact_sql);
-
-$contact_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = '$session_contact_id' AND ticket_client_id = '$session_client_id'");
-$tickets = mysqli_fetch_array($contact_tickets);
+$contact_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts ON ticket_contact_id = contact_id WHERE $ticket_status_snippet AND ticket_contact_id = '$session_contact_id' AND ticket_client_id = '$session_client_id' ORDER BY ticket_id DESC");
 ?>
 
-
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title><?php echo $config_app_name; ?> | Client Portal</title>
-
-  <!-- Tell the browser to be responsive to screen width -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
-
-  <!-- Theme style -->
-  <link rel="stylesheet" href="../dist/css/adminlte.min.css">
-
-  <!-- Google Font: Source Sans Pro -->
-  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-</head>
-<div class="container">
-  <h2>Logged in as <?php echo $contact_row['contact_name'] ?></h2>
-
-  <br>
-  <h3>My open tickets</h3>
-  <table class="table">
-    <thead>
-      <tr>
-        <th scope="col">Subject</th>
-        <th scope="col">State</th>
-      </tr>
-    </thead>
-    <tbody>
-
-        <?php
-        while($ticket = mysqli_fetch_array($contact_tickets)){
-          echo "<tr>";
-          echo "<td> <a href='ticket.php?id=$ticket[ticket_id]'> $ticket[ticket_subject]</a></td>";
-          echo "<td>$ticket[ticket_status]</td>";
-          echo "</tr>";
-        }
-        ?>
-    </tbody>
-  </table>
+<h2>Welcome, <?php echo $session_contact_name ?>, to the <?php echo $config_app_name ?> client portal.</h2>
+<br>
+<h2>My tickets</h2>
+<div class="col-md-2">
+  <div class="form-group">
+    <form method="get">
+      <label>Ticket Status</label>
+      <select class="form-control" name="status" onchange="this.form.submit()">
+        <option value="%" <?php if($status == "%"){echo "selected";}?> >Any</option>
+        <option value="Open" <?php if($status == "Open"){echo "selected";}?> >Open</option>
+        <option value="Closed" <?php if($status == "Closed"){echo "selected";}?> >Closed</option>
+      </select>
+    </form>
+  </div>
 </div>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Subject</th>
+      <th scope="col">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+
+      <?php
+      while($ticket = mysqli_fetch_array($contact_tickets)){
+        echo "<tr>";
+        echo "<td> <a href='ticket.php?id=$ticket[ticket_id]'> $ticket[ticket_subject]</a></td>";
+        echo "<td>$ticket[ticket_status]</td>";
+        echo "</tr>";
+      }
+      ?>
+  </tbody>
+</table>
+</div>
+
+<?php include("portal_footer.php"); ?>

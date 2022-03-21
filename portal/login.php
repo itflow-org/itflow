@@ -17,6 +17,17 @@ if(!isset($_SESSION)){
   session_start();
 }
 
+$ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
+$user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
+
+$sql_settings = mysqli_query($mysqli,"SELECT config_azure_client_id FROM settings WHERE company_id = '1'");
+$settings = mysqli_fetch_array($sql_settings);
+
+//$client_id = "e821e3a6-02c8-40e8-9f22-b84d951a62e7";
+//$client_secret = "axL7Q~hKbmIwqa3DoxJLy4p88AdBz96XAcNZW";
+
+$client_id = $settings['config_azure_client_id'];
+
 if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])){
 
   $email = strip_tags(mysqli_real_escape_string($mysqli, $_POST['email']));
@@ -30,22 +41,27 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])){
     $row = mysqli_fetch_array($sql);
     if($row['contact_auth_method'] == 'local'){
       if(password_verify($password, $row['contact_password_hash'])){
+
         $_SESSION['client_logged_in'] = TRUE;
         $_SESSION['client_id'] = $row['contact_client_id'];
-        $_SESSION['contact_id'] = $row['contact_client_id'];
+        $_SESSION['contact_id'] = $row['contact_id'];
         $_SESSION['company_id'] = $row['company_id'];
+        $_SESSION['login_method'] = "local";
 
         header("Location: index.php");
 
-        //TODO: Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $row[contact_email] successfully logged in locally', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $row[contact_client_id]");
+
       }
       else{
-        $_SESSION['login_message'] = 'Incorrect username or password';
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+        $_SESSION['login_message'] = 'Incorrect username or password.';
       }
 
     }
     else{
-      $_SESSION['login_message'] = 'Incorrect username or password';
+      mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+      $_SESSION['login_message'] = 'Incorrect username or password.';
     }
   }
 
@@ -74,24 +90,34 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])){
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
 <div class="container">
-  <div class="col-4 offset-3">
-    <br>
-    <h2><?php echo $config_app_name; ?> - Client Portal Login</h2>
+  <br>
+  <h2 align="center"><?php echo $config_app_name; ?> - Client Portal Login</h2>
+  <div class="row">
+    <div class="col-4 offset-2">
+      <h4>Local</h4>
+      <form action="login.php" method="post">
+        <div class="form-group">
+          <input class="form-control" type="text" name="email" placeholder="someone@example.com">
+          <input class="form-control" type="password" name="password" placeholder="Password">
+        </div>
 
-    <form action="login.php" method="post">
-      <div class="form-group">
-        <input class="form-control" type="text" name="email" placeholder="someone@example.com">
-        <input class="form-control" type="password" name="password" placeholder="Pa$$word">
-      </div>
-
-      <button class="btn btn-primary" type="submit" name="login">Login</button>
-    </form>
-    <?php
+        <button class="btn btn-primary" type="submit" name="login">Login</button>
+      </form>
+      <?php
       if(!empty($_SESSION['login_message'])){
         echo $_SESSION['login_message'];
         unset($_SESSION['login_message']);
       }
-    ?>
-  </div>
+      ?>
+    </div>
+
+    <?php
+    if(!empty($client_id)){ ?>
+      <div class="col-4 offset-2">
+        <h4>SSO</h4>
+        <button type="button" class="btn btn-secondary" onclick="location.href = 'login_microsoft.php';">Login with Microsoft Azure AD</button>
+      </div>
+    </div>
+  <?php } ?>
 </div>
 

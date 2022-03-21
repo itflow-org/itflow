@@ -141,6 +141,34 @@
                 </div>
               </div>
 
+              <div class="form-group">
+                <label>Portal Login</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
+                  </div>
+                  <select class="form-control select2" name="auth_method">
+                    <option value="">- None -</option>
+                    <option value="local" <?php if($auth_method == "local") {echo "selected";} ?>>Local</option>
+                    <option value="azure" <?php if($auth_method == "azure") {echo "selected";} ?>>Azure</option>
+                  </select>
+                </div>
+              </div>
+
+              <?php if($auth_method == "local") { ?>
+
+                <div class="form-group">
+                  <label>Portal Login Password</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                    </div>
+                    <input class="form-control" type="password" name="contact_password" placeholder="Leave blank for no change">
+                  </div>
+                </div>
+
+              <?php } ?>
+
             </div>
 
             <div class="tab-pane fade" id="pills-photo<?php echo $contact_id; ?>">

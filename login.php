@@ -165,7 +165,7 @@ if(isset($_POST['login'])){
             <p class="login-box-msg"><?php if(isset($response)) { echo $response; } ?></p>
             <form method="post">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Email" name="email" value="<?php if(!empty($token_field)){ echo $email; }?>" required <?php if(empty($token_field)){ echo "autofocus"; } ?> >
+                    <input type="text" class="form-control" placeholder="Agent Email" name="email" value="<?php if(!empty($token_field)){ echo $email; }?>" required <?php if(empty($token_field)){ echo "autofocus"; } ?> >
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-envelope"></span>
@@ -173,7 +173,7 @@ if(isset($_POST['login'])){
                     </div>
                 </div>
                 <div class="input-group mb-3">
-                    <input type="password" class="form-control" placeholder="Password" name="password" value="<?php if(!empty($token_field)){ echo $password; } ?>" required>
+                    <input type="password" class="form-control" placeholder="Agent Password" name="password" value="<?php if(!empty($token_field)){ echo $password; } ?>" required>
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-lock"></span>
@@ -183,6 +183,11 @@ if(isset($_POST['login'])){
                 <?php if(!empty($token_field)){ echo $token_field; } ?>
 
                 <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
+
+                <hr><br>
+
+                <h4>Looking for the Client Portal?</h4>
+                <button type="button" onclick="location.href = 'https://<?php echo $config_base_url ?>/portal/';" class="btn btn-secondary btn-block mb-3">Continue as a client</button>
 
             </form>
 

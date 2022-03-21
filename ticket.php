@@ -36,6 +36,7 @@ if(isset($_GET['ticket_id'])){
   $ticket_subject = $row['ticket_subject'];
   $ticket_details = $row['ticket_details'];
   $ticket_priority = $row['ticket_priority'];
+  $ticket_feedback = $row['ticket_feedback'];
   $ticket_status = $row['ticket_status'];
   $ticket_created_at = $row['ticket_created_at'];
   $ticket_date = date('Y-m-d',strtotime($ticket_created_at));
@@ -316,6 +317,7 @@ if(isset($_GET['ticket_id'])){
           </div>
         </h3>
 
+        <?php if($ticket_reply_type !== "Client") { ?>
         <div class="card-tools">
           <div class="dropdown dropleft">
             <button class="btn btn-tool" type="button" id="dropdownMenuButton" data-toggle="dropdown">
@@ -328,6 +330,8 @@ if(isset($_GET['ticket_id'])){
             </div>
           </div>
         </div>
+        <?php } ?>
+
       </div>
 
       <div class="card-body">
@@ -429,6 +433,7 @@ if(isset($_GET['ticket_id'])){
         $ticket_closed_by_display = $row['user_name'];
         ?>
         <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Closed by: <?php echo strtoupper($ticket_closed_by_display); ?></a></div>
+        <div class="ml-1"><i class="fa fa-fw fa-comment-dots text-secondary mr-2 mb-2"></i>Feedback: <?php echo $ticket_feedback; ?></a></div>
       <?php } ?>
       <?php if(!empty($ticket_total_reply_time)){ ?>
         <div class="ml-1"><i class="far fa-fw fa-clock text-secondary mr-2 mb-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?></div>
