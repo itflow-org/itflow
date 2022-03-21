@@ -96,7 +96,7 @@ while($row = mysqli_fetch_array($sql)){
             $event_title = $row['invoice_prefix'] . $row['invoice_number'] . " " . $row['invoice_scope'];
             $event_start = $row['invoice_date'];
             
-            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'blue'},";
+            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'blue', url: 'invoice.php?invoice_id=$event_id'},";
           }
           ?>
 
@@ -108,7 +108,7 @@ while($row = mysqli_fetch_array($sql)){
             $event_title = $row['quote_prefix'] . $row['quote_number'] . " " . $row['quote_scope'];
             $event_start = $row['quote_date'];
             
-            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'purple'},";
+            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'purple', url: 'quote.php?quote_id=$event_id'},";
           }
           ?>
 
@@ -120,8 +120,10 @@ while($row = mysqli_fetch_array($sql)){
             $event_title = $row['ticket_prefix'] . $row['ticket_number'] . " " . $row['ticket_subject'];
             $event_start = $row['ticket_created_at'];
             
-            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'orange'},";
+            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'orange', url: 'ticket.php?ticket_id=$event_id'},";
+         
           }
+          
           ?>
 
           <?php
@@ -132,7 +134,7 @@ while($row = mysqli_fetch_array($sql)){
             $event_title = $row['vendor_name'];
             $event_start = $row['vendor_created_at'];
             
-            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'brown'},";
+            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'brown', url: 'client.php?client_id=$event_id&tab=vendors'},";
           }
           ?>
 
@@ -144,7 +146,7 @@ while($row = mysqli_fetch_array($sql)){
             $event_title = $row['client_name'];
             $event_start = $row['client_created_at'];
             
-            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'green'},";
+            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'green', url: 'client.php?client_id=$event_id'},";
           }
           ?>
 
