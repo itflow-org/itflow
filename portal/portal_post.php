@@ -128,7 +128,7 @@ if(isset($_POST['add_ticket'])){
   $id = mysqli_insert_id($mysqli);
 
   //Logging
-  mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Client contact $session_contact_name created ticket $subject', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
+  mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Client contact $session_contact_name created ticket $subject', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id");
 
   header("Location: ticket.php?id=" . $id);
 
