@@ -45,7 +45,7 @@
           </li>
         <?php } ?>
         <li class="nav-item">
-          <a class="nav-link" href="ticket_add">New Ticket</a>
+          <a class="nav-link" href="ticket_add.php">New Ticket</a>
         </li>
       </ul>
       <ul class="nav navbar-nav pull-right">
