@@ -186,8 +186,7 @@ if(isset($_POST['login'])){
 
                 <hr><br>
 
-                <h4>Looking for the Client Portal?</h4>
-                <button type="button" onclick="location.href = 'https://<?php echo $config_base_url ?>/portal/';" class="btn btn-secondary btn-block mb-3">Continue as a client</button>
+                <h4>Looking for the <a href="portal">Client Portal?<a/></h4>
 
             </form>
 
