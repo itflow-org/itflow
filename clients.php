@@ -23,7 +23,7 @@ if(isset($_GET['query'])){
   }
 }else{
   $query = "";
-  $number_query = "";
+  $phone_query = "";
 }
 
 //Column Filter
