@@ -296,6 +296,8 @@ CREATE TABLE `contacts` (
   `contact_mobile` varchar(200) DEFAULT NULL,
   `contact_photo` varchar(200) DEFAULT NULL,
   `contact_notes` text DEFAULT NULL,
+  `contact_auth_method` varchar(200) DEFAULT NULL,
+  `contact_password_hash` varchar(200) DEFAULT NULL,
   `contact_created_at` datetime NOT NULL,
   `contact_updated_at` datetime DEFAULT NULL,
   `contact_archived_at` datetime DEFAULT NULL,
