@@ -133,6 +133,7 @@ if(isset($_POST['edit_user'])){
     $default_company = intval($_POST['default_company']);
     $role = intval($_POST['role']);
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
+    $extended_log_description = '';
 
     if(!file_exists("uploads/users/$user_id/")) {
         mkdir("uploads/users/$user_id");
@@ -216,6 +217,7 @@ if(isset($_POST['edit_profile'])){
     $new_password = trim($_POST['new_password']);
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
     $logout = FALSE;
+    $extended_log_description = '';
 
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
@@ -1137,6 +1139,7 @@ if(isset($_POST['add_client'])){
     $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
     $net_terms = intval($_POST['net_terms']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $extended_log_description = '';
 
     mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', client_created_at = NOW(), client_accessed_at = NOW(), company_id = $session_company_id");
 
