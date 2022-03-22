@@ -39,6 +39,10 @@ function initials($str) {
 }
 
 function removeDirectory($path) {
+  if (!file_exists($path)) {
+    return;
+  }
+
   $files = glob($path . '/*');
   foreach ($files as $file) {
     is_dir($file) ? removeDirectory($file) : unlink($file);
