@@ -1247,7 +1247,6 @@ if(isset($_GET['delete_client'])){
     mysqli_query($mysqli,"DELETE FROM software WHERE software_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_id = $client_id");
-    mysqli_query($mysqli,"DELETE FROM user_clients WHERE client_id = $client_id");
 
     $sql = mysqli_query($mysqli,"SELECT recurring_id FROM recurring WHERE recurring_client_id = $client_id");
     while($row = mysqli_fetch_array($sql)){
