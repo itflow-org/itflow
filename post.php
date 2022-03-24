@@ -1226,6 +1226,13 @@ if(isset($_POST['edit_client'])){
 }
 
 if(isset($_GET['delete_client'])){
+    if($session_user_role !== "3"){
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = "You are not permitted to do that!";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+
     $client_id = intval($_GET['delete_client']);
 
     //Get Client Name
