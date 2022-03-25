@@ -1226,6 +1226,13 @@ if(isset($_POST['edit_client'])){
 }
 
 if(isset($_GET['delete_client'])){
+    if($session_user_role !== "3"){
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = "You are not permitted to do that!";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+
     $client_id = intval($_GET['delete_client']);
 
     //Get Client Name
@@ -1247,9 +1254,9 @@ if(isset($_GET['delete_client'])){
     mysqli_query($mysqli,"DELETE FROM software WHERE software_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_id = $client_id");
-    mysqli_query($mysqli,"DELETE FROM user_clients WHERE client_id = $client_id");
+    mysqli_query($mysqli,"DELETE FROM scheduled_tickets WHERE scheduled_ticket_client_id = $client_id");
 
-    $sql = mysqli_query($mysqli,"SELECT recurring_id FROM recurring WHERE recurring_client_id = $client_id");
+  $sql = mysqli_query($mysqli,"SELECT recurring_id FROM recurring WHERE recurring_client_id = $client_id");
     while($row = mysqli_fetch_array($sql)){
         $recurring_id = $row['recurring_id'];
 
