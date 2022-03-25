@@ -426,18 +426,20 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                             <td><?php echo $ticket_updated_at_display; ?></td>
                             <td><?php echo $ticket_created_at; ?></td>
                             <td>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal"
-                                           data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger"
-                                           href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
-                                    </div>
-                                </div>
+                                <?php if($ticket_status !== "Closed") { ?>
+                                  <div class="dropdown dropleft text-center">
+                                      <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                          <i class="fas fa-ellipsis-h"></i>
+                                      </button>
+                                      <div class="dropdown-menu">
+                                          <a class="dropdown-item" href="#" data-toggle="modal"
+                                             data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
+                                          <div class="dropdown-divider"></div>
+                                          <a class="dropdown-item text-danger"
+                                             href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
+                                      </div>
+                                  </div>
+                                <?php } ?>
                                 <?php
 
                                 include("ticket_edit_modal.php");
