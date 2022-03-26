@@ -3093,7 +3093,7 @@ if(isset($_GET['mark_quote_sent'])){
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'QUOTE marked sent', history_created_at = NOW(), history_quote_id = $quote_id, company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Updated', log_description = '$quote_id marked sent', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Update', log_description = '$quote_id marked sent', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> Quote marked sent";
     
@@ -3220,7 +3220,7 @@ if(isset($_GET['email_quote'])){
         }
 
         //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Emailed', log_description = '$quote_id emailed to $contact_email', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Email', log_description = '$quote_id emailed to $contact_email', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
         $_SESSION['alert_message'] = "Quote has been sent";
 
@@ -3399,7 +3399,7 @@ if(isset($_GET['mark_invoice_sent'])){
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'INVOICE marked sent', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Updated', log_description = '$invoice_id marked sent', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Update', log_description = '$invoice_id marked sent', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Invoice marked sent";
     
@@ -3900,7 +3900,7 @@ if(isset($_GET['email_invoice'])){
         }
 
         //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Emailed', log_description = 'Invoice $invoice_prefix$invoice_number emailed to $client_email', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Email', log_description = 'Invoice $invoice_prefix$invoice_number emailed to $client_email', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
         $_SESSION['alert_message'] = "Invoice has been sent";
 
@@ -5727,7 +5727,7 @@ if(isset($_GET['archive_ticket_reply'])){
     mysqli_query($mysqli,"UPDATE ticket_replies SET ticket_reply_archived_at = NOW() WHERE ticket_reply_id = $ticket_reply_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update', log_action = 'Archived', log_description = '$ticket_update_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update', log_action = 'Archive', log_description = '$ticket_update_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Ticket update archived";
     
@@ -6201,7 +6201,7 @@ if(isset($_POST['add_file'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Uploaded', log_description = '$path', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Upload', log_description = '$path', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "File uploaded";
     
