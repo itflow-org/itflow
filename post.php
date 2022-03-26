@@ -1340,7 +1340,7 @@ if(isset($_GET['share_generate_link'])){
     }
 
     // Insert entry into DB
-    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = '1', item_key = '$item_key', item_type = '$item_type', item_related_id = '$item_id', item_encrypted_credential = '$item_encrypted_credential', item_note = '$item_note', item_view_limit = '$item_view_limit', item_created_at = NOW(), item_expire_at = '$item_expires', item_client_id = '$client_id'");
+    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = '1', item_key = '$item_key', item_type = '$item_type', item_related_id = '$item_id', item_encrypted_credential = '$item_encrypted_credential', item_note = '$item_note', item_views = 0, item_view_limit = '$item_view_limit', item_created_at = NOW(), item_expire_at = '$item_expires', item_client_id = '$client_id'");
     $share_id = $mysqli->insert_id;
 
     // Return URL

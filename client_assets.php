@@ -84,11 +84,15 @@ if(isset($_GET['type']) && ($_GET['type']) == 'workstation'){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN logins ON login_asset_id = asset_id
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM assets 
+  LEFT JOIN contacts ON asset_contact_id = contact_id 
+  LEFT JOIN locations ON asset_location_id = location_id 
+  LEFT JOIN logins ON login_asset_id = asset_id
   WHERE asset_client_id = $client_id 
   AND (asset_name LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
   AND ($type_query)
-  ORDER BY $sb $o LIMIT $record_from, $record_to");
+  ORDER BY $sb $o LIMIT $record_from, $record_to"
+);
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
