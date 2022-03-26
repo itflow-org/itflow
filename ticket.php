@@ -668,8 +668,8 @@ if($ticket_status !== "Closed"){ ?>
   <script type="text/javascript">
 
     // Collision detection
-    // Adds a "view" record of the current ticket every 3 mins into the database
-    // Updates the currently viewing <p> element with anyone that's looked at this ticket recently
+    // Adds a "view" entry of the current ticket every 2 mins into the database
+    // Updates the currently viewing (ticket_collision_viewing) element with anyone that's looked at this ticket in the last two mins
     function ticket_collision_detection() {
 
         // Get the page ticket id
@@ -695,7 +695,10 @@ if($ticket_status !== "Closed"){ ?>
             }
         );
     }
+    // Call on page load
     ticket_collision_detection();
+
+    // Run every 2 mins
     setInterval(ticket_collision_detection, 120*1000);
   </script>
 <?php } ?>

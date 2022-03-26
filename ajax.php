@@ -155,12 +155,22 @@ if(isset($_POST['client_set_notes'])){
 
 }
 
+/*
+ * Collision Detection/Avoidance
+ * Called upon loading a ticket, and every 2 mins thereafter
+ * Is used in conjunction with ticket_query_views to show who is currently viewing a ticket
+ */
 if(isset($_GET['ticket_add_view'])){
   $ticket_id = intval($_GET['ticket_id']);
 
- $a = mysqli_query($mysqli, "INSERT INTO ticket_views SET view_ticket_id = '$ticket_id', view_user_id = '$session_user_id', view_timestamp = NOW()");
+  mysqli_query($mysqli, "INSERT INTO ticket_views SET view_ticket_id = '$ticket_id', view_user_id = '$session_user_id', view_timestamp = NOW()");
 }
 
+/*
+ * Collision Detection/Avoidance
+ * Returns formatted text of the agents currently viewing a ticket
+ * Called upon loading a ticket, and every 2 mins thereafter
+ */
 if(isset($_GET['ticket_query_views'])){
   $ticket_id = intval($_GET['ticket_id']);
 
@@ -184,5 +194,4 @@ if(isset($_GET['ticket_query_views'])){
     $response['message'] = "";
   }
   echo json_encode($response);
-
 }
