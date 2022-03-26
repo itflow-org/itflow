@@ -216,7 +216,7 @@ if(isset($_GET['ticket_id'])){
     <!-- Only show ticket reply modal if status is not closed -->
     <?php if($ticket_status != "Closed"){ ?>
     <form class="mb-3" action="post.php" method="post" autocomplete="off">
-      <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+      <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
       <div class="form-group">
         <textarea class="form-control summernote" name="ticket_reply" required></textarea>
       </div>
@@ -261,6 +261,8 @@ if(isset($_GET['ticket_id'])){
         </div>
 
       </div>
+
+      <p class="font-weight-light" id="ticket_collision_viewing"></p>
 
     </form>
     <!-- End IF for reply modal -->
@@ -605,59 +607,95 @@ if(isset($_GET['ticket_id'])){
 
 
 <?php
-if($ticket_status !== "Closed"){
-?>
-<!-- Ticket Time Tracking JS -->
-<script type="text/javascript">
-    // Default values
-    var hours = 0;
-    var minutes = 0;
-    var seconds = 0;
-    setInterval(countTime, 1000);
+if($ticket_status !== "Closed"){ ?>
+  <!-- Ticket Time Tracking JS -->
+  <script type="text/javascript">
+      // Default values
+      var hours = 0;
+      var minutes = 0;
+      var seconds = 0;
+      setInterval(countTime, 1000);
 
-    // Counter
-    function countTime()
-    {
-        ++seconds;
-        if(seconds == 60) {
-            seconds = 0;
-            minutes++;
-        }
-        if(minutes == 60) {
-            minutes = 0;
-            hours++;
-        }
+      // Counter
+      function countTime()
+      {
+          ++seconds;
+          if(seconds == 60) {
+              seconds = 0;
+              minutes++;
+          }
+          if(minutes == 60) {
+              minutes = 0;
+              hours++;
+          }
 
-        // Total timeworked
-        var time_worked = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
-        document.getElementById("time_worked").value = time_worked;
-    }
+          // Total timeworked
+          var time_worked = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
+          document.getElementById("time_worked").value = time_worked;
+      }
 
-    // Allows manually adjusting the timer
-    function setTime()
-    {
-        var time_as_text = document.getElementById("time_worked").value;
-        const time_text_array = time_as_text.split(":");
-        hours = parseInt(time_text_array[0]);
-        minutes = parseInt(time_text_array[1]);
-        seconds = parseInt(time_text_array[2]);
-    }
+      // Allows manually adjusting the timer
+      function setTime()
+      {
+          var time_as_text = document.getElementById("time_worked").value;
+          const time_text_array = time_as_text.split(":");
+          hours = parseInt(time_text_array[0]);
+          minutes = parseInt(time_text_array[1]);
+          seconds = parseInt(time_text_array[2]);
+      }
 
-    // This function "pads" out the values, adding zeros if they are required
-    function pad(val)
-    {
-        var valString = val + "";
-        if(valString.length < 2)
-        {
-            return "0" + valString;
-        }
-        else
-        {
-            return valString;
-        }
-    }
-</script>
+      // This function "pads" out the values, adding zeros if they are required
+      function pad(val)
+      {
+          var valString = val + "";
+          if(valString.length < 2)
+          {
+              return "0" + valString;
+          }
+          else
+          {
+              return valString;
+          }
+      }
+  </script>
 
 <?php } ?>
 
 <?php include("footer.php");
+
+// jQuery is called in footer, so this must be below it
+if($ticket_status !== "Closed"){ ?>
+  <script type="text/javascript">
+
+    // Collision detection
+    // Adds a "view" record of the current ticket every 3 mins into the database
+    // Updates the currently viewing <p> element with anyone that's looked at this ticket recently
+    function ticket_collision_detection() {
+
+        // Get the page ticket id
+        var ticket_id = document.getElementById("ticket_id").value;
+
+        //Send a GET request to ajax.php as ajax.php?ticket_add_view=true&ticket_id=NUMBER
+        jQuery.get(
+            "ajax.php",
+            {ticket_add_view: 'true', ticket_id: ticket_id},
+            function(data){
+                // We don't care about a response
+            }
+        );
+
+        //Send a GET request to ajax.php as ajax.php?ticket_query_views=true&ticket_id=NUMBER
+        jQuery.get(
+            "ajax.php",
+            {ticket_query_views: 'true', ticket_id: ticket_id},
+            function(data){
+                //If we get a response from ajax.php, parse it as JSON
+                const ticket_view_data = JSON.parse(data);
+                document.getElementById("ticket_collision_viewing").innerText = ticket_view_data.message;
+            }
+        );
+    }
+    ticket_collision_detection();
+    setInterval(ticket_collision_detection, 120*1000);
+  </script>
+<?php } ?>

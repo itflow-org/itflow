@@ -257,6 +257,9 @@ while($row = mysqli_fetch_array($sql_companies)){
       }
     }
 
+    // Clean-up ticket views table used for collision detection
+    mysqli_query($mysqli, "TRUNCATE TABLE ticket_views");
+
     // PAST DUE INVOICE Notifications
     //$invoiceAlertArray = [$config_invoice_overdue_reminders];
     $invoiceAlertArray = [30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620];

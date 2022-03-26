@@ -154,3 +154,35 @@ if(isset($_POST['client_set_notes'])){
   mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modify', log_description = '$session_name modified client notes', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
 }
+
+if(isset($_GET['ticket_add_view'])){
+  $ticket_id = intval($_GET['ticket_id']);
+
+ $a = mysqli_query($mysqli, "INSERT INTO ticket_views SET view_ticket_id = '$ticket_id', view_user_id = '$session_user_id', view_timestamp = NOW()");
+}
+
+if(isset($_GET['ticket_query_views'])){
+  $ticket_id = intval($_GET['ticket_id']);
+
+  $query = mysqli_query($mysqli, "SELECT user_name FROM ticket_views LEFT JOIN users ON view_user_id = user_id WHERE view_ticket_id = '$ticket_id' AND view_user_id != '$session_user_id' AND view_timestamp > DATE_SUB(NOW(), INTERVAL 2 MINUTE)");
+  while($row = mysqli_fetch_array($query)){
+    $users[] = $row['user_name'];
+  }
+  if(!empty($users)){
+    $users = array_unique($users);
+    if(count($users) > 1){
+      // Multiple viewers
+      $response['message'] = implode(", ", $users) . " are viewing this ticket.";
+    }
+    else{
+      // Single viewer
+      $response['message'] = implode("", $users) . " is viewing this ticket.";
+    }
+  }
+  else{
+    // No viewers
+    $response['message'] = "";
+  }
+  echo json_encode($response);
+
+}

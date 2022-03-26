@@ -1275,6 +1275,22 @@ CREATE TABLE `ticket_replies` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ticket_views`
+--
+
+DROP TABLE IF EXISTS `ticket_views`;
+CREATE TABLE IF NOT EXISTS `ticket_views` (
+  `view_id` int(11) NOT NULL AUTO_INCREMENT,
+  `view_ticket_id` int(11) NOT NULL,
+  `view_user_id` int(11) NOT NULL,
+  `view_timestamp` datetime NOT NULL,
+  PRIMARY KEY (`view_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tickets`
 --
 
