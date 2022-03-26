@@ -42,13 +42,15 @@ if(!empty($name)){
   // Insert into Database
   $insert_sql = mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_created_at = NOW(), asset_network_id = $network, asset_client_id = $client_id, company_id = '$company_id'");
   if($insert_sql){
+    $insert_id = $mysqli->insert_id;
+
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Created', log_description = '$name via API', log_created_at = NOW(), company_id = $company_id");
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Created asset $name via API', log_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Created', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Created asset $name via API ($api_key_name)', log_ip = '$ip', log_created_at = NOW(), company_id = $company_id");
   }
 }
 else{
-  $insert_sql = FALSE;
+  $insert_id = FALSE;
 }
 
 // Output

@@ -33,9 +33,9 @@ $return_arr = array();
  *
  * Data returned as json encoded $return_arr:-
      * Success - True/False
-     * Message - Brief into about a request / failure info
+     * Message - Brief info about a request / failure
      * Count - Count of rows affected/returned
-     * Data - Data from GET requests
+     * Data - Requested data
  *
  */
 
@@ -83,9 +83,10 @@ if(isset($api_key)){
   // Success
   else{
 
-    // Set company ID
+    // Set company ID & key name
     $row = mysqli_fetch_array($sql);
     $company_id = $row['company_id'];
+    $api_key_name = $row['api_key_name'];
 
     // Set limit & offset for queries
     if(isset($_GET['limit'])){
