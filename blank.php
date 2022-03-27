@@ -15,8 +15,8 @@
 
 <?php 
 
-$fmt = numfmt_create( 'us_EN', NumberFormatter::CURRENCY );
-echo numfmt_format_currency($fmt, -199.99, "USD")."\n"; 
+$temp_path = sys_get_temp_dir() . "/file.txt";
+echo $temp_path."\n";
 
 ?>
 

@@ -59,15 +59,17 @@ $git_log = shell_exec("git log master..origin/master --pretty=format:'<tr><td>%h
         // Display a diff between the current DB structure and the latest DB structure, *NIX only
         if((strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')){
 
+            $tmp_path = sys_get_temp_dir();
+
             // Get DB structure as it is
-            exec("mysqldump --user=$dbusername --password=$dbpassword --skip-extended-insert -d --no-data $database | sed 's/ AUTO_INCREMENT=[0-9]*//g' | egrep -v 'MariaDB dump|Host:|Server version|Dump completed' > /tmp/current-structure.sql");
+            exec("mysqldump --user=$dbusername --password=$dbpassword --skip-extended-insert -d --no-data $database | sed 's/ AUTO_INCREMENT=[0-9]*//g' | egrep -v 'MariaDB dump|Host:|Server version|Dump completed' > $tmp_path/current-structure.sql");
 
             // Get the new structure from db.sql
-            exec("egrep -v 'MariaDB dump|Host:|Server version|Dump completed' db.sql > /tmp/new-structure.sql");
+            exec("egrep -v 'MariaDB dump|Host:|Server version|Dump completed' db.sql > $tmp_path/new-structure.sql");
 
             // Compare
-            exec("diff /tmp/current-structure.sql /tmp/new-structure.sql > /tmp/diff.txt");
-            $diff = file_get_contents("/tmp/diff.txt");
+            exec("diff $tmp_path/current-structure.sql $tmp_path/new-structure.sql > $tmp_path/diff.txt");
+            $diff = file_get_contents("$tmp_path/diff.txt");
 
             // Display, if there is a difference
             if(!empty($diff)){
