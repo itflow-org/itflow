@@ -408,6 +408,13 @@ if(isset($_GET['delete_user'])){
 // API Key
 if(isset($_POST['add_api_key'])){
 
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
     // Gen a Key
@@ -428,6 +435,13 @@ if(isset($_POST['add_api_key'])){
 
 if(isset($_POST['edit_api_key'])){
 
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $api_key_id = intval($_POST['api_key_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
@@ -444,6 +458,14 @@ if(isset($_POST['edit_api_key'])){
 }
 
 if(isset($_GET['delete_api_key'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $api_key_id = intval($_GET['delete_api_key']);
 
     // Get API Key Name
