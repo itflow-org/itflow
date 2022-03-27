@@ -89,29 +89,47 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])){
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
-<div class="container">
-  <br>
-  <h2 align="center"><?php echo $config_app_name; ?> - Client Portal Login</h2>
-  <div class="row">
-    <div class="col-4 offset-2">
-      <h4>Local</h4>
-      <form action="login.php" method="post">
-        <div class="form-group">
-          <input class="form-control" type="text" name="email" placeholder="someone@example.com">
-          <input class="form-control" type="password" name="password" placeholder="Password">
-        </div>
+  
+<body class="hold-transition login-page">
+<div class="login-box">
+    <div class="login-logo">
+        <b>IT</b>Flow <br>Client Portal Login</h2>
+    </div>
 
-        <button class="btn btn-primary" type="submit" name="login">Login</button>
-      </form>
+    <!-- /.login-logo -->
+    <div class="card">
+        <div class="card-body login-card-body">
+            <p class="login-box-msg"><?php if(isset($response)) { echo $response; } ?></p>
+            <form method="post">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Agent Email" name="email" value="<?php if(!empty($token_field)){ echo $email; }?>" required <?php if(empty($token_field)){ echo "autofocus"; } ?> >
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-envelope"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <input type="password" class="form-control" placeholder="Agent Password" name="password" value="<?php if(!empty($token_field)){ echo $password; } ?>" required>
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <?php if(!empty($token_field)){ echo $token_field; } ?>
+
+                <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Login</button>
       <?php
       if(!empty($_SESSION['login_message'])){
         echo $_SESSION['login_message'];
         unset($_SESSION['login_message']);
       }
       ?>
-    </div>
 
-    <?php
+                <hr><br>
+
+  <?php
     if(!empty($client_id)){ ?>
       <div class="col-4 offset-2">
         <h4>SSO</h4>
@@ -119,5 +137,37 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])){
       </div>
     </div>
   <?php } ?>
+
+            </form>
+
+        </div>
+        <!-- /.login-card-body -->
+    </div>
 </div>
+<!-- /.login-box -->  
+  
+  
+
+
+
+</div>
+    
+    
+<!-- jQuery -->
+<script src="plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE App -->
+<script src="dist/js/adminlte.min.js"></script>
+
+<script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
+
+<!-- Prevents resubmit on refresh or back -->
+<script>
+
+    if(window.history.replaceState){
+        window.history.replaceState(null,null,window.location.href);
+    }
+
+</script>
 
