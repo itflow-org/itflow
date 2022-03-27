@@ -24,6 +24,9 @@ $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_A
 // Setup return array
 $return_arr = array();
 
+// Unauthorised wording
+DEFINE("WORDING_UNAUTHORIZED", "HTTP/1.1 401 Unauthorized");
+
 /*
  * API Notes:
  *
@@ -48,7 +51,7 @@ if($_SERVER['REQUEST_METHOD'] !== "GET" AND $_SERVER['REQUEST_METHOD'] !== "POST
 
 // Check API key is provided
 if(!isset($_GET['api_key']) AND !isset($_POST['api_key'])){
-  header("HTTP/1.1 401 Unauthorized");
+  header(WORDING_UNAUTHORIZED);
   exit();
 }
 
@@ -69,13 +72,13 @@ if(isset($api_key)){
   // Failed
   if(mysqli_num_rows($sql) !== 1){
     // Invalid Key
-    header("HTTP/1.1 401 Unauthorized");
+    header(WORDING_UNAUTHORIZED);
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired Key', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
 
     $return_arr['success'] = "False";
     $return_arr['message'] = "API Key authentication failure or expired.";
 
-    header("HTTP/1.1 401 Unauthorized");
+    header(WORDING_UNAUTHORIZED);
     echo json_encode($return_arr);
     exit();
   }

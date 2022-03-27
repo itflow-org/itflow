@@ -11,7 +11,7 @@
 	}
 
 	//Check to see if setup is enabled
-	if(!isset($config_enable_setup) or $config_enable_setup == 1){
+	if(!isset($config_enable_setup) || $config_enable_setup == 1){
   	header("Location: setup.php");
   	exit;
 	}
@@ -24,11 +24,8 @@
 	// SESSION FINGERPRINT
 	$session_ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
 	$session_os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
-	//$session_browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
-	//$session_device = strip_tags(mysqli_real_escape_string($mysqli,get_device()));
-	//$session_user_agent = "$session_os - $session_browser";
-	
-	// Get user agent
+
+	// User agent
 	$session_user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
 
 	$session_user_id = $_SESSION['user_id'];

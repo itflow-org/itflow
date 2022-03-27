@@ -75,7 +75,6 @@ while($row = mysqli_fetch_array($sql_companies)){
         while ($row = mysqli_fetch_row($result)) {
           $sqlScript .= "INSERT INTO $table VALUES(";
           for ($j = 0; $j < $columnCount; $j ++) {
-            $row[$j] = $row[$j];
 
             if (isset($row[$j])) {
               $sqlScript .= '"' . $row[$j] . '"';

@@ -1135,7 +1135,6 @@ if(isset($_GET['download_database'])){
             while ($row = mysqli_fetch_row($result)) {
                 $sqlScript .= "INSERT INTO $table VALUES(";
                 for ($j = 0; $j < $columnCount; $j ++) {
-                    $row[$j] = $row[$j];
                     
                     if (isset($row[$j])) {
                         $sqlScript .= '"' . $row[$j] . '"';
@@ -1391,7 +1390,7 @@ if(isset($_POST['edit_client'])){
     
     //Add new tags
     foreach($_POST['tags'] as $tag){
-        intval($tag);
+        $tag = intval($tag);
         mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
     }
 
@@ -1938,7 +1937,7 @@ if(isset($_POST['edit_campaign'])){
     //Create Recipient List based off tags selected
     if(isset($_POST['tags'])){
         foreach($_POST['tags'] as $tag){
-            intval($tag);
+            $tag = intval($tag);
             
             $sql = mysqli_query($mysqli,"SELECT * FROM clients
                 LEFT JOIN contacts ON contacts.contact_id = clients.primary_contact
@@ -6744,7 +6743,7 @@ if(isset($_POST['add_file'])){
         // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = $_FILES['file']['name'];
+        $file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_FILES['file']['name'])));
         $file_size = $_FILES['file']['size'];
         $file_type = $_FILES['file']['type'];
         $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));

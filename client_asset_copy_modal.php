@@ -94,7 +94,7 @@
               </div>
               <?php } ?>
 
-              <?php if($asset_type !== 'Phone' AND $asset_type !== 'Mobile Phone' AND $asset_type !== 'Tablet' AND $asset_type !== 'Access Point' AND $asset_type !== 'Printer' AND $asset_type !== 'Camera' AND $asset_type !== 'TV' AND $asset_type !== 'Other'){ ?>
+              <?php if($asset_type !== 'Phone' && $asset_type !== 'Mobile Phone' && $asset_type !== 'Tablet' && $asset_type !== 'Access Point' && $asset_type !== 'Printer' && $asset_type !== 'Camera' && $asset_type !== 'TV' && $asset_type !== 'Other'){ ?>
               <div class="form-group">
                 <label>Operating System</label>
                 <div class="input-group">
@@ -134,7 +134,7 @@
                 </div>
               </div>
 
-              <?php if($asset_type !== 'Firewall/Router' AND $asset_type !== 'Switch' AND $asset_type !== 'Access Point' AND $asset_type !== 'Printer' AND $asset_type !== 'Server' AND $asset_type !== 'Virtual Machine'){ ?>
+              <?php if($asset_type !== 'Firewall/Router' && $asset_type !== 'Switch' && $asset_type !== 'Access Point' && $asset_type !== 'Printer' && $asset_type !== 'Server' && $asset_type !== 'Virtual Machine'){ ?>
               <div class="form-group">
                 <label>Assigned To</label>
                 <div class="input-group">

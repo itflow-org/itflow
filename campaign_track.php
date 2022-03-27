@@ -29,10 +29,8 @@ if(isset($_GET['message_id'])){
     $sql = mysqli_query($mysqli,"SELECT message_id FROM campaign_messages WHERE message_id = $message_id AND message_hash = '$message_hash'");
     if(mysqli_num_rows($sql) == 1){
         // Server variables
-        $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
-        $referer = $_SERVER['HTTP_REFERER'];
-        $user_agent = $_SERVER['HTTP_USER_AGENT'];
-        mysqli_query($mysqli,"UPDATE campaign_messages SET message_ip = '$ip', message_referer = '$referer', message_user_agent = '$user_agent', message_opened_at = NOW() WHERE message_id = $message_id");
+        $ip = trim(strip_tags(mysqli_real_escape_string($mysqli,get_ip())));
+        mysqli_query($mysqli,"UPDATE campaign_messages SET message_ip = '$ip', message_opened_at = NOW() WHERE message_id = $message_id");
     }
 }
 
