@@ -37,22 +37,23 @@
 <!-- ABOUT THE PROJECT -->
 ## About
 
+<b>A free ITGlue alternative, with additional ticketing / accounting features.</b>
+
 [![ITFlow][product-screenshot]](https://itflow.org)
 
-<b>ITFlow is a free & open-source solution for IT service management, documentation, and accounting.</b>
 
 ### The Problem
 - You're a busy MSP with 101 things to do. 
 - Information about your clients is unorganised and unstructured: scattered in random tickets or folders - when you do eventually find it, it's out of date. 
-- For some tickets, you spend longer looking for the relevant documentation than actually working the ticket. 
+- For some issues, you spend longer looking for the relevant documentation than actually working the ticket. 
 - On top of the technical day to day, you also have to take care of the financial side of the business - consistent pricing, quotes/invoicing, and accounting. 
 
 ### The Solution: ITFlow
-- ITFlow consolidates common MSP needs (ticketing, wiki/docs, CMDB and accounting) into one system to help you do what you do best - IT.
+- ITFlow consolidates common MSP needs (documentation, ticketing, and accounting) into one system to help you do what you do best - IT.
 
 ### In Beta
 * This project is still in early beta and is considered a **work in progress**.  Many changes are being performed and may cause breakage upon updates. 
-* We strongly recommend against storing confidential information like passwords in ITFlow at this time.
+* Currently, we strongly recommend against storing confidential information in ITFlow; ITFlow has not undergone a third-party security assessment.
 * We are hoping to have a stable 1.0 release by July 2022.
 
 <!-- BUILT WITH -->
@@ -82,7 +83,7 @@
 
 ITFlow is self-hosted. There is a full installation guide in the [docs](https://itflow.org/docs.php?doc_id=1), but the main steps are:
 
-1. Install a a LAMP stack (Linux, Apache, MariaDB, PHP)
+1. Install a LAMP stack (Linux, Apache, MariaDB, PHP)
    ```sh
    sudo apt install git apache2 php libapache2-mod-php php-intl php-mysqli mariadb-server
    ```  
@@ -95,19 +96,19 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
 
 <!-- FEATURES -->
 ## Key Features
-* Client documentation - assets, contacts, domains, files, passwords, and more 
-* Accounting/Billing - finance dashboard, quotes, invoices, accounting, expenses, etc
-* Client Portal - self service quotes/invoices management for clients (more features to come soon!)
+* Client documentation - assets, contacts, domains, docs, files, passwords, and more 
+* Accounting / Billing - finance dashboard, quotes, invoices, accounting, expenses, etc
+* Client Portal - self service quote/invoice/ticket management for clients
 * Alerting - account balance, invoices, domain/SSL renewals
   
 <!-- ROADMAP -->
 ## Roadmap / Future to-do
 
-* MeshCentral / TacticalRMM (Export Assets Info to ITFlow, Exports common software applications to Software)
+* MeshCentral (Export common software applications to Software)
 * CalDAV to integrate with 3rd party calendars
 * CardDAV to integrate with 3rd party Address books
 * Stripe Integration for online payments
-* Toast Alerts with recent caller that matches caller ID in database which allows you to click on the toast alerts and bring up the clients account right away.
+* Recent caller toast alerts to click and bring up the clients account right away
 * FIDO2 WebAuthn Support for passwordless auth (TPM Fingerprint), (USB Hardware keys such as Yubikey)
 
 See the [forum](https://forum.itflow.org/d/11-road-map) and the [open issues](https://github.com/johnnyq/itflow/issues) for a full list of proposed features & known issues.
@@ -117,12 +118,12 @@ See the [forum](https://forum.itflow.org/d/11-road-map) and the [open issues](ht
 ## Support & Contributions
 
 ### Forum
-For assistance using ITFlow, feature requests, and general ideas/discussions please use the community [forum](https://forum.itflow.org).
+For help using ITFlow, feature requests, and general ideas / discussions please use the community [forum](https://forum.itflow.org).
 For bugs, please raise an [issue](https://github.com/johnnyq/itflow/issues).
 
 ### Contributing
 If you are able to make a contribution that would make ITFlow better, please fork the repo and create a pull request. Please make sure you're following our [code standards](https://itflow.org/docs.php?doc=coding-standards). 
-For large changes/new features, please discuss the issue with other contributors first.
+For large changes / new features, please discuss the issue with other contributors first.
 
 #### Contributors
 <a href="https://github.com/johnnyq/itflow/graphs/contributors">
@@ -132,7 +133,7 @@ For large changes/new features, please discuss the issue with other contributors
 <!-- LICENSE -->
 ## License
 
-ITFlow is distributed under the GPL License in the hope that it will be useful, but WITHOUT ANY WARRANTY.  See `LICENSE.txt` for details.
+ITFlow is distributed "as is" under the GPL License, WITHOUT WARRANTY OF ANY KIND. See `LICENSE` for details.
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
@@ -146,7 +147,7 @@ ITFlow is distributed under the GPL License in the hope that it will be useful, 
 [issues-shield]: https://img.shields.io/github/issues/johnnyq/itflow.svg?style=for-the-badge
 [issues-url]: https://github.com/johnnyq/itflow/issues
 [license-shield]: https://img.shields.io/github/license/johnnyq/itflow.svg?style=for-the-badge
-[license-url]: https://github.com/johnnyq/itflow/blob/master/LICENSE.txt
+[license-url]: https://github.com/johnnyq/itflow/blob/master/LICENSE
 [commit-shield]: https://img.shields.io/github/last-commit/johnnyq/itflow?style=for-the-badge
 [commit-url]: https://github.com/johnnyq/itflow/commits/master
 [product-screenshot]: .github/dash.png
