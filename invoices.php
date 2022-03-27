@@ -69,7 +69,7 @@
   }
 
   if(!empty($_GET['sb'])){
-    $sb = $_GET['sb'];
+    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
   }else{
     $sb = "invoice_number";
   }

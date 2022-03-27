@@ -315,7 +315,7 @@ if(isset($_POST['edit_user_companies'])){
     mysqli_query($mysqli,"DELETE FROM user_companies WHERE user_id = $user_id");
 
     foreach($_POST['companies'] as $company){
-        intval($company);
+        $company = intval($company);
         mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company");
     }
 
@@ -1178,7 +1178,7 @@ if(isset($_POST['add_client'])){
     //Add Tags
     if(isset($_POST['tags'])){
         foreach($_POST['tags'] as $tag){
-            intval($tag);
+            $tag = intval($tag);
             mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
         }
     }
@@ -1706,7 +1706,7 @@ if(isset($_POST['add_campaign'])){
     //Create Recipient List based off tags selected
     if(isset($_POST['tags'])){
         foreach($_POST['tags'] as $tag){
-            intval($tag);
+            $tag = intval($tag);
             
             $sql = mysqli_query($mysqli,"SELECT * FROM clients
                 LEFT JOIN contacts ON contacts.contact_id = clients.primary_contact
@@ -4807,7 +4807,7 @@ if(isset($_POST['add_software'])){
     // Add Asset Licenses
     if(!empty($_POST['assets'])){
         foreach($_POST['assets'] as $asset){
-            intval($asset);
+            $asset = intval($asset);
             mysqli_query($mysqli,"INSERT INTO software_assets SET software_id = $software_id, asset_id = $asset");
         }
     }
@@ -4815,7 +4815,7 @@ if(isset($_POST['add_software'])){
     // Add Contact Licenses
     if(!empty($_POST['contacts'])){
         foreach($_POST['contacts'] as $contact){
-            intval($contact);
+            $contact = intval($contact);
             mysqli_query($mysqli,"INSERT INTO software_contacts SET software_id = $software_id, contact_id = $contact");
         }
     }
@@ -4867,7 +4867,7 @@ if(isset($_POST['edit_software'])){
     mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
     if(!empty($_POST['assets'])){
         foreach($_POST['assets'] as $asset){
-            intval($asset);
+            $asset = intval($asset);
             mysqli_query($mysqli,"INSERT INTO software_assets SET software_id = $software_id, asset_id = $asset");
         }
     }
@@ -4876,7 +4876,7 @@ if(isset($_POST['edit_software'])){
     mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
     if(!empty($_POST['contacts'])){
         foreach($_POST['contacts'] as $contact){
-            intval($contact);
+            $contact = intval($contact);
             mysqli_query($mysqli,"INSERT INTO software_contacts SET software_id = $software_id, contact_id = $contact");
         }
     }
@@ -5954,7 +5954,8 @@ if(isset($_POST['add_service'])){
         if(!empty($_POST['contacts'])){
             $service_contact_ids = $_POST['contacts'];
             foreach($service_contact_ids as $contact_id){
-                if(intval($contact_id)){
+                $contact_id = intval($contact_id);
+                if($contact_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_contacts SET service_id = '$service_id', contact_id = '$contact_id'");
                 }
             }
@@ -5963,7 +5964,8 @@ if(isset($_POST['add_service'])){
         if(!empty($_POST['vendors'])){
             $service_vendor_ids = $_POST['vendors'];
             foreach($service_vendor_ids as $vendor_id){
-                if(intval($vendor_id)){
+                $vendor_id = intval($vendor_id);
+                if($vendor_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_vendors SET service_id = '$service_id', vendor_id = '$vendor_id'");
                 }
             }
@@ -5972,7 +5974,8 @@ if(isset($_POST['add_service'])){
         if(!empty($_POST['documents'])){
             $service_document_ids = $_POST['documents'];
             foreach($service_document_ids as $document_id){
-                if(intval($document_id)){
+                $document_id = intval($document_id);
+                if($document_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_documents SET service_id = '$service_id', document_id = '$document_id'");
                 }
             }
@@ -5981,7 +5984,8 @@ if(isset($_POST['add_service'])){
         if(!empty($_POST['assets'])){
             $service_asset_ids = $_POST['assets'];
             foreach($service_asset_ids as $asset_id){
-                if(intval($asset_id)){
+              $asset_id = intval($asset_id);
+              if($asset_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_assets SET service_id = '$service_id', asset_id = '$asset_id'");
                 }
             }
@@ -5990,7 +5994,8 @@ if(isset($_POST['add_service'])){
         if(!empty($_POST['logins'])){
             $service_login_ids = $_POST['logins'];
             foreach($service_login_ids as $login_id){
-                if(intval($login_id)){
+                $login_id = intval($login_id);
+                if($login_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = '$service_id', login_id = '$login_id'");
                 }
             }
@@ -5999,7 +6004,8 @@ if(isset($_POST['add_service'])){
         if(!empty($_POST['domains'])){
             $service_domain_ids = $_POST['domains'];
             foreach($service_domain_ids as $domain_id){
-                if(intval($domain_id)){
+                $domain_id = intval($domain_id);
+                if($domain_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = '$service_id', domain_id = '$domain_id'");
                 }
             }
@@ -6008,7 +6014,8 @@ if(isset($_POST['add_service'])){
         if(!empty($_POST['certificates'])){
             $service_cert_ids = $_POST['certificates'];
             foreach($service_cert_ids as $cert_id){
-                if(intval($cert_id)){
+                $cert_id = intval($cert_id);
+                if($cert_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_certificates SET service_id = '$service_id', certificate_id = '$cert_id'");
                 }
             }
@@ -6053,7 +6060,8 @@ if(isset($_POST['edit_service'])){
     if(!empty($_POST['contacts'])){
         $service_contact_ids = $_POST['contacts'];
         foreach($service_contact_ids as $contact_id){
-            if(intval($contact_id)){
+            $contact_id = intval($contact_id);
+            if($contact_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_contacts SET service_id = '$service_id', contact_id = '$contact_id'");
             }
         }
@@ -6062,7 +6070,8 @@ if(isset($_POST['edit_service'])){
     if(!empty($_POST['vendors'])){
         $service_vendor_ids = $_POST['vendors'];
         foreach($service_vendor_ids as $vendor_id){
-            if(intval($vendor_id)){
+            $vendor_id = intval($vendor_id);
+            if($vendor_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_vendors SET service_id = '$service_id', vendor_id = '$vendor_id'");
             }
         }
@@ -6071,7 +6080,8 @@ if(isset($_POST['edit_service'])){
     if(!empty($_POST['documents'])){
         $service_document_ids = $_POST['documents'];
         foreach($service_document_ids as $document_id){
-            if(intval($document_id)){
+            $document_id = intval($document_id);
+            if($document_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_documents SET service_id = '$service_id', document_id = '$document_id'");
             }
         }
@@ -6080,7 +6090,8 @@ if(isset($_POST['edit_service'])){
     if(!empty($_POST['assets'])){
         $service_asset_ids = $_POST['assets'];
         foreach($service_asset_ids as $asset_id){
-            if(intval($asset_id)){
+            $asset_id = intval($asset_id);
+            if($asset_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_assets SET service_id = '$service_id', asset_id = '$asset_id'");
             }
         }
@@ -6089,7 +6100,8 @@ if(isset($_POST['edit_service'])){
     if(!empty($_POST['logins'])){
         $service_login_ids = $_POST['logins'];
         foreach($service_login_ids as $login_id){
-            if(intval($login_id)){
+            $login_id = intval($login_id);
+            if($login_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = '$service_id', login_id = '$login_id'");
             }
         }
@@ -6098,7 +6110,8 @@ if(isset($_POST['edit_service'])){
     if(!empty($_POST['domains'])){
         $service_domain_ids = $_POST['domains'];
         foreach($service_domain_ids as $domain_id){
-            if(intval($domain_id)){
+            $domain_id = intval($domain_id);
+            if($domain_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = '$service_id', domain_id = '$domain_id'");
             }
         }
@@ -6107,7 +6120,8 @@ if(isset($_POST['edit_service'])){
     if(!empty($_POST['certificates'])){
         $service_cert_ids = $_POST['certificates'];
         foreach($service_cert_ids as $cert_id){
-            if(intval($cert_id)){
+            $cert_id = intval($cert_id);
+            if($cert_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_certificates SET service_id = '$service_id', certificate_id = '$cert_id'");
             }
         }
@@ -6253,8 +6267,9 @@ if(isset($_POST['add_document'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = '$details', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
     // Add tags
-    foreach($tags_ids as $tag_id){
-        if(intval($tag_id)){
+    foreach($tags_ids as $tag_id) {
+        $tag_id = intval($tag_id);
+        if ($tag_id > 0) {
             mysqli_query($mysqli, "INSERT INTO documents_tagged SET document_id = '$document_id', tag_id = '$tag_id'");
         }
     }
@@ -6291,7 +6306,8 @@ if(isset($_POST['edit_document'])){
 
     // Add tags
     foreach($tags_ids as $tag_id) {
-        if (intval($tag_id)) {
+        $tag_id = intval($tag_id);
+        if ($tag_id > 0) {
             mysqli_query($mysqli, "INSERT INTO documents_tagged SET document_id = '$document_id', tag_id = '$tag_id'");
         }
     }

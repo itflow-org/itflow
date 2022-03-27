@@ -115,9 +115,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       </div>
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-      <input type="hidden" name="tab" value="<?php echo $_GET['tab']; ?>">
+      <input type="hidden" name="tab" value="<?php echo strip_tags($_GET['tab']); ?>">
       <div class="input-group">
-        <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php echo ucwords($_GET['tab']); ?>">
+        <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php echo ucwords(strip_tags($_GET['tab'])); ?>">
         <div class="input-group-append">
           <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
         </div>

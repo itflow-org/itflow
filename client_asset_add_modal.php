@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-desktop"></i> New <?php if(!empty($_GET['type'])){ echo ucwords($_GET['type']); }else{ echo "Asset"; } ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-desktop"></i> New <?php if(!empty($_GET['type'])){ echo ucwords(strip_tags($_GET['type'])); }else{ echo "Asset"; } ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
