@@ -6731,7 +6731,7 @@ if(isset($_GET['delete_service'])){
 
 if(isset($_POST['add_file'])){
     $client_id = intval($_POST['client_id']);
-    $new_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['new_name'])));
+    $file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['new_name'])));
 
     if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
@@ -6743,7 +6743,9 @@ if(isset($_POST['add_file'])){
         // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_FILES['file']['name'])));
+        if(empty($file_name)) {
+            $file_name = trim(strip_tags(mysqli_real_escape_string($mysqli, $_FILES['file']['name'])));
+        }
         $file_size = $_FILES['file']['size'];
         $file_type = $_FILES['file']['type'];
         $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
