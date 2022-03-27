@@ -20,13 +20,41 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
 
   if ($ticket) {
     ?>
+    
+  <nav class="navbar navbar-dark bg-dark">
+    
+   <i class="fas fa-fw fa-ticket-alt text-secondary"></i> <a class="navbar-brand" href="#">Ticket number # <?php echo $ticket['ticket_prefix'], $ticket['ticket_number'] ?></a>
+ 
 
-    <h2><i class="fas fa-fw fa-ticket-alt text-secondary"></i> Ticket details: <?php echo $ticket['ticket_prefix'], $ticket['ticket_number'] ?></h2>
+      
+    <span class="navbar-text">
+      <?php
+    if($ticket_status !== "Closed"){
+    ?>
 
+     
+   <button class="btn btn-sm btn-outline-success my-2 my-sm-0 form-inline my-2 my-lg-0" type="submit"><a href="post.php?close_ticket=<?php echo $ticket_id; ?>"><i class="fas fa-fw fa-check text-secondary text-success"></i>  Close ticket</a></button>
+
+    
+
+    
+    
+    <?php
+    }
+    ?>
+    </span>
+  
+  </nav>
+    
+    
+
+    
+
+    
 
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title"><?php echo $ticket['ticket_subject'] ?></h3>
+        <h3 class="card-title"><b>Subject:</b> <?php echo $ticket['ticket_subject'] ?></h3>
       </div>
       <div class="card-body">
         <p>
@@ -34,10 +62,14 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
           <br>
           <b>Priority:</b> <?php echo $ticket['ticket_priority'] ?>
         </p>
-        <?php echo $ticket['ticket_details'] ?>
+        <b>Issue:</b> <?php echo $ticket['ticket_details'] ?>
       </div>
     </div>
 
+
+
+          
+          
     <!-- Either show the reply comments box, ticket smiley feedback, or thanks for feedback -->
 
     <?php if($ticket['ticket_status'] !== "Closed") { ?>
