@@ -107,7 +107,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-users"></i> Clients</h3>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-plus"></i> New Client</button>
+      <?php if($session_user_role == 3) { ?>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-plus"></i> New Client</button>
+      <?php } ?>
     </div>
   </div>
 
@@ -165,8 +167,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=client_name&order=<?php echo $order_display; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=location_city&order=<?php echo $order_display; ?>">Address </a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=contact_name&order=<?php echo $order_display; ?>">Contact</a></th>
-            <th class="text-right">Billing</th>
-            <th class="text-center">Action</th>
+            <?php if($session_user_role == 3 OR $session_user_role == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
+            <?php if($session_user_role == 3) { ?> <th class="text-center">Action</th> <?php } ?>
           </tr>
         </thead>
         <tbody>
@@ -306,23 +308,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               }
               ?>
             </td>
-            <td class="text-right">
-              <span class="text-secondary">Balance</span> <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
-              <br>
-              <span class="text-secondary">Paid</span> <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
-            </td>
-            <td>
-              <div class="dropdown dropleft text-center">
-                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                  <i class="fas fa-ellipsis-h"></i>
-                </button>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">Delete</a>
+
+            <!-- Show Billing for Admin/Accountant roles only -->
+            <?php if($session_user_role == 3 OR $session_user_role == 1) { ?>
+              <td class="text-right">
+                <span class="text-secondary">Balance</span> <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
+                <br>
+                <span class="text-secondary">Paid</span> <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
+              </td>
+            <?php } ?>
+
+            <!-- Show actions for Admin role only -->
+            <?php //if($session_user_role == 3) { ?>
+              <td>
+                <div class="dropdown dropleft text-center">
+                  <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                    <i class="fas fa-ellipsis-h"></i>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">Delete</a>
+                  </div>
                 </div>
-              </div>
-            </td>
+              </td>
+            <?php //} ?>
           </tr>
 
           <?php

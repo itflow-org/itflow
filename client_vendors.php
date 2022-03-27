@@ -175,8 +175,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>">Edit</a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item text-danger" href="post.php?delete_vendor=<?php echo $vendor_id; ?>">Delete</a>
+                  <?php if($session_user_role == 3) { ?>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item text-danger" href="post.php?delete_vendor=<?php echo $vendor_id; ?>">Delete</a>
+                  <?php } ?>
                 </div>
               </div>
             </td>

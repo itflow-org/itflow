@@ -716,6 +716,13 @@ if(isset($_POST['verify'])){
 
 if(isset($_POST['edit_general_settings'])){
 
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $config_base_url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url'])));
     $mesh_uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_uri'])));
     $mesh_user = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_user'])));
@@ -735,6 +742,13 @@ if(isset($_POST['edit_general_settings'])){
 }
 
 if(isset($_POST['edit_mail_settings'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $config_smtp_host = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_host'])));
     $config_smtp_port = intval($_POST['config_smtp_port']);
@@ -781,6 +795,14 @@ if(isset($_POST['edit_mail_settings'])){
 }
 
 if(isset($_POST['test_email'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
 
     $mail = new PHPMailer(true);
@@ -818,6 +840,13 @@ if(isset($_POST['test_email'])){
 
 if(isset($_POST['edit_invoice_settings'])){
 
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $config_invoice_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_prefix'])));
     $config_invoice_next_number = intval($_POST['config_invoice_next_number']);
     $config_invoice_footer = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer'])));
@@ -840,6 +869,13 @@ if(isset($_POST['edit_invoice_settings'])){
 
 if(isset($_POST['edit_quote_settings'])){
 
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $config_quote_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_prefix'])));
     $config_quote_next_number = intval($_POST['config_quote_next_number']);
     $config_quote_footer = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_footer'])));
@@ -859,6 +895,13 @@ if(isset($_POST['edit_quote_settings'])){
 
 if(isset($_POST['edit_ticket_settings'])){
 
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $config_ticket_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_prefix'])));
     $config_ticket_next_number = intval($_POST['config_ticket_next_number']);
     $config_ticket_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_from_email'])));
@@ -876,6 +919,13 @@ if(isset($_POST['edit_ticket_settings'])){
 }
 
 if(isset($_POST['edit_default_settings'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $expense_account = intval($_POST['expense_account']);
     $payment_account = intval($_POST['payment_account']);
@@ -898,6 +948,13 @@ if(isset($_POST['edit_default_settings'])){
 
 if(isset($_POST['edit_alert_settings'])){
 
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $config_enable_cron = intval($_POST['config_enable_cron']);
     $config_enable_alert_domain_expire = intval($_POST['config_enable_alert_domain_expire']);
     $config_send_invoice_reminders = intval($_POST['config_send_invoice_reminders']);
@@ -915,6 +972,13 @@ if(isset($_POST['edit_alert_settings'])){
 }
 
 if(isset($_POST['edit_online_payment_settings'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $config_stripe_enable = intval($_POST['config_stripe_enable']);
     $config_stripe_publishable = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_stripe_publishable'])));
@@ -959,6 +1023,13 @@ if(isset($_POST['disable_2fa'])){
 }
 
 if(isset($_GET['download_database'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     // Get All Table Names From the Database
     $tables = array();
@@ -1039,7 +1110,12 @@ if(isset($_GET['download_database'])){
 
 if(isset($_POST['backup_master_key'])){
 
-    //TODO: Verify the user is authorised to view the key?
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $password = $_POST['password'];
 
@@ -1070,7 +1146,14 @@ if(isset($_POST['backup_master_key'])){
 }
 
 if(isset($_GET['update'])){
-    //also check to make sure someone has admin before running this function
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     exec("git pull");
 
     //FORCE UPDATE FUNCTION (Will be added later as a checkbox)
@@ -1091,6 +1174,13 @@ if(isset($_GET['update'])){
 }
 
 if(isset($_GET['update_db'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     //Alter SQL Structure
 
@@ -1119,6 +1209,13 @@ if(isset($_GET['update_db'])){
 }
 
 if(isset($_POST['add_client'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
@@ -1195,6 +1292,13 @@ if(isset($_POST['add_client'])){
 
 if(isset($_POST['edit_client'])){
 
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
@@ -1226,7 +1330,8 @@ if(isset($_POST['edit_client'])){
 }
 
 if(isset($_GET['delete_client'])){
-    if($session_user_role !== "3"){
+
+    if($session_user_role != 3){
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = "You are not permitted to do that!";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -3973,6 +4078,13 @@ if(isset($_GET['delete_revenue'])){
 
 if(isset($_POST['add_contact'])){
 
+    if($session_user_role = 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
@@ -4052,6 +4164,13 @@ if(isset($_POST['add_contact'])){
 }
 
 if(isset($_POST['edit_contact'])){
+
+    if($session_user_role = 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $contact_id = intval($_POST['contact_id']);
     $client_id = intval($_POST['client_id']);
@@ -4141,6 +4260,14 @@ if(isset($_POST['edit_contact'])){
 }
 
 if(isset($_GET['archive_contact'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $contact_id = intval($_GET['archive_contact']);
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NOW() WHERE contact_id = $contact_id");
@@ -4155,6 +4282,14 @@ if(isset($_GET['archive_contact'])){
 }
 
 if(isset($_GET['delete_contact'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $contact_id = intval($_GET['delete_contact']);
 
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id AND company_id = $session_company_id");
@@ -4211,6 +4346,13 @@ if(isset($_GET['export_client_contacts_csv'])){
 }
 
 if(isset($_POST['add_location'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -4290,6 +4432,13 @@ if(isset($_POST['add_location'])){
 }
 
 if(isset($_POST['edit_location'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $location_id = intval($_POST['location_id']);
     $client_id = intval($_POST['client_id']);
@@ -4373,6 +4522,14 @@ if(isset($_POST['edit_location'])){
 }
 
 if(isset($_GET['delete_location'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $location_id = intval($_GET['delete_location']);
 
     mysqli_query($mysqli,"DELETE FROM locations WHERE location_id = $location_id AND company_id = $session_company_id");
@@ -4431,6 +4588,13 @@ if(isset($_GET['export_client_locations_csv'])){
 // Client Departments
 if(isset($_POST['add_department'])){
 
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_POST['client_id']);
     $department_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department_name'])));
 
@@ -4449,6 +4613,13 @@ if(isset($_POST['add_department'])){
 
 if(isset($_POST['edit_department'])){
 
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $department_id = intval($_POST['department_id']);
     $client_id = intval($_POST['client_id']);
     $department_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department_name'])));
@@ -4465,6 +4636,14 @@ if(isset($_POST['edit_department'])){
 }
 
 if(isset($_GET['archive_department'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $department_id = intval($_GET['archive_department']);
 
     mysqli_query($mysqli,"UPDATE departments SET department_archived_at = NOW() WHERE department_id = $department_id");
@@ -4479,6 +4658,14 @@ if(isset($_GET['archive_department'])){
 }
 
 if(isset($_GET['delete_department'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $department_id = intval($_GET['delete_department']);
 
     mysqli_query($mysqli,"DELETE FROM departments WHERE department_id = $department_id AND company_id = $session_company_id");
@@ -4493,6 +4680,13 @@ if(isset($_GET['delete_department'])){
 }
 
 if(isset($_POST['add_asset'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -4542,6 +4736,13 @@ if(isset($_POST['add_asset'])){
 }
 
 if(isset($_POST['edit_asset'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $asset_id = intval($_POST['asset_id']);
     $login_id = intval($_POST['login_id']);
@@ -4598,6 +4799,14 @@ if(isset($_POST['edit_asset'])){
 }
 
 if(isset($_GET['delete_asset'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $asset_id = intval($_GET['delete_asset']);
 
     mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id AND company_id = $session_company_id");
@@ -4612,6 +4821,14 @@ if(isset($_GET['delete_asset'])){
 }
 
 if(isset($_POST["import_client_assets_csv"])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_POST['client_id']);
     $file_name = $_FILES["file"]["tmp_name"];
     $error = FALSE;
@@ -4741,6 +4958,14 @@ if(isset($_GET['download_client_assets_csv_template'])){
 }
 
 if(isset($_GET['export_client_assets_csv'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_GET['export_client_assets_csv']);
 
     //get records from database
@@ -4782,6 +5007,13 @@ if(isset($_GET['export_client_assets_csv'])){
 }
 
 if(isset($_POST['add_software'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -4839,6 +5071,13 @@ if(isset($_POST['add_software'])){
 }
 
 if(isset($_POST['edit_software'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $software_id = intval($_POST['software_id']);
     $login_id = intval($_POST['login_id']);
@@ -4903,6 +5142,14 @@ if(isset($_POST['edit_software'])){
 }
 
 if(isset($_GET['delete_software'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $software_id = intval($_GET['delete_software']);
 
     mysqli_query($mysqli,"DELETE FROM software WHERE software_id = $software_id AND company_id = $session_company_id");
@@ -4921,6 +5168,14 @@ if(isset($_GET['delete_software'])){
 }
 
 if(isset($_GET['export_client_software_csv'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_GET['export_client_software_csv']);
 
     //get records from database
@@ -4963,6 +5218,13 @@ if(isset($_GET['export_client_software_csv'])){
 
 if(isset($_POST['add_login'])){
 
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['uri'])));
@@ -4988,6 +5250,13 @@ if(isset($_POST['add_login'])){
 
 if(isset($_POST['edit_login'])){
 
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $login_id = intval($_POST['login_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['uri'])));
@@ -5012,6 +5281,14 @@ if(isset($_POST['edit_login'])){
 }
 
 if(isset($_GET['delete_login'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $login_id = intval($_GET['delete_login']);
 
     mysqli_query($mysqli,"DELETE FROM logins WHERE login_id = $login_id AND company_id = $session_company_id");
@@ -5026,6 +5303,14 @@ if(isset($_GET['delete_login'])){
 }
 
 if(isset($_GET['export_client_logins_csv'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_GET['export_client_logins_csv']);
 
     //get records from database
@@ -5069,7 +5354,14 @@ if(isset($_GET['export_client_logins_csv'])){
 
 if(isset($_POST['add_network'])){
 
-    $client_id = intval($_POST['client_id']);
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
+  $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $vlan = intval($_POST['vlan']);
     $network = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['network'])));
@@ -5089,6 +5381,13 @@ if(isset($_POST['add_network'])){
 }
 
 if(isset($_POST['edit_network'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $network_id = intval($_POST['network_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5110,6 +5409,13 @@ if(isset($_POST['edit_network'])){
 }
 
 if(isset($_GET['delete_network'])){
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $network_id = intval($_GET['delete_network']);
 
     mysqli_query($mysqli,"DELETE FROM networks WHERE network_id = $network_id AND company_id = $session_company_id");
@@ -5124,6 +5430,14 @@ if(isset($_GET['delete_network'])){
 }
 
 if(isset($_GET['export_client_networks_csv'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_GET['export_client_networks_csv']);
 
     //get records from database
@@ -5165,6 +5479,13 @@ if(isset($_GET['export_client_networks_csv'])){
 }
 
 if(isset($_POST['add_certificate'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
  
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5188,8 +5509,6 @@ if(isset($_POST['add_certificate'])){
         $expire = "0000-00-00";
     }
 
-
-
     mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_created_at = NOW(), certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
 
     //Logging
@@ -5202,6 +5521,13 @@ if(isset($_POST['add_certificate'])){
 }
 
 if(isset($_POST['edit_certificate'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $certificate_id = intval($_POST['certificate_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5237,6 +5563,14 @@ if(isset($_POST['edit_certificate'])){
 }
 
 if(isset($_GET['delete_certificate'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $certificate_id = intval($_GET['delete_certificate']);
 
     mysqli_query($mysqli,"DELETE FROM certificates WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
@@ -5251,6 +5585,14 @@ if(isset($_GET['delete_certificate'])){
 }
 
 if(isset($_GET['export_client_certificates_csv'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_GET['export_client_certificates_csv']);
 
     //get records from database
@@ -5292,6 +5634,13 @@ if(isset($_GET['export_client_certificates_csv'])){
 }
 
 if(isset($_POST['add_domain'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5338,6 +5687,13 @@ if(isset($_POST['add_domain'])){
 
 if(isset($_POST['edit_domain'])){
 
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $domain_id = intval($_POST['domain_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $registrar = intval($_POST['registrar']);
@@ -5382,6 +5738,14 @@ if(isset($_POST['edit_domain'])){
 }
 
 if(isset($_GET['delete_domain'])){
+
+      if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $domain_id = intval($_GET['delete_domain']);
 
     mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id AND company_id = $session_company_id");
@@ -5396,6 +5760,14 @@ if(isset($_GET['delete_domain'])){
 }
 
 if(isset($_GET['export_client_domains_csv'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_GET['export_client_domains_csv']);
 
     //get records from database
@@ -5439,6 +5811,13 @@ if(isset($_GET['export_client_domains_csv'])){
 
 if(isset($_POST['add_ticket'])){
 
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
@@ -5477,6 +5856,13 @@ if(isset($_POST['add_ticket'])){
 
 if(isset($_POST['add_scheduled_ticket'])){
 
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
@@ -5512,6 +5898,13 @@ if(isset($_POST['add_scheduled_ticket'])){
 
 if(isset($_POST['edit_scheduled_ticket'])){
 
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
@@ -5540,6 +5933,14 @@ if(isset($_POST['edit_scheduled_ticket'])){
 }
 
 if(isset($_GET['delete_scheduled_ticket'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $scheduled_ticket_id = intval($_GET['delete_scheduled_ticket']);
 
     // Delete
@@ -5554,6 +5955,13 @@ if(isset($_GET['delete_scheduled_ticket'])){
 }
 
 if(isset($_POST['edit_ticket'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -5582,6 +5990,13 @@ if(isset($_POST['edit_ticket'])){
 
 if(isset($_POST['assign_ticket'])){
 
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $ticket_id = intval($_POST['ticket_id']);
     $assigned_to = intval($_POST['assigned_to']);
 
@@ -5599,6 +6014,14 @@ if(isset($_POST['assign_ticket'])){
 }
 
 if(isset($_GET['delete_ticket'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $ticket_id = intval($_GET['delete_ticket']);
 
     mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
@@ -5614,7 +6037,14 @@ if(isset($_GET['delete_ticket'])){
 
 if(isset($_POST['add_ticket_reply'])){
 
-    // HTML Purifier
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
+  // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
     $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
@@ -5701,7 +6131,14 @@ if(isset($_POST['add_ticket_reply'])){
 
 if(isset($_POST['edit_ticket_reply'])){
 
-    // HTML Purifier
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
+  // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
     $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
@@ -5722,6 +6159,14 @@ if(isset($_POST['edit_ticket_reply'])){
 }
 
 if(isset($_GET['archive_ticket_reply'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $ticket_reply_id = intval($_GET['archive_ticket_reply']);
 
     mysqli_query($mysqli,"UPDATE ticket_replies SET ticket_reply_archived_at = NOW() WHERE ticket_reply_id = $ticket_reply_id AND company_id = $session_company_id");
@@ -5736,6 +6181,14 @@ if(isset($_GET['archive_ticket_reply'])){
 }
 
 if(isset($_POST['merge_ticket'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $ticket_id = intval($_POST['ticket_id']);
     $merge_into_ticket_number = intval($_POST['merge_into_ticket_number']);
     $merge_comment = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['merge_comment'])));
@@ -5786,6 +6239,13 @@ if(isset($_POST['merge_ticket'])){
 }
 
 if(isset($_GET['close_ticket'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $ticket_id = intval($_GET['close_ticket']);
 
@@ -5895,6 +6355,14 @@ if(isset($_POST['add_invoice_from_ticket'])){
 }
 
 if(isset($_GET['export_client_tickets_csv'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_GET['export_client_tickets_csv']);
 
     //get records from database
@@ -5936,6 +6404,14 @@ if(isset($_GET['export_client_tickets_csv'])){
 }
 
 if(isset($_POST['add_service'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_POST['client_id']);
     $service_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $service_description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
@@ -6028,6 +6504,14 @@ if(isset($_POST['add_service'])){
 }
 
 if(isset($_POST['edit_service'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_POST['client_id']);
     $service_id = intval($_POST['service_id']);
     $service_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -6122,6 +6606,14 @@ if(isset($_POST['edit_service'])){
 }
 
 if(isset($_GET['delete_service'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $service_id = intval($_GET['delete_service']);
 
     // Delete service
@@ -6210,6 +6702,14 @@ if(isset($_POST['add_file'])){
 }
 
 if(isset($_GET['delete_file'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $file_id = intval($_GET['delete_file']);
 
     $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id AND company_id = $session_company_id");
@@ -6232,7 +6732,14 @@ if(isset($_GET['delete_file'])){
 
 if(isset($_POST['add_document'])){
 
-    // HTML Purifier
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
+  // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
     $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
@@ -6267,7 +6774,14 @@ if(isset($_POST['add_document'])){
 
 if(isset($_POST['edit_document'])){
 
-    // HTML Purifier
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
+  // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
     $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
@@ -6303,6 +6817,14 @@ if(isset($_POST['edit_document'])){
 }
 
 if(isset($_GET['delete_document'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $document_id = intval($_GET['delete_document']);
 
     mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id AND company_id = $session_company_id");
@@ -6320,6 +6842,14 @@ if(isset($_GET['delete_document'])){
 }
 
 if (isset($_POST['add_document_tag'])) {
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_POST['client_id']);
     $tag_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['tag_name'])));
 
@@ -6330,6 +6860,14 @@ if (isset($_POST['add_document_tag'])) {
 }
 
 if (isset($_POST['delete_document_tag'])) {
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $tag_id = intval($_POST['tag_id']);
 
     // Delete the tag ID
@@ -6343,6 +6881,14 @@ if (isset($_POST['delete_document_tag'])) {
 }
 
 if (isset($_POST['rename_document_tag'])) {
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $tag_id = intval($_POST['tag_id']);
     $tag_new_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['tag_new_name'])));
 
@@ -6760,6 +7306,14 @@ if(isset($_GET['export_client_trips_csv'])){
 }
 
 if(isset($_GET['export_client_pdf'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $client_id = intval($_GET['export_client_pdf']);
 
     //get records from database
