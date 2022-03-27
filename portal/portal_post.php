@@ -111,12 +111,14 @@ if(isset($_POST['add_ticket'])){
   $client_id = $session_client_id;
   $contact = $session_contact_id;
   $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
-  $priority = $_POST['priority'];
   $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode(nl2br($_POST['details'])))));
 
   // Ensure priority is low/med/high (as can be user defined)
-  if($priority !== "Low" OR $priority !== "Medium" OR $priority !== "High"){
+  if($_POST['priority'] !== "Low" && $_POST['priority'] !== "Medium" && $_POST['priority'] !== "High"){
     $priority = "Low";
+  }
+  else{
+    $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
   }
 
   // Get the next Ticket Number and add 1 for the new ticket number

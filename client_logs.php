@@ -58,7 +58,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-body">
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-      <input type="hidden" name="tab" value="<?php echo $_GET['tab']; ?>">
+      <input type="hidden" name="tab" value="<?php echo strip_tags($_GET['tab']); ?>">
       <div class="row">
         
         <div class="col-md-4">
