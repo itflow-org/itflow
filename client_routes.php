@@ -14,58 +14,90 @@ if(isset($_GET['tab'])){
     include("client_departments.php");
   }
   elseif($_GET['tab'] == "assets"){
-    include("client_assets.php");
+    if($session_user_role > 1) {
+      include("client_assets.php");
+    }
   }
   elseif($_GET['tab'] == "workstations"){
-    include("client_assets_workstations.php");
+    if($session_user_role > 1) {
+      include("client_assets_workstations.php");
+    }
   }
   elseif($_GET['tab'] == "tickets"){
-    include("client_tickets.php");
+    if($session_user_role > 1) {
+      include("client_tickets.php");
+    }
   }
   elseif($_GET['tab'] == "vendors"){
     include("client_vendors.php");
   }
   elseif($_GET['tab'] == "logins"){
-    include("client_logins.php");
+    if($session_user_role > 1) {
+      include("client_logins.php");
+    }
   }
   elseif($_GET['tab'] == "networks"){
-    include("client_networks.php");
+    if($session_user_role > 1) {
+      include("client_networks.php");
+    }
   }
   elseif($_GET['tab'] == "domains"){
-    include("client_domains.php");
+    if($session_user_role > 1) {
+      include("client_domains.php");
+    }
   }
   elseif($_GET['tab'] == "certificates"){
-    include("client_certificates.php");
+    if($session_user_role > 1) {
+      include("client_certificates.php");
+    }
   }
   elseif($_GET['tab'] == "software"){
-    include("client_software.php");
+    if($session_user_role > 1) {
+      include("client_software.php");
+    }
   }
   elseif($_GET['tab'] == "invoices"){
-    include("client_invoices.php");
+    if($session_user_role == 1 OR $session_user_role == 3) {
+      include("client_invoices.php");
+    }
   }
   elseif($_GET['tab'] == "recurring_invoices"){
-    include("client_recurring_invoices.php");
+    if($session_user_role == 1 OR $session_user_role == 3) {
+      include("client_recurring_invoices.php");
+    }
   }
   elseif($_GET['tab'] == "payments"){
-    include("client_payments.php");
+    if($session_user_role == 1 OR $session_user_role == 3) {
+      include("client_payments.php");
+    }
   }
   elseif($_GET['tab'] == "quotes"){
-    include("client_quotes.php");
+    if($session_user_role == 1 OR $session_user_role == 3) {
+      include("client_quotes.php");
+    }
   }
   elseif($_GET['tab'] == "trips"){
-    include("client_trips.php");
+    if($session_user_role == 1 OR $session_user_role == 3) {
+      include("client_trips.php");
+    }
   }
   elseif($_GET['tab'] == "events"){
     include("client_events.php");
   }
   elseif($_GET['tab'] == "files"){
-    include("client_files.php");
+    if($session_user_role > 1) {
+      include("client_files.php");
+    }
   }
   elseif($_GET['tab'] == "documents"){
-    include("client_documents.php");
+    if($session_user_role > 1) {
+      include("client_documents.php");
+    }
   }
   elseif($_GET['tab'] == "services"){
+    if($session_user_role > 1) {
       include("client_services.php");
+    }
   }
   elseif($_GET['tab'] == "logs"){
       include("client_logs.php");

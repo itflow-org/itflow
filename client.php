@@ -235,7 +235,7 @@ $location_phone = formatPhoneNumber($location_phone);
         } 
         ?>
       </div>
-      <?php if($session_user_role == 1 OR $session_user_role > 2){ ?>
+      <?php if($session_user_role == 1 OR $session_user_role == 3){ ?>
       <div class="col-md-3 border-left">
         <h4 class="text-secondary">Billing</h4>
         <h6 class="ml-1 text-secondary">Paid <div class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $amount_paid, $client_currency_code); ?></div></h6>
@@ -248,20 +248,22 @@ $location_phone = formatPhoneNumber($location_phone);
         <h6 class="ml-1 text-secondary">Open Tickets <div class="text-dark float-right"><?php echo $num_active_tickets; ?></div></h6>
       </div>
       <div class="col-md-1 border-left">
-        <div class="dropdown dropleft text-center">
-          <button class="btn btn-dark btn-sm float-right" type="button" data-toggle="dropdown">
-            <i class="fas fa-fw fa-ellipsis-v"></i>
-          </button>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="client_print.php?client_id=<?php echo $client_id; ?>">Print</a>
-            <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>" target="_blank">Export PDF<br><small class="text-secondary">(without passwords)</small></a>
-            <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>&passwords" target="_blank">Export PDF<br><small class="text-secondary">(with passwords)</small></a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">Delete</a>
+        <?php if($session_user_role == 3) { ?>
+          <div class="dropdown dropleft text-center">
+            <button class="btn btn-dark btn-sm float-right" type="button" data-toggle="dropdown">
+              <i class="fas fa-fw fa-ellipsis-v"></i>
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="client_print.php?client_id=<?php echo $client_id; ?>">Print</a>
+              <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>" target="_blank">Export PDF<br><small class="text-secondary">(without passwords)</small></a>
+              <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>&passwords" target="_blank">Export PDF<br><small class="text-secondary">(with passwords)</small></a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">Delete</a>
+            </div>
           </div>
-        </div>
+        <?php } ?>
       </div>
     </div>
   </div>

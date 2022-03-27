@@ -138,8 +138,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateNetworkEditModal(<?php echo $client_id, ",", $network_id ?>)" data-target="#editNetworkModal">Edit</a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item text-danger" href="post.php?delete_network=<?php echo $network_id; ?>">Delete</a>
+                  <?php if($session_user_role == 3) { ?>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item text-danger" href="post.php?delete_network=<?php echo $network_id; ?>">Delete</a>
+                  <?php } ?>
                 </div>
               </div>
             </td>

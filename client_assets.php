@@ -346,10 +346,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#copyAssetModal<?php echo $asset_id; ?>">Copy</a>
                   <?php if($ticket_count > 0){ ?>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#assetTicketsModal<?php echo $asset_id; ?>">Tickets (<?php echo $ticket_count; ?>)</a>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#assetTicketsModal<?php echo $asset_id; ?>">Tickets (<?php echo $ticket_count; ?>)</a>
                   <?php } ?>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item text-danger" href="post.php?delete_asset=<?php echo $asset_id; ?>">Delete</a>
+                  <?php if($session_user_role == 3) { ?>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item text-danger" href="post.php?delete_asset=<?php echo $asset_id; ?>">Delete</a>
+                  <?php } ?>
                 </div>
               </div>
             </td>

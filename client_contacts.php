@@ -219,10 +219,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#contactDetailsModal<?php echo $contact_id; ?>">View Details</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">Edit</a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item text-danger" href="post.php?archive_contact=<?php echo $contact_id; ?>">Archive</a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item text-danger text-bold" href="post.php?delete_contact=<?php echo $contact_id; ?>">Delete</a>
+                  <?php if($session_user_role == 3) { ?>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item text-danger" href="post.php?archive_contact=<?php echo $contact_id; ?>">Archive</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_contact=<?php echo $contact_id; ?>">Delete</a>
+                  <?php } ?>
                 </div>
               </div> 
             </td>
