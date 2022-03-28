@@ -27,11 +27,9 @@ function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
   $row = mysqli_fetch_array($sql);
   $ticket_id = $row['ticket_id'];
 
-  if(intval($ticket_id)) {
-    if ($session_contact_id == $row['ticket_contact_id'] || $session_contact_id == $session_client_primary_contact_id) {
-      // Client is ticket owner, or primary contact
-      return TRUE;
-    }
+  if(intval($ticket_id) && ($session_contact_id == $row['ticket_contact_id'] || $session_contact_id == $session_client_primary_contact_id)) {
+    // Client is ticket owner, or primary contact
+    return TRUE;
   }
 
   // Client is NOT ticket owner or primary contact
