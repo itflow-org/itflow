@@ -92,7 +92,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])){
       <div class="login-logo"><b>IT</b>Flow <br>Client Portal Login</h2></div>
       <div class="card">
         <div class="card-body login-card-body">
-          <p class="login-box-msg">
+          <p class="login-box-msg text-danger">
           <?php
           if(!empty($_SESSION['login_message'])){
               echo $_SESSION['login_message'];
