@@ -107,7 +107,7 @@
   }
   
   //Date Filter
-  if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
+  if($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])){
     $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
     $dtt = mysqli_real_escape_string($mysqli,$_GET['dtt']);
   }elseif($_GET['canned_date'] == "today"){
@@ -224,7 +224,7 @@
 
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
-      <input type="hidden" name="status" value="<?php if(isset($_GET['status'])){ echo $_GET['status']; } ?>">
+      <input type="hidden" name="status" value="<?php if(isset($_GET['status'])){ echo strip_tags($_GET['status']); } ?>">
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
@@ -316,7 +316,7 @@
 
             $now = time();
 
-            if(($invoice_status == "Sent" or $invoice_status == "Partial" or $invoice_status == "Viewed") and strtotime($invoice_due) + 86400 < $now ){
+            if(($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) + 86400 < $now ){
               $overdue_color = "text-danger font-weight-bold";
             }else{
               $overdue_color = "";

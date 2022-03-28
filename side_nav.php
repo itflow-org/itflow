@@ -48,7 +48,7 @@
 
       <form class="form-inline mb-2" action="global_search.php">
         <div class="input-group">
-          <input class="form-control form-control-sidebar" type="search" placeholder="Search" name="query" value="<?php if(isset($_GET['query'])){ echo $_GET['query']; } ?>">
+          <input class="form-control form-control-sidebar" type="search" placeholder="Search" name="query" value="<?php if(isset($_GET['query'])){ echo strip_tags($_GET['query']); } ?>">
           <div class="input-group-append">
             <button class="btn btn-sidebar" type="submit">
               <i class="fas fa-search"></i>
@@ -127,7 +127,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a href="recurring_invoices.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php" OR basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php") { echo "active"; } ?>">
+          <a href="recurring_invoices.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-sync-alt"></i>
             <p>Recurring</p>
           </a>

@@ -96,7 +96,7 @@
               </div>
               <?php } ?>
 
-              <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'other'){ ?>
+              <?php if($_GET['type'] !== 'network' && $_GET['type'] !== 'other'){ ?>
               <div class="form-group">
                 <label>Operating System</label>
                 <div class="input-group">
@@ -136,7 +136,7 @@
                 </div>
               </div>
 
-              <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'servers' AND $_GET['type'] !== 'other'){ ?>
+              <?php if($_GET['type'] !== 'network' && $_GET['type'] !== 'servers' && $_GET['type'] !== 'other'){ ?>
               <div class="form-group">
                 <label>Assigned To</label>
                 <div class="input-group">

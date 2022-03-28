@@ -235,7 +235,7 @@ $location_phone = formatPhoneNumber($location_phone);
         } 
         ?>
       </div>
-      <?php if($session_user_role == 1 OR $session_user_role == 3){ ?>
+      <?php if($session_user_role == 1 || $session_user_role == 3){ ?>
       <div class="col-md-3 border-left">
         <h4 class="text-secondary">Billing</h4>
         <h6 class="ml-1 text-secondary">Paid <div class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $amount_paid, $client_currency_code); ?></div></h6>
