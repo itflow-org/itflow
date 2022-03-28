@@ -6804,6 +6804,7 @@ if(isset($_GET['delete_file'])){
     $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql_file);
     $client_id = $row['file_client_id'];
+    $file_name = $row['file_name'];
     $file_reference_name = $row['file_reference_name'];
 
     unlink("uploads/clients/$session_company_id/$client_id/$file_reference_name");
