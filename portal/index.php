@@ -4,10 +4,6 @@
  * Landing / Home page for the client portal
  */
 
- $row = mysqli_fetch_array($sql);
- $contact_photo = $row['contact_photo'];
- $contact_id = $row['contact_id'];
-
 require_once("inc_portal.php");
 
 // Ticket status from GET
@@ -46,101 +42,91 @@ $total_tickets = $row['total_tickets'];
 
 ?>
 <table>
- <tr>
-            <th class="text-center">
-              <a class="text-dark" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
-                <?php if(!empty($contact_photo)){ ?>
-              <img src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>" alt="..." class="rounded-left">
-               >
-                
-                <?php }else{ ?>
-    
-                <span class="fa-stack fa-2x rounded-left">
-                  <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                  <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
-                </span>
-                <br>
-                
-                <?php } ?>
-                <div class="text-dark"><?php echo $contact_name; ?></div>
-                <div><?php echo $contact_title_display; ?></div>
-                <div><?php echo $primary_contact_display; ?></div>
-              </a>
-                </th>
-                <th>
-
-<div class="">
-  <h4 class="">Welcome, <b><?php echo $session_contact_name ?></b>! </h4>
- <hr>
-               
-</div>
-
-</th> 
- </tr>
- </table>
+  <tr>
+    <th class="text-center">
+      <?php if(!empty($session_contact_photo)){ ?>
+      <img src="<?php echo "../uploads/clients/$session_company_id/$session_client_id/$session_contact_photo"; ?>" alt="..." class=" img-size-50 img-circle">
+              
+      <?php }else{ ?>
+  
+      <span class="fa-stack fa-2x rounded-left">
+        <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+        <span class="fa fa-stack-1x text-white"><?php echo $session_contact_initials; ?></span>
+      </span>
+      <br>
+              
+      <?php } ?>
+      <div class="text-dark"><?php echo $contact_name; ?></div>
+      <div><?php echo $contact_title_display; ?></div>
+      <div><?php echo $primary_contact_display; ?></div>
+    </th>
+    <th>
+      <div class="">
+        <h4 class="">Welcome, <b><?php echo $session_contact_name ?></b>!</h4>
+        <hr>           
+      </div>
+    </th> 
+  </tr>
+</table>
 
 <br>
 
 <div class="row">
         
- <div class="col-10">
- <div class="card">
-        <span class="border border-secondary">
-<table class="table">
-  <thead class="thead-dark">
- 
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Subject</th>
-      <th scope="col">Status</th>
-    </tr>
-  </thead>
-  <tbody>
+  <div class="col-10">
+    <div class="card">
+      <span class="border border-secondary">
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Subject</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
 
-      <?php
-      while($ticket = mysqli_fetch_array($contact_tickets)){
-        echo "<tr>";
-        echo "<td> <a href='ticket.php?id=$ticket[ticket_id]'> $ticket[ticket_number]</a></td>";
-        echo "<td> <a href='ticket.php?id=$ticket[ticket_id]'> $ticket[ticket_subject]</a></td>";
-        echo "<td>$ticket[ticket_status]</td>";
-        echo "</tr>";
-      }
-      ?>
-  </tbody>
-</table></span>
-</div>
-</div>
-
-
+            <?php
+            while($ticket = mysqli_fetch_array($contact_tickets)){
+              echo "<tr>";
+              echo "<td> <a href='ticket.php?id=$ticket[ticket_id]'> $ticket[ticket_number]</a></td>";
+              echo "<td> <a href='ticket.php?id=$ticket[ticket_id]'> $ticket[ticket_subject]</a></td>";
+              echo "<td>$ticket[ticket_status]</td>";
+              echo "</tr>";
+            }
+            ?>
+          </tbody>
+        </table>
+      </span>
+    </div>
+  </div>
   <div class="col-2">
    
-  <div class="card">
-    <a href="ticket_add.php" class="btn btn-primary">New ticket</a>     
-  </div>    
-  <hr>
-      
-      
- <a href="?status=Open"><div class="card text-white bg-danger mb-3" style="max-width: 18rem;">
-  <div class="card-header">My Open tickets | <b><?php echo $total_tickets_open ?></b></div>
-</div></a>     
-      
-      
-  <a href="?status=Closed"><div class="card text-white bg-success mb-3" style="max-width: 18rem;">
-     <div class="card-header">Resolved tickets | <b><?php echo $total_tickets_closed ?></b></div>
-  </div></a> 
-     
-  <a href="?status=%"><div class="card text-white bg-secondary mb-3"  style="max-width: 18rem;">
-  <div class="card-header">All my tickets | <b><?php echo $total_tickets ?></b></div>
-</div></a>       
+    <div class="card">
+      <a href="ticket_add.php" class="btn btn-primary">New ticket</a>     
+    </div>    
+    
+    <hr>
+    
+    <a href="?status=Open">
+      <div class="card text-white bg-danger mb-3" style="max-width: 18rem;">
+        <div class="card-header">My Open tickets | <b><?php echo $total_tickets_open ?></b></div>
+      </div>
+    </a>
 
+    <a href="?status=Closed">
+      <div class="card text-white bg-success mb-3" style="max-width: 18rem;">
+        <div class="card-header">Resolved tickets | <b><?php echo $total_tickets_closed ?></b></div>
+      </div>
+    </a> 
 
-      
+    <a href="?status=%">
+      <div class="card text-white bg-secondary mb-3"  style="max-width: 18rem;">
+        <div class="card-header">All my tickets | <b><?php echo $total_tickets ?></b></div>
+      </div>
+    </a>       
+
+  </div>
 </div>
-
-
-      
-      
-
-      
 
 <?php include("portal_footer.php"); ?>

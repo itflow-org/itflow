@@ -39,6 +39,7 @@ $contact = mysqli_fetch_array($contact_sql);
 $session_contact_name = $contact['contact_name'];
 $session_contact_initials = initials($session_contact_name);
 $session_contact_email = $contact['contact_email'];
+$session_contact_photo = $contact['contact_photo'];
 
 // Get client info
 $client_sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = '$session_client_id'");
