@@ -9,7 +9,7 @@
 
 <!-- PROJECT LOGO -->
 <div align="center">
-  <!-- <a href="https://github.com/johnnyq/itflow">
+  <!-- <a href="https://github.com/itflow-org/itflow">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a> -->
 
@@ -24,11 +24,11 @@
     Username: <b>demo@demo</b> | Password: <b>demo</b>
     <br />
     <br />
-    <a href="https://github.com/johnnyq/itflow">Docs</a>
+    <a href="https://github.com/itflow-org/itflow">Docs</a>
     ·
     <a href="https://forum.itflow.org/">Forum</a>
     ·
-    <a href="https://github.com/johnnyq/itflow/issues">Report Bug</a>
+    <a href="https://github.com/itflow-org/itflow/issues">Report Bug</a>
     ·
     <a href="https://forum.itflow.org/t/features">Request Feature</a>
   </p>
@@ -89,7 +89,7 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
    ```  
 2. Clone the repo
    ```sh
-   git clone https://github.com/johnnyq/itflow.git /var/www/html
+   git clone https://github.com/itflow-org/itflow.git /var/www/html
    ```
 3. Create a MariaDB Database
 4. Point your browser to your HTTPS web server to begin setup
@@ -111,7 +111,7 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
 * Recent caller toast alerts to click and bring up the clients account right away
 * FIDO2 WebAuthn Support for passwordless auth (TPM Fingerprint), (USB Hardware keys such as Yubikey)
 
-See the [forum](https://forum.itflow.org/d/11-road-map) and the [open issues](https://github.com/johnnyq/itflow/issues) for a full list of proposed features & known issues.
+See the [forum](https://forum.itflow.org/d/11-road-map) and the [open issues](https://github.com/itflow-org/itflow/issues) for a full list of proposed features & known issues.
 
 
 <!-- CONTRIBUTING -->
@@ -119,15 +119,15 @@ See the [forum](https://forum.itflow.org/d/11-road-map) and the [open issues](ht
 
 ### Forum
 For help using ITFlow, feature requests, and general ideas / discussions please use the community [forum](https://forum.itflow.org).
-For bugs, please raise an [issue](https://github.com/johnnyq/itflow/issues).
+For bugs, please raise an [issue](https://github.com/itflow-org/itflow/issues).
 
 ### Contributing
 If you are able to make a contribution that would make ITFlow better, please fork the repo and create a pull request. Please make sure you're following our [code standards](https://itflow.org/docs.php?doc=coding-standards). 
 For large changes / new features, please discuss the issue with other contributors first.
 
 #### Contributors
-<a href="https://github.com/johnnyq/itflow/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=johnnyq/itflow" />
+<a href="https://github.com/itflow-org/itflow/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=itflow-org/itflow" />
 </a>
 
 <!-- LICENSE -->
@@ -138,18 +138,18 @@ ITFlow is distributed "as is" under the GPL License, WITHOUT WARRANTY OF ANY KIN
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/johnnyq/itflow.svg?style=for-the-badge
-[contributors-url]: https://github.com/johnnyq/itflow/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/johnnyq/itflow.svg?style=for-the-badge
-[forks-url]: https://github.com/johnnyq/itflow/network/members
-[stars-shield]: https://img.shields.io/github/stars/johnnyq/itflow.svg?style=for-the-badge
-[stars-url]: https://github.com/johnnyq/itflow/stargazers
-[issues-shield]: https://img.shields.io/github/issues/johnnyq/itflow.svg?style=for-the-badge
-[issues-url]: https://github.com/johnnyq/itflow/issues
-[license-shield]: https://img.shields.io/github/license/johnnyq/itflow.svg?style=for-the-badge
-[license-url]: https://github.com/johnnyq/itflow/blob/master/LICENSE
-[commit-shield]: https://img.shields.io/github/last-commit/johnnyq/itflow?style=for-the-badge
-[commit-url]: https://github.com/johnnyq/itflow/commits/master
+[contributors-shield]: https://img.shields.io/github/contributors/itflow-org/itflow.svg?style=for-the-badge
+[contributors-url]: https://github.com/itflow-org/itflow/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/itflow-org/itflow.svg?style=for-the-badge
+[forks-url]: https://github.com/itflow-org/itflow/network/members
+[stars-shield]: https://img.shields.io/github/stars/itflow-org/itflow.svg?style=for-the-badge
+[stars-url]: https://github.com/itflow-org/itflow/stargazers
+[issues-shield]: https://img.shields.io/github/issues/itflow-org/itflow.svg?style=for-the-badge
+[issues-url]: https://github.com/itflow-org/itflow/issues
+[license-shield]: https://img.shields.io/github/license/itflow-org/itflow.svg?style=for-the-badge
+[license-url]: https://github.com/itflow-org/itflow/blob/master/LICENSE
+[commit-shield]: https://img.shields.io/github/last-commit/itflow-org/itflow?style=for-the-badge
+[commit-url]: https://github.com/itflow-org/itflow/commits/master
 [product-screenshot]: .github/dash.png
 
 <!-- https://github.com/othneildrew/Best-README-Template -->
