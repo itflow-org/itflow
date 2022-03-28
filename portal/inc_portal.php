@@ -7,6 +7,7 @@
 include('../config.php');
 include('../functions.php');
 include('check_login.php');
+include('portal_functions.php');
 
 if(!isset($_SESSION)){
   // HTTP Only cookies

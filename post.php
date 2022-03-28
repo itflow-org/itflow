@@ -4151,7 +4151,7 @@ if(isset($_GET['delete_revenue'])){
 
 if(isset($_POST['add_contact'])){
 
-    if($session_user_role = 1){
+    if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
       $_SESSION['alert_message'] = "You are not permitted to do that!";
       header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -4238,7 +4238,7 @@ if(isset($_POST['add_contact'])){
 
 if(isset($_POST['edit_contact'])){
 
-    if($session_user_role = 1){
+    if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
       $_SESSION['alert_message'] = "You are not permitted to do that!";
       header("Location: " . $_SERVER["HTTP_REFERER"]);
