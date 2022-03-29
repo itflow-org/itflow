@@ -71,6 +71,10 @@ $config_stripe_enable = $row['config_stripe_enable'];
 $config_stripe_publishable = $row['config_stripe_publishable'];
 $config_stripe_secret = $row['config_stripe_secret'];
 
+// Backups
+$config_backup_enable = $row['config_backup_enable'];
+$config_backup_path = $row['config_backup_path'];
+
 // Currency
 
 $config_currency_format = "US_en";

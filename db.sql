@@ -298,6 +298,7 @@ CREATE TABLE `contacts` (
   `contact_notes` text DEFAULT NULL,
   `contact_auth_method` varchar(200) DEFAULT NULL,
   `contact_password_hash` varchar(200) DEFAULT NULL,
+  `contact_important` tinyint(1) NOT NULL DEFAULT 0,
   `contact_created_at` datetime NOT NULL,
   `contact_updated_at` datetime DEFAULT NULL,
   `contact_archived_at` datetime DEFAULT NULL,
@@ -1129,6 +1130,8 @@ CREATE TABLE `settings` (
   `config_meshcentral_secret` varchar(200) DEFAULT NULL,
   `config_azure_client_id` varchar(200) DEFAULT NULL,
   `config_azure_client_secret` varchar(200) DEFAULT NULL,
+  `config_backups_enable` tinyint(1) NOT NULL DEFAULT 0,
+  `config_backups_path` varchar(250) DEFAULT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1279,7 +1282,9 @@ CREATE TABLE `ticket_replies` (
 --
 
 DROP TABLE IF EXISTS `ticket_views`;
-CREATE TABLE IF NOT EXISTS `ticket_views` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ticket_views` (
   `view_id` int(11) NOT NULL AUTO_INCREMENT,
   `view_ticket_id` int(11) NOT NULL,
   `view_user_id` int(11) NOT NULL,
@@ -1287,8 +1292,6 @@ CREATE TABLE IF NOT EXISTS `ticket_views` (
   PRIMARY KEY (`view_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `tickets`
@@ -1482,4 +1485,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-04  0:40:43
+-- Dump completed on 2022-03-29 12:22:09

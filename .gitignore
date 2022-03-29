@@ -11,4 +11,7 @@ uploads/users/*
 !uploads/users/index.php
 uploads/tmp/*
 !uploads/tmp/index.php
+backups/*
+!backups/index.php
+!backups/.htaccess
 .idea/*

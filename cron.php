@@ -34,6 +34,8 @@ while($row = mysqli_fetch_array($sql_companies)){
   $config_mail_from_name = $row['config_mail_from_name'];
   $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
   $config_base_url = $row['config_base_url'];
+  $config_backup_enable = $row['config_backup_enable'];
+  $config_backup_path = $row['config_backup_path'];
 
   // Tickets
   $config_ticket_prefix = $row['config_ticket_prefix'];
@@ -44,72 +46,76 @@ while($row = mysqli_fetch_array($sql_companies)){
 
   if($config_enable_cron == 1){
 
-    // DATABASE BACKUP
-    $backup_dir = "backups/";
+    if($config_backups_enable == 1){
+      // DATABASE BACKUP
+      // This needs to be set to the full file sytem path or else when cron runs php it will break cron.php and cron will not run properly
+      //$backup_dir = "backups/";
+      $backup_dir = "$config_backup_path/";
 
-    // Get All Table Names From the Database
-    $tables = array();
-    $sql = "SHOW TABLES";
-    $result = mysqli_query($mysqli, $sql);
-    while ($row = mysqli_fetch_row($result)) {
-      $tables[] = $row[0];
-    }
+      // Get All Table Names From the Database
+      $tables = array();
+      $sql = "SHOW TABLES";
+      $result = mysqli_query($mysqli, $sql);
+      while ($row = mysqli_fetch_row($result)) {
+        $tables[] = $row[0];
+      }
 
-    $sqlScript = "";
-    foreach ($tables as $table) {
+      $sqlScript = "";
+      foreach ($tables as $table) {
 
-      // Prepare SQLscript for creating table structure
-      $query = "SHOW CREATE TABLE $table";
-      $result = mysqli_query($mysqli, $query);
-      $row = mysqli_fetch_row($result);
+        // Prepare SQLscript for creating table structure
+        $query = "SHOW CREATE TABLE $table";
+        $result = mysqli_query($mysqli, $query);
+        $row = mysqli_fetch_row($result);
 
-      $sqlScript .= "\n\n" . $row[1] . ";\n\n";
+        $sqlScript .= "\n\n" . $row[1] . ";\n\n";
 
-      $query = "SELECT * FROM $table";
-      $result = mysqli_query($mysqli, $query);
+        $query = "SELECT * FROM $table";
+        $result = mysqli_query($mysqli, $query);
 
-      $columnCount = mysqli_num_fields($result);
+        $columnCount = mysqli_num_fields($result);
 
-      // Prepare SQLscript for dumping data for each table
-      for ($i = 0; $i < $columnCount; $i ++) {
-        while ($row = mysqli_fetch_row($result)) {
-          $sqlScript .= "INSERT INTO $table VALUES(";
-          for ($j = 0; $j < $columnCount; $j ++) {
+        // Prepare SQLscript for dumping data for each table
+        for ($i = 0; $i < $columnCount; $i ++) {
+          while ($row = mysqli_fetch_row($result)) {
+            $sqlScript .= "INSERT INTO $table VALUES(";
+            for ($j = 0; $j < $columnCount; $j ++) {
 
-            if (isset($row[$j])) {
-              $sqlScript .= '"' . $row[$j] . '"';
-            } else {
-              $sqlScript .= '""';
+              if (isset($row[$j])) {
+                $sqlScript .= '"' . $row[$j] . '"';
+              } else {
+                $sqlScript .= '""';
+              }
+              if ($j < ($columnCount - 1)) {
+                $sqlScript .= ',';
+              }
             }
-            if ($j < ($columnCount - 1)) {
-              $sqlScript .= ',';
-            }
+            $sqlScript .= ");\n";
           }
-          $sqlScript .= ");\n";
+        }
+        $sqlScript .= "\n";
+      }
+
+      // Save the SQL script to a backup file
+      if(!empty($sqlScript)) {
+        $random_string = key32gen();
+        if(!empty($random_string)){
+          $backup_file_name = date('Y-m-d') . '_backup__' . $random_string . '.sql';
+          $fileHandler = fopen($backup_dir . '/' .$backup_file_name, 'w+');
+          $number_of_lines = fwrite($fileHandler, $sqlScript);
+          fclose($fileHandler);
         }
       }
-      $sqlScript .= "\n";
-    }
 
-    // Save the SQL script to a backup file
-    if(!empty($sqlScript)) {
-      $random_string = key32gen();
-      if(!empty($random_string)){
-        $backup_file_name = date('Y-m-d') . '_backup__' . $random_string . '.sql';
-        $fileHandler = fopen($backup_dir . '/' .$backup_file_name, 'w+');
-        $number_of_lines = fwrite($fileHandler, $sqlScript);
-        fclose($fileHandler);
+      // Delete backups older than 30 days
+      $now = time();
+      foreach (glob($backup_dir."*.sql") as $file) {
+        if(time() - filectime($file) > 2592000){
+          unlink($file);
+        }
       }
-    }
 
-    // Delete backups older than 30 days
-    $now = time();
-    foreach (glob($backup_dir."*.sql") as $file) {
-      if(time() - filectime($file) > 2592000){
-        unlink($file);
-      }
     }
-
 
     // GET NOTIFICATIONS
 
