@@ -46,7 +46,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
   if($config_enable_cron == 1){
 
-    if($config_backups_enable == 1){
+    if($config_backup_enable == 1){
       // DATABASE BACKUP
       // This needs to be set to the full file sytem path or else when cron runs php it will break cron.php and cron will not run properly
       //$backup_dir = "backups/";
