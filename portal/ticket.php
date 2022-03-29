@@ -23,34 +23,16 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
     
   <nav class="navbar navbar-dark bg-dark">
     
-   <i class="fas fa-fw fa-ticket-alt text-secondary"></i> <a class="navbar-brand" href="#">Ticket number # <?php echo $ticket['ticket_prefix'], $ticket['ticket_number'] ?></a>
- 
-
+   <i class="fas fa-fw fa-ticket-alt text-secondary"></i> <a class="navbar-brand">Ticket <?php echo $ticket['ticket_prefix'], $ticket['ticket_number'] ?></a>
       
     <span class="navbar-text">
       <?php
-    if($ticket_status !== "Closed"){
-    ?>
-
-     
-   <button class="btn btn-sm btn-outline-success my-2 my-sm-0 form-inline my-2 my-lg-0" type="submit"><a href="post.php?close_ticket=<?php echo $ticket_id; ?>"><i class="fas fa-fw fa-check text-secondary text-success"></i>  Close ticket</a></button>
-
-    
-
-    
-    
-    <?php
-    }
-    ?>
+    if($ticket_status !== "Closed"){ ?>
+      <button class="btn btn-sm btn-outline-success my-2 my-sm-0 form-inline my-2 my-lg-0" type="submit"><a href="portal_post.php?close_ticket=<?php echo $ticket_id; ?>"><i class="fas fa-fw fa-check text-secondary text-success"></i>  Close ticket</a></button>
+    <?php } ?>
     </span>
   
   </nav>
-    
-    
-
-    
-
-    
 
     <div class="card">
       <div class="card-header">
@@ -66,9 +48,6 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
       </div>
     </div>
 
-
-
-          
           
     <!-- Either show the reply comments box, ticket smiley feedback, or thanks for feedback -->
 
@@ -169,7 +148,6 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
     }
 
     ?>
-
 
     <?php
   }
