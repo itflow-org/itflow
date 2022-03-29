@@ -18,7 +18,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_invoice_overdue_reminders" placeholder="Specify Full File System Path ex /home/user/web/itflow.example.com/private/backups" value="<?php echo $config_backup_path; ?>">
+          <input type="text" class="form-control" name="config_backup_path" placeholder="Specify Full File System Path ex /home/user/web/itflow.example.com/private/backups" value="<?php echo $config_backup_path; ?>">
         </div>
       </div>
 

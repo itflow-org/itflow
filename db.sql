@@ -1130,8 +1130,8 @@ CREATE TABLE `settings` (
   `config_meshcentral_secret` varchar(200) DEFAULT NULL,
   `config_azure_client_id` varchar(200) DEFAULT NULL,
   `config_azure_client_secret` varchar(200) DEFAULT NULL,
-  `config_backups_enable` tinyint(1) NOT NULL DEFAULT 0,
-  `config_backups_path` varchar(250) DEFAULT NULL,
+  `config_backup_enable` tinyint(1) NOT NULL DEFAULT 0,
+  `config_backup_path` varchar(250) DEFAULT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1485,4 +1485,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-29 12:22:09
+-- Dump completed on 2022-03-29 13:38:27
