@@ -103,6 +103,7 @@ if(isset($_GET['recurring_id'])){
           </button>
           <div class="dropdown-menu">
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringModal<?php echo $recurring_id; ?>">Edit</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editNextDateRecurringModal<?php echo $recurring_id; ?>">Set Next Date</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="post.php?force_recurring=<?php echo $recurring_id; ?>">Force Send</a>
             <div class="dropdown-divider"></div>
@@ -355,6 +356,7 @@ if(isset($_GET['recurring_id'])){
 <?php 
   
   include("recurring_invoice_edit_modal.php");
+  include("recurring_invoice_edit_next_date_modal.php");
   include("recurring_invoice_note_modal.php");
   include("category_quick_add_modal.php");
 

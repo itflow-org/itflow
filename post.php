@@ -3483,6 +3483,24 @@ if(isset($_POST['edit_recurring'])){
 
 }
 
+if(isset($_POST['edit_recurring_next_date'])){
+
+    $recurring_id = intval($_POST['recurring_id']);
+    $next_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['next_date'])));
+
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_next_date = '$next_date', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = '$status', history_description = 'Recurring next date modified', history_created_at = NOW(), history_recurring_id = $recurring_id, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Modify', log_description = '$recurring_id next date modified', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Recurring Invoice next date modified";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_GET['delete_recurring'])){
     $recurring_id = intval($_GET['delete_recurring']);
 
