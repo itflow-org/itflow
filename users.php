@@ -85,6 +85,7 @@
             $user_name = $row['user_name'];
             $user_email = $row['user_email'];
             $user_avatar = $row['user_avatar'];
+            $user_token = $row['user_token'];
             $user_default_company = $row['user_default_company'];
             $user_role = $row['user_role'];
             if($user_role == 3){

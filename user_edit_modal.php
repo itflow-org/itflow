@@ -99,6 +99,23 @@
             <label>Avatar</label>
             <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
           </div>
+
+          <?php if(!empty($user_token)) { ?>
+
+            <div class="form-group">
+              <label>2FA</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-fw fa-id-card"></i></span>
+                </div>
+                <select class="form-control" name="2fa">
+                  <option value="">Keep enabled</option>
+                  <option value="disable">Disable</option>
+                </select>
+              </div>
+            </div>
+
+          <?php } ?>
                    
         </div>
         <div class="modal-footer bg-white">
