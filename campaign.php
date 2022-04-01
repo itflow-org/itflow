@@ -79,28 +79,28 @@ if(isset($_GET['campaign_id'])){
     <div class="col-sm-1">
       <div class="card card-body card-outline card-success text-center elevation-2">
         <h6 class="text-success">Sent</h6>
-        <h1><?php echo $sent_count; ?></h1>
+        <h1><?php echo "$sent_count/$subscriber_count"; ?></h1>
       </div>
     </div>
     
     <div class="col-sm-1">
       <div class="card card-body card-outline card-secondary text-center elevation-2">
         <h6 class="text-secondary">Opened</h6>
-        <h1><?php echo $open_count; ?></h1>
+        <h1><?php echo "$open_count/$subscriber_count"; ?></h1>
       </div>
     </div>
 
     <div class="col-sm-1">
       <div class="card card-body card-outline card-info text-center elevation-2">
         <h6 class="text-info">Clicked</h6>
-        <h1><?php echo $click_count; ?></h1>
+        <h1><?php echo "$click_count/$subscriber_count"; ?></h1>
       </div>
     </div>
 
     <div class="col-sm-1">
       <div class="card card-body card-outline card-danger text-center elevation-2">
         <h6 class="text-danger">Failed</h6>
-        <h1><?php echo $fail_count; ?></h1>
+        <h1><?php echo "$fail_count/$subscriber_count"; ?></h1>
       </div>
     </div>
 
