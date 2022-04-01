@@ -46,6 +46,7 @@ $all_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts O
   <table class="table">
     <thead>
     <tr>
+      <th scope="col">#</th>
       <th scope="col">Subject</th>
       <th scope="col">Contact</th>
       <th scope="col">Status</th>
@@ -56,6 +57,7 @@ $all_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts O
     <?php
     while($ticket = mysqli_fetch_array($all_tickets)){
       echo "<tr>";
+        echo "<td> <a href='ticket.php?id=$ticket[ticket_id]'> $ticket[ticket_prefix]$ticket[ticket_id]</a></td>";
         echo "<td> <a href='ticket.php?id=$ticket[ticket_id]'> $ticket[ticket_subject]</a></td>";
         echo "<td>$ticket[contact_name]</td>";
         echo "<td>$ticket[ticket_status]</td>";

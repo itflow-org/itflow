@@ -89,7 +89,7 @@ $total_tickets = $row['total_tickets'];
             <?php
             while($ticket = mysqli_fetch_array($contact_tickets)){
               echo "<tr>";
-              echo "<td> <a href='ticket.php?id=$ticket[ticket_id]'> $ticket[ticket_number]</a></td>";
+              echo "<td> <a href='ticket.php?id=$ticket[ticket_id]'> $ticket[ticket_prefix]$ticket[ticket_number]</a></td>";
               echo "<td> <a href='ticket.php?id=$ticket[ticket_id]'> $ticket[ticket_subject]</a></td>";
               echo "<td>$ticket[ticket_status]</td>";
               echo "</tr>";

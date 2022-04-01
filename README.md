@@ -24,7 +24,7 @@
     Username: <b>demo@demo</b> | Password: <b>demo</b>
     <br />
     <br />
-    <a href="https://github.com/itflow-org/itflow">Docs</a>
+    <a href="https://itflow.org/docs.php">Docs</a>
     ·
     <a href="https://forum.itflow.org/">Forum</a>
     ·

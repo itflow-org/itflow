@@ -86,12 +86,18 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           
         </form>
 
+        <hr>
+
+        <h3>2-Factor Authentication</h3>
+
         <form class="p-3" action="post.php" method="post" autocomplete="off">
         
           <?php if(empty($session_token)){ ?>
-            <button type="submit" name="enable_2fa" class="btn btn-primary mt-3 float-right"><i class="fa fa-fw fa-lock"></i> Enable 2FA</button>
+            <p>You have not setup 2FA, click on enable to setup 2FA.</p>
+            <button type="submit" name="enable_2fa" class="btn btn-primary mt-3"><i class="fa fa-fw fa-lock"></i> Enable 2FA</button>
           <?php }else{ ?>
-            <button type="submit" name="disable_2fa" class="btn btn-danger mt-3 float-right"><i class="fa fa-fw fa-unlock"></i> Disable 2FA</button> 
+            <p>You have setup 2FA. Your QR code is below.</p>
+            <button type="submit" name="disable_2fa" class="btn btn-danger mt-3"><i class="fa fa-fw fa-unlock"></i> Disable 2FA</button>
           <?php } ?>        
 
         <center>
@@ -124,7 +130,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
             <div class="input-group-prepend">
               <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
             </div>
-            <input type="text" class="form-control" name="code" placeholder="Verify Code" required>
+            <input type="text" class="form-control" name="code" placeholder="Verify 2FA Code" required>
             <div class="input-group-append">
               <button type="submit" name="verify" class="btn btn-primary">Verify</button>
             </div>

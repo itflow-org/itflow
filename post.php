@@ -148,6 +148,7 @@ if(isset($_POST['edit_user'])){
     $role = intval($_POST['role']);
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
     $extended_log_description = '';
+    $two_fa = $_POST['2fa'];
 
     if(!file_exists("uploads/users/$user_id/")) {
         mkdir("uploads/users/$user_id");
@@ -209,6 +210,11 @@ if(isset($_POST['edit_user'])){
         mysqli_query($mysqli,"UPDATE users SET user_password = '$new_password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' WHERE user_id = $user_id");
         //Extended Logging
         $extended_log_description .= ", password changed";
+    }
+
+    if(!empty($two_fa) && $two_fa == 'disable'){
+      mysqli_query($mysqli, "UPDATE users SET user_token = '' WHERE user_id = '$user_id'");
+      mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name disabled 2FA for $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
     }
 
     //Update User Settings
