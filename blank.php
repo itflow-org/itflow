@@ -13,11 +13,4 @@
 <hr>
 <p>This is a great starting point for new custom pages.</p>
 
-<?php 
-
-$temp_path = sys_get_temp_dir() . "/file.txt";
-echo $temp_path."\n";
-
-?>
-
 <?php include("footer.php"); ?>
