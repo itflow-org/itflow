@@ -95,6 +95,13 @@
             <p>Online Payment</p>
           </a> 
         </li>
+
+        <li class="nav-item">
+          <a href="settings-integrations.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-integrations.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-puzzle-piece"></i>
+            <p>Integrations</p>
+          </a> 
+        </li>
        
         <li class="nav-item">
           <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-update.php") { echo "active"; } ?>" 

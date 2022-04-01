@@ -804,13 +804,8 @@ if(isset($_POST['edit_general_settings'])){
     }
 
     $config_base_url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url'])));
-    $mesh_uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_uri'])));
-    $mesh_user = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_user'])));
-    $mesh_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_secret'])));
-    $azure_client_id = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['azure_client_id'])));
-    $azure_client_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['azure_client_secret'])));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_base_url = '$config_base_url', config_meshcentral_uri = '$mesh_uri', config_meshcentral_user = '$mesh_user', config_meshcentral_secret = '$mesh_secret', config_azure_client_id = '$azure_client_id', config_azure_client_secret = '$azure_client_secret' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified general settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
@@ -1072,6 +1067,32 @@ if(isset($_POST['edit_online_payment_settings'])){
     $_SESSION['alert_message'] = "Online Payment Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if(isset($_POST['edit_integrations_settings'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
+    $mesh_uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_uri'])));
+    $mesh_user = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_user'])));
+    $mesh_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['meshcentral_secret'])));
+    $azure_client_id = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['azure_client_id'])));
+    $azure_client_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['azure_client_secret'])));
+
+    mysqli_query($mysqli,"UPDATE settings SET config_meshcentral_uri = '$mesh_uri', config_meshcentral_user = '$mesh_user', config_meshcentral_secret = '$mesh_secret', config_azure_client_id = '$azure_client_id', config_azure_client_secret = '$azure_client_secret' WHERE company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified integrations settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Integrations settings updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
 
 if(isset($_POST['edit_backup_settings'])){
