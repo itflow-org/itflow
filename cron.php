@@ -48,7 +48,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
     if($config_backup_enable == 1){
       // DATABASE BACKUP
-      // This needs to be set to the full file sytem path or else when cron runs php it will break cron.php and cron will not run properly
+      // This needs to be set to the full file system path or else when cron runs php it will break cron.php and cron will not run properly
       //$backup_dir = "backups/";
       $backup_dir = "$config_backup_path/";
 
@@ -264,6 +264,12 @@ while($row = mysqli_fetch_array($sql_companies)){
 
     // Clean-up ticket views table used for collision detection
     mysqli_query($mysqli, "TRUNCATE TABLE ticket_views");
+
+    // Clean-up shared items that have been used
+    mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_views = item_view_limit");
+
+    // Clean-up shared items that have expired
+    mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_expire_at < NOW()");
 
     // PAST DUE INVOICE Notifications
     //$invoiceAlertArray = [$config_invoice_overdue_reminders];
