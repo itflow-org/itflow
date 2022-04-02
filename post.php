@@ -5653,7 +5653,7 @@ if(isset($_POST['add_certificate'])){
     mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_created_at = NOW(), certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Create', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = '$client_id', company_id = '$session_company_id', log_user_id = '$session_user_id'");
 
     $_SESSION['alert_message'] = "Certificate added";
     
@@ -5695,7 +5695,7 @@ if(isset($_POST['edit_certificate'])){
     mysqli_query($mysqli,"UPDATE certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_updated_at = NOW(), certificate_public_key = '$public_key', certificate_domain_id = '$domain_id' WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Modify', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Certificate updated";
     
@@ -5717,7 +5717,7 @@ if(isset($_GET['delete_certificate'])){
     mysqli_query($mysqli,"DELETE FROM certificates WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Delete', log_description = '$certificate_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Delete', log_description = '$certificate_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Certificate deleted";
     
@@ -5787,6 +5787,7 @@ if(isset($_POST['add_domain'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
+    $extended_log_description = '';
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
     if(empty($expire)){
         $expire = "0000-00-00";
@@ -5800,13 +5801,11 @@ if(isset($_POST['add_domain'])){
         $mx = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short MX $domain")));
         $whois = trim(strip_tags(mysqli_real_escape_string($mysqli,shell_exec("whois -H $domain | sed 's/   //g' | head -30"))));
 
-        // Get expiry date for com/org/net domains - This is very hacky. An API would be better.
-        if(!empty($whois && $expire == '0000-00-00')){
-            if(substr($_POST['name'], -3) == 'com' OR substr($_POST['name'], -3) == 'org' OR substr($_POST['name'], -3) == 'net'){
-                $pos = strpos($whois, 'Registry Expiry Date:');
-                $expire = substr($whois, $pos+22,10);
-            }
+        // Get domain expiry date - if not specified
+        if($expire == '0000-00-00'){
+            $expire = getDomainExpirationDate($name);
         }
+
     }
     else{
         $a = '';
@@ -5815,10 +5814,36 @@ if(isset($_POST['add_domain'])){
         $whois = '';
     }
 
+    // Add domain record
     mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_created_at = NOW(), domain_client_id = $client_id, company_id = $session_company_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Create', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+
+    // Get inserted ID (for linking certificate, if exists)
+    $domain_id = mysqli_insert_id($mysqli);
+
+    // Get SSL/TSL certificate (using verify peer false to allow for self-signed certs) for domain on default port
+    $socket = "ssl://$name:443";
+    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => TRUE, "verify_peer" => FALSE,)));
+    $read = stream_socket_client($socket, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $get);
+
+    // If the socket connected
+    if($read){
+      $cert = stream_context_get_params($read);
+      $cert_public_key_obj = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
+      openssl_x509_export($cert['options']['ssl']['peer_certificate'], $export);
+
+      if($cert_public_key_obj){
+        $expire =  mysqli_real_escape_string($mysqli, date('Y-m-d', $cert_public_key_obj['validTo_time_t']));
+        $issued_by = mysqli_real_escape_string($mysqli, strip_tags($cert_public_key_obj['issuer']['O']));
+        $public_key = mysqli_real_escape_string($mysqli, $export);
+
+        mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$name', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_created_at = NOW(), certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
+        $extended_log_description = ', with associated SSL cert';
+      }
+    }
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Create', log_description = '$name$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Domain added";
     
@@ -5851,14 +5876,7 @@ if(isset($_POST['edit_domain'])){
         $ns = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short NS $domain")));
         $mx = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short MX $domain")));
         $whois = trim(strip_tags(mysqli_real_escape_string($mysqli,shell_exec("whois -H $domain | sed 's/   //g' | head -30"))));
-
-        // Get expiry date for com/org/net domains - This is very hacky. An API would be better.
-        if(!empty($whois)){
-            if(substr($_POST['name'], -3) == 'com' OR substr($_POST['name'], -3) == 'org' OR substr($_POST['name'], -3) == 'net'){
-                $pos = strpos($whois, 'Registry Expiry Date:');
-                $expire = substr($whois, $pos+22,10);
-            }
-        }
+        $expire = getDomainExpirationDate($name);
     }
     else{
         $a = '';
@@ -5870,7 +5888,7 @@ if(isset($_POST['edit_domain'])){
     mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_updated_at = NOW() WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modify', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Domain updated";
     
@@ -5892,7 +5910,7 @@ if(isset($_GET['delete_domain'])){
     mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Delete', log_description = '$domain_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Delete', log_description = '$domain_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Domain deleted";
     

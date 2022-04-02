@@ -400,4 +400,26 @@ function encryptUpgradeLoginEntry($login_password_cleartext, $site_encryption_ma
   return $login_password_ciphertext;
 }
 
+// Get domain expiration date
+function getDomainExpirationDate($name){
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, "https://itflow-whois.herokuapp.com/$name");
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+  $response = json_decode(curl_exec($ch),1);
+
+  if($response){
+    if(is_array($response['expiration_date'])){
+      $expiry = new DateTime($response['expiration_date'][1]);
+    }
+    else{
+      $expiry = new DateTime($response['expiration_date']);
+    }
+
+    return $expiry->format('Y-m-d');
+  }
+
+  // Default return
+  return '0000-00-00';
+}
+
 ?>
