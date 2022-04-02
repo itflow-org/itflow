@@ -13,7 +13,7 @@
           <a href="dashboard_financial.php" class="nav-link">
             <i class="nav-icon fas fa-arrow-left"></i>
             <p>Back</p> | 
-            <p><strong>Admin Nav</strong></p>
+            <p><strong>Settings</strong></p>
           </a>
         </li>
 

@@ -185,6 +185,17 @@
 
         <?php } ?>
 
+        <?php if($session_user_role == 3){ ?>
+
+        <li class="nav-item mt-3">
+          <a href="users.php" class="nav-link">
+            <i class="nav-icon fas fa-cog"></i>
+            <p>Settings</p>
+          </a>
+        </li>
+
+        <?php } ?>
+
         <?php
         
         $sql = mysqli_query($mysqli,"SELECT * FROM custom_links WHERE company_id = $session_company_id");
