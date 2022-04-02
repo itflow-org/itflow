@@ -35,8 +35,8 @@
           </div>
           <select class="form-control" name="config_smtp_encryption">
             <option value=''>None</option>
-            <option <?php if($config_smtp_encryption == 'tls'){ echo "selected"; } ?>>tls</option>
-            <option <?php if($config_smtp_encryption == 'ssl'){ echo "selected"; } ?>>ssl</option>
+            <option <?php if($config_smtp_encryption == 'tls'){ echo "selected"; } ?> value="tls">TLS</option>
+            <option <?php if($config_smtp_encryption == 'ssl'){ echo "selected"; } ?> value="ssl">SSL</option>
           </select>
         </div>
       </div>
