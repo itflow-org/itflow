@@ -19,6 +19,7 @@ $config_azure_client_secret = $row['config_azure_client_secret'];
 // Mail
 $config_smtp_host = $row['config_smtp_host'];
 $config_smtp_port = $row['config_smtp_port'];
+$config_smtp_encryption = $row['config_smtp_encryption'];
 $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
 $config_mail_from_email = $row['config_mail_from_email'];

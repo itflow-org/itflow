@@ -26,6 +26,20 @@
           <input type="number" min="0" class="form-control" name="config_smtp_port" placeholder="Mail Server Port Number" value="<?php echo $config_smtp_port; ?>" required>
         </div>
       </div>
+
+      <div class="form-group">
+        <label>Encryption</label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+          </div>
+          <select class="form-control" name="config_smtp_encryption">
+            <option value=''>None</option>
+            <option <?php if($config_smtp_encryption == 'tls'){ echo "selected"; } ?>>tls</option>
+            <option <?php if($config_smtp_encryption == 'ssl'){ echo "selected"; } ?>>ssl</option>
+          </select>
+        </div>
+      </div>
       
       <div class="form-group">
         <label>SMTP Username</label>
@@ -41,7 +55,7 @@
         <label>SMTP Password</label>
         <div class="input-group">
           <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
           </div>
           <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="Password" value="<?php echo $config_smtp_password; ?>" autocomplete="new-password" required>
           <div class="input-group-append">

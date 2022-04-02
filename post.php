@@ -827,12 +827,13 @@ if(isset($_POST['edit_mail_settings'])){
 
     $config_smtp_host = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_host'])));
     $config_smtp_port = intval($_POST['config_smtp_port']);
+    $config_smtp_encryption = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_encryption'])));
     $config_smtp_username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_username'])));
     $config_smtp_password = trim(mysqli_real_escape_string($mysqli,$_POST['config_smtp_password']));
     $config_mail_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_email'])));
     $config_mail_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name'])));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_encryption = '$config_smtp_encryption', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
 
 
     //Update From Email and From Name if Invoice/Quote or Ticket fields are blank
@@ -890,7 +891,7 @@ if(isset($_POST['test_email'])){
     $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
     $mail->Username   = $config_smtp_username;                     // SMTP username
     $mail->Password   = $config_smtp_password;                               // SMTP password
-    $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+    $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
     $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
     //Recipients
@@ -1604,7 +1605,7 @@ if(isset($_POST['add_event'])){
             $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
             $mail->Username   = $config_smtp_username;                     // SMTP username
             $mail->Password   = $config_smtp_password;                               // SMTP password
-            $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+            $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
             $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
             //Recipients
@@ -1681,7 +1682,7 @@ if(isset($_POST['edit_event'])){
             $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
             $mail->Username   = $config_smtp_username;                     // SMTP username
             $mail->Password   = $config_smtp_password;                               // SMTP password
-            $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+            $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
             $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
             //Recipients
@@ -2076,7 +2077,7 @@ if(isset($_POST['test_campaign'])){
     $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
     $mail->Username   = $config_smtp_username;                     // SMTP username
     $mail->Password   = $config_smtp_password;                               // SMTP password
-    $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+    $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
     $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
     //Recipients
@@ -3376,7 +3377,7 @@ if(isset($_GET['email_quote'])){
         $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
         $mail->Username   = $config_smtp_username;                     // SMTP username
         $mail->Password   = $config_smtp_password;                               // SMTP password
-        $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+        $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
         $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
         //Recipients
@@ -3887,7 +3888,7 @@ if(isset($_POST['add_payment'])){
                   $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
                   $mail->Username   = $config_smtp_username;                     // SMTP username
                   $mail->Password   = $config_smtp_password;                               // SMTP password
-                  $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+                  $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
                   $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
                   //Recipients
@@ -3923,7 +3924,7 @@ if(isset($_POST['add_payment'])){
                   $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
                   $mail->Username   = $config_smtp_username;                     // SMTP username
                   $mail->Password   = $config_smtp_password;                               // SMTP password
-                  $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+                  $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
                   $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
                   //Recipients
@@ -4070,7 +4071,7 @@ if(isset($_GET['email_invoice'])){
         $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
         $mail->Username   = $config_smtp_username;                     // SMTP username
         $mail->Password   = $config_smtp_password;                               // SMTP password
-        $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+        $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
         $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
         //Recipients
@@ -6217,7 +6218,7 @@ if(isset($_POST['add_ticket_reply'])){
                 $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
                 $mail->Username   = $config_smtp_username;                  // SMTP username
                 $mail->Password   = $config_smtp_password;                  // SMTP password
-                $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+                $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
                 $mail->Port       = $config_smtp_port;                      // TCP port to connect to
 
                 //Recipients
@@ -7179,7 +7180,7 @@ if(isset($_GET['force_recurring'])){
             $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
             $mail->Username   = $config_smtp_username;                     // SMTP username
             $mail->Password   = $config_smtp_password;                               // SMTP password
-            $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+            $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
             $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
             //Recipients

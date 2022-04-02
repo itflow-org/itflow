@@ -24,6 +24,7 @@ while($row = mysqli_fetch_array($sql_companies)){
   $config_smtp_username = $row['config_smtp_username'];
   $config_smtp_password = $row['config_smtp_password'];
   $config_smtp_port = $row['config_smtp_port'];
+  $config_smtp_encryption = $row['config_smtp_encryption'];
   $config_base_url = $row['config_base_url'];
 
   $sql_campaigns = mysqli_query($mysqli,"SELECT * FROM campaigns WHERE company_id = $company_id AND campaign_status = 'Queued' AND campaign_scheduled_at < NOW()");
@@ -68,7 +69,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
         $mail->Username   = $config_smtp_username;                     // SMTP username
         $mail->Password   = $config_smtp_password;                               // SMTP password
-        $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+        $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
         $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
         //Recipients

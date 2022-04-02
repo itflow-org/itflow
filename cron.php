@@ -30,6 +30,7 @@ while($row = mysqli_fetch_array($sql_companies)){
   $config_smtp_username = $row['config_smtp_username'];
   $config_smtp_password = $row['config_smtp_password'];
   $config_smtp_port = $row['config_smtp_port'];
+  $config_smtp_encryption = $row['config_smtp_encryption'];
   $config_mail_from_email = $row['config_mail_from_email'];
   $config_mail_from_name = $row['config_mail_from_name'];
   $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
@@ -317,7 +318,7 @@ while($row = mysqli_fetch_array($sql_companies)){
           $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
           $mail->Username   = $config_smtp_username;                     // SMTP username
           $mail->Password   = $config_smtp_password;                               // SMTP password
-          $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+          $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
           $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
           //Recipients
@@ -441,7 +442,7 @@ while($row = mysqli_fetch_array($sql_companies)){
           $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
           $mail->Username   = $config_smtp_username;                     // SMTP username
           $mail->Password   = $config_smtp_password;                               // SMTP password
-          $mail->SMTPSecure = 'tls';                                  // Enable TLS encryption, `ssl` also accepted
+          $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
           $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
           //Recipients
