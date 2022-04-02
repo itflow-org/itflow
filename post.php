@@ -1278,23 +1278,11 @@ if(isset($_GET['update_db'])){
       exit();
     }
 
-    //Alter SQL Structure
+    // Get the current version
+    require_once ('database_version.php');
 
-    //Put ID Here
-    //mysqli_query($mysqli,"ALTER TABLE logs ADD log_ip VARCHAR(200) NULL AFTER log_description");
-    //mysqli_query($mysqli,"ALTER TABLE logs ADD log_user_agent VARCHAR(250) NULL AFTER log_ip");
-
-    //85cdc42d0f15e36de5cab00d7f3c799a056e85ef
-    //mysqli_query($mysqli,"ALTER TABLE assets ADD asset_install_date DATE NULL AFTER asset_warranty_expire");
-
-    //c88e6b851aadfbde173f7cfe7155dd1ed31adece
-    //mysqli_query($mysqli,"ALTER TABLE settings DROP config_enable_alert_low_balance");
-    //mysqli_query($mysqli,"ALTER TABLE settings DROP config_account_balance_threshold");
-    //mysqli_query($mysqli,"ALTER TABLE clients DROP client_support");
-    //mysqli_query($mysqli,"ALTER TABLE tags DROP tag_archived_at");
-
-    //Update 2
-    //mysqli_query($mysqli,"ALTER TABLE tags ADD tag_type INT(11) NOT NULL AFTER tag_name");
+    // Perform upgrades, if required
+    require_once ('database_updates.php');
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Update', log_description = '$session_name updated the database structure', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");

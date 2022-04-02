@@ -7,6 +7,9 @@ $row = mysqli_fetch_array($sql_settings);
 // General
 $config_base_url = $row['config_base_url'];
 
+// Database version
+DEFINE("CURRENT_DATABASE_VERSION", $row['config_current_database_version']);
+
 // Mesh Central
 $config_meshcentral_uri = $row['config_meshcentral_uri'];
 $config_meshcentral_user = $row['config_meshcentral_user'];

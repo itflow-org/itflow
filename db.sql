@@ -1086,6 +1086,7 @@ DROP TABLE IF EXISTS `settings`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `settings` (
   `company_id` int(11) NOT NULL,
+  `config_current_database_version` varchar(10) NOT NULL,
   `config_base_url` varchar(200) DEFAULT NULL,
   `config_smtp_host` varchar(200) DEFAULT NULL,
   `config_smtp_port` int(5) DEFAULT NULL,
