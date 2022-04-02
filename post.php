@@ -5756,13 +5756,11 @@ if(isset($_POST['add_domain'])){
         $mx = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short MX $domain")));
         $whois = trim(strip_tags(mysqli_real_escape_string($mysqli,shell_exec("whois -H $domain | sed 's/   //g' | head -30"))));
 
-        // Get expiry date for com/org/net domains - This is very hacky. An API would be better.
-        if(!empty($whois && $expire == '0000-00-00')){
-            if(substr($_POST['name'], -3) == 'com' OR substr($_POST['name'], -3) == 'org' OR substr($_POST['name'], -3) == 'net'){
-                $pos = strpos($whois, 'Registry Expiry Date:');
-                $expire = substr($whois, $pos+22,10);
-            }
+        // Get domain expiry date - if not specified
+        if($expire == '0000-00-00'){
+            $expire = getDomainExpirationDate($name);
         }
+
     }
     else{
         $a = '';
@@ -5833,14 +5831,7 @@ if(isset($_POST['edit_domain'])){
         $ns = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short NS $domain")));
         $mx = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short MX $domain")));
         $whois = trim(strip_tags(mysqli_real_escape_string($mysqli,shell_exec("whois -H $domain | sed 's/   //g' | head -30"))));
-
-        // Get expiry date for com/org/net domains - This is very hacky. An API would be better.
-        if(!empty($whois)){
-            if(substr($_POST['name'], -3) == 'com' OR substr($_POST['name'], -3) == 'org' OR substr($_POST['name'], -3) == 'net'){
-                $pos = strpos($whois, 'Registry Expiry Date:');
-                $expire = substr($whois, $pos+22,10);
-            }
-        }
+        $expire = getDomainExpirationDate($name);
     }
     else{
         $a = '';
