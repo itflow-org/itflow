@@ -6974,6 +6974,33 @@ if (isset($_POST['rename_document_tag'])) {
 
 }
 
+if(isset($_GET['deactivate_shared_item'])){
+    if($session_user_role != 3){
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = "You are not permitted to do that!";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+
+    $item_id = intval($_GET['deactivate_shared_item']);
+
+    // Get details of the shared link
+    $sql = mysqli_query($mysqli, "SELECT item_type, item_related_id, item_client_id FROM shared_items WHERE item_id = '$item_id'");
+    $row = mysqli_fetch_array($sql);
+    $item_type = $row['item_type'];
+    $item_related_id = $row['item_related_id'];
+    $item_client_id = $row['item_client_id'];
+
+    // Deactivate item id
+    mysqli_query($mysqli, "UPDATE shared_items SET item_active = '0' WHERE item_id = '$item_id'");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'Delete', log_description = '$session_name deactivated shared $item_type link. Item ID: $item_related_id. Share ID $item_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = '$item_client_id', log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Link deactivated";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if(isset($_GET['force_recurring'])){
     $recurring_id = intval($_GET['force_recurring']);
 

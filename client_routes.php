@@ -102,6 +102,11 @@ if(isset($_GET['tab'])){
   elseif($_GET['tab'] == "logs"){
       include("client_logs.php");
   }
+  elseif($_GET['tab'] == "shared-items"){
+    if($session_user_role > 1){
+      include("client_shared_items.php");
+    }
+  }
 }
 else{
   include("client_overview.php");
