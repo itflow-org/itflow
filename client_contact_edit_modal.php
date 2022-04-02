@@ -21,6 +21,9 @@
               <a class="nav-link" data-toggle="pill" href="#pills-photo<?php echo $contact_id; ?>">Photo</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-portal<?php echo $contact_id; ?>">Portal</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $contact_id; ?>">Notes</a>
             </li>
           </ul>
@@ -141,8 +144,12 @@
                 </div>
               </div>
 
+            </div>
+
+            <div class="tab-pane fade" id="pills-portal<?php echo $contact_id; ?>">
+
               <div class="form-group">
-                <label>Portal Login</label>
+                <label>Login</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
@@ -158,12 +165,15 @@
               <?php if($auth_method == "local") { ?>
 
                 <div class="form-group">
-                  <label>Portal Login Password</label>
+                  <label>Password</label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                     </div>
-                    <input class="form-control" type="password" name="contact_password" placeholder="Leave blank for no change">
+                    <input type="password" class="form-control" data-toggle="password" name="contact_password" placeholder="Leave blank for no change" autocomplete="new-password">
+                    <div class="input-group-append">
+                      <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                    </div>
                   </div>
                 </div>
 

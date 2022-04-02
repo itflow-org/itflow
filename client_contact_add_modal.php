@@ -19,6 +19,9 @@
               <a class="nav-link" data-toggle="pill" href="#pills-photo">Photo</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-portal">Portal</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
             </li>
           </ul>
@@ -139,8 +142,21 @@
                 </div>
               </div>
 
+            </div>
+
+            <div class="tab-pane fade" id="pills-photo">
+              
               <div class="form-group">
-                <label>Portal Login</label>
+                <label>Upload Photo</label>
+                <input type="file" class="form-control-file" name="file">
+              </div>
+
+            </div>
+
+            <div class="tab-pane fade" id="pills-portal"> 
+
+              <div class="form-group">
+                <label>Login</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
@@ -151,15 +167,6 @@
                     <option value="azure">Azure</option>
                   </select>
                 </div>
-              </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-photo">
-              
-              <div class="form-group">
-                <label>Upload Photo</label>
-                <input type="file" class="form-control-file" name="file">
               </div>
 
             </div>
