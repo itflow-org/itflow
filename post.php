@@ -1483,6 +1483,7 @@ if(isset($_GET['delete_client'])){
     mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM scheduled_tickets WHERE scheduled_ticket_client_id = $client_id");
+    mysqli_query($mysqli,"DELETE FROM shared_items WHERE item_client_id = $client_id");
 
   $sql = mysqli_query($mysqli,"SELECT recurring_id FROM recurring WHERE recurring_client_id = $client_id");
     while($row = mysqli_fetch_array($sql)){
@@ -1541,48 +1542,6 @@ if(isset($_GET['delete_client'])){
     $_SESSION['alert_message'] = "Client $client_name deleted along with all referring data";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]); 
-}
-
-if(isset($_GET['share_generate_link'])){
-    $client_id = intval($_GET['client_id']);
-    $item_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['type'])));
-    $item_id = intval($_GET['id']);
-    $item_note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['note'])));
-    $item_view_limit = intval($_GET['views']);
-    $item_expires = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['expires'])));
-    $item_key = keygen();
-
-    if($item_type == "Login"){
-        $login = mysqli_query($mysqli, "SELECT login_password FROM logins WHERE login_id = '$item_id' AND login_client_id = '$client_id' LIMIT 1");
-        $row = mysqli_fetch_array($login);
-
-        $login_password_cleartext = decryptLoginEntry($row['login_password']);
-        $login_encryption_key = keygen();
-        $iv = keygen();
-        $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $login_encryption_key, 0, $iv);
-
-        $item_encrypted_credential = $iv . $ciphertext;
-    }
-    else{
-        $item_encrypted_credential = '';
-    }
-
-    // Insert entry into DB
-    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = '1', item_key = '$item_key', item_type = '$item_type', item_related_id = '$item_id', item_encrypted_credential = '$item_encrypted_credential', item_note = '$item_note', item_views = 0, item_view_limit = '$item_view_limit', item_created_at = NOW(), item_expire_at = '$item_expires', item_client_id = '$client_id'");
-    $share_id = $mysqli->insert_id;
-
-    // Return URL
-    if($item_type == "Login"){
-        $url = "$config_base_url/guest_view_item.php?id=$share_id&key=$item_key&ek=$login_encryption_key";
-    }
-    else{
-        $url = "$config_base_url/guest_view_item.php?id=$share_id&key=$item_key";
-    }
-    echo json_encode($url);
-
-    // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'Create', log_description = '$session_name created shared link for $item_type - Item ID: $item_id', log_client_id = '$client_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
-
 }
 
 if(isset($_POST['add_calendar'])){
@@ -7076,6 +7035,33 @@ if (isset($_POST['rename_document_tag'])) {
     $_SESSION['alert_message'] = "Document tag updated";
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if(isset($_GET['deactivate_shared_item'])){
+    if($session_user_role != 3){
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = "You are not permitted to do that!";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+
+    $item_id = intval($_GET['deactivate_shared_item']);
+
+    // Get details of the shared link
+    $sql = mysqli_query($mysqli, "SELECT item_type, item_related_id, item_client_id FROM shared_items WHERE item_id = '$item_id'");
+    $row = mysqli_fetch_array($sql);
+    $item_type = $row['item_type'];
+    $item_related_id = $row['item_related_id'];
+    $item_client_id = $row['item_client_id'];
+
+    // Deactivate item id
+    mysqli_query($mysqli, "UPDATE shared_items SET item_active = '0' WHERE item_id = '$item_id'");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'Delete', log_description = '$session_name deactivated shared $item_type link. Item ID: $item_related_id. Share ID $item_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = '$item_client_id', log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Link deactivated";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if(isset($_GET['force_recurring'])){

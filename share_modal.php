@@ -15,13 +15,13 @@
 
         // Check values are provided
         if(item_views && item_expires && item_note){
-            // Send a GET request to post.php as post.php?share_generate_link=true....
+            // Send a GET request to ajax.php as ajax.php?share_generate_link=true....
             jQuery.get(
-                "post.php",
+                "ajax.php",
                 {share_generate_link: 'true', client_id: client_id, type: item_type, id: item_ref_id, note: item_note ,views: item_views, expires: item_expires},
                 function(data){
 
-                    // If we get a response from post.php, parse it as JSON
+                    // If we get a response from ajax.php, parse it as JSON
                     const response = JSON.parse(data);
 
                     document.getElementById("share_link_header").hidden = false;
@@ -44,13 +44,13 @@
             <div class="modal-body bg-white">
 
                 <h2>Get Share URL</h2>
-                <form action="post.php" method="GET" id="newShareLink">
+                <form action="ajax.php" method="GET" id="newShareLink">
                     <input type="hidden" name="client_id" id="share_client_id"  value="">
                     <input type="hidden" name="item_type" id="share_item_type"  value="">
                     <input type="hidden" name="item_ref_id" id="share_item_ref_id"  value="">
                     <div class="form-group">
                         <label for="views">Number of views allowed <strong class="text-danger">*</strong></label>
-                        <input type="number" class="form-control" name="views" id="share_views" placeholder="Views before link expires" required autofocus>
+                        <input type="number" class="form-control" name="views" id="share_views" placeholder="Views before link expires" value="1" required autofocus>
                     </div>
                     <div class="form-group">
                         <label for="views">Link Expiry date <strong class="text-danger">*</strong></label>

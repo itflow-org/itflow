@@ -300,6 +300,13 @@
         <li class="nav-header mt-3">MORE</li>
 
         <li class="nav-item">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=shared-items" class="nav-link <?php if($_GET['tab'] == "shared-items") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-share"></i>
+            <p>Shared Links</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=logs" class="nav-link <?php if($_GET['tab'] == "logs") { echo "active"; } ?>">
             <i class="nav-icon fas fa-eye"></i>
             <p>Logs</p>
