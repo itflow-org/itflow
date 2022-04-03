@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-file"></i> New Invoice from Ticket</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-file"></i> Invoice Ticket</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -13,6 +13,37 @@
          
           <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
          
+          <div class="form-group">
+            <label>Exisiting Invoice?</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
+              </div>
+              <select class="form-control select2" name="invoice_id">
+                <option value="0">New Invoice</option>
+                <?php 
+                
+                $sql_invoices = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_status NOT LIKE 'Paid' AND invoice_client_id = $client_id AND company_id = $session_company_id ORDER BY invoice_number ASC"); 
+                while($row = mysqli_fetch_array($sql_invoices)){
+                  $invoice_id = $row['invoice_id'];
+                  $invoice_prefix = $row['invoice_prefix'];
+                  $invoice_number = $row['invoice_number'];
+                  $invoice_scope = $row['invoice_scope'];
+                  $invoice_satus = $row['invoice_status'];
+                  $invoice_date = $row['invoice_date'];
+                  $invoice_due = $row['invoice_due'];
+                  $invoice_amount = $row['invoice_amount'];
+
+                ?>
+                <option value="<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number $invoice_scope"; ?></option>
+                
+                <?php
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+
           <div class="form-group">
             <label>Invoice Date <strong class="text-danger">*</strong></label>
             <div class="input-group">

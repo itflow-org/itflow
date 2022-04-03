@@ -578,11 +578,11 @@ if(isset($_GET['ticket_id'])){
 
     <div class="card card-body card-outline card-dark mb-2">
      <div class="">
-        <a href="#" class="btn btn-outline-success btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">INVOICE</a>
+        <a href="#" class="btn btn-outline-success btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">Invoice Ticket</a>
         <?php
         if($ticket_status !== "Closed"){
         ?>
-        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">CLOSE TICKET</a>
+        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">Close Ticket</a>
         <?php } ?>
       </div>
     </div>
@@ -595,6 +595,7 @@ if(isset($_GET['ticket_id'])){
       include("ticket_edit_modal.php");
       include("ticket_merge_modal.php");
       include("ticket_invoice_add_modal.php");
+      include("ticket_invoice_existing_add_modal.php");
 ?>
 
 <?php

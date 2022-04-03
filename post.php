@@ -6371,6 +6371,7 @@ if(isset($_GET['close_ticket'])){
 
 if(isset($_POST['add_invoice_from_ticket'])){
     
+    $invoice_id = intval($_POST['invoice_id']);
     $ticket_id = intval($_POST['ticket_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $category = intval($_POST['category']);
@@ -6408,17 +6409,19 @@ if(isset($_POST['add_invoice_from_ticket'])){
 
     $location_name = $row['location_name'];
 
+    if($invoice_id == 0){
 
-    //Get the last Invoice Number and add 1 for the new invoice number
-    $invoice_number = $config_invoice_next_number;
-    $new_config_invoice_next_number = $config_invoice_next_number + 1;
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
+        //Get the last Invoice Number and add 1 for the new invoice number
+        $invoice_number = $config_invoice_next_number;
+        $new_config_invoice_next_number = $config_invoice_next_number + 1;
+        mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
 
-    //Generate a unique URL key for clients to access
-    $url_key = keygen();
+        //Generate a unique URL key for clients to access
+        $url_key = keygen();
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_currency_code = '$session_company_currency', invoice_category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_created_at = NOW(), invoice_client_id = $client_id, company_id = $session_company_id");
-    $invoice_id = mysqli_insert_id($mysqli);
+        mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_currency_code = '$session_company_currency', invoice_category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_created_at = NOW(), invoice_client_id = $client_id, company_id = $session_company_id");
+        $invoice_id = mysqli_insert_id($mysqli);
+    }
     
     //Add Item
     $item_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['item_name'])));
