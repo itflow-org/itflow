@@ -511,17 +511,17 @@ if(isset($_GET['ticket_id'])){
                     <?php
                     // Query is run from client_assets.php
                     while($row = mysqli_fetch_array($sql_asset_tickets)){
-                      $ticket_id = $row['ticket_id'];
-                      $ticket_prefix = $row['ticket_prefix'];
-                      $ticket_number = $row['ticket_number'];
-                      $ticket_subject = $row['ticket_subject'];
-                      $ticket_status = $row['ticket_status'];
-                      $ticket_created_at = $row['ticket_created_at'];
-                      $ticket_updated_at = $row['ticket_updated_at'];
+                      $service_ticket_id = $row['ticket_id'];
+                      $service_ticket_prefix = $row['ticket_prefix'];
+                      $service_ticket_number = $row['ticket_number'];
+                      $service_ticket_subject = $row['ticket_subject'];
+                      $service_ticket_status = $row['ticket_status'];
+                      $service_ticket_created_at = $row['ticket_created_at'];
+                      $service_ticket_updated_at = $row['ticket_updated_at'];
                       ?>
                     <p>
                       <i class="fas fa-fw fa-ticket-alt"></i>
-                      Ticket: <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo "$ticket_prefix$ticket_number" ?></a> on <?php echo $ticket_created_at; ?> <?php echo $ticket_subject; ?>
+                      Ticket: <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo "$service_ticket_prefix$service_ticket_number" ?></a> on <?php echo $service_ticket_created_at; ?> <?php echo $service_ticket_subject; ?>
                     </p>
                     <?php 
                     }
