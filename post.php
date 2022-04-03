@@ -6371,7 +6371,7 @@ if(isset($_GET['close_ticket'])){
 
 if(isset($_POST['add_invoice_from_ticket'])){
     
-    $ticket_id = intval($_GET['ticket_id']);
+    $ticket_id = intval($_POST['ticket_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $category = intval($_POST['category']);
     $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
