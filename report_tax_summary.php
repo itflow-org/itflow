@@ -167,63 +167,98 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
             <th>Total Taxes<br><br><br></th>
             <?php
             
-            $tax_total_for_quarter_one = 0;
-
-            for($month = 1; $month<=3; $month++) {
-              $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE expense_category_id > 0 AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND company_id = $session_company_id");
-              $row = mysqli_fetch_array($sql_expenses);
-              $expense_total_amount_for_quarter_one = $expense_total_amount_for_quarter_one + $row['expense_total_amount_for_month'];
+            $tax_collected_total_quarter_one = 0;
+              
+            for($month = 1; $month <= 3; $month ++) {
+              
+              $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month FROM taxes, invoices, invoice_items 
+                WHERE item_invoice_id = invoice_id
+                AND invoice_status LIKE 'Paid'  
+                AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
+              );
+              
+              $row = mysqli_fetch_array($sql_tax_collected);
+              $tax_collected_for_month = $row['tax_collected_for_month'];
+              
+              $tax_collected_total_quarter_one = $tax_collected_total_quarter_one + $tax_collected_for_month;              
             }
             
             ?>  
             
-              <th class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_total_amount_for_quarter_one, $session_company_currency); ?></th>
+              <th class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_total_quarter_one, $session_company_currency); ?></th>
 
             <?php
-
-            $expense_total_amount_for_quarter_two = 0;
- 
-            for($month = 4; $month<=6; $month++) {
-              $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE expense_category_id > 0 AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND company_id = $session_company_id");
-              $row = mysqli_fetch_array($sql_expenses);
-              $expense_total_amount_for_quarter_two = $expense_total_amount_for_quarter_two + $row['expense_total_amount_for_month'];
+            
+            $tax_collected_total_quarter_two = 0;
+              
+            for($month = 4; $month <= 6; $month ++) {
+              
+              $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month FROM taxes, invoices, invoice_items 
+                WHERE item_invoice_id = invoice_id
+                AND invoice_status LIKE 'Paid'  
+                AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
+              );
+              
+              $row = mysqli_fetch_array($sql_tax_collected);
+              $tax_collected_for_month = $row['tax_collected_for_month'];
+              
+              $tax_collected_total_quarter_two = $tax_collected_total_quarter_two + $tax_collected_for_month;              
             }
             
             ?>  
             
-              <th class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_total_amount_for_quarter_two, $session_company_currency); ?></th>
+              <th class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_total_quarter_two, $session_company_currency); ?></th>
 
             <?php
-
-            $expense_total_amount_for_quarter_three = 0;
- 
-            for($month = 7; $month<=9; $month++) {
-              $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE expense_category_id > 0 AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND company_id = $session_company_id");
-              $row = mysqli_fetch_array($sql_expenses);
-              $expense_total_amount_for_quarter_three = $expense_total_amount_for_quarter_three + $row['expense_total_amount_for_month'];
+            
+            $tax_collected_total_quarter_three = 0;
+              
+            for($month = 7; $month <= 9; $month ++) {
+              
+              $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month FROM taxes, invoices, invoice_items 
+                WHERE item_invoice_id = invoice_id
+                AND invoice_status LIKE 'Paid'  
+                AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
+              );
+              
+              $row = mysqli_fetch_array($sql_tax_collected);
+              $tax_collected_for_month = $row['tax_collected_for_month'];
+              
+              $tax_collected_total_quarter_three = $tax_collected_total_quarter_three + $tax_collected_for_month;              
             }
             
             ?>  
             
-              <th class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_total_amount_for_quarter_three, $session_company_currency); ?></th>
+              <th class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_total_quarter_three, $session_company_currency); ?></th>
 
             <?php
-
-            $expense_total_amount_for_quarter_four = 0;
             
-            for($month = 10; $month<=12; $month++) {
-              $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE expense_category_id > 0 AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND company_id = $session_company_id");
-              $row = mysqli_fetch_array($sql_expenses);
-              $expense_total_amount_for_quarter_four = $expense_total_amount_for_quarter_four + $row['expense_total_amount_for_month'];
+            $tax_collected_total_quarter_four = 0;
+              
+            for($month = 10; $month <= 12; $month ++) {
+              
+              $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month FROM taxes, invoices, invoice_items 
+                WHERE item_invoice_id = invoice_id
+                AND invoice_status LIKE 'Paid'  
+                AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
+              );
+              
+              $row = mysqli_fetch_array($sql_tax_collected);
+              $tax_collected_for_month = $row['tax_collected_for_month'];
+              
+              $tax_collected_total_quarter_four = $tax_collected_total_quarter_four + $tax_collected_for_month;              
             }
-            
-            $total_expenses_for_all_four_quarters = $expense_total_amount_for_quarter_one + $expense_total_amount_for_quarter_two + $expense_total_amount_for_quarter_three + $expense_total_amount_for_quarter_four;
 
+            $tax_collected_total_all_four_quarters = $tax_collected_total_quarter_one + $tax_collected_total_quarter_two + $tax_collected_total_quarter_three + $tax_collected_total_quarter_four;
+            
             ?>  
             
-            <th class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_total_amount_for_quarter_four, $session_company_currency); ?></th>
+              <th class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_total_quarter_four, $session_company_currency); ?></th>
 
-            <th class="text-right"><?php echo numfmt_format_currency($currency_format, $total_expenses_for_all_four_quarters, $session_company_currency); ?></th>
+
+
+
+            <th class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_total_all_four_quarters, $session_company_currency); ?></th>
           </tr>
         </tbody>
       </table>
