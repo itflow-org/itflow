@@ -403,7 +403,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
             
             <th class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_total_amount_for_quarter_four, $session_company_currency); ?></th>
 
-            <th class="text-right"><?php echo get_currency_symbol($session_company_currency); ?> <?php echo number_format($total_expenses_for_all_four_quarters,2); ?></th>
+            <th class="text-right"><?php echo numfmt_format_currency($currency_format, $total_expenses_for_all_four_quarters, $session_company_currency); ?></th>
           </tr>
           <tr>
             <?php
