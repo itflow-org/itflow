@@ -37,6 +37,12 @@
             <p>Expense</p>
           </a>
         </li>
+        <li class="nav-item">
+          <a href="report_expense_by_vendor.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_expense_by_vendor.php") { echo "active"; } ?>">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Expense By Vendor</p>
+          </a>
+        </li>
          <li class="nav-item">
           <a href="report_tax_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_tax_summary.php") { echo "active"; } ?>">
             <i class="fas fa-percent nav-icon"></i>
