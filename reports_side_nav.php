@@ -26,6 +26,12 @@
           </a>
         </li>
         <li class="nav-item">
+          <a href="report_income_by_client.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_by_client.php") { echo "active"; } ?>">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Income By Client</p>
+          </a>
+        </li>
+        <li class="nav-item">
           <a href="report_expense_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_expense_summary.php") { echo "active"; } ?>">
             <i class="far fa-circle nav-icon"></i>
             <p>Expense</p>
