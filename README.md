@@ -85,7 +85,7 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
 
 1. Install a LAMP stack (Linux, Apache, MariaDB, PHP)
    ```sh
-   sudo apt install git apache2 php libapache2-mod-php php-intl php-mysqli mariadb-server
+   sudo apt install git apache2 php libapache2-mod-php php-intl php-mysqli php-curl mariadb-server
    ```  
 2. Clone the repo
    ```sh
