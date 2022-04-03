@@ -576,20 +576,16 @@ if(isset($_GET['ticket_id'])){
       </div>
     </form>
 
-    <?php
-    if($ticket_status !== "Closed"){
-    ?>
-
     <div class="card card-body card-outline card-dark mb-2">
      <div class="">
         <a href="#" class="btn btn-outline-success btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">INVOICE</a>
+        <?php
+        if($ticket_status !== "Closed"){
+        ?>
         <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">CLOSE TICKET</a>
+        <?php } ?>
       </div>
     </div>
-
-    <?php
-    }
-    ?>
 
   </div>
 
