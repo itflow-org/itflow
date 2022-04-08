@@ -113,18 +113,20 @@ if(isset($_GET['ticket_id'])){
 //    $primary_contact_display = "<small class='text-danger'>Needs approval</small>";
 //  }
 
-  //Get Contact Ticket Stats
-  $ticket_related_open = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");
-  $row = mysqli_fetch_array($ticket_related_open);
-  $ticket_related_open = $row['ticket_related_open'];
+  if($contact_id){
+    //Get Contact Ticket Stats
+    $ticket_related_open = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");
+    $row = mysqli_fetch_array($ticket_related_open);
+    $ticket_related_open = $row['ticket_related_open'];
 
-  $ticket_related_closed = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'Closed' AND ticket_contact_id = $contact_id ");
-  $row = mysqli_fetch_array($ticket_related_closed);
-  $ticket_related_closed = $row['ticket_related_closed'];
+    $ticket_related_closed = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'Closed' AND ticket_contact_id = $contact_id ");
+    $row = mysqli_fetch_array($ticket_related_closed);
+    $ticket_related_closed = $row['ticket_related_closed'];
 
-  $ticket_related_total = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_total FROM tickets WHERE ticket_contact_id = $contact_id ");
-  $row = mysqli_fetch_array($ticket_related_total);
-  $ticket_related_total = $row['ticket_related_total'];
+    $ticket_related_total = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_total FROM tickets WHERE ticket_contact_id = $contact_id ");
+    $row = mysqli_fetch_array($ticket_related_total);
+    $ticket_related_total = $row['ticket_related_total'];
+  }
 
   //Get Total Ticket Time
   $ticket_total_reply_time = mysqli_query($mysqli,"SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
