@@ -9,7 +9,7 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
-          
+
           <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
               <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
@@ -18,7 +18,7 @@
               <a class="nav-link" data-toggle="pill" href="#pills-location">Location</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-toggle="pill" href="#pills-contact">Contact</a>
+              <a class="nav-link" data-toggle="pill" href="#pills-contact" id="contactNavPill">Contact</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" data-toggle="pill" href="#pills-additional">Additional</a>
@@ -89,6 +89,7 @@
                   <input type="text" class="form-control" name="website" placeholder="ex. google.com">
                 </div>
               </div>
+
 
             </div>
           
@@ -170,7 +171,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="contact" placeholder="Primary Contact Person" required autofocus>
+                  <input type="text" class="form-control" id="primaryContact" name="contact" placeholder="Primary Contact Person" required autofocus>
                 </div>
               </div>
 
@@ -295,9 +296,19 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_client" class="btn btn-primary">Save</button>
+          <button type="submit" name="add_client" class="btn btn-primary" onclick="promptPrimaryContact()">Save</button>
         </div>
       </form>
     </div>
   </div>
 </div>
+
+<script>
+    // Checks/prompts that the primary contact field (required) is populated
+    function promptPrimaryContact(){
+        let primaryContactField = document.getElementById("primaryContact").value;
+        if (primaryContactField == null || primaryContactField === ""){
+            document.getElementById("contactNavPill").click();
+        }
+    }
+</script>
