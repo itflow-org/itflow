@@ -161,7 +161,7 @@ include("client_domain_add_modal.php");
                 // If we get a response from post.php, parse it as JSON
                 const response = JSON.parse(data);
 
-                // Access the domain info (one), registrars (multiple) and webhosts (multiple_
+                // Access the domain info (one), registrars (multiple) and webhosts (multiple)
                 const domain = response.domain[0];
                 const vendors = response.vendors;
 

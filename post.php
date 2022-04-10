@@ -2817,7 +2817,7 @@ if(isset($_POST['edit_transfer'])){
 if(isset($_GET['delete_transfer'])){
     $transfer_id = intval($_GET['delete_transfer']);
 
-    //Query the transfer ID to get the Pyament and Expense IDs so we can delete those as well
+    //Query the transfer ID to get the Payment and Expense IDs so we can delete those as well
     $sql = mysqli_query($mysqli,"SELECT * FROM transfers WHERE transfer_id = $transfer_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $expense_id = $row['transfer_expense_id'];
@@ -3802,7 +3802,7 @@ if(isset($_POST['add_payment'])){
     $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
     $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
-    $payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method'])));
+  $payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method'])));
     $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
     $email_receipt = intval($_POST['email_receipt']);
     $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
@@ -6031,7 +6031,7 @@ if(isset($_POST['edit_scheduled_ticket'])){
     mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_next_run = '$next_run_date', scheduled_ticket_updated_at = NOW(), scheduled_ticket_asset_id = '$asset_id', company_id = '$session_company_id' WHERE scheduled_ticket_id = '$ticket_id'");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Updated scheduled ticket for $subject - $frequency', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Updated scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Scheduled ticket updated.";
 
@@ -6041,11 +6041,11 @@ if(isset($_POST['edit_scheduled_ticket'])){
 
 if(isset($_GET['delete_scheduled_ticket'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
+    if($session_user_role != 3){
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = "You are not permitted to do that!";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
     }
 
     $scheduled_ticket_id = intval($_GET['delete_scheduled_ticket']);

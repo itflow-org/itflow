@@ -58,6 +58,13 @@ if(isset($_GET['certificate_fetch_parse_json_details'])){
  * Looks up info for a given certificate ID from the database, used to dynamically populate modal fields
  */
 if(isset($_GET['certificate_get_json_details'])){
+  if($session_user_role == 1){
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "You are not permitted to do that!";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    exit();
+  }
+
   $certificate_id = intval($_GET['certificate_id']);
   $client_id = intval($_GET['client_id']);
 
@@ -80,6 +87,13 @@ if(isset($_GET['certificate_get_json_details'])){
  * Looks up info for a given domain ID from the database, used to dynamically populate modal fields
  */
 if(isset($_GET['domain_get_json_details'])){
+  if($session_user_role == 1){
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "You are not permitted to do that!";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    exit();
+  }
+
   $domain_id = intval($_GET['domain_id']);
   $client_id = intval($_GET['client_id']);
 
@@ -102,6 +116,13 @@ if(isset($_GET['domain_get_json_details'])){
  * Looks up info on the ticket number provided, used to populate the ticket merge modal
  */
 if(isset($_GET['merge_ticket_get_json_details'])){
+  if($session_user_role == 1){
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "You are not permitted to do that!";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    exit();
+  }
+
   $merge_into_ticket_number = intval($_GET['merge_into_ticket_number']);
 
   $sql = mysqli_query($mysqli,"SELECT * FROM tickets
@@ -123,6 +144,13 @@ if(isset($_GET['merge_ticket_get_json_details'])){
  * Looks up info for a given network ID from the database, used to dynamically populate modal fields
  */
 if(isset($_GET['network_get_json_details'])){
+  if($session_user_role == 1){
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "You are not permitted to do that!";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    exit();
+  }
+
   $network_id = intval($_GET['network_id']);
   $client_id = intval($_GET['client_id']);
 
@@ -200,6 +228,13 @@ if(isset($_GET['ticket_query_views'])){
  * Generates public/guest links for sharing logins/docs
  */
 if(isset($_GET['share_generate_link'])){
+  if($session_user_role == 1){
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "You are not permitted to do that!";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    exit();
+  }
+
   $client_id = intval($_GET['client_id']);
   $item_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['type'])));
   $item_id = intval($_GET['id']);
@@ -238,5 +273,35 @@ if(isset($_GET['share_generate_link'])){
 
   // Logging
   mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'Create', log_description = '$session_name created shared link for $item_type - Item ID: $item_id', log_client_id = '$client_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+}
+
+/*
+ *  Looks up info for a given scheduled ticket ID from the database, used to dynamically populate modal edit fields
+ */
+if(isset($_GET['scheduled_ticket_get_json_details'])){
+  if($session_user_role == 1){
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "You are not permitted to do that!";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    exit();
+  }
+
+  $client_id = intval($_GET['client_id']);
+  $ticket_id = intval($_GET['ticket_id']);
+
+  $ticket_sql = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets
+    WHERE scheduled_ticket_id = $ticket_id
+    AND scheduled_ticket_client_id = $client_id LIMIT 1");
+  while($row = mysqli_fetch_array($ticket_sql)){
+    $response['ticket'][] = $row;
+  }
+
+  $asset_sql = mysqli_query($mysqli, "SELECT asset_id, asset_name FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL");
+  while($row = mysqli_fetch_array($asset_sql)){
+    $response['assets'][] = $row;
+  }
+
+  echo json_encode($response);
 
 }
