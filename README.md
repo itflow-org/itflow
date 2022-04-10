@@ -63,6 +63,7 @@
   * PHP
   * MariaDB
   * PHPMailer
+  * HTML Purifier
 
 * CSS
   * Bootstrap
