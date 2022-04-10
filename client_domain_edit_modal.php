@@ -32,7 +32,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="name" id="editDomainName"  placeholder="Domain name example.com" value="" required>
+                  <input type="text" class="form-control" name="name" id="editDomainName" placeholder="Domain name example.com" value="" required>
                 </div>
               </div>
 
@@ -64,7 +64,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                   </div>
-                  <input type="date" class="form-control" id="editExpire" name="expire" value="">
+                  <input type="date" class="form-control" id="editExpire" name="expire">
                 </div>
               </div>
 

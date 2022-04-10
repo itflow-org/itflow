@@ -307,6 +307,13 @@
         </li>
 
         <li class="nav-item">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=scheduled-tickets" class="nav-link <?php if($_GET['tab'] == "scheduled-tickets") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-sync"></i>
+            <p>Scheduled Tickets</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=logs" class="nav-link <?php if($_GET['tab'] == "logs") { echo "active"; } ?>">
             <i class="nav-icon fas fa-eye"></i>
             <p>Logs</p>
