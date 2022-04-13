@@ -24,6 +24,8 @@
     Username: <b>demo@demo</b> | Password: <b>demo</b>
     <br />
     <br />
+    <a href="https://itflow.org/docs.php?doc=about">About</a>
+    ·
     <a href="https://itflow.org/docs.php">Docs</a>
     ·
     <a href="https://forum.itflow.org/">Forum</a>
@@ -49,12 +51,12 @@
 - On top of the technical day to day, you also have to take care of the financial side of the business - consistent pricing, quotes/invoicing, and accounting. 
 
 ### The Solution: ITFlow
-- ITFlow consolidates common MSP needs (documentation, ticketing, and accounting) into one system to help you do what you do best - IT.
+- ITFlow consolidates common MSP needs (documentation, ticketing, and accounting) into one system
 
 ### In Beta
 * This project is still in early beta and is considered a **work in progress**.  Many changes are being performed and may cause breakage upon updates. 
 * Currently, we strongly recommend against storing confidential information in ITFlow; ITFlow has not undergone a third-party security assessment.
-* We are hoping to have a stable 1.0 release by July 2022.
+* We are hoping to have a stable 1.0 release by Dec 2022.
 
 <!-- BUILT WITH -->
 ### Built With
