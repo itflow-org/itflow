@@ -1360,7 +1360,7 @@ if(isset($_POST['add_client'])){
     }
 
     //Add Location
-    if(!empty($location_phone) OR !empty($address) OR !empty($city) OR !empty($state) OR !empty($zip)){
+    if(!empty($location_phone) || !empty($address) || !empty($city) || !empty($state) || !empty($zip)){
         mysqli_query($mysqli,"INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$location_phone', location_country = '$country', location_created_at = NOW(), location_client_id = $client_id, company_id = $session_company_id");
         
         //Update Primay location in clients
@@ -1373,7 +1373,7 @@ if(isset($_POST['add_client'])){
 
     
     //Add Contact
-    if(!empty($contact) OR !empty($title) OR !empty($contact_phone) OR !empty($contact_mobile) OR !empty($contact_email)){
+    if(!empty($contact) || !empty($title) || !empty($contact_phone) || !empty($contact_mobile) || !empty($contact_email)){
         mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$contact', contact_title = '$title', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_created_at = NOW(), contact_client_id = $client_id, company_id = $session_company_id");
         
         //Update Primay contact in clients
@@ -2710,7 +2710,7 @@ if(isset($_GET['delete_expense'])){
 if(isset($_POST['export_expenses_csv'])){
     $date_from = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_from'])));
     $date_to = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_to'])));
-    if(!empty($date_from) AND !empty($date_to)){
+    if(!empty($date_from) && !empty($date_to)){
         $date_query = "AND DATE(expense_date) BETWEEN '$date_from' AND '$date_to'";
         $file_name_date = "$date_from-to-$date_to";
     }else{
@@ -5939,7 +5939,7 @@ if(isset($_POST['add_ticket'])){
     $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
     $asset_id = intval($_POST['asset']);
 
-    if($client_id > 0 AND $contact == 0){
+    if($client_id > 0 && $contact == 0){
         $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
         $contact = $row['primary_contact'];
@@ -5985,7 +5985,7 @@ if(isset($_POST['add_scheduled_ticket'])){
     $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
     $start_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date'])));
 
-    if($client_id > 0 AND $contact == 0){
+    if($client_id > 0 && $contact == 0){
         $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
         $contact = $row['primary_contact'];
@@ -7236,7 +7236,7 @@ if(isset($_GET['force_recurring'])){
 if(isset($_POST['export_trips_csv'])){
     $date_from = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_from'])));
     $date_to = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_to'])));
-    if(!empty($date_from) AND !empty($date_to)){
+    if(!empty($date_from) && !empty($date_to)){
         $date_query = "AND DATE(trip_date) BETWEEN '$date_from' AND '$date_to'";
         $file_name_date = "$date_from-to-$date_to";
     }else{

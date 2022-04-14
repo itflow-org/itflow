@@ -9,7 +9,7 @@ $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
 
 // Check API key is provided in GET request as 'api_key'
-if(!isset($_GET['api_key']) OR empty($_GET['api_key'])) {
+if(!isset($_GET['api_key']) || empty($_GET['api_key'])) {
     // Missing key
     header("HTTP/1.1 401 Unauthorized");
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'No API Key specified', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");

@@ -108,7 +108,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     $balance = $invoice_amount - $amount_paid;
 
     //check to see if overdue
-    if($invoice_status !== "Paid" AND $invoice_status !== "Draft" AND $invoice_status !== "Cancelled"){
+    if($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled"){
       $unixtime_invoice_due = strtotime($invoice_due) + 86400;
       if($unixtime_invoice_due < time()){
         $invoice_color = "text-danger";
@@ -124,7 +124,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
         <a class="btn btn-primary" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$invoice_date-$company_name-Invoice-$invoice_prefix$invoice_number.pdf"; ?>');"><i class="fa fa-fw fa-download"></i> Download</a>
         <?php
-        if($invoice_status != "Paid" and $invoice_status  != "Cancelled" and $invoice_status != "Draft" and $config_stripe_enable == 1){
+        if($invoice_status != "Paid" && $invoice_status  != "Cancelled" && $invoice_status != "Draft" && $config_stripe_enable == 1){
         ?>
         <?php
         if($config_stripe_enable == 1){

@@ -123,7 +123,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </div>
         <div class="col-sm-6">
           <div class="btn-group btn-group-lg">
-            <a href="?<?php echo $url_query_strings_sb; ?>&type=" class="btn <?php if($_GET['type'] == 'all' OR empty($_GET['type'])){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Assets <span class="right badge badge-light"><?php echo $all_count; ?></span></a>
+            <a href="?<?php echo $url_query_strings_sb; ?>&type=" class="btn <?php if($_GET['type'] == 'all' || empty($_GET['type'])){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Assets <span class="right badge badge-light"><?php echo $all_count; ?></span></a>
             <?php
             if($workstation_count > 0){ ?>
             <a href="?<?php echo $url_query_strings_sb; ?>&type=workstation" class="btn <?php if($_GET['type'] == 'workstation'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop"></i> Workstations <span class="right badge badge-light"><?php echo $workstation_count; ?></span></a>
@@ -167,7 +167,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="thead-light <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_name&o=<?php echo $disp; ?>">Name</a></th>
-            <?php if($_GET['type'] !== 'virtual' AND $_GET['type'] !== 'servers'){ ?>
+            <?php if($_GET['type'] !== 'virtual' && $_GET['type'] !== 'servers'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_type&o=<?php echo $disp; ?>">Type</a></th>
             <?php } ?>
             <?php if($_GET['type'] !== 'virtual'){ ?>
@@ -176,11 +176,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <?php if($_GET['type'] !== 'virtual'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_serial&o=<?php echo $disp; ?>">Serial Number</a></th>
             <?php } ?>
-            <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'other'){ ?>
+            <?php if($_GET['type'] !== 'network' && $_GET['type'] !== 'other'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_os&o=<?php echo $disp; ?>">Operating System</a></th>
             <?php } ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_install_date&o=<?php echo $disp; ?>">Install Date</a></th>
-            <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'servers' AND $_GET['type'] !== 'other'){ ?>
+            <?php if($_GET['type'] !== 'network' && $_GET['type'] !== 'servers' && $_GET['type'] !== 'other'){ ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Assigned To</a></th>
             <?php } ?>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_name&o=<?php echo $disp; ?>">Location</a></th>
@@ -241,7 +241,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $device_icon = "print";
             }elseif($asset_type == 'Camera'){
               $device_icon = "video";
-            }elseif($asset_type == 'Switch' or $asset_type == 'Firewall/Router'){
+            }elseif($asset_type == 'Switch' || $asset_type == 'Firewall/Router'){
               $device_icon = "network-wired";
             }elseif($asset_type == 'Access Point'){
               $device_icon = "wifi";
@@ -322,7 +322,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               ?>
               
             </th>
-            <?php if($_GET['type'] !== 'virtual' AND $_GET['type'] !== 'servers'){ ?>
+            <?php if($_GET['type'] !== 'virtual' && $_GET['type'] !== 'servers'){ ?>
             <td><?php echo $asset_type; ?></td>
             <?php } ?>
             <?php if($_GET['type'] !== 'virtual'){ ?>
@@ -331,11 +331,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <?php if($_GET['type'] !== 'virtual'){ ?>
             <td><?php echo $asset_serial_display; ?></td>
             <?php } ?>
-            <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'other'){ ?>
+            <?php if($_GET['type'] !== 'network' && $_GET['type'] !== 'other'){ ?>
             <td><?php echo $asset_os_display; ?></td>
             <?php } ?>
             <td><?php echo $asset_install_date_display; ?></td>
-            <?php if($_GET['type'] !== 'network' AND $_GET['type'] !== 'other' AND $_GET['type'] !== 'servers'){ ?>
+            <?php if($_GET['type'] !== 'network' && $_GET['type'] !== 'other' && $_GET['type'] !== 'servers'){ ?>
             <td><?php echo $contact_name; ?></td>
             <?php } ?>
             <td><?php echo $location_name; ?></td>

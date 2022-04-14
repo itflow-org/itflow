@@ -117,7 +117,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $category_name = $row['category_name'];
             $now = time();
 
-            if(($invoice_status == "Sent" or $invoice_status == "Partial" or $invoice_status == "Viewed") and strtotime($invoice_due) < $now ){
+            if(($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) < $now ){
                 $overdue_color = "text-danger font-weight-bold";
               }else{
                 $overdue_color = "";

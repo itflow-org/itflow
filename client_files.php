@@ -73,15 +73,15 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
           $file_ext = $row['file_ext'];
           if($file_ext == 'pdf'){
             $file_icon = "file-pdf";
-          }elseif($file_ext == 'gz' or $file_ext == 'tar' or $file_ext == 'zip' or $file_ext == '7z' or $file_ext == 'rar'){
+          }elseif($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar'){
             $file_icon = "file-archive";
           }elseif($file_ext == 'txt'){
             $file_icon = "file-alt";
-          }elseif($file_ext == 'doc' or $file_ext == 'docx'){
+          }elseif($file_ext == 'doc' || $file_ext == 'docx'){
             $file_icon = "file-word";
-          }elseif($file_ext == 'xls' or $file_ext == 'xlsx' or $file_ext == 'ods'){
+          }elseif($file_ext == 'xls' || $file_ext == 'xlsx' || $file_ext == 'ods'){
             $file_icon = "file-excel";
-          }elseif($file_ext == 'mp3' or $file_ext == 'wav' or $file_ext == 'ogg'){
+          }elseif($file_ext == 'mp3' || $file_ext == 'wav' || $file_ext == 'ogg'){
             $file_icon = "file-audio";
           }else{
             $file_icon = "file";

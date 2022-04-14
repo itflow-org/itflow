@@ -54,7 +54,7 @@ if(empty($_GET['canned_date'])) {
 }
 
 //Date Filter
-if($_GET['canned_date'] == "custom" AND !empty($_GET['date_from'])){
+if($_GET['canned_date'] == "custom" && !empty($_GET['date_from'])){
   $date_from = mysqli_real_escape_string($mysqli,$_GET['date_from']);
   $date_to = mysqli_real_escape_string($mysqli,$_GET['date_to']);
 }elseif($_GET['canned_date'] == "today"){
@@ -167,7 +167,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=client_name&order=<?php echo $order_display; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=location_city&order=<?php echo $order_display; ?>">Address </a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=contact_name&order=<?php echo $order_display; ?>">Contact</a></th>
-            <?php if($session_user_role == 3 OR $session_user_role == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
+            <?php if($session_user_role == 3 || $session_user_role == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
             <?php if($session_user_role == 3) { ?> <th class="text-center">Action</th> <?php } ?>
           </tr>
         </thead>
@@ -184,7 +184,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $location_city = $row['location_city'];
             $location_state = $row['location_state'];
             $location_zip = $row['location_zip'];
-            if(empty($location_address) AND empty($location_city) AND empty($location_state) AND empty($location_zip)){
+            if(empty($location_address) && empty($location_city) && empty($location_state) && empty($location_zip)){
               $location_address_display = "-";
             }else{
               $location_address_display = "$location_address<br>$location_city $location_state $location_zip";
@@ -270,7 +270,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $location_address_display; ?></td>
             <td>
               <?php 
-              if(empty($contact_name) AND empty($contact_phone) AND empty($contact_mobile) AND empty($client_email)){
+              if(empty($contact_name) && empty($contact_phone) && empty($contact_mobile) && empty($client_email)){
                 echo "-";
               }
               ?>
@@ -310,7 +310,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             </td>
 
             <!-- Show Billing for Admin/Accountant roles only -->
-            <?php if($session_user_role == 3 OR $session_user_role == 1) { ?>
+            <?php if($session_user_role == 3 || $session_user_role == 1) { ?>
               <td class="text-right">
                 <span class="text-secondary">Balance</span> <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
                 <br>

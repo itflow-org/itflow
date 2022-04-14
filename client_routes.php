@@ -57,27 +57,27 @@ if(isset($_GET['tab'])){
     }
   }
   elseif($_GET['tab'] == "invoices"){
-    if($session_user_role == 1 OR $session_user_role == 3) {
+    if($session_user_role == 1 || $session_user_role == 3) {
       include("client_invoices.php");
     }
   }
   elseif($_GET['tab'] == "recurring_invoices"){
-    if($session_user_role == 1 OR $session_user_role == 3) {
+    if($session_user_role == 1 || $session_user_role == 3) {
       include("client_recurring_invoices.php");
     }
   }
   elseif($_GET['tab'] == "payments"){
-    if($session_user_role == 1 OR $session_user_role == 3) {
+    if($session_user_role == 1 || $session_user_role == 3) {
       include("client_payments.php");
     }
   }
   elseif($_GET['tab'] == "quotes"){
-    if($session_user_role == 1 OR $session_user_role == 3) {
+    if($session_user_role == 1 || $session_user_role == 3) {
       include("client_quotes.php");
     }
   }
   elseif($_GET['tab'] == "trips"){
-    if($session_user_role == 1 OR $session_user_role == 3) {
+    if($session_user_role == 1 || $session_user_role == 3) {
       include("client_trips.php");
     }
   }

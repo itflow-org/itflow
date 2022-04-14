@@ -78,7 +78,7 @@
 
         <li class="nav-header mt-3">SUPPORT</li>
         <li class="nav-item">
-          <a href="tickets.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tickets.php" OR basename($_SERVER["PHP_SELF"]) == "ticket.php") { echo "active"; } ?>">
+          <a href="tickets.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-ticket-alt"></i>
             <p>Tickets</p>
           </a>
@@ -97,7 +97,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="campaigns.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "campaigns.php" OR basename($_SERVER["PHP_SELF"]) == "campaign.php") { echo "active"; } ?>">
+          <a href="campaigns.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "campaigns.php" || basename($_SERVER["PHP_SELF"]) == "campaign.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-envelope"></i>
             <p>Campaigns</p>
           </a>
@@ -109,13 +109,13 @@
 
         <li class="nav-header mt-3">SALES</li>
         <li class="nav-item">
-          <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "quotes.php" OR basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
+          <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-file-invoice"></i>
             <p>Quotes</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="invoices.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "invoices.php" OR basename($_SERVER["PHP_SELF"]) == "invoice.php") { echo "active"; } ?>">
+          <a href="invoices.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "invoices.php" || basename($_SERVER["PHP_SELF"]) == "invoice.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-file-invoice-dollar"></i>
             <p>Invoices</p>
           </a>

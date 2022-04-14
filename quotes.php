@@ -45,7 +45,7 @@ if(empty($_GET['canned_date'])){
 }
 
 //Date Filter
-if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
+if($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])){
   $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
   $dtt = mysqli_real_escape_string($mysqli,$_GET['dtt']);
 }elseif($_GET['canned_date'] == "today"){
