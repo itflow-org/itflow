@@ -170,7 +170,7 @@ var myLineChart = new Chart(ctx, {
           $row = mysqli_fetch_array($sql_expenses);
           $expenses_for_month = $row['expense_amount_for_month'];
           
-          if($expenses_for_month > 0 AND $expenses_for_month > $largest_expense_month){
+          if($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month){
             $largest_expense_month = $expenses_for_month;
           }
           

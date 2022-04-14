@@ -189,7 +189,7 @@ var myLineChart = new Chart(ctx, {
 
           $income_for_month = $payments_for_month + $revenues_for_month;
           
-          if($income_for_month > 0 AND $income_for_month > $largest_income_month){
+          if($income_for_month > 0 && $income_for_month > $largest_income_month){
             $largest_income_month = $income_for_month;
           }
           

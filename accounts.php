@@ -1,51 +1,19 @@
-<?php include("inc_all.php"); ?>
+<?php include("inc_all.php");
 
-<?php
-  
-  //Paging
-  if(isset($_GET['p'])){
-    $p = intval($_GET['p']);
-    $record_from = (($p)-1)*$_SESSION['records_per_page'];
-    $record_to = $_SESSION['records_per_page'];
-  }else{
-    $record_from = 0;
-    $record_to = $_SESSION['records_per_page'];
-    $p = 1;
-  }
-    
-  if(isset($_GET['q'])){
-    $q = mysqli_real_escape_string($mysqli,$_GET['q']);
-  }else{
-    $q = "";
-  }
+if(!empty($_GET['sb'])){
+  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+}else{
+  $sb = "account_name";
+}
 
-  if(!empty($_GET['sb'])){
-    $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
-  }else{
-    $sb = "account_name";
-  }
+//Rebuild URL
+$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
-  if(isset($_GET['o'])){
-    if($_GET['o'] == 'ASC'){
-      $o = "ASC";
-      $disp = "DESC";
-    }else{
-      $o = "DESC";
-      $disp = "ASC";
-    }
-  }else{
-    $o = "ASC";
-    $disp = "DESC";
-  }
+$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM accounts 
+  WHERE account_name LIKE '%$q%' AND company_id = $session_company_id
+  ORDER BY $sb $o LIMIT $record_from, $record_to");
 
-  //Rebuild URL
-  $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
-
-  $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM accounts 
-    WHERE account_name LIKE '%$q%' AND company_id = $session_company_id
-    ORDER BY $sb $o LIMIT $record_from, $record_to");
-
-  $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 ?>
 

@@ -323,7 +323,7 @@ if(isset($_GET['ticket_id'])){
           </div>
         </h3>
 
-        <?php if($ticket_reply_type !== "Client" AND $ticket_status !== "Closed") { ?>
+        <?php if($ticket_reply_type !== "Client" && $ticket_status !== "Closed") { ?>
         <div class="card-tools">
           <div class="dropdown dropleft">
             <button class="btn btn-tool" type="button" id="dropdownMenuButton" data-toggle="dropdown">

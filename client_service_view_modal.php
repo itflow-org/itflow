@@ -208,7 +208,7 @@
 
                             <!-- Logins -->
                             <?php
-                            if(mysqli_num_rows($sql_assets) > 0 OR mysqli_num_rows($sql_logins) > 0){ ?>
+                            if(mysqli_num_rows($sql_assets) > 0 || mysqli_num_rows($sql_logins) > 0){ ?>
                                 <h5><i class="nav-icon fas fa-key"></i> Logins</h5>
                                 <ul>
                                     <?php
@@ -237,7 +237,7 @@
 
                             <!-- URLs -->
                             <?php
-                            if($sql_logins OR $sql_assets){ ?>
+                            if($sql_logins || $sql_assets){ ?>
                                 <h5><i class="nav-icon fas fa-link"></i> URLs</h5>
                                 <ul>
                                     <?php

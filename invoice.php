@@ -74,7 +74,7 @@ if(isset($_GET['invoice_id'])){
   $balance = $invoice_amount - $amount_paid;
 
   //check to see if overdue
-  if($invoice_status !== "Paid" AND $invoice_status !== "Draft" AND $invoice_status !== "Cancelled"){
+  if($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled"){
     $unixtime_invoice_due = strtotime($invoice_due) + 86400;
     if($unixtime_invoice_due < time()){
       $invoice_overdue = "Overdue";
@@ -133,7 +133,7 @@ if(isset($_GET['invoice_id'])){
           <i class="fas fa-fw fa-paper-plane"></i> Send
         </button>
         <div class="dropdown-menu">
-          <?php if(!empty($config_smtp_host) AND !empty($contact_email)){ ?>
+          <?php if(!empty($config_smtp_host) && !empty($contact_email)){ ?>
           <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send Email</a>
           <div class="dropdown-divider"></div>
           <?php } ?>
@@ -141,7 +141,7 @@ if(isset($_GET['invoice_id'])){
         </div>
         <?php } ?>
 
-        <?php if($invoice_status !== 'Paid' and $invoice_status !== 'Cancelled' and $invoice_status !== 'Draft'){ ?>
+        <?php if($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft'){ ?>
         <a class="btn btn-success btn-sm" href="#" data-toggle="modal" data-target="#addPaymentModal"><i class="fa fa-fw fa-credit-card"></i> Add Payment</a>
         <?php } ?>
       </div>
@@ -159,11 +159,11 @@ if(isset($_GET['invoice_id'])){
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
             <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$invoice_date-$company_name-$client_name-Invoice-$invoice_prefix$invoice_number.pdf"; ?>');">Download PDF</a>
-            <?php if(!empty($config_smtp_host) AND !empty($contact_email)){ ?>
+            <?php if(!empty($config_smtp_host) && !empty($contact_email)){ ?>
             <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send Email</a>
             <?php } ?>
             <a class="dropdown-item" target="_blank" href="guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Guest URL</a>
-            <?php if($invoice_status !== 'Cancelled' and $invoice_status !== 'Paid'){ ?>
+            <?php if($invoice_status !== 'Cancelled' && $invoice_status !== 'Paid'){ ?>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item text-danger" href="post.php?cancel_invoice=<?php echo $invoice_id; ?>">Cancel</a>
             <?php } ?>

@@ -92,7 +92,7 @@
   </div>
 </div>
 
-<?php if(!empty($config_smtp_host) AND !empty($config_smtp_port) AND !empty($config_smtp_username) AND  !empty($config_smtp_password) AND !empty($config_mail_from_email) AND !empty($config_mail_from_name)){ ?>
+<?php if(!empty($config_smtp_host) && !empty($config_smtp_port) && !empty($config_smtp_username) && !empty($config_smtp_password) && !empty($config_mail_from_email) && !empty($config_mail_from_name)){ ?>
 
 <div class="card card-dark">
   <div class="card-header">

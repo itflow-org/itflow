@@ -226,7 +226,7 @@
           </a>
         </li>
 
-        <?php if($session_user_role == 1 OR $session_user_role > 2){ ?>
+        <?php if($session_user_role == 1 || $session_user_role > 2){ ?>
 
         <li class="nav-header mt-3">ACCOUNTING</li>
 

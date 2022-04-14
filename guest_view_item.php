@@ -10,7 +10,7 @@ include("guest_header.php"); ?>
 <hr>
 
 <?php
-if(!isset($_GET['id']) OR !isset($_GET['key'])){
+if(!isset($_GET['id']) || !isset($_GET['key'])){
     echo "<div class=\"alert alert-danger\" role=\"alert\">Incorrect URL.</div>";
     include("guest_footer.php");
     exit();
@@ -23,14 +23,14 @@ $sql = mysqli_query($mysqli, "SELECT * FROM shared_items WHERE item_id = '$item_
 $row = mysqli_fetch_array($sql);
 
 // Check we got a result
-if(mysqli_num_rows($sql) !== 1 OR !$row){
+if(mysqli_num_rows($sql) !== 1 || !$row){
     echo "<div class=\"alert alert-danger\" role=\"alert\">No item to view. Check with the person that sent you this link to ensure it is correct and has not expired.</div>";
     include("guest_footer.php");
     exit();
 }
 
 // Check item share is active & hasn't been viewed too many times
-if($row['item_active'] !== "1" OR $row['item_views'] >= $row['item_view_limit']){
+if($row['item_active'] !== "1" || $row['item_views'] >= $row['item_view_limit']){
     echo "<div class=\"alert alert-danger\" role=\"alert\">Item cannot be viewed at this time. Check with the person that sent you this link to ensure it is correct and has not expired.</div>";
     include("guest_footer.php");
     exit();
@@ -53,7 +53,7 @@ if($item_type == "Document"){
     $doc_sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = '$item_related_id' AND document_client_id = '$client_id' LIMIT 1");
     $doc_row = mysqli_fetch_array($doc_sql);
 
-    if(mysqli_num_rows($doc_sql) !== 1 OR !$doc_row){
+    if(mysqli_num_rows($doc_sql) !== 1 || !$doc_row){
         echo "<div class=\"alert alert-danger\" role=\"alert\">Error retrieving document to view.</div>";
         include("guest_footer.php");
         exit();
@@ -81,7 +81,7 @@ elseif($item_type == "File"){
     $file_sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = '$item_related_id' AND file_client_id = '$client_id' LIMIT 1");
     $file_row = mysqli_fetch_array($file_sql);
 
-    if(mysqli_num_rows($file_sql) !== 1 OR !$file_row){
+    if(mysqli_num_rows($file_sql) !== 1 || !$file_row){
         echo "<div class=\"alert alert-danger\" role=\"alert\">Error retrieving file.</div>";
         include("guest_footer.php");
         exit();
@@ -102,7 +102,7 @@ elseif($item_type == "Login"){
 
     $login_sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_id = '$item_related_id' AND login_client_id = '$client_id' LIMIT 1");
     $login_row = mysqli_fetch_array($login_sql);
-    if(mysqli_num_rows($login_sql) !== 1 OR !$login_row){
+    if(mysqli_num_rows($login_sql) !== 1 || !$login_row){
         echo "<div class=\"alert alert-danger\" role=\"alert\">Error retrieving login.</div>";
         include("guest_footer.php");
         exit();

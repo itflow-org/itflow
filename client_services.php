@@ -1,12 +1,5 @@
 <?php
 
-// Search query
-if(isset($_GET['q'])){
-    $q = mysqli_real_escape_string($mysqli,$_GET['q']);
-}else{
-    $q = "";
-}
-
 // Current tab
 $tab = htmlentities($_GET['tab']);
 

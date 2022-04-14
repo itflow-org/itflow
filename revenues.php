@@ -1,37 +1,13 @@
 <?php include("inc_all.php");
 
-//Paging
-if(isset($_GET['p'])){
-  $p = intval($_GET['p']);
-  $record_from = (($p)-1)*$_SESSION['records_per_page'];
-  $record_to = $_SESSION['records_per_page'];
-}else{
-  $record_from = 0;
-  $record_to = $_SESSION['records_per_page'];
-  $p = 1;
-}
-  
-if(isset($_GET['q'])){
-  $q = mysqli_real_escape_string($mysqli,$_GET['q']);
-}else{
-  $q = "";
-}
-
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
   $sb = "revenue_date";
 }
 
-if(isset($_GET['o'])){
-  if($_GET['o'] == 'ASC'){
-    $o = "ASC";
-    $disp = "DESC";
-  }else{
-    $o = "DESC";
-    $disp = "ASC";
-  }
-}else{
+// Reverse default sort
+if(!isset($_GET['o'])){
   $o = "DESC";
   $disp = "ASC";
 }
@@ -43,7 +19,7 @@ if(empty($_GET['canned_date'])){
 }
 
 //Date Filter
-if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
+if($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])){
   $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
   $dtt = mysqli_real_escape_string($mysqli,$_GET['dtt']);
 }elseif($_GET['canned_date'] == "today"){

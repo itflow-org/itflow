@@ -109,7 +109,7 @@ if(isset($_GET['quote_id'])){
           <i class="fas fa-fw fa-paper-plane"></i> Send
         </button>
         <div class="dropdown-menu">
-          <?php if(!empty($config_smtp_host) AND !empty($contact_email)){ ?>
+          <?php if(!empty($config_smtp_host) && !empty($contact_email)){ ?>
           <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send Email</a>
           <div class="dropdown-divider"></div>
           <?php } ?>
@@ -117,7 +117,7 @@ if(isset($_GET['quote_id'])){
         </div>
         <?php } ?>
 
-        <?php if($quote_status == 'Sent' or $quote_status == 'Viewed'){ ?>
+        <?php if($quote_status == 'Sent' || $quote_status == 'Viewed'){ ?>
         <a class="btn btn-success" href="post.php?accept_quote=<?php echo $quote_id; ?>"><i class="fas fa-fw fa-check"></i> Accept</a>
         <a class="btn btn-danger" href="post.php?decline_quote=<?php echo $quote_id; ?>"><i class="fas fa-fw fa-times"></i> Decline</a>
         <?php } ?>
@@ -139,7 +139,7 @@ if(isset($_GET['quote_id'])){
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
             <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$quote_date-$company_name-$client_name-Quote-$quote_prefix$quote_number.pdf"; ?>');">Download PDF</a>
-            <?php if(!empty($config_smtp_host) AND !empty($contact_email)){ ?>
+            <?php if(!empty($config_smtp_host) && !empty($contact_email)){ ?>
             <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send Email</a>
             <?php } ?>
             <a class="dropdown-item" target="_blank" href="guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">Guest URL</a>

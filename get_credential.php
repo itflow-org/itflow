@@ -5,7 +5,7 @@ $chrome_id = "chrome-extension://afgpakhonllnmnomchjhidealcpmnegc";
 $firefox_id = "moz-extension://857479e9-3992-4e99-9a5e-b514d2ad0a82";
 
 if (isset($_SERVER['HTTP_ORIGIN'])) {
-    if($_SERVER['HTTP_ORIGIN'] == $chrome_id OR $_SERVER['HTTP_ORIGIN'] == $firefox_id){
+    if($_SERVER['HTTP_ORIGIN'] == $chrome_id || $_SERVER['HTTP_ORIGIN'] == $firefox_id){
         header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
         header('Access-Control-Allow-Credentials: true');
     }
@@ -37,7 +37,7 @@ if(!isset($_COOKIE['user_extension_key'])){
 $user_extension_key = $_COOKIE['user_extension_key'];
 
 // Check the key isn't empty, less than 17 characters or the word "disabled".
-if(empty($user_extension_key) OR strlen($user_extension_key) < 16 OR strtolower($user_extension_key) == "disabled"){
+if(empty($user_extension_key) || strlen($user_extension_key) < 16 || strtolower($user_extension_key) == "disabled"){
     $data['found'] = "FALSE";
     $data['message'] = "ITFlow - You are not logged into ITFlow, do not have, or did not send the correct extension key cookie.";
     echo(json_encode($data));
@@ -55,7 +55,7 @@ $auth_user = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings 
 $row = mysqli_fetch_array($auth_user);
 
 // Check SQL query state
-if(mysqli_num_rows($auth_user) < 1 OR !$auth_user){
+if(mysqli_num_rows($auth_user) < 1 || !$auth_user){
     $data['found'] = "FALSE";
     $data['message'] = "ITFlow - You are not logged into ITFlow, do not have, or did not send the correct extension key cookie.";
     echo(json_encode($data));

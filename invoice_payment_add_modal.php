@@ -117,7 +117,7 @@
             </div>
           </div>
           
-          <?php if(!empty($config_smtp_host) AND !empty($contact_email)){ ?>
+          <?php if(!empty($config_smtp_host) && !empty($contact_email)){ ?>
 
           <div class="form-group">
             <label>Email Receipt</label>

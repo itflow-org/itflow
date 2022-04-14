@@ -1,39 +1,9 @@
 <?php
 
-//Paging
-if(isset($_GET['p'])){
-  $p = intval($_GET['p']);
-  $record_from = (($p)-1)*$_SESSION['records_per_page'];
-  $record_to = $_SESSION['records_per_page'];
-}else{
-  $record_from = 0;
-  $record_to = $_SESSION['records_per_page'];
-  $p = 1;
-}
-  
-if(isset($_GET['q'])){
-  $q = mysqli_real_escape_string($mysqli,$_GET['q']);
-}else{
-  $q = "";
-}
-
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
   $sb = "invoice_number";
-}
-
-if(isset($_GET['o'])){
-  if($_GET['o'] == 'ASC'){
-    $o = "ASC";
-    $disp = "DESC";
-  }else{
-    $o = "DESC";
-    $disp = "ASC";
-  }
-}else{
-  $o = "DESC";
-  $disp = "ASC";
 }
 
 //Rebuild URL
@@ -117,7 +87,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $category_name = $row['category_name'];
             $now = time();
 
-            if(($invoice_status == "Sent" or $invoice_status == "Partial" or $invoice_status == "Viewed") and strtotime($invoice_due) < $now ){
+            if(($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) < $now ){
                 $overdue_color = "text-danger font-weight-bold";
               }else{
                 $overdue_color = "";

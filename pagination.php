@@ -1,4 +1,11 @@
 <?php
+/*
+ * Pagination Body/Footer
+ * Displays page number buttons
+ *
+ * Should not be accessed directly, but called from other pages
+ * Relies upon the $num_rows variable being set correctly
+ */
 
 $total_found_rows = $num_rows[0];
 $total_pages = ceil($total_found_rows / $_SESSION['records_per_page']);
@@ -35,10 +42,10 @@ if ($total_found_rows > 10) {
 			if($total_pages <= 100){
 				$pages_split = 10;
 			}
-			if(($total_pages <= 1000) AND ($total_pages > 100)){
+			if(($total_pages <= 1000) && ($total_pages > 100)){
 				$pages_split = 100;
 			}
-			if(($total_pages <= 10000) AND ($total_pages > 1000)){
+			if(($total_pages <= 10000) && ($total_pages > 1000)){
 				$pages_split = 1000;
 			}
 			if($p > 1){
@@ -61,7 +68,7 @@ if ($total_found_rows > 10) {
 		
 			while($i < $total_pages){
 		    	$i++;
-				if(($i == 1) OR (($p <= 3) AND ($i <= 6)) OR (($i >  $total_pages - 6) AND ($p > $total_pages - 3 )) OR (is_int($i / $pages_split)) OR (($p > 3) AND ($i >= $p - 2) AND ($i <= $p + 3)) OR ($i == $total_pages)){
+				if(($i == 1) || (($p <= 3) && ($i <= 6)) || (($i >  $total_pages - 6) && ($p > $total_pages - 3 )) || (is_int($i / $pages_split)) || (($p > 3) && ($i >= $p - 2) && ($i <= $p + 3)) || ($i == $total_pages)){
 			        if($p == $i ) {
 			        	$page_class = "active"; 
 			        }else{ 

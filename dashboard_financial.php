@@ -493,7 +493,7 @@ var myLineChart = new Chart(ctx, {
 
           $income_for_month = $payments_for_month + $revenues_for_month;
           
-          if($income_for_month > 0 AND $income_for_month > $largest_income_month){
+          if($income_for_month > 0 && $income_for_month > $largest_income_month){
             $largest_income_month = $income_for_month;
           }
           
@@ -532,7 +532,7 @@ var myLineChart = new Chart(ctx, {
 
           $income_for_month = $payments_for_month + $revenues_for_month;
           
-          if($income_for_month > 0 AND $income_for_month > $largest_income_month){
+          if($income_for_month > 0 && $income_for_month > $largest_income_month){
             $largest_income_month = $income_for_month;
           }
           
@@ -568,7 +568,7 @@ var myLineChart = new Chart(ctx, {
           $row = mysqli_fetch_array($sql_projected);
           $invoice_for_month = $row['invoice_amount_for_month'];
 
-          if($invoice_for_month > 0 AND $invoice_for_month > $largest_invoice_month){
+          if($invoice_for_month > 0 && $invoice_for_month > $largest_invoice_month){
             $largest_invoice_month = $invoice_for_month;
           }
           
@@ -604,7 +604,7 @@ var myLineChart = new Chart(ctx, {
           $row = mysqli_fetch_array($sql_expenses);
           $expenses_for_month = $row['expense_amount_for_month'];
           
-          if($expenses_for_month > 0 AND $expenses_for_month > $largest_expense_month){
+          if($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month){
             $largest_expense_month = $expenses_for_month;
           }
           
@@ -681,7 +681,7 @@ var myLineChart = new Chart(ctx, {
           $trip_miles_for_month = $row['trip_miles_for_month'];
           $largest_trip_miles_month = 0;
           
-          if($trip_miles_for_month > 0 AND $trip_miles_for_month > $largest_trip_miles_month){
+          if($trip_miles_for_month > 0 && $trip_miles_for_month > $largest_trip_miles_month){
             $largest_trip_miles_month = $trip_miles_for_month;
           }
           

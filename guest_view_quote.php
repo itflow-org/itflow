@@ -86,7 +86,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     <div class="card-header d-print-none">
       <div class="float-left">
         <?php
-        if($quote_status == "Draft" or $quote_status == "Sent" or $quote_status == "Viewed"){
+        if($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Viewed"){
         ?>
         <a class="btn btn-success" href="guest_post.php?accept_quote=<?php echo $quote_id; ?>&company_id=<?php echo $company_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-check"></i> Accept</a>
         <a class="btn btn-danger" href="guest_post.php?decline_quote=<?php echo $quote_id; ?>&company_id=<?php echo $company_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-times"></i> Decline</a>
