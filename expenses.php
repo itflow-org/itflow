@@ -1,9 +1,17 @@
 <?php include("inc_all.php");
+
+//$o = "DESC";
   
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
   $sb = "expense_date";
+}
+
+// Reverse default sort
+if(!isset($_GET['o'])){
+  $o = "DESC";
+  $disp = "ASC";
 }
 
 if(empty($_GET['canned_date'])){

@@ -6,6 +6,12 @@ if(!empty($_GET['sb'])){
   $sb = "trip_date";
 }
 
+// Reverse default sort
+if(!isset($_GET['o'])){
+  $o = "DESC";
+  $disp = "ASC";
+}
+
 //Date From and Date To Filter
 if(isset($_GET['dtf'])){
   $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);

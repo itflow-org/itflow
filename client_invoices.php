@@ -6,6 +6,12 @@ if(!empty($_GET['sb'])){
   $sb = "invoice_number";
 }
 
+// Reverse default sort
+if(!isset($_GET['o'])){
+  $o = "DESC";
+  $disp = "ASC";
+}
+
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
