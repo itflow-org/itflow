@@ -43,14 +43,14 @@ DEFINE("WORDING_UNAUTHORIZED", "HTTP/1.1 401 Unauthorized");
  */
 
 // Decline methods other than GET/POST
-if($_SERVER['REQUEST_METHOD'] !== "GET" AND $_SERVER['REQUEST_METHOD'] !== "POST"){
+if($_SERVER['REQUEST_METHOD'] !== "GET" && $_SERVER['REQUEST_METHOD'] !== "POST"){
   header("HTTP/1.1 405 Method Not Allowed");
   var_dump($_SERVER['REQUEST_METHOD']);
   exit();
 }
 
 // Check API key is provided
-if(!isset($_GET['api_key']) AND !isset($_POST['api_key'])){
+if(!isset($_GET['api_key']) && !isset($_POST['api_key'])){
   header(WORDING_UNAUTHORIZED);
   exit();
 }

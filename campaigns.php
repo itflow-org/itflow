@@ -43,7 +43,7 @@
   }
 
   //Date Filter
-  if($_GET['canned_date'] == "custom" AND !empty($_GET['dtf'])){
+  if($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])){
     $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
     $dtt = mysqli_real_escape_string($mysqli,$_GET['dtt']);
   }elseif($_GET['canned_date'] == "today"){
@@ -229,7 +229,7 @@
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#campaignTestModal<?php echo $campaign_id; ?>">Test</a>
                   <div class="dropdown-divider"></div>
-                  <?php if($campaign_status == 'Draft' OR $campaign_status == 'Queued'){ ?>
+                  <?php if($campaign_status == 'Draft' || $campaign_status == 'Queued'){ ?>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#campaignEditModal<?php echo $campaign_id; ?>">Edit</a>
                   <?php } ?>
                   <a class="dropdown-item" href="post.php?copy_campaign=<?php echo $campaign_id; ?>">Copy</a>

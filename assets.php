@@ -147,7 +147,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $device_icon = "print";
             }elseif($asset_type == 'Camera'){
               $device_icon = "video";
-            }elseif($asset_type == 'Switch' or $asset_type == 'Firewall/Router'){
+            }elseif($asset_type == 'Switch' || $asset_type == 'Firewall/Router'){
               $device_icon = "network-wired";
             }elseif($asset_type == 'Access Point'){
               $device_icon = "wifi";
