@@ -6,19 +6,6 @@ if(!empty($_GET['sb'])){
   $sb = "tax_name";
 }
 
-if(isset($_GET['o'])){
-  if($_GET['o'] == 'ASC'){
-    $o = "ASC";
-    $disp = "DESC";
-  }else{
-    $o = "DESC";
-    $disp = "ASC";
-  }
-}else{
-  $o = "ASC";
-  $disp = "DESC";
-}
-
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 

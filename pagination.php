@@ -1,4 +1,11 @@
 <?php
+/*
+ * Pagination Body/Footer
+ * Displays page number buttons
+ *
+ * Should not be accessed directly, but called from other pages
+ * Relies upon the $num_rows variable being set correctly
+ */
 
 $total_found_rows = $num_rows[0];
 $total_pages = ceil($total_found_rows / $_SESSION['records_per_page']);

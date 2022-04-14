@@ -1,39 +1,9 @@
 <?php include("inc_all.php");
 
-  //Paging
-  if(isset($_GET['p'])){
-    $p = intval($_GET['p']);
-    $record_from = (($p)-1)*$_SESSION['records_per_page'];
-    $record_to = $_SESSION['records_per_page'];
-  }else{
-    $record_from = 0;
-    $record_to = $_SESSION['records_per_page'];
-    $p = 1;
-  }
-    
-  if(isset($_GET['q'])){
-    $q = mysqli_real_escape_string($mysqli,$_GET['q']);
-  }else{
-    $q = "";
-  }
-
   if(!empty($_GET['sb'])){
     $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
   }else{
     $sb = "campaign_created_at";
-  }
-
-  if(isset($_GET['o'])){
-    if($_GET['o'] == 'ASC'){
-      $o = "ASC";
-      $disp = "DESC";
-    }else{
-      $o = "DESC";
-      $disp = "ASC";
-    }
-  }else{
-    $o = "DESC";
-    $disp = "ASC";
   }
 
   if(empty($_GET['canned_date'])){
@@ -69,7 +39,7 @@
     $dtt = date('Y-m-d');
   }elseif($_GET['canned_date'] == "lastyear"){
     $dtf = date('Y-m-d',strtotime("first day of january last year"));
-    $dtt = date('Y-m-d',strtotime("last day of december last year"));  
+    $dtt = date('Y-m-d',strtotime("last day of december last year"));
   }else{
     $dtf = "0000-00-00";
     $dtt = "9999-00-00";
@@ -149,7 +119,7 @@
               <input type="date" class="form-control" name="dtt" value="<?php echo $dtt; ?>">
             </div>
           </div>
-        </div>    
+        </div>
       </div>
     </form>
     <hr>
@@ -170,7 +140,7 @@
         </thead>
         <tbody>
           <?php
-      
+
           while($row = mysqli_fetch_array($sql)){
             $campaign_id = $row['campaign_id'];
             $campaign_name = $row['campaign_name'];
@@ -245,9 +215,9 @@
           //include("campaign_copy_modal.php"); --doesnt exist yet
           include("campaign_edit_modal.php");
           include("campaign_test_modal.php");
-          
+
           }
-          
+
           ?>
 
         </tbody>

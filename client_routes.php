@@ -1,6 +1,9 @@
 <?php
 
 if(isset($_GET['tab'])){
+
+  include('pagination_head.php');
+
   if($_GET['tab'] == "overview"){
     include("client_overview.php");
   }

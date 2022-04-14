@@ -1,23 +1,5 @@
 <?php include("inc_all.php"); 
 
-//Paging
-if(isset($_GET['p'])){
-  $p = intval($_GET['p']);
-  $record_from = (($p)-1)*$_SESSION['records_per_page'];
-  $record_to = $_SESSION['records_per_page'];
-}else{
-  $record_from = 0;
-  $record_to = $_SESSION['records_per_page'];
-  $p = 1;
-}
-
-//Search Query Filter  
-if(isset($_GET['q'])){
-  $q = mysqli_real_escape_string($mysqli,$_GET['q']);
-}else{
-  $q = "";
-}
-
 //Column Sortby Filter
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
@@ -25,16 +7,8 @@ if(!empty($_GET['sb'])){
   $sb = "transfer_date";
 }
 
-//Order Filter
-if(isset($_GET['o'])){
-  if($_GET['o'] == 'ASC'){
-    $o = "ASC";
-    $disp = "DESC";
-  }else{
-    $o = "DESC";
-    $disp = "ASC";
-  }
-}else{
+// Reverse default sort
+if(!isset($_GET['o'])){
   $o = "DESC";
   $disp = "ASC";
 }

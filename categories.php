@@ -1,45 +1,15 @@
 <?php include("inc_all_admin.php"); 
 
-//Paging
-if(isset($_GET['p'])){
-  $p = intval($_GET['p']);
-  $record_from = (($p)-1)*$_SESSION['records_per_page'];
-  $record_to = $_SESSION['records_per_page'];
+if(isset($_GET['category'])){
+  $category = mysqli_real_escape_string($mysqli,$_GET['category']);
 }else{
-  $record_from = 0;
-  $record_to = $_SESSION['records_per_page'];
-  $p = 1;
+  $category = "Expense";
 }
-  
-if(isset($_GET['q'])){
-  $q = mysqli_real_escape_string($mysqli,$_GET['q']);
-}else{
-  $q = "";
-}
-
- if(isset($_GET['category'])){
-    $category = mysqli_real_escape_string($mysqli,$_GET['category']);
-  }else{
-    $category = "Expense";
-  }
 
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
   $sb = "category_name";
-}
-
-if(isset($_GET['o'])){
-  if($_GET['o'] == 'ASC'){
-    $o = "ASC";
-    $disp = "DESC";
-  }else{
-    $o = "DESC";
-    $disp = "ASC";
-  }
-}else{
-  $o = "ASC";
-  $disp = "DESC";
 }
 
 //Rebuild URL
