@@ -85,7 +85,7 @@
                 $software_id = $row['software_id'];
                 $software_name = $row['software_name'];
                 $software_type = $row['software_type'];
-                $software_license = $row['software_license_type'];
+                $software_license = $row['software_license'];
                 $software_notes = $row['software_notes'];
 
               ?>
