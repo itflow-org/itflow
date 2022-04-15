@@ -20,14 +20,14 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
   if(CURRENT_DATABASE_VERSION == '0.0.1'){
     // Insert queries here required to update to DB version 0.0.2
     // mysqli_query($mysqli, "ALTER TABLE .....");
-    ALTER TABLE `settings` ADD `config_module_enable_itdoc` TINYINT(1) DEFAULT 1 AFTER `config_backup_path `;
-    ALTER TABLE `settings` ADD `config_module_enable_ticketing` TINYINT(1) DEFAULT 1 AFTER `config_module_enable_itdoc`;
-    ALTER TABLE `settings` ADD `config_module_enable_accounting` TINYINT(1) DEFAULT 1 AFTER `config_module_enable_ticketing`;
+    mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_module_enable_itdoc` TINYINT(1) DEFAULT 1 AFTER `config_backup_path`");
+    mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_module_enable_ticketing` TINYINT(1) DEFAULT 1 AFTER `config_module_enable_itdoc`");
+    mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_module_enable_accounting` TINYINT(1) DEFAULT 1 AFTER `config_module_enable_ticketing`");
   
     // Then, update the database to the next sequential version
     //mysqli_query($mysqli, "UPDATE settings SET config_current_database_version = '0.0.2' WHERE company_id = '1'");
 
-    UPDATE `settings` SET `config_current_database_version` = '0.0.2'; 
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.2'"); 
   }
 
   if(CURRENT_DATABASE_VERSION == '0.0.2'){
