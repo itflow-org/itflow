@@ -201,13 +201,12 @@ while($row = mysqli_fetch_array($sql_companies)){
 
     // Scheduled tickets
 
-    // Get date now, and calculate tomorrow's date (presuming this is being run at 11 PM)
-    $now = new DateTime();
-    $tomorrow = date_add($now, date_interval_create_from_date_string('1 day'));
-    $tomorrow_text = $tomorrow->format('Y-m-d');
+    // Get date for search
+    $today = new DateTime();
+    $today_text = $today->format('Y-m-d');
 
-    // Get scheduled tickets for tomorrow
-    $sql_scheduled_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_next_run = '$tomorrow_text'");
+    // Get scheduled tickets for today
+    $sql_scheduled_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_next_run = '$today_text'");
 
     if(mysqli_num_rows($sql_scheduled_tickets) > 0){
       while($row = mysqli_fetch_array($sql_scheduled_tickets)){
@@ -237,23 +236,23 @@ while($row = mysqli_fetch_array($sql_companies)){
         if($frequency == "weekly"){
           // Note: We seemingly have to initialize a new datetime for each loop to avoid stacking the dates
           $now = new DateTime();
-          $next_run = date_add($now, date_interval_create_from_date_string('1 week 1 day'));
+          $next_run = date_add($now, date_interval_create_from_date_string('1 week'));
         }
         elseif($frequency == "monthly"){
           $now = new DateTime();
-          $next_run = date_add($now, date_interval_create_from_date_string('1 month 1 day'));
+          $next_run = date_add($now, date_interval_create_from_date_string('1 month'));
         }
         elseif($frequency == "quarterly"){
           $now = new DateTime();
-          $next_run = date_add($now, date_interval_create_from_date_string('3 months 1 day'));
+          $next_run = date_add($now, date_interval_create_from_date_string('3 months'));
         }
         elseif($frequency == "biannually"){
           $now = new DateTime();
-          $next_run = date_add($now, date_interval_create_from_date_string('6 months 1 day'));
+          $next_run = date_add($now, date_interval_create_from_date_string('6 months'));
         }
         elseif($frequency == "annually"){
           $now = new DateTime();
-          $next_run = date_add($now, date_interval_create_from_date_string('12 months 1 day'));
+          $next_run = date_add($now, date_interval_create_from_date_string('12 months'));
         }
 
         // Update the run date
