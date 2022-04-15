@@ -86,10 +86,11 @@ if(isset($api_key)){
   // Success
   else{
 
-    // Set company ID & key name
+    // Set client ID, company ID & key name
     $row = mysqli_fetch_array($sql);
-    $company_id = $row['company_id'];
     $api_key_name = $row['api_key_name'];
+    $client_id = $row['api_key_client_id'];
+    $company_id = $row['company_id'];
 
     // Set limit & offset for queries
     if(isset($_GET['limit'])){

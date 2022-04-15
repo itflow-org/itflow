@@ -50,6 +50,7 @@ CREATE TABLE `api_keys` (
   `api_key_created_at` datetime NOT NULL,
   `api_key_updated_at` datetime DEFAULT NULL,
   `api_key_expire` date NOT NULL,
+  `api_key_client_id` int(11) NOT NULL DEFAULT '0',
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`api_key_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -397,6 +398,7 @@ CREATE TABLE `documents` (
   `document_id` int(11) NOT NULL AUTO_INCREMENT,
   `document_name` varchar(200) NOT NULL,
   `document_content` longtext NOT NULL,
+  `document_content_raw` longtext NOT NULL,
   `document_created_at` datetime NOT NULL,
   `document_updated_at` datetime DEFAULT NULL,
   `document_archived_at` datetime DEFAULT NULL,
@@ -408,6 +410,11 @@ CREATE TABLE `documents` (
   PRIMARY KEY (`document_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Indexes for table `documents`
+--
+ALTER TABLE `documents` ADD FULLTEXT KEY `document_content_raw` (`document_content_raw`);
 
 --
 -- Table structure for table `documents_tagged`

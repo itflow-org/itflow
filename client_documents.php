@@ -1,12 +1,13 @@
 <?php
 
+// Sort by
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
   $sb = "document_name";
 }
 
-# Tag from GET
+// Tag from GET
 if (isset($_GET['tag'])) {
     $tag = intval($_GET['tag']);
     # Avoid doubling up
@@ -14,6 +15,14 @@ if (isset($_GET['tag'])) {
 }
 else {
     $tag = '';
+}
+
+// Search query SQL snippet
+if(!empty($q)){
+  $query_snippet = "AND (MATCH(document_content_raw) AGAINST ('$q'))";
+}
+else{
+  $query_snippet = ""; // empty
 }
 
 //Rebuild URL
@@ -26,15 +35,15 @@ $sql_no_tag = "SELECT SQL_CALC_FOUND_ROWS * FROM documents
   WHERE document_client_id = $client_id
   AND documents.company_id = $session_company_id
   AND document_template = 0
-  AND (document_name LIKE '%$q%' OR document_content LIKE '%$q%')
+  $query_snippet
   ORDER BY $sb $o LIMIT $record_from, $record_to";
 
 $sql_with_tag = "SELECT SQL_CALC_FOUND_ROWS * FROM documents
   LEFT JOIN documents_tagged ON documents.document_id = documents_tagged.document_id
   WHERE document_client_id = $client_id
-  AND document_template = 0
   AND documents.company_id = $session_company_id
-  AND (document_name LIKE '%$q%' OR document_content LIKE '%$q%')
+  AND document_template = 0
+  $query_snippet
   AND documents_tagged.tag_id LIKE '%$tag%'
   ORDER BY $sb $o LIMIT $record_from, $record_to";
 

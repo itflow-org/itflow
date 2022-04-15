@@ -440,7 +440,7 @@ if(isset($_GET['ticket_id'])){
         $row = mysqli_fetch_array($sql_closed_by);
         $ticket_closed_by_display = $row['user_name'];
         ?>
-        <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Closed by: <?php echo strtoupper($ticket_closed_by_display); ?></a></div>
+        <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Closed by: <?php echo ucwords($ticket_closed_by_display); ?></a></div>
         <div class="ml-1"><i class="fa fa-fw fa-comment-dots text-secondary mr-2 mb-2"></i>Feedback: <?php echo $ticket_feedback; ?></a></div>
       <?php } ?>
       <?php if(!empty($ticket_total_reply_time)){ ?>
@@ -599,7 +599,7 @@ if(isset($_GET['ticket_id'])){
       include("ticket_edit_modal.php");
       include("ticket_merge_modal.php");
       include("ticket_invoice_add_modal.php");
-      include("ticket_invoice_existing_add_modal.php");
+      //include("ticket_invoice_existing_add_modal.php");
 ?>
 
 <?php

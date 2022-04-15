@@ -16,10 +16,10 @@ if(isset($insert_id) && is_numeric($insert_id)){
   ];
 }
 
-// Query returned false, something went wrong or it was declined due to required variables missing
+// Query returned false: something went wrong, or it was declined due to required variables missing
 else{
   $return_arr['success'] = "False";
-  $return_arr['message'] = "Auth success but insert query failed, ensure ALL required variables are provided and database schema is up-to-date. Turn on error logging and look for 'undefined index'";
+  $return_arr['message'] = "Auth success but insert query failed, ensure ALL required variables are provided (and aren't duplicates where applicable) and database schema is up-to-date. Turn on error logging and look for 'undefined index'.";
 }
 
 echo json_encode($return_arr);

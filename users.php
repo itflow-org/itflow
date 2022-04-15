@@ -12,6 +12,7 @@
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM users, user_settings
     WHERE users.user_id = user_settings.user_id
     AND (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
+    AND user_archived_at IS NULL
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -119,7 +120,7 @@
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserCompaniesModal<?php echo $user_id; ?>">Company Access</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item text-danger" href="post.php?archive_user=<?php echo $user_id; ?>">Archive</a>
+                  <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#archiveUserModal<?php echo $user_id; ?>">Archive</a>
                 </div>
               </div>   
             </td>
@@ -129,6 +130,7 @@
 
           include("user_edit_modal.php");
           include("user_companies_modal.php");
+          include("user_archive_modal.php");
           
           }
       

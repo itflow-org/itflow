@@ -60,7 +60,7 @@ if(isset($_GET['certificate_fetch_parse_json_details'])){
 if(isset($_GET['certificate_get_json_details'])){
   if($session_user_role == 1){
     $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = "You are not permitted to do that!";
+    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
     exit();
   }
@@ -89,7 +89,7 @@ if(isset($_GET['certificate_get_json_details'])){
 if(isset($_GET['domain_get_json_details'])){
   if($session_user_role == 1){
     $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = "You are not permitted to do that!";
+    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
     exit();
   }
@@ -118,7 +118,7 @@ if(isset($_GET['domain_get_json_details'])){
 if(isset($_GET['merge_ticket_get_json_details'])){
   if($session_user_role == 1){
     $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = "You are not permitted to do that!";
+    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
     exit();
   }
@@ -146,7 +146,7 @@ if(isset($_GET['merge_ticket_get_json_details'])){
 if(isset($_GET['network_get_json_details'])){
   if($session_user_role == 1){
     $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = "You are not permitted to do that!";
+    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
     exit();
   }
@@ -230,7 +230,7 @@ if(isset($_GET['ticket_query_views'])){
 if(isset($_GET['share_generate_link'])){
   if($session_user_role == 1){
     $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = "You are not permitted to do that!";
+    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
     exit();
   }
@@ -282,7 +282,7 @@ if(isset($_GET['share_generate_link'])){
 if(isset($_GET['scheduled_ticket_get_json_details'])){
   if($session_user_role == 1){
     $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = "You are not permitted to do that!";
+    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
     exit();
   }

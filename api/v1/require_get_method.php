@@ -6,3 +6,8 @@ if($_SERVER['REQUEST_METHOD'] !== "GET"){
   echo json_encode($return_arr);
   exit();
 }
+
+// Wildcard client ID for most SELECT queries
+if($client_id == 0){
+  $client_id = "%";
+}
