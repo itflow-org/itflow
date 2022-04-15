@@ -1134,6 +1134,9 @@ CREATE TABLE `settings` (
   `config_azure_client_secret` varchar(200) DEFAULT NULL,
   `config_backup_enable` tinyint(1) NOT NULL DEFAULT 0,
   `config_backup_path` varchar(250) DEFAULT NULL,
+  `config_module_enable_itdoc` tinyint(1) NOT NULL DEFAULT 1,
+  `config_module_enable_accounting` tinyint(1) NOT NULL DEFAULT 1,
+  `config_module_enable_ticketing` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1487,4 +1490,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-04-02 16:01:13
+-- Dump completed on 2022-04-14 22:58:14

@@ -48,6 +48,7 @@
           </a> 
         </li>
 
+        <?php if($config_module_enable_accounting){ ?>
         <li class="nav-item">
           <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-defaults.php") { echo "active"; } ?>" 
             href="settings-defaults.php">
@@ -73,14 +74,6 @@
         </li>
 
         <li class="nav-item">
-          <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-ticket.php") { echo "active"; } ?>" 
-            href="settings-ticket.php">
-            <i class="nav-icon fas fa-ticket-alt"></i>
-            <p>Ticket</p>
-          </a> 
-        </li>
-
-        <li class="nav-item">
           <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-alerts.php") { echo "active"; } ?>" 
             href="settings-alerts.php">
             <i class="nav-icon far fa-bell"></i>
@@ -95,6 +88,32 @@
             <p>Online Payment</p>
           </a> 
         </li>
+
+        <li class="nav-item">
+          <a href="categories.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "categories.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-list"></i>
+            <p>Categories</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="taxes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "taxes.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-balance-scale"></i>
+            <p>Taxes</p>
+          </a>
+        </li>
+
+        <?php } ?>
+
+        <?php if($config_module_enable_ticketing){ ?>
+        <li class="nav-item">
+          <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-ticket.php") { echo "active"; } ?>" 
+            href="settings-ticket.php">
+            <i class="nav-icon fas fa-ticket-alt"></i>
+            <p>Ticket</p>
+          </a> 
+        </li>
+        <?php } ?>
 
         <li class="nav-item">
           <a href="settings-integrations.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-integrations.php") { echo "active"; } ?>">
@@ -127,26 +146,23 @@
           </a>
         </li>
 
-        <li class="nav-header mt-3">MORE SETTINGS</li>
-
         <li class="nav-item">
-          <a href="categories.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "categories.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-list"></i>
-            <p>Categories</p>
+          <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-modules.php") { echo "active"; } ?>"
+             href="settings-modules.php">
+              <i class="nav-icon fas fa-puzzle-piece"></i>
+              <p>Modules</p>
           </a>
         </li>
+
+        <li class="nav-header mt-3">MORE SETTINGS</li>
+
         <li class="nav-item">
           <a href="custom_links.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "custom_links.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-link"></i>
             <p>Custom Links</p>
           </a>
         </li>
-        <li class="nav-item">
-          <a href="taxes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "taxes.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-balance-scale"></i>
-            <p>Taxes</p>
-          </a>
-        </li>
+      
         <li class="nav-item">
           <a href="logs.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "active"; } ?>">
             <i class="nav-icon far fa-eye"></i>

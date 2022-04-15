@@ -148,6 +148,7 @@
 
         <li class="nav-header mt-3">SUPPORT</li>
 
+        <?php if($config_module_enable_ticketing == 1){ ?>
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=tickets" class="nav-link <?php if($_GET['tab'] == "tickets") { echo "active"; } ?>">
             <i class="nav-icon fas fa-ticket-alt"></i>
@@ -160,18 +161,19 @@
             </p>
           </a>
         </li>
+        <?php } ?>
 
         <li class="nav-item">
-            <a href="?client_id=<?php echo $client_id; ?>&tab=services" class="nav-link <?php if($_GET['tab'] == "services") { echo "active"; } ?>">
-                <i class="nav-icon fas fa-stream"></i>
-                <p>
-                    Services
-                    <?php
-                    if($num_services > 0){ ?>
-                        <span class="right badge badge-light"><?php echo $num_services; ?></span>
-                    <?php } ?>
-                </p>
-            </a>
+          <a href="?client_id=<?php echo $client_id; ?>&tab=services" class="nav-link <?php if($_GET['tab'] == "services") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-stream"></i>
+            <p>
+              Services
+              <?php
+              if($num_services > 0){ ?>
+                <span class="right badge badge-light"><?php echo $num_services; ?></span>
+              <?php } ?>
+            </p>
+          </a>
         </li>
 
         <li class="nav-item">
@@ -226,7 +228,7 @@
           </a>
         </li>
 
-        <?php if($session_user_role == 1 || $session_user_role > 2){ ?>
+        <?php if($session_user_role == 1 || $session_user_role > 2 AND $config_module_enable_accounting == 1){ ?>
 
         <li class="nav-header mt-3">ACCOUNTING</li>
 
@@ -305,13 +307,15 @@
             <p>Shared Links</p>
           </a>
         </li>
-
+        
+        <?php if($config_module_enable_ticketing == 1){ ?>
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=scheduled-tickets" class="nav-link <?php if($_GET['tab'] == "scheduled-tickets") { echo "active"; } ?>">
             <i class="nav-icon fas fa-sync"></i>
             <p>Scheduled Tickets</p>
           </a>
         </li>
+        <?php } ?>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=logs" class="nav-link <?php if($_GET['tab'] == "logs") { echo "active"; } ?>">

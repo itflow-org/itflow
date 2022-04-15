@@ -170,7 +170,7 @@ $location_phone = formatPhoneNumber($location_phone);
 <div class="card mb-3">
   <div class="card-body">
     <div class="row">
-      <div class="col-md-3">
+      <div class="col-md">
         <h4 class="text-secondary"><strong><?php echo $client_name; ?></strong></h4>
         <?php if(!empty($location_address)){ ?>
         <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$location_address $location_zip"; ?>" target="_blank">
@@ -194,7 +194,7 @@ $location_phone = formatPhoneNumber($location_phone);
         }
         ?>
       </div>
-      <div class="col-md-3 border-left">
+      <div class="col-md border-left">
         <h4 class="text-secondary">Contact</h4>
         <?php
         if(!empty($contact_name)){
@@ -235,18 +235,20 @@ $location_phone = formatPhoneNumber($location_phone);
         } 
         ?>
       </div>
-      <?php if($session_user_role == 1 || $session_user_role == 3){ ?>
-      <div class="col-md-3 border-left">
+      <?php if($session_user_role == 1 || $session_user_role == 3 AND $config_module_enable_accounting == 1){ ?>
+      <div class="col-md border-left">
         <h4 class="text-secondary">Billing</h4>
         <h6 class="ml-1 text-secondary">Paid <div class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $amount_paid, $client_currency_code); ?></div></h6>
         <h6 class="ml-1 text-secondary">Balance <div class="<?php if($balance > 0){ echo "text-danger"; }else{ echo "text-dark"; } ?> float-right"> <?php echo numfmt_format_currency($currency_format, $balance, $client_currency_code); ?></div></h6>
         <h6 class="ml-1 text-secondary">Net Terms <div class="text-dark float-right"><?php echo $client_net_terms; ?> <small class="text-secondary">Days</small></div></h6>
       </div>
       <?php } ?>
-      <div class="col-md-2 border-left">
+      <?php if($config_module_enable_ticketing == 1){ ?>
+      <div class="col-md border-left">
         <h4 class="text-secondary">Support</h4>
         <h6 class="ml-1 text-secondary">Open Tickets <div class="text-dark float-right"><?php echo $num_active_tickets; ?></div></h6>
       </div>
+      <?php } ?>
       <div class="col-md-1 border-left">
         <?php if($session_user_role == 3) { ?>
           <div class="dropdown dropleft text-center">

@@ -74,7 +74,7 @@
           </a>
         </li>
         
-        <?php if($session_user_role >= 2){ ?>
+        <?php if($session_user_role >= 2 && $config_module_enable_ticketing == 1){ ?>
 
         <li class="nav-header mt-3">SUPPORT</li>
         <li class="nav-item">
@@ -105,7 +105,7 @@
 
         <?php } ?>
 
-        <?php if($session_user_role == 1 OR $session_user_role == 3){ ?>
+        <?php if($session_user_role == 1 OR $session_user_role == 3 && $config_module_enable_accounting == 1){ ?>
 
         <li class="nav-header mt-3">SALES</li>
         <li class="nav-item">

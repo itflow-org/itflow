@@ -227,6 +227,7 @@
 
             <div class="tab-pane fade" id="pills-additional">
 
+              <?php if($config_module_enable_accounting){ ?>
               <div class="form-group">
                 <label>Currency <strong class="text-danger">*</strong></label>
                 <div class="input-group">
@@ -255,6 +256,12 @@
                   </select>
                 </div>
               </div>
+              
+              <?php }else{ ?>
+              
+              <input type="hidden" name="currency_code" value="<?php echo $session_company_currency; ?>">
+              <input type="hidden" name="net_terms" value="0">
+              <?php } ?>
 
               <div class="form-group">
                 <label>Notes</label>

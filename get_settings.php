@@ -79,6 +79,11 @@ $config_stripe_secret = $row['config_stripe_secret'];
 $config_backup_enable = $row['config_backup_enable'];
 $config_backup_path = $row['config_backup_path'];
 
+// Modules
+$config_module_enable_itdoc = $row['config_module_enable_itdoc'];
+$config_module_enable_ticketing = $row['config_module_enable_ticketing'];
+$config_module_enable_accounting = $row['config_module_enable_accounting'];
+
 // Currency
 
 $config_currency_format = "US_en";

@@ -578,8 +578,9 @@ if(isset($_GET['ticket_id'])){
       </div>
     </form>
 
+    <?php if($config_module_enable_accounting){ ?>
     <div class="card card-body card-outline card-dark mb-2">
-     <div class="">
+      <div class="">
         <a href="#" class="btn btn-outline-success btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">Invoice Ticket</a>
         <?php
         if($ticket_status !== "Closed"){
@@ -588,6 +589,7 @@ if(isset($_GET['ticket_id'])){
         <?php } ?>
       </div>
     </div>
+    <?php } ?>
 
   </div>
 

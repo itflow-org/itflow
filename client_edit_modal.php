@@ -87,7 +87,8 @@
                   <input type="text" class="form-control" name="website" placeholder="ex. google.com" value="<?php echo $client_website; ?>">
                 </div>
               </div>
-
+              
+              <?php if($config_module_enable_accounting){ ?>
               <div class="form-group">
                 <label>Currency <strong class="text-danger">*</strong></label>
                 <div class="input-group">
@@ -117,6 +118,12 @@
                   </select>
                 </div>
               </div>
+              
+              <?php }else{ ?>
+              
+              <input type="hidden" name="currency_code" value="<?php echo $currency_code; ?>">
+              <input type="hidden" name="net_terms" value="<?php echo $net_term_value; ?>">
+              <?php } ?>
 
             </div>
 

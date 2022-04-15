@@ -1119,6 +1119,30 @@ if(isset($_POST['edit_backup_settings'])){
 
 }
 
+if(isset($_POST['edit_module_settings'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
+    $config_module_enable_itdoc = intval($_POST['config_module_enable_itdoc']);
+    $config_module_enable_ticketing = intval($_POST['config_module_enable_ticketing']);
+    $config_module_enable_accounting = intval($_POST['config_module_enable_accounting']);
+
+    mysqli_query($mysqli,"UPDATE settings SET config_module_enable_itdoc = $config_module_enable_itdoc, config_module_enable_ticketing = $config_module_enable_ticketing, config_module_enable_accounting = $config_module_enable_accounting WHERE company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified module settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Module Settings updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['enable_2fa'])){
 
     $token = mysqli_real_escape_string($mysqli,$_POST['token']);
