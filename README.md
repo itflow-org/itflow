@@ -16,7 +16,7 @@
   <h3 align="center">ITFlow</h3>
 
   <p align="center">
-    IT Documentation, Accounting and Invoicing System for Small MSPs.
+    IT documentation, ticketing and accounting system for small MSPs.
     <br />
     <br />
     <a href="https://demo.itflow.org"><strong>View demo</strong></a>
