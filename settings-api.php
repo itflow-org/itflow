@@ -10,8 +10,9 @@
   $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
   $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM api_keys
+    LEFT JOIN clients on api_keys.api_key_client_id = clients.client_id
     WHERE (api_key_name LIKE '%$q%')
-    AND company_id = $session_company_id
+    AND api_keys.company_id = $session_company_id
     ORDER BY $sb $o LIMIT $record_from, $record_to");
 
   $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -40,6 +41,7 @@
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=api_key_name&o=<?php echo $disp; ?>">Name</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=api_key_client_id&o=<?php echo $disp; ?>">Client</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=api_key_secret&o=<?php echo $disp; ?>">Secret</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=api_key_created_at&o=<?php echo $disp; ?>">Created</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=api_key_expire&o=<?php echo $disp; ?>">Expire</a></th>
@@ -52,15 +54,24 @@
           while($row = mysqli_fetch_array($sql)){
             $api_key_id = $row['api_key_id'];
             $api_key_name = $row['api_key_name'];
-            $api_key_secret = $row['api_key_secret'];
+            $api_key_secret = "************" . substr($row['api_key_secret'], -4);
             $api_key_created_at = $row['api_key_created_at'];
             $api_key_expire = $row['api_key_expire'];
+            if($api_key_expire < date("Y-m-d H:i:s")){
+              $api_key_expire = $api_key_expire . " (Expired)";
+            }
+
+            if($row['api_key_client_id'] == 0){
+              $api_key_client = "<i>All Clients</i>";
+            }
+            else{
+              $api_key_client = $row['client_name'];
+            }
   
           ?>
           <tr>
-            <td>
-              <a class="text-dark" href="#" data-toggle="modal" data-target="#editApiKeyModal<?php echo $api_key_id; ?>"><?php echo $api_key_name; ?></a>
-            </td>
+            <td><?php echo $api_key_name; ?></td>
+            <td><?php echo $api_key_client; ?></td>
             <td><?php echo $api_key_secret; ?></td>
             <td><?php echo $api_key_created_at; ?></td>
             <td><?php echo $api_key_expire; ?></td>
@@ -70,17 +81,13 @@
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editApiKeyModal<?php echo $api_key_id; ?>">Edit</a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item text-danger" href="post.php?delete_api_key=<?php echo $api_key_id; ?>">Delete</a>
+                  <a class="dropdown-item text-danger" href="post.php?delete_api_key=<?php echo $api_key_id; ?>">Revoke</a>
                 </div>
               </div>   
             </td>
           </tr>
 
           <?php
-
-          include("api_key_edit_modal.php");
           
           }
       

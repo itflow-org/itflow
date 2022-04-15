@@ -45,6 +45,9 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
       mysqli_query($mysqli, "UPDATE `documents` SET `document_content_raw` = '$content_raw' WHERE `document_id` = '$id'");
     }
 
+    // Add API key client column
+    mysqli_query($mysqli, "ALTER TABLE `api_keys` ADD `api_key_client_id` INT NOT NULL DEFAULT '0' AFTER `api_key_expire`");
+
     // Then, update the database to the next sequential version
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.3'");
   }

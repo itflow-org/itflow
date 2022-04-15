@@ -50,6 +50,7 @@ CREATE TABLE `api_keys` (
   `api_key_created_at` datetime NOT NULL,
   `api_key_updated_at` datetime DEFAULT NULL,
   `api_key_expire` date NOT NULL,
+  `api_key_client_id` int(11) NOT NULL DEFAULT '0',
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`api_key_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

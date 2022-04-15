@@ -407,12 +407,12 @@ if(isset($_POST['add_api_key'])){
       exit();
     }
 
+    $secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['key'])));
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
-    // Gen a Key
-    $secret = keygen();
+    $client = intval($_POST['client']);
 
-    mysqli_query($mysqli,"INSERT INTO api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_expire = '$expire', api_key_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_expire = '$expire', api_key_client_id = '$client', api_key_created_at = NOW(), company_id = $session_company_id");
 
     $api_key_id = mysqli_insert_id($mysqli);
 

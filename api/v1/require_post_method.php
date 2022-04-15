@@ -6,3 +6,10 @@ if($_SERVER['REQUEST_METHOD'] !== "POST"){
   echo json_encode($return_arr);
   exit();
 }
+
+// Client ID must be specific for INSERT/UPDATE/DELETE queries
+// If this API key allows any client, set $client_id to the one specified, else leave it
+if($client_id == 0){
+  //
+  $client_id = intval($_POST['client_id']);
+}
