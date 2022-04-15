@@ -154,13 +154,11 @@
 
             //Set Badge color based off of campaign status
             if($campaign_status == "Sent"){
-              $campaign_badge_color = "warning text-white";
+              $campaign_badge_color = "success";
             }elseif($campaign_status == "Queued"){
               $campaign_badge_color = "info";
             }elseif($campaign_status == "Sending"){
               $campaign_badge_color = "primary";
-            }elseif($campaign_status == "Sent"){
-              $campaign_badge_color = "success";
             }else{
               $campaign_badge_color = "secondary";
             }

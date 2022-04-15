@@ -8,16 +8,12 @@ if(!file_exists('config.php')){
 include("config.php");
 include("functions.php");
 
-//SESSION FINGERPRINT
+// SESSION FINGERPRINT
 $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
-//$os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
-//$browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser()));
-//$device = strip_tags(mysqli_real_escape_string($mysqli,get_device()));
+$os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
 
-//$user_agent = "$os - $browser";
-// Get user agent
+// User agent
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
-
 
 // HTTP Only cookies
 ini_set("session.cookie_httponly", True);
@@ -59,7 +55,7 @@ if(isset($_POST['login'])){
         if(isset($_POST['current_code'])){
             $current_code = strip_tags(mysqli_real_escape_string($mysqli, $_POST['current_code']));
         }
-        $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_email = '$email'");
+        $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_email = '$email' AND user_archived_at IS NULL");
         $row = mysqli_fetch_array($sql);
         if (password_verify($password, $row['user_password'])) {
 

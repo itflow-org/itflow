@@ -53,7 +53,7 @@ if(isset($_POST['add_user'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -135,7 +135,7 @@ if(isset($_POST['edit_user'])){
 
     if($session_user_role != 3 && $_POST['user_id'] !== $session_user_id){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -230,6 +230,13 @@ if(isset($_POST['edit_user'])){
 }
 
 if(isset($_POST['edit_profile'])){
+
+    if($session_user_role != 3 && $_POST['user_id'] !== $session_user_id){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
 
     $user_id = intval($_POST['user_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -330,6 +337,13 @@ if(isset($_POST['edit_profile'])){
 
 if(isset($_POST['edit_user_companies'])){
 
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
     $user_id = intval($_POST['user_id']);
 
     mysqli_query($mysqli,"DELETE FROM user_companies WHERE user_id = $user_id");
@@ -356,67 +370,39 @@ if(isset($_GET['archive_user'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
 
+    // Variables from GET
     $user_id = intval($_GET['archive_user']);
+    $password = password_hash(key32gen(), PASSWORD_DEFAULT);
 
-    mysqli_query($mysqli,"UPDATE users SET user_archived_at = NOW() WHERE user_id = $user_id");
-
-    //Logging
-    //Get User Name
+    // Get user details
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
     $name = $row['user_name'];
+
+    // Archive user query
+    mysqli_query($mysqli,"UPDATE users SET user_name = '$name (archived)', user_password = '$password', user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
+
+    // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Archive', log_description = '$session_name archived user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = "<strong>$name</strong> archived";
+    $_SESSION['alert_message'] = "User <strong>$name</strong> archived";
     
     header("Location: users.php");
 
 }
 
-if(isset($_GET['delete_user'])){
-
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
-    $user_id = intval($_GET['delete_user']);
-
-    mysqli_query($mysqli,"DELETE FROM users WHERE user_id = $user_id");
-    mysqli_query($mysqli,"DELETE FROM user_settings WHERE user_id = $user_id");
-    mysqli_query($mysqli,"DELETE FROM logs WHERE log_user_id = $user_id");
-    mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_created_by = $user_id");
-    mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_closed_by = $user_id");
-    mysqli_query($mysqli,"DELETE FROM ticket_replies WHERE ticket_reply_by = $user_id");
-    mysqli_query($mysqli,"DELETE FROM user_companies WHERE user_id = $user_id");
-
-    //Logging
-    //Get User Name
-    $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
-    $row = mysqli_fetch_array($sql);
-    $name = $row['user_name'];
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Delete', log_description = '$session_name deleted user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = "User <strong>$name</strong> deleted";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-  
-}
 // API Key
 if(isset($_POST['add_api_key'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -443,7 +429,7 @@ if(isset($_POST['edit_api_key'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -467,7 +453,7 @@ if(isset($_GET['delete_api_key'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -495,7 +481,7 @@ if(isset($_POST['add_company'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -601,7 +587,7 @@ if(isset($_POST['edit_company'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -704,7 +690,7 @@ if(isset($_GET['delete_company'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -798,7 +784,7 @@ if(isset($_POST['edit_general_settings'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -820,7 +806,7 @@ if(isset($_POST['edit_mail_settings'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -874,7 +860,7 @@ if(isset($_POST['test_email'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -918,7 +904,7 @@ if(isset($_POST['edit_invoice_settings'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -947,7 +933,7 @@ if(isset($_POST['edit_quote_settings'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -973,7 +959,7 @@ if(isset($_POST['edit_ticket_settings'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -998,7 +984,7 @@ if(isset($_POST['edit_default_settings'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -1026,7 +1012,7 @@ if(isset($_POST['edit_alert_settings'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -1051,7 +1037,7 @@ if(isset($_POST['edit_online_payment_settings'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -1074,7 +1060,7 @@ if(isset($_POST['edit_integrations_settings'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -1100,7 +1086,7 @@ if(isset($_POST['edit_backup_settings'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -1123,7 +1109,7 @@ if(isset($_POST['edit_module_settings'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -1175,7 +1161,7 @@ if(isset($_GET['download_database'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -1260,7 +1246,7 @@ if(isset($_POST['backup_master_key'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -1297,7 +1283,7 @@ if(isset($_GET['update'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -1325,7 +1311,7 @@ if(isset($_GET['update_db'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -1348,7 +1334,7 @@ if(isset($_POST['add_client'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -1430,7 +1416,7 @@ if(isset($_POST['edit_client'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -1469,7 +1455,7 @@ if(isset($_GET['delete_client'])){
 
     if($session_user_role != 3){
         $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "You are not permitted to do that!";
+        $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
     }
@@ -4193,7 +4179,7 @@ if(isset($_POST['add_contact'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4280,7 +4266,7 @@ if(isset($_POST['edit_contact'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4376,7 +4362,7 @@ if(isset($_GET['archive_contact'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4398,7 +4384,7 @@ if(isset($_GET['delete_contact'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4462,7 +4448,7 @@ if(isset($_POST['add_location'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4548,7 +4534,7 @@ if(isset($_POST['edit_location'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4638,7 +4624,7 @@ if(isset($_GET['delete_location'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4703,7 +4689,7 @@ if(isset($_POST['add_department'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4716,7 +4702,7 @@ if(isset($_POST['add_department'])){
     $contact_id = mysqli_insert_id($mysqli);
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Create', log_description = '$department_name', log_created_at = NOW(), company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Create', log_description = '$department_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] .= "Department added";
     
@@ -4728,7 +4714,7 @@ if(isset($_POST['edit_department'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4740,7 +4726,7 @@ if(isset($_POST['edit_department'])){
     mysqli_query($mysqli,"UPDATE departments SET department_name = '$department_name', department_updated_at = NOW() WHERE department_id = $department_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Modify', log_description = '$department_name', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Modify', log_description = '$department_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] .= "Department updated";
     
@@ -4752,7 +4738,7 @@ if(isset($_GET['archive_department'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4762,7 +4748,7 @@ if(isset($_GET['archive_department'])){
     mysqli_query($mysqli,"UPDATE departments SET department_archived_at = NOW() WHERE department_id = $department_id");
 
     //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Archive', log_description = '$department_id', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Archive', log_description = '$department_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Department Archived!";
     
@@ -4774,7 +4760,7 @@ if(isset($_GET['delete_department'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4796,7 +4782,7 @@ if(isset($_POST['add_asset'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4852,7 +4838,7 @@ if(isset($_POST['edit_asset'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4915,7 +4901,7 @@ if(isset($_GET['delete_asset'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -4937,7 +4923,7 @@ if(isset($_POST["import_client_assets_csv"])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5074,7 +5060,7 @@ if(isset($_GET['export_client_assets_csv'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5123,7 +5109,7 @@ if(isset($_POST['add_software'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5187,7 +5173,7 @@ if(isset($_POST['edit_software'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5258,7 +5244,7 @@ if(isset($_GET['delete_software'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5284,7 +5270,7 @@ if(isset($_GET['export_client_software_csv'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5333,7 +5319,7 @@ if(isset($_POST['add_login'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5365,7 +5351,7 @@ if(isset($_POST['edit_login'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5397,7 +5383,7 @@ if(isset($_GET['delete_login'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5419,7 +5405,7 @@ if(isset($_GET['export_client_logins_csv'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5469,7 +5455,7 @@ if(isset($_POST['add_network'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5497,7 +5483,7 @@ if(isset($_POST['edit_network'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5524,7 +5510,7 @@ if(isset($_POST['edit_network'])){
 if(isset($_GET['delete_network'])){
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5546,7 +5532,7 @@ if(isset($_GET['export_client_networks_csv'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5595,7 +5581,7 @@ if(isset($_POST['add_certificate'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5637,7 +5623,7 @@ if(isset($_POST['edit_certificate'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5679,7 +5665,7 @@ if(isset($_GET['delete_certificate'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5701,7 +5687,7 @@ if(isset($_GET['export_client_certificates_csv'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5750,7 +5736,7 @@ if(isset($_POST['add_domain'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5827,7 +5813,7 @@ if(isset($_POST['edit_domain'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5872,7 +5858,7 @@ if(isset($_GET['delete_domain'])){
 
       if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5894,7 +5880,7 @@ if(isset($_GET['export_client_domains_csv'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5944,7 +5930,7 @@ if(isset($_POST['add_ticket'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -5978,7 +5964,7 @@ if(isset($_POST['add_ticket'])){
     $id = mysqli_insert_id($mysqli);
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$session_name created ticket $subject', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$session_name created ticket $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Ticket created";
 
@@ -5990,7 +5976,7 @@ if(isset($_POST['add_scheduled_ticket'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6020,7 +6006,7 @@ if(isset($_POST['add_scheduled_ticket'])){
     mysqli_query($mysqli, "INSERT INTO scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_start_date = '$start_date', scheduled_ticket_next_run = '$start_date', scheduled_ticket_created_at = NOW(), scheduled_ticket_created_by = '$session_user_id', scheduled_ticket_client_id = '$client_id', scheduled_ticket_contact_id = '$contact', scheduled_ticket_asset_id = '$asset_id', company_id = '$session_company_id'");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Created scheduled ticket for $subject - $frequency', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Created scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Scheduled ticket created.";
 
@@ -6032,7 +6018,7 @@ if(isset($_POST['edit_scheduled_ticket'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6068,7 +6054,7 @@ if(isset($_GET['delete_scheduled_ticket'])){
 
     if($session_user_role != 3){
         $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "You are not permitted to do that!";
+        $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
     }
@@ -6090,7 +6076,7 @@ if(isset($_POST['edit_ticket'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6125,7 +6111,7 @@ if(isset($_POST['assign_ticket'])){
     // Role check
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6176,7 +6162,7 @@ if(isset($_GET['delete_ticket'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6198,7 +6184,7 @@ if(isset($_POST['add_ticket_reply'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6292,7 +6278,7 @@ if(isset($_POST['edit_ticket_reply'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6321,7 +6307,7 @@ if(isset($_GET['archive_ticket_reply'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6343,7 +6329,7 @@ if(isset($_POST['merge_ticket'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6401,7 +6387,7 @@ if(isset($_GET['close_ticket'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6520,7 +6506,7 @@ if(isset($_GET['export_client_tickets_csv'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6569,7 +6555,7 @@ if(isset($_POST['add_service'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6676,7 +6662,7 @@ if(isset($_POST['edit_service'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6785,7 +6771,7 @@ if(isset($_GET['delete_service'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6883,7 +6869,7 @@ if(isset($_GET['delete_file'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6913,7 +6899,7 @@ if(isset($_POST['add_document'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -6958,7 +6944,7 @@ if(isset($_POST['edit_document'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -7005,7 +6991,7 @@ if(isset($_GET['delete_document'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -7030,7 +7016,7 @@ if (isset($_POST['add_document_tag'])) {
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -7048,7 +7034,7 @@ if (isset($_POST['delete_document_tag'])) {
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -7069,7 +7055,7 @@ if (isset($_POST['rename_document_tag'])) {
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
@@ -7088,7 +7074,7 @@ if (isset($_POST['rename_document_tag'])) {
 if(isset($_GET['deactivate_shared_item'])){
     if($session_user_role != 3){
         $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "You are not permitted to do that!";
+        $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
     }
@@ -7521,7 +7507,7 @@ if(isset($_GET['export_client_pdf'])){
 
     if($session_user_role != 3){
       $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "You are not permitted to do that!";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }

@@ -167,7 +167,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=client_name&order=<?php echo $order_display; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=location_city&order=<?php echo $order_display; ?>">Address </a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=contact_name&order=<?php echo $order_display; ?>">Contact</a></th>
-            <?php if($session_user_role == 3 || $session_user_role == 1 AND $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
+            <?php if($session_user_role == 3 || $session_user_role == 1 && $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
             <?php if($session_user_role == 3) { ?> <th class="text-center">Action</th> <?php } ?>
           </tr>
         </thead>
@@ -310,7 +310,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             </td>
 
             <!-- Show Billing for Admin/Accountant roles only and if accounting module is enabled -->
-            <?php if($session_user_role == 3 || $session_user_role == 1 AND $config_module_enable_accounting == 1) { ?>
+            <?php if($session_user_role == 3 || $session_user_role == 1 && $config_module_enable_accounting == 1) { ?>
               <td class="text-right">
                 <span class="text-secondary">Balance</span> <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
                 <br>
