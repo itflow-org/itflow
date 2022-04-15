@@ -6927,11 +6927,13 @@ if(isset($_POST['add_document'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $tags_ids = $_POST['tags_ids'];
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
+    $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
+    // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
     $template = intval($_POST['template']);
     $folder = intval($_POST['folder']);
 
     // Document add query
-    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_created_at = NOW(), document_template = $template, document_folder_id = $folder, document_client_id = $client_id, company_id = $session_company_id");
+    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_created_at = NOW(), document_template = $template, document_folder_id = $folder, document_client_id = $client_id, company_id = $session_company_id");
     $document_id = $mysqli->insert_id;
 
     // Logging
@@ -6970,11 +6972,13 @@ if(isset($_POST['edit_document'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $tags_ids = $_POST['tags_ids'];
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
+    $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
+    // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
     $template = intval($_POST['template']);
     $folder = intval($_POST['folder']);
 
     // Document edit query
-    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_updated_at = NOW(), document_template = $template, document_folder_id = $folder WHERE document_id = $document_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_updated_at = NOW(), document_template = $template, document_folder_id = $folder WHERE document_id = $document_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Note', log_action = 'Modify', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
