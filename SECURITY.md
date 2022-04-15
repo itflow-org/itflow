@@ -6,7 +6,7 @@ ITFlow is currently in early beta and is a work in progress.
 We currently advise against storing confidential data in ITFlow for this reason.
 
 That said, in order to eventually be useful, ITFlow **must** be secure and take security seriously.
-We attempt to follow best security practices where possible, including [automated code scanning](https://sonarcloud.io/component_measures?id=itflow-org_itflow&metric=security_rating&view=list).
+We attempt to follow security best practices where possible, including [automated code scanning](https://sonarcloud.io/component_measures?id=itflow-org_itflow&metric=security_rating&view=list).
 
 ## Supported Versions
 
