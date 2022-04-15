@@ -5975,13 +5975,14 @@ if(isset($_POST['add_ticket'])){
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_asset_id = $asset_id, ticket_created_at = NOW(), ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id, company_id = $session_company_id");
+    $id = mysqli_insert_id($mysqli);
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$session_name created ticket $subject', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Ticket created";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+    header("Location: ticket.php?ticket_id=" . $id);
 
 }
 
