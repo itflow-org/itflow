@@ -48,7 +48,6 @@ function removeDirectory($path) {
     is_dir($file) ? removeDirectory($file) : unlink($file);
   }
   rmdir($path);
-  return;
 }
 
 function get_user_agent() {
