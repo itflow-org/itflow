@@ -1182,7 +1182,7 @@ if(isset($_POST['add_telemetry'])){
                               <li>Upload is readable and writeable</li>
                               <li>PHP 7+ Installed</li>
                           </ul>
-                          <center><a href="?database" class="btn btn-lg btn-primary mb-5">Install</a></center>
+                          <div style="text-align: center;"><a href="?database" class="btn btn-lg btn-primary mb-5">Install</a></div>
                       </div>
                   </div>
 
@@ -1519,7 +1519,9 @@ if(isset($_POST['add_telemetry'])){
                         }
                         ?>
                           <hr>
-                          <center><a href="?database" class="btn btn-primary">Begin Setup <i class="fa fa-fw fa-arrow-alt-circle-right"></i></a></center>
+                          <div style="text-align: center;">
+                            <a href="?database" class="btn btn-primary">Begin Setup <i class="fa fa-fw fa-arrow-alt-circle-right"></i></a>
+                          </div>
                       </div>
                   </div>
 
