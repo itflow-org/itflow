@@ -38,6 +38,7 @@ $contact = mysqli_fetch_array($contact_sql);
 
 $session_contact_name = $contact['contact_name'];
 $session_contact_initials = initials($session_contact_name);
+$session_contact_title = $contact['contact_title'];
 $session_contact_email = $contact['contact_email'];
 $session_contact_photo = $contact['contact_photo'];
 

@@ -42,7 +42,7 @@ if(isset($_POST['add_ticket'])){
   $id = mysqli_insert_id($mysqli);
 
   // Logging
-  mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Client contact $session_contact_name created ticket $subject', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id");
+  mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Client contact $session_contact_name created ticket $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id");
 
   header("Location: ticket.php?id=" . $id);
 
@@ -126,7 +126,7 @@ if(isset($_GET['close_ticket'])){
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed by $session_contact_name.', ticket_reply_type = 'Client', ticket_reply_created_at = NOW(), ticket_reply_by = '$session_contact_id', ticket_reply_ticket_id = '$ticket_id', company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id Closed by client', log_created_at = NOW(), company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id Closed by client', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), company_id = $session_company_id");
 
     header("Location: ticket.php?id=" . $ticket_id);
   }
