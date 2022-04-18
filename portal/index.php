@@ -56,9 +56,8 @@ $total_tickets = $row['total_tickets'];
       <br>
               
       <?php } ?>
-      <div class="text-dark"><?php echo $contact_name; ?></div>
-      <div><?php echo $contact_title_display; ?></div>
-      <div><?php echo $primary_contact_display; ?></div>
+      <div class="text-dark"><?php echo $session_contact_name; ?></div>
+      <div><?php echo $session_contact_title; ?></div>
     </th>
     <th>
       <div class="">

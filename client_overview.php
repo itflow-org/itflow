@@ -191,7 +191,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
               ?>
               <tr>
-                <td><?php echo "$ticket_prefix$ticket_number"; ?></td>
+                <td><a href="ticket.php?ticket_id=<?php echo $ticket_id?>"><?php echo "$ticket_prefix$ticket_number"; ?></a</td>
                 <td><?php echo $ticket_subject; ?></td>
                 <td class="text-danger"><?php echo $ticket_created_at; ?></td>
               </tr>

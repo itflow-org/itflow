@@ -27,7 +27,7 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
       
     <span class="navbar-text">
       <?php
-    if($ticket_status !== "Closed"){ ?>
+    if($ticket['ticket_status'] !== "Closed"){ ?>
       <button class="btn btn-sm btn-outline-success my-2 my-sm-0 form-inline my-2 my-lg-0" type="submit"><a href="portal_post.php?close_ticket=<?php echo $ticket_id; ?>"><i class="fas fa-fw fa-check text-secondary text-success"></i>  Close ticket</a></button>
     <?php } ?>
     </span>
@@ -94,7 +94,7 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
     <?php
     $sql = mysqli_query($mysqli,"SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id LEFT JOIN contacts ON ticket_reply_by = contact_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL AND ticket_reply_type != 'Internal' ORDER BY ticket_reply_id DESC");
 
-    while($row = mysqli_fetch_array($sql)){;
+    while($row = mysqli_fetch_array($sql)){
       $ticket_reply_id = $row['ticket_reply_id'];
       $ticket_reply = $row['ticket_reply'];
       $ticket_reply_created_at = $row['ticket_reply_created_at'];
