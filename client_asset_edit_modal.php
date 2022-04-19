@@ -44,7 +44,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="name" placeholder="Name the asset" value="<?php echo $asset_name; ?>" <?php if(!empty($asset_meshcentral_id)){echo "disabled";} ?> required>
+                  <input type="text" class="form-control" name="name" placeholder="Name the asset" value="<?php echo $asset_name; ?>" required>
                 </div>
               </div>
               
@@ -102,7 +102,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro" <?php if(!empty($asset_meshcentral_id)){echo "disabled";} ?> value="<?php echo $asset_os; ?>">
+                  <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro">
                 </div>
               </div>
               <?php } ?>
@@ -208,16 +208,6 @@
                   <input type="text" class="form-control" name="mac" value="<?php echo $asset_mac; ?>" placeholder="MAC Address" data-inputmask="'alias': 'mac'" data-mask>
                 </div>
               </div>
-
-              <div class="form-group">
-                <label>MeshCentral Node ID</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-sync"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="mesh_id" value="<?php echo $asset_meshcentral_id; ?>" placeholder="MeshCentral ID">
-                </div>
-              </div>
             
             </div>
 
@@ -308,7 +298,7 @@
             <div class="tab-pane fade" id="pills-notes<?php echo $asset_id; ?>">
 
               <div class="form-group">
-                <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes" <?php if(!empty($asset_meshcentral_id)){echo "disabled";} ?>><?php echo $asset_notes; ?></textarea>
+                <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?php echo $asset_notes; ?></textarea>
               </div>
 
             </div>

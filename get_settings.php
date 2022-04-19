@@ -10,11 +10,6 @@ $config_base_url = $row['config_base_url'];
 // Database version
 DEFINE("CURRENT_DATABASE_VERSION", $row['config_current_database_version']);
 
-// Mesh Central
-$config_meshcentral_uri = $row['config_meshcentral_uri'];
-$config_meshcentral_user = $row['config_meshcentral_user'];
-$config_meshcentral_secret = $row['config_meshcentral_secret'];
-
 // Microsoft OAuth
 $config_azure_client_id = $row['config_azure_client_id'];
 $config_azure_client_secret = $row['config_azure_client_secret'];

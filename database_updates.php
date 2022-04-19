@@ -152,12 +152,23 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
   }
 
   if(CURRENT_DATABASE_VERSION == '0.0.4'){
-    // Insert queries here required to update to DB version 0.0.5
+    // Queries here required to update to DB version 0.0.5
+
+    mysqli_query($mysqli, "ALTER TABLE `assets` DROP `asset_meshcentral_id`;");
+    mysqli_query($mysqli, "ALTER TABLE `clients` DROP `client_meshcentral_group`;");
+    mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_meshcentral_uri`, DROP `config_meshcentral_user`, DROP `config_meshcentral_secret`;");
+
+    // Then, update the database to the next sequential version
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.5'");
+  }
+
+  if(CURRENT_DATABASE_VERSION == '0.0.5'){
+    // Insert queries here required to update to DB version 0.0.6
 
     // ALTER queries.....
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.5'");
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.6'");
   }
 
   // etc
