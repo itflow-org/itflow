@@ -8,9 +8,9 @@
         </button>
       </div>     
       
-      <center>
+      <div style="text-align: center;">
         <img class="img-fluid" src="<?php echo "uploads/clients/$session_company_id/$client_id/$file_reference_name"; ?>">
-      </center>
+      </div>
       
     </div>
   </div>

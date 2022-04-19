@@ -183,7 +183,7 @@
 
             <div class="tab-pane fade" id="pills-photo<?php echo $contact_id; ?>">
 
-              <center class="mb-3">
+              <div class="mb-3" style="text-align: center;">
                 <?php if(!empty($contact_photo)){ ?>
                 <img class="img-fluid" alt="contact_photo" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
                 <?php }else{ ?>
@@ -192,7 +192,7 @@
                   <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
                 </span>
                 <?php } ?>
-              </center>
+              </div>
 
               <div class="form-group">
                 <input type="file" class="form-control-file" name="file">
