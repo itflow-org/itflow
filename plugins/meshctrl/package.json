@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "minimist": "^1.2.6",
-    "ws": "^8.5.0"
-  }
-}

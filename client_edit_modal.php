@@ -21,9 +21,6 @@
             <li class="nav-item">
               <a class="nav-link" data-toggle="pill" href="#pills-client-tag<?php echo $client_id; ?>">Tag</a>
             </li>
-            <li class="nav-iem">
-              <a class="nav-link" data-toggle="pill" href="#pills-client-integration<?php echo $client_id; ?>">Integration</a>
-            </li>
           </ul>
 
           <hr>
@@ -165,20 +162,6 @@
 
             </div>
 
-            <div class="tab-pane fade" id="pills-client-integration<?php echo $client_id; ?>">
-
-              <div class="form-group">
-                <label>MeshCentral Device Group Name</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-object-group"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="meshcentral_group" placeholder="CoolClient" value="<?php echo $client_meshcentral_group; ?>">
-                </div>
-              </div>
-
-              </div>
-          
           </div>    
         </div>
         <div class="modal-footer bg-white">

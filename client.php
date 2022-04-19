@@ -34,7 +34,6 @@ if(isset($_GET['client_id'])){
     $client_net_terms = $config_default_net_terms;
   }
   $client_notes = $row['client_notes'];
-  $client_meshcentral_group = $row['client_meshcentral_group'];
   $client_created_at = $row['client_created_at'];
   $primary_contact = $row['primary_contact'];
   $primary_location = $row['primary_location'];
