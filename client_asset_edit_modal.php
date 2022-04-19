@@ -151,7 +151,9 @@
                       $contact_id_select = $row['contact_id'];
                       $contact_name_select = $row['contact_name'];
                     ?>
-                    <option <?php if($asset_contact_id == $contact_id_select){ echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
+                    <option <?php if($asset_contact_id == $contact_id_select){ echo "selected"; } ?> value="<?php echo $contact_id_select; ?>">
+                      <?php echo $contact_name_select; ?> <?php if(!empty($row['contact_archived_at'])){ echo " - ARCHIVED " . date('Y-m-d',strtotime($row['contact_archived_at'])); } ?>
+                    </option>
                     
                     <?php
                     }
