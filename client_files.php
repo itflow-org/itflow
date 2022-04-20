@@ -20,7 +20,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
     <?php
       if($num_of_files == 0){
         
-        echo "<center><h3 class='text-secondary'>No Records Here</h3></center>";
+        echo "<div style='text-align: center;'><h3 class='text-secondary'>No Records Here</h3></div>";
       }
 
     ?>
