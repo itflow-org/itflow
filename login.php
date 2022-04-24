@@ -54,7 +54,7 @@ if(isset($_POST['login'])){
             $current_code = strip_tags(mysqli_real_escape_string($mysqli, $_POST['current_code']));
         }
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM users WHERE user_email = '$email' AND user_archived_at IS NULL"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_email = '$email' AND user_archived_at IS NULL"));
         if (password_verify($password, $row['user_password'])) {
 
             $token = $row['user_token'];
@@ -64,22 +64,21 @@ if(isset($_POST['login'])){
             $user_id = $row['user_id'];
 
             // Setup encryption session key
-            if (isset($row['user_specific_encryption_ciphertext'])) {
+            if (isset($row['user_specific_encryption_ciphertext']) && $row['user_role'] > 1) {
                 $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
                 $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
                 generateUserSessionKey($site_encryption_master_key);
-            }
 
-            // Setup extension
-            if (isset($row['user_extension_key']) && !empty($row['user_extension_key'])) {
-                // Extension cookie
-                // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
-                setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
+              // Setup extension
+                if (isset($row['user_extension_key']) && !empty($row['user_extension_key'])) {
+                  // Extension cookie
+                  // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
+                  setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
 
-                // Set PHP session in DB so we can access the session encryption data (above)
-                $user_php_session = session_id();
-                mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = '$user_id'");
-
+                  // Set PHP session in DB so we can access the session encryption data (above)
+                  $user_php_session = session_id();
+                  mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = '$user_id'");
+                }
             }
 
             if (empty($token)) {
