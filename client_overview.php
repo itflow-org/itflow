@@ -15,6 +15,7 @@ $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id =
 // Get Domains Expiring
 $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
     WHERE domain_client_id = $client_id
+    AND domain_expire != '0000-00-00'
     AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
     AND company_id = $session_company_id ORDER BY domain_expire DESC"
 );
@@ -22,6 +23,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 // Get Asset Warranties Expiring
 $sql_asset_warranties_expiring = mysqli_query($mysqli,"SELECT * FROM assets
     WHERE asset_client_id = $client_id
+    AND asset_warranty_expire != '0000-00-00'  
     AND asset_warranty_expire < CURRENT_DATE + INTERVAL 90 DAY
     AND company_id = $session_company_id ORDER BY asset_warranty_expire DESC"
 );
@@ -29,8 +31,8 @@ $sql_asset_warranties_expiring = mysqli_query($mysqli,"SELECT * FROM assets
 // Get Stale Tickets
 $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
     WHERE ticket_client_id = $client_id
-    AND ticket_created_at < CURRENT_DATE + INTERVAL 14 DAY
-    AND ticket_status = 'Open'
+    AND ticket_created_at < CURRENT_DATE - INTERVAL 14 DAY
+    AND ticket_status != 'Closed'
     AND company_id = $session_company_id ORDER BY ticket_created_at DESC"
 );
 
