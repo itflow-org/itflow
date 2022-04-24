@@ -6920,7 +6920,7 @@ if(isset($_POST['add_document'])){
     $document_id = $mysqli->insert_id;
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = '$details', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = 'Created $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
 
     // Add tags
     foreach($tags_ids as $tag_id) {
@@ -6964,7 +6964,7 @@ if(isset($_POST['edit_document'])){
     mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_updated_at = NOW(), document_template = $template, document_folder_id = $folder WHERE document_id = $document_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Note', log_action = 'Modify', log_description = '$name', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', company_id = $session_company_id, log_user_id = $session_user_id");
 
     // Remove any old tags
     mysqli_query($mysqli, "DELETE FROM documents_tagged WHERE document_id = $document_id");
@@ -7000,7 +7000,7 @@ if(isset($_GET['delete_document'])){
     mysqli_query($mysqli, "DELETE FROM documents_tagged WHERE document_id = '$document_id'");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Delete', log_description = '$document_id', log_created_at = NOW(), company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Delete', log_description = '$document_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Document deleted";
     
