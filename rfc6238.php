@@ -24,18 +24,17 @@
 			}
 			return false;
 		}
-    public static function getTokenCode($secretkey,$rangein30s = 3) {
-                        $result = "";
+    public static function getTokenCode($secretkey) {
+      $result = "";
 			$key = base32static::decode($secretkey);
 			$unixtimestamp = time()/30;
-			
-			for($i=-($rangein30s); $i<=$rangein30s; $i++) {
-				$checktime = (int)($unixtimestamp+$i);
-				$thiskey = self::oath_hotp($key, $checktime);
-        $result = $result." # ".self::oath_truncate($thiskey,6);
-			}
-			
-			return $result;
+
+      $checktime = (int)($unixtimestamp);
+      $thiskey = self::oath_hotp($key, $checktime);
+      $result = $result . self::oath_truncate($thiskey,6);
+
+      $result = "000000" . $result;
+			return substr($result, -6);
     }
     public static function getTokenCodeDebug($secretkey,$rangein30s = 3) {
       $result = "";

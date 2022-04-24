@@ -1,7 +1,5 @@
 <?php
 
-require_once("rfc6238.php");
-
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
 }else{
@@ -84,11 +82,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }
             $login_password = htmlentities(decryptLoginEntry($row['login_password']));
             $login_otp_secret = $row['login_otp_secret'];
+            $login_id_with_secret = '"' . $row['login_id'] . '","' . $row['login_otp_secret'] . '"';
             if(empty($login_otp_secret)){
               $otp_display = "-";
             }else{
-              $otp = TokenAuth6238::getTokenCode($login_otp_secret,$rangein30s = 3);
-              $otp_display = "<i class='far fa-clock text-secondary'></i> $otp<button class='btn btn-sm clipboardjs' data-clipboard-text='$otp'><i class='far fa-copy text-secondary'></i></button>";
+              $otp_display = "<span onmouseover='showOTP($login_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
             }
             $login_note = $row['login_note'];
             $login_contact_id = $row['login_contact_id'];
@@ -140,6 +138,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <?php include("pagination.php"); ?>
   </div>
 </div>
+
+<script>
+    function showOTP(id, secret){
+        //Send a GET request to ajax.php as ajax.php?get_totp_token=true&totp_secret=SECRET
+        jQuery.get(
+            "ajax.php",
+            {get_totp_token: 'true', totp_secret: secret},
+            function(data){
+                //If we get a response from post.php, parse it as JSON
+                const token = JSON.parse(data);
+
+                document.getElementById("otp_" + id).innerText = token
+
+            }
+        );
+    }
+</script>
 
 <?php
 include("client_login_add_modal.php");

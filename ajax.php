@@ -9,6 +9,7 @@
 include("config.php");
 include("functions.php");
 include("check_login.php");
+require_once("rfc6238.php");
 
 /*
  * Fetches SSL certificates from remote hosts & returns the relevant info (issuer, expiry, public key)
@@ -304,4 +305,14 @@ if(isset($_GET['scheduled_ticket_get_json_details'])){
 
   echo json_encode($response);
 
+}
+
+/*
+ * Dynamic TOTP for client login page
+ * When provided with a TOTP secret, returns a 6-digit code
+ */
+if(isset($_GET['get_totp_token'])){
+  $otp = TokenAuth6238::getTokenCode($_GET['totp_secret']);
+
+  echo json_encode($otp);
 }
