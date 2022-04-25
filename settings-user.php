@@ -26,10 +26,10 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
 
           <center class="mb-3 p-4">
             <?php if(empty($session_avatar)){ ?>
-            	<i class="fas fa-user-circle fa-8x text-secondary"></i>
+              <i class="fas fa-user-circle fa-8x text-secondary"></i>
             <?php }else{ ?>
-            	<img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-fluid">
-            <?php } ?> 
+              <img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-fluid">
+            <?php } ?>
             <h4 class="text-secondary mt-2"><?php echo $session_user_role_display; ?></h4>
           </center>
 
@@ -73,17 +73,21 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
             <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
           </div>
 
-          <div class="form-group">
+          <?php if($session_user_role > 1){ ?>
+
+            <div class="form-group">
               <div class="form-check">
-                  <input type="checkbox" class="form-check-input" name="extension" id="extension" value="Yes" <?php if(isset($_COOKIE['user_extension_key'])) {echo "checked";} ?>>
-                  <label class="form-check-label" for="extension">Extension access enabled?</label>
-                  <p>Note: You must log out and back in again for these changes take effect.</p>
+                <input type="checkbox" class="form-check-input" name="extension" id="extension" value="Yes" <?php if(isset($_COOKIE['user_extension_key'])) {echo "checked";} ?>>
+                <label class="form-check-label" for="extension">Extension access enabled?</label>
+                <p>Note: You must log out and back in again for these changes take effect.</p>
               </div>
-          </div>
+            </div>
+
+          <?php } ?>
 
           <button type="submit" name="edit_profile" class="btn btn-primary mt-3"><i class="fa fa-fw fa-check"></i> Save</button>
-          
-          
+
+
         </form>
 
         <hr>
@@ -91,54 +95,54 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
         <h3>2-Factor Authentication</h3>
 
         <form class="p-3" action="post.php" method="post" autocomplete="off">
-        
+
           <?php if(empty($session_token)){ ?>
             <p>You have not setup 2FA, click on enable to setup 2FA.</p>
             <button type="submit" name="enable_2fa" class="btn btn-primary mt-3"><i class="fa fa-fw fa-lock"></i> Enable 2FA</button>
           <?php }else{ ?>
             <p>You have setup 2FA. Your QR code is below.</p>
             <button type="submit" name="disable_2fa" class="btn btn-danger mt-3"><i class="fa fa-fw fa-unlock"></i> Disable 2FA</button>
-          <?php } ?>        
+          <?php } ?>
 
-        <center>
-        <?php
-          
-          require_once('rfc6238.php');
+          <center>
+            <?php
 
-          //Generate a base32 Key
-          $secretkey = key32gen();
-          
-          if(!empty($session_token)){ 
+            require_once('rfc6238.php');
 
-            //Generate QR Code based off the generated key
-            print sprintf('<img src="%s"/>',TokenAuth6238::getBarCodeUrl($session_name,' ',$session_token,$_SERVER['SERVER_NAME']));
-            
-            echo "<p class='text-secondary'>$session_token</p>";
-          }
-    
-        ?>
-        </center>
-        
-        <input type="hidden" name="token" value="<?php echo $secretkey; ?>">
-      
-      </form>
+            //Generate a base32 Key
+            $secretkey = key32gen();
 
-      <?php if(!empty($session_token)){ ?>
-      <form class="p-3" action="post.php" method="post" autocomplete="off">
-        <div class="form-group">
-          <div class="input-group">
-            <div class="input-group-prepend">
-              <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+            if(!empty($session_token)){
+
+              //Generate QR Code based off the generated key
+              print sprintf('<img src="%s"/>',TokenAuth6238::getBarCodeUrl($session_name,' ',$session_token,$_SERVER['SERVER_NAME']));
+
+              echo "<p class='text-secondary'>$session_token</p>";
+            }
+
+            ?>
+          </center>
+
+          <input type="hidden" name="token" value="<?php echo $secretkey; ?>">
+
+        </form>
+
+        <?php if(!empty($session_token)){ ?>
+          <form class="p-3" action="post.php" method="post" autocomplete="off">
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                </div>
+                <input type="text" class="form-control" name="code" placeholder="Verify 2FA Code" required>
+                <div class="input-group-append">
+                  <button type="submit" name="verify" class="btn btn-primary">Verify</button>
+                </div>
+              </div>
             </div>
-            <input type="text" class="form-control" name="code" placeholder="Verify 2FA Code" required>
-            <div class="input-group-append">
-              <button type="submit" name="verify" class="btn btn-primary">Verify</button>
-            </div>
-          </div>
-        </div>
-                
-      </form>
-      <?php } ?>
+
+          </form>
+        <?php } ?>
       </div>
     </div>
   </div>
@@ -151,22 +155,22 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
       <table class="table">
         <tbody>
         <?php
-      
-          while($row = mysqli_fetch_array($sql_recent_logins)){
-            $log_id = $row['log_id'];
-            $log_ip = $row['log_ip'];
-            $log_user_agent = $row['log_user_agent'];
-            $log_created_at = $row['log_created_at'];
+
+        while($row = mysqli_fetch_array($sql_recent_logins)){
+          $log_id = $row['log_id'];
+          $log_ip = $row['log_ip'];
+          $log_user_agent = $row['log_user_agent'];
+          $log_created_at = $row['log_created_at'];
 
           ?>
 
-            <tr>
-              <td><i class="fa fa-fw fa-sign-in-alt text-secondary"></i> <?php echo "$log_ip - $log_user_agent"; ?></td>
-              <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
-            </tr>
+          <tr>
+            <td><i class="fa fa-fw fa-sign-in-alt text-secondary"></i> <?php echo "$log_ip - $log_user_agent"; ?></td>
+            <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
+          </tr>
           <?php
-          }
-          ?>
+        }
+        ?>
         </tbody>
       </table>
       <div class="card-footer">
@@ -183,34 +187,34 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
       <table class="table">
         <tbody>
         <?php
-      
-          while($row = mysqli_fetch_array($sql_recent_logs)){
-            $log_id = $row['log_id'];
-            $log_type = $row['log_type'];
-            $log_action = $row['log_action'];
-            $log_description = $row['log_description'];
-            $log_created_at = $row['log_created_at'];
 
-            if($log_action == 'Create'){
-              $log_icon = "plus text-success";
-            }elseif($log_action == 'Modify'){
-              $log_icon = "edit text-info";
-            }elseif($log_action == 'Delete'){
-              $log_icon = "trash-alt text-danger";
-            }else{
-              $log_icon = "pencil";
-            }
+        while($row = mysqli_fetch_array($sql_recent_logs)){
+          $log_id = $row['log_id'];
+          $log_type = $row['log_type'];
+          $log_action = $row['log_action'];
+          $log_description = $row['log_description'];
+          $log_created_at = $row['log_created_at'];
 
-          ?>
-
-            <tr>
-              <td><i class="fa fa-fw text-secondary fa-<?php echo $log_icon; ?>"></i> <?php echo $log_type; ?></td>
-              <td><?php echo $log_description; ?></td>
-              <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
-            </tr>
-          <?php
+          if($log_action == 'Create'){
+            $log_icon = "plus text-success";
+          }elseif($log_action == 'Modify'){
+            $log_icon = "edit text-info";
+          }elseif($log_action == 'Delete'){
+            $log_icon = "trash-alt text-danger";
+          }else{
+            $log_icon = "pencil";
           }
+
           ?>
+
+          <tr>
+            <td><i class="fa fa-fw text-secondary fa-<?php echo $log_icon; ?>"></i> <?php echo $log_type; ?></td>
+            <td><?php echo $log_description; ?></td>
+            <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
+          </tr>
+          <?php
+        }
+        ?>
         </tbody>
       </table>
       <div class="card-footer">

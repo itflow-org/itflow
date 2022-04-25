@@ -8,14 +8,11 @@ if(!file_exists('config.php')){
 include("config.php");
 include("functions.php");
 
-// SESSION FINGERPRINT
+// IP & User Agent for logging
 $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
-$os = strip_tags(mysqli_real_escape_string($mysqli,get_os()));
-
-// User agent
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
 
-// HTTP Only cookies
+// HTTP-Only cookies
 ini_set("session.cookie_httponly", True);
 
 // Tell client to only send cookie(s) over HTTPS
@@ -23,6 +20,7 @@ if($config_https_only){
   ini_set("session.cookie_secure", True);
 }
 
+// Handle POST login request
 if(isset($_POST['login'])){
 
     // Sessions should start after the user has POSTed data
@@ -37,11 +35,11 @@ if(isset($_POST['login'])){
     if($failed_login_count >= 10){
 
       // Logging
-      mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+      mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent'");
 
       // Send an alert only count hits 10 to reduce flooding alerts (using 1 as "default" company)
       if($failed_login_count == 10){
-          mysqli_query($mysqli,"INSERT INTO alerts SET alert_type = 'Lockout', alert_message = '$ip was locked out for repeated failed login attempts.', alert_date = NOW(), company_id = '1'");
+          mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Lockout', notification = '$ip was locked out for repeated failed login attempts.', notification_timestamp = NOW() company_id = '1'");
       }
 
       // Inform user
@@ -55,8 +53,8 @@ if(isset($_POST['login'])){
         if(isset($_POST['current_code'])){
             $current_code = strip_tags(mysqli_real_escape_string($mysqli, $_POST['current_code']));
         }
-        $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_email = '$email' AND user_archived_at IS NULL");
-        $row = mysqli_fetch_array($sql);
+
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_email = '$email' AND user_archived_at IS NULL"));
         if (password_verify($password, $row['user_password'])) {
 
             $token = $row['user_token'];
@@ -66,27 +64,26 @@ if(isset($_POST['login'])){
             $user_id = $row['user_id'];
 
             // Setup encryption session key
-            if (isset($row['user_specific_encryption_ciphertext'])) {
+            if (isset($row['user_specific_encryption_ciphertext']) && $row['user_role'] > 1) {
                 $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
                 $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
                 generateUserSessionKey($site_encryption_master_key);
-            }
 
-            // Setup extension
-            if (isset($row['user_extension_key']) && !empty($row['user_extension_key'])) {
-                // Extension cookie
-                // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
-                setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
+              // Setup extension
+                if (isset($row['user_extension_key']) && !empty($row['user_extension_key'])) {
+                  // Extension cookie
+                  // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
+                  setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
 
-                // Set PHP session in DB so we can access the session encryption data (above)
-                $user_php_session = session_id();
-                mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = '$user_id'");
-
+                  // Set PHP session in DB so we can access the session encryption data (above)
+                  $user_php_session = session_id();
+                  mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = '$user_id'");
+                }
             }
 
             if (empty($token)) {
                 $_SESSION['logged'] = TRUE;
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$user_name successfully logged in', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$user_name successfully logged in', log_ip = '$ip', log_user_agent = '$user_agent', log_user_id = $user_id");
 
                 header("Location: dashboard_financial.php");
             } else {
