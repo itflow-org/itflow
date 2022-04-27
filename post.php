@@ -7008,6 +7008,85 @@ if(isset($_GET['delete_document'])){
   
 }
 
+if(isset($_POST['add_folder'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
+    $client_id = intval($_POST['client_id']);
+    $folder_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['folder_name'])));
+
+    // Document folder add query
+    $add_folder = mysqli_query($mysqli,"INSERT INTO folders SET folder_name = '$folder_name', folder_client_id = $client_id, company_id = $session_company_id");
+    $folder_id = $mysqli->insert_id;
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Create', log_description = 'Created $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Folder created";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_folder'])){
+
+    if($session_user_role == 1){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
+    $folder_id = intval($_POST['folder_id']);
+    $folder_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['folder_name'])));
+
+    // Folder edit query
+    mysqli_query($mysqli,"UPDATE folders SET folder_name = '$folder_name' WHERE folder_id = $folder_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Modify', log_description = '$folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Folder renamed";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_folder'])){
+
+    if($session_user_role != 3){
+      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
+      header("Location: " . $_SERVER["HTTP_REFERER"]);
+      exit();
+    }
+
+    $folder_id = intval($_GET['delete_folder']);
+
+    mysqli_query($mysqli,"DELETE FROM folders WHERE folder_id = $folder_id AND company_id = $session_company_id");
+
+    // Move files in deleted folder back to the root folder /
+    $sql_documents = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_folder_id = $folder_id");
+    while($row = mysqli_fetch_array($sql_documents)){
+        $document_id = $row['document_id'];
+
+        mysqli_query($mysqli,"UPDATE documents SET document_folder_id = 0 WHERE document_id = $document_id");
+    }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Delete', log_description = '$folder_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Folder deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+  
+}
+
 if (isset($_POST['add_document_tag'])) {
 
     if($session_user_role == 1){

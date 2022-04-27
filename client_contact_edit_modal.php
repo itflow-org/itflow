@@ -183,7 +183,7 @@
 
             <div class="tab-pane fade" id="pills-photo<?php echo $contact_id; ?>">
 
-              <div class="mb-3" style="text-align: center;">
+              <div class="mb-3 text-center">
                 <?php if(!empty($contact_photo)){ ?>
                 <img class="img-fluid" alt="contact_photo" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
                 <?php }else{ ?>

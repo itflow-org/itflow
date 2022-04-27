@@ -71,8 +71,19 @@
                 <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
               </div>
               <select class="form-control" name="folder">
-                <option value="">- Select Folder -
-                <option value="">/</option>
+                <option value="0">/</option>
+                <?php
+                $sql_folders = mysqli_query($mysqli,"SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name DESC");
+                while($row = mysqli_fetch_array($sql_folders)){
+                  $folder_id = $row['folder_id'];
+                  $folder_name = $row['folder_name'];
+
+                ?>
+                <option <?php if($_GET['folder_id'] == $folder_id) echo "selected"; ?> value="<?php echo $folder_id ?>"><?php echo $folder_name; ?></option>
+                <?php
+                } 
+                ?>
+                
               </select>
             </div>
           </div>
