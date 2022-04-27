@@ -16,7 +16,7 @@ if(!empty($_GET['sb'])){
 
 // Search query SQL snippet
 if(!empty($q)){
-  $query_snippet = "AND (MATCH(document_content_raw) AGAINST ('$q'))";
+  $query_snippet = "AND (MATCH(document_content_raw) AGAINST ('$q') OR document_name LIKE '%$q%')";
 }else{
   $query_snippet = ""; // empty
 }
