@@ -165,6 +165,13 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
   if(CURRENT_DATABASE_VERSION == '0.0.5'){
     // Insert queries here required to update to DB version 0.0.6
 
+    mysqli_query($mysqli, "DROP TABLE `documents_tagged`;");
+    mysqli_query($mysqli, "DROP TABLE `document_tags`;");
+  }
+
+  if(CURRENT_DATABASE_VERSION == '0.0.6'){
+    // Insert queries here required to update to DB version 0.0.7
+
     // ALTER queries.....
 
     // Then, update the database to the next sequential version

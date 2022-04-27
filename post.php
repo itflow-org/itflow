@@ -6908,7 +6908,6 @@ if(isset($_POST['add_document'])){
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $tags_ids = $_POST['tags_ids'];
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
     $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
@@ -6921,14 +6920,6 @@ if(isset($_POST['add_document'])){
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = 'Created $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
-
-    // Add tags
-    foreach($tags_ids as $tag_id) {
-        $tag_id = intval($tag_id);
-        if ($tag_id > 0) {
-            mysqli_query($mysqli, "INSERT INTO documents_tagged SET document_id = '$document_id', tag_id = '$tag_id'");
-        }
-    }
 
     $_SESSION['alert_message'] = "Document added";
     
@@ -6953,7 +6944,6 @@ if(isset($_POST['edit_document'])){
 
     $document_id = intval($_POST['document_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $tags_ids = $_POST['tags_ids'];
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
     $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
@@ -6966,16 +6956,6 @@ if(isset($_POST['edit_document'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-    // Remove any old tags
-    mysqli_query($mysqli, "DELETE FROM documents_tagged WHERE document_id = $document_id");
-
-    // Add tags
-    foreach($tags_ids as $tag_id) {
-        $tag_id = intval($tag_id);
-        if ($tag_id > 0) {
-            mysqli_query($mysqli, "INSERT INTO documents_tagged SET document_id = '$document_id', tag_id = '$tag_id'");
-        }
-    }
 
     $_SESSION['alert_message'] = "Document updated";
     
@@ -6995,9 +6975,6 @@ if(isset($_GET['delete_document'])){
     $document_id = intval($_GET['delete_document']);
 
     mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id AND company_id = $session_company_id");
-
-    // Delete the tag associations to documents
-    mysqli_query($mysqli, "DELETE FROM documents_tagged WHERE document_id = '$document_id'");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Delete', log_description = '$document_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -7085,65 +7062,6 @@ if(isset($_GET['delete_folder'])){
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
-}
-
-if (isset($_POST['add_document_tag'])) {
-
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
-    $client_id = intval($_POST['client_id']);
-    $tag_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['tag_name'])));
-
-    mysqli_query($mysqli,"INSERT INTO document_tags SET client_id = '$client_id', tag_name = '$tag_name'");
-
-    $_SESSION['alert_message'] = "Document tag added";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-}
-
-if (isset($_POST['delete_document_tag'])) {
-
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
-    $tag_id = intval($_POST['tag_id']);
-
-    // Delete the tag ID
-    mysqli_query($mysqli, "DELETE FROM document_tags WHERE tag_id = '$tag_id'");
-
-    // Delete the associations to documents
-    mysqli_query($mysqli, "DELETE FROM documents_tagged WHERE tag_id = '$tag_id'");
-
-    $_SESSION['alert_message'] = "Document tag deleted";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-}
-
-if (isset($_POST['rename_document_tag'])) {
-
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
-    $tag_id = intval($_POST['tag_id']);
-    $tag_new_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['tag_new_name'])));
-
-    // Rename tag in db
-    mysqli_query($mysqli, "UPDATE document_tags SET tag_name = '$tag_new_name' WHERE tag_id = '$tag_id'");
-
-    $_SESSION['alert_message'] = "Document tag updated";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
 }
 
 if(isset($_GET['deactivate_shared_item'])){
