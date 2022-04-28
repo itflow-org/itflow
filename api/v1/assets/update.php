@@ -79,11 +79,6 @@ if(!empty($asset_id)){
   } else{
     $notes = $row['asset_notes'];
   }
-  if(isset($_POST['asset_meshcentral_id'])){
-    $meshcentral_id = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['asset_meshcentral_id'])));
-  } else{
-    $meshcentral_id = $row['asset_meshcentral_id'];
-  }
   if(isset($_POST['asset_vendor_id'])){
     $vendor = intval($_POST['asset_vendor_id']);
   } else{
