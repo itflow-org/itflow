@@ -7010,7 +7010,7 @@ if(isset($_POST['add_folder'])){
 
 }
 
-if(isset($_POST['edit_folder'])){
+if(isset($_POST['rename_folder'])){
 
     if($session_user_role == 1){
       $_SESSION['alert_type'] = "danger";

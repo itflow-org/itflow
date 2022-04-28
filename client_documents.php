@@ -72,22 +72,42 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $num_documents = $row['num'];
 
           ?>
-          <li class="nav-item ml-2">
-            <a class="nav-link <?php if($_GET['folder_id'] == $folder_id){ echo "active"; } ?> " href="?client_id=<?php echo $client_id; ?>&tab=documents&folder_id=<?php echo $folder_id; ?>">
-              <?php
-              if($_GET['folder_id'] == $folder_id){ ?>
-              <i class="fas fa-fw fa-folder-open"></i> 
-              <?php
-              }else{
-              ?>
-              <i class="fas fa-fw fa-folder"></i>
-              <?php } ?>
+          
+          <li class="nav-item">
+            <div class="row">
+              <div class="col-10">
+                <a class="nav-link <?php if($_GET['folder_id'] == $folder_id){ echo "active"; } ?> " href="?client_id=<?php echo $client_id; ?>&tab=documents&folder_id=<?php echo $folder_id; ?>">
+                  <?php
+                  if($_GET['folder_id'] == $folder_id){ ?>
+                  <i class="fas fa-fw fa-folder-open"></i> 
+                  <?php
+                  }else{
+                  ?>
+                  <i class="fas fa-fw fa-folder"></i>
+                  <?php } ?>
 
-
-              <?php echo $folder_name; ?> <?php if($num_documents > 0){ echo "<span class='badge badge-pill badge-dark float-right mt-1'>$num_documents</span>"; } ?>
-            </a>
+                  <?php echo $folder_name; ?> <?php if($num_documents > 0){ echo "<span class='badge badge-pill badge-dark float-right mt-1'>$num_documents</span>"; } ?>
+                </a> 
+              </div>
+              <div class="col-2">
+                <div class="dropdown">
+                  <button class="btn btn-sm" type="button" data-toggle="dropdown">
+                    <i class="fas fa-ellipsis-v"></i>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFolderModal<?php echo $folder_id; ?>">Rename</a>
+                    <?php if($session_user_role == 3) { ?>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item text-danger" href="post.php?delete_folder=<?php echo $folder_id; ?>">Delete</a>
+                    <?php } ?>
+                  </div>
+                </div>
+              </div>
+            </div>
           </li>
+        
           <?php 
+          include("client_document_folder_rename_modal.php");
 
           } 
           ?>
@@ -110,7 +130,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <hr>
 
         <div class="table-responsive">
-          <table class="table table-striped table-borderless table-hover">
+          <table class="table table-striped table-sm table-borderless table-hover">
             <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
               <tr>
                 <th>
