@@ -73,7 +73,7 @@
               <select class="form-control" name="folder">
                 <option value="0">/</option>
                 <?php
-                $sql_folders = mysqli_query($mysqli,"SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name DESC");
+                $sql_folders = mysqli_query($mysqli,"SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
                 while($row = mysqli_fetch_array($sql_folders)){
                   $folder_id = $row['folder_id'];
                   $folder_name = $row['folder_name'];
