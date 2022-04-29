@@ -8480,7 +8480,7 @@ if(isset($_GET['export_client_pdf'])){
                         while($row = mysqli_fetch_array($sql_software)){
                             $software_name = $row['software_name'];
                             $software_type = $row['software_type'];
-                            $software_license = $row['software_license'];
+                            $software_license_type = $row['software_license_type'];
                             $software_notes = $row['software_notes'];
                         ?>
 
@@ -8494,7 +8494,7 @@ if(isset($_GET['export_client_pdf'])){
                                 style: 'item'
                             },
                             {
-                                text: <?php echo json_encode($software_license); ?>,
+                                text: <?php echo json_encode($software_license_type); ?>,
                                 style: 'item'
                             },
                             {
