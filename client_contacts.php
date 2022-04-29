@@ -69,7 +69,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="thead-light <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th class="text-center"><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Name</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=$contact_department&o=<?php echo $disp; ?>">Department</a></th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_department&o=<?php echo $disp; ?>">Department</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_email&o=<?php echo $disp; ?>">Email</a></th>
             <th>Phone</th>
             <th>Mobile</th>
