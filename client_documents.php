@@ -24,6 +24,12 @@ if(!empty($q)){
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
+// Folder ID
+$get_folder_id = 0;
+if(!empty($_GET['folder_id'])){
+  $get_folder_id = intval($_GET['folder_id']);
+}
+
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM documents
   WHERE document_client_id = $client_id
   AND documents.company_id = $session_company_id
@@ -60,7 +66,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <hr>
         <ul class="nav nav-pills flex-column bg-light">
           <li class="nav-item">
-            <a class="nav-link <?php if($_GET['folder_id'] == 0 || empty($_GET['folder_id'])){ echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&tab=documents&folder_id=0">/</a>
+            <a class="nav-link <?php if($get_folder_id == 0){ echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&tab=documents&folder_id=0">/</a>
           </li>
           <?php 
           $sql_folders = mysqli_query($mysqli,"SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
@@ -76,9 +82,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <li class="nav-item">
             <div class="row">
               <div class="col-10">
-                <a class="nav-link <?php if($_GET['folder_id'] == $folder_id){ echo "active"; } ?> " href="?client_id=<?php echo $client_id; ?>&tab=documents&folder_id=<?php echo $folder_id; ?>">
+                <a class="nav-link <?php if($get_folder_id == $folder_id){ echo "active"; } ?> " href="?client_id=<?php echo $client_id; ?>&tab=documents&folder_id=<?php echo $folder_id; ?>">
                   <?php
-                  if($_GET['folder_id'] == $folder_id){ ?>
+                  if($get_folder_id == $folder_id){ ?>
                   <i class="fas fa-fw fa-folder-open"></i> 
                   <?php
                   }else{
@@ -119,7 +125,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <form autocomplete="off">
           <input type="hidden" name="client_id" value="<?php echo intval($client_id); ?>">
           <input type="hidden" name="tab" value="<?php echo strip_tags($_GET['tab']); ?>">
-          <input type="hidden" name="folder_id" value="<?php echo intval($_GET['folder_id']); ?>">
+          <input type="hidden" name="folder_id" value="<?php echo $get_folder_id; ?>">
           <div class="input-group">
             <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php echo ucwords(strip_tags($_GET['tab'])); ?>">
             <div class="input-group-append">
