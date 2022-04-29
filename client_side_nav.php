@@ -14,18 +14,16 @@
             <p><strong><?php echo $client_name; ?></strong></p>
           </a>
         </li>
-        <div class="sidebar-custom">
+        <div class="sidebar-custom mb-2">
           <div class="text-wrap"><?php echo $client_tags_display; ?></div>
         </div>
 
-        <li class="nav-item mt-3">
+        <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=overview" class="nav-link <?php if($_GET['tab'] == "overview") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tachometer-alt"></i>
             <p>Overview</p>
           </a>
         </li>
-
-        <li class="nav-header mt-3">CLIENT</li>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=contacts" class="nav-link <?php if($_GET['tab'] == "contacts") { echo "active"; } ?>">
@@ -53,7 +51,7 @@
           </a>
         </li>
 
-        <li class="nav-header mt-3">ASSETS</li>
+        <li class="nav-header mt-2">ASSETS</li>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=assets" class="nav-link <?php if($_GET['tab'] == "assets") { echo "active"; } ?>">
@@ -133,7 +131,7 @@
           </a>
         </li>
 
-        <li class="nav-header mt-3">SUPPORT</li>
+        <li class="nav-header mt-2">SUPPORT</li>
 
         <?php if($config_module_enable_ticketing == 1){ ?>
         <li class="nav-item">
@@ -217,7 +215,7 @@
 
         <?php if($session_user_role == 1 || $session_user_role > 2 && $config_module_enable_accounting == 1){ ?>
 
-        <li class="nav-header mt-3">ACCOUNTING</li>
+        <li class="nav-header mt-2">ACCOUNTING</li>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=invoices" class="nav-link <?php if($_GET['tab'] == "invoices") { echo "active"; } ?>">
@@ -286,7 +284,7 @@
 
         <?php } ?>
 
-        <li class="nav-header mt-3">MORE</li>
+        <li class="nav-header mt-2">MORE</li>
 
         <li class="nav-item">
           <a href="?client_id=<?php echo $client_id; ?>&tab=shared-items" class="nav-link <?php if($_GET['tab'] == "shared-items") { echo "active"; } ?>">
