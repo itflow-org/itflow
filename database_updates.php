@@ -177,11 +177,20 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
 
   if(CURRENT_DATABASE_VERSION == '0.0.6'){
     // Insert queries here required to update to DB version 0.0.7
+    mysqli_query($mysqli, "ALTER TABLE contacts ADD contact_department VARCHAR(200) NULL AFTER contact_department_id");
+    mysqli_query($mysqli, "DROP TABLE departments");
+    mysqli_query($mysqli, "ALTER TABLE contacts DROP contact_department_id");
+    
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.7'");
+  }
+
+  if(CURRENT_DATABASE_VERSION == '0.0.7'){
+    // Insert queries here required to update to DB version 0.0.8
 
     // ALTER queries.....
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.6'");
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.8'");
   }
 
   // etc

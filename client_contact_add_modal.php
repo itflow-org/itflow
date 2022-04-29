@@ -63,21 +63,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                   </div>
-                  <select class="form-control select2" name="department">
-                    <option value="">- Department -</option>
-                    <?php 
-                    
-                    $sql = mysqli_query($mysqli,"SELECT * FROM departments WHERE department_archived_at IS NULL AND department_client_id = $client_id ORDER BY department_name ASC"); 
-                    while($row = mysqli_fetch_array($sql)){
-                      $department_id = $row['department_id'];
-                      $department_name = $row['department_name'];
-                    ?>
-                    <option value="<?php echo $department_id; ?>"><?php echo $department_name; ?></option>
-                    
-                    <?php
-                    }
-                    ?>
-                  </select>
+                  <input type="text" class="form-control" name="department" placeholder="Department">
                 </div>
               </div>
             

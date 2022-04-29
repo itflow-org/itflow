@@ -4183,7 +4183,7 @@ if(isset($_POST['add_contact'])){
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
-    $department = intval($_POST['department']);
+    $department = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
@@ -4198,7 +4198,7 @@ if(isset($_POST['add_contact'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_department_id = $department, contact_location_id = $location_id, contact_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id, contact_client_id = $client_id, company_id = $session_company_id");
 
     $contact_id = mysqli_insert_id($mysqli);
 
@@ -4271,7 +4271,7 @@ if(isset($_POST['edit_contact'])){
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
-    $department = intval($_POST['department']);
+    $department = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
@@ -4288,7 +4288,7 @@ if(isset($_POST['edit_contact'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_department_id = $department, contact_location_id = $location_id, contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id, contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     // Update Primary contact in clients if primary contact is checked
     if($primary_contact > 0){
@@ -4677,100 +4677,6 @@ if(isset($_GET['export_client_locations_csv'])){
         fpassthru($f);
     }
     exit;
-  
-}
-
-// Client Departments
-if(isset($_POST['add_department'])){
-
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
-    $client_id = intval($_POST['client_id']);
-    $department_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department_name'])));
-
-    mysqli_query($mysqli,"INSERT INTO departments SET department_name = '$department_name', department_client_id = $client_id, company_id = $session_company_id");
-
-    $contact_id = mysqli_insert_id($mysqli);
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Create', log_description = '$department_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
-
-    $_SESSION['alert_message'] .= "Department added";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_POST['edit_department'])){
-
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
-    $department_id = intval($_POST['department_id']);
-    $client_id = intval($_POST['client_id']);
-    $department_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department_name'])));
-
-    mysqli_query($mysqli,"UPDATE departments SET department_name = '$department_name', department_updated_at = NOW() WHERE department_id = $department_id AND company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Modify', log_description = '$department_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] .= "Department updated";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_GET['archive_department'])){
-
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
-    $department_id = intval($_GET['archive_department']);
-
-    mysqli_query($mysqli,"UPDATE departments SET department_archived_at = NOW() WHERE department_id = $department_id");
-
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Archive', log_description = '$department_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "Department Archived!";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_GET['delete_department'])){
-
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
-    $department_id = intval($_GET['delete_department']);
-
-    mysqli_query($mysqli,"DELETE FROM departments WHERE department_id = $department_id AND company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$department_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "Department deleted";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
   
 }
 

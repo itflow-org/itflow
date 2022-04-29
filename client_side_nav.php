@@ -53,19 +53,6 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=departments" class="nav-link <?php if($_GET['tab'] == "departments") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-building"></i>
-            <p>
-              Departments
-              <?php 
-              if($num_departments > 0){ ?>
-              <span class="right badge badge-light"><?php echo $num_departments; ?></span>
-              <?php } ?>
-            </p>
-          </a>
-        </li>
-
         <li class="nav-header mt-3">ASSETS</li>
 
         <li class="nav-item">
