@@ -1400,7 +1400,7 @@ if(isset($_POST['add_client'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Create', log_description = '$session_name created $name$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Create', log_description = '$session_name created $name$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Client <strong>$name</strong> created";
     
@@ -1427,7 +1427,7 @@ if(isset($_POST['edit_client'])){
     $net_terms = intval($_POST['net_terms']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
-    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', WHERE client_id = $client_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes' WHERE client_id = $client_id AND company_id = $session_company_id");
 
     //Tags
     //Delete existing tags
@@ -7508,7 +7508,13 @@ if(isset($_GET['export_client_pdf'])){
     $client_id = intval($_GET['export_client_pdf']);
 
     //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN contacts ON primary_contact = contact_id LEFT JOIN locations ON primary_location = location_id WHERE client_id = $client_id AND clients.company_id = $session_company_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM clients 
+        LEFT JOIN contacts ON primary_contact = contact_id 
+        LEFT JOIN locations ON primary_location = location_id 
+        WHERE client_id = $client_id 
+        AND clients.company_id = $session_company_id
+    ");
+
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
