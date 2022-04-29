@@ -1,6 +1,6 @@
 <?php
 
-$sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN departments ON contact_department_id = department_id WHERE contact_client_id = $client_id AND contacts.company_id = $session_company_id ORDER BY contact_updated_at DESC LIMIT 5");
+$sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id AND contacts.company_id = $session_company_id ORDER BY contact_updated_at DESC LIMIT 5");
 
 $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id AND company_id = $session_company_id ORDER BY vendor_updated_at DESC LIMIT 5");
 
@@ -76,7 +76,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
               $contact_extension = $row['contact_extension'];
               $contact_mobile = formatPhoneNumber($row['contact_mobile']);
               $contact_email = $row['contact_email'];
-              $department_name = $row['department_name'];
+              $contact_department = $row['contact_department'];
 
               ?>
               <tr>
