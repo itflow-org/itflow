@@ -7552,7 +7552,7 @@ if(isset($_GET['export_client_pdf'])){
 
     var docDefinition = {
         info: {
-            title: '<?php echo $client_name; ?>- IT Documentation',
+            title: '<?php echo clean_file_name($client_name); ?>- IT Documentation',
             author: <?php echo json_encode($session_company_name); ?>
         },
 
@@ -8734,7 +8734,7 @@ if(isset($_GET['export_client_pdf'])){
     };
     
 
-    pdfMake.createPdf(docDefinition).download('<?php echo $client_name; ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>.pdf');
+    pdfMake.createPdf(docDefinition).download('<?php echo clean_file_name($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>.pdf');
 
     </script>
 
