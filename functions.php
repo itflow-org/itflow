@@ -405,9 +405,10 @@ function getDomainExpirationDate($name){
   return '0000-00-00';
 }
 
+
 function clean_file_name($string){
   $string = strtolower($string);
-
+  
   // Gets rid of spaces
   $clean_file_name = preg_replace('/\s/', '', $string);
 
