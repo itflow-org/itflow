@@ -289,6 +289,7 @@ CREATE TABLE `contacts` (
   `contact_id` int(11) NOT NULL AUTO_INCREMENT,
   `contact_name` varchar(200) NOT NULL,
   `contact_title` varchar(200) DEFAULT NULL,
+  `contact_department` varchar(200) DEFAULT NULL,
   `contact_email` varchar(200) DEFAULT NULL,
   `contact_phone` varchar(200) DEFAULT NULL,
   `contact_extension` varchar(200) DEFAULT NULL,
@@ -302,7 +303,6 @@ CREATE TABLE `contacts` (
   `contact_updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `contact_archived_at` datetime DEFAULT NULL,
   `contact_location_id` int(11) DEFAULT NULL,
-  `contact_department_id` int(11) DEFAULT NULL,
   `contact_client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`contact_id`)
@@ -352,40 +352,6 @@ CREATE TABLE `custom_links` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `departments`
---
-
-DROP TABLE IF EXISTS `departments`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `departments` (
-  `department_id` int(11) NOT NULL AUTO_INCREMENT,
-  `department_name` varchar(200) NOT NULL,
-  `department_created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `department_updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  `department_archived_at` datetime DEFAULT NULL,
-  `department_client_id` int(11) NOT NULL,
-  `company_id` int(11) NOT NULL,
-  PRIMARY KEY (`department_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `document_tags`
---
-
-DROP TABLE IF EXISTS `document_tags`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `document_tags` (
-  `tag_id` int(11) NOT NULL AUTO_INCREMENT,
-  `tag_name` varchar(30) NOT NULL,
-  `client_id` int(11) NOT NULL,
-  PRIMARY KEY (`tag_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `documents`
 --
 
@@ -413,20 +379,6 @@ CREATE TABLE `documents` (
 -- Indexes for table `documents`
 --
 ALTER TABLE `documents` ADD FULLTEXT KEY `document_content_raw` (`document_content_raw`);
-
---
--- Table structure for table `documents_tagged`
---
-
-DROP TABLE IF EXISTS `documents_tagged`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `documents_tagged` (
-  `document_id` int(11) NOT NULL,
-  `tag_id` int(11) NOT NULL,
-  PRIMARY KEY (`document_id`,`tag_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `domains`
