@@ -93,9 +93,6 @@ if(isset($_GET['client_id'])){
   
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('location_id') AS num FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id"));
   $num_locations = $row['num'];
-
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('department_id') AS num FROM departments WHERE department_archived_at IS NULL AND department_client_id = $client_id"));
-  $num_departments = $row['num'];
   
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('asset_id') AS num FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id"));
   $num_assets = $row['num'];

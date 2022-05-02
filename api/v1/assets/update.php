@@ -7,7 +7,7 @@ require('../require_post_method.php');
 $asset_id = intval($_POST['asset_id']);
 
 // Default
-$update_id = FALSE;
+$update_count = FALSE;
 
 if(!empty($asset_id)){
 
@@ -79,11 +79,6 @@ if(!empty($asset_id)){
   } else{
     $notes = $row['asset_notes'];
   }
-  if(isset($_POST['asset_meshcentral_id'])){
-    $meshcentral_id = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['asset_meshcentral_id'])));
-  } else{
-    $meshcentral_id = $row['asset_meshcentral_id'];
-  }
   if(isset($_POST['asset_vendor_id'])){
     $vendor = intval($_POST['asset_vendor_id']);
   } else{
@@ -109,7 +104,7 @@ if(!empty($asset_id)){
 
   // Check insert & get insert ID
   if($update_sql){
-    $update_id = mysqli_affected_rows($mysqli);
+    $update_count = mysqli_affected_rows($mysqli);
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Updated', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_client_id = $client_id, company_id = $company_id");

@@ -1415,7 +1415,7 @@ if(isset($_POST['add_client'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Create', log_description = '$session_name created $name$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Create', log_description = '$session_name created $name$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Client <strong>$name</strong> created";
     
@@ -1442,7 +1442,7 @@ if(isset($_POST['edit_client'])){
     $net_terms = intval($_POST['net_terms']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
-    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', WHERE client_id = $client_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes' WHERE client_id = $client_id AND company_id = $session_company_id");
 
     //Tags
     //Delete existing tags
@@ -4201,7 +4201,7 @@ if(isset($_POST['add_contact'])){
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
-    $department = intval($_POST['department']);
+    $department = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
@@ -4216,7 +4216,7 @@ if(isset($_POST['add_contact'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_department_id = $department, contact_location_id = $location_id, contact_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id, contact_client_id = $client_id, company_id = $session_company_id");
 
     $contact_id = mysqli_insert_id($mysqli);
 
@@ -4289,7 +4289,7 @@ if(isset($_POST['edit_contact'])){
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
-    $department = intval($_POST['department']);
+    $department = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
     $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
@@ -4306,7 +4306,7 @@ if(isset($_POST['edit_contact'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_department_id = $department, contact_location_id = $location_id, contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id, contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     // Update Primary contact in clients if primary contact is checked
     if($primary_contact > 0){
@@ -4426,7 +4426,7 @@ if(isset($_GET['export_client_contacts_csv'])){
     $client_name = $row['client_name'];
     
     //Contacts
-    $sql = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN departments ON contact_department_id = department_id WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Contacts-" . date('Y-m-d') . ".csv";
@@ -4440,7 +4440,7 @@ if(isset($_GET['export_client_contacts_csv'])){
         
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
-            $lineData = array($row['contact_name'], $row['contact_title'], $row['department_name'], $row['contact_email'], formatPhoneNumber($row['contact_phone']), $row['contact_extension'], formatPhoneNumber($row['contact_mobile']), $row['contact_notes']);
+            $lineData = array($row['contact_name'], $row['contact_title'], $row['contact_department'], $row['contact_email'], formatPhoneNumber($row['contact_phone']), $row['contact_extension'], formatPhoneNumber($row['contact_mobile']), $row['contact_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
         
@@ -4695,100 +4695,6 @@ if(isset($_GET['export_client_locations_csv'])){
         fpassthru($f);
     }
     exit;
-  
-}
-
-// Client Departments
-if(isset($_POST['add_department'])){
-
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
-    $client_id = intval($_POST['client_id']);
-    $department_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department_name'])));
-
-    mysqli_query($mysqli,"INSERT INTO departments SET department_name = '$department_name', department_client_id = $client_id, company_id = $session_company_id");
-
-    $contact_id = mysqli_insert_id($mysqli);
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Create', log_description = '$department_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
-
-    $_SESSION['alert_message'] .= "Department added";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_POST['edit_department'])){
-
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
-    $department_id = intval($_POST['department_id']);
-    $client_id = intval($_POST['client_id']);
-    $department_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department_name'])));
-
-    mysqli_query($mysqli,"UPDATE departments SET department_name = '$department_name', department_updated_at = NOW() WHERE department_id = $department_id AND company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Modify', log_description = '$department_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] .= "Department updated";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_GET['archive_department'])){
-
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
-    $department_id = intval($_GET['archive_department']);
-
-    mysqli_query($mysqli,"UPDATE departments SET department_archived_at = NOW() WHERE department_id = $department_id");
-
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Department', log_action = 'Archive', log_description = '$department_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "Department Archived!";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_GET['delete_department'])){
-
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
-    $department_id = intval($_GET['delete_department']);
-
-    mysqli_query($mysqli,"DELETE FROM departments WHERE department_id = $department_id AND company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$department_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "Department deleted";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
   
 }
 
@@ -7526,7 +7432,13 @@ if(isset($_GET['export_client_pdf'])){
     $client_id = intval($_GET['export_client_pdf']);
 
     //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN contacts ON primary_contact = contact_id LEFT JOIN locations ON primary_location = location_id WHERE client_id = $client_id AND clients.company_id = $session_company_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM clients 
+        LEFT JOIN contacts ON primary_contact = contact_id 
+        LEFT JOIN locations ON primary_location = location_id 
+        WHERE client_id = $client_id 
+        AND clients.company_id = $session_company_id
+    ");
+
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
@@ -7539,7 +7451,7 @@ if(isset($_GET['export_client_pdf'])){
     $contact_email = $row['contact_email'];
     $client_website = $row['client_website'];
 
-    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN departments ON contact_department_id = department_id WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
     $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id ORDER BY location_name ASC");
     $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
     if(isset($_GET['passwords'])){
@@ -7564,7 +7476,7 @@ if(isset($_GET['export_client_pdf'])){
 
     var docDefinition = {
         info: {
-            title: '<?php echo $client_name; ?>- IT Documentation',
+            title: '<?php echo clean_file_name($client_name); ?>- IT Documentation',
             author: <?php echo json_encode($session_company_name); ?>
         },
 
@@ -7694,7 +7606,7 @@ if(isset($_GET['export_client_pdf'])){
                             }
                             $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                             $contact_email = $row['contact_email'];
-                            $department_name = $row['department_name'];
+                            $contact_department = $row['contact_department'];
                         ?>
 
                         [ 
@@ -7707,7 +7619,7 @@ if(isset($_GET['export_client_pdf'])){
                                 style: 'item'
                             },
                             {
-                                text: <?php echo json_encode($department_name); ?>,
+                                text: <?php echo json_encode($contact_department); ?>,
                                 style: 'item'
                             },
                             {
@@ -8492,7 +8404,7 @@ if(isset($_GET['export_client_pdf'])){
                         while($row = mysqli_fetch_array($sql_software)){
                             $software_name = $row['software_name'];
                             $software_type = $row['software_type'];
-                            $software_license = $row['software_license'];
+                            $software_license_type = $row['software_license_type'];
                             $software_notes = $row['software_notes'];
                         ?>
 
@@ -8506,7 +8418,7 @@ if(isset($_GET['export_client_pdf'])){
                                 style: 'item'
                             },
                             {
-                                text: <?php echo json_encode($software_license); ?>,
+                                text: <?php echo json_encode($software_license_type); ?>,
                                 style: 'item'
                             },
                             {
@@ -8746,7 +8658,7 @@ if(isset($_GET['export_client_pdf'])){
     };
     
 
-    pdfMake.createPdf(docDefinition).download('<?php echo $client_name; ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>.pdf');
+    pdfMake.createPdf(docDefinition).download('<?php echo clean_file_name($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>.pdf');
 
     </script>
 

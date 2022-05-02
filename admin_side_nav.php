@@ -9,7 +9,7 @@
 
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
         
-        <li class="nav-item mb-3">
+        <li class="nav-item mb-2">
           <a href="dashboard_financial.php" class="nav-link">
             <i class="nav-icon fas fa-arrow-left"></i>
             <p>Back</p> | 
@@ -30,8 +30,6 @@
             <p>Companies</p>
           </a>
         </li>
-
-        <li class="nav-header mt-3">SETTINGS</li>
         
         <li class="nav-item">
           <a href="settings-general.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-general.php") { echo "active"; } ?>">
@@ -153,8 +151,6 @@
               <p>Modules</p>
           </a>
         </li>
-
-        <li class="nav-header mt-3">MORE SETTINGS</li>
 
         <li class="nav-item">
           <a href="custom_links.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "custom_links.php") { echo "active"; } ?>">

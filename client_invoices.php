@@ -18,7 +18,7 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM invoices
   LEFT JOIN categories ON invoice_category_id = category_id
   WHERE invoice_client_id = $client_id 
-  AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR invoice_status LIKE '%$q%') 
+  AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));

@@ -177,11 +177,34 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
 
   if(CURRENT_DATABASE_VERSION == '0.0.6'){
     // Insert queries here required to update to DB version 0.0.7
+    mysqli_query($mysqli, "ALTER TABLE contacts ADD contact_department VARCHAR(200) NULL AFTER contact_title");
+    mysqli_query($mysqli, "DROP TABLE departments");
+    mysqli_query($mysqli, "ALTER TABLE contacts DROP contact_department_id");
+    
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.7'");
+  }
+
+  if(CURRENT_DATABASE_VERSION == '0.0.7'){
+    // Insert queries here required to update to DB version 0.0.8
+
+    // Add contact_department column to tables without it (fresh installs) - this will cause an error if it already exists so catch and discard it
+    try{
+      mysqli_query($mysqli, "ALTER TABLE contacts ADD contact_department VARCHAR(200) NULL AFTER contact_title");
+    } catch(Exception $e) {
+      // Nothing
+    }
+
+    // Then, update the database to the next sequential version
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.8'");
+  }
+
+  if(CURRENT_DATABASE_VERSION == '0.0.8'){
+    // Insert queries here required to update to DB version 0.0.9
 
     // ALTER queries.....
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.6'");
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.9'");
   }
 
   // etc
