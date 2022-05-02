@@ -4,6 +4,7 @@
   // uncomment for test
   //$time_start = microtime(true);
 
+header("X-Frame-Options: DENY");
 ?>
 
 <!DOCTYPE html>
