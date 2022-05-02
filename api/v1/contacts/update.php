@@ -8,7 +8,7 @@ $contact_id = intval($_POST['contact_id']);
 include('contact_model.php');
 
 // Default
-$update_id = FALSE;
+$update_count = FALSE;
 
 if(!empty($name) && !empty($email)){
 
@@ -16,7 +16,7 @@ if(!empty($name) && !empty($email)){
 
   // Check insert & get insert ID
   if($update_sql){
-    $update_id = mysqli_affected_rows($mysqli);
+    $update_count = mysqli_affected_rows($mysqli);
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Updated', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id");

@@ -7,10 +7,10 @@
  */
 
 // Check if the insert query was successful
-if(isset($update_id) && is_numeric($update_id) && $update_id > 0){
+if(isset($update_count) && is_numeric($update_count) && $update_count > 0){
   // Insert successful
   $return_arr['success'] = "True";
-  $return_arr['count'] = $update_id;
+  $return_arr['count'] = $update_count;
 }
 
 // Query returned false: something went wrong, or it was declined due to required variables missing
