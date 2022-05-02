@@ -22,7 +22,7 @@
             <input class="form-control" type="text" id="clientNameProvided<?php echo $client_id ?>" onkeyup="validateClientNameDelete(<?php echo $client_id ?>)" placeholder="Please enter: '<?php echo $client_name; ?>'">
           </div>
       		<button type="button" class="btn btn-outline-secondary btn-lg px-5 mr-4" data-dismiss="modal">Cancel</button>
-      		<a class="btn btn-danger btn-lg px-5 disabled" id="clientDeleteButton<?php echo $client_id ?>" href="post.php?delete_client=<?php echo $client_id; ?>">Yes, Delete!</a>
+      		<a class="btn btn-danger btn-lg px-5 disabled" id="clientDeleteButton<?php echo $client_id ?>" href="post.php?delete_client=<?php echo $client_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">Yes, Delete!</a>
       	</div>
       </div>
     </div>

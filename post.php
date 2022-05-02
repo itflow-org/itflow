@@ -58,6 +58,9 @@ if(isset($_POST['add_user'])){
       exit();
     }
 
+    // CSRF Check
+    validateCSRFToken($_POST['csrf_token']);
+
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
@@ -139,6 +142,9 @@ if(isset($_POST['edit_user'])){
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
+
+    // CSRF Check
+    validateCSRFToken($_POST['csrf_token']);
 
     $user_id = intval($_POST['user_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -237,6 +243,9 @@ if(isset($_POST['edit_profile'])){
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
+
+    // CSRF Check
+    validateCSRFToken($_POST['csrf_token']);
 
     $user_id = intval($_POST['user_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -374,6 +383,9 @@ if(isset($_GET['archive_user'])){
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
     }
+
+    // CSRF Check
+    validateCSRFToken($_GET['csrf_token']);
 
     // Variables from GET
     $user_id = intval($_GET['archive_user']);
@@ -695,6 +707,9 @@ if(isset($_GET['delete_company'])){
       exit();
     }
 
+    // CSRF Check
+    validateCSRFToken($_GET['csrf_token']);
+
     $company_id = intval($_GET['delete_company']);
 
     //Get Company Name
@@ -760,7 +775,7 @@ if(isset($_GET['delete_company'])){
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = "Company <strong>$company_name</strong> deleted";
     
-    header("Location: logout.php");
+    header("Location: post.php?logout");
   
 }
 
@@ -1455,6 +1470,9 @@ if(isset($_GET['delete_client'])){
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
     }
+
+    // CSRF Check
+    validateCSRFToken($_GET['csrf_token']);
 
     $client_id = intval($_GET['delete_client']);
 

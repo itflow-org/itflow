@@ -21,6 +21,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
       <div class="card-body">
 
         <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+          <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
           <input type="hidden" name="user_id" value="<?php echo $session_user_id; ?>">
           <input type="hidden" name="existing_file_name" value="<?php echo $session_avatar; ?>">
 

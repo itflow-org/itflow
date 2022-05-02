@@ -63,6 +63,9 @@ if(isset($_POST['login'])){
             $user_name = $row['user_name'];
             $user_id = $row['user_id'];
 
+            // CSRF Token
+            $_SESSION['csrf_token'] = keygen();
+
             // Setup encryption session key
             if (isset($row['user_specific_encryption_ciphertext']) && $row['user_role'] > 1) {
                 $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];

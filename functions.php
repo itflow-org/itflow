@@ -418,4 +418,18 @@ function clean_file_name($string){
   return $clean_file_name;
 }
 
+// Cross-Site Request Forgery check for sensitive functions
+// Validates the CSRF token provided matches the one in the users session
+function validateCSRFToken($token){
+  if(hash_equals($token, $_SESSION['csrf_token'])){
+    return true;
+  }
+  else{
+    $_SESSION['alert_type'] = "warning";
+    $_SESSION['alert_message'] = "CSRF token verification failed. Try again, or log out to refresh your token.";
+    header("Location: index.php");
+    exit();
+  }
+}
+
 ?>
