@@ -102,7 +102,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro">
+                  <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro" value="<?php echo $asset_os; ?>">
                 </div>
               </div>
               <?php } ?>
