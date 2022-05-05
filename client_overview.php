@@ -46,8 +46,6 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
 ?>
 
-<h4><i class="fas fa-tachometer-alt"></i> Overview</h4>
-<hr>
 <div class="row">
 
   <?php if(mysqli_num_rows($sql_contacts) > 0){ ?>
