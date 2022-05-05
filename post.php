@@ -8061,7 +8061,7 @@ if(isset($_GET['export_client_pdf'])){
                                 text: <?php echo json_encode($asset_os); ?>,
                                 style: 'item'
                             },
-
+                            {
                                 text: <?php echo json_encode($asset_ip); ?>,
                                 style: 'item'
                             },
