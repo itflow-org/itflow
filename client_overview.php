@@ -1,10 +1,10 @@
 <?php
 
-$sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id AND contacts.company_id = $session_company_id ORDER BY contact_updated_at DESC LIMIT 5");
+$sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contacts.company_id = $session_company_id ORDER BY contact_updated_at DESC LIMIT 5");
 
-$sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id AND company_id = $session_company_id ORDER BY vendor_updated_at DESC LIMIT 5");
+$sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL AND company_id = $session_company_id ORDER BY vendor_updated_at DESC LIMIT 5");
 
-$sql_documents = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = $client_id AND documents.company_id = $session_company_id ORDER BY document_updated_at DESC LIMIT 5");
+$sql_documents = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = $client_id AND document_archived_at IS NULL AND documents.company_id = $session_company_id ORDER BY document_updated_at DESC LIMIT 5");
 
 $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_client_id = $client_id AND tickets.company_id = $session_company_id ORDER BY ticket_updated_at DESC LIMIT 5");
 
@@ -16,6 +16,7 @@ $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id =
 $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
     WHERE domain_client_id = $client_id
     AND domain_expire != '0000-00-00'
+    AND domain_archived_at IS NULL
     AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
     AND company_id = $session_company_id ORDER BY domain_expire DESC"
 );
@@ -23,7 +24,8 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 // Get Asset Warranties Expiring
 $sql_asset_warranties_expiring = mysqli_query($mysqli,"SELECT * FROM assets
     WHERE asset_client_id = $client_id
-    AND asset_warranty_expire != '0000-00-00'  
+    AND asset_warranty_expire != '0000-00-00'
+    AND asset_archived_at IS NULL  
     AND asset_warranty_expire < CURRENT_DATE + INTERVAL 90 DAY
     AND company_id = $session_company_id ORDER BY asset_warranty_expire DESC"
 );
@@ -31,7 +33,8 @@ $sql_asset_warranties_expiring = mysqli_query($mysqli,"SELECT * FROM assets
 // Get Assets Retiring
 $sql_asset_retire = mysqli_query($mysqli,"SELECT * FROM assets
     WHERE asset_client_id = $client_id
-    AND asset_install_date != '0000-00-00'  
+    AND asset_install_date != '0000-00-00'
+    AND asset_archived_at IS NULL 
     AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE + INTERVAL 90 DAY
     AND company_id = $session_company_id ORDER BY asset_install_date DESC"
 );
