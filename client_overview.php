@@ -28,6 +28,14 @@ $sql_asset_warranties_expiring = mysqli_query($mysqli,"SELECT * FROM assets
     AND company_id = $session_company_id ORDER BY asset_warranty_expire DESC"
 );
 
+// Get Assets Retiring
+$sql_asset_retire = mysqli_query($mysqli,"SELECT * FROM assets
+    WHERE asset_client_id = $client_id
+    AND asset_install_date != '0000-00-00'  
+    AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE + INTERVAL 90 DAY
+    AND company_id = $session_company_id ORDER BY asset_install_date DESC"
+);
+
 // Get Stale Tickets
 $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
     WHERE ticket_client_id = $client_id
@@ -46,12 +54,12 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
     <!-- Notes -->
 
-    <div class="col-2">
+    <div class="col-4">
 
       <div class="card card-outline card-primary mb-3">
         <div class="card-body">
           <h5 class="card-title mb-2"><i class="fa fa-sticky-note"></i> Client Notes</h5>
-          <textarea class="form-control" id="clientNotes" onblur="updateClientNotes(<?php echo $client_id ?>)"><?php echo $client_notes ?></textarea>
+          <textarea class="form-control" rows=8 id="clientNotes" onblur="updateClientNotes(<?php echo $client_id ?>)"><?php echo $client_notes ?></textarea>
         </div>
       </div>
 
@@ -59,7 +67,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
     <!-- Contacts-->
 
-    <div class="col-4">
+    <div class="col-6">
 
       <div class="card card-outline card-primary mb-3">
         <div class="card-body">
@@ -99,11 +107,11 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
   <?php } ?>
 
-  <?php if(mysqli_num_rows($sql_contacts) > 0){ ?>
+  <?php if(mysqli_num_rows($sql_domains_expiring) > 0){ ?>
 
     <!-- Domains Expiring -->
 
-    <div class="col-3">
+    <div class="col-4">
 
       <div class="card card-outline card-danger mb-3">
         <div class="card-body">
@@ -139,7 +147,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
     <!-- Asset Warrenties Expiring-->
 
-    <div class="col-3">
+    <div class="col-4">
 
       <div class="card card-outline card-danger mb-3">
         <div class="card-body">
@@ -157,6 +165,42 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
               <tr>
                 <td><?php echo $asset_name; ?></td>
                 <td class="text-danger"><?php echo $asset_warranty_expire; ?></td>
+              </tr>
+
+              <?php
+            }
+            ?>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  <?php } ?>
+
+  <?php if(mysqli_num_rows($sql_asset_retire) > 0){ ?>
+
+    <!-- Asset Retire -->
+
+    <div class="col-4">
+
+      <div class="card card-outline card-danger mb-3">
+        <div class="card-body">
+          <h5 class="card-title mb-2"><i class="fa fa-laptop"></i> Assets Retiring Soon <small class="text-secondary">(7y)</small></h5>
+          <table class="table table-borderless table-sm">
+            <tbody>
+            <?php
+
+            while($row = mysqli_fetch_array($sql_asset_retire)){
+              $asset_id = $row['asset_id'];
+              $asset_name = $row['asset_name'];
+              $asset_install_date = $row['asset_install_date'];
+
+              ?>
+              <tr>
+                <td><?php echo $asset_name; ?></td>
+                <td class="text-danger"><?php echo $asset_install_date; ?></td>
               </tr>
 
               <?php
