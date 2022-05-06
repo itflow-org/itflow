@@ -201,10 +201,19 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
   if(CURRENT_DATABASE_VERSION == '0.0.8'){
     // Insert queries here required to update to DB version 0.0.9
 
+    mysqli_query($mysqli, "ALTER TABLE `revenues` CHANGE `revenue_created_at` `revenue_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, CHANGE `revenue_updated_at` `revenue_updated_at` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT NULL; ");
+
+    // Then, update the database to the next sequential version
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.9'");
+  }
+
+  if(CURRENT_DATABASE_VERSION == '0.0.9'){
+    // Insert queries here required to update to DB version 0.0.9
+
     // ALTER queries.....
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.9'");
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.0'");
   }
 
   // etc
