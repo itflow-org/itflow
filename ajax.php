@@ -59,12 +59,7 @@ if(isset($_GET['certificate_fetch_parse_json_details'])){
  * Looks up info for a given certificate ID from the database, used to dynamically populate modal fields
  */
 if(isset($_GET['certificate_get_json_details'])){
-  if($session_user_role == 1){
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit();
-  }
+  validateTechRole();
 
   $certificate_id = intval($_GET['certificate_id']);
   $client_id = intval($_GET['client_id']);
@@ -88,12 +83,7 @@ if(isset($_GET['certificate_get_json_details'])){
  * Looks up info for a given domain ID from the database, used to dynamically populate modal fields
  */
 if(isset($_GET['domain_get_json_details'])){
-  if($session_user_role == 1){
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit();
-  }
+  validateTechRole();
 
   $domain_id = intval($_GET['domain_id']);
   $client_id = intval($_GET['client_id']);
@@ -117,12 +107,7 @@ if(isset($_GET['domain_get_json_details'])){
  * Looks up info on the ticket number provided, used to populate the ticket merge modal
  */
 if(isset($_GET['merge_ticket_get_json_details'])){
-  if($session_user_role == 1){
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit();
-  }
+  validateTechRole();
 
   $merge_into_ticket_number = intval($_GET['merge_into_ticket_number']);
 
@@ -145,12 +130,7 @@ if(isset($_GET['merge_ticket_get_json_details'])){
  * Looks up info for a given network ID from the database, used to dynamically populate modal fields
  */
 if(isset($_GET['network_get_json_details'])){
-  if($session_user_role == 1){
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit();
-  }
+  validateTechRole();
 
   $network_id = intval($_GET['network_id']);
   $client_id = intval($_GET['client_id']);
@@ -229,12 +209,7 @@ if(isset($_GET['ticket_query_views'])){
  * Generates public/guest links for sharing logins/docs
  */
 if(isset($_GET['share_generate_link'])){
-  if($session_user_role == 1){
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit();
-  }
+  validateTechRole();
 
   $item_encrypted_credential = '';  // Default empty
 
@@ -293,12 +268,7 @@ if(isset($_GET['share_generate_link'])){
  *  Looks up info for a given scheduled ticket ID from the database, used to dynamically populate modal edit fields
  */
 if(isset($_GET['scheduled_ticket_get_json_details'])){
-  if($session_user_role == 1){
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit();
-  }
+  validateTechRole();
 
   $client_id = intval($_GET['client_id']);
   $ticket_id = intval($_GET['ticket_id']);

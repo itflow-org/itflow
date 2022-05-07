@@ -51,12 +51,7 @@ if(isset($_GET['switch_company'])){
 
 if(isset($_POST['add_user'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
@@ -346,12 +341,7 @@ if(isset($_POST['edit_profile'])){
 
 if(isset($_POST['edit_user_companies'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $user_id = intval($_POST['user_id']);
 
@@ -377,12 +367,7 @@ if(isset($_POST['edit_user_companies'])){
 
 if(isset($_GET['archive_user'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
@@ -412,12 +397,7 @@ if(isset($_GET['archive_user'])){
 // API Key
 if(isset($_POST['add_api_key'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
@@ -442,12 +422,7 @@ if(isset($_POST['add_api_key'])){
 
 if(isset($_GET['delete_api_key'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
@@ -472,12 +447,7 @@ if(isset($_GET['delete_api_key'])){
 
 if(isset($_POST['add_company'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
@@ -578,12 +548,7 @@ if(isset($_POST['add_company'])){
 
 if(isset($_POST['edit_company'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
     $company_id = intval($_POST['company_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
@@ -681,12 +646,7 @@ if(isset($_GET['archive_company'])){
 
 if(isset($_GET['delete_company'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
@@ -778,12 +738,7 @@ if(isset($_POST['verify'])){
 
 if(isset($_POST['edit_general_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_base_url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url'])));
 
@@ -800,12 +755,7 @@ if(isset($_POST['edit_general_settings'])){
 
 if(isset($_POST['edit_mail_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_smtp_host = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_host'])));
     $config_smtp_port = intval($_POST['config_smtp_port']);
@@ -854,12 +804,7 @@ if(isset($_POST['edit_mail_settings'])){
 
 if(isset($_POST['test_email'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
 
@@ -898,12 +843,7 @@ if(isset($_POST['test_email'])){
 
 if(isset($_POST['edit_invoice_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_invoice_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_prefix'])));
     $config_invoice_next_number = intval($_POST['config_invoice_next_number']);
@@ -927,12 +867,7 @@ if(isset($_POST['edit_invoice_settings'])){
 
 if(isset($_POST['edit_quote_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_quote_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_prefix'])));
     $config_quote_next_number = intval($_POST['config_quote_next_number']);
@@ -953,12 +888,7 @@ if(isset($_POST['edit_quote_settings'])){
 
 if(isset($_POST['edit_ticket_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_ticket_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_prefix'])));
     $config_ticket_next_number = intval($_POST['config_ticket_next_number']);
@@ -978,12 +908,7 @@ if(isset($_POST['edit_ticket_settings'])){
 
 if(isset($_POST['edit_default_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $expense_account = intval($_POST['expense_account']);
     $payment_account = intval($_POST['payment_account']);
@@ -1006,12 +931,7 @@ if(isset($_POST['edit_default_settings'])){
 
 if(isset($_POST['edit_alert_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_enable_cron = intval($_POST['config_enable_cron']);
     $config_enable_alert_domain_expire = intval($_POST['config_enable_alert_domain_expire']);
@@ -1031,12 +951,7 @@ if(isset($_POST['edit_alert_settings'])){
 
 if(isset($_POST['edit_online_payment_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_stripe_enable = intval($_POST['config_stripe_enable']);
     $config_stripe_publishable = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_stripe_publishable'])));
@@ -1054,12 +969,7 @@ if(isset($_POST['edit_online_payment_settings'])){
 
 if(isset($_POST['edit_integrations_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $azure_client_id = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['azure_client_id'])));
     $azure_client_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['azure_client_secret'])));
@@ -1077,12 +987,7 @@ if(isset($_POST['edit_integrations_settings'])){
 
 if(isset($_POST['edit_backup_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_backup_enable = intval($_POST['config_backup_enable']);
     $config_backup_path = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_backup_path'])));
@@ -1100,12 +1005,7 @@ if(isset($_POST['edit_backup_settings'])){
 
 if(isset($_POST['edit_module_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_module_enable_itdoc = intval($_POST['config_module_enable_itdoc']);
     $config_module_enable_ticketing = intval($_POST['config_module_enable_ticketing']);
@@ -1152,12 +1052,7 @@ if(isset($_POST['disable_2fa'])){
 
 if(isset($_GET['download_database'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     // Get All Table Names From the Database
     $tables = array();
@@ -1237,12 +1132,7 @@ if(isset($_GET['download_database'])){
 
 if(isset($_POST['backup_master_key'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $password = $_POST['password'];
 
@@ -1274,12 +1164,7 @@ if(isset($_POST['backup_master_key'])){
 
 if(isset($_GET['update'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     exec("git pull");
 
@@ -1302,12 +1187,7 @@ if(isset($_GET['update'])){
 
 if(isset($_GET['update_db'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     // Get the current version
     require_once ('database_version.php');
@@ -1325,12 +1205,7 @@ if(isset($_GET['update_db'])){
 
 if(isset($_POST['add_client'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
@@ -1407,12 +1282,7 @@ if(isset($_POST['add_client'])){
 
 if(isset($_POST['edit_client'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -4172,12 +4042,7 @@ if(isset($_GET['delete_revenue'])){
 
 if(isset($_POST['add_contact'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -4259,12 +4124,7 @@ if(isset($_POST['add_contact'])){
 
 if(isset($_POST['edit_contact'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $contact_id = intval($_POST['contact_id']);
     $client_id = intval($_POST['client_id']);
@@ -4355,12 +4215,7 @@ if(isset($_POST['edit_contact'])){
 
 if(isset($_GET['archive_contact'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $contact_id = intval($_GET['archive_contact']);
 
@@ -4377,12 +4232,7 @@ if(isset($_GET['archive_contact'])){
 
 if(isset($_GET['delete_contact'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $contact_id = intval($_GET['delete_contact']);
 
@@ -4441,12 +4291,7 @@ if(isset($_GET['export_client_contacts_csv'])){
 
 if(isset($_POST['add_location'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -4527,12 +4372,7 @@ if(isset($_POST['add_location'])){
 
 if(isset($_POST['edit_location'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $location_id = intval($_POST['location_id']);
     $client_id = intval($_POST['client_id']);
@@ -4617,12 +4457,7 @@ if(isset($_POST['edit_location'])){
 
 if(isset($_GET['delete_location'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $location_id = intval($_GET['delete_location']);
 
@@ -4681,12 +4516,7 @@ if(isset($_GET['export_client_locations_csv'])){
 
 if(isset($_POST['add_asset'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -4737,12 +4567,7 @@ if(isset($_POST['add_asset'])){
 
 if(isset($_POST['edit_asset'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $asset_id = intval($_POST['asset_id']);
     $login_id = intval($_POST['login_id']);
@@ -4800,12 +4625,7 @@ if(isset($_POST['edit_asset'])){
 
 if(isset($_GET['delete_asset'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $asset_id = intval($_GET['delete_asset']);
 
@@ -4822,12 +4642,7 @@ if(isset($_GET['delete_asset'])){
 
 if(isset($_POST["import_client_assets_csv"])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $file_name = $_FILES["file"]["tmp_name"];
@@ -4959,12 +4774,7 @@ if(isset($_GET['download_client_assets_csv_template'])){
 
 if(isset($_GET['export_client_assets_csv'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_GET['export_client_assets_csv']);
 
@@ -5008,12 +4818,7 @@ if(isset($_GET['export_client_assets_csv'])){
 
 if(isset($_POST['add_software'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5072,12 +4877,7 @@ if(isset($_POST['add_software'])){
 
 if(isset($_POST['edit_software'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $software_id = intval($_POST['software_id']);
     $login_id = intval($_POST['login_id']);
@@ -5143,12 +4943,7 @@ if(isset($_POST['edit_software'])){
 
 if(isset($_GET['delete_software'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $software_id = intval($_GET['delete_software']);
 
@@ -5169,12 +4964,7 @@ if(isset($_GET['delete_software'])){
 
 if(isset($_GET['export_client_software_csv'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_GET['export_client_software_csv']);
 
@@ -5218,12 +5008,7 @@ if(isset($_GET['export_client_software_csv'])){
 
 if(isset($_POST['add_login'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5250,12 +5035,7 @@ if(isset($_POST['add_login'])){
 
 if(isset($_POST['edit_login'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $login_id = intval($_POST['login_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5282,12 +5062,7 @@ if(isset($_POST['edit_login'])){
 
 if(isset($_GET['delete_login'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $login_id = intval($_GET['delete_login']);
 
@@ -5304,12 +5079,7 @@ if(isset($_GET['delete_login'])){
 
 if(isset($_GET['export_client_logins_csv'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $client_id = intval($_GET['export_client_logins_csv']);
 
@@ -5354,12 +5124,7 @@ if(isset($_GET['export_client_logins_csv'])){
 
 if(isset($_POST['add_network'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
   $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5382,12 +5147,7 @@ if(isset($_POST['add_network'])){
 
 if(isset($_POST['edit_network'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $network_id = intval($_POST['network_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5409,12 +5169,7 @@ if(isset($_POST['edit_network'])){
 }
 
 if(isset($_GET['delete_network'])){
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $network_id = intval($_GET['delete_network']);
 
@@ -5431,12 +5186,7 @@ if(isset($_GET['delete_network'])){
 
 if(isset($_GET['export_client_networks_csv'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_GET['export_client_networks_csv']);
 
@@ -5480,12 +5230,7 @@ if(isset($_GET['export_client_networks_csv'])){
 
 if(isset($_POST['add_certificate'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
  
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5522,12 +5267,7 @@ if(isset($_POST['add_certificate'])){
 
 if(isset($_POST['edit_certificate'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $certificate_id = intval($_POST['certificate_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5564,12 +5304,7 @@ if(isset($_POST['edit_certificate'])){
 
 if(isset($_GET['delete_certificate'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $certificate_id = intval($_GET['delete_certificate']);
 
@@ -5586,12 +5321,7 @@ if(isset($_GET['delete_certificate'])){
 
 if(isset($_GET['export_client_certificates_csv'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_GET['export_client_certificates_csv']);
 
@@ -5635,12 +5365,7 @@ if(isset($_GET['export_client_certificates_csv'])){
 
 if(isset($_POST['add_domain'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5712,12 +5437,7 @@ if(isset($_POST['add_domain'])){
 
 if(isset($_POST['edit_domain'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $domain_id = intval($_POST['domain_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5757,12 +5477,7 @@ if(isset($_POST['edit_domain'])){
 
 if(isset($_GET['delete_domain'])){
 
-      if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+      validateAdminRole();
 
     $domain_id = intval($_GET['delete_domain']);
 
@@ -5779,12 +5494,7 @@ if(isset($_GET['delete_domain'])){
 
 if(isset($_GET['export_client_domains_csv'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_GET['export_client_domains_csv']);
 
@@ -5829,12 +5539,7 @@ if(isset($_GET['export_client_domains_csv'])){
 
 if(isset($_POST['add_ticket'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -5875,12 +5580,7 @@ if(isset($_POST['add_ticket'])){
 
 if(isset($_POST['add_scheduled_ticket'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -5917,12 +5617,7 @@ if(isset($_POST['add_scheduled_ticket'])){
 
 if(isset($_POST['edit_scheduled_ticket'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -5975,12 +5670,7 @@ if(isset($_GET['delete_scheduled_ticket'])){
 
 if(isset($_POST['edit_ticket'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -6010,12 +5700,7 @@ if(isset($_POST['edit_ticket'])){
 if(isset($_POST['assign_ticket'])){
 
     // Role check
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     // POST variables
     $ticket_id = intval($_POST['ticket_id']);
@@ -6061,12 +5746,7 @@ if(isset($_POST['assign_ticket'])){
 
 if(isset($_GET['delete_ticket'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $ticket_id = intval($_GET['delete_ticket']);
 
@@ -6083,12 +5763,7 @@ if(isset($_GET['delete_ticket'])){
 
 if(isset($_POST['add_ticket_reply'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
   // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -6177,12 +5852,7 @@ if(isset($_POST['add_ticket_reply'])){
 
 if(isset($_POST['edit_ticket_reply'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
   // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -6206,12 +5876,7 @@ if(isset($_POST['edit_ticket_reply'])){
 
 if(isset($_GET['archive_ticket_reply'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $ticket_reply_id = intval($_GET['archive_ticket_reply']);
 
@@ -6228,12 +5893,7 @@ if(isset($_GET['archive_ticket_reply'])){
 
 if(isset($_POST['merge_ticket'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $ticket_id = intval($_POST['ticket_id']);
     $merge_into_ticket_number = intval($_POST['merge_into_ticket_number']);
@@ -6286,12 +5946,7 @@ if(isset($_POST['merge_ticket'])){
 
 if(isset($_GET['close_ticket'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $ticket_id = intval($_GET['close_ticket']);
 
@@ -6405,12 +6060,7 @@ if(isset($_POST['add_invoice_from_ticket'])){
 
 if(isset($_GET['export_client_tickets_csv'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_GET['export_client_tickets_csv']);
 
@@ -6454,12 +6104,7 @@ if(isset($_GET['export_client_tickets_csv'])){
 
 if(isset($_POST['add_service'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $service_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -6561,12 +6206,7 @@ if(isset($_POST['add_service'])){
 
 if(isset($_POST['edit_service'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $service_id = intval($_POST['service_id']);
@@ -6670,12 +6310,7 @@ if(isset($_POST['edit_service'])){
 
 if(isset($_GET['delete_service'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $service_id = intval($_GET['delete_service']);
 
@@ -6768,12 +6403,7 @@ if(isset($_POST['add_file'])){
 
 if(isset($_GET['delete_file'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $file_id = intval($_GET['delete_file']);
 
@@ -6798,12 +6428,7 @@ if(isset($_GET['delete_file'])){
 
 if(isset($_POST['add_document'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
   // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -6834,12 +6459,7 @@ if(isset($_POST['add_document'])){
 
 if(isset($_POST['edit_document'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
   // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -6870,12 +6490,7 @@ if(isset($_POST['edit_document'])){
 
 if(isset($_GET['delete_document'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $document_id = intval($_GET['delete_document']);
 
@@ -6892,12 +6507,7 @@ if(isset($_GET['delete_document'])){
 
 if(isset($_POST['add_folder'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $folder_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['folder_name'])));
@@ -6917,12 +6527,7 @@ if(isset($_POST['add_folder'])){
 
 if(isset($_POST['rename_folder'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $folder_id = intval($_POST['folder_id']);
     $folder_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['folder_name'])));
@@ -6941,12 +6546,7 @@ if(isset($_POST['rename_folder'])){
 
 if(isset($_GET['delete_folder'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $folder_id = intval($_GET['delete_folder']);
 
@@ -7403,12 +7003,7 @@ if(isset($_GET['export_client_trips_csv'])){
 
 if(isset($_GET['export_client_pdf'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $client_id = intval($_GET['export_client_pdf']);
 

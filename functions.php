@@ -1,5 +1,8 @@
 <?php
 
+// Role check failed wording
+DEFINE("WORDING_ROLECHECK_FAILED", "You are not permitted to do that!");
+
 function keygen()
 {
   $chars = "abcdefghijklmnopqrstuvwxyz";
@@ -428,6 +431,40 @@ function validateCSRFToken($token){
     $_SESSION['alert_type'] = "warning";
     $_SESSION['alert_message'] = "CSRF token verification failed. Try again, or log out to refresh your token.";
     header("Location: index.php");
+    exit();
+  }
+}
+
+/*
+ * Role validation
+ * Admin - 3
+ * Tech - 2
+ * Accountant - 1
+ */
+
+function validateAdminRole(){
+  if($session_user_role != 3){
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    exit();
+  }
+}
+
+function validateTechRole(){
+  if($session_user_role == 1){
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    exit();
+  }
+}
+
+function validateAccountantRole(){
+  if($session_user_role == 2){
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
     exit();
   }
 }
