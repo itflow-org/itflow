@@ -653,26 +653,39 @@ if(isset($_GET['delete_company'])){
 
     $company_id = intval($_GET['delete_company']);
 
-    //Get Company Name
+    // Get Company Name
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $company_id");
     $row = mysqli_fetch_array($sql);
     $company_name = $row['company_name'];
 
-    //Delete Company and all relational data A-Z
+    // Delete Company and all relational data A-Z
 
     mysqli_query($mysqli,"DELETE FROM accounts WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM notifications WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM api_keys WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM assets WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM calendars WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM notifications WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM campaigns WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM campaign_messages WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM categories WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM certificates WHERE company_id = $company_id");
+
+    $sql = mysqli_query($mysqli,"SELECT client_id FROM clients WHERE company_id = $company_id");
+    while($row = mysqli_fetch_array($sql)){
+        $client_id = $row['client_id'];
+        mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_id = $client_id");
+        mysqli_query($mysqli,"DELETE FROM shared_items WHERE item_client_id = $client_id");
+    }
     mysqli_query($mysqli,"DELETE FROM clients WHERE company_id = $company_id");
+
     mysqli_query($mysqli,"DELETE FROM contacts WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM custom_links WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM documents WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM domains WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM events WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM expenses WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM files WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM folders WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM history WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM invoices WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE company_id = $company_id");
@@ -680,35 +693,59 @@ if(isset($_GET['delete_company'])){
     mysqli_query($mysqli,"DELETE FROM logins WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM logs WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM networks WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM notifications WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM payments WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM products WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM quotes WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM records WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM recurring WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM revenues WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM software WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM scheduled_tickets WHERE company_id = $company_id");    
+    
+    // Delete Items Associated Services
+    $sql = mysqli_query($mysqli,"SELECT service_id FROM services WHERE company_id = $company_id");
+    while($row = mysqli_fetch_array($sql)){
+        $service_id = $row['service_id'];
+        mysqli_query($mysqli,"DELETE FROM service_assets WHERE service_id = $service_id");
+        mysqli_query($mysqli,"DELETE FROM service_certificates WHERE service_id = $service_id");
+        mysqli_query($mysqli,"DELETE FROM service_contacts WHERE service_id = $service_id");
+        mysqli_query($mysqli,"DELETE FROM service_documents WHERE service_id = $service_id");
+        mysqli_query($mysqli,"DELETE FROM service_domains WHERE service_id = $service_id");
+        mysqli_query($mysqli,"DELETE FROM service_logins WHERE service_id = $service_id");
+        mysqli_query($mysqli,"DELETE FROM service_vendors WHERE service_id = $service_id");
+    }
+    mysqli_query($mysqli,"DELETE FROM services WHERE company_id = $company_id");
+
+    mysqli_query($mysqli,"DELETE FROM settings WHERE company_id = $company_id");
+    
+    $sql = mysqli_query($mysqli,"SELECT software_id FROM software WHERE company_id = $company_id");
+    while($row = mysqli_fetch_array($sql)){
+        $software_id = $row['software_id'];
+        mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
+        mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
+    }
+    mysqli_query($mysqli,"DELETE FROM software WHERE company_id = $company_id");    
+
+    mysqli_query($mysqli,"DELETE FROM tags WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM taxes WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM tickets WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM ticket_updates WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM ticket_replies WHERE company_id = $company_id");
+    
+    // TODO ticket views is missing company_id
+    // mysqli_query($mysqli,"DELETE FROM ticket_views WHERE company_id = $company_id");
+    
     mysqli_query($mysqli,"DELETE FROM transfers WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM trips WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM vendors WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM settings WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM api_keys WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM campaigns WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM messages WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM custom_links WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM user_companies WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM tags WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM client_tags WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM vendors WHERE company_id = $company_id");
 
-    //Delete Company Files
+    // Delete Company Files
     removeDirectory('uploads/clients/$company_id');
     removeDirectory('uploads/expenses/$company_id');
     removeDirectory('uploads/settings/$company_id');
     removeDirectory('uploads/tmp/$company_id');
 
-    //Finally Remove the company
+    // Finally Remove the company
     mysqli_query($mysqli,"DELETE FROM companies WHERE company_id = $company_id");
 
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Delete', log_description = '$session_name deleted company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
