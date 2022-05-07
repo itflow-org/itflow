@@ -81,7 +81,7 @@
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item text-danger" href="post.php?delete_api_key=<?php echo $api_key_id; ?>">Revoke</a>
+                  <a class="dropdown-item text-danger" href="post.php?delete_api_key=<?php echo $api_key_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">Revoke</a>
                 </div>
               </div>   
             </td>

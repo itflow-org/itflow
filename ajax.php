@@ -59,12 +59,7 @@ if(isset($_GET['certificate_fetch_parse_json_details'])){
  * Looks up info for a given certificate ID from the database, used to dynamically populate modal fields
  */
 if(isset($_GET['certificate_get_json_details'])){
-  if($session_user_role == 1){
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit();
-  }
+  validateTechRole();
 
   $certificate_id = intval($_GET['certificate_id']);
   $client_id = intval($_GET['client_id']);
@@ -88,12 +83,7 @@ if(isset($_GET['certificate_get_json_details'])){
  * Looks up info for a given domain ID from the database, used to dynamically populate modal fields
  */
 if(isset($_GET['domain_get_json_details'])){
-  if($session_user_role == 1){
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit();
-  }
+  validateTechRole();
 
   $domain_id = intval($_GET['domain_id']);
   $client_id = intval($_GET['client_id']);
@@ -117,12 +107,7 @@ if(isset($_GET['domain_get_json_details'])){
  * Looks up info on the ticket number provided, used to populate the ticket merge modal
  */
 if(isset($_GET['merge_ticket_get_json_details'])){
-  if($session_user_role == 1){
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit();
-  }
+  validateTechRole();
 
   $merge_into_ticket_number = intval($_GET['merge_into_ticket_number']);
 
@@ -145,12 +130,7 @@ if(isset($_GET['merge_ticket_get_json_details'])){
  * Looks up info for a given network ID from the database, used to dynamically populate modal fields
  */
 if(isset($_GET['network_get_json_details'])){
-  if($session_user_role == 1){
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit();
-  }
+  validateTechRole();
 
   $network_id = intval($_GET['network_id']);
   $client_id = intval($_GET['client_id']);
@@ -229,12 +209,9 @@ if(isset($_GET['ticket_query_views'])){
  * Generates public/guest links for sharing logins/docs
  */
 if(isset($_GET['share_generate_link'])){
-  if($session_user_role == 1){
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit();
-  }
+  validateTechRole();
+
+  $item_encrypted_credential = '';  // Default empty
 
   $client_id = intval($_GET['client_id']);
   $item_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['type'])));
@@ -244,19 +221,29 @@ if(isset($_GET['share_generate_link'])){
   $item_expires = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['expires'])));
   $item_key = keygen();
 
+  if($item_type == "Document"){
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = '$item_id' AND document_client_id = '$client_id' LIMIT 1"));
+    $item_name = $row['document_name'];
+  }
+
+  if($item_type == "File"){
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = '$item_id' AND file_client_id = '$client_id' LIMIT 1"));
+    $item_name = $row['file_name'];
+  }
+
   if($item_type == "Login"){
-    $login = mysqli_query($mysqli, "SELECT login_password FROM logins WHERE login_id = '$item_id' AND login_client_id = '$client_id' LIMIT 1");
+    $login = mysqli_query($mysqli, "SELECT login_name, login_password FROM logins WHERE login_id = '$item_id' AND login_client_id = '$client_id' LIMIT 1");
     $row = mysqli_fetch_array($login);
 
+    $item_name = $row['login_name'];
+
+    // Decrypt & re-encrypt password for sharing
     $login_password_cleartext = decryptLoginEntry($row['login_password']);
     $login_encryption_key = keygen();
     $iv = keygen();
     $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $login_encryption_key, 0, $iv);
 
     $item_encrypted_credential = $iv . $ciphertext;
-  }
-  else{
-    $item_encrypted_credential = '';
   }
 
   // Insert entry into DB
@@ -273,7 +260,7 @@ if(isset($_GET['share_generate_link'])){
   echo json_encode($url);
 
   // Logging
-  mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'Create', log_description = '$session_name created shared link for $item_type - Item ID: $item_id', log_client_id = '$client_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_user_id = $session_user_id, company_id = $session_company_id");
+  mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'Create', log_description = '$session_name created shared link for $item_type - $item_name', log_client_id = '$client_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
 }
 
@@ -281,12 +268,7 @@ if(isset($_GET['share_generate_link'])){
  *  Looks up info for a given scheduled ticket ID from the database, used to dynamically populate modal edit fields
  */
 if(isset($_GET['scheduled_ticket_get_json_details'])){
-  if($session_user_role == 1){
-    $_SESSION['alert_type'] = "danger";
-    $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit();
-  }
+  validateTechRole();
 
   $client_id = intval($_GET['client_id']);
   $ticket_id = intval($_GET['ticket_id']);

@@ -51,12 +51,7 @@ if(isset($_GET['switch_company'])){
 
 if(isset($_POST['add_user'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
@@ -208,7 +203,7 @@ if(isset($_POST['edit_user'])){
         }
     }
     
-    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email', user_updated_at = NOW() WHERE user_id = $user_id");
+    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $user_id");
 
     if(!empty($new_password)){
         $new_password = password_hash($new_password, PASSWORD_DEFAULT);
@@ -303,7 +298,7 @@ if(isset($_POST['edit_profile'])){
         }
     }
     
-    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email', user_updated_at = NOW() WHERE user_id = $user_id");
+    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $user_id");
 
     if(!empty($new_password)){
         $new_password = password_hash($new_password, PASSWORD_DEFAULT);
@@ -346,12 +341,7 @@ if(isset($_POST['edit_profile'])){
 
 if(isset($_POST['edit_user_companies'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $user_id = intval($_POST['user_id']);
 
@@ -377,12 +367,7 @@ if(isset($_POST['edit_user_companies'])){
 
 if(isset($_GET['archive_user'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
@@ -412,12 +397,10 @@ if(isset($_GET['archive_user'])){
 // API Key
 if(isset($_POST['add_api_key'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
+
+    // CSRF Check
+    validateCSRFToken($_POST['csrf_token']);
 
     $secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['key'])));
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -437,50 +420,23 @@ if(isset($_POST['add_api_key'])){
 
 }
 
-if(isset($_POST['edit_api_key'])){
-
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
-    $api_key_id = intval($_POST['api_key_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
-
-    mysqli_query($mysqli,"UPDATE api_keys SET api_key_name = '$name', api_key_expire = '$expire', api_key_updated_at = NOW() WHERE api_key_id = $api_key_id AND company_id = $session_company_id");
-
-    // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Modify', log_description = '$session_name modified API Key $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "API Key <strong>$name</strong> updated";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
 if(isset($_GET['delete_api_key'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
+
+    // CSRF Check
+    validateCSRFToken($_GET['csrf_token']);
 
     $api_key_id = intval($_GET['delete_api_key']);
 
     // Get API Key Name
-    $sql = mysqli_query($mysqli,"SELECT * FROM api_keys WHERE api_key_id = $api_key_id AND company_id = $session_company_id");
-    $row = mysqli_fetch_array($sql);
+    $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT * FROM api_keys WHERE api_key_id = $api_key_id AND company_id = $session_company_id"));
     $name = $row['api_key_name'];
 
     mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_id = $api_key_id AND company_id = $session_company_id");
 
     // Logging   
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Delete', log_description = '$session_name deleted user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Delete', log_description = '$session_name deleted API key $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = "API Key <strong>$name</strong> deleted";
@@ -491,12 +447,7 @@ if(isset($_GET['delete_api_key'])){
 
 if(isset($_POST['add_company'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
@@ -597,12 +548,7 @@ if(isset($_POST['add_company'])){
 
 if(isset($_POST['edit_company'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
     $company_id = intval($_POST['company_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
@@ -667,7 +613,7 @@ if(isset($_POST['edit_company'])){
         }
     }
 
-    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code', company_updated_at = NOW() WHERE company_id = $company_id");
+    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code' WHERE company_id = $company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Modify', log_description = '$session_name modified company $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
@@ -700,12 +646,7 @@ if(isset($_GET['archive_company'])){
 
 if(isset($_GET['delete_company'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
@@ -797,12 +738,7 @@ if(isset($_POST['verify'])){
 
 if(isset($_POST['edit_general_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_base_url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url'])));
 
@@ -819,12 +755,7 @@ if(isset($_POST['edit_general_settings'])){
 
 if(isset($_POST['edit_mail_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_smtp_host = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_host'])));
     $config_smtp_port = intval($_POST['config_smtp_port']);
@@ -873,12 +804,7 @@ if(isset($_POST['edit_mail_settings'])){
 
 if(isset($_POST['test_email'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
 
@@ -917,12 +843,7 @@ if(isset($_POST['test_email'])){
 
 if(isset($_POST['edit_invoice_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_invoice_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_prefix'])));
     $config_invoice_next_number = intval($_POST['config_invoice_next_number']);
@@ -946,12 +867,7 @@ if(isset($_POST['edit_invoice_settings'])){
 
 if(isset($_POST['edit_quote_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_quote_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_prefix'])));
     $config_quote_next_number = intval($_POST['config_quote_next_number']);
@@ -972,12 +888,7 @@ if(isset($_POST['edit_quote_settings'])){
 
 if(isset($_POST['edit_ticket_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_ticket_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_prefix'])));
     $config_ticket_next_number = intval($_POST['config_ticket_next_number']);
@@ -997,12 +908,7 @@ if(isset($_POST['edit_ticket_settings'])){
 
 if(isset($_POST['edit_default_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $expense_account = intval($_POST['expense_account']);
     $payment_account = intval($_POST['payment_account']);
@@ -1025,12 +931,7 @@ if(isset($_POST['edit_default_settings'])){
 
 if(isset($_POST['edit_alert_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_enable_cron = intval($_POST['config_enable_cron']);
     $config_enable_alert_domain_expire = intval($_POST['config_enable_alert_domain_expire']);
@@ -1050,12 +951,7 @@ if(isset($_POST['edit_alert_settings'])){
 
 if(isset($_POST['edit_online_payment_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_stripe_enable = intval($_POST['config_stripe_enable']);
     $config_stripe_publishable = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_stripe_publishable'])));
@@ -1073,12 +969,7 @@ if(isset($_POST['edit_online_payment_settings'])){
 
 if(isset($_POST['edit_integrations_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $azure_client_id = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['azure_client_id'])));
     $azure_client_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['azure_client_secret'])));
@@ -1096,12 +987,7 @@ if(isset($_POST['edit_integrations_settings'])){
 
 if(isset($_POST['edit_backup_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_backup_enable = intval($_POST['config_backup_enable']);
     $config_backup_path = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_backup_path'])));
@@ -1119,12 +1005,7 @@ if(isset($_POST['edit_backup_settings'])){
 
 if(isset($_POST['edit_module_settings'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $config_module_enable_itdoc = intval($_POST['config_module_enable_itdoc']);
     $config_module_enable_ticketing = intval($_POST['config_module_enable_ticketing']);
@@ -1171,12 +1052,7 @@ if(isset($_POST['disable_2fa'])){
 
 if(isset($_GET['download_database'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     // Get All Table Names From the Database
     $tables = array();
@@ -1256,12 +1132,7 @@ if(isset($_GET['download_database'])){
 
 if(isset($_POST['backup_master_key'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $password = $_POST['password'];
 
@@ -1293,12 +1164,7 @@ if(isset($_POST['backup_master_key'])){
 
 if(isset($_GET['update'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     exec("git pull");
 
@@ -1321,12 +1187,7 @@ if(isset($_GET['update'])){
 
 if(isset($_GET['update_db'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     // Get the current version
     require_once ('database_version.php');
@@ -1344,12 +1205,7 @@ if(isset($_GET['update_db'])){
 
 if(isset($_POST['add_client'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
@@ -1426,12 +1282,7 @@ if(isset($_POST['add_client'])){
 
 if(isset($_POST['edit_client'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -1661,7 +1512,7 @@ if(isset($_POST['edit_event'])){
     $client = intval($_POST['client']);
     $email_event = intval($_POST['email_event']);
 
-    mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_updated_at = NOW(), event_calendar_id = $calendar_id, event_client_id = $client WHERE event_id = $event_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client WHERE event_id = $event_id AND company_id = $session_company_id");
 
     //If email is checked
     if($email_event == 1){
@@ -1796,7 +1647,7 @@ if(isset($_POST['edit_vendor'])){
     $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_country = '$country', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_updated_at = NOW() WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_country = '$country', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_notes = '$notes' WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Modify', log_description = '$session_name modified vendor $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
@@ -1954,7 +1805,7 @@ if(isset($_POST['edit_campaign'])){
     $status = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['status'])));
     $scheduled_at = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scheduled_at'])));
 
-    mysqli_query($mysqli,"UPDATE campaigns SET campaign_name = '$name', campaign_subject = '$subject', campaign_from_name = '$from_name', campaign_from_email = '$from_email', campaign_content = '$content', campaign_status = '$status', campaign_scheduled_at = '$scheduled_at', campaign_updated_at = NOW() WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE campaigns SET campaign_name = '$name', campaign_subject = '$subject', campaign_from_name = '$from_name', campaign_from_email = '$from_email', campaign_content = '$content', campaign_status = '$status', campaign_scheduled_at = '$scheduled_at' WHERE campaign_id = $campaign_id AND company_id = $session_company_id");
 
     //Create Recipient List based off tags selected
     if(isset($_POST['tags'])){
@@ -2142,7 +1993,7 @@ if(isset($_POST['edit_product'])){
     $category = intval($_POST['category']);
     $tax = intval($_POST['tax']);
 
-    mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_price = '$price', product_updated_at = NOW(), product_tax_id = $tax, product_category_id = $category WHERE product_id = $product_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_price = '$price', product_tax_id = $tax, product_category_id = $category WHERE product_id = $product_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Modify', log_description = '$name',  company_id = $session_company_id, log_user_id = $session_user_id");
@@ -2210,7 +2061,7 @@ if(isset($_POST['edit_trip'])){
     $user_id = intval($_POST['user']);
     $client_id = intval($_POST['client']);
 
-    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_updated_at = NOW(), trip_user_id = $user_id, trip_client_id = $client_id WHERE trip_id = $trip_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_user_id = $user_id, trip_client_id = $client_id WHERE trip_id = $trip_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Modify', log_description = '$date', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
@@ -2263,7 +2114,7 @@ if(isset($_POST['edit_account'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
-    mysqli_query($mysqli,"UPDATE accounts SET account_name = '$name', account_notes = '$notes', account_updated_at = NOW() WHERE account_id = $account_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE accounts SET account_name = '$name', account_notes = '$notes' WHERE account_id = $account_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -2326,7 +2177,7 @@ if(isset($_POST['edit_category'])){
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
     $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
 
-    mysqli_query($mysqli,"UPDATE categories SET category_name = '$name', category_type = '$type', category_color = '$color', category_updated_at = NOW() WHERE category_id = $category_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE categories SET category_name = '$name', category_type = '$type', category_color = '$color' WHERE category_id = $category_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -2395,7 +2246,7 @@ if(isset($_POST['edit_tag'])){
     $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
     $icon = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['icon'])));
 
-    mysqli_query($mysqli,"UPDATE tags SET tag_name = '$name', tag_type = $type, tag_color = '$color', tag_icon = '$icon', tag_updated_at = NOW() WHERE tag_id = $tag_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE tags SET tag_name = '$name', tag_type = $type, tag_color = '$color', tag_icon = '$icon' WHERE tag_id = $tag_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -2823,11 +2674,11 @@ if(isset($_POST['edit_transfer'])){
     $account_to = intval($_POST['account_to']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
-    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', expense_account_id = $account_from, expense_updated_at = NOW() WHERE expense_id = $expense_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', expense_account_id = $account_from WHERE expense_id = $expense_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_account_id = $account_to, revenue_updated_at = NOW() WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_account_id = $account_to WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"UPDATE transfers SET transfer_notes = '$notes', transfer_updated_at = NOW() WHERE transfer_id = $transfer_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE transfers SET transfer_notes = '$notes' WHERE transfer_id = $transfer_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Modifed', log_description = '$date - $amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -3189,7 +3040,7 @@ if(isset($_POST['add_quote_item'])){
 
     $new_quote_amount = $row['quote_amount'] + $total;
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount' WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Item added";
 
@@ -3202,7 +3053,7 @@ if(isset($_POST['quote_note'])){
     $quote_id = intval($_POST['quote_id']);
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$note', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$note' WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> <strong>Notes added</strong>";
 
@@ -3217,7 +3068,7 @@ if(isset($_POST['edit_quote'])){
     $category = intval($_POST['category']);
     $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
 
-     mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_category_id = $category, quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+     mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_category_id = $category WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
      //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = '$quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -3271,7 +3122,7 @@ if(isset($_GET['delete_quote_item'])){
     
     $new_quote_amount = $row['quote_amount'] - $item_total;
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount' WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
 
@@ -3305,7 +3156,7 @@ if(isset($_GET['accept_quote'])){
 
     $quote_id = intval($_GET['accept_quote']);
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Accepted', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Accepted', history_description = 'Quote accepted!', history_quote_id = $quote_id, company_id = $session_company_id");
 
@@ -3322,7 +3173,7 @@ if(isset($_GET['decline_quote'])){
 
     $quote_id = intval($_GET['decline_quote']);
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Declined', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Cancelled', history_description = 'Quote declined!', history_quote_id = $quote_id, company_id = $session_company_id");
 
@@ -3559,7 +3410,7 @@ if(isset($_POST['add_recurring_item'])){
 
     $new_recurring_amount = $row['recurring_amount'] + $total;
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount' WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice Updated";
 
@@ -3572,7 +3423,7 @@ if(isset($_POST['recurring_note'])){
     $recurring_id = intval($_POST['recurring_id']);
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_note = '$note', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_note = '$note' WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> <strong>Notes added</strong>";
 
@@ -3595,7 +3446,7 @@ if(isset($_GET['delete_recurring_item'])){
     
     $new_recurring_amount = $row['recurring_amount'] - $item_total;
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount' WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
 
@@ -3612,7 +3463,7 @@ if(isset($_GET['mark_invoice_sent'])){
 
     $invoice_id = intval($_GET['mark_invoice_sent']);
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'INVOICE marked sent', history_invoice_id = $invoice_id, company_id = $session_company_id");
 
@@ -3708,7 +3559,7 @@ if(isset($_POST['add_invoice_item'])){
 
     $new_invoice_amount = $row['invoice_amount'] + $total;
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Item added";
 
@@ -3722,7 +3573,7 @@ if(isset($_POST['invoice_note'])){
     $invoice_id = intval($_POST['invoice_id']);
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$note', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$note' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Notes added";
 
@@ -3763,7 +3614,7 @@ if(isset($_POST['edit_item'])){
         $row = mysqli_fetch_array($sql_invoice_total);
         $new_invoice_amount = $row['invoice_total'];
 
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     
     }elseif($quote_id > 0){
         //Update Quote Balances by tallying up items
@@ -3771,7 +3622,7 @@ if(isset($_POST['edit_item'])){
         $row = mysqli_fetch_array($sql_quote_total);
         $new_quote_amount = $row['quote_total'];
 
-        mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount', quote_updated_at = NOW() WHERE quote_id = $quote_id AND company_id = $session_company_id");
+        mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount' WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     }else{
         //Update Invoice Balances by tallying up invoice items
@@ -3780,7 +3631,7 @@ if(isset($_POST['edit_item'])){
         $row = mysqli_fetch_array($sql_recurring_total);
         $new_recurring_amount = $row['recurring_total'];
 
-        mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_updated_at = NOW() WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+        mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount' WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     }
 
@@ -3805,7 +3656,7 @@ if(isset($_GET['delete_invoice_item'])){
     
     $new_invoice_amount = $row['invoice_amount'] - $item_total;
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
 
@@ -4004,7 +3855,7 @@ if(isset($_GET['delete_payment'])){
     }
 
     //Update Invoice Status
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     //Add Payment to History
     mysqli_query($mysqli,"INSERT INTO history SET history_status = '$invoice_status', history_description = 'Payment deleted', history_invoice_id = $invoice_id, company_id = $session_company_id");
@@ -4113,7 +3964,7 @@ if(isset($_GET['email_invoice'])){
         //Don't chnage the status to sent if the status is anything but draf
         if($invoice_status == 'Draft'){
 
-            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
         }
 
@@ -4164,7 +4015,7 @@ if(isset($_POST['edit_revenue'])){
     $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
 
-    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_updated_at = NOW(), revenue_category_id = $category, revenue_account_id = $account WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Modify', log_description = '$revenue_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -4191,12 +4042,7 @@ if(isset($_GET['delete_revenue'])){
 
 if(isset($_POST['add_contact'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -4278,12 +4124,7 @@ if(isset($_POST['add_contact'])){
 
 if(isset($_POST['edit_contact'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $contact_id = intval($_POST['contact_id']);
     $client_id = intval($_POST['client_id']);
@@ -4306,7 +4147,7 @@ if(isset($_POST['edit_contact'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id, contact_updated_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     // Update Primary contact in clients if primary contact is checked
     if($primary_contact > 0){
@@ -4374,12 +4215,7 @@ if(isset($_POST['edit_contact'])){
 
 if(isset($_GET['archive_contact'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $contact_id = intval($_GET['archive_contact']);
 
@@ -4396,12 +4232,7 @@ if(isset($_GET['archive_contact'])){
 
 if(isset($_GET['delete_contact'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $contact_id = intval($_GET['delete_contact']);
 
@@ -4460,12 +4291,7 @@ if(isset($_GET['export_client_contacts_csv'])){
 
 if(isset($_POST['add_location'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -4546,12 +4372,7 @@ if(isset($_POST['add_location'])){
 
 if(isset($_POST['edit_location'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $location_id = intval($_POST['location_id']);
     $client_id = intval($_POST['client_id']);
@@ -4573,7 +4394,7 @@ if(isset($_POST['edit_location'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact, location_updated_at = NOW() WHERE location_id = $location_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact WHERE location_id = $location_id AND company_id = $session_company_id");
 
     //Update Primay location in clients if primary location is checked
     if($primary_location > 0){
@@ -4636,12 +4457,7 @@ if(isset($_POST['edit_location'])){
 
 if(isset($_GET['delete_location'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $location_id = intval($_GET['delete_location']);
 
@@ -4700,12 +4516,7 @@ if(isset($_GET['export_client_locations_csv'])){
 
 if(isset($_POST['add_asset'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -4756,12 +4567,7 @@ if(isset($_POST['add_asset'])){
 
 if(isset($_POST['edit_asset'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $asset_id = intval($_POST['asset_id']);
     $login_id = intval($_POST['login_id']);
@@ -4794,11 +4600,11 @@ if(isset($_POST['edit_asset'])){
     $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
     $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
 
-    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_updated_at = NOW(), asset_network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
 
     //If login exists then update the login
     if($login_id > 0){
-        mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id AND company_id = $session_company_id");
+        mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password' WHERE login_id = $login_id AND company_id = $session_company_id");
     }else{
     //If Username is filled in then add a login
         if(!empty($username)) {
@@ -4819,12 +4625,7 @@ if(isset($_POST['edit_asset'])){
 
 if(isset($_GET['delete_asset'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $asset_id = intval($_GET['delete_asset']);
 
@@ -4841,12 +4642,7 @@ if(isset($_GET['delete_asset'])){
 
 if(isset($_POST["import_client_assets_csv"])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $file_name = $_FILES["file"]["tmp_name"];
@@ -4978,12 +4774,7 @@ if(isset($_GET['download_client_assets_csv_template'])){
 
 if(isset($_GET['export_client_assets_csv'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_GET['export_client_assets_csv']);
 
@@ -5027,12 +4818,7 @@ if(isset($_GET['export_client_assets_csv'])){
 
 if(isset($_POST['add_software'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5091,12 +4877,7 @@ if(isset($_POST['add_software'])){
 
 if(isset($_POST['edit_software'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $software_id = intval($_POST['software_id']);
     $login_id = intval($_POST['login_id']);
@@ -5118,7 +4899,7 @@ if(isset($_POST['edit_software'])){
     $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
     $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
 
-    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = '$purchase', software_expire = '$expire', software_notes = '$notes', software_updated_at = NOW() WHERE software_id = $software_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = '$purchase', software_expire = '$expire', software_notes = '$notes' WHERE software_id = $software_id AND company_id = $session_company_id");
 
 
     // Update Asset Licenses
@@ -5141,7 +4922,7 @@ if(isset($_POST['edit_software'])){
 
     //If login exists then update the login
     if($login_id > 0){
-        mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_updated_at = NOW() WHERE login_id = $login_id AND company_id = $session_company_id");
+        mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password' WHERE login_id = $login_id AND company_id = $session_company_id");
     }else{
     //If Username is filled in then add a login
         if(!empty($username)) {
@@ -5162,12 +4943,7 @@ if(isset($_POST['edit_software'])){
 
 if(isset($_GET['delete_software'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $software_id = intval($_GET['delete_software']);
 
@@ -5188,12 +4964,7 @@ if(isset($_GET['delete_software'])){
 
 if(isset($_GET['export_client_software_csv'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_GET['export_client_software_csv']);
 
@@ -5237,12 +5008,7 @@ if(isset($_GET['export_client_software_csv'])){
 
 if(isset($_POST['add_login'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5269,12 +5035,7 @@ if(isset($_POST['add_login'])){
 
 if(isset($_POST['edit_login'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $login_id = intval($_POST['login_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5288,7 +5049,7 @@ if(isset($_POST['edit_login'])){
     $asset_id = intval($_POST['asset']);
     $software_id = intval($_POST['software']);
 
-    mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_uri = '$uri', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_updated_at = NOW(), login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id WHERE login_id = $login_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_uri = '$uri', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id WHERE login_id = $login_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -5301,12 +5062,7 @@ if(isset($_POST['edit_login'])){
 
 if(isset($_GET['delete_login'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $login_id = intval($_GET['delete_login']);
 
@@ -5323,12 +5079,7 @@ if(isset($_GET['delete_login'])){
 
 if(isset($_GET['export_client_logins_csv'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $client_id = intval($_GET['export_client_logins_csv']);
 
@@ -5373,12 +5124,7 @@ if(isset($_GET['export_client_logins_csv'])){
 
 if(isset($_POST['add_network'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
   $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5401,12 +5147,7 @@ if(isset($_POST['add_network'])){
 
 if(isset($_POST['edit_network'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $network_id = intval($_POST['network_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5416,7 +5157,7 @@ if(isset($_POST['edit_network'])){
     $dhcp_range = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range'])));
     $location_id = intval($_POST['location']);
 
-    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_updated_at = NOW(), network_location_id = $location_id WHERE network_id = $network_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_location_id = $location_id WHERE network_id = $network_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Modifed', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -5428,12 +5169,7 @@ if(isset($_POST['edit_network'])){
 }
 
 if(isset($_GET['delete_network'])){
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $network_id = intval($_GET['delete_network']);
 
@@ -5450,12 +5186,7 @@ if(isset($_GET['delete_network'])){
 
 if(isset($_GET['export_client_networks_csv'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_GET['export_client_networks_csv']);
 
@@ -5499,12 +5230,7 @@ if(isset($_GET['export_client_networks_csv'])){
 
 if(isset($_POST['add_certificate'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
  
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5541,12 +5267,7 @@ if(isset($_POST['add_certificate'])){
 
 if(isset($_POST['edit_certificate'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $certificate_id = intval($_POST['certificate_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5570,7 +5291,7 @@ if(isset($_POST['edit_certificate'])){
         $expire = "0000-00-00";
     }
 
-    mysqli_query($mysqli,"UPDATE certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_updated_at = NOW(), certificate_public_key = '$public_key', certificate_domain_id = '$domain_id' WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = '$domain_id' WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
@@ -5583,12 +5304,7 @@ if(isset($_POST['edit_certificate'])){
 
 if(isset($_GET['delete_certificate'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $certificate_id = intval($_GET['delete_certificate']);
 
@@ -5605,12 +5321,7 @@ if(isset($_GET['delete_certificate'])){
 
 if(isset($_GET['export_client_certificates_csv'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_GET['export_client_certificates_csv']);
 
@@ -5654,12 +5365,7 @@ if(isset($_GET['export_client_certificates_csv'])){
 
 if(isset($_POST['add_domain'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5731,12 +5437,7 @@ if(isset($_POST['add_domain'])){
 
 if(isset($_POST['edit_domain'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $domain_id = intval($_POST['domain_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -5763,7 +5464,7 @@ if(isset($_POST['edit_domain'])){
         $whois = '';
     }
 
-    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_updated_at = NOW() WHERE domain_id = $domain_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois' WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
@@ -5776,12 +5477,7 @@ if(isset($_POST['edit_domain'])){
 
 if(isset($_GET['delete_domain'])){
 
-      if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+      validateAdminRole();
 
     $domain_id = intval($_GET['delete_domain']);
 
@@ -5798,12 +5494,7 @@ if(isset($_GET['delete_domain'])){
 
 if(isset($_GET['export_client_domains_csv'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_GET['export_client_domains_csv']);
 
@@ -5848,12 +5539,7 @@ if(isset($_GET['export_client_domains_csv'])){
 
 if(isset($_POST['add_ticket'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -5894,12 +5580,7 @@ if(isset($_POST['add_ticket'])){
 
 if(isset($_POST['add_scheduled_ticket'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -5936,12 +5617,7 @@ if(isset($_POST['add_scheduled_ticket'])){
 
 if(isset($_POST['edit_scheduled_ticket'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -5959,7 +5635,7 @@ if(isset($_POST['edit_scheduled_ticket'])){
     $next_run_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['next_date'])));
 
     // Edit scheduled ticket
-    mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_next_run = '$next_run_date', scheduled_ticket_updated_at = NOW(), scheduled_ticket_asset_id = '$asset_id', company_id = '$session_company_id' WHERE scheduled_ticket_id = '$ticket_id'");
+    mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_next_run = '$next_run_date', scheduled_ticket_asset_id = '$asset_id', company_id = '$session_company_id' WHERE scheduled_ticket_id = '$ticket_id'");
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Updated scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
@@ -5994,12 +5670,7 @@ if(isset($_GET['delete_scheduled_ticket'])){
 
 if(isset($_POST['edit_ticket'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -6015,7 +5686,7 @@ if(isset($_POST['edit_ticket'])){
     $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
     $asset_id = intval($_POST['asset']);
 
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_updated_at = NOW(), ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -6029,12 +5700,7 @@ if(isset($_POST['edit_ticket'])){
 if(isset($_POST['assign_ticket'])){
 
     // Role check
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     // POST variables
     $ticket_id = intval($_POST['ticket_id']);
@@ -6065,7 +5731,7 @@ if(isset($_POST['assign_ticket'])){
     }
 
     // Update ticket & insert reply
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_updated_at = NOW(), ticket_assigned_to = $assigned_to WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_assigned_to = $assigned_to WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket re-assigned to $agent_name', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
@@ -6080,12 +5746,7 @@ if(isset($_POST['assign_ticket'])){
 
 if(isset($_GET['delete_ticket'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $ticket_id = intval($_GET['delete_ticket']);
 
@@ -6102,12 +5763,7 @@ if(isset($_GET['delete_ticket'])){
 
 if(isset($_POST['add_ticket_reply'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
   // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -6131,7 +5787,7 @@ if(isset($_POST['add_ticket_reply'])){
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_time_worked = '$ticket_reply_time_worked', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     // Update Ticket Last Response Field
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_status = '$ticket_status', ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     // Send e-mail to client if public update & email is setup
     if($ticket_reply_type == 'Public' && !empty($config_smtp_host)){
@@ -6196,12 +5852,7 @@ if(isset($_POST['add_ticket_reply'])){
 
 if(isset($_POST['edit_ticket_reply'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
   // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -6212,7 +5863,7 @@ if(isset($_POST['edit_ticket_reply'])){
     $ticket_reply_id = intval($_POST['ticket_reply_id']);
     $ticket_reply = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['ticket_reply']))));
 
-    mysqli_query($mysqli,"UPDATE ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_updated_at = NOW() WHERE ticket_reply_id = $ticket_reply_id AND ticket_reply_type != 'Client' AND company_id = $session_company_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"UPDATE ticket_replies SET ticket_reply = '$ticket_reply' WHERE ticket_reply_id = $ticket_reply_id AND ticket_reply_type != 'Client' AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update Modify', log_action = 'Modify', log_description = '$ticket_update_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -6225,12 +5876,7 @@ if(isset($_POST['edit_ticket_reply'])){
 
 if(isset($_GET['archive_ticket_reply'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $ticket_reply_id = intval($_GET['archive_ticket_reply']);
 
@@ -6247,12 +5893,7 @@ if(isset($_GET['archive_ticket_reply'])){
 
 if(isset($_POST['merge_ticket'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $ticket_id = intval($_POST['ticket_id']);
     $merge_into_ticket_number = intval($_POST['merge_into_ticket_number']);
@@ -6290,7 +5931,7 @@ if(isset($_POST['merge_ticket'])){
 
     //Update current ticket
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number merged into $ticket_prefix$merge_into_ticket_number. Comment: $merge_comment', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed', ticket_updated_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed' WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     //Update new ticket
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number was merged into this ticket with comment: $merge_comment.<br><b>$ticket_subject</b><br>$ticket_details', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $merge_into_ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
@@ -6305,16 +5946,11 @@ if(isset($_POST['merge_ticket'])){
 
 if(isset($_GET['close_ticket'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $ticket_id = intval($_GET['close_ticket']);
 
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed', ticket_updated_at = NOW(), ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed', ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
@@ -6410,7 +6046,7 @@ if(isset($_POST['add_invoice_from_ticket'])){
 
     $new_invoice_amount = $row['invoice_amount'] + $total;
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount', invoice_updated_at = NOW() WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created from Ticket $ticket_prefix$ticket_number', history_invoice_id = $invoice_id, company_id = $session_company_id");
     
@@ -6424,12 +6060,7 @@ if(isset($_POST['add_invoice_from_ticket'])){
 
 if(isset($_GET['export_client_tickets_csv'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_GET['export_client_tickets_csv']);
 
@@ -6473,12 +6104,7 @@ if(isset($_GET['export_client_tickets_csv'])){
 
 if(isset($_POST['add_service'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $service_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -6580,12 +6206,7 @@ if(isset($_POST['add_service'])){
 
 if(isset($_POST['edit_service'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $service_id = intval($_POST['service_id']);
@@ -6597,7 +6218,7 @@ if(isset($_POST['edit_service'])){
     $service_notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
 
     // Update main service details
-    mysqli_query($mysqli, "UPDATE services SET service_name = '$service_name', service_description = '$service_description', service_category = '$service_category', service_importance = '$service_importance', service_backup = '$service_backup', service_notes = '$service_notes', service_updated_at = NOW() WHERE service_id = '$service_id' AND company_id = '$session_company_id'");
+    mysqli_query($mysqli, "UPDATE services SET service_name = '$service_name', service_description = '$service_description', service_category = '$service_category', service_importance = '$service_importance', service_backup = '$service_backup', service_notes = '$service_notes' WHERE service_id = '$service_id' AND company_id = '$session_company_id'");
 
     // Unlink existing relations/assets
     mysqli_query($mysqli, "DELETE FROM service_contacts WHERE service_id = '$service_id'");
@@ -6689,12 +6310,7 @@ if(isset($_POST['edit_service'])){
 
 if(isset($_GET['delete_service'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $service_id = intval($_GET['delete_service']);
 
@@ -6787,12 +6403,7 @@ if(isset($_POST['add_file'])){
 
 if(isset($_GET['delete_file'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $file_id = intval($_GET['delete_file']);
 
@@ -6817,12 +6428,7 @@ if(isset($_GET['delete_file'])){
 
 if(isset($_POST['add_document'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
   // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -6853,12 +6459,7 @@ if(isset($_POST['add_document'])){
 
 if(isset($_POST['edit_document'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
   // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -6875,7 +6476,7 @@ if(isset($_POST['edit_document'])){
     $folder = intval($_POST['folder']);
 
     // Document edit query
-    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_updated_at = NOW(), document_template = $template, document_folder_id = $folder WHERE document_id = $document_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_template = $template, document_folder_id = $folder WHERE document_id = $document_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -6889,12 +6490,7 @@ if(isset($_POST['edit_document'])){
 
 if(isset($_GET['delete_document'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $document_id = intval($_GET['delete_document']);
 
@@ -6911,12 +6507,7 @@ if(isset($_GET['delete_document'])){
 
 if(isset($_POST['add_folder'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $client_id = intval($_POST['client_id']);
     $folder_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['folder_name'])));
@@ -6936,12 +6527,7 @@ if(isset($_POST['add_folder'])){
 
 if(isset($_POST['rename_folder'])){
 
-    if($session_user_role == 1){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateTechRole();
 
     $folder_id = intval($_POST['folder_id']);
     $folder_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['folder_name'])));
@@ -6960,12 +6546,7 @@ if(isset($_POST['rename_folder'])){
 
 if(isset($_GET['delete_folder'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $folder_id = intval($_GET['delete_folder']);
 
@@ -7071,7 +6652,7 @@ if(isset($_GET['force_recurring'])){
         $item_total = $item_subtotal + $item_tax_amount;
 
         //Update Recurring Items with new tax
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_tax = '$item_tax_amount', item_total = '$item_total', item_updated_at = NOW(), item_tax_id = $tax_id WHERE item_id = $item_id");
+        mysqli_query($mysqli,"UPDATE invoice_items SET item_tax = '$item_tax_amount', item_total = '$item_total', item_tax_id = $tax_id WHERE item_id = $item_id");
 
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax_amount', item_total = '$item_total', item_tax_id = $tax_id, item_invoice_id = $new_invoice_id, company_id = $session_company_id");
     }
@@ -7148,7 +6729,7 @@ if(isset($_GET['force_recurring'])){
             mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Auto Emailed Invoice!', history_invoice_id = $new_invoice_id, company_id = $session_company_id");
 
             //Update Invoice Status to Sent
-            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW(), invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id AND company_id = $session_company_id");
+            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id AND company_id = $session_company_id");
 
         }catch(Exception $e){
             echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
@@ -7422,12 +7003,7 @@ if(isset($_GET['export_client_trips_csv'])){
 
 if(isset($_GET['export_client_pdf'])){
 
-    if($session_user_role != 3){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
+    validateAdminRole();
 
     $client_id = intval($_GET['export_client_pdf']);
 

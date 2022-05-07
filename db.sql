@@ -48,7 +48,6 @@ CREATE TABLE `api_keys` (
   `api_key_name` varchar(255) NOT NULL,
   `api_key_secret` varchar(255) NOT NULL,
   `api_key_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `api_key_updated_at` datetime DEFAULT NULL,
   `api_key_expire` date NOT NULL,
   `api_key_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,

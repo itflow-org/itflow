@@ -89,7 +89,4 @@ $num_notifications = $row['num'];
 //Set Currency Format
 $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);
 
-// Role check failed wording
-DEFINE("WORDING_ROLECHECK_FAILED", "You are not permitted to do that!");
-
 ?>
