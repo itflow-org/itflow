@@ -57,13 +57,15 @@ if(isset($_POST['login'])){
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_email = '$email' AND user_archived_at IS NULL"));
         if (password_verify($password, $row['user_password'])) {
 
+            // User variables
             $token = $row['user_token'];
-            $_SESSION['user_id'] = $row['user_id'];
-            $_SESSION['user_name'] = $row['user_name'];
             $user_name = $row['user_name'];
             $user_id = $row['user_id'];
 
-            // CSRF Token
+            // Session info
+            $_SESSION['user_id'] = $row['user_id'];
+            $_SESSION['user_name'] = $row['user_name'];
+            $_SESSION['user_role'] = $row['user_role'];
             $_SESSION['csrf_token'] = keygen();
 
             // Setup encryption session key

@@ -443,7 +443,7 @@ function validateCSRFToken($token){
  */
 
 function validateAdminRole(){
-  if($session_user_role != 3){
+  if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 3){
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -452,7 +452,7 @@ function validateAdminRole(){
 }
 
 function validateTechRole(){
-  if($session_user_role == 1){
+  if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 1){
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -461,7 +461,7 @@ function validateTechRole(){
 }
 
 function validateAccountantRole(){
-  if($session_user_role == 2){
+  if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 2){
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
