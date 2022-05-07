@@ -11,6 +11,9 @@
 <!-- Page Content -->
 <h1>Blank Page</h1>
 <hr>
-<p>This is a great starting point for new custom pages.</p>
+<p>This is a great starting point for new custom pages.
+
+<?php echo CURRENT_DATABASE_VERSION; ?>
+</p>
 
 <?php include("footer.php"); ?>
