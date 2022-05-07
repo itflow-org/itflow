@@ -309,29 +309,6 @@ CREATE TABLE `contacts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `contracts`
---
-
-DROP TABLE IF EXISTS `contracts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `contracts` (
-  `contract_id` int(11) NOT NULL AUTO_INCREMENT,
-  `contract_title` varchar(200) NOT NULL,
-  `contract_description` longtext DEFAULT NULL,
-  `contract_start_date` date DEFAULT NULL,
-  `contract_end_date` date NOT NULL,
-  `contract_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `contract_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `contract_archived_at` datetime DEFAULT NULL,
-  `contract_vendor_id` int(11) NOT NULL,
-  `contract_client_id` int(11) NOT NULL,
-  `company_id` int(11) NOT NULL,
-  PRIMARY KEY (`contract_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `custom_links`
 --
 
@@ -657,26 +634,6 @@ CREATE TABLE `logs` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `messages`
---
-
-DROP TABLE IF EXISTS `messages`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `messages` (
-  `message_id` int(11) NOT NULL AUTO_INCREMENT,
-  `message_email` varchar(250) NOT NULL,
-  `message_ip` varchar(200) DEFAULT NULL,
-  `message_sent_at` datetime DEFAULT NULL,
-  `message_opened_at` datetime DEFAULT NULL,
-  `message_campaign_id` int(11) NOT NULL,
-  `message_client_id` int(11) DEFAULT NULL,
-  `company_id` int(11) NOT NULL,
-  PRIMARY KEY (`message_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `networks`
 --
 
@@ -870,20 +827,6 @@ CREATE TABLE `revenues` (
   `revenue_client_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`revenue_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `roles`
---
-
-DROP TABLE IF EXISTS `roles`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `roles` (
-  `role_id` int(11) NOT NULL AUTO_INCREMENT,
-  `role_name` varchar(200) NOT NULL,
-  PRIMARY KEY (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1439,4 +1382,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-05-06 12:03:14
+-- Dump completed on 2022-05-07 16:56:32

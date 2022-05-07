@@ -209,12 +209,24 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
 
   if(CURRENT_DATABASE_VERSION == '0.0.9'){
     // Insert queries here required to update to DB version 0.0.9
+    // Remove unused tables
+    mysqli_query($mysqli, "DROP TABLE contracts");
+    mysqli_query($mysqli, "DROP TABLE messages");
+    mysqli_query($mysqli, "DROP TABLE roles");
 
-    // ALTER queries.....
+    //Remove updated at as API keys can only be added or revoked
+    mysqli_query($mysqli, "ALTER TABLE `api_keys` DROP `api_key_updated_at`");
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.0'");
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.0'");
   }
+
+  //if(CURRENT_DATABASE_VERSION == '0.1.0'){
+    // Insert queries here required to update to DB version 0.1.0
+
+    // Then, update the database to the next sequential version
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.1'");
+  //}
 
   // etc
 
