@@ -419,6 +419,9 @@ if(isset($_POST['add_api_key'])){
       exit();
     }
 
+    // CSRF Check
+    validateCSRFToken($_POST['csrf_token']);
+
     $secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['key'])));
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
@@ -446,17 +449,19 @@ if(isset($_GET['delete_api_key'])){
       exit();
     }
 
+    // CSRF Check
+    validateCSRFToken($_GET['csrf_token']);
+
     $api_key_id = intval($_GET['delete_api_key']);
 
     // Get API Key Name
-    $sql = mysqli_query($mysqli,"SELECT * FROM api_keys WHERE api_key_id = $api_key_id AND company_id = $session_company_id");
-    $row = mysqli_fetch_array($sql);
+    $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT * FROM api_keys WHERE api_key_id = $api_key_id AND company_id = $session_company_id"));
     $name = $row['api_key_name'];
 
     mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_id = $api_key_id AND company_id = $session_company_id");
 
     // Logging   
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Delete', log_description = '$session_name deleted user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Delete', log_description = '$session_name deleted API key $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = "API Key <strong>$name</strong> deleted";

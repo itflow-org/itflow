@@ -13,6 +13,7 @@ $key = keygen();
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
 
+          <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
           <input type="hidden" name="key" value="<?php echo $key ?>">
 
           <div class="form-group">
