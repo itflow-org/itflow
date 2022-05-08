@@ -147,14 +147,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             // Related Tickets Query
             $sql_related_tickets = mysqli_query($mysqli,"SELECT * FROM tickets WHERE ticket_contact_id = $contact_id AND company_id = $session_company_id ORDER BY ticket_id DESC");
             $ticket_count = mysqli_num_rows($sql_related_tickets);
-
-            // Related Documents Query
-            $sql_related_documents = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_contact_id = $contact_id AND company_id = $session_company_id ORDER BY document_id DESC");
-            $document_count = mysqli_num_rows($sql_related_documents);
-
-            // Related Files Query
-            $sql_related_files = mysqli_query($mysqli,"SELECT * FROM files WHERE file_contact_id = $contact_id AND company_id = $session_company_id ORDER BY file_id DESC");
-            $file_count = mysqli_num_rows($sql_related_documents);
       
           ?>
           <tr>
