@@ -221,11 +221,31 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.0'");
   }
 
-  //if(CURRENT_DATABASE_VERSION == '0.1.0'){
-    // Insert queries here required to update to DB version 0.1.0
+  if(CURRENT_DATABASE_VERSION == '0.1.0'){
+    // Insert queries here required to update to DB version 0.1.1
+    // Logs don't get archived
+    mysqli_query($mysqli, "ALTER TABLE `logs` DROP `log_archived_at`");
+
+    // Assets will eventualy have file associatons which could include a receipt.
+    mysqli_query($mysqli, "ALTER TABLE `assets` DROP `asset_reciept`");
+
+    mysqli_query($mysqli, "ALTER TABLE `campaign_messages` DROP `message_updated_at`");
+    // This will be a seperate table eventually called contact_documents because contact can have several documents
+    mysqli_query($mysqli, "ALTER TABLE `documents` DROP `document_contact_id`");
+
+    mysqli_query($mysqli, "ALTER TABLE `expenses` DROP `expense_asset_id`");
+    mysqli_query($mysqli, "ALTER TABLE `files` DROP `file_contact_id`");
+    mysqli_query($mysqli, "ALTER TABLE `history` DROP `history_archived_at`");
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.1'");
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.1'");
+  }
+
+  //if(CURRENT_DATABASE_VERSION == '0.1.1'){
+    // Insert queries here required to update to DB version 0.1.2
+
+    // Then, update the database to the next sequential version
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.2'");
   //}
 
   // etc

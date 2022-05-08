@@ -75,7 +75,6 @@ CREATE TABLE `assets` (
   `asset_purchase_date` date DEFAULT NULL,
   `asset_warranty_expire` date DEFAULT NULL,
   `asset_install_date` date DEFAULT NULL,
-  `asset_reciept` varchar(200) DEFAULT NULL,
   `asset_notes` text DEFAULT NULL,
   `asset_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `asset_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -130,7 +129,6 @@ CREATE TABLE `campaign_messages` (
   `message_opened_at` datetime DEFAULT NULL,
   `message_clicked_at` datetime DEFAULT NULL,
   `message_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `message_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `message_client_tag_id` int(11) NOT NULL,
   `message_contact_id` int(11) NOT NULL,
   `message_campaign_id` int(11) NOT NULL,
@@ -344,7 +342,6 @@ CREATE TABLE `documents` (
   `document_archived_at` datetime DEFAULT NULL,
   `document_template` tinyint(1) NOT NULL,
   `document_folder_id` int(11) DEFAULT NULL,
-  `document_contact_id` int(11) NOT NULL DEFAULT 0,
   `document_client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`document_id`),
@@ -424,7 +421,6 @@ CREATE TABLE `expenses` (
   `expense_archived_at` datetime DEFAULT NULL,
   `expense_vendor_id` int(11) DEFAULT NULL,
   `expense_client_id` int(11) DEFAULT NULL,
-  `expense_asset_id` int(11) DEFAULT NULL,
   `expense_category_id` int(11) DEFAULT NULL,
   `expense_account_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
@@ -447,7 +443,6 @@ CREATE TABLE `files` (
   `file_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `file_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `file_archived_at` datetime DEFAULT NULL,
-  `file_contact_id` int(11) NOT NULL DEFAULT 0,
   `file_client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`file_id`)
@@ -483,7 +478,6 @@ CREATE TABLE `history` (
   `history_status` varchar(200) NOT NULL,
   `history_description` varchar(200) NOT NULL,
   `history_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `history_archived_at` datetime DEFAULT NULL,
   `history_invoice_id` int(11) DEFAULT NULL,
   `history_recurring_id` int(11) DEFAULT NULL,
   `history_quote_id` int(11) DEFAULT NULL,
@@ -622,7 +616,6 @@ CREATE TABLE `logs` (
   `log_ip` varchar(200) DEFAULT NULL,
   `log_user_agent` varchar(250) DEFAULT NULL,
   `log_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `log_archived_at` datetime DEFAULT NULL,
   `log_client_id` int(11) DEFAULT NULL,
   `log_invoice_id` int(11) DEFAULT NULL,
   `log_quote_id` int(11) DEFAULT NULL,
@@ -1382,4 +1375,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-05-07 16:56:32
+-- Dump completed on 2022-05-07 20:50:30
