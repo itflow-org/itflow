@@ -1345,19 +1345,55 @@ if(isset($_POST['edit_client'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modify', log_description = '$session_name modified client $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Client <strong>$name</strong> updated";
+    $_SESSION['alert_message'] = "Client <strong>".stripslashes($client_name)."</strong> updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if(isset($_GET['archive_client'])){
+
+    validateAdminRole();
+
+    $client_id = intval($_GET['archive_client']);
+
+    // Get Client Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
+    $row = mysqli_fetch_array($sql);
+    $client_name = strip_tags(mysqli_real_escape_string($mysqli, $row['client_name']));
+
+    mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Archive', log_description = '$session_name archived client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Client ".stripslashes($client_name)." archive. <a href='post.php?undo_archive_client=$client_id'>Undo</a>";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if(isset($_GET['undo_archive_client'])){
+
+    $client_id = intval($_GET['undo_archive_client']);
+
+    // Get Client Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
+    $row = mysqli_fetch_array($sql);
+    $client_name = strip_tags(mysqli_real_escape_string($mysqli, $row['client_name']));
+
+    mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Undo Archive', log_description = '$session_name unarchived client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Client ".stripslashes($client_name)." unarchived.";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if(isset($_GET['delete_client'])){
 
-    if($session_user_role != 3){
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-        exit();
-    }
+    validateAdminRole();
 
     // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
@@ -1367,7 +1403,7 @@ if(isset($_GET['delete_client'])){
     //Get Client Name
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
     $row = mysqli_fetch_array($sql);
-    $client_name = $row['client_name'];
+    $client_name = strip_tags(mysqli_real_escape_string($mysqli, $row['client_name']));
 
     // Delete Client Data
     mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_client_id = $client_id");

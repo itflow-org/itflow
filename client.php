@@ -258,6 +258,8 @@ $location_phone = formatPhoneNumber($location_phone);
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
               <div class="dropdown-divider"></div>
+              <a class="dropdown-item text-danger" href="post.php?archive_client=<?php echo $client_id; ?>">Archive</a>
+              <div class="dropdown-divider"></div>
               <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">Delete</a>
             </div>
           </div>
