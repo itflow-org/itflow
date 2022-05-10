@@ -241,11 +241,35 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.1'");
   }
 
-  //if(CURRENT_DATABASE_VERSION == '0.1.1'){
+  if(CURRENT_DATABASE_VERSION == '0.1.1'){
     // Insert queries here required to update to DB version 0.1.2
+    // Create Many to Many Relationship tables for Assets, Contacts, Software and Vendors
+
+    mysqli_query($mysqli, "CREATE TABLE `asset_documents` (`asset_id` int(11) NOT NULL,`document_id` int(11) NOT NULL, PRIMARY KEY (`asset_id`,`document_id`))");
+    mysqli_query($mysqli, "CREATE TABLE `asset_logins` (`asset_id` int(11) NOT NULL,`login_id` int(11) NOT NULL, PRIMARY KEY (`asset_id`,`login_id`))");
+    mysqli_query($mysqli, "CREATE TABLE `asset_files` (`asset_id` int(11) NOT NULL,`file_id` int(11) NOT NULL, PRIMARY KEY (`asset_id`,`file_id`))");
+    
+    mysqli_query($mysqli, "CREATE TABLE `contact_documents` (`contact_id` int(11) NOT NULL,`document_id` int(11) NOT NULL, PRIMARY KEY (`contact_id`,`document_id`))");
+    mysqli_query($mysqli, "CREATE TABLE `contact_logins` (`contact_id` int(11) NOT NULL,`login_id` int(11) NOT NULL, PRIMARY KEY (`contact_id`,`login_id`))");
+    mysqli_query($mysqli, "CREATE TABLE `contact_files` (`contact_id` int(11) NOT NULL,`file_id` int(11) NOT NULL, PRIMARY KEY (`contact_id`,`file_id`))");
+    
+    mysqli_query($mysqli, "CREATE TABLE `software_documents` (`software_id` int(11) NOT NULL,`document_id` int(11) NOT NULL, PRIMARY KEY (`software_id`,`document_id`))");
+    mysqli_query($mysqli, "CREATE TABLE `software_logins` (`software_id` int(11) NOT NULL,`login_id` int(11) NOT NULL, PRIMARY KEY (`software_id`,`login_id`))");
+    mysqli_query($mysqli, "CREATE TABLE `software_files` (`software_id` int(11) NOT NULL,`file_id` int(11) NOT NULL, PRIMARY KEY (`software_id`,`file_id`))");
+
+    mysqli_query($mysqli, "CREATE TABLE `vendor_documents` (`vendor_id` int(11) NOT NULL,`document_id` int(11) NOT NULL, PRIMARY KEY (`vendor_id`,`document_id`))");
+    mysqli_query($mysqli, "CREATE TABLE `vendor_logins` (`vendor_id` int(11) NOT NULL,`login_id` int(11) NOT NULL, PRIMARY KEY (`vendor_id`,`login_id`))");
+    mysqli_query($mysqli, "CREATE TABLE `vendor_files` (`vendor_id` int(11) NOT NULL,`file_id` int(11) NOT NULL, PRIMARY KEY (`vendor_id`,`file_id`))");
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.2'");
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.2'");
+  }
+
+  //if(CURRENT_DATABASE_VERSION == '0.1.2'){
+    // Insert queries here required to update to DB version 0.1.3
+
+    // Then, update the database to the next sequential version
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.3'");
   //}
 
   // etc
