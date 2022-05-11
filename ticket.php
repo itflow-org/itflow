@@ -557,10 +557,14 @@ if(isset($_GET['ticket_id'])){
             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
           </div>
           <select class="form-control select2" name="assigned_to" <?php if($ticket_status == "Closed") {echo "disabled";} ?>>
-            <option value="">Not Assigned</option>
+            <option value="0">Not Assigned</option>
             <?php
 
-            $sql_assign_to_select = mysqli_query($mysqli,"SELECT * FROM users, user_companies WHERE users.user_id = user_companies.user_id AND user_companies.company_id = $session_company_id AND user_archived_at IS NULL ORDER BY user_name ASC");
+            $sql_assign_to_select = mysqli_query($mysqli,"SELECT users.user_id, user_name FROM users
+                                                                LEFT JOIN user_companies ON users.user_id = user_companies.user_id
+                                                                LEFT JOIN user_settings on users.user_id = user_settings.user_id
+                                                                WHERE user_companies.company_id = $session_company_id 
+                                                                AND user_role > 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
             while($row = mysqli_fetch_array($sql_assign_to_select)){
               $user_id = $row['user_id'];
               $user_name = $row['user_name'];

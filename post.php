@@ -5809,16 +5809,23 @@ if(isset($_POST['assign_ticket'])){
     $ticket_id = intval($_POST['ticket_id']);
     $assigned_to = intval($_POST['assigned_to']);
 
-    // Get & verify assigned agent details
-    $agent_details_sql = mysqli_query($mysqli, "SELECT user_name FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = '$assigned_to' AND user_settings.user_role > 1");
-    $agent_details = mysqli_fetch_array($agent_details_sql);
-    $agent_name = $agent_details['user_name'];
+    // Allow for un-assigning tickets
+    if($assigned_to == 0){
+      $ticket_reply = "Ticket unassigned.";
 
-    if(!$agent_name){
-      $_SESSION['alert_type'] = "danger";
-      $_SESSION['alert_message'] = "Invalid agent!";
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
+    } else {
+      // Get & verify assigned agent details
+      $agent_details_sql = mysqli_query($mysqli, "SELECT user_name FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = '$assigned_to' AND user_settings.user_role > 1");
+      $agent_details = mysqli_fetch_array($agent_details_sql);
+      $agent_name = $agent_details['user_name'];
+      $ticket_reply = "Ticket re-assigned to $agent_details[user_name].";
+
+      if(!$agent_name){
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = "Invalid agent!";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+      }
     }
 
     // Get & verify ticket details
@@ -5836,7 +5843,7 @@ if(isset($_POST['assign_ticket'])){
     // Update ticket & insert reply
     mysqli_query($mysqli,"UPDATE tickets SET ticket_assigned_to = $assigned_to WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
-    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket re-assigned to $agent_name', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$ticket_subject reassigned to $agent_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
