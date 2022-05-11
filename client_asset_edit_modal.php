@@ -135,7 +135,6 @@
                 </div>
               </div>
 
-              <?php if($asset_type !== 'Firewall/Router' && $asset_type !== 'Switch' && $asset_type !== 'Access Point' && $asset_type !== 'Printer' && $asset_type !== 'Server' && $asset_type !== 'Virtual Machine'){ ?>
               <div class="form-group">
                 <label>Assigned To</label>
                 <div class="input-group">
@@ -161,7 +160,6 @@
                   </select>
                 </div>
               </div>
-              <?php } ?>
 
               <div class="form-group">
                 <label>Network</label>
