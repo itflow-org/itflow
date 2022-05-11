@@ -204,7 +204,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_notes = $row['client_notes'];
             $client_created_at = $row['client_created_at'];
             $client_updated_at = $row['client_updated_at'];
-            $client_archive_at = $row['client_archive_at'];
+            $client_archive_at = $row['client_archived_at'];
 
             //Client Tags
 
