@@ -96,7 +96,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
 
     //Prevent SQL Error if client_name has ' in their name example Bill's Market
     $client_name_escaped = mysqli_escape_string($mysqli,$client_name);
-    mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Invoice Viewed', notification = 'Invoice $invoice_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Invoice Viewed', notification = 'Invoice $invoice_prefix$invoice_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
     $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
