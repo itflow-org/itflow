@@ -4428,8 +4428,8 @@ if(isset($_POST["import_client_contacts_csv"])){
         fgetcsv($file, 1000, ","); // Skip first line
         $row_count = 0;
         $duplicate_count = 0;
-        $duplicate_detect = 0;
         while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
+            $duplicate_detect = 0;
             if(isset($column[0])){
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
                 if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$name' AND contact_client_id = $client_id")) > 0){
@@ -4477,7 +4477,7 @@ if(isset($_POST["import_client_contacts_csv"])){
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Import', log_description = '$session_name imported $row_count contact(s) via CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
 
-        $_SESSION['alert_message'] = "$row_count Contact(s) with added $duplicate_count duplicate(s)";
+        $_SESSION['alert_message'] = "$row_count Contact(s) added, $duplicate_count duplicate(s) detected";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
     //Check for any errors, if there are notify user and redirect
