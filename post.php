@@ -5437,19 +5437,19 @@ if(isset($_GET['export_client_logins_csv'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
-        $filename = $client_name . "-Logins-" . date('Y-m-d') . ".csv";
+        $filename = strto_AZaz09($client_name) . "-Logins-" . date('Y-m-d') . ".csv";
         
         //create a file pointer
         $f = fopen('php://memory', 'w');
         
         //set column headers
-        $fields = array('Name', 'Username', 'Password', 'URL', 'Notes');
+        $fields = array('Name', 'Username', 'Password', 'URL');
         fputcsv($f, $fields, $delimiter);
         
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
             $login_password = decryptLoginEntry($row['login_password']);
-            $lineData = array($row['login_name'], $row['login_username'], $login_password, $row['login_uri'], $row['login_note']);
+            $lineData = array($row['login_name'], $row['login_username'], $login_password, $row['login_uri']);
             fputcsv($f, $lineData, $delimiter);
         }
         
@@ -5463,6 +5463,116 @@ if(isset($_GET['export_client_logins_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
     }
+    exit;
+  
+}
+
+if(isset($_POST["import_client_logins_csv"])){
+
+    validateTechRole();
+
+    $client_id = intval($_POST['client_id']);
+    $file_name = $_FILES["file"]["tmp_name"];
+    $error = FALSE;
+
+    //Check file is CSV
+    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+    $allowed_file_extensions = array('csv');
+    if(in_array($file_extension,$allowed_file_extensions) === false){
+        $error = TRUE;
+        $_SESSION['alert_message'] = "Bad file extension";
+    }
+
+    //Check file isn't empty
+    elseif($_FILES["file"]["size"] < 1){
+        $error = TRUE;
+        $_SESSION['alert_message'] = "Bad file size (empty?)";
+    }
+
+    //(Else)Check column count
+    $f = fopen($file_name, "r");
+    $f_columns = fgetcsv($f, 1000, ",");
+    if(!$error & count($f_columns) != 4) {
+        $error = TRUE;
+        $_SESSION['alert_message'] = "Bad column count.";
+    }
+
+    //Else, parse the file
+    if(!$error){
+        $file = fopen($file_name, "r");
+        fgetcsv($file, 1000, ","); // Skip first line
+        $row_count = 0;
+        $duplicate_count = 0;
+        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
+            $duplicate_detect = 0;
+            if(isset($column[0])){
+                $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
+                if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM logins WHERE login_name = '$name' AND login_client_id = $client_id")) > 0){
+                    $duplicate_detect = 1;
+                }
+            }
+            if(isset($column[1])){
+                $username = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[1])));
+            }
+            if(isset($column[2])){
+                $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($column[2])));
+            }
+            if(isset($column[3])){
+                $url = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[3])));
+            }
+            
+            // Check if duplicate was detected
+            if($duplicate_detect == 0){
+                //Add
+                mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_client_id = $client_id, company_id = $session_company_id");
+                $row_count = $row_count + 1;
+            }else{
+                $duplicate_count = $duplicate_count + 1;
+            }  
+        }
+        fclose($file);
+
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Logins', log_action = 'Import', log_description = '$session_name imported $row_count login(s) via csv file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "$row_count Login(s) imported, $duplicate_count duplicate(s) detected and not imported";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
+    //Check for any errors, if there are notify user and redirect
+    if($error) {
+        $_SESSION['alert_type'] = "warning";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
+}
+
+if(isset($_GET['download_client_logins_csv_template'])){
+    $client_id = intval($_GET['download_client_logins_csv_template']);
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+
+    $client_name = $row['client_name'];
+    
+    $delimiter = ",";
+    $filename = strto_AZaz09($client_name) . "-Logins-Template.csv";
+    
+    //create a file pointer
+    $f = fopen('php://memory', 'w');
+    
+    //set column headers
+    $fields = array('Name', 'Username', 'Password', 'URL');
+    fputcsv($f, $fields, $delimiter);
+    
+    //move back to beginning of file
+    fseek($f, 0);
+    
+    //set headers to download file rather than displayed
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '";');
+    
+    //output all remaining data on a file pointer
+    fpassthru($f);
     exit;
   
 }
