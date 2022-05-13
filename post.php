@@ -4503,7 +4503,16 @@ if(isset($_GET['download_client_contacts_csv_template'])){
     $f = fopen('php://memory', 'w');
     
     //set column headers
-    $fields = array('Name', 'Title', 'Department', 'Email', 'Phone', 'Ext', 'Mobile', 'Location');
+    $fields = array(
+        'Full Name             ',
+        'Job Title             ',
+        'Department Name       ',
+        'Email Address         ',
+        'Office Phone          ',
+        'Office Extension      ',
+        'Mobile Phone          ',
+        'Office Location       '
+    );
     fputcsv($f, $fields, $delimiter);
     
     //move back to beginning of file
