@@ -410,10 +410,10 @@ function getDomainExpirationDate($name){
 
 
 function strto_AZaz09($string){
-  $string = strtolower($string);
+  $string = ucwords(strtolower($string));
   
-  // Gets rid of spaces
-  $strto_AZaz09 = preg_replace('/\s/', '', $string);
+  // Replace spaces with _
+  //$string = str_replace(' ', '_', $string);
 
   // Gets rid of non-alphanumerics
   $strto_AZaz09 = preg_replace( '/[^A-Za-z0-9_]/', '', $string );
