@@ -4360,7 +4360,7 @@ if(isset($_GET['export_client_contacts_csv'])){
     $client_name = $row['client_name'];
     
     //Contacts
-    $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN locations ON location_id = contact_location_id WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Contacts-" . date('Y-m-d') . ".csv";
@@ -4369,12 +4369,12 @@ if(isset($_GET['export_client_contacts_csv'])){
         $f = fopen('php://memory', 'w');
         
         //set column headers
-        $fields = array('Name', 'Title', 'Department', 'Email', 'Phone', 'Ext', 'Mobile', 'Notes');
+        $fields = array('Name', 'Title', 'Department', 'Email', 'Phone', 'Ext', 'Mobile', 'Location');
         fputcsv($f, $fields, $delimiter);
         
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
-            $lineData = array($row['contact_name'], $row['contact_title'], $row['contact_department'], $row['contact_email'], formatPhoneNumber($row['contact_phone']), $row['contact_extension'], formatPhoneNumber($row['contact_mobile']), $row['contact_notes']);
+            $lineData = array($row['contact_name'], $row['contact_title'], $row['contact_department'], $row['contact_email'], formatPhoneNumber($row['contact_phone']), $row['contact_extension'], formatPhoneNumber($row['contact_mobile']), $row['location_name']);
             fputcsv($f, $lineData, $delimiter);
         }
         
@@ -4388,6 +4388,133 @@ if(isset($_GET['export_client_contacts_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
     }
+    exit;
+
+}
+
+if(isset($_POST["import_client_contacts_csv"])){
+
+    validateTechRole();
+
+    $client_id = intval($_POST['client_id']);
+    $file_name = $_FILES["file"]["tmp_name"];
+    $error = FALSE;
+
+    //Check file is CSV
+    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+    $allowed_file_extensions = array('csv');
+    if(in_array($file_extension,$allowed_file_extensions) === false){
+        $error = TRUE;
+        $_SESSION['alert_message'] = "Bad file extension";
+    }
+
+    //Check file isn't empty
+    elseif($_FILES["file"]["size"] < 1){
+        $error = TRUE;
+        $_SESSION['alert_message'] = "Bad file size (empty?)";
+    }
+
+    //(Else)Check column count
+    $f = fopen($file_name, "r");
+    $f_columns = fgetcsv($f, 1000, ",");
+    if(!$error & count($f_columns) != 8) {
+        $error = TRUE;
+        $_SESSION['alert_message'] = "Bad column count.";
+    }
+
+    //Else, parse the file
+    if(!$error){
+        $file = fopen($file_name, "r");
+        fgetcsv($file, 1000, ","); // Skip first line
+        $row_count = 0;
+        $duplicate_count = 0;
+        $duplicate_detect = 0;
+        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
+            if(isset($column[0])){
+                $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
+                if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$name' AND contact_client_id = $client_id")) > 0){
+                    $duplicate_detect = 1;
+                }
+            }
+            if(isset($column[1])){
+                $title = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[1])));
+            }
+            if(isset($column[2])){
+                $department = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[2])));
+            }
+            if(isset($column[3])){
+                $email = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[3])));
+            }
+            if(isset($column[4])){
+                $phone = preg_replace("/[^0-9]/", '',$column[4]);
+            }
+            if(isset($column[5])){
+                $ext = preg_replace("/[^0-9]/", '',$column[5]);
+            }
+            if(isset($column[6])){
+                $mobile = preg_replace("/[^0-9]/", '',$column[6]);
+            }
+            if(isset($column[7])){
+                $location = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[7])));
+                $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
+                $row = mysqli_fetch_assoc($sql_location);
+                $location_id = $row['location_id'];
+            }
+            // Potentially import the rest in the future?
+
+            
+            // Check if duplicate was detected
+            if($duplicate_detect == 0){
+                //Add
+                mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_department = '$department', contact_email = '$email', contact_phone = '$phone', contact_extension = '$ext', contact_mobile = '$mobile', contact_location_id = $location_id, contact_client_id = $client_id, company_id = $session_company_id");
+                $row_count = $row_count + 1;
+            }else{
+                $duplicate_count = $duplicate_count + 1;
+            }  
+        }
+        fclose($file);
+
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Import', log_description = '$session_name imported $row_count contact(s) via CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "$row_count Contact(s) with added $duplicate_count duplicate(s)";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
+    //Check for any errors, if there are notify user and redirect
+    if($error) {
+        $_SESSION['alert_type'] = "warning";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
+}
+
+if(isset($_GET['download_client_contacts_csv_template'])){
+    $client_id = intval($_GET['download_client_contacts_csv_template']);
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+
+    $client_name = $row['client_name'];
+    
+    $delimiter = ",";
+    $filename = $client_name . "-Contacts-Template.csv";
+    
+    //create a file pointer
+    $f = fopen('php://memory', 'w');
+    
+    //set column headers
+    $fields = array('Name', 'Title', 'Department', 'Email', 'Phone', 'Ext', 'Mobile', 'Location');
+    fputcsv($f, $fields, $delimiter);
+    
+    //move back to beginning of file
+    fseek($f, 0);
+    
+    //set headers to download file rather than displayed
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '";');
+    
+    //output all remaining data on a file pointer
+    fpassthru($f);
     exit;
   
 }
