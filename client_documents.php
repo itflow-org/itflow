@@ -49,9 +49,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <div class="card-tools">
       
       <div class="dropdown">
-        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="fas fa-fw fa-plus"></i> New Document</button>
+        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="fas fa-fw fa-plus"></i> New</button>
         <div class="dropdown-menu">
-          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentModal">New Document</a>
+          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addFolderModal">Folder</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentModal">Document</a>
           <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentFromTemplateModal">From Template</a>
         </div>
       </div>
@@ -62,7 +64,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-body">
     <div class="row">
       <div class="col-md-3 border-right">
-        <h4>Folders<button class="btn btn-link" type="button" data-toggle="modal" data-target="#addFolderModal"><i class="fas fa-fw fa-folder-plus"></i></button></h4>
+        <h4>Folders</h4>
         <hr>
         <ul class="nav nav-pills flex-column bg-light">
           <li class="nav-item">
