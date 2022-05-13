@@ -67,7 +67,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
     <div class="card card-outline card-primary mb-3">
       <div class="card-header">
-        <h5 class="card-title"><i class="fa fa-history"></i> Recently Updated</h5>
+        <h5 class="card-title"><i class="fa fa-history mr-2"></i>Recently Updated</h5>
       </div>
       <div class="card-body">
         
@@ -111,7 +111,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
     <div class="card card-outline card-warning mb-3">
       <div class="card-header">
-        <h5 class="card-title"><i class="fas fa-calendar-alt"></i> Upcoming Expirations</h5>
+        <h5 class="card-title"><i class="fas fa-calendar-alt mr-2"></i>Upcoming Expirations</h5>
       </div>
       <div class="card-body">
         
