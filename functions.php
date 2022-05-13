@@ -409,16 +409,16 @@ function getDomainExpirationDate($name){
 }
 
 
-function clean_file_name($string){
+function strto_AZaz09($string){
   $string = strtolower($string);
   
   // Gets rid of spaces
-  $clean_file_name = preg_replace('/\s/', '', $string);
+  $strto_AZaz09 = preg_replace('/\s/', '', $string);
 
   // Gets rid of non-alphanumerics
-  $clean_file_name = preg_replace( '/[^A-Za-z0-9_]/', '', $string );
+  $strto_AZaz09 = preg_replace( '/[^A-Za-z0-9_]/', '', $string );
 
-  return $clean_file_name;
+  return $strto_AZaz09;
 }
 
 // Cross-Site Request Forgery check for sensitive functions

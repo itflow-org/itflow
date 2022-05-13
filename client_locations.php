@@ -55,7 +55,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <div class="col-md-8">
           <div class="float-right">
             <a href="post.php?export_client_<?php echo strip_tags($_GET['tab']); ?>_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
-            <a href="#" class="btn btn-default"><i class="fa fa-fw fa-upload"></i> Import</a>
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importLocationModal"><i class="fa fa-fw fa-upload"></i> Import</button>
           </div>
         </div>
 
@@ -144,4 +144,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("client_location_add_modal.php"); ?>
+<?php 
+
+include("client_location_add_modal.php"); 
+include("client_location_import_modal.php");
+
+?>

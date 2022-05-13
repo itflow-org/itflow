@@ -4363,7 +4363,7 @@ if(isset($_GET['export_client_contacts_csv'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN locations ON location_id = contact_location_id WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
-        $filename = $client_name . "-Contacts-" . date('Y-m-d') . ".csv";
+        $filename = strto_AZaz09($client_name) . "-Contacts-" . date('Y-m-d') . ".csv";
         
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -4497,7 +4497,7 @@ if(isset($_GET['download_client_contacts_csv_template'])){
     $client_name = $row['client_name'];
     
     $delimiter = ",";
-    $filename = $client_name . "-Contacts-Template.csv";
+    $filename = strto_AZaz09($client_name) . "-Contacts-Template.csv";
     
     //create a file pointer
     $f = fopen('php://memory', 'w');
@@ -4715,18 +4715,18 @@ if(isset($_GET['export_client_locations_csv'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id ORDER BY location_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
-        $filename = $client_name . "-Locations-" . date('Y-m-d') . ".csv";
+        $filename = strto_AZaz09($client_name) . "-Locations-" . date('Y-m-d') . ".csv";
         
         //create a file pointer
         $f = fopen('php://memory', 'w');
         
         //set column headers
-        $fields = array('Name', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Notes');
+        $fields = array('Name', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Hours');
         fputcsv($f, $fields, $delimiter);
         
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
-            $lineData = array($row['location_name'], $row['location_address'], $row['location_city'], $row['location_state'], $row['location_zip'], $row['location_phone'], $row['location_notes']);
+            $lineData = array($row['location_name'], $row['location_address'], $row['location_city'], $row['location_state'], $row['location_zip'], $row['location_phone'], $row['location_hours']);
             fputcsv($f, $lineData, $delimiter);
         }
         
@@ -4740,6 +4740,125 @@ if(isset($_GET['export_client_locations_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
     }
+    exit;
+  
+}
+
+if(isset($_POST["import_client_locations_csv"])){
+
+    validateTechRole();
+
+    $client_id = intval($_POST['client_id']);
+    $file_name = $_FILES["file"]["tmp_name"];
+    $error = FALSE;
+
+    //Check file is CSV
+    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+    $allowed_file_extensions = array('csv');
+    if(in_array($file_extension,$allowed_file_extensions) === false){
+        $error = TRUE;
+        $_SESSION['alert_message'] = "Bad file extension";
+    }
+
+    //Check file isn't empty
+    elseif($_FILES["file"]["size"] < 1){
+        $error = TRUE;
+        $_SESSION['alert_message'] = "Bad file size (empty?)";
+    }
+
+    //(Else)Check column count
+    $f = fopen($file_name, "r");
+    $f_columns = fgetcsv($f, 1000, ",");
+    if(!$error & count($f_columns) != 7) {
+        $error = TRUE;
+        $_SESSION['alert_message'] = "Bad column count.";
+    }
+
+    //Else, parse the file
+    if(!$error){
+        $file = fopen($file_name, "r");
+        fgetcsv($file, 1000, ","); // Skip first line
+        $row_count = 0;
+        $duplicate_count = 0;
+        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
+            $duplicate_detect = 0;
+            if(isset($column[0])){
+                $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
+                if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$name' AND location_client_id = $client_id")) > 0){
+                    $duplicate_detect = 1;
+                }
+            }
+            if(isset($column[1])){
+                $address = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[1])));
+            }
+            if(isset($column[2])){
+                $city = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[2])));
+            }
+            if(isset($column[3])){
+                $state = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[3])));
+            }
+            if(isset($column[4])){
+                $zip = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[4])));
+            }
+            if(isset($column[5])){
+                $phone = preg_replace("/[^0-9]/", '',$column[5]);
+            }
+            if(isset($column[6])){
+                $hours = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[6])));
+            }
+            
+            // Check if duplicate was detected
+            if($duplicate_detect == 0){
+                //Add
+                mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_client_id = $client_id, company_id = $session_company_id");
+                $row_count = $row_count + 1;
+            }else{
+                $duplicate_count = $duplicate_count + 1;
+            }  
+        }
+        fclose($file);
+
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Import', log_description = '$session_name imported $row_count location(s) via CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "$row_count Location(s) imported, $duplicate_count duplicate(s) detected and not imported";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
+    //Check for any errors, if there are notify user and redirect
+    if($error) {
+        $_SESSION['alert_type'] = "warning";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
+}
+
+if(isset($_GET['download_client_locations_csv_template'])){
+    $client_id = intval($_GET['download_client_locations_csv_template']);
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+
+    $client_name = $row['client_name'];
+    
+    $delimiter = ",";
+    $filename = strto_AZaz09($client_name) . "-Locations-Template.csv";
+    
+    //create a file pointer
+    $f = fopen('php://memory', 'w');
+    
+    //set column headers
+    $fields = array('Name', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Hours');
+    fputcsv($f, $fields, $delimiter);
+    
+    //move back to beginning of file
+    fseek($f, 0);
+    
+    //set headers to download file rather than displayed
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '";');
+    
+    //output all remaining data on a file pointer
+    fpassthru($f);
     exit;
   
 }
@@ -4976,7 +5095,7 @@ if(isset($_GET['download_client_assets_csv_template'])){
     $client_name = $row['client_name'];
     
     $delimiter = ",";
-    $filename = $client_name . "-Assets-Template.csv";
+    $filename = strto_AZaz09($client_name) . "-Assets-Template.csv";
     
     //create a file pointer
     $f = fopen('php://memory', 'w');
@@ -5013,7 +5132,7 @@ if(isset($_GET['export_client_assets_csv'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
-        $filename = $client_name . "-Assets-" . date('Y-m-d') . ".csv";
+        $filename = strto_AZaz09($client_name) . "-Assets-" . date('Y-m-d') . ".csv";
         
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -7285,7 +7404,7 @@ if(isset($_GET['export_client_pdf'])){
 
     var docDefinition = {
         info: {
-            title: '<?php echo clean_file_name($client_name); ?>- IT Documentation',
+            title: '<?php echo strto_AZaz09($client_name); ?>- IT Documentation',
             author: <?php echo json_encode($session_company_name); ?>
         },
 
@@ -8467,7 +8586,7 @@ if(isset($_GET['export_client_pdf'])){
     };
     
 
-    pdfMake.createPdf(docDefinition).download('<?php echo clean_file_name($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>.pdf');
+    pdfMake.createPdf(docDefinition).download('<?php echo strto_AZaz09($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>.pdf');
 
     </script>
 
