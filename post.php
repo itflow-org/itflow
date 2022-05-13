@@ -4458,7 +4458,7 @@ if(isset($_POST["import_client_contacts_csv"])){
                 $location = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[7])));
                 $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
                 $row = mysqli_fetch_assoc($sql_location);
-                $location_id = $row['location_id'];
+                $location_id = intval($row['location_id']);
             }
             // Potentially import the rest in the future?
 
