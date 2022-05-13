@@ -4904,10 +4904,10 @@ if(isset($_POST["import_client_assets_csv"])){
     if(!$error){
         $file = fopen($file_name, "r");
         fgetcsv($file, 1000, ","); // Skip first line
-        $asset_count = 0;
+        $row_count = 0;
         $duplicate_count = 0;
-        $duplicate_detect = 0;
         while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
+            $duplicate_detect = 0;
             if(isset($column[0])){
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
                 if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_name = '$name' AND asset_client_id = $client_id")) > 0){
@@ -4933,24 +4933,20 @@ if(isset($_POST["import_client_assets_csv"])){
                 $contact = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[6])));
                 $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$contact' AND contact_client_id = $client_id");
                 $row = mysqli_fetch_assoc($sql_contact);
-                $contact_id = $row['contact_id'];
-                $contact = intval($contact_id);
+                $contact_id = intval($row['contact_id']);
             }
             if(isset($column[7])){
                 $location = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[7])));
                 $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
                 $row = mysqli_fetch_assoc($sql_location);
-                $location_id = $row['location_id'];
-                $location = intval($location_id);
+                $location_id = intval($row['location_id']);
             }
-            // Potentially import the rest in the future?
-
             
             // Check if duplicate was detected
             if($duplicate_detect == 0){
                 //Add
-                mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_contact_id = $contact, asset_location_id = $location, asset_client_id = $client_id, company_id = $session_company_id");
-                $asset_count = $asset_count + 1;
+                mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id, company_id = $session_company_id");
+                $row_count = $row_count + 1;
             }else{
                 $duplicate_count = $duplicate_count + 1;
             }  
@@ -4958,9 +4954,9 @@ if(isset($_POST["import_client_assets_csv"])){
         fclose($file);
 
         //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Import', log_description = '$session_name imported $asset_count asset(s) via CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Import', log_description = '$session_name imported $row_count asset(s) via CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
 
-        $_SESSION['alert_message'] = "$asset_count Asset(s) with added $duplicate_count duplicate(s)";
+        $_SESSION['alert_message'] = "$row_count Asset(s) added, $duplicate_count duplicate(s) detected";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
     //Check for any errors, if there are notify user and redirect
