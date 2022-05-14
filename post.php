@@ -38,7 +38,7 @@ if(isset($_GET['switch_company'])){
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Switch', log_description = '$session_name switched to company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
     
     }else{
-        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "What are you trying to DO! WHy did you do this? WHYYY??";
 
         //Logging
@@ -109,7 +109,7 @@ if(isset($_POST['add_user'])){
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-            $_SESSION['alert_type'] = "danger";
+            $_SESSION['alert_type'] = "error";
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -132,7 +132,7 @@ if(isset($_POST['add_user'])){
 if(isset($_POST['edit_user'])){
 
     if($session_user_role != 3 && $_POST['user_id'] !== $session_user_id){
-      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_type'] = "error";
       $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
@@ -198,7 +198,7 @@ if(isset($_POST['edit_user'])){
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-            $_SESSION['alert_type'] = "danger";
+            $_SESSION['alert_type'] = "error";
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -233,7 +233,7 @@ if(isset($_POST['edit_user'])){
 if(isset($_POST['edit_profile'])){
 
     if($session_user_role != 3 && $_POST['user_id'] !== $session_user_id){
-      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_type'] = "error";
       $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
@@ -293,7 +293,7 @@ if(isset($_POST['edit_profile'])){
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-            $_SESSION['alert_type'] = "danger";
+            $_SESSION['alert_type'] = "error";
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -387,7 +387,7 @@ if(isset($_GET['archive_user'])){
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Archive', log_description = '$session_name archived user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "User <strong>$name</strong> archived";
     
     header("Location: users.php");
@@ -438,7 +438,7 @@ if(isset($_GET['delete_api_key'])){
     // Logging   
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Delete', log_description = '$session_name deleted API key $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "API Key <strong>$name</strong> deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -637,7 +637,7 @@ if(isset($_GET['archive_company'])){
     $company_name = $row['company_name'];
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Archive', log_description = '$session_name archived company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Company <strong>$company_name</strong> archived";
     
     header("Location: companies.php");
@@ -750,7 +750,7 @@ if(isset($_GET['delete_company'])){
 
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Delete', log_description = '$session_name deleted company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Company <strong>$company_name</strong> deleted";
     
     header("Location: post.php?logout");
@@ -765,7 +765,7 @@ if(isset($_POST['verify'])){
     if(TokenAuth6238::verify($session_token,$currentcode)){
         $_SESSION['alert_message'] = "VALID!";
     }else{
-        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "IN-VALID!";
     } 
 
@@ -871,7 +871,7 @@ if(isset($_POST['test_email'])){
     if($mail->send()){
         $_SESSION['alert_message'] = "Test email sent successfully";
     }else{
-        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Test email failed";
     }
 
@@ -1366,7 +1366,7 @@ if(isset($_GET['archive_client'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Archive', log_description = '$session_name archived client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Client ".stripslashes($client_name)." archive. <a href='post.php?undo_archive_client=$client_id'>Undo</a>";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -1505,7 +1505,7 @@ if(isset($_GET['delete_client'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Delete', log_description = '$session_name deleted client $client_name and all associated items', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Client $client_name deleted along with all associated data";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]); 
@@ -1693,7 +1693,7 @@ if(isset($_GET['delete_event'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Delete', log_description = '$session_name deleted calendar event titled $event_title', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Event <strong>$event_title</strong> deleted on the calendar";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -1773,7 +1773,7 @@ if(isset($_GET['archive_vendor'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Archive', log_description = '$session_name archived vendor $vendor_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Vendor <strong>$vendor_name archived";
     
     header("Location: vendors.php");
@@ -1792,7 +1792,7 @@ if(isset($_GET['delete_vendor'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Delete', log_description = '$session_name deleted vendor $vendor_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -1990,7 +1990,7 @@ if(isset($_GET['archive_campaign'])){
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Archive', log_description = '$session_name archived mail campaign $campaign_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Campaign <strong>$campaign_name</strong> archived";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2012,7 +2012,7 @@ if(isset($_GET['delete_campaign'])){
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Campaign', log_action = 'Delete', log_description = '$session_name deleted mail campaign $campaign_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Campaign <strong>$campaign_name</strong> deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2123,7 +2123,7 @@ if(isset($_GET['delete_product'])){
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Delete', log_description = '$session_name deleted product $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Product <strong>$product_name</strong> deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -2314,7 +2314,7 @@ if(isset($_GET['delete_category'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Delete', log_description = '$category_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Category deleted";
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
@@ -2370,7 +2370,7 @@ if(isset($_GET['delete_tag'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Delete', log_description = '$tag_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Tag deleted";
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
@@ -2434,7 +2434,7 @@ if(isset($_GET['delete_tax'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Delete', log_description = '$tax_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Tax deleted";
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
@@ -2487,7 +2487,7 @@ if(isset($_GET['delete_custom_link'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Custom Link', log_action = 'Delete', log_description = '$custom_link_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Custom link deleted";
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
   
@@ -4705,7 +4705,7 @@ if(isset($_GET['archive_location'])){
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Archive', log_description = '$location_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Location ".stripslashes($location_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -4743,7 +4743,7 @@ if(isset($_GET['delete_location'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'location', log_action = 'Delete', log_description = '$location_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Location deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -6152,7 +6152,7 @@ if(isset($_POST['edit_scheduled_ticket'])){
 if(isset($_GET['delete_scheduled_ticket'])){
 
     if($session_user_role != 3){
-        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
@@ -6221,7 +6221,7 @@ if(isset($_POST['assign_ticket'])){
       $ticket_reply = "Ticket re-assigned to $agent_details[user_name].";
 
       if(!$agent_name){
-        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Invalid agent!";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
@@ -6234,7 +6234,7 @@ if(isset($_POST['assign_ticket'])){
     $ticket_subject = $ticket_details['ticket_subject'];
 
     if(!$ticket_subject){
-      $_SESSION['alert_type'] = "danger";
+      $_SESSION['alert_type'] = "error";
       $_SESSION['alert_message'] = "Invalid ticket!";
       header("Location: " . $_SERVER["HTTP_REFERER"]);
       exit();
@@ -7081,7 +7081,7 @@ if(isset($_GET['delete_folder'])){
 
 if(isset($_GET['deactivate_shared_item'])){
     if($session_user_role != 3){
-        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
