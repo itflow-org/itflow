@@ -10,7 +10,7 @@
         <li class="nav-item">
           <a href="clients.php" class="nav-link">
             <i class="nav-icon fas fa-angle-left"></i>
-            <p><strong><?php echo $client_name; ?></strong></p>
+            <p>Back | <strong><?php echo $client_name; ?></strong></p>
           </a>
         </li>
         <div class="sidebar-custom mb-2">

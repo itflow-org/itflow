@@ -12,7 +12,7 @@
         <li class="nav-item mb-2">
           <a href="dashboard_financial.php" class="nav-link">
             <i class="nav-icon fas fa-angle-left"></i>
-            <p><strong>Reports</strong></p>
+            <p>Back | <strong>Reports</strong></p>
           </a>
         </li>
 
