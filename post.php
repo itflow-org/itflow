@@ -4694,6 +4694,45 @@ if(isset($_POST['edit_location'])){
 
 }
 
+if(isset($_GET['archive_location'])){
+
+    validateAdminRole();
+
+    $location_id = intval($_GET['archive_location']);
+
+    mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id AND company_id = $session_company_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Archive', log_description = '$location_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
+
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Location ".stripslashes($location_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['undo_archive_location'])){
+
+    $location_id = intval($_GET['undo_archive_location']);
+
+    // Get Location Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $location_name = strip_tags(mysqli_real_escape_string($mysqli, $row['location_name']));
+    $client_id = $row['location_client_id'];
+
+    mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Undo Archive', log_description = '$session_name unarchived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_type'] = "danger";
+    $_SESSION['alert_message'] = "Location ".stripslashes($location_name)." unarchived.";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if(isset($_GET['delete_location'])){
 
     validateAdminRole();
@@ -4705,6 +4744,7 @@ if(isset($_GET['delete_location'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'location', log_action = 'Delete', log_description = '$location_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
+    $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = "Location deleted";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -4721,7 +4761,7 @@ if(isset($_GET['export_client_locations_csv'])){
     $client_name = $row['client_name'];
     
     //Locations
-    $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id ORDER BY location_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL AND company_id = $session_company_id ORDER BY location_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = strto_AZaz09($client_name) . "-Locations-" . date('Y-m-d') . ".csv";

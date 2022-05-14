@@ -22,7 +22,8 @@ if(!empty($_GET['sb'])){
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM locations 
-  WHERE location_client_id = $client_id 
+  WHERE location_client_id = $client_id
+  AND location_archived_at IS NULL
   AND (location_name LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
@@ -123,8 +124,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">Edit</a>
+                  <?php if($session_user_role == 3 && $location_id !== $primary_location) { ?>
                   <div class="dropdown-divider"></div>
+                  <a class="dropdown-item text-danger" href="post.php?archive_location=<?php echo $location_id; ?>">Archive</a>
                   <a class="dropdown-item text-danger" href="post.php?delete_location=<?php echo $location_id; ?>">Delete</a>
+                  <?php } ?>
                 </div>
               </div> 
               <?php include("client_location_edit_modal.php"); ?>     
