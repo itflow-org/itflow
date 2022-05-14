@@ -265,11 +265,19 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.2'");
   }
 
-  //if(CURRENT_DATABASE_VERSION == '0.1.2'){
+  if(CURRENT_DATABASE_VERSION == '0.1.2'){
     // Insert queries here required to update to DB version 0.1.3
+    mysqli_query($mysqli, "ALTER TABLE `logs` ADD `log_entity_id` INT NOT NULL DEFAULT '0' AFTER `log_user_id`");
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.3'");
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.3'");
+  }
+
+  //if(CURRENT_DATABASE_VERSION == '0.1.3'){
+    // Insert queries here required to update to DB version 0.1.4
+
+    // Then, update the database to the next sequential version
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.4'");
   //}
 
   // etc

@@ -58,7 +58,8 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM assets
   LEFT JOIN contacts ON asset_contact_id = contact_id 
   LEFT JOIN locations ON asset_location_id = location_id 
   LEFT JOIN logins ON login_asset_id = asset_id
-  WHERE asset_client_id = $client_id 
+  WHERE asset_client_id = $client_id
+  AND asset_archived_at IS NULL
   AND (asset_name LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
   AND ($type_query)
   ORDER BY $sb $o LIMIT $record_from, $record_to"
@@ -318,6 +319,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <?php } ?>
                   <?php if($session_user_role == 3) { ?>
                     <div class="dropdown-divider"></div>
+                    <a class="dropdown-item text-danger" href="post.php?archive_asset=<?php echo $asset_id; ?>">Archive</a>
                     <a class="dropdown-item text-danger" href="post.php?delete_asset=<?php echo $asset_id; ?>">Delete</a>
                   <?php } ?>
                 </div>

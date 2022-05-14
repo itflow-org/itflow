@@ -63,7 +63,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
   </div>
 
-  <div class="col-3">
+  <div class="col-md-3">
 
     <div class="card card-outline card-primary mb-3">
       <div class="card-header">
@@ -107,7 +107,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
     </div>
   </div>
 
-  <div class="col-3">
+  <div class="col-md-3">
 
     <div class="card card-outline card-primary mb-3">
       <div class="card-header">
@@ -151,7 +151,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
     </div>
   </div>
 
-  <div class="col-4">
+  <div class="col-md-4">
 
     <div class="card card-outline card-warning mb-3">
       <div class="card-header">
@@ -221,7 +221,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
   <!-- Stale Tickets -->
 
-  <div class="col-5">
+  <div class="col-md-5">
 
     <div class="card card-outline card-danger mb-3">
       <div class="card-body">

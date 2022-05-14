@@ -705,6 +705,7 @@ CREATE TABLE `logs` (
   `log_quote_id` int(11) DEFAULT NULL,
   `log_recurring_id` int(11) DEFAULT NULL,
   `log_user_id` int(11) DEFAULT NULL,
+  `log_entity_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -1543,4 +1544,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-05-10 17:11:18
+-- Dump completed on 2022-05-14 18:12:32
