@@ -4727,7 +4727,6 @@ if(isset($_GET['undo_archive_location'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Undo Archive', log_description = '$session_name unarchived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = "Location ".stripslashes($location_name)." unarchived.";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);

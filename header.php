@@ -33,6 +33,9 @@ header("X-Frame-Options: DENY");
   <link href="plugins/summernote/summernote-bs4.min.css" rel="stylesheet">
   <link href="plugins/toastr/toastr.min.css" rel="stylesheet">
   <!-- <link href="plugins/dropzone/min/dropzone.min.css" rel="stylesheet"> -->
+  <!-- jQuery -->
+  <script src="plugins/jquery/jquery.min.js"></script>
+  <script src="plugins/toastr/toastr.min.js"></script>
 
 </head>
 <body class="hold-transition sidebar-mini">

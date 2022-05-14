@@ -11,9 +11,11 @@
 <!-- Page Content -->
 <h1>Blank Page</h1>
 <hr>
-<p>This is a great starting point for new custom pages.
+<p>This is a great starting point for new custom pages.</p>
 
 <?php echo CURRENT_DATABASE_VERSION; ?>
-</p>
+
+<script>toastr.success('Have Fun Wozz')</script>
+
 
 <?php include("footer.php"); ?>
