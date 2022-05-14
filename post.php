@@ -39,10 +39,10 @@ if(isset($_GET['switch_company'])){
     
     }else{
         $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "What are you trying to DO! WHy did you do this? WHYYY??";
+        $_SESSION['alert_message'] = "You do not have permission to switch to this company";
 
         //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Switch', log_description = '$session_name tried to switch to company $company_name but does not have permission', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Switch', log_description = '$session_name attempted to switch to company $company_name but did not have permission', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
     }
     
     header("Location: dashboard_financial.php");
@@ -123,7 +123,7 @@ if(isset($_POST['add_user'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Create', log_description = '$session_name created user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "User <strong>$user_name</strong> created!";
+    $_SESSION['alert_message'] = "User <strong>$user_name</strong> created";
     
     header("Location: users.php");
 
@@ -2501,7 +2501,7 @@ if(isset($_GET['dismiss_notification'])){
     mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = CURDATE(), notification_dismissed_by = $session_user_id WHERE notification_id = $notification_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Notifications', log_action = 'Modify', log_description = '$Notification Dismissed',  company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Notification', log_action = 'Dismiss', log_description = '$session_name dismissed notification', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Notification Dismissed";
     
@@ -2524,7 +2524,7 @@ if(isset($_GET['dismiss_all_notifications'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Notifications', log_action = 'Modifed', log_description = 'Dismissed all notifications', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Notification', log_action = 'Dismiss', log_description = '$session_name dismissed $num_notifications notifications', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
     
     $_SESSION['alert_message'] = "$num_notifications Notifications Dismissed";
     

@@ -5,19 +5,18 @@
   <div class="sidebar">
 
     <!-- Sidebar Menu -->
-    <nav class="mt-3">
+    <nav class="mt-2">
 
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
         
         <li class="nav-item mb-2">
           <a href="dashboard_financial.php" class="nav-link">
-            <i class="nav-icon fas fa-arrow-left"></i>
-            <p>Back</p> | 
-            <p><strong>Reports Nav</strong></p>
+            <i class="nav-icon fas fa-angle-left"></i>
+            <p><strong>Reports</strong></p>
           </a>
         </li>
 
-        <li class="nav-header mt-3">REPORTS</li>
+        <li class="nav-header mt-2">FINANCIAL</li>
         
         <li class="nav-item">
           <a href="report_income_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">

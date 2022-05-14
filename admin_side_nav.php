@@ -5,15 +5,14 @@
   <div class="sidebar">
 
     <!-- Sidebar Menu -->
-    <nav class="mt-3">
+    <nav class="mt-2">
 
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
         
         <li class="nav-item mb-2">
           <a href="dashboard_financial.php" class="nav-link">
-            <i class="nav-icon fas fa-arrow-left"></i>
-            <p>Back</p> | 
-            <p><strong>Settings</strong></p>
+            <i class="nav-icon fas fa-angle-left"></i>
+            <p><strong>Admin</strong></p>
           </a>
         </li>
 
@@ -30,6 +29,16 @@
             <p>Companies</p>
           </a>
         </li>
+
+        <li class="nav-item">
+          <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-api.php") { echo "active"; } ?>"
+             href="settings-api.php">
+              <i class="nav-icon fas fa-key"></i>
+              <p>API Keys</p>
+          </a>
+        </li>
+
+        <li class="nav-header mt-2">SETTINGS</li>
         
         <li class="nav-item">
           <a href="settings-general.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-general.php") { echo "active"; } ?>">
@@ -134,14 +143,6 @@
             <i class="nav-icon fas fa-database"></i>
             <p>Backup</p>
           </a> 
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-api.php") { echo "active"; } ?>"
-             href="settings-api.php">
-              <i class="nav-icon fas fa-key"></i>
-              <p>API</p>
-          </a>
         </li>
 
         <li class="nav-item">
