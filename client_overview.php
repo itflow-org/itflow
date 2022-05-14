@@ -109,6 +109,50 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
   <div class="col-3">
 
+    <div class="card card-outline card-primary mb-3">
+      <div class="card-header">
+        <h5 class="card-title"><i class="fa fa-eye mr-2"></i>Recently Viewed</h5>
+      </div>
+      <div class="card-body">
+        
+          <?php
+
+          while($row = mysqli_fetch_array($sql_contacts)){
+            $contact_id = $row['contact_id'];
+            $contact_name = $row['contact_name'];
+            $contact_updated_at = $row['contact_updated_at'];
+
+          ?>
+            <p class="mb-1">
+              <i class="fa fa-fw fa-user text-secondary mr-1"></i>
+              <a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts&q=<?php echo $contact_name; ?>"><?php echo $contact_name; ?></a>
+            </p>
+          <?php
+          }
+          ?>
+
+          <?php
+
+          while($row = mysqli_fetch_array($sql_vendors)){
+            $vendor_id = $row['vendor_id'];
+            $vendor_name = $row['vendor_name'];
+            $vendor_updated_at = $row['vendor_updated_at'];
+
+          ?>
+            <p class="mb-1">
+              <i class="fas fa-fw fa-building text-secondary mr-1"></i>
+              <a href="client.php?client_id=<?php echo $client_id; ?>&tab=vendors&q=<?php echo $vendor_name; ?>"><?php echo $vendor_name; ?></a></td>
+            </p>
+          <?php
+          }
+          ?>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="col-4">
+
     <div class="card card-outline card-warning mb-3">
       <div class="card-header">
         <h5 class="card-title"><i class="fas fa-calendar-alt mr-2"></i>Upcoming Expirations</h5>
