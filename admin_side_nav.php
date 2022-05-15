@@ -11,7 +11,7 @@
         
         <li class="nav-item mb-2">
           <a href="dashboard_financial.php" class="nav-link">
-            <i class="nav-icon fas fa-angle-left"></i>
+            <i class="nav-icon fas fa-arrow-left"></i>
             <p>Back | <strong>Admin</strong></p>
           </a>
         </li>

@@ -40,12 +40,12 @@
               </div>
 
               <div class="form-group">
-                <label>Type</label>
+                <label>Industry</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="type" placeholder="Company Type" value="<?php echo $client_type; ?>">
+                  <input type="text" class="form-control" name="type" placeholder="Industry" value="<?php echo $client_type; ?>">
                 </div>
               </div>
 
