@@ -19,7 +19,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(*) AS count FROM as
   AND asset_archived_at IS NULL AND asset_client_id = $client_id"));
 $virtual_count = $row['count'];
 
-//Network Count
+//Network Device Count
 $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(*) AS count FROM assets WHERE (asset_type = 'Firewall/Router' OR asset_type = 'switch' OR asset_type = 'access point')
   AND asset_archived_at IS NULL AND asset_client_id = $client_id"));
 $network_count = $row['count'];
@@ -242,8 +242,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $login_username = $row['login_username'];
             $login_password = decryptLoginEntry($row['login_password']);
 
+            // Related tickets
             $sql_tickets = mysqli_query($mysqli,"SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");
             $ticket_count = mysqli_num_rows($sql_tickets);
+
+            // Related Documents
+            $sql_related_documents = mysqli_query($mysqli,"SELECT * FROM documents, asset_documents WHERE documents.document_id = asset_documents.document_id AND asset_documents.asset_id = $asset_id ORDER BY documents.document_name DESC");
+            $document_count = mysqli_num_rows($sql_related_documents);
+
+            // Related File
+            $sql_related_files = mysqli_query($mysqli,"SELECT * FROM files, asset_files WHERE files.file_id = asset_files.file_id AND asset_files.asset_id = $asset_id ORDER BY files.file_name DESC");
+            $file_count = mysqli_num_rows($sql_related_files);
       
           ?>
           <tr>
