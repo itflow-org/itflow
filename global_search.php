@@ -11,7 +11,7 @@ if(isset($_GET['query'])){
         $phone_query = $query;
     }
 
-    $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN locations ON clients.client_id = locations.location_client_id WHERE client_name LIKE '%$query%' AND clients.company_id = $session_company_id ORDER BY client_id DESC LIMIT 5");
+    $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN locations ON clients.primary_location = locations.location_id WHERE client_name LIKE '%$query%' AND clients.company_id = $session_company_id ORDER BY client_id DESC LIMIT 5");
     $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN clients ON client_id = contact_client_id WHERE (contact_name LIKE '%$query%' OR contact_title LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_phone LIKE '%$phone_query%' OR contact_mobile LIKE '%$phone_query%') AND contacts.company_id = $session_company_id ORDER BY contact_id DESC LIMIT 5");
     $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%') AND company_id = $session_company_id ORDER BY vendor_id DESC LIMIT 5");
     $sql_products = mysqli_query($mysqli,"SELECT * FROM products WHERE product_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY product_id DESC LIMIT 5");

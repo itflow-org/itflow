@@ -247,8 +247,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $ticket_count = mysqli_num_rows($sql_tickets);
 
             // Related Documents
-            $sql_related_documents = mysqli_query($mysqli,"SELECT * FROM documents, asset_documents WHERE documents.document_id = asset_documents.document_id AND asset_documents.asset_id = $asset_id ORDER BY documents.document_name DESC");
+            $sql_related_documents = mysqli_query($mysqli,"SELECT * FROM documents, asset_documents WHERE documents.document_id = asset_documents.document_id AND document_archived_at IS NULL AND asset_documents.asset_id = $asset_id ORDER BY documents.document_name DESC");
             $document_count = mysqli_num_rows($sql_related_documents);
+            
 
             // Related File
             $sql_related_files = mysqli_query($mysqli,"SELECT * FROM files, asset_files WHERE files.file_id = asset_files.file_id AND asset_files.asset_id = $asset_id ORDER BY files.file_name DESC");
@@ -323,6 +324,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#copyAssetModal<?php echo $asset_id; ?>">Copy</a>
+                  <?php if($document_count > 0){ ?>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#assetDocumentsModal<?php echo $asset_id; ?>">Documents (<?php echo $document_count; ?>)</a>
+                  <?php } ?>
                   <?php if($ticket_count > 0){ ?>
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#assetTicketsModal<?php echo $asset_id; ?>">Tickets (<?php echo $ticket_count; ?>)</a>
                   <?php } ?>
