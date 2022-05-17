@@ -200,7 +200,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=documents" class="nav-link <?php if($_GET['tab'] == "documents") { echo "active"; } ?>">
+          <a href="?client_id=<?php echo $client_id; ?>&tab=documents" class="nav-link <?php if($_GET['tab'] == "documents" || $_GET['tab'] == "document_details") { echo "active"; } ?>">
             <i class="nav-icon fas fa-file-alt"></i>
             <p>
               Documents

@@ -94,6 +94,11 @@ if(isset($_GET['tab'])){
       include("client_documents.php");
     }
   }
+  elseif($_GET['tab'] == "document_details") {
+    if ($session_user_role > 1) {
+      include("client_document_details.php");
+    }
+  }
   elseif($_GET['tab'] == "services"){
     if($session_user_role > 1) {
       include("client_services.php");
