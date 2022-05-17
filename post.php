@@ -3378,7 +3378,7 @@ if(isset($_GET['email_quote'])){
 
         $_SESSION['alert_message'] = "Quote has been sent";
 
-        header("Location: quotes.php");
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 
     } catch (Exception $e) {
@@ -4076,7 +4076,7 @@ if(isset($_GET['email_invoice'])){
 
         $_SESSION['alert_message'] = "Invoice has been sent";
 
-        header("Location: invoices.php");
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 
     } catch (Exception $e) {
