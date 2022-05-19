@@ -135,10 +135,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=expense_date&o=<?php echo $disp; ?>">Date</a></th>
-            <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=expense_amount&o=<?php echo $disp; ?>">Amount</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_name&o=<?php echo $disp; ?>">Vendor</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=expense_description&o=<?php echo $disp; ?>">Description</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Category</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=expense_description&o=<?php echo $disp; ?>">Description</a></th>
+            <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=expense_amount&o=<?php echo $disp; ?>">Amount</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=account_name&o=<?php echo $disp; ?>">Account</a></th>
             <th class="text-center">Action</th>
           </tr>
@@ -172,10 +172,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <tr>
             <td><?php echo $receipt_attached; ?> <a class="text-dark" href="#" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>"><?php echo $expense_date; ?></a></td>
-            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code); ?></td>
             <td><?php echo $vendor_name; ?></td>
-            <td><?php echo truncate($expense_description,50); ?></td>
             <td><?php echo $category_name; ?></td>
+            <td><?php echo truncate($expense_description,50); ?></td>
+            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code); ?></td>
             <td><?php echo $account_name; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
