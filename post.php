@@ -120,10 +120,44 @@ if(isset($_POST['add_user'])){
     //Create Company Access Permissions
     mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $default_company");
 
+    // Send user e-mail, if specified
+    // Send e-mail to client if public update & email is setup
+    if(isset($_POST['send_email']) && !empty($config_smtp_host)){
+
+        $mail = new PHPMailer(true);
+
+        try{
+          //Mail Server Settings
+          $mail->SMTPDebug = 2;                                       // Enable verbose debug output
+          $mail->isSMTP();                                            // Set mailer to use SMTP
+          $mail->Host       = $config_smtp_host;                      // Specify main and backup SMTP servers
+          $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+          $mail->Username   = $config_smtp_username;                  // SMTP username
+          $mail->Password   = $config_smtp_password;                  // SMTP password
+          $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
+          $mail->Port       = $config_smtp_port;                      // TCP port to connect to
+
+          //Recipients
+          $mail->setFrom($config_ticket_from_email, $config_ticket_from_name);
+          $mail->addAddress("$email", "$name");       // Add a recipient
+
+          // Content
+          $mail->isHTML(true);                                        // Set email format to HTML
+
+          $mail->Subject = "Your new $session_company_name ITFlow account";
+          $mail->Body    = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: $config_base_url<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+          $mail->send();
+        }
+        catch(Exception $e){
+          echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+    }
+    //End Mail IF Try-Catch
+
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Create', log_description = '$session_name created user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "User <strong>$user_name</strong> created";
+    $_SESSION['alert_message'] = "User <strong>$name</strong> created";
     
     header("Location: users.php");
 
@@ -6327,7 +6361,7 @@ if(isset($_POST['add_ticket_reply'])){
 
     validateTechRole();
 
-  // HTML Purifier
+    // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
     $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);

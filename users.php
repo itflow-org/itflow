@@ -142,6 +142,11 @@
     <?php include("pagination.php"); ?>
   </div>
 </div>
+<script>
+    function generatePassword(){
+        document.getElementById("password").value = "<?php echo keygen() ?>"
+    }
+</script>
 
 <?php
   
