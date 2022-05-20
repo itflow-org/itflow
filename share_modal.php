@@ -27,6 +27,9 @@
                     document.getElementById("share_link_header").hidden = false;
                     document.getElementById("share_link").hidden = false;
                     document.getElementById("share_link").value = response;
+
+                    // Copy link to clipboard
+                    navigator.clipboard.writeText(response);
                 }
             );
         }
