@@ -37,9 +37,12 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
               </div>
-              <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Enter a Password" autocomplete="new-password" required>
+              <input type="password" class="form-control" data-toggle="password" name="password" id="password" placeholder="Enter a Password" autocomplete="new-password" required>
               <div class="input-group-append">
                 <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+              </div>
+              <div class="input-group-append">
+                <span class="btn btn-default"><i class="fa fa-fw fa-question" onclick="generatePassword()"></i></span>
               </div>
             </div>
           </div>
@@ -86,6 +89,11 @@
           <div class="form-group">
             <label>Avatar</label>
             <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
+          </div>
+
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" name="send_email" value="" checked/>
+            <label class="form-check-label">Send user e-mail with login details?</label>
           </div>
 
         </div>
