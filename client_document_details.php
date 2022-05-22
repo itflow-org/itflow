@@ -37,23 +37,18 @@ $document_folder_id = $row['document_folder_id'];
   </li>
   <?php if($folder_id > 0){ ?>
   <li class="breadcrumb-item">
-    <a href="client.php?client_id=<?php echo $client_id; ?>&tab=documents&folder_id=<?php echo $folder_id; ?>"><?php echo $folder_name; ?></a>
+    <a href="client.php?client_id=<?php echo $client_id; ?>&tab=documents&folder_id=<?php echo $folder_id; ?>"><i class="fas fa-folder-open"></i> <?php echo $folder_name; ?></a>
   </li>
   <?php } ?>
-  <li class="breadcrumb-item active"><?php echo "$document_name"; ?></li>
+  <li class="breadcrumb-item active"><i class="fas fa-file"></i> <?php echo "$document_name"; ?></li>
 </ol>
 
 <div class="row">
 	
   <div class="col-md-9">
 		<div class="card">
-		  <div class="card-header">
-		    <h3 class="card-title"><?php echo $document_name; ?></h3>
-		    <div class="card-tools">
-		      <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#editDocumentModal">Edit</button>
-		    </div>
-		  </div>
 		  <div class="card-body">
+        <h3><?php echo $document_name; ?></h3>
         <?php echo $document_content; ?>
       </div>
     </div>
@@ -61,11 +56,17 @@ $document_folder_id = $row['document_folder_id'];
 
 	<div class="col-md-3">
     <div class="card bg-light">
-      <div class="card-header">
-        <h3 class="card-title">Related</h3>
-      </div>
       <div class="card-body">
-        kljlljhk
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>"><i class="fas fa-edit"></i> Edit</button>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#editDocumentModal"><i class="fas fa-copy"></i> Copy</button>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)"><i class="fas fa-share"></i> Share</button>
+        <hr>
+        <h6><i class="fas fa-paperclip"></i> Files</h6>
+        <h6><i class="fas fa-key"></i> Passwords</h6>
+        <h6><i class="fas fa-users"></i> Contacts</h6>
+        <h6><i class="fas fa-laptop"></i> Assets</h6>
+        <h6><i class="fas fa-cube"></i> Software</h6>
+        <h6><i class="fas fa-building"></i> Vendors</h6>
         
       </div>
     </div>
@@ -73,3 +74,10 @@ $document_folder_id = $row['document_folder_id'];
 	</div>
 
 </div>
+
+<?php 
+
+include("client_document_edit_modal.php");
+include("share_modal.php"); 
+
+?>
