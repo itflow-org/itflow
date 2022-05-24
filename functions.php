@@ -352,6 +352,12 @@ function encryptLoginEntry($login_password_cleartext){
 
 // Get domain expiration date
 function getDomainExpirationDate($name){
+
+  // Only run if we think the domain is valid
+  if(!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+    return '0000-00-00';
+  }
+
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, "https://itflow-whois.herokuapp.com/$name");
   curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
@@ -372,6 +378,28 @@ function getDomainExpirationDate($name){
   return '0000-00-00';
 }
 
+// Get domain general info (whois + NS/A/MX records)
+function getDomainRecords($name){
+
+  $records = array();
+
+  // Only run if we think the domain is valid
+  if(!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+    $records['a'] = '';
+    $records['ns'] = '';
+    $records['mx'] = '';
+    $records['whois'] = '';
+    return $records;
+  }
+
+  $domain = escapeshellarg($name);
+  $records['a'] = substr(trim(strip_tags(shell_exec("dig +short $domain"))), 0, 254);
+  $records['ns'] = substr(trim(strip_tags(shell_exec("dig +short NS $domain"))), 0, 254);
+  $records['mx'] = substr(trim(strip_tags(shell_exec("dig +short MX $domain"))), 0, 254);
+  $records['whois'] = substr(trim(strip_tags(shell_exec("whois -H $domain | sed 's/   //g' | head -30"))), 0, 254);
+
+  return $records;
+}
 
 function strto_AZaz09($string){
   $string = ucwords(strtolower($string));

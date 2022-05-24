@@ -5967,26 +5967,17 @@ if(isset($_POST['add_domain'])){
         $expire = "0000-00-00";
     }
 
-    // NS, MX and WHOIS data
-    if(filter_var($name, FILTER_VALIDATE_DOMAIN) && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')){
-        $domain = escapeshellarg($name);
-        $a = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short $domain")));
-        $ns = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short NS $domain")));
-        $mx = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short MX $domain")));
-        $whois = trim(strip_tags(mysqli_real_escape_string($mysqli,shell_exec("whois -H $domain | sed 's/   //g' | head -30"))));
-
-        // Get domain expiry date - if not specified
-        if($expire == '0000-00-00'){
-            $expire = getDomainExpirationDate($name);
-        }
-
+    // Get domain expiry date - if not specified
+    if($expire == '0000-00-00'){
+        $expire = getDomainExpirationDate($name);
     }
-    else{
-        $a = '';
-        $ns = '';
-        $mx = '';
-        $whois = '';
-    }
+
+    // NS, MX, A and WHOIS records/data
+    $records = getDomainRecords($name);
+    $a = mysqli_real_escape_string($mysqli, $records['a']);
+    $ns = mysqli_real_escape_string($mysqli, $records['ns']);
+    $mx = mysqli_real_escape_string($mysqli, $records['mx']);
+    $whois = mysqli_real_escape_string($mysqli, $records['whois']);
 
     // Add domain record
     mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_client_id = $client_id, company_id = $session_company_id");
@@ -6035,24 +6026,18 @@ if(isset($_POST['edit_domain'])){
     $webhost = intval($_POST['webhost']);
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
     if(empty($expire)){
-      $expire = "0000-00-00";
+        $expire = "0000-00-00";
     }
 
-    // A, NS, MX and WHOIS data
-    if(filter_var($name, FILTER_VALIDATE_DOMAIN) && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')){
-        $domain = escapeshellarg($name);
-        $a = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short $domain")));
-        $ns = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short NS $domain")));
-        $mx = strip_tags(mysqli_real_escape_string($mysqli,shell_exec("dig +short MX $domain")));
-        $whois = trim(strip_tags(mysqli_real_escape_string($mysqli,shell_exec("whois -H $domain | sed 's/   //g' | head -30"))));
-        $expire = getDomainExpirationDate($name);
-    }
-    else{
-        $a = '';
-        $ns = '';
-        $mx = '';
-        $whois = '';
-    }
+    // Update domain expiry date
+    $expire = getDomainExpirationDate($name);
+
+    // Update NS, MX, A and WHOIS records/data
+    $records = getDomainRecords($name);
+    $a = mysqli_real_escape_string($mysqli, $records['a']);
+    $ns = mysqli_real_escape_string($mysqli, $records['ns']);
+    $mx = mysqli_real_escape_string($mysqli, $records['mx']);
+    $whois = mysqli_real_escape_string($mysqli, $records['whois']);
 
     mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois' WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
@@ -6067,7 +6052,7 @@ if(isset($_POST['edit_domain'])){
 
 if(isset($_GET['delete_domain'])){
 
-      validateAdminRole();
+    validateAdminRole();
 
     $domain_id = intval($_GET['delete_domain']);
 
