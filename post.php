@@ -1820,6 +1820,7 @@ if(isset($_GET['delete_vendor'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $vendor_name = $row['vendor_name'];
+    $client_id = intval($row['vendor_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
 
