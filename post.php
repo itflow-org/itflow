@@ -1325,7 +1325,7 @@ if(isset($_POST['add_client'])){
     if(!empty($contact) || !empty($title) || !empty($contact_phone) || !empty($contact_mobile) || !empty($contact_email)){
         mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$contact', contact_title = '$title', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_client_id = $client_id, company_id = $session_company_id");
         
-        //Update Primay contact in clients
+        //Update Primary contact in clients
         $contact_id = mysqli_insert_id($mysqli);
         mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");
     
@@ -1339,6 +1339,42 @@ if(isset($_POST['add_client'])){
             $tag = intval($tag);
             mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
         }
+    }
+
+    //Add domain to domains/certificates
+    if(!empty($website) && filter_var($website, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)){
+        // Get domain expiry date
+        $expire = getDomainExpirationDate($website);
+
+        // NS, MX, A and WHOIS records/data
+        $records = getDomainRecords($website);
+        $a = mysqli_real_escape_string($mysqli, $records['a']);
+        $ns = mysqli_real_escape_string($mysqli, $records['ns']);
+        $mx = mysqli_real_escape_string($mysqli, $records['mx']);
+        $whois = mysqli_real_escape_string($mysqli, $records['whois']);
+
+        // Add domain record
+        mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$website', domain_registrar = '0',  domain_webhost = '0', domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_client_id = $client_id, company_id = $session_company_id");
+
+        //Extended Logging
+        $extended_log_description .= ", domain added";
+
+        // Get inserted ID (for linking certificate, if exists)
+        $domain_id = mysqli_insert_id($mysqli);
+
+        // Get SSL cert for domain (if exists)
+        $certificate = getSSL($website);
+        if($certificate['success'] == "TRUE"){
+            $expire = mysqli_real_escape_string($mysqli, $certificate['expire']);
+            $issued_by = mysqli_real_escape_string($mysqli, $certificate['issued_by']);
+            $public_key = mysqli_real_escape_string($mysqli, $certificate['public_key']);
+
+            mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$website', certificate_domain = '$website', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
+
+            //Extended Logging
+            $extended_log_description .= ", SSL certificate added";
+        }
+
     }
 
     //Logging
@@ -1542,7 +1578,7 @@ if(isset($_GET['delete_client'])){
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Client $client_name deleted along with all associated data";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]); 
+    header("Location: clients.php");
 }
 
 if(isset($_POST['add_calendar'])){
@@ -5988,25 +6024,15 @@ if(isset($_POST['add_domain'])){
     // Get inserted ID (for linking certificate, if exists)
     $domain_id = mysqli_insert_id($mysqli);
 
-    // Get SSL/TSL certificate (using verify peer false to allow for self-signed certs) for domain on default port
-    $socket = "ssl://$name:443";
-    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => TRUE, "verify_peer" => FALSE,)));
-    $read = stream_socket_client($socket, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $get);
+    // Get SSL cert for domain (if exists)
+    $certificate = getSSL($name);
+    if($certificate['success'] == "TRUE"){
+      $expire = mysqli_real_escape_string($mysqli, $certificate['expire']);
+      $issued_by = mysqli_real_escape_string($mysqli, $certificate['issued_by']);
+      $public_key = mysqli_real_escape_string($mysqli, $certificate['public_key']);
 
-    // If the socket connected
-    if($read){
-      $cert = stream_context_get_params($read);
-      $cert_public_key_obj = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
-      openssl_x509_export($cert['options']['ssl']['peer_certificate'], $export);
-
-      if($cert_public_key_obj){
-        $expire =  mysqli_real_escape_string($mysqli, date('Y-m-d', $cert_public_key_obj['validTo_time_t']));
-        $issued_by = mysqli_real_escape_string($mysqli, strip_tags($cert_public_key_obj['issuer']['O']));
-        $public_key = mysqli_real_escape_string($mysqli, $export);
-
-        mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$name', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
-        $extended_log_description = ', with associated SSL cert';
-      }
+      mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$name', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
+      $extended_log_description = ', with associated SSL cert';
     }
 
     // Logging

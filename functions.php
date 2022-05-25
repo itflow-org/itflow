@@ -401,6 +401,43 @@ function getDomainRecords($name){
   return $records;
 }
 
+// Used to automatically attempt to get SSL certificates as part of adding domains
+// The logic for the fetch (sync) button on the client_certificates page is in ajax.php, and allows ports other than 443
+function getSSL($name){
+
+  $certificate = array();
+  $certificate['success'] = FALSE;
+
+  // Only run if we think the domain is valid
+  if(!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+    $certificate['expire'] = '';
+    $certificate['issued_by'] = '';
+    $certificate['public_key'] = '';
+    return $certificate;
+  }
+
+  // Get SSL/TSL certificate (using verify peer false to allow for self-signed certs) for domain on default port
+  $socket = "ssl://$name:443";
+  $get = stream_context_create(array("ssl" => array("capture_peer_cert" => TRUE, "verify_peer" => FALSE,)));
+  $read = stream_socket_client($socket, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $get);
+
+  // If the socket connected
+  if($read){
+    $cert = stream_context_get_params($read);
+    $cert_public_key_obj = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
+    openssl_x509_export($cert['options']['ssl']['peer_certificate'], $export);
+
+    if($cert_public_key_obj){
+      $certificate['success'] = TRUE;
+      $certificate['expire'] = date('Y-m-d', $cert_public_key_obj['validTo_time_t']);
+      $certificate['issued_by'] = strip_tags($cert_public_key_obj['issuer']['O']);
+      $certificate['public_key'] = $export;
+    }
+  }
+
+  return $certificate;
+}
+
 function strto_AZaz09($string){
   $string = ucwords(strtolower($string));
   
