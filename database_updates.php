@@ -273,11 +273,19 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.3'");
   }
 
-  //if(CURRENT_DATABASE_VERSION == '0.1.3'){
+  if(CURRENT_DATABASE_VERSION == '0.1.3'){
     // Insert queries here required to update to DB version 0.1.4
+    mysqli_query($mysqli, "ALTER TABLE assets ADD asset_status VARCHAR(200) NULL AFTER asset_mac");
+
+    ///Then, update the database to the next sequential version
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.4'");
+  }
+
+  //if(CURRENT_DATABASE_VERSION == '0.1.4'){
+    // Insert queries here required to update to DB version 0.1.5
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.4'");
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.5'");
   //}
 
   // etc
