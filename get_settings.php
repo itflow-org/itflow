@@ -921,10 +921,11 @@ $document_types_array = array(
 );
 
 $asset_status_array = array(
-    'In Storage',
-    'In Use',
-    'In Service',
-    'Retired' 
+    'Ready to Deploy',
+    'Deployed',
+    'Out for Repair',
+    'Lost/Stolen',
+    'Retired'
 );
 
 ?>
