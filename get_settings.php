@@ -86,7 +86,6 @@ $config_currency_format = "US_en";
 // Theme
 $config_enable_dark_mode = "dark_mode";
 
-
 $colors_array = array(
     'green',
     'olive',
@@ -919,6 +918,13 @@ $document_types_array = array(
     '0'=>'Document',
     '1'=>'Template',
     '2'=>'Global Template'
+);
+
+$asset_status_array = array(
+    'In Storage',
+    'In Use',
+    'In Service',
+    'Retired' 
 );
 
 ?>

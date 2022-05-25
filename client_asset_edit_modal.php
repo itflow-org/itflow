@@ -162,6 +162,20 @@
               </div>
 
               <div class="form-group">
+                <label>Status</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
+                  </div>
+                  <select class="form-control select2" name="status">
+                    <?php foreach($asset_status_array as $asset_status_select) { ?>
+                    <option <?php if($asset_status_select == $asset_status) { echo "selected"; } ?>><?php echo $asset_status_select; ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
                 <label>Network</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
