@@ -6,6 +6,7 @@ header('Pragma: no-cache');
 
 include("guest_header.php"); ?>
 
+<br>
 <h1> <?php echo $config_app_name ?> Guest sharing </h1>
 <hr>
 
@@ -62,11 +63,12 @@ if($item_type == "Document"){
     $doc_title = $doc_row['document_name'];
     $doc_content = $doc_row['document_content'];
 
-    echo "<h3>$doc_title has been shared with you</h3>";
+    echo "<h3>A document has been shared with you</h3>";
     if(!empty($item_note)){
-        echo "<p class=\"lead\">$item_note</p>";
+        echo "<p class=\"lead\">Note: <i>$item_note</i></p>";
     }
     echo "<br>";
+    echo "<h2>$doc_title</h2>";
     echo $doc_content;
 
     // Update document view count
@@ -89,11 +91,11 @@ elseif($item_type == "File"){
 
     $file_name = $file_row['file_name'];
 
-    echo "<h3>$file_name has been shared with you</h3>";
+    echo "<h3>A file has been shared with you</h3>";
     if(!empty($item_note)){
-        echo "<p class=\"lead\">$item_note</p>";
+      echo "<p class=\"lead\">Note: <i>$item_note</i></p>";
     }
-    echo "<a href=\"guest_download_file.php?id=$item_id&key=$item_key\" download=\"$file_name;\">Download</a>";
+    echo "<a href=\"guest_download_file.php?id=$item_id&key=$item_key\" download=\"$file_name;\">Download $file_name</a>";
 
 
 }
@@ -117,10 +119,11 @@ elseif($item_type == "Login"){
     $login_otp = $login_row['login_otp_secret'];
     $login_notes = $login_row['login_note'];
 
-    echo "<h3>$login_name has been shared with you</h3>";
+    echo "<h3>A login entry has been shared with you</h3>";
     if(!empty($item_note)){
-        echo "<p class=\"lead\">$item_note</p>";
+      echo "<p class=\"lead\">Note: <i>$item_note</i></p>";
     }
+    echo "<br>";
 
     echo "<p>Name: $login_name</p>";
     echo "<p>URL: $login_uri</p>";
@@ -138,6 +141,6 @@ elseif($item_type == "Login"){
 
 }
 
-echo "<hr>";
-
+echo "<br><hr>";
+echo $config_app_name;
 include("guest_footer.php");
