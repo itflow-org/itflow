@@ -118,6 +118,23 @@ while($row = mysqli_fetch_array($sql_companies)){
 
     }
 
+    // REFRESH DOMAIN WHOIS DATA
+
+    // Get the oldest updated domain (MariaDB shows NULLs first when ordering by default)
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT domain_id, domain_name FROM `domains` ORDER BY domain_updated_at LIMIT 1"));
+    $domain_id = $row['domain_id'];
+    $domain_name = $row['domain_name'];
+
+    $expire = getDomainExpirationDate($domain_name);
+    $records = getDomainRecords($domain_name);
+    $a = mysqli_real_escape_string($mysqli, $records['a']);
+    $ns = mysqli_real_escape_string($mysqli, $records['ns']);
+    $mx = mysqli_real_escape_string($mysqli, $records['mx']);
+    $whois = mysqli_real_escape_string($mysqli, $records['whois']);
+
+    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$domain_name',  domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
+
+
     // GET NOTIFICATIONS
 
     // DOMAINS EXPIRING
