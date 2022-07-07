@@ -143,6 +143,7 @@ include("client_domain_add_modal.php");
                 document.getElementById("editDomainIP").value = domain.domain_ip;
                 document.getElementById("editNameServers").value = domain.domain_name_servers;
                 document.getElementById("editMailServers").value = domain.domain_mail_servers;
+                document.getElementById("editTxtRecords").value = domain.domain_txt;
                 document.getElementById("editRawWhois").value = domain.domain_raw_whois;
 
                 /* DROPDOWNS */

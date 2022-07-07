@@ -130,9 +130,10 @@ while($row = mysqli_fetch_array($sql_companies)){
     $a = mysqli_real_escape_string($mysqli, $records['a']);
     $ns = mysqli_real_escape_string($mysqli, $records['ns']);
     $mx = mysqli_real_escape_string($mysqli, $records['mx']);
+    $txt = mysqli_real_escape_string($mysqli, $records['txt']);
     $whois = mysqli_real_escape_string($mysqli, $records['whois']);
 
-    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$domain_name',  domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
+    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$domain_name',  domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
 
 
     // REFRESH SSL CERTIFICATES
