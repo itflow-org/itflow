@@ -88,10 +88,9 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-crown"></i></span>
                   </div>
-                  <textarea class="form-control" id="editNameServers" name="name_servers" disabled></textarea>
+                  <textarea class="form-control" id="editNameServers" name="name_servers" rows="1" disabled></textarea>
                 </div>
               </div>
-
 
               <div class="form-group">
                 <label>MX Records</label>
@@ -104,12 +103,22 @@
               </div>
 
               <div class="form-group">
+                <label>TXT Records</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-check-double"></i></span>
+                  </div>
+                  <textarea class="form-control" id="editTxtRecords" name="txt_records" rows="1" disabled></textarea>
+                </div>
+              </div>
+
+              <div class="form-group">
                 <label>Raw WHOIS</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-search-plus"></i></span>
                   </div>
-                  <textarea class="form-control" id="editRawWhois" name="raw_whois" rows="8" disabled></textarea>
+                  <textarea class="form-control" id="editRawWhois" name="raw_whois" rows="6" disabled></textarea>
                 </div>
               </div>
 

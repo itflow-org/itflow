@@ -6015,10 +6015,11 @@ if(isset($_POST['add_domain'])){
     $a = mysqli_real_escape_string($mysqli, $records['a']);
     $ns = mysqli_real_escape_string($mysqli, $records['ns']);
     $mx = mysqli_real_escape_string($mysqli, $records['mx']);
+    $txt = mysqli_real_escape_string($mysqli, $records['txt']);
     $whois = mysqli_real_escape_string($mysqli, $records['whois']);
 
     // Add domain record
-    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_client_id = $client_id, company_id = $session_company_id");
 
 
     // Get inserted ID (for linking certificate, if exists)
@@ -6065,9 +6066,10 @@ if(isset($_POST['edit_domain'])){
     $a = mysqli_real_escape_string($mysqli, $records['a']);
     $ns = mysqli_real_escape_string($mysqli, $records['ns']);
     $mx = mysqli_real_escape_string($mysqli, $records['mx']);
+    $txt = mysqli_real_escape_string($mysqli, $records['txt']);
     $whois = mysqli_real_escape_string($mysqli, $records['whois']);
 
-    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois' WHERE domain_id = $domain_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");

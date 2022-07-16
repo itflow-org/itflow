@@ -396,6 +396,7 @@ function getDomainRecords($name){
   $records['a'] = substr(trim(strip_tags(shell_exec("dig +short $domain"))), 0, 254);
   $records['ns'] = substr(trim(strip_tags(shell_exec("dig +short NS $domain"))), 0, 254);
   $records['mx'] = substr(trim(strip_tags(shell_exec("dig +short MX $domain"))), 0, 254);
+  $records['txt'] = substr(trim(strip_tags(shell_exec("dig +short TXT $domain"))), 0, 254);
   $records['whois'] = substr(trim(strip_tags(shell_exec("whois -H $domain | sed 's/   //g' | head -30"))), 0, 254);
 
   return $records;

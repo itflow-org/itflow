@@ -281,11 +281,19 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.4'");
   }
 
-  //if(CURRENT_DATABASE_VERSION == '0.1.4'){
+  if(CURRENT_DATABASE_VERSION == '0.1.4'){
     // Insert queries here required to update to DB version 0.1.5
+    mysqli_query($mysqli, "ALTER TABLE `domains` ADD `domain_txt` TEXT NULL DEFAULT NULL AFTER `domain_mail_servers`");
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.5'");
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.5'");
+  }
+
+  //if(CURRENT_DATABASE_VERSION == '0.1.5'){
+  // Insert queries here required to update to DB version 0.1.6
+
+  // Then, update the database to the next sequential version
+  // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.6'");
   //}
 
   // etc
