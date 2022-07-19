@@ -47,6 +47,9 @@ while($row = mysqli_fetch_array($sql_companies)){
 
   if($config_enable_cron == 1){
 
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Cron', log_action = 'Started', log_description = 'Cron started for $company_name', company_id = $company_id");
+
     if($config_backup_enable == 1){
       // DATABASE BACKUP
       // This needs to be set to the full file system path or else when cron runs php it will break cron.php and cron will not run properly
@@ -470,7 +473,7 @@ while($row = mysqli_fetch_array($sql_companies)){
     //Send Alert to inform Cron was run
     mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron.php successfully executed', notification_timestamp = NOW(), company_id = $company_id");
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Cron', log_action = 'Executed', log_description = 'Cron executed successfully for $company_name', company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Cron', log_action = 'Ended', log_description = 'Cron executed successfully for $company_name', company_id = $company_id");
   } //End Cron Check
 
 } //End Company Loop through
