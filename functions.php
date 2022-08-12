@@ -58,16 +58,19 @@ function get_user_agent() {
 }
 
 function get_ip() {
+   
   if(defined("CONST_GET_IP_METHOD")){
     if(CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR"){
       $ip = getenv('HTTP_X_FORWARDED_FOR');
     }
+  
     else{
-      $ip = getenv('REMOTE_ADDR');
+     
+      $ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
     }
   }
   else{
-    $ip = getenv('REMOTE_ADDR');
+    $ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
   }
 
   return $ip;
