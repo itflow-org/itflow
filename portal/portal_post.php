@@ -147,3 +147,15 @@ if(isset($_GET['logout'])){
 
   header('Location: login.php');
 }
+
+if(isset($_POST['edit_profile'])){
+  $new_password = $_POST['new_password'];
+  if(!empty($new_password)){
+    $password_hash = password_hash($new_password, PASSWORD_DEFAULT);
+    mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_id = '$session_contact_id' AND contact_client_id = '$session_client_id'");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Client contact $session_contact_name modified their profile/password.', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_created_at = NOW(), log_client_id = $session_client_id, company_id = $session_company_id");
+  }
+  header('Location: index.php');
+}
