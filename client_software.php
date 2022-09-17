@@ -21,9 +21,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
   <div class="card-header py-2">
-    <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube"></i> Software</h3>
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube"></i> Licenses</h3>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSoftwareModal"><i class="fas fa-fw fa-plus"></i> New Software</button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSoftwareModal"><i class="fas fa-fw fa-plus"></i> New License</button>
     </div>
   </div>
   <div class="card-body">
@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php echo ucwords(strip_tags($_GET['tab'])); ?>">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Licenses">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>

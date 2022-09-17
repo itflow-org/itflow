@@ -66,7 +66,7 @@
           <a href="?client_id=<?php echo $client_id; ?>&tab=software" class="nav-link <?php if($_GET['tab'] == "software") { echo "active"; } ?>">
             <i class="nav-icon fas fa-cube"></i>
             <p>
-              Software
+              Licenses
               <?php 
               if($num_software > 0){ ?>
               <span class="right badge badge-light"><?php echo $num_software; ?></span>
@@ -79,7 +79,7 @@
           <a href="?client_id=<?php echo $client_id; ?>&tab=logins" class="nav-link <?php if($_GET['tab'] == "logins") { echo "active"; } ?>">
             <i class="nav-icon fas fa-key"></i>
             <p>
-              Logins
+              Passwords
               <?php 
               if($num_logins > 0){ ?>
               <span class="right badge badge-light"><?php echo $num_logins; ?></span>
