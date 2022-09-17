@@ -39,13 +39,6 @@
         </li>
 
         <li class="nav-header mt-2">SETTINGS</li>
-        
-        <li class="nav-item">
-          <a href="settings-general.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-general.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-cog"></i>
-            <p>General</p>
-          </a> 
-        </li>
 
         <li class="nav-item">
           <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-mail.php") { echo "active"; } ?>" 

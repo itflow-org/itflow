@@ -925,7 +925,6 @@ if(isset($_POST['add_company_settings'])){
   mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code', company_created_at = NOW()");
 
   $company_id = mysqli_insert_id($mysqli);
-  $config_base_url = mysqli_real_escape_string($mysqli,$_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']));
 
   mkdir_missing("uploads/clients/$company_id");
   file_put_contents("uploads/clients/$company_id/index.php", "");
@@ -982,7 +981,7 @@ if(isset($_POST['add_company_settings'])){
   mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company_id");
 
   $latest_database_version = LATEST_DATABASE_VERSION;
-  mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_current_database_version = '$latest_database_version',  config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_recurring_auto_send_invoice = 1, config_default_net_terms = 30, config_send_invoice_reminders = 1, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
+  mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_current_database_version = '$latest_database_version',  config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_recurring_auto_send_invoice = 1, config_default_net_terms = 30, config_send_invoice_reminders = 1, config_enable_cron = 0, config_ticket_next_number = 1");
 
   //Create Some Data
 

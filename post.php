@@ -498,7 +498,6 @@ if(isset($_POST['add_company'])){
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code'");
 
     $company_id = mysqli_insert_id($mysqli);
-    $config_base_url = mysqli_real_escape_string($mysqli,$_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']));
     $current_database_version = CURRENT_DATABASE_VERSION;
     
     mkdir("uploads/clients/$company_id");
@@ -551,7 +550,7 @@ if(isset($_POST['add_company'])){
     //Set User Company Permissions
     mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $session_user_id, company_id = $company_id");
 
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_current_database_version = '$current_database_version', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 1, config_enable_cron = 0, config_ticket_next_number = 1, config_base_url = '$config_base_url'");
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_current_database_version = '$current_database_version', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_recurring_auto_send_invoice = 1, config_default_net_terms = 7, config_send_invoice_reminders = 1, config_enable_cron = 0, config_ticket_next_number = 1");
 
     //Create Some Data
 
@@ -799,23 +798,6 @@ if(isset($_POST['verify'])){
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "IN-VALID!";
     } 
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_POST['edit_general_settings'])){
-
-    validateAdminRole();
-
-    $config_base_url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_base_url'])));
-
-    mysqli_query($mysqli,"UPDATE settings SET config_base_url = '$config_base_url' WHERE company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified general settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "General settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

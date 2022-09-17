@@ -4,9 +4,6 @@
 $sql_settings = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_settings);
 
-// General
-$config_base_url = $row['config_base_url'];
-
 // Database version
 DEFINE("CURRENT_DATABASE_VERSION", $row['config_current_database_version']);
 

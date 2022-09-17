@@ -318,9 +318,16 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
 
   //if(CURRENT_DATABASE_VERSION == '0.1.8'){
   // Insert queries here required to update to DB version 0.1.9
+    mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_base_url`");
+  // Then, update the database to the next sequential version
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.9'");
+  //}
+
+  //if(CURRENT_DATABASE_VERSION == '0.1.9'){
+  // Insert queries here required to update to DB version 0.2.0
 
   // Then, update the database to the next sequential version
-  // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.9'");
+  // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.0'");
   //}
 
 }
