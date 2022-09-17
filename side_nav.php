@@ -96,13 +96,6 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a href="campaigns.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "campaigns.php" || basename($_SERVER["PHP_SELF"]) == "campaign.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-envelope"></i>
-            <p>Campaigns</p>
-          </a>
-        </li>
-
         <?php } ?>
 
         <?php if($session_user_role == 1 OR $session_user_role == 3 && $config_module_enable_accounting == 1){ ?>

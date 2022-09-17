@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.5.16-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.5.17-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: itflow_dev
 -- ------------------------------------------------------
--- Server version	10.5.16-MariaDB-1:10.5.16+maria~focal
+-- Server version	10.5.17-MariaDB-1:10.5.17+maria~ubu2004
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -150,58 +150,6 @@ CREATE TABLE `calendars` (
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`calendar_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `campaign_messages`
---
-
-DROP TABLE IF EXISTS `campaign_messages`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `campaign_messages` (
-  `message_id` int(11) NOT NULL AUTO_INCREMENT,
-  `message_hash` varchar(250) NOT NULL,
-  `message_ip` varchar(200) DEFAULT NULL,
-  `message_referer` varchar(250) DEFAULT NULL,
-  `message_user_agent` varchar(250) DEFAULT NULL,
-  `message_queued_at` datetime DEFAULT NULL,
-  `message_sent_at` datetime DEFAULT NULL,
-  `message_delivered_at` datetime DEFAULT NULL,
-  `message_bounced_at` datetime DEFAULT NULL,
-  `message_opened_at` datetime DEFAULT NULL,
-  `message_clicked_at` datetime DEFAULT NULL,
-  `message_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `message_client_tag_id` int(11) NOT NULL,
-  `message_contact_id` int(11) NOT NULL,
-  `message_campaign_id` int(11) NOT NULL,
-  `company_id` int(11) NOT NULL,
-  PRIMARY KEY (`message_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `campaigns`
---
-
-DROP TABLE IF EXISTS `campaigns`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `campaigns` (
-  `campaign_id` int(11) NOT NULL AUTO_INCREMENT,
-  `campaign_name` varchar(255) NOT NULL,
-  `campaign_subject` varchar(255) NOT NULL,
-  `campaign_from_name` varchar(200) NOT NULL,
-  `campaign_from_email` varchar(200) NOT NULL,
-  `campaign_content` longtext NOT NULL,
-  `campaign_status` varchar(20) NOT NULL,
-  `campaign_scheduled_at` datetime DEFAULT NULL,
-  `campaign_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `campaign_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `campaign_archived_at` datetime DEFAULT NULL,
-  `company_id` int(11) NOT NULL,
-  PRIMARY KEY (`campaign_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1546,4 +1494,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-05-25 15:44:58
+-- Dump completed on 2022-09-17 16:34:13
