@@ -300,18 +300,27 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
   }
 
   if(CURRENT_DATABASE_VERSION == '0.1.6'){
-  // Insert queries here required to update to DB version 0.1.7
+    // Insert queries here required to update to DB version 0.1.7
     //Remove custom links
     mysqli_query($mysqli, "DROP TABLE custom_links");
-  // Then, update the database to the next sequential version
-  mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.7'");
+    // Then, update the database to the next sequential version
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.7'");
   }
 
-  //if(CURRENT_DATABASE_VERSION == '0.1.7'){
+  if(CURRENT_DATABASE_VERSION == '0.1.7'){
   // Insert queries here required to update to DB version 0.1.8
+    mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_backup_enable`");
+    mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_backup_path`");
 
   // Then, update the database to the next sequential version
-  // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.8'");
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.8'");
+  }
+
+  //if(CURRENT_DATABASE_VERSION == '0.1.8'){
+  // Insert queries here required to update to DB version 0.1.9
+
+  // Then, update the database to the next sequential version
+  // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.9'");
   //}
 
 }

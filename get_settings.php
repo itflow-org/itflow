@@ -70,10 +70,6 @@ $config_stripe_enable = $row['config_stripe_enable'];
 $config_stripe_publishable = $row['config_stripe_publishable'];
 $config_stripe_secret = $row['config_stripe_secret'];
 
-// Backups
-$config_backup_enable = $row['config_backup_enable'];
-$config_backup_path = $row['config_backup_path'];
-
 // Modules
 $config_module_enable_itdoc = $row['config_module_enable_itdoc'];
 $config_module_enable_ticketing = $row['config_module_enable_ticketing'];

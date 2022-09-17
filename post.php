@@ -1053,24 +1053,6 @@ if(isset($_POST['edit_integrations_settings'])){
 
 }
 
-if(isset($_POST['edit_backup_settings'])){
-
-    validateAdminRole();
-
-    $config_backup_enable = intval($_POST['config_backup_enable']);
-    $config_backup_path = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_backup_path'])));
-
-    mysqli_query($mysqli,"UPDATE settings SET config_backup_enable = $config_backup_enable, config_backup_path = '$config_backup_path' WHERE company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified backup settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "Backup Settings updated";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
 if(isset($_POST['edit_module_settings'])){
 
     validateAdminRole();

@@ -340,25 +340,6 @@ CREATE TABLE `contacts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `custom_links`
---
-
-DROP TABLE IF EXISTS `custom_links`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `custom_links` (
-  `custom_link_id` int(11) NOT NULL AUTO_INCREMENT,
-  `custom_link_name` varchar(250) NOT NULL,
-  `custom_link_icon` varchar(100) DEFAULT NULL,
-  `custom_link_url` varchar(250) NOT NULL,
-  `custom_link_order` int(11) DEFAULT NULL,
-  `custom_link_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `company_id` int(11) NOT NULL,
-  PRIMARY KEY (`custom_link_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `documents`
 --
 
@@ -1052,8 +1033,6 @@ CREATE TABLE `settings` (
   `config_stripe_secret` varchar(255) DEFAULT NULL,
   `config_azure_client_id` varchar(200) DEFAULT NULL,
   `config_azure_client_secret` varchar(200) DEFAULT NULL,
-  `config_backup_enable` tinyint(1) NOT NULL DEFAULT 0,
-  `config_backup_path` varchar(250) DEFAULT NULL,
   `config_module_enable_itdoc` tinyint(1) NOT NULL DEFAULT 1,
   `config_module_enable_accounting` tinyint(1) NOT NULL DEFAULT 1,
   `config_module_enable_ticketing` tinyint(1) NOT NULL DEFAULT 1,
@@ -1494,4 +1473,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-09-17 16:34:13
+-- Dump completed on 2022-09-17 17:15:06
