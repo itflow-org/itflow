@@ -191,47 +191,6 @@
 
         <?php } ?>
 
-        <?php
-        
-        $sql = mysqli_query($mysqli,"SELECT * FROM custom_links WHERE company_id = $session_company_id");
-
-        if(mysqli_num_rows($sql) > 0){
-
-        ?>
-
-        <li class="nav-header mt-2">EXTERNAL LINKS</li>
-
-        <?php
-          
-          $sql = mysqli_query($mysqli,"SELECT * FROM custom_links WHERE company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql)){
-
-            $custom_link_id = $row['custom_link_id'];
-            $custom_link_name = $row['custom_link_name'];
-            $custom_link_icon = $row['custom_link_icon'];
-            if(empty($custom_link_icon)){
-              $custom_link_icon_display = "far fa-circle";
-            }else{
-              $custom_link_icon_display = $custom_link_icon;
-            }
-            $custom_link_url = $row['custom_link_url'];
-
-          ?>
-          
-            <li class="nav-item">
-              <a href="//<?php echo $custom_link_url; ?>" target="_blank" class="nav-link">
-                <i class="nav-icon fas fa-<?php echo $custom_link_icon_display; ?>"></i>
-                <p><?php echo $custom_link_name; ?></p>
-              </a>
-            </li>
-
-          <?php
-
-          }
-          
-        }
-          ?>
-
       </ul>
     </nav>
     <!-- /.sidebar-menu -->

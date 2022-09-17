@@ -152,13 +152,6 @@
               <p>Modules</p>
           </a>
         </li>
-
-        <li class="nav-item">
-          <a href="custom_links.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "custom_links.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-link"></i>
-            <p>Custom Links</p>
-          </a>
-        </li>
       
         <li class="nav-item">
           <a href="logs.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "active"; } ?>">

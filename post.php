@@ -711,7 +711,6 @@ if(isset($_GET['delete_company'])){
     mysqli_query($mysqli,"DELETE FROM clients WHERE company_id = $company_id");
 
     mysqli_query($mysqli,"DELETE FROM contacts WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM custom_links WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM documents WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM domains WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM events WHERE company_id = $company_id");
@@ -2285,58 +2284,6 @@ if(isset($_GET['delete_tax'])){
 }
 
 //End Tax
-
-//Custom Link
-if(isset($_POST['add_custom_link'])){
-
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $icon = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['icon'])));
-    $url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['url'])));
-
-    mysqli_query($mysqli,"INSERT INTO custom_links SET custom_link_name = '$name', custom_link_icon = '$icon', custom_link_url = '$url', company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Custom Link', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "Custom link added";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_POST['edit_custom_link'])){
-
-    $custom_link_id = intval($_POST['custom_link_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $icon = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['icon'])));
-    $url = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['url'])));
-
-    mysqli_query($mysqli,"UPDATE custom_links SET custom_link_name = '$name', custom_link_icon = '$icon', custom_link_url = '$url' WHERE custom_link_id = $custom_link_id AND company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Custom Link', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "Custom link modified";
-    
-    header("Location: custom_links.php");
-
-}
-
-if(isset($_GET['delete_custom_link'])){
-    $custom_link_id = intval($_GET['delete_custom_link']);
-
-    mysqli_query($mysqli,"DELETE FROM custom_links WHERE custom_link_id = $custom_link_id AND company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Custom Link', log_action = 'Delete', log_description = '$custom_link_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "Custom link deleted";
-    $_SESSION['alert_type'] = "error";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-  
-}
-//End Custom Link
 
 if(isset($_GET['dismiss_notification'])){
 
