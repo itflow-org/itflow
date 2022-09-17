@@ -13,11 +13,8 @@
             <p>Back | <strong><?php echo $client_name; ?></strong></p>
           </a>
         </li>
-        <div class="sidebar-custom mb-2">
-          <div class="text-wrap"><?php echo $client_tags_display; ?></div>
-        </div>
 
-        <li class="nav-item">
+        <li class="nav-item mt-3">
           <a href="?client_id=<?php echo $client_id; ?>&tab=overview" class="nav-link <?php if($_GET['tab'] == "overview") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tachometer-alt"></i>
             <p>Overview</p>

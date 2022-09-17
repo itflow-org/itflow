@@ -69,9 +69,9 @@ if(isset($_GET['client_id'])){
     }
   
     $client_tag_id_array[] = $client_tag_id;
-    $client_tag_name_display_array[] = "<div class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon'></i> $client_tag_name</div> ";
+    $client_tag_name_display_array[] = "$client_tag_name ";
   }
-  $client_tags_display = implode('', $client_tag_name_display_array);
+  $client_tags_display = "<i class='fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2'></i> " . implode('', $client_tag_name_display_array);
 
   //Add up all the payments for the invoice and get the total amount paid to the invoice
   $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled'");
@@ -186,6 +186,14 @@ $location_phone = formatPhoneNumber($location_phone);
         if(!empty($client_website)){
         ?>
         <i class="fa fa-fw fa-globe text-secondary ml-1 mr-2 mb-2"></i> <a target="_blank" href="//<?php echo $client_website; ?>"><?php echo $client_website; ?></a>
+        <br>
+        <?php 
+        }
+        ?>
+        <?php
+        if(!empty($client_tag_name_display_array)){
+        ?>
+        <?php echo $client_tags_display; ?>
         <?php 
         }
         ?>
