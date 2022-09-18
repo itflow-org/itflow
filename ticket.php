@@ -176,7 +176,7 @@ if(isset($_GET['ticket_id'])){
     <a href="tickets.php">Tickets</a>
   </li>
   <li class="breadcrumb-item">
-    <a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a>
+    <a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
   </li>
   <li class="breadcrumb-item active">Ticket Details</li>
 </ol>

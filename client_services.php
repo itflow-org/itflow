@@ -1,3 +1,5 @@
+<?php include("inc_all_client.php"); ?>
+
 <?php
 
 if(!empty($_GET['sb'])){
@@ -5,9 +7,6 @@ if(!empty($_GET['sb'])){
 }else{
   $sb = "service_name";
 }
-
-// Current tab
-$tab = htmlentities($_GET['tab']);
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
@@ -34,9 +33,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
       <form autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <input type="hidden" name="tab" value="<?php echo $tab; ?>">
         <div class="input-group">
-          <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php echo ucwords($tab); ?>">
+          <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Services">
           <div class="input-group-append">
             <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
           </div>
@@ -176,3 +174,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 
 <?php include("client_service_add_modal.php"); ?>
+
+<?php include("footer.php"); ?>

@@ -1,3 +1,5 @@
+<?php include("inc_all_client.php"); ?>
+
 <?php
 
 if(!empty($_GET['sb'])){
@@ -5,9 +7,6 @@ if(!empty($_GET['sb'])){
 }else{
   $sb = "scheduled_ticket_subject";
 }
-
-// Current tab
-$tab = str_replace('-', ' ', htmlentities($_GET['tab']));
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
@@ -35,12 +34,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-      <input type="hidden" name="tab" value="<?php echo strip_tags($_GET['tab']); ?>">
       <div class="row">
 
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php echo ucwords($tab); ?>">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Scheduled Tickets">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -61,7 +59,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <th><a class="text-dark">Priority</a></th>
           <th><a class="text-dark">Frequency</a></th>
           <th><a class="text-dark">Next Run Date</a></th>
-
           <th class="text-center">Action</th>
         </tr>
         </thead>
@@ -118,3 +115,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     ?>
   </div>
 </div>
+
+<?php include("footer.php"); ?>

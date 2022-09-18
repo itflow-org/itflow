@@ -318,7 +318,7 @@
           <tr>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
             <td><?php echo $invoice_scope_display; ?></td>
-            <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=invoices"><?php echo $client_name; ?></a></td>
+            <td><a href="client_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
             <td><?php echo $invoice_date; ?></td>
             <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>

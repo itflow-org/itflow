@@ -1,3 +1,5 @@
+<?php include("inc_all_client.php"); ?>
+
 <link href='plugins/fullcalendar/main.min.css' rel='stylesheet' />
 
 <?php
@@ -92,3 +94,5 @@ while($row = mysqli_fetch_array($sql)){
     });
 
   </script>
+
+  <?php include("footer.php"); ?>

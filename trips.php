@@ -162,7 +162,7 @@
             if(empty($client_name)){
               $client_name_display = "-";
             }else{
-              $client_name_display = "<a href='client.php?client_id=$client_id&tab=trips'>$client_name</a>";
+              $client_name_display = "<a href='client_trips.php?client_id=$client_id'>$client_name</a>";
             }
             if($round_trip == 1){
               $round_trip_display = "<i class='fa fa-fw fa-sync-alt text-secondary'></i>";

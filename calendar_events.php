@@ -134,7 +134,7 @@ while($row = mysqli_fetch_array($sql)){
             $event_title = $row['vendor_name'];
             $event_start = $row['vendor_created_at'];
             
-            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'brown', url: 'client.php?client_id=$event_id&tab=vendors'},";
+            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'brown', url: 'client_vendors.php?client_id=$event_id'},";
           }
           ?>
 

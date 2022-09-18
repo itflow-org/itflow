@@ -163,7 +163,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $payment_date; ?></td>
             <td><?php echo $invoice_date; ?></td>
             <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
-            <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=payments"><?php echo $client_name; ?></a></td>
+            <td><a href="client_payments.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
             <td><?php echo $payment_method; ?></td>
             <td><?php echo $payment_reference_display; ?></td>

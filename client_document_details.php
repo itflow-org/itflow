@@ -1,3 +1,5 @@
+<?php include("inc_all_client.php"); ?>
+
 <?php 
 
 if(isset($_GET['folder_id'])){
@@ -30,14 +32,14 @@ $document_folder_id = $row['document_folder_id'];
     <a href="clients.php">Clients</a>
   </li>
   <li class="breadcrumb-item">
-    <a href="client.php?client_id=<?php echo $client_id; ?>&tab=overview"><?php echo $client_name; ?></a>
+    <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
   </li>
   <li class="breadcrumb-item">
-    <a href="client.php?client_id=<?php echo $client_id; ?>&tab=documents">Documents</a>
+    <a href="client_documents.php?client_id=<?php echo $client_id; ?>">Documents</a>
   </li>
   <?php if($folder_id > 0){ ?>
   <li class="breadcrumb-item">
-    <a href="client.php?client_id=<?php echo $client_id; ?>&tab=documents&folder_id=<?php echo $folder_id; ?>"><i class="fas fa-folder-open"></i> <?php echo $folder_name; ?></a>
+    <a href="client_documents.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>"><i class="fas fa-folder-open"></i> <?php echo $folder_name; ?></a>
   </li>
   <?php } ?>
   <li class="breadcrumb-item active"><i class="fas fa-file"></i> <?php echo "$document_name"; ?></li>
@@ -81,3 +83,5 @@ include("client_document_edit_modal.php");
 include("share_modal.php"); 
 
 ?>
+
+<?php include("footer.php"); ?>

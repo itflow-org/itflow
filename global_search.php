@@ -31,41 +31,41 @@ if(isset($_GET['query'])){
         <!-- Clients-->
 
         <div class="col-6">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h6 class="mt-1"><i class="fa fa-users"></i> Clients</h6>
-                </div>
-                <div class="card-body">
-                    <table class="table table-striped table-borderless">
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Phone</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-
-                        while($row = mysqli_fetch_array($sql_clients)){
-                            $client_id = $row['client_id'];
-                            $client_name = $row['client_name'];
-                            $location_phone = formatPhoneNumber($row['location_phone']);
-                            $client_website = $row['client_website'];
-
-                            ?>
-                            <tr>
-                                <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $client_name; ?></a></td>
-                                <td><?php echo $location_phone; ?></td>
-                            </tr>
-
-                            <?php
-                        }
-                        ?>
-
-                        </tbody>
-                    </table>
-                </div>
+          <div class="card mb-3">
+            <div class="card-header">
+                <h6 class="mt-1"><i class="fa fa-users"></i> Clients</h6>
             </div>
+            <div class="card-body">
+              <table class="table table-striped table-borderless">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <?php
+
+                while($row = mysqli_fetch_array($sql_clients)){
+                    $client_id = $row['client_id'];
+                    $client_name = $row['client_name'];
+                    $location_phone = formatPhoneNumber($row['location_phone']);
+                    $client_website = $row['client_website'];
+
+                    ?>
+                    <tr>
+                      <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                      <td><?php echo $location_phone; ?></td>
+                    </tr>
+
+                    <?php
+                }
+                ?>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
         <?php } ?>
@@ -75,53 +75,53 @@ if(isset($_GET['query'])){
         <!-- Contacts-->
 
         <div class="col-6">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h6 class="mt-1"><i class="fa fa-users"></i> Contacts</h6>
-                </div>
-                <div class="card-body">
-                    <table class="table table-striped table-borderless">
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Cell</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-
-                        while($row = mysqli_fetch_array($sql_contacts)){
-                            $contact_id = $row['contact_id'];
-                            $contact_name = $row['contact_name'];
-                            $contact_title = $row['contact_title'];
-                            $contact_phone = formatPhoneNumber($row['contact_phone']);
-                            $contact_extension = $row['contact_extension'];
-                            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-                            $contact_email = $row['contact_email'];
-                            $client_id = $row['client_id'];
-                            $client_name = $row['client_name'];
-                            $contact_department = $row['contact_department'];
-
-                            ?>
-                            <tr>
-                                <td><a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts"><?php echo $contact_name; ?></a>
-                                    <br><small class="text-secondary"><?php echo $contact_title; ?></small>
-                                </td>
-                                <td><?php echo $contact_email; ?></td>
-                                <td><?php echo "$contact_phone $contact_extension"; ?></td>
-                                <td><?php echo $contact_mobile; ?></td>
-                            </tr>
-
-                            <?php
-                        }
-                        ?>
-
-                        </tbody>
-                    </table>
-                </div>
+          <div class="card mb-3">
+            <div class="card-header">
+                <h6 class="mt-1"><i class="fa fa-users"></i> Contacts</h6>
             </div>
+            <div class="card-body">
+              <table class="table table-striped table-borderless">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Cell</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <?php
+
+                while($row = mysqli_fetch_array($sql_contacts)){
+                    $contact_id = $row['contact_id'];
+                    $contact_name = $row['contact_name'];
+                    $contact_title = $row['contact_title'];
+                    $contact_phone = formatPhoneNumber($row['contact_phone']);
+                    $contact_extension = $row['contact_extension'];
+                    $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+                    $contact_email = $row['contact_email'];
+                    $client_id = $row['client_id'];
+                    $client_name = $row['client_name'];
+                    $contact_department = $row['contact_department'];
+
+                    ?>
+                    <tr>
+                        <td><a href="client_contacts.php?client_id=<?php echo $client_id; ?>&q=<?php echo $contact_name; ?>"><?php echo $contact_name; ?></a>
+                            <br><small class="text-secondary"><?php echo $contact_title; ?></small>
+                        </td>
+                        <td><?php echo $contact_email; ?></td>
+                        <td><?php echo "$contact_phone $contact_extension"; ?></td>
+                        <td><?php echo $contact_mobile; ?></td>
+                    </tr>
+
+                    <?php
+                }
+                ?>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
         <?php } ?>
@@ -130,41 +130,41 @@ if(isset($_GET['query'])){
 
         <!-- Vendors -->
         <div class="col-6">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h6 class="mt-1"><i class="fa fa-building"></i> Vendors</h6>
-                </div>
-                <div class="card-body">
-                    <table class="table table-striped table-borderless">
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Phone</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-
-                        while($row = mysqli_fetch_array($sql_vendors)){
-                            $vendor_name = $row['vendor_name'];
-                            $vendor_description = $row['vendor_description'];
-                            $vendor_phone = formatPhoneNumber($row['vendor_phone']);
-                            ?>
-                            <tr>
-                                <td><a href="vendors.php?q=<?php echo $q ?>"><?php echo $vendor_name; ?></a></td>
-                                <td><?php echo $vendor_description; ?></td>
-                                <td><?php echo $vendor_phone; ?></td>
-                            </tr>
-
-                            <?php
-                        }
-                        ?>
-
-                        </tbody>
-                    </table>
-                </div>
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6 class="mt-1"><i class="fa fa-building"></i> Vendors</h6>
             </div>
+            <div class="card-body">
+              <table class="table table-striped table-borderless">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Phone</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <?php
+
+                while($row = mysqli_fetch_array($sql_vendors)){
+                    $vendor_name = $row['vendor_name'];
+                    $vendor_description = $row['vendor_description'];
+                    $vendor_phone = formatPhoneNumber($row['vendor_phone']);
+                    ?>
+                    <tr>
+                        <td><a href="vendors.php?q=<?php echo $q ?>"><?php echo $vendor_name; ?></a></td>
+                        <td><?php echo $vendor_description; ?></td>
+                        <td><?php echo $vendor_phone; ?></td>
+                    </tr>
+
+                    <?php
+                }
+                ?>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
         <?php } ?>
@@ -237,7 +237,7 @@ if(isset($_GET['query'])){
 
                             ?>
                             <tr>
-                                <td><a href="client.php?client_id=<?php echo $document_client_id ?>&tab=documents&q=<?php echo $q ?>"><?php echo $document_name; ?></a></td>
+                                <td><a href="client_documents.php?client_id=<?php echo $document_client_id ?>&q=<?php echo $q ?>"><?php echo $document_name; ?></a></td>
                                 <td><?php echo $document_client ?></td>
                                 <td><?php echo $document_updated ?></td>
                             </tr>
@@ -328,7 +328,7 @@ if(isset($_GET['query'])){
 
                             ?>
                             <tr>
-                                <td><a href="client.php?client_id=<?php echo $login_client_id ?>&tab=logins&q=<?php echo $q ?>"><?php echo $login_name; ?></a></td>
+                                <td><a href="client_logins.php?client_id=<?php echo $login_client_id ?>&q=<?php echo $q ?>"><?php echo $login_name; ?></a></td>
                                 <td><?php echo $login_username; ?></td>
                                 <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
 

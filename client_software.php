@@ -1,3 +1,5 @@
+<?php include("inc_all_client.php"); ?>
+
 <?php 
 
 if(!empty($_GET['sb'])){
@@ -29,7 +31,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-body">
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-      <input type="hidden" name="tab" value="<?php echo strip_tags($_GET['tab']); ?>">
       <div class="row">
         
         <div class="col-md-4">
@@ -43,7 +44,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
         <div class="col-md-8">
           <div class="float-right">
-            <a href="post.php?export_client_<?php echo strip_tags($_GET['tab']); ?>_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
+            <a href="post.php?export_client_software_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
           </div>
         </div>
 
@@ -183,3 +184,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 </div>
 
 <?php include("client_software_add_modal.php"); ?>
+
+<?php include("footer.php"); ?>

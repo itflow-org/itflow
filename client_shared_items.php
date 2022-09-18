@@ -1,3 +1,5 @@
+<?php include("inc_all_client.php"); ?>
+
 <?php
 
 if(isset($_GET['q'])){
@@ -14,9 +16,6 @@ if(isset($_GET['q'])){
 
 // Sort
 $sb = "item_created_at";
-
-// Current tab
-$tab = str_replace('-', ' ', htmlentities($_GET['tab']));
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
@@ -39,12 +38,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <div class="card-body">
       <form autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <input type="hidden" name="tab" value="<?php echo  strip_tags($_GET['tab']); ?>">
         <div class="row">
 
           <div class="col-md-4">
             <div class="input-group mb-3 mb-md-0">
-              <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php echo ucwords($tab); ?>">
+              <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Shared Items">
               <div class="input-group-append">
                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
               </div>
@@ -129,3 +127,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <?php include("pagination.php"); ?>
     </div>
   </div>
+
+  <?php include("footer.php"); ?>

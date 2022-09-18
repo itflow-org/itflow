@@ -1,3 +1,5 @@
+<?php include("inc_all_client.php"); ?>
+
 <?php
 
 // Folder
@@ -68,7 +70,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <hr>
         <ul class="nav nav-pills flex-column bg-light">
           <li class="nav-item">
-            <a class="nav-link <?php if($get_folder_id == 0){ echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&tab=documents&folder_id=0">/</a>
+            <a class="nav-link <?php if($get_folder_id == 0){ echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&folder_id=0">/</a>
           </li>
           <?php 
           $sql_folders = mysqli_query($mysqli,"SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
@@ -84,7 +86,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <li class="nav-item">
             <div class="row">
               <div class="col-10">
-                <a class="nav-link <?php if($get_folder_id == $folder_id){ echo "active"; } ?> " href="?client_id=<?php echo $client_id; ?>&tab=documents&folder_id=<?php echo $folder_id; ?>">
+                <a class="nav-link <?php if($get_folder_id == $folder_id){ echo "active"; } ?> " href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>">
                   <?php
                   if($get_folder_id == $folder_id){ ?>
                   <i class="fas fa-fw fa-folder-open"></i> 
@@ -126,10 +128,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <div class="col-md-9">
         <form autocomplete="off">
           <input type="hidden" name="client_id" value="<?php echo intval($client_id); ?>">
-          <input type="hidden" name="tab" value="<?php echo strip_tags($_GET['tab']); ?>">
           <input type="hidden" name="folder_id" value="<?php echo $get_folder_id; ?>">
           <div class="input-group">
-            <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php echo ucwords(strip_tags($_GET['tab'])); ?>">
+            <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Documents">
             <div class="input-group-append">
               <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
             </div>
@@ -170,7 +171,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
               <tr>
                 <td>
-                  <a href="?client_id=<?php echo $client_id; ?>&tab=document_details&folder_id=<?php echo $document_folder_id; ?>&document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt"></i> <?php echo $document_name; ?></a>
+                  <a href="client_document_details.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $document_folder_id; ?>&document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt"></i> <?php echo $document_name; ?></a>
                 </td>
                 <td><?php echo $document_created_at; ?></td>
                 <td><?php echo $document_updated_at; ?></td>
@@ -212,3 +213,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <?php include("share_modal.php"); ?>
 <?php include("client_document_add_modal.php"); ?>
+
+<?php include("footer.php"); ?>

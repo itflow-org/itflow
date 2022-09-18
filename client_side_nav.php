@@ -15,14 +15,14 @@
         </li>
 
         <li class="nav-item mt-3">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=overview" class="nav-link <?php if($_GET['tab'] == "overview") { echo "active"; } ?>">
+          <a href="client_overview.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_overview.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tachometer-alt"></i>
             <p>Overview</p>
           </a>
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=contacts" class="nav-link <?php if($_GET['tab'] == "contacts") { echo "active"; } ?>">
+          <a href="client_contacts.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_contacts.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-users"></i>
             <p>
               Contacts
@@ -35,7 +35,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=locations" class="nav-link <?php if($_GET['tab'] == "locations") { echo "active"; } ?>">
+          <a href="client_locations.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_locations.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-map-marker-alt"></i>
             <p>
               Locations
@@ -50,7 +50,7 @@
         <li class="nav-header mt-2">ASSETS</li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=assets" class="nav-link <?php if($_GET['tab'] == "assets") { echo "active"; } ?>">
+          <a href="client_assets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_assets.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-desktop"></i>
             <p>
               Assets
@@ -63,7 +63,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=software" class="nav-link <?php if($_GET['tab'] == "software") { echo "active"; } ?>">
+          <a href="client_software.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_software.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-cube"></i>
             <p>
               Licenses
@@ -76,7 +76,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=logins" class="nav-link <?php if($_GET['tab'] == "logins") { echo "active"; } ?>">
+          <a href="client_logins.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_logins.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-key"></i>
             <p>
               Passwords
@@ -89,7 +89,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=networks" class="nav-link <?php if($_GET['tab'] == "networks") { echo "active"; } ?>">
+          <a href="client_networks.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_networks.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-network-wired"></i>
             <p>
               Networks
@@ -102,7 +102,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=certificates" class="nav-link <?php if($_GET['tab'] == "certificates") { echo "active"; } ?>">
+          <a href="client_certificates.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_certificates.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-lock"></i>
             <p>
               Certificates
@@ -115,7 +115,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=domains" class="nav-link <?php if($_GET['tab'] == "domains") { echo "active"; } ?>">
+          <a href="client_domains.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_domains.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-globe"></i>
             <p>
               Domains
@@ -137,7 +137,7 @@
 
         <?php if($config_module_enable_ticketing == 1){ ?>
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=tickets" class="nav-link <?php if($_GET['tab'] == "tickets") { echo "active"; } ?>">
+          <a href="client_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_tickets.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-ticket-alt"></i>
             <p>
               Tickets 
@@ -157,7 +157,7 @@
         <?php } ?>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=services" class="nav-link <?php if($_GET['tab'] == "services") { echo "active"; } ?>">
+          <a href="client_services.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_services.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-stream"></i>
             <p>
               Services
@@ -170,7 +170,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=vendors" class="nav-link <?php if($_GET['tab'] == "vendors") { echo "active"; } ?>">
+          <a href="client_vendors.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_vendors.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-building"></i>
             <p>
               Vendors
@@ -183,7 +183,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=events" class="nav-link <?php if($_GET['tab'] == "events") { echo "active"; } ?>">
+          <a href="client_events.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_events.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-calendar"></i>
             <p>
               Events
@@ -196,7 +196,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=files" class="nav-link <?php if($_GET['tab'] == "files") { echo "active"; } ?>">
+          <a href="client_files.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_files.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-paperclip"></i>
             <p>
               Files
@@ -209,7 +209,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=documents" class="nav-link <?php if($_GET['tab'] == "documents" || $_GET['tab'] == "document_details") { echo "active"; } ?>">
+          <a href="client_documents.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_documents.php" || basename($_SERVER["PHP_SELF"]) == "client_document_details.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-file-alt"></i>
             <p>
               Documents
@@ -226,7 +226,7 @@
         <li class="nav-header mt-2">ACCOUNTING</li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=invoices" class="nav-link <?php if($_GET['tab'] == "invoices") { echo "active"; } ?>">
+          <a href="client_invoices.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_invoices.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-file"></i>
             <p>
               Invoices
@@ -245,7 +245,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=recurring_invoices" class="nav-link <?php if($_GET['tab'] == "recurring_invoices") { echo "active"; } ?>">
+          <a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_recurring_invoices.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-sync-alt"></i>
             <p>
               Recurring
@@ -258,7 +258,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=quotes" class="nav-link <?php if($_GET['tab'] == "quotes") { echo "active"; } ?>">
+          <a href="client_quotes.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_quotes.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-file"></i>
             <p>
               Quotes
@@ -271,7 +271,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=payments" class="nav-link <?php if($_GET['tab'] == "payments") { echo "active"; } ?>">
+          <a href="client_payments.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_payments.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-credit-card"></i>
             <p>
               Payments
@@ -284,7 +284,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=trips" class="nav-link <?php if($_GET['tab'] == "trips") { echo "active"; } ?>">
+          <a href="client_trips.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_trips.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-route"></i>
             <p>
               Trips
@@ -301,7 +301,7 @@
         <li class="nav-header mt-2">MORE</li>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=shared-items" class="nav-link <?php if($_GET['tab'] == "shared-items") { echo "active"; } ?>">
+          <a href="client_shared_items.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_shared_items.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-share"></i>
             <p>Shared Links</p>
           </a>
@@ -309,7 +309,7 @@
         
         <?php if($config_module_enable_ticketing == 1){ ?>
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=scheduled-tickets" class="nav-link <?php if($_GET['tab'] == "scheduled-tickets") { echo "active"; } ?>">
+          <a href="client_scheduled_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_scheduled_tickets.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-sync"></i>
             <p>Scheduled Tickets</p>
           </a>
@@ -317,7 +317,7 @@
         <?php } ?>
 
         <li class="nav-item">
-          <a href="?client_id=<?php echo $client_id; ?>&tab=logs" class="nav-link <?php if($_GET['tab'] == "logs") { echo "active"; } ?>">
+          <a href="client_logs.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_logs.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-eye"></i>
             <p>Logs</p>
           </a>

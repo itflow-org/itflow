@@ -1,3 +1,5 @@
+<?php include("inc_all_client.php"); ?>
+
 <?php 
 
 //Get Asset Counts
@@ -79,7 +81,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-body">
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-      <input type="hidden" name="tab" value="<?php echo strip_tags($_GET['tab']); ?>">
       <input type="hidden" name="type" value="<?php echo strip_tags($_GET['type']); ?>">
       <div class="row">
         
@@ -124,7 +125,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-2">
           <div class="float-right">
-            <a href="post.php?export_client_<?php echo strip_tags($_GET['tab']); ?>_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
+            <a href="post.php?export_client_assets_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
             <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importAssetModal"><i class="fa fa-fw fa-upload"></i> Import</button>
           </div>
         </div>
@@ -363,3 +364,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 include("client_asset_add_modal.php");
 include("client_asset_import_modal.php");
 ?>
+
+<?php include("footer.php"); ?>

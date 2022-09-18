@@ -416,7 +416,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                               <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
                             </td>
                             <td>
-                                <strong><a href="client.php?client_id=<?php echo $client_id; ?>&tab=tickets"><?php echo $client_name; ?></a></strong>
+                                <strong><a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></strong>
                                 <br>
                                 <?php echo $contact_display; ?>
                             </td>

@@ -84,7 +84,7 @@ if(isset($_GET['recurring_id'])){
     <a href="recurring_invoices.php"> Recurring Invoices</a>
   </li>
   <li class="breadcrumb-item">
-    <a href="client.php?client_id=<?php echo $client_id; ?>&tab=recurring_invoices"> <?php echo $client_name; ?></a>
+    <a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>"> <?php echo $client_name; ?></a>
   </li>
   <li class="breadcrumb-item active"><?php echo "$recurring_prefix$recurring_number"; ?></li>
   <span class="ml-3 p-2 badge badge-<?php echo $status_badge_color; ?>"><?php echo $status; ?></span>
