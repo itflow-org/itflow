@@ -119,10 +119,16 @@
             <i class="nav-icon fas fa-globe"></i>
             <p>
               Domains
+              
               <?php 
               if($num_domains > 0){ ?>
               <span class="right badge badge-light"><?php echo $num_domains; ?></span>
               <?php } ?>
+
+              <?php if($num_domains_expiring > 0){ ?>
+              <span class="right fa fa-fw fa-circle text-warning"></span>
+              <?php } ?>
+
             </p>
           </a>
         </li>
@@ -134,11 +140,17 @@
           <a href="?client_id=<?php echo $client_id; ?>&tab=tickets" class="nav-link <?php if($_GET['tab'] == "tickets") { echo "active"; } ?>">
             <i class="nav-icon fas fa-ticket-alt"></i>
             <p>
-              Tickets
+              Tickets 
+              
               <?php 
               if($num_active_tickets > 0){ ?>
               <span class="right badge badge-light"><?php echo $num_active_tickets; ?></span>
               <?php } ?>
+
+              <?php if($num_active_tickets > 0){ ?>
+              <span class="right fa fa-fw fa-circle text-danger"></span>
+              <?php } ?>
+
             </p>
           </a>
         </li>
@@ -218,10 +230,16 @@
             <i class="nav-icon fas fa-file"></i>
             <p>
               Invoices
+              
               <?php 
               if($num_invoices > 0){ ?>
               <span class="right badge badge-light"><?php echo $num_invoices; ?></span>
               <?php } ?>
+
+              <?php if($num_invoices_open > 0){ ?>
+              <span class="right fa fa-fw fa-circle text-danger"></span>
+              <?php } ?>
+
             </p>
           </a>
         </li>

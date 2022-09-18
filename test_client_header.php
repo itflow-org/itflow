@@ -100,9 +100,6 @@ if(isset($_GET['client_id'])){
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND ticket_status != 'Closed' AND ticket_client_id = $client_id"));
   $num_active_tickets = $row['num'];
 
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND ticket_status = 'Closed' AND ticket_client_id = $client_id"));
-  $num_closed_tickets = $row['num'];
-
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('service_id') AS num FROM services WHERE service_client_id = $client_id"));
   $num_services = $row['num'];
   
@@ -124,24 +121,6 @@ if(isset($_GET['client_id'])){
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('software_id') AS num FROM software WHERE software_archived_at IS NULL AND software_client_id = $client_id"));
   $num_software = $row['num'];
   
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE (invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') AND invoice_archived_at IS NULL AND invoice_client_id = $client_id"));
-  $num_invoices_open = $row['num'];
-
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Draft' AND invoice_archived_at IS NULL AND invoice_client_id = $client_id"));
-  $num_invoices_draft = $row['num'];
-
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Sent' AND invoice_archived_at IS NULL AND invoice_client_id = $client_id"));
-  $num_invoices_sent = $row['num'];
-
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Viewed' AND invoice_archived_at IS NULL AND invoice_client_id = $client_id"));
-  $num_invoices_viewed = $row['num'];
-
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Partial' AND invoice_archived_at IS NULL AND invoice_client_id = $client_id"));
-  $num_invoices_partial = $row['num'];
-
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Paid' AND invoice_archived_at IS NULL AND invoice_client_id = $client_id"));
-  $num_invoices_paid = $row['num'];
-
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_archived_at IS NULL AND invoice_client_id = $client_id"));
   $num_invoices = $row['num'];
 
@@ -165,44 +144,6 @@ if(isset($_GET['client_id'])){
 
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('trip_id') AS num FROM trips WHERE trip_archived_at IS NULL AND trip_client_id = $client_id"));
   $num_trips = $row['num'];
-
-  // Expiring Items
-
-  // Get Domains Expiring within 30 Days
-  $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('domain_id') AS num FROM domains
-      WHERE domain_client_id = $client_id
-      AND domain_expire != '0000-00-00'
-      AND domain_archived_at IS NULL
-      AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
-      AND company_id = $session_company_id"
-  ));
-  $num_domains_expiring = $row['num'];
-
-  // Get Asset Warranties Expiring
-  $sql_asset_warranties_expiring = mysqli_query($mysqli,"SELECT * FROM assets
-      WHERE asset_client_id = $client_id
-      AND asset_warranty_expire != '0000-00-00'
-      AND asset_archived_at IS NULL  
-      AND asset_warranty_expire < CURRENT_DATE + INTERVAL 90 DAY
-      AND company_id = $session_company_id ORDER BY asset_warranty_expire DESC"
-  );
-
-  // Get Assets Retiring
-  $sql_asset_retire = mysqli_query($mysqli,"SELECT * FROM assets
-      WHERE asset_client_id = $client_id
-      AND asset_install_date != '0000-00-00'
-      AND asset_archived_at IS NULL 
-      AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE + INTERVAL 90 DAY
-      AND company_id = $session_company_id ORDER BY asset_install_date DESC"
-  );
-
-  // Get Stale Tickets
-  $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
-      WHERE ticket_client_id = $client_id
-      AND ticket_created_at < CURRENT_DATE - INTERVAL 14 DAY
-      AND ticket_status != 'Closed'
-      AND company_id = $session_company_id ORDER BY ticket_created_at DESC"
-  );
 
 ?>
 
