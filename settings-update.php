@@ -6,7 +6,7 @@ include("database_version.php");
 <?php
 
 //fetch the latest code changes but don't apply them
-exec("git fetch");
+exec("git fetch", $output, $result);
 $latest_version = exec("gitrev-parse origin/master");
 $current_version = exec("git rev-parse HEAD");
 
@@ -26,14 +26,23 @@ $git_log = shell_exec("git log master..origin/master --pretty=format:'<tr><td>%h
     </div>
     <div class="card-body">
       <center>
-        <div class="alert alert-warning" role="alert">
-          <strong>Ensure you have a current app & database backup before updating!</strong>
-        </div>
+
+        <!-- Check if git fetch result is zero (success) -->
+        <?php if($result !== 0) { ?>
+          <div class="alert alert-danger" role="alert">
+            <strong>Warning: Could not find execute 'git fetch'. Do you have git installed?</strong>
+          </div>
+        <?php } ?>
+
         <?php if(!empty($git_log)){ ?>
           <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fas fa-fw fa-4x fa-arrow-alt-circle-up mb-1"></i><h5>Update App</h5></a>
           <?php
         }else{
             if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){ ?>
+              <div class="alert alert-warning" role="alert">
+                <strong>Ensure you have a current app & database backup before updating!</strong>
+              </div>
+              <br>
               <a class="btn btn-dark btn-lg my-4" href="post.php?update_db"><i class="fas fa-fw fa-4x fa-arrow-alt-circle-up mb-1"></i><h5>Update Database</h5></a>
               <br>
               <small class="text-secondary">Current DB Version: <?php echo CURRENT_DATABASE_VERSION; ?></small>
