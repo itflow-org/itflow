@@ -3999,7 +3999,6 @@ if(isset($_POST['edit_contact'])){
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
     $location_id = intval($_POST['location']);
     $auth_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['auth_method'])));
-    $password = $_POST['contact_password'];
 
     $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
 
@@ -4015,8 +4014,8 @@ if(isset($_POST['edit_contact'])){
     }
 
     // Set password
-    if(!empty($password)){
-      $password_hash = password_hash($password, PASSWORD_DEFAULT);
+    if(!empty($_POST['contact_password'])){
+      $password_hash = mysqli_real_escape_string($mysqli,password_hash($_POST['contact_password'], PASSWORD_DEFAULT));
       mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_client_id = '$client_id'");
     }
 
