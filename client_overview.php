@@ -83,7 +83,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
           ?>
             <p class="mb-1">
               <i class="fa fa-fw fa-user text-secondary mr-1"></i>
-              <a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts&q=<?php echo $contact_name; ?>"><?php echo $contact_name; ?></a>
+              <a href="client_contacts.php?client_id=<?php echo $client_id; ?>&q=<?php echo $contact_name; ?>"><?php echo $contact_name; ?></a>
             </p>
           <?php
           }
@@ -99,7 +99,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
           ?>
             <p class="mb-1">
               <i class="fas fa-fw fa-building text-secondary mr-1"></i>
-              <a href="client.php?client_id=<?php echo $client_id; ?>&tab=vendors&q=<?php echo $vendor_name; ?>"><?php echo $vendor_name; ?></a></td>
+              <a href="client_vendors.php?client_id=<?php echo $client_id; ?>&q=<?php echo $vendor_name; ?>"><?php echo $vendor_name; ?></a></td>
             </p>
           <?php
           }
@@ -127,7 +127,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
           ?>
             <p class="mb-1">
               <i class="fa fa-fw fa-user text-secondary mr-1"></i>
-              <a href="client.php?client_id=<?php echo $client_id; ?>&tab=contacts&q=<?php echo $contact_name; ?>"><?php echo $contact_name; ?></a>
+              <a href="client_contacts.php?client_id=<?php echo $client_id; ?>&q=<?php echo $contact_name; ?>"><?php echo $contact_name; ?></a>
             </p>
           <?php
           }
@@ -143,7 +143,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
           ?>
             <p class="mb-1">
               <i class="fas fa-fw fa-building text-secondary mr-1"></i>
-              <a href="client.php?client_id=<?php echo $client_id; ?>&tab=vendors&q=<?php echo $vendor_name; ?>"><?php echo $vendor_name; ?></a></td>
+              <a href="client_vendors.php?client_id=<?php echo $client_id; ?>&q=<?php echo $vendor_name; ?>"><?php echo $vendor_name; ?></a></td>
             </p>
           <?php
           }
@@ -171,7 +171,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
           ?>
             <p class="mb-1">
               <i class="fa fa-fw fa-globe text-secondary mr-1"></i>
-              <a href="client.php?client_id=<?php echo $client_id; ?>&tab=domains&q=<?php echo $domain_name; ?>"><?php echo $domain_name; ?></a>
+              <a href="client_domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>"><?php echo $domain_name; ?></a>
               <span class="text-warning">-- <?php echo $domain_expire; ?></span>
             </p>
           <?php
@@ -188,7 +188,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
           ?>
             <p class="mb-1">
               <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
-              <a href="client.php?client_id=<?php echo $client_id; ?>&tab=assets&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
+              <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
               <span class="text-warning">-- <?php echo $asset_warranty_expire; ?></span>
             </p>            
 
@@ -207,7 +207,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
           ?>
             <p class="mb-1">
               <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
-              <a href="client.php?client_id=<?php echo $client_id; ?>&tab=assets&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
+              <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
               <span class="text-warning">-- <?php echo $asset_install_date; ?></span>
             </p>
 
