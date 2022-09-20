@@ -42,11 +42,11 @@
 
       <?php }else{ ?>
 
-        <h3 class="brand-text text-light my-2"><?php echo $session_company_name; ?></h3>
+        <h2 class="brand-text text-light my-3"><i class="fas fa-cloud"></i> <?php echo $session_company_name; ?></h2>
 
       <?php } ?>
 
-      <form class="form-inline mb-2" action="global_search.php">
+      <form class="form-inline mb-3" action="global_search.php">
         <div class="input-group">
           <input class="form-control form-control-sidebar" type="search" placeholder="Search" name="query" value="<?php if(isset($_GET['query'])){ echo strip_tags($_GET['query']); } ?>">
           <div class="input-group-append">
@@ -76,7 +76,7 @@
         
         <?php if($session_user_role >= 2 && $config_module_enable_ticketing == 1){ ?>
 
-        <li class="nav-header mt-2">SUPPORT</li>
+        <li class="nav-header mt-3">SUPPORT</li>
         <li class="nav-item">
           <a href="tickets.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-ticket-alt"></i>
@@ -100,7 +100,7 @@
 
         <?php if($session_user_role == 1 OR $session_user_role == 3 && $config_module_enable_accounting == 1){ ?>
 
-        <li class="nav-header mt-2">SALES</li>
+        <li class="nav-header mt-3">SALES</li>
         <li class="nav-item">
           <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-file-invoice"></i>
@@ -131,7 +131,7 @@
             <p>Products</p>
           </a>
         </li>
-        <li class="nav-header mt-2">ACCOUNTING</li>
+        <li class="nav-header mt-3">ACCOUNTING</li>
         <li class="nav-item">
           <a href="payments.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "payments.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-credit-card"></i>
@@ -181,7 +181,7 @@
 
         <?php if($session_user_role == 3){ ?>
 
-        <li class="nav-item mt-2">
+        <li class="nav-item mt-3">
           <a href="users.php" class="nav-link">
             <i class="nav-icon fas fa-cog"></i>
             <p>Admin</p>

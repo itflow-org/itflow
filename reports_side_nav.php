@@ -5,18 +5,18 @@
   <div class="sidebar">
 
     <!-- Sidebar Menu -->
-    <nav class="mt-2">
+    <nav class="mt-3">
 
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
         
-        <li class="nav-item mb-2">
+        <li class="nav-item mb-3">
           <a href="dashboard_financial.php" class="nav-link">
             <i class="nav-icon fas fa-arrow-left"></i>
-            <p>Back | <strong>Reports</strong></p>
+            <p class="h4">Back | <strong>Reports</strong></p>
           </a>
         </li>
 
-        <li class="nav-header mt-2">FINANCIAL</li>
+        <li class="nav-header">FINANCIAL</li>
         
         <li class="nav-item">
           <a href="report_income_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
@@ -26,19 +26,19 @@
         </li>
         <li class="nav-item">
           <a href="report_income_by_client.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_by_client.php") { echo "active"; } ?>">
-            <i class="far fa-circle nav-icon"></i>
+            <i class="far fa-user nav-icon"></i>
             <p>Income By Client</p>
           </a>
         </li>
         <li class="nav-item">
           <a href="report_expense_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_expense_summary.php") { echo "active"; } ?>">
-            <i class="far fa-circle nav-icon"></i>
+            <i class="far fa-credit-card nav-icon"></i>
             <p>Expense</p>
           </a>
         </li>
         <li class="nav-item">
           <a href="report_expense_by_vendor.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_expense_by_vendor.php") { echo "active"; } ?>">
-            <i class="far fa-circle nav-icon"></i>
+            <i class="far fa-building nav-icon"></i>
             <p>Expense By Vendor</p>
           </a>
         </li>

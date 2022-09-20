@@ -5,12 +5,14 @@
   <div class="sidebar">
 
     <!-- Sidebar Menu -->
-    <nav class="mt-2">
+    <nav class="mt-3">
+
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        
         <li class="nav-item">
           <a href="clients.php" class="nav-link">
             <i class="nav-icon fas fa-arrow-left"></i>
-            <p>Back | <strong><?php echo $client_name; ?></strong></p>
+            <p class="h4">Back | <small><strong><?php echo $client_name; ?></strong></small></p>
           </a>
         </li>
 
@@ -47,7 +49,7 @@
           </a>
         </li>
 
-        <li class="nav-header mt-2">ASSETS</li>
+        <li class="nav-header mt-3">ASSETS</li>
 
         <li class="nav-item">
           <a href="client_assets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_assets.php") { echo "active"; } ?>">
@@ -133,7 +135,7 @@
           </a>
         </li>
 
-        <li class="nav-header mt-2">SUPPORT</li>
+        <li class="nav-header mt-3">SUPPORT</li>
 
         <?php if($config_module_enable_ticketing == 1){ ?>
         <li class="nav-item">
@@ -223,7 +225,7 @@
 
         <?php if($session_user_role == 1 || $session_user_role > 2 && $config_module_enable_accounting == 1){ ?>
 
-        <li class="nav-header mt-2">ACCOUNTING</li>
+        <li class="nav-header mt-3">ACCOUNTING</li>
 
         <li class="nav-item">
           <a href="client_invoices.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_invoices.php") { echo "active"; } ?>">
@@ -298,7 +300,7 @@
 
         <?php } ?>
 
-        <li class="nav-header mt-2">MORE</li>
+        <li class="nav-header mt-3">MORE</li>
 
         <li class="nav-item">
           <a href="client_shared_items.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_shared_items.php") { echo "active"; } ?>">

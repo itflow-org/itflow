@@ -5,14 +5,14 @@
   <div class="sidebar">
 
     <!-- Sidebar Menu -->
-    <nav class="mt-2">
+    <nav class="mt-3">
 
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
         
-        <li class="nav-item mb-2">
+        <li class="nav-item mb-3">
           <a href="dashboard_financial.php" class="nav-link">
             <i class="nav-icon fas fa-arrow-left"></i>
-            <p>Back | <strong>Admin</strong></p>
+            <p class="h4">Back | <strong>Admin</strong></p>
           </a>
         </li>
 
@@ -38,7 +38,7 @@
           </a>
         </li>
 
-        <li class="nav-header mt-2">SETTINGS</li>
+        <li class="nav-header mt-3">SETTINGS</li>
 
         <li class="nav-item">
           <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings-mail.php") { echo "active"; } ?>" 
