@@ -184,7 +184,7 @@
         <li class="nav-item mt-3">
           <a href="users.php" class="nav-link">
             <i class="nav-icon fas fa-cog"></i>
-            <p>Admin</p>
+            <p>Settings</p>
             <i class="fas fa-angle-right nav-icon float-right"></i>
           </a>
         </li>

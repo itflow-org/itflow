@@ -1,4 +1,4 @@
-<?php include("inc_all_admin.php"); 
+<?php include("inc_all_settings.php"); 
 
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
@@ -64,7 +64,7 @@ $num_rows = mysqli_num_rows($sql);
 
           <?php
 
-          include("tax_edit_modal.php");
+          include("settings_tax_edit_modal.php");
           }
           
           if($num_rows == 0){
@@ -82,7 +82,7 @@ $num_rows = mysqli_num_rows($sql);
 
 <?php
   
-  include("tax_add_modal.php");
+  include("settings_tax_add_modal.php");
 
   include("footer.php");
 

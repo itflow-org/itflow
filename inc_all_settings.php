@@ -13,7 +13,7 @@ if($session_user_role != 3){
 
 include("header.php");
 include("top_nav.php");
-include("admin_side_nav.php");
+include("settings_side_nav.php");
 include("inc_wrapper.php");
 include("inc_alert_feedback.php");
 include("pagination_head.php");

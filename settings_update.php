@@ -1,5 +1,5 @@
 <?php
-include("inc_all_admin.php");
+include("inc_all_settings.php");
 include("database_version.php");
 ?>
 

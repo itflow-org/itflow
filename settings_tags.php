@@ -1,4 +1,6 @@
-<?php include("inc_all.php");
+<?php include("inc_all_settings.php"); ?>
+
+<?php
 
 if(!empty($_GET['sb'])){
   $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
@@ -102,7 +104,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
 
           <?php
 
-          include("tag_edit_modal.php");
+          include("settings_tag_edit_modal.php");
 
           }
 
@@ -117,7 +119,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
 
 <?php 
 
-  include("tag_add_modal.php");
+  include("settings_tag_add_modal.php");
 
   include("footer.php");
 

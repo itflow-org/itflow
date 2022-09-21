@@ -1,4 +1,4 @@
-<?php include("inc_all_admin.php"); ?>
+<?php include("inc_all_settings.php"); ?>
 
 <div class="card card-dark">
   <div class="card-header">
