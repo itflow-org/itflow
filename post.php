@@ -159,7 +159,7 @@ if(isset($_POST['add_user'])){
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> created";
     
-    header("Location: users.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -395,7 +395,7 @@ if(isset($_POST['edit_user_companies'])){
 
     $_SESSION['alert_message'] = "Company permssions updated for user <strong>$name</strong>";
     
-    header("Location: users.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -424,7 +424,7 @@ if(isset($_GET['archive_user'])){
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "User <strong>$name</strong> archived";
     
-    header("Location: users.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -575,7 +575,7 @@ if(isset($_POST['add_company'])){
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> created";
     
-    header("Location: companies.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -653,7 +653,7 @@ if(isset($_POST['edit_company'])){
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> updated";
     
-    header("Location: companies.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -673,7 +673,7 @@ if(isset($_GET['archive_company'])){
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Company <strong>$company_name</strong> archived";
     
-    header("Location: companies.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -1807,7 +1807,7 @@ if(isset($_GET['archive_vendor'])){
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Vendor <strong>$vendor_name archived";
     
-    header("Location: vendors.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if(isset($_GET['delete_vendor'])){
@@ -1890,7 +1890,7 @@ if(isset($_POST['add_product'])){
 
     $_SESSION['alert_message'] = "Product <strong>$name</strong> created";
     
-    header("Location: products.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -1913,7 +1913,7 @@ if(isset($_POST['edit_product'])){
 
     $_SESSION['alert_message'] = "Product <strong>$name</strong> modified";
     
-    header("Location: products.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -2014,7 +2014,7 @@ if(isset($_POST['add_account'])){
 
     $_SESSION['alert_message'] = "Account added";
     
-    header("Location: accounts.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -2031,7 +2031,7 @@ if(isset($_POST['edit_account'])){
 
     $_SESSION['alert_message'] = "Account modified";
     
-    header("Location: accounts.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -2045,7 +2045,7 @@ if(isset($_GET['archive_account'])){
 
     $_SESSION['alert_message'] = "Account Archived";
     
-    header("Location: accounts.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -2197,7 +2197,7 @@ if(isset($_POST['add_tax'])){
 
     $_SESSION['alert_message'] = "Tax added";
     
-    header("Location: taxes.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -2214,7 +2214,7 @@ if(isset($_POST['edit_tax'])){
 
     $_SESSION['alert_message'] = "Tax modified";
     
-    header("Location: taxes.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -2228,7 +2228,7 @@ if(isset($_GET['archive_tax'])){
 
     $_SESSION['alert_message'] = "Tax Archived";
     
-    header("Location: taxes.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -2260,7 +2260,7 @@ if(isset($_GET['dismiss_notification'])){
 
     $_SESSION['alert_message'] = "Notification Dismissed";
     
-    header("Location: notifications.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
