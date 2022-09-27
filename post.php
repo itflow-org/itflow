@@ -3074,7 +3074,6 @@ if(isset($_GET['email_quote'])){
     $contact_extension = $row['contact_extension'];
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $client_website = $row['client_website'];
-    $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
     $company_name = $row['company_name'];
     $company_country = $row['company_country'];
     $company_address = $row['company_address'];
@@ -3114,7 +3113,7 @@ if(isset($_GET['email_quote'])){
         $mail->isHTML(true);                                  // Set email format to HTML
 
         $mail->Subject = "Quote [$quote_scope]";
-        $mail->Body    = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href='https://$base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>Sales<br>$config_quote_from_email<br>$company_phone";
+        $mail->Body    = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href='https://$config_base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>Sales<br>$config_quote_from_email<br>$company_phone";
         
         $mail->send();
         echo 'Message has been sent';
@@ -3535,10 +3534,9 @@ if(isset($_POST['add_payment'])){
     $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
     $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
-  $payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method'])));
+    $payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method'])));
     $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
     $email_receipt = intval($_POST['email_receipt']);
-    $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
 
     //Check to see if amount entered is greater than the balance of the invoice
     if($amount > $balance){
@@ -3619,7 +3617,7 @@ if(isset($_POST['add_payment'])){
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
                   $mail->Subject = "Payment Recieved - Invoice $invoice_prefix$invoice_number";
-                  $mail->Body    = "Hello $contact_name,<br><br>We have recieved your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+                  $mail->Body    = "Hello $contact_name,<br><br>We have recieved your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';
@@ -3655,7 +3653,7 @@ if(isset($_POST['add_payment'])){
                   // Content
                   $mail->isHTML(true);                                  // Set email format to HTML
                   $mail->Subject = "Partial Payment Recieved - Invoice $invoice_prefix$invoice_number";
-                  $mail->Body    = "Hello $contact_name,<br><br>We have recieved partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+                  $mail->Body    = "Hello $contact_name,<br><br>We have recieved partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
                   $mail->send();
                   echo 'Message has been sent';
@@ -3759,7 +3757,6 @@ if(isset($_GET['email_invoice'])){
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $client_website = $row['client_website'];
     
-    $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
     $company_name = $row['company_name'];
     $company_country = $row['company_country'];
     $company_address = $row['company_address'];
@@ -3805,12 +3802,12 @@ if(isset($_GET['email_invoice'])){
         if($invoice_status == 'Paid'){
 
             $mail->Subject = "Invoice $invoice_prefix$invoice_number Copy";
-            $mail->Body    = "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+            $mail->Body    = "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
         }else{
 
             $mail->Subject = "Invoice $invoice_prefix$invoice_number";
-            $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+            $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
             //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         }
         
@@ -6995,7 +6992,6 @@ if(isset($_GET['force_recurring'])){
         $company_phone = formatPhoneNumber($row['company_phone']);
         $company_email = $row['company_email'];
         $company_website = $row['company_website'];
-        $base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
 
         $mail = new PHPMailer(true);
 
@@ -7020,7 +7016,7 @@ if(isset($_GET['force_recurring'])){
             $mail->isHTML(true);                                  // Set email format to HTML
 
             $mail->Subject = "Invoice $invoice_prefix$invoice_number";
-            $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+            $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
 
             $mail->send();
 
