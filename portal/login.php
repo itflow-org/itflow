@@ -22,8 +22,11 @@ $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_A
 
 $sql_settings = mysqli_query($mysqli,"SELECT config_azure_client_id FROM settings WHERE company_id = '1'");
 $settings = mysqli_fetch_array($sql_settings);
-
 $client_id = $settings['config_azure_client_id'];
+
+$company_sql = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = '1'");
+$company_results = mysqli_fetch_array($company_sql);
+$company_name = $company_results['company_name'];
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])){
 
@@ -69,7 +72,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])){
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title><?php echo $config_app_name; ?> | Client Portal Login</title>
+  <title><?php echo $company_name; ?> | Client Portal Login</title>
 
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -87,7 +90,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])){
 
 <body class="hold-transition login-page">
 <div class="login-box">
-  <div class="login-logo"><b>IT</b>Flow <br>Client Portal Login</h2></div>
+  <div class="login-logo"><b><?=$company_name?></b> <br>Client Portal Login</h2></div>
   <div class="card">
     <div class="card-body login-card-body">
       <p class="login-box-msg text-danger">
