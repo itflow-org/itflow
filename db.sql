@@ -327,6 +327,7 @@ CREATE TABLE `contacts` (
   `contact_notes` text DEFAULT NULL,
   `contact_auth_method` varchar(200) DEFAULT NULL,
   `contact_password_hash` varchar(200) DEFAULT NULL,
+  `contact_password_reset_token` varchar(200) DEFAULT NULL,
   `contact_important` tinyint(1) NOT NULL DEFAULT 0,
   `contact_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `contact_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),

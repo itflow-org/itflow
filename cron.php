@@ -200,6 +200,9 @@ while($row = mysqli_fetch_array($sql_companies)){
     // Clean-up shared items that have expired
     mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_expire_at < NOW()");
 
+    // Invalidate any password reset links
+    mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = NULL WHERE contact_archived_at IS NULL");
+
     // PAST DUE INVOICE Notifications
     //$invoiceAlertArray = [$config_invoice_overdue_reminders];
     $invoiceAlertArray = [30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620];
