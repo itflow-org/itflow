@@ -20,7 +20,7 @@ $location_phone = formatPhoneNumber($location_phone);
         <?php
         if(!empty($location_phone)){
         ?>
-        <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <?php echo $location_phone; ?>
+          <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <a href="tel:<?php echo $location_phone?>"><?php echo $location_phone; ?></a>
         <br>
         <?php 
         } 
@@ -28,7 +28,7 @@ $location_phone = formatPhoneNumber($location_phone);
         <?php
         if(!empty($client_website)){
         ?>
-        <i class="fa fa-fw fa-globe text-secondary ml-1 mr-2 mb-2"></i> <a target="_blank" href="//<?php echo $client_website; ?>"><?php echo $client_website; ?></a>
+          <i class="fa fa-fw fa-globe text-secondary ml-1 mr-2 mb-2"></i> <a target="_blank" href="//<?php echo $client_website; ?>"><?php echo $client_website; ?></a>
         <br>
         <?php 
         }
@@ -46,7 +46,7 @@ $location_phone = formatPhoneNumber($location_phone);
         <?php
         if(!empty($contact_name)){
         ?>
-        <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <?php echo $contact_name; ?>
+          <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <?php echo $contact_name; ?>
         <br>
         <?php
         }
@@ -54,7 +54,7 @@ $location_phone = formatPhoneNumber($location_phone);
         <?php
         if(!empty($contact_email)){
         ?>
-        <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i> <a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button>
+          <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i> <a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button>
         <br>
         <?php
         }
@@ -62,7 +62,7 @@ $location_phone = formatPhoneNumber($location_phone);
         <?php
         if(!empty($contact_phone)){
         ?>
-        <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <?php echo $contact_phone; ?> 
+          <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?> </a>
         <?php 
         if(!empty($contact_extension)){ 
         ?>
@@ -77,7 +77,7 @@ $location_phone = formatPhoneNumber($location_phone);
         <?php
         if(!empty($contact_mobile)){
         ?>
-        <i class="fa fa-fw fa-mobile-alt text-secondary ml-1 mr-2 mb-2"></i> <?php echo $contact_mobile; ?>
+          <i class="fa fa-fw fa-mobile-alt text-secondary ml-1 mr-2 mb-2"></i> <a href="tel:<?php echo $contact_mobile; ?>"> <?php echo $contact_mobile; ?> </a>
         <?php 
         } 
         ?>
