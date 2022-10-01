@@ -227,7 +227,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
     <div class="card card-outline card-danger mb-3">
       <div class="card-body">
-        <h5 class="card-title mb-2"><i class="fa fa-ticket-alt"></i> Stale Tickets <small class="text-secondary">(14d)</small></h5>
+        <h5 class="card-title mb-2"><i class="fa fa-life-ring"></i> Stale Tickets <small class="text-secondary">(14d)</small></h5>
         <table class="table table-borderless table-sm">
           <tbody>
           <?php

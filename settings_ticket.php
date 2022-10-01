@@ -2,7 +2,7 @@
 
 <div class="card card-dark">
   <div class="card-header">
-    <h3 class="card-title"><i class="fa fa-fw fa-ticket-alt"></i> Ticket Settings</h3>
+    <h3 class="card-title"><i class="fa fa-fw fa-life-ring"></i> Ticket Settings</h3>
   </div>
   <div class="card-body">
     <form action="post.php" method="post" autocomplete="off">
@@ -11,7 +11,7 @@
         <label>Ticket Prefix</label>
         <div class="input-group">
           <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-fw fa-ticket-alt"></i></span>
+            <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
           </div>
           <input type="text" class="form-control" name="config_ticket_prefix" placeholder="Ticket Prefix" value="<?php echo $config_ticket_prefix; ?>">
         </div>

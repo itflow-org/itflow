@@ -116,7 +116,7 @@
         <li class="nav-item">
           <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings_ticket.php") { echo "active"; } ?>" 
             href="settings_ticket.php">
-            <i class="nav-icon fas fa-ticket-alt"></i>
+            <i class="nav-icon fas fa-life-ring"></i>
             <p>Ticket</p>
           </a> 
         </li>

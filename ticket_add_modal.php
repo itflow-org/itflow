@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-ticket-alt"></i> New Ticket</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-life-ring"></i> New Ticket</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>

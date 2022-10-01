@@ -183,7 +183,7 @@ if(isset($_GET['ticket_id'])){
 
 <div class="row mb-3">
   <div class="col-9">
-    <h3><i class="fas fa-fw fa-ticket-alt text-secondary"></i> Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <?php echo $ticket_status_display; ?></h3>
+    <h3><i class="fas fa-fw fa-life-ring text-secondary"></i> Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <?php echo $ticket_status_display; ?></h3>
   </div>
   <?php if($ticket_status != "Closed") { ?>
   <div class="col-3">
