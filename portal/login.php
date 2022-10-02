@@ -4,8 +4,10 @@
  * Landing / Home page for the client portal
  */
 
-include('../config.php');
-include('../functions.php');
+$session_company_id = 1;
+require_once('../config.php');
+require_once('../functions.php');
+require_once ('../get_settings.php');
 
 if(!isset($_SESSION)){
   // HTTP Only cookies
@@ -120,6 +122,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])){
         </div>
 
         <button type="submit" class="btn btn-success btn-block mb-3" name="login">Login</button>
+
+        <?php
+          if (!empty($config_smtp_host)) { ?>
+            <a href="login_reset.php">Forgotten password?</a>
+          <?php } ?>
 
       </form>
 

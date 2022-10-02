@@ -180,7 +180,7 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
     mysqli_query($mysqli, "ALTER TABLE contacts ADD contact_department VARCHAR(200) NULL AFTER contact_title");
     mysqli_query($mysqli, "DROP TABLE departments");
     mysqli_query($mysqli, "ALTER TABLE contacts DROP contact_department_id");
-    
+
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.0.7'");
   }
 
@@ -248,11 +248,11 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
     mysqli_query($mysqli, "CREATE TABLE `asset_documents` (`asset_id` int(11) NOT NULL,`document_id` int(11) NOT NULL, PRIMARY KEY (`asset_id`,`document_id`))");
     mysqli_query($mysqli, "CREATE TABLE `asset_logins` (`asset_id` int(11) NOT NULL,`login_id` int(11) NOT NULL, PRIMARY KEY (`asset_id`,`login_id`))");
     mysqli_query($mysqli, "CREATE TABLE `asset_files` (`asset_id` int(11) NOT NULL,`file_id` int(11) NOT NULL, PRIMARY KEY (`asset_id`,`file_id`))");
-    
+
     mysqli_query($mysqli, "CREATE TABLE `contact_documents` (`contact_id` int(11) NOT NULL,`document_id` int(11) NOT NULL, PRIMARY KEY (`contact_id`,`document_id`))");
     mysqli_query($mysqli, "CREATE TABLE `contact_logins` (`contact_id` int(11) NOT NULL,`login_id` int(11) NOT NULL, PRIMARY KEY (`contact_id`,`login_id`))");
     mysqli_query($mysqli, "CREATE TABLE `contact_files` (`contact_id` int(11) NOT NULL,`file_id` int(11) NOT NULL, PRIMARY KEY (`contact_id`,`file_id`))");
-    
+
     mysqli_query($mysqli, "CREATE TABLE `software_documents` (`software_id` int(11) NOT NULL,`document_id` int(11) NOT NULL, PRIMARY KEY (`software_id`,`document_id`))");
     mysqli_query($mysqli, "CREATE TABLE `software_logins` (`software_id` int(11) NOT NULL,`login_id` int(11) NOT NULL, PRIMARY KEY (`software_id`,`login_id`))");
     mysqli_query($mysqli, "CREATE TABLE `software_files` (`software_id` int(11) NOT NULL,`file_id` int(11) NOT NULL, PRIMARY KEY (`software_id`,`file_id`))");
@@ -290,12 +290,12 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
   }
 
   if(CURRENT_DATABASE_VERSION == '0.1.5'){
-  // Insert queries here required to update to DB version 0.1.6
+    // Insert queries here required to update to DB version 0.1.6
     // Remove Mailing List Tables
     mysqli_query($mysqli, "DROP TABLE campaigns");
     mysqli_query($mysqli, "DROP TABLE campaign_messages");
 
-  // Then, update the database to the next sequential version
+    // Then, update the database to the next sequential version
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.6'");
   }
 
@@ -308,29 +308,38 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
   }
 
   if(CURRENT_DATABASE_VERSION == '0.1.7'){
-  // Insert queries here required to update to DB version 0.1.8
+    // Insert queries here required to update to DB version 0.1.8
     mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_backup_enable`");
     mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_backup_path`");
 
-  // Then, update the database to the next sequential version
+    // Then, update the database to the next sequential version
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.8'");
   }
 
-  //if(CURRENT_DATABASE_VERSION == '0.1.8'){
-  // Insert queries here required to update to DB version 0.1.9
+  if(CURRENT_DATABASE_VERSION == '0.1.8'){
+    // Insert queries here required to update to DB version 0.1.9
     mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_base_url`");
-  // Then, update the database to the next sequential version
+    // Then, update the database to the next sequential version
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.9'");
-  //}
+  }
 
-  //if(CURRENT_DATABASE_VERSION == '0.1.9'){
-  // Insert queries here required to update to DB version 0.2.0
+  if(CURRENT_DATABASE_VERSION == '0.1.9'){
+    // Insert queries here required to update to DB version 0.2.0
+    // Allow contacts to reset their portal password
+    mysqli_query($mysqli, "ALTER TABLE contacts ADD contact_password_reset_token VARCHAR(200) NULL DEFAULT NULL AFTER contact_password_hash");
 
-  // Then, update the database to the next sequential version
-  // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.0'");
-  //}
+    // Then, update the database to the next sequential version
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.0'");
+    }
 
-}
-else{
-  // Up-to-date
-}
+    //if(CURRENT_DATABASE_VERSION == '0.2.0'){
+    // Insert queries here required to update to DB version 0.2.1
+
+    // Then, update the database to the next sequential version
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.1'");
+    //}
+
+  }
+  else{
+    // Up-to-date
+  }
