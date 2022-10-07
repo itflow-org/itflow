@@ -5209,7 +5209,7 @@ if(isset($_POST['add_login'])){
 
     $_SESSION['alert_message'] = "Login added";
     
-    header("Location: client.php?client_id=$client_id&tab=logins");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
