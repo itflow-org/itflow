@@ -125,34 +125,28 @@ if(isset($_POST['add_user'])){
     if(isset($_POST['send_email']) && !empty($config_smtp_host)){
 
         $mail = new PHPMailer(true);
+        
+        //Mail Server Settings
+        $mail->SMTPDebug = 2;                                       // Enable verbose debug output
+        $mail->isSMTP();                                            // Set mailer to use SMTP
+        $mail->Host       = $config_smtp_host;                      // Specify main and backup SMTP servers
+        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+        $mail->Username   = $config_smtp_username;                  // SMTP username
+        $mail->Password   = $config_smtp_password;                  // SMTP password
+        $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
+        $mail->Port       = $config_smtp_port;                      // TCP port to connect to
 
-        try{
-          //Mail Server Settings
-          $mail->SMTPDebug = 2;                                       // Enable verbose debug output
-          $mail->isSMTP();                                            // Set mailer to use SMTP
-          $mail->Host       = $config_smtp_host;                      // Specify main and backup SMTP servers
-          $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-          $mail->Username   = $config_smtp_username;                  // SMTP username
-          $mail->Password   = $config_smtp_password;                  // SMTP password
-          $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-          $mail->Port       = $config_smtp_port;                      // TCP port to connect to
+        //Recipients
+        $mail->setFrom($config_ticket_from_email, $config_ticket_from_name);
+        $mail->addAddress("$email", "$name");       // Add a recipient
 
-          //Recipients
-          $mail->setFrom($config_ticket_from_email, $config_ticket_from_name);
-          $mail->addAddress("$email", "$name");       // Add a recipient
+        // Content
+        $mail->isHTML(true);                                        // Set email format to HTML
 
-          // Content
-          $mail->isHTML(true);                                        // Set email format to HTML
-
-          $mail->Subject = "Your new $session_company_name ITFlow account";
-          $mail->Body    = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: $config_base_url<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
-          $mail->send();
-        }
-        catch(Exception $e){
-          echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-        }
+        $mail->Subject = "Your new $session_company_name ITFlow account";
+        $mail->Body    = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: $config_base_url<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+        $mail->send();
     }
-    //End Mail IF Try-Catch
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Create', log_description = '$session_name created user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
@@ -3087,57 +3081,51 @@ if(isset($_GET['email_quote'])){
 
     $mail = new PHPMailer(true);
 
-    try{
+    //Mail Server Settings
 
-        //Mail Server Settings
+    //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+    $mail->isSMTP();                                            // Set mailer to use SMTP
+    $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+    $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+    $mail->Username   = $config_smtp_username;                     // SMTP username
+    $mail->Password   = $config_smtp_password;                               // SMTP password
+    $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
+    $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
-        //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
-        $mail->isSMTP();                                            // Set mailer to use SMTP
-        $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-        $mail->Username   = $config_smtp_username;                     // SMTP username
-        $mail->Password   = $config_smtp_password;                               // SMTP password
-        $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-        $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+    //Recipients
+    $mail->setFrom($config_quote_from_email, $config_quote_from_name);
+    $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
-        //Recipients
-        $mail->setFrom($config_quote_from_email, $config_quote_from_name);
-        $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
+    // Attachments
+    //$mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
+    //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
+    //$mail->addAttachment("uploads/$quote_date-$config_company_name-Quote$quote_number.pdf");    // Optional name
 
-        // Attachments
-        //$mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
-        //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
-        //$mail->addAttachment("uploads/$quote_date-$config_company_name-Quote$quote_number.pdf");    // Optional name
+    // Content
+    $mail->isHTML(true);                                  // Set email format to HTML
 
-        // Content
-        $mail->isHTML(true);                                  // Set email format to HTML
+    $mail->Subject = "Quote [$quote_scope]";
+    $mail->Body    = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href='https://$config_base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>Sales<br>$config_quote_from_email<br>$company_phone";
+    
+    $mail->send();
+    echo 'Message has been sent';
 
-        $mail->Subject = "Quote [$quote_scope]";
-        $mail->Body    = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href='https://$config_base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>Sales<br>$config_quote_from_email<br>$company_phone";
-        
-        $mail->send();
-        echo 'Message has been sent';
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote!', history_quote_id = $quote_id, company_id = $session_company_id");
 
-        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote!', history_quote_id = $quote_id, company_id = $session_company_id");
+    //Don't change the status to sent if the status is anything but draft
+    if($quote_status == 'Draft'){
 
-        //Don't change the status to sent if the status is anything but draft
-        if($quote_status == 'Draft'){
+        mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent' WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
-            mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent' WHERE quote_id = $quote_id AND company_id = $session_company_id");
-
-        }
-
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Email', log_description = '$quote_id emailed to $contact_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
-
-        $_SESSION['alert_message'] = "Quote has been sent";
-
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-
-    } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Email', log_description = '$quote_id emailed to $contact_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Quote has been sent";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
 
 if(isset($_POST['add_recurring'])){
@@ -3597,72 +3585,70 @@ if(isset($_POST['add_payment'])){
             if($email_receipt == 1){
                 $mail = new PHPMailer(true);
 
-                try {
+                //Mail Server Settings
 
-                  //Mail Server Settings
+                //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+                $mail->isSMTP();                                            // Set mailer to use SMTP
+                $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+                $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+                $mail->Username   = $config_smtp_username;                     // SMTP username
+                $mail->Password   = $config_smtp_password;                               // SMTP password
+                $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
+                $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
-                  //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
-                  $mail->isSMTP();                                            // Set mailer to use SMTP
-                  $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-                  $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-                  $mail->Username   = $config_smtp_username;                     // SMTP username
-                  $mail->Password   = $config_smtp_password;                               // SMTP password
-                  $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-                  $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+                //Recipients
+                $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
+                $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
-                  //Recipients
-                  $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
-                  $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
+                // Content
+                $mail->isHTML(true);                                  // Set email format to HTML
+                $mail->Subject = "Payment Recieved - Invoice $invoice_prefix$invoice_number";
+                $mail->Body    = "Hello $contact_name,<br><br>We have recieved your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
-                  // Content
-                  $mail->isHTML(true);                                  // Set email format to HTML
-                  $mail->Subject = "Payment Recieved - Invoice $invoice_prefix$invoice_number";
-                  $mail->Body    = "Hello $contact_name,<br><br>We have recieved your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+                $mail->send();
 
-                  $mail->send();
-                  echo 'Message has been sent';
-
-                  mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id, company_id = $session_company_id");
-
-                } catch (Exception $e) {
-                    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                if(!$mail->send()){
+                    $_SESSION['alert_message'] .= "Mailer Error ";
+                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Failed!', history_invoice_id = $invoice_id, company_id = $session_company_id");
+                }else{
+                    $_SESSION['alert_message'] .= "Email receipt sent ";
+                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id, company_id = $session_company_id");
                 }
+        
             }
         }else{
             $invoice_status = "Partial";
             if($email_receipt == 1){
                 $mail = new PHPMailer(true);
 
-                try {
+                //Mail Server Settings
 
-                  //Mail Server Settings
+                //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+                $mail->isSMTP();                                            // Set mailer to use SMTP
+                $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+                $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+                $mail->Username   = $config_smtp_username;                     // SMTP username
+                $mail->Password   = $config_smtp_password;                               // SMTP password
+                $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
+                $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
-                  //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
-                  $mail->isSMTP();                                            // Set mailer to use SMTP
-                  $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-                  $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-                  $mail->Username   = $config_smtp_username;                     // SMTP username
-                  $mail->Password   = $config_smtp_password;                               // SMTP password
-                  $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-                  $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+                //Recipients
+                $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
+                $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
-                  //Recipients
-                  $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
-                  $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
+                // Content
+                $mail->isHTML(true);                                  // Set email format to HTML
+                $mail->Subject = "Partial Payment Recieved - Invoice $invoice_prefix$invoice_number";
+                $mail->Body    = "Hello $contact_name,<br><br>We have recieved partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
-                  // Content
-                  $mail->isHTML(true);                                  // Set email format to HTML
-                  $mail->Subject = "Partial Payment Recieved - Invoice $invoice_prefix$invoice_number";
-                  $mail->Body    = "Hello $contact_name,<br><br>We have recieved partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
-
-                  $mail->send();
-                  echo 'Message has been sent';
-
-                  mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id, company_id = $session_company_id");
-
-                } catch (Exception $e) {
-                    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                if(!$mail->send()){
+                    $_SESSION['alert_message'] .= "Mailer Error ";
+                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Failed!', history_invoice_id = $invoice_id, company_id = $session_company_id");
+                }else{
+                    $_SESSION['alert_message'] .= "Email receipt sent ";
+                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id, company_id = $session_company_id");
                 }
+              
             }
 
         }
@@ -3676,7 +3662,7 @@ if(isset($_POST['add_payment'])){
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = '$payment_amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-        $_SESSION['alert_message'] = "Payment added";
+        $_SESSION['alert_message'] .= "Payment added";
         
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
@@ -3779,61 +3765,56 @@ if(isset($_GET['email_invoice'])){
 
     $mail = new PHPMailer(true);
 
-    try{
+    //Mail Server Settings
 
-        //Mail Server Settings
+    //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
+    $mail->isSMTP();                                            // Set mailer to use SMTP
+    $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+    $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+    $mail->Username   = $config_smtp_username;                     // SMTP username
+    $mail->Password   = $config_smtp_password;                               // SMTP password
+    $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
+    $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
-        //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
-        $mail->isSMTP();                                            // Set mailer to use SMTP
-        $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-        $mail->Username   = $config_smtp_username;                     // SMTP username
-        $mail->Password   = $config_smtp_password;                               // SMTP password
-        $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-        $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+    //Recipients
+    $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
+    $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
-        //Recipients
-        $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
-        $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
+    // Content
+    $mail->isHTML(true);                                  // Set email format to HTML
+    
+    if($invoice_status == 'Paid'){
 
-        // Content
-        $mail->isHTML(true);                                  // Set email format to HTML
-        
-        if($invoice_status == 'Paid'){
+        $mail->Subject = "Invoice $invoice_prefix$invoice_number Copy";
+        $mail->Body    = "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
-            $mail->Subject = "Invoice $invoice_prefix$invoice_number Copy";
-            $mail->Body    = "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+    }else{
 
-        }else{
+        $mail->Subject = "Invoice $invoice_prefix$invoice_number";
+        $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+        //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+    }
 
-            $mail->Subject = "Invoice $invoice_prefix$invoice_number";
-            $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
-            //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
-        }
-        
-        $mail->send();
-        echo 'Message has been sent';
-
+    if(!$mail->send()){
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Invoice Failed to send ";
+        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Invoice Failed', history_invoice_id = $invoice_id, company_id = $session_company_id");
+    }else{
+        $_SESSION['alert_message'] = "Invoice has been sent";
         mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed invoice', history_invoice_id = $invoice_id, company_id = $session_company_id");
 
-        //Don't chnage the status to sent if the status is anything but draf
+        //Don't chnage the status to sent if the status is anything but draft
         if($invoice_status == 'Draft'){
-
             mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
-
         }
 
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Email', log_description = 'Invoice $invoice_prefix$invoice_number emailed to $client_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-        $_SESSION['alert_message'] = "Invoice has been sent";
-
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-
-    } catch (Exception $e) {
-        echo "poop";
     }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
 
 if(isset($_POST['add_revenue'])){
@@ -6996,40 +6977,34 @@ if(isset($_GET['force_recurring'])){
 
         $mail = new PHPMailer(true);
 
-        try{
+        //Mail Server Settings
 
-            //Mail Server Settings
+        $mail->SMTPDebug = 2;                                       // Enable verbose debug output
+        $mail->isSMTP();                                            // Set mailer to use SMTP
+        $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
+        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+        $mail->Username   = $config_smtp_username;                     // SMTP username
+        $mail->Password   = $config_smtp_password;                               // SMTP password
+        $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
+        $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
 
-            $mail->SMTPDebug = 2;                                       // Enable verbose debug output
-            $mail->isSMTP();                                            // Set mailer to use SMTP
-            $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-            $mail->Username   = $config_smtp_username;                     // SMTP username
-            $mail->Password   = $config_smtp_password;                               // SMTP password
-            $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-            $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+        //Recipients
+        $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
+        $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
 
-            //Recipients
-            $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
-            $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
+        // Content
+        $mail->isHTML(true);                                  // Set email format to HTML
 
-            // Content
-            $mail->isHTML(true);                                  // Set email format to HTML
+        $mail->Subject = "Invoice $invoice_prefix$invoice_number";
+        $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
 
-            $mail->Subject = "Invoice $invoice_prefix$invoice_number";
-            $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+        $mail->send();
 
-            $mail->send();
+        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Auto Emailed Invoice!', history_invoice_id = $new_invoice_id, company_id = $session_company_id");
 
-            mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Auto Emailed Invoice!', history_invoice_id = $new_invoice_id, company_id = $session_company_id");
+        //Update Invoice Status to Sent
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id AND company_id = $session_company_id");
 
-            //Update Invoice Status to Sent
-            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id AND company_id = $session_company_id");
-
-        }catch(Exception $e){
-            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-            mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Failed to send Invoice!', history_invoice_id = $new_invoice_id, company_id = $session_company_id");
-        } //End Mail Try
     } //End Recurring Invoices Loop
 
     //Logging
