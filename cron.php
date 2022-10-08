@@ -335,7 +335,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
       mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
 
-      mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Recurring', notification = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', notification_timestamp = NOW(), company_id = $company_id");
+      mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Recurring', notification = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
       //Update recurring dates
 
