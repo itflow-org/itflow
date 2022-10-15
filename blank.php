@@ -15,7 +15,6 @@
 
 <?php echo CURRENT_DATABASE_VERSION; ?>
 
-<script>toastr.success('Have Fun Wozz')</script>
-
+<script>toastr.success('Have Fun Wozz!!')</script>
 
 <?php include("footer.php"); ?>

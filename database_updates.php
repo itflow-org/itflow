@@ -330,16 +330,52 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
 
     // Then, update the database to the next sequential version
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.0'");
-    }
-
-    //if(CURRENT_DATABASE_VERSION == '0.2.0'){
-    // Insert queries here required to update to DB version 0.2.1
-
-    // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.1'");
-    //}
-
   }
-  else{
+
+  if(CURRENT_DATABASE_VERSION == '0.2.0'){
+    //Insert queries here required to update to DB version 0.2.1
+
+    mysqli_query($mysqli, "ALTER TABLE `vendors` 
+      ADD `vendor_hours` VARCHAR(200) NULL DEFAULT NULL AFTER `vendor_website`,
+      ADD `vendor_sla` VARCHAR(200) NULL DEFAULT NULL AFTER `vendor_hours`,
+      ADD `vendor_code` VARCHAR(200) NULL DEFAULT NULL AFTER `vendor_sla`,
+      ADD `vendor_template_id` INT(11) DEFAULT 0 AFTER `vendor_archived_at`
+    ");
+  
+    mysqli_query($mysqli, "ALTER TABLE `vendors`
+      DROP `vendor_country`, 
+      DROP `vendor_address`, 
+      DROP `vendor_city`, 
+      DROP `vendor_state`, 
+      DROP `vendor_zip`, 
+      DROP `vendor_global`
+    ");
+    
+    //Create New Vendor Templates Table
+    mysqli_query($mysqli, "CREATE TABLE `vendor_templates` (`vendor_template_id` int(11) AUTO_INCREMENT PRIMARY KEY,
+      `vendor_template_name` varchar(200) NOT NULL,
+      `vendor_template_description` varchar(200) NULL DEFAULT NULL, 
+      `vendor_template_phone` varchar(200) NULL DEFAULT NULL, 
+      `vendor_template_email` varchar(200) NULL DEFAULT NULL,
+      `vendor_template_website` varchar(200) NULL DEFAULT NULL,
+      `vendor_template_hours` varchar(200) NULL DEFAULT NULL,
+      `vendor_template_created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+      `vendor_template_updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP,
+      `vendor_template_archived_at` datetime NULL DEFAULT NULL,
+      `company_id` int(11) NOT NULL
+    )");
+
+    //Then, update the database to the next sequential version
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.1'");
+  }
+
+  //if(CURRENT_DATABASE_VERSION == '0.2.1'){
+  // Insert queries here required to update to DB version 0.2.2
+  
+  // Then, update the database to the next sequential version
+  // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.2'");
+  //}
+
+}else{
     // Up-to-date
-  }
+}

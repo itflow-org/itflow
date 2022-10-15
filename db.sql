@@ -1432,6 +1432,29 @@ CREATE TABLE `vendor_logins` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `vendor_templates`
+--
+
+DROP TABLE IF EXISTS `vendor_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `vendor_templates` (
+  `vendor_template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `vendor_template_name` varchar(200) NOT NULL,
+  `vendor_template_description` varchar(200) DEFAULT NULL,
+  `vendor_template_phone` varchar(200) DEFAULT NULL,
+  `vendor_template_email` varchar(200) DEFAULT NULL,
+  `vendor_template_website` varchar(200) DEFAULT NULL,
+  `vendor_template_hours` varchar(200) DEFAULT NULL,
+  `vendor_template_created_at` datetime DEFAULT current_timestamp(),
+  `vendor_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `vendor_template_archived_at` datetime DEFAULT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`vendor_template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `vendors`
 --
 
@@ -1442,22 +1465,20 @@ CREATE TABLE `vendors` (
   `vendor_id` int(11) NOT NULL AUTO_INCREMENT,
   `vendor_name` varchar(200) NOT NULL,
   `vendor_description` varchar(200) DEFAULT NULL,
-  `vendor_country` varchar(200) DEFAULT NULL,
-  `vendor_address` varchar(200) DEFAULT NULL,
-  `vendor_city` varchar(200) DEFAULT NULL,
-  `vendor_state` varchar(200) DEFAULT NULL,
-  `vendor_zip` varchar(200) DEFAULT NULL,
   `vendor_contact_name` varchar(200) DEFAULT NULL,
   `vendor_phone` varchar(200) DEFAULT NULL,
   `vendor_extension` varchar(200) DEFAULT NULL,
   `vendor_email` varchar(200) DEFAULT NULL,
   `vendor_website` varchar(200) DEFAULT NULL,
+  `vendor_hours` varchar(200) DEFAULT NULL,
+  `vendor_sla` varchar(200) DEFAULT NULL,
+  `vendor_code` varchar(200) DEFAULT NULL,
   `vendor_account_number` varchar(200) DEFAULT NULL,
   `vendor_notes` text DEFAULT NULL,
-  `vendor_global` tinyint(1) DEFAULT NULL,
   `vendor_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `vendor_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `vendor_archived_at` datetime DEFAULT NULL,
+  `vendor_template_id` int(11) DEFAULT 0,
   `vendor_client_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`vendor_id`)
@@ -1473,4 +1494,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-09-17 18:03:12
+-- Dump completed on 2022-10-14 21:46:21

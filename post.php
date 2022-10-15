@@ -762,6 +762,7 @@ if(isset($_GET['delete_company'])){
     mysqli_query($mysqli,"DELETE FROM trips WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM user_companies WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM vendors WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM vendor_templates WHERE company_id = $company_id");
 
     // Delete Company Files
     removeDirectory('uploads/clients/$company_id');
@@ -1733,19 +1734,18 @@ if(isset($_POST['add_vendor'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $account_number = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number'])));
-    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
-    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
-    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
-    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
-    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
     $contact_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
+    $extension = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
+    $hours = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours'])));
+    $sla = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['sla'])));
+    $code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['code'])));
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $template_id = intval($_POST['template_id']);
     
-    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_country = '$country', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_template_id = $template_id, vendor_client_id = $client_id, company_id = $session_company_id");
 
     $vendor_id = mysqli_insert_id($mysqli);
 
@@ -1763,19 +1763,18 @@ if(isset($_POST['edit_vendor'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $account_number = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number'])));
-    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
-    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
-    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
-    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
-    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
     $contact_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
+    $extension = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
+    $hours = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours'])));
+    $sla = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['sla'])));
+    $code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['code'])));
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $template_id = intval($_POST['template_id']);
 
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_country = '$country', vendor_address = '$address', vendor_city = '$city', vendor_state = '$state', vendor_zip = '$zip', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_account_number = '$account_number', vendor_notes = '$notes' WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code',vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_template_id = $template_id WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Modify', log_description = '$session_name modified vendor $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");

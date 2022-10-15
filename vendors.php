@@ -105,11 +105,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $vendor_description_display = $vendor_description;
             }
             $vendor_account_number = $row['vendor_account_number'];
-            $vendor_country = $row['vendor_country'];
-            $vendor_address = $row['vendor_address'];
-            $vendor_city = $row['vendor_city'];
-            $vendor_state = $row['vendor_state'];
-            $vendor_zip = $row['vendor_zip'];
             $vendor_contact_name = $row['vendor_contact_name'];
             if(empty($vendor_contact_name)){
               $vendor_contact_name_display = "-";
@@ -120,7 +115,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $vendor_extension = $row['vendor_extension'];
             $vendor_email = $row['vendor_email'];
             $vendor_website = $row['vendor_website'];
-            $vendor_notes = $row['vendor_notes']
+            $vendor_hours = $row['vendor_hours'];
+            $vendor_sla = $row['vendor_sla'];
+            $vendor_code = $row['vendor_code'];
+            $vendor_notes = $row['vendor_notes'];
+            $vendor_template_id = $row['vendor_template_id'];
             
           ?>
 
