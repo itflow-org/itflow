@@ -354,7 +354,7 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
     //Create New Vendor Templates Table
     mysqli_query($mysqli, "CREATE TABLE `vendor_templates` (`vendor_template_id` int(11) AUTO_INCREMENT PRIMARY KEY,
       `vendor_template_name` varchar(200) NOT NULL,
-      `vendor_template_description` varchar(200) NULL DEFAULT NULL, 
+      `vendor_template_description` varchar(200) NULL DEFAULT NULL,
       `vendor_template_phone` varchar(200) NULL DEFAULT NULL, 
       `vendor_template_email` varchar(200) NULL DEFAULT NULL,
       `vendor_template_website` varchar(200) NULL DEFAULT NULL,
