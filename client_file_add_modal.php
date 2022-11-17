@@ -16,7 +16,7 @@
           </div>
 
           <div class="form-group">
-            <input type="file" class="form-control-file" name="file" accept=".jpg, .gif, .png, .pdf, .txt, .doc, .docx, .csv, .xls, .xlsx, .zip, .tar, .gz">
+            <input type="file" class="form-control-file" name="file" accept=".jpg, .jpeg, .gif, .png, .pdf, .txt, .doc, .docx, .csv, .xls, .xlsx, .zip, .tar, .gz">
           </div>
           
         </div>
