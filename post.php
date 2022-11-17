@@ -6641,7 +6641,7 @@ if(isset($_POST['add_file'])){
         $file_reference_name = md5(time() . $file_name) . '.' . $file_extension;
 
         // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');
+        $allowed_file_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');
      
         if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;
