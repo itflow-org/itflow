@@ -27,7 +27,7 @@
         <?php }else{ ?>
         <img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="user-image img-circle">
         <?php } ?>
-        <span class="d-none d-md-inline"><?php echo $session_name; ?></span>
+        <span class="d-none d-md-inline"><?php echo htmlentities($session_name); ?></span>
       </a>
       <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
         <!-- User image -->
@@ -39,8 +39,8 @@
           	<img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-circle">
 					<?php } ?>
           <p>
-            <?php echo $session_name; ?>
-            <small><?php echo $session_user_role_display; ?></small>
+            <?php echo htmlentities($session_name); ?>
+            <small><?php echo htmlentities($session_user_role_display); ?></small>
           </p>
         </li>
         <!-- Menu Footer-->

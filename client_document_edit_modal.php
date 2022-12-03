@@ -46,7 +46,7 @@
                 $sql_folders_select = mysqli_query($mysqli,"SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
                 while($row = mysqli_fetch_array($sql_folders_select)){
                   $folder_id_select = $row['folder_id'];
-                  $folder_name_select = $row['folder_name'];
+                  $folder_name_select = htmlentities($row['folder_name']);
                 ?>
                 <option <?php if($folder_id_select == $document_folder_id) echo "selected"; ?> value="<?php echo $folder_id_select ?>"><?php echo $folder_name_select; ?></option>
                 <?php

@@ -78,10 +78,10 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
 
           while($row = mysqli_fetch_array($sql)){
             $tag_id = $row['tag_id'];
-            $tag_name = $row['tag_name'];
-            $tag_type = $row['tag_type'];
-            $tag_color = $row['tag_color'];
-            $tag_icon = $row['tag_icon'];
+            $tag_name = htmlentities($row['tag_name']);
+            $tag_type = htmlentities($row['tag_type']);
+            $tag_color = htmlentities($row['tag_color']);
+            $tag_icon = htmlentities($row['tag_icon']);
       
           ?>
           <tr>

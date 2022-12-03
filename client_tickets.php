@@ -82,12 +82,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $ticket_id = $row['ticket_id'];
-            $ticket_prefix = $row['ticket_prefix'];
-            $ticket_number = $row['ticket_number'];
-            $ticket_subject = $row['ticket_subject'];
+            $ticket_prefix = htmlentities($row['ticket_prefix']);
+            $ticket_number = htmlentities($row['ticket_number']);
+            $ticket_subject = htmlentities($row['ticket_subject']);
             $ticket_details = $row['ticket_details'];
-            $ticket_priority = $row['ticket_priority'];
-            $ticket_status = $row['ticket_status'];
+            $ticket_priority = htmlentities($row['ticket_priority']);
+            $ticket_status = htmlentities($row['ticket_status']);
             $ticket_created_at = $row['ticket_created_at'];
             $ticket_updated_at = $row['ticket_updated_at'];
               if (empty($ticket_updated_at)) {
@@ -128,26 +128,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                       $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
                   }
               } else {
-                  $ticket_assigned_to_display = $row['user_name'];
+                  $ticket_assigned_to_display = htmlentities($row['user_name']);
               }
             $contact_id = $row['contact_id'];
-            $contact_name = $row['contact_name'];
+            $contact_name = htmlentities($row['contact_name']);
             if(empty($contact_name)){
               $contact_display = "-";
             }else{
               $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
             }
-            $contact_title = $row['contact_title'];
-            $contact_email = $row['contact_email'];
-            $contact_phone = $row['contact_phone'];
-            if(strlen($contact_phone)>2){ 
-              $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
-            }
-            $contact_extension = $row['contact_extension'];
-            $contact_mobile = $row['contact_mobile'];
-            if(strlen($contact_mobile)>2){ 
-              $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
-            }
+            $contact_title = htmlentities($row['contact_title']);
+            $contact_email = htmlentities($row['contact_email']);
+            $contact_phone = formatPhoneNumber($row['contact_phone']);
+            $contact_extension = htmlentities($row['contact_extension']);
+            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
 
           ?>
 

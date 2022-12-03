@@ -60,7 +60,7 @@
                 $sql_companies_select = mysqli_query($mysqli,"SELECT * FROM companies ORDER BY company_name ASC"); 
                 while($row = mysqli_fetch_array($sql_companies_select)){
                   $company_id = $row['company_id'];
-                  $company_name = $row['company_name'];
+                  $company_name = htmlentities($row['company_name']);
                 ?>
                   <option value="<?php echo $company_id; ?>"><?php echo $company_name; ?></option>
                 

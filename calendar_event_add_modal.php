@@ -23,8 +23,8 @@
                 $sql = mysqli_query($mysqli,"SELECT * FROM calendars WHERE company_id = $session_company_id ORDER BY calendar_name ASC"); 
                 while($row = mysqli_fetch_array($sql)){
                   $calendar_id = $row['calendar_id'];
-                  $calendar_name = $row['calendar_name'];
-                  $calendar_color = $row['calendar_color'];
+                  $calendar_name = htmlentities($row['calendar_name']);
+                  $calendar_color = htmlentities($row['calendar_color']);
                 ?>
                   <option <?php if($config_default_calendar == $calendar_id){ echo "selected"; } ?> data-content="<i class='fa fa-circle mr-2' style='color:<?php echo $calendar_color; ?>;'></i> <?php echo $calendar_name; ?>" value="<?php echo $calendar_id; ?>"><?php echo $calendar_name; ?></option>
                 
@@ -108,8 +108,8 @@
                 $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN contacts ON primary_contact = contact_id WHERE clients.company_id = $session_company_id ORDER BY client_name ASC"); 
                 while($row = mysqli_fetch_array($sql)){
                   $client_id = $row['client_id'];
-                  $client_name = $row['client_name'];
-                  $contact_email = $row['contact_email'];
+                  $client_name = htmlentities($row['client_name']);
+                  $contact_email = htmlentities($row['contact_email']);
                 ?>
                   <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
                 

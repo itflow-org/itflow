@@ -65,8 +65,8 @@
                   $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE (account_archived_at > '$revenue_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id  ORDER BY account_name ASC");
                   while($row = mysqli_fetch_array($sql_accounts)){
                     $account_id_select = $row['account_id'];
-                    $account_name_select = $row['account_name'];
-                    $opening_balance = $row['opening_balance'];
+                    $account_name_select = htmlentities($row['account_name']);
+                    $opening_balance = htmlentities($row['opening_balance']);
                     
                     $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id_select");
                     $row = mysqli_fetch_array($sql_payments);
@@ -105,7 +105,7 @@
                   $sql_category = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$revenue_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC"); 
                   while($row = mysqli_fetch_array($sql_category)){
                     $category_id_select = $row['category_id'];
-                    $category_name = $row['category_name'];
+                    $category_name = htmlentities($row['category_name']);
                   ?>
                     <option <?php if($category_id_select == $category_id){ echo "selected"; } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name; ?></option>
                   
@@ -140,7 +140,7 @@
                   
                   $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method' AND (category_archived_at > '$revenue_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC"); 
                   while($row = mysqli_fetch_array($sql_categories)){
-                    $category_name_select = $row['category_name'];
+                    $category_name_select = htmlentities($row['category_name']);
                   ?>
                     <option <?php if($revenue_payment_method == $category_name_select){ echo "selected"; } ?>><?php echo "$category_name_select"; ?></option>
                   

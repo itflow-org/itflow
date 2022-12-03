@@ -76,7 +76,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           $sql_folders = mysqli_query($mysqli,"SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
           while($row = mysqli_fetch_array($sql_folders)){
             $folder_id = $row['folder_id'];
-            $folder_name = $row['folder_name'];
+            $folder_name = htmlentities($row['folder_name']);
 
             $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_id') AS num FROM documents WHERE document_folder_id = $folder_id"));
             $num_documents = $row['num'];
@@ -161,7 +161,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           
               while($row = mysqli_fetch_array($sql)){
                 $document_id = $row['document_id'];
-                $document_name = $row['document_name'];
+                $document_name = htmlentities($row['document_name']);
                 $document_content = $row['document_content'];
                 $document_created_at = $row['document_created_at'];
                 $document_updated_at = $row['document_updated_at'];

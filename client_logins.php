@@ -68,28 +68,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           while($row = mysqli_fetch_array($sql)){
             $login_id = $row['login_id'];
-            $login_name = $row['login_name'];
-            $login_uri = $row['login_uri'];
+            $login_name = htmlentities($row['login_name']);
+            $login_uri = htmlentities($row['login_uri']);
             if(empty($login_uri)){
               $login_uri_display = "-";
             }else{
               $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='https://$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
             }
-            $login_username = $row['login_username'];
+            $login_username = htmlentities($row['login_username']);
             if(empty($login_username)){
               $login_username_display = "-";
             }else{
               $login_username_display = "$login_username<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_username'><i class='far fa-copy text-secondary'></i></button>";
             }
             $login_password = htmlentities(decryptLoginEntry($row['login_password']));
-            $login_otp_secret = $row['login_otp_secret'];
+            $login_otp_secret = htmlentities($row['login_otp_secret']);
             $login_id_with_secret = '"' . $row['login_id'] . '","' . $row['login_otp_secret'] . '"';
             if(empty($login_otp_secret)){
               $otp_display = "-";
             }else{
               $otp_display = "<span onmouseenter='showOTP($login_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
             }
-            $login_note = $row['login_note'];
+            $login_note = htmlentities($row['login_note']);
             $login_contact_id = $row['login_contact_id'];
             $login_vendor_id = $row['login_vendor_id'];
             $login_asset_id = $row['login_asset_id'];

@@ -13,7 +13,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_smtp_host" placeholder="Mail Server Address" value="<?php echo $config_smtp_host; ?>" required>
+          <input type="text" class="form-control" name="config_smtp_host" placeholder="Mail Server Address" value="<?php echo htmlentities($config_smtp_host); ?>" required>
         </div>
       </div>
 
@@ -23,7 +23,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
           </div>
-          <input type="number" min="0" class="form-control" name="config_smtp_port" placeholder="Mail Server Port Number" value="<?php echo $config_smtp_port; ?>" required>
+          <input type="number" min="0" class="form-control" name="config_smtp_port" placeholder="Mail Server Port Number" value="<?php echo htmlentities($config_smtp_port); ?>" required>
         </div>
       </div>
 
@@ -47,7 +47,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_smtp_username" placeholder="Username" value="<?php echo $config_smtp_username; ?>" required>
+          <input type="text" class="form-control" name="config_smtp_username" placeholder="Username" value="<?php echo htmlentities($config_smtp_username); ?>" required>
         </div>
       </div>
 
@@ -57,7 +57,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
           </div>
-          <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="Password" value="<?php echo $config_smtp_password; ?>" autocomplete="new-password" required>
+          <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="Password" value="<?php echo htmlentities($config_smtp_password); ?>" autocomplete="new-password" required>
           <div class="input-group-append">
             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
           </div>
@@ -70,7 +70,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
           </div>
-          <input type="email" class="form-control" name="config_mail_from_email" placeholder="Email Address" value="<?php echo $config_mail_from_email; ?>">
+          <input type="email" class="form-control" name="config_mail_from_email" placeholder="Email Address" value="<?php echo htmlentities($config_mail_from_email); ?>">
         </div>
       </div>
 
@@ -80,7 +80,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_mail_from_name" placeholder="Name" value="<?php echo $config_mail_from_name; ?>">
+          <input type="text" class="form-control" name="config_mail_from_name" placeholder="Name" value="<?php echo htmlentities($config_mail_from_name); ?>">
         </div>
       </div>
 

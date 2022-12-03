@@ -77,28 +77,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $vendor_id = $row['vendor_id'];
-            $vendor_name = $row['vendor_name'];
-            $vendor_description = $row['vendor_description'];
+            $vendor_name = htmlentities($row['vendor_name']);
+            $vendor_description = htmlentities($row['vendor_description']);
             if(empty($vendor_description)){
               $vendor_description_display = "-";
             }else{
               $vendor_description_display = $vendor_description;
             }
-            $vendor_account_number = $row['vendor_account_number'];
-            $vendor_contact_name = $row['vendor_contact_name'];
+            $vendor_account_number = htmlentities($row['vendor_account_number']);
+            $vendor_contact_name = htmlentities($row['vendor_contact_name']);
             if(empty($vendor_contact_name)){
               $vendor_contact_name_display = "-";
             }else{
               $vendor_contact_name_display = $vendor_contact_name;
             }
             $vendor_phone = formatPhoneNumber($row['vendor_phone']);
-            $vendor_extension = $row['vendor_extension'];
-            $vendor_email = $row['vendor_email'];
-            $vendor_website = $row['vendor_website'];
-            $vendor_hours = $row['vendor_hours'];
-            $vendor_sla = $row['vendor_sla'];
-            $vendor_code = $row['vendor_code'];
-            $vendor_notes = $row['vendor_notes'];
+            $vendor_extension = htmlentities($row['vendor_extension']);
+            $vendor_email = htmlentities($row['vendor_email']);
+            $vendor_website = htmlentities($row['vendor_website']);
+            $vendor_hours = htmlentities($row['vendor_hours']);
+            $vendor_sla = htmlentities($row['vendor_sla']);
+            $vendor_code = htmlentities($row['vendor_code']);
+            $vendor_notes = htmlentities($row['vendor_notes']);
             $vendor_template_id = $row['vendor_template_id'];
               
           ?>

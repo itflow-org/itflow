@@ -140,9 +140,9 @@
 
                 while($row = mysqli_fetch_array($sql)){
                   $asset_id = $row['asset_id'];
-                  $asset_name = $row['asset_name'];
-                  $asset_type = $row['asset_type'];
-                  $contact_name = $row['contact_name'];
+                  $asset_name = htmlentities($row['asset_name']);
+                  $asset_type = htmlentities($row['asset_type']);
+                  $contact_name = htmlentities($row['contact_name']);
 
                 ?>
                   <li class="list-group-item">
@@ -173,8 +173,8 @@
 
                 while($row = mysqli_fetch_array($sql)){
                   $contact_id = $row['contact_id'];
-                  $contact_name = $row['contact_name'];
-                  $contact_email = $row['contact_email'];
+                  $contact_name = htmlentities($row['contact_name']);
+                  $contact_email = htmlentities($row['contact_email']);
 
                 ?>
                   <li class="list-group-item">

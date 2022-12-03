@@ -76,7 +76,7 @@
                                 $domains_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = '$client_id'");
                                 while($domain_row = mysqli_fetch_array($domains_sql)){
                                     $domain_id = $domain_row['domain_id'];
-                                    $domain_name = $domain_row['domain_name'];
+                                    $domain_name = htmlentities($domain_row['domain_name']);
                                     echo "<option value=\"$domain_id\">$domain_name</option>";
                                 }
                                 ?>

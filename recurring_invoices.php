@@ -143,24 +143,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $recurring_id = $row['recurring_id'];
-            $recurring_prefix = $row['recurring_prefix'];
-            $recurring_number = $row['recurring_number'];
-            $recurring_scope = $row['recurring_scope'];
-            $recurring_frequency = $row['recurring_frequency'];
-            $recurring_status = $row['recurring_status'];
+            $recurring_prefix = htmlentities($row['recurring_prefix']);
+            $recurring_number = htmlentities($row['recurring_number']);
+            $recurring_scope = htmlentities($row['recurring_scope']);
+            $recurring_frequency = htmlentities($row['recurring_frequency']);
+            $recurring_status = htmlentities($row['recurring_status']);
             $recurring_last_sent = $row['recurring_last_sent'];
             if($recurring_last_sent == 0){
               $recurring_last_sent = "-";
             }
             $recurring_next_date = $row['recurring_next_date'];
-            $recurring_amount = $row['recurring_amount'];
-            $recurring_currency_code = $row['recurring_currency_code'];
+            $recurring_amount = htmlentities($row['recurring_amount']);
+            $recurring_currency_code = htmlentities($row['recurring_currency_code']);
             $recurring_created_at = $row['recurring_created_at'];
             $client_id = $row['client_id'];
-            $client_name = $row['client_name'];
-            $client_currency_code = $row['client_currency_code'];
+            $client_name = htmlentities($row['client_name']);
+            $client_currency_code = htmlentities($row['client_currency_code']);
             $category_id = $row['category_id'];
-            $category_name = $row['category_name'];
+            $category_name = htmlentities($row['category_name']);
             if($recurring_status == 1){
               $status = "Active";
               $status_badge_color = "success";

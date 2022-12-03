@@ -25,7 +25,7 @@
           while($row = mysqli_fetch_array($sql)){
 
             $company_id = $row['company_id'];
-            $company_name = $row['company_name'];
+            $company_name = htmlentities($row['company_name']);
 
           ?>
           
@@ -42,7 +42,7 @@
 
       <?php }else{ ?>
 
-        <h2 class="brand-text text-light my-3"><i class="fas fa-cloud"></i> <?php echo $session_company_name; ?></h2>
+        <h2 class="brand-text text-light my-3"><i class="fas fa-cloud"></i> <?php echo htmlentities($session_company_name); ?></h2>
 
       <?php } ?>
 

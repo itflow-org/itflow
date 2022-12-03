@@ -25,14 +25,14 @@ if(isset($_GET['calendar_id'])){
 $sql = mysqli_query($mysqli,"SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id WHERE calendars.company_id = $session_company_id");
 while($row = mysqli_fetch_array($sql)){
   $event_id = $row['event_id'];
-  $event_title = $row['event_title'];
-  $event_description = $row['event_description'];
-  $event_start = $row['event_start'];
-  $event_end = $row['event_end'];
-  $event_repeat = $row['event_repeat'];
+  $event_title = htmlentities($row['event_title']);
+  $event_description = htmlentities($row['event_description']);
+  $event_start = htmlentities($row['event_start']);
+  $event_end = htmlentities($row['event_end']);
+  $event_repeat = htmlentities($row['event_repeat']);
   $calendar_id = $row['calendar_id'];
-  $calendar_name = $row['calendar_name'];
-  $calendar_color = $row['calendar_color'];
+  $calendar_name = htmlentities($row['calendar_name']);
+  $calendar_color = htmlentities($row['calendar_color']);
   $client_id = $row['event_client_id'];
 
   include("calendar_event_edit_modal.php");
@@ -76,15 +76,15 @@ while($row = mysqli_fetch_array($sql)){
           <?php
           $sql = mysqli_query($mysqli,"SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id WHERE calendars.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
-            $event_id = $row['event_id'];
-            $event_title = $row['event_title'];
-            $event_start = $row['event_start'];
-            $event_end = $row['event_end'];
-            $calendar_id = $row['calendar_id'];
-            $calendar_name = $row['calendar_name'];
-            $calendar_color = $row['calendar_color'];
+            $event_id = json_encode($row['event_id']);
+            $event_title = json_encode($row['event_title']);
+            $event_start = json_encode($row['event_start']);
+            $event_end = json_encode($row['event_end']);
+            $calendar_id = json_encode($row['calendar_id']);
+            $calendar_name = json_encode($row['calendar_name']);
+            $calendar_color = json_encode($row['calendar_color']);
             
-            echo "{ id: '$event_id', title: '$event_title', start: '$event_start', end: '$event_end', color: '$calendar_color'},";
+            echo "{ id: $event_id, title: $event_title, start: $event_start, end: $event_end, color: $calendar_color },";
           }
           ?>
           
@@ -92,11 +92,11 @@ while($row = mysqli_fetch_array($sql)){
           //Invoices Created
           $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN invoices ON client_id = invoice_client_id WHERE clients.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
-            $event_id = $row['invoice_id'];
-            $event_title = $row['invoice_prefix'] . $row['invoice_number'] . " " . $row['invoice_scope'];
-            $event_start = $row['invoice_date'];
+            $event_id = json_encode($row['invoice_id']);
+            $event_title = json_encode($row['invoice_prefix'] . $row['invoice_number'] . " " . $row['invoice_scope']);
+            $event_start = json_encode($row['invoice_date']);
             
-            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'blue', url: 'invoice.php?invoice_id=$event_id'},";
+            echo "{ id: $event_id, title: $event_title, start: $event_start, color: 'blue', url: 'invoice.php?invoice_id=$event_id' },";
           }
           ?>
 
@@ -104,11 +104,11 @@ while($row = mysqli_fetch_array($sql)){
           //Quotes Created
           $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN quotes ON client_id = quote_client_id WHERE clients.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
-            $event_id = $row['quote_id'];
-            $event_title = $row['quote_prefix'] . $row['quote_number'] . " " . $row['quote_scope'];
-            $event_start = $row['quote_date'];
+            $event_id = json_encode($row['quote_id']);
+            $event_title = json_encode($row['quote_prefix'] . $row['quote_number'] . " " . $row['quote_scope']);
+            $event_start = json_encode($row['quote_date']);
             
-            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'purple', url: 'quote.php?quote_id=$event_id'},";
+            echo "{ id: $event_id, title: $event_title, start: $event_start, color: 'purple', url: 'quote.php?quote_id=$event_id' },";
           }
           ?>
 
@@ -116,11 +116,11 @@ while($row = mysqli_fetch_array($sql)){
           //Tickets Created
           $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN tickets ON client_id = ticket_client_id WHERE clients.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
-            $event_id = $row['ticket_id'];
-            $event_title = $row['ticket_prefix'] . $row['ticket_number'] . " " . $row['ticket_subject'];
-            $event_start = $row['ticket_created_at'];
+            $event_id = json_encode($row['ticket_id']);
+            $event_title = json_encode($row['ticket_prefix'] . $row['ticket_number'] . " " . $row['ticket_subject']);
+            $event_start = json_encode($row['ticket_created_at']);
             
-            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'orange', url: 'ticket.php?ticket_id=$event_id'},";
+            echo "{ id: $event_id, title: $event_title, start: $event_start, color: 'orange', url: 'ticket.php?ticket_id=$event_id' },";
          
           }
           
@@ -130,11 +130,11 @@ while($row = mysqli_fetch_array($sql)){
           //Vendors Added Created
           $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN vendors ON client_id = vendor_client_id WHERE clients.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
-            $event_id = $row['vendor_id'];
-            $event_title = $row['vendor_name'];
-            $event_start = $row['vendor_created_at'];
+            $event_id = json_encode($row['vendor_id']);
+            $event_title = json_encode($row['vendor_name']);
+            $event_start = json_encode($row['vendor_created_at']);
             
-            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'brown', url: 'client_vendors.php?client_id=$event_id'},";
+            echo "{ id: $event_id, title: $event_title, start: $event_start, color: 'brown', url: 'client_vendors.php?client_id=$event_id' },";
           }
           ?>
 
@@ -142,11 +142,11 @@ while($row = mysqli_fetch_array($sql)){
           //Clients Added
           $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE clients.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
-            $event_id = $row['client_id'];
-            $event_title = $row['client_name'];
-            $event_start = $row['client_created_at'];
+            $event_id = json_encode($row['client_id']);
+            $event_title = json_encode($row['client_name']);
+            $event_start = json_encode($row['client_created_at']);
             
-            echo "{ id: '$event_id', title: ". json_encode($event_title) .", start: '$event_start', color: 'green', url: 'client.php?client_id=$event_id'},";
+            echo "{ id: $event_id, title: $event_title, start: $event_start, color: 'green', url: 'client.php?client_id=$event_id' },";
           }
           ?>
 

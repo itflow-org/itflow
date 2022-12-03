@@ -24,7 +24,7 @@
 
             while($row = mysqli_fetch_array($sql_companies_select)){
               $company_id_select = $row['company_id'];
-              $company_name_select = $row['company_name'];
+              $company_name_select = htmlentities($row['company_name']);
 
             ?>
               <li class="list-group-item">

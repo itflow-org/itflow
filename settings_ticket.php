@@ -13,7 +13,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_ticket_prefix" placeholder="Ticket Prefix" value="<?php echo $config_ticket_prefix; ?>">
+          <input type="text" class="form-control" name="config_ticket_prefix" placeholder="Ticket Prefix" value="<?php echo htmlentities($config_ticket_prefix); ?>">
         </div>
       </div>
 
@@ -23,7 +23,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
           </div>
-          <input type="number" min="0" class="form-control" name="config_ticket_next_number" placeholder="Next Ticket Number" value="<?php echo $config_ticket_next_number; ?>" required>
+          <input type="number" min="0" class="form-control" name="config_ticket_next_number" placeholder="Next Ticket Number" value="<?php echo htmlentities($config_ticket_next_number); ?>" required>
         </div>
       </div>
 
@@ -33,7 +33,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
           </div>
-          <input type="email" class="form-control" name="config_ticket_from_email" placeholder="From Email" value="<?php echo $config_ticket_from_email; ?>">
+          <input type="email" class="form-control" name="config_ticket_from_email" placeholder="From Email" value="<?php echo htmlentities($config_ticket_from_email); ?>">
         </div>
       </div>
 
@@ -43,7 +43,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_ticket_from_name" placeholder="Name" value="<?php echo $config_ticket_from_name; ?>">
+          <input type="text" class="form-control" name="config_ticket_from_name" placeholder="Name" value="<?php echo htmlentities($config_ticket_from_name); ?>">
         </div>
       </div>
     

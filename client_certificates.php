@@ -65,10 +65,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $certificate_id = $row['certificate_id'];
-            $certificate_name = $row['certificate_name'];
-            $certificate_domain = $row['certificate_domain'];
-            $certificate_issued_by = $row['certificate_issued_by'];
-            $certificate_expire = $row['certificate_expire'];
+            $certificate_name = htmlentities($row['certificate_name']);
+            $certificate_domain = htmlentities($row['certificate_domain']);
+            $certificate_issued_by = htmlentities($row['certificate_issued_by']);
+            $certificate_expire = htmlentities($row['certificate_expire']);
 
           ?>
           <tr>

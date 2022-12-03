@@ -55,7 +55,7 @@ $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE company_id = $s
           <?php
           while($row = mysqli_fetch_array($sql_vendors)){
             $vendor_id = $row['vendor_id'];
-            $vendor_name = $row['vendor_name'];
+            $vendor_name = htmlentities($row['vendor_name']);
 
             $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS amount_paid FROM expenses WHERE YEAR(expense_date) = $year AND expense_vendor_id = $vendor_id");
             $row = mysqli_fetch_array($sql_amount_paid);

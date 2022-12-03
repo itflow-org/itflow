@@ -41,10 +41,10 @@ if($row['item_active'] !== "1" || $row['item_views'] >= $row['item_view_limit'])
 
 echo "<div class=\"alert alert-warning\" role=\"alert\">You may only be able to view this information for a limited time! Be sure to copy/download what you need.</div>";
 
-$item_type = $row['item_type'];
+$item_type = htmlentities($row['item_type']);
 $item_related_id = $row['item_related_id'];
-$item_encrypted_credential = $row['item_encrypted_credential'];
-$item_note = $row['item_note'];
+$item_encrypted_credential = htmlentities($row['item_encrypted_credential']);
+$item_note = htmlentities($row['item_note']);
 $item_views = intval($row['item_views']);
 $item_created = $row['item_created_at'];
 $item_expire = $row['item_expire_at'];
@@ -60,7 +60,7 @@ if($item_type == "Document"){
         exit();
     }
 
-    $doc_title = $doc_row['document_name'];
+    $doc_title = htmlentities($doc_row['document_name']);
     $doc_content = $doc_row['document_content'];
 
     echo "<h3>A document has been shared with you</h3>";
@@ -89,7 +89,7 @@ elseif($item_type == "File"){
         exit();
     }
 
-    $file_name = $file_row['file_name'];
+    $file_name = htmlentities($file_row['file_name']);
 
     echo "<h3>A file has been shared with you</h3>";
     if(!empty($item_note)){
@@ -110,14 +110,14 @@ elseif($item_type == "Login"){
         exit();
     }
 
-    $login_name = $login_row['login_name'];
-    $login_uri = $login_row['login_uri'];
-    $login_username = $login_row['login_username'];
+    $login_name = htmlentities($login_row['login_name']);
+    $login_uri = htmlentities($login_row['login_uri']);
+    $login_username = htmlentities($login_row['login_username']);
     $login_iv = substr($row['item_encrypted_credential'], 0, 16);
     $login_ciphertext = substr($row['item_encrypted_credential'], 16);
     $login_password = openssl_decrypt($login_ciphertext, 'aes-128-cbc', $encryption_key,0, $login_iv);
     $login_otp = $login_row['login_otp_secret'];
-    $login_notes = $login_row['login_note'];
+    $login_notes = htmlentities($login_row['login_note']);
 
     echo "<h3>A login entry has been shared with you</h3>";
     if(!empty($item_note)){

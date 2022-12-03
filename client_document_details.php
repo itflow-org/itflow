@@ -16,7 +16,7 @@ $sql_document = mysqli_query($mysqli,"SELECT * FROM documents LEFT JOIN folders 
 $row = mysqli_fetch_array($sql_document);
 $folder_name = $row['folder_name'];
 
-$document_name = $row['document_name'];
+$document_name = htmlentities($row['document_name']);
 $document_content = $row['document_content'];
 $document_created_at = $row['document_created_at'];
 $document_updated_at = $row['document_updated_at'];

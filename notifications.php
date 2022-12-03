@@ -34,10 +34,10 @@ $sql = mysqli_query($mysqli,"SELECT * FROM notifications LEFT JOIN clients ON no
       
           while($row = mysqli_fetch_array($sql)){
             $notification_id = $row['notification_id'];
-            $notification_type = $row['notification_type'];
-            $notification = $row['notification'];
+            $notification_type = htmlentities($row['notification_type']);
+            $notification = htmlentities($row['notification']);
             $notification_timestamp = $row['notification_timestamp'];
-            $client_name = $row['client_name'];
+            $client_name = htmlentities($row['client_name']);
             $client_id = $row['client_id'];
             if(empty($client_name)){
               $client_name_display = "-";

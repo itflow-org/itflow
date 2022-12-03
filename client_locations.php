@@ -80,26 +80,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $location_id = $row['location_id'];
-            $location_name = $row['location_name'];
-            $location_country = $row['location_country'];
-            $location_address = $row['location_address'];
-            $location_city = $row['location_city'];
-            $location_state = $row['location_state'];
-            $location_zip = $row['location_zip'];
+            $location_name = htmlentities($row['location_name']);
+            $location_country = htmlentities($row['location_country']);
+            $location_address = htmlentities($row['location_address']);
+            $location_city = htmlentities($row['location_city']);
+            $location_state = htmlentities($row['location_state']);
+            $location_zip = htmlentities($row['location_zip']);
             $location_phone = formatPhoneNumber($row['location_phone']);
             if(empty($location_phone)){
               $location_phone_display = "-";
             }else{
               $location_phone_display = $location_phone;
             }
-            $location_hours = $row['location_hours'];
+            $location_hours = htmlentities($row['location_hours']);
             if(empty($location_hours)){
               $location_hours_display = "-";
             }else{
               $location_hours_display = $location_hours;
             }
-            $location_photo = $row['location_photo'];
-            $location_notes = $row['location_notes'];
+            $location_photo = htmlentities($row['location_photo']);
+            $location_notes = htmlentities($row['location_notes']);
             $location_created_at = $row['location_created_at'];
             $location_contact_id = $row['location_contact_id'];
             if($location_id == $primary_location){

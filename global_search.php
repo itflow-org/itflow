@@ -48,9 +48,9 @@ if(isset($_GET['query'])){
 
                 while($row = mysqli_fetch_array($sql_clients)){
                     $client_id = $row['client_id'];
-                    $client_name = $row['client_name'];
+                    $client_name = htmlentities($row['client_name']);
                     $location_phone = formatPhoneNumber($row['location_phone']);
-                    $client_website = $row['client_website'];
+                    $client_website = htmlentities($row['client_website']);
 
                     ?>
                     <tr>
@@ -94,15 +94,15 @@ if(isset($_GET['query'])){
 
                 while($row = mysqli_fetch_array($sql_contacts)){
                     $contact_id = $row['contact_id'];
-                    $contact_name = $row['contact_name'];
-                    $contact_title = $row['contact_title'];
+                    $contact_name = htmlentities($row['contact_name']);
+                    $contact_title = htmlentities($row['contact_title']);
                     $contact_phone = formatPhoneNumber($row['contact_phone']);
-                    $contact_extension = $row['contact_extension'];
+                    $contact_extension = htmlentities($row['contact_extension']);
                     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-                    $contact_email = $row['contact_email'];
+                    $contact_email = htmlentities($row['contact_email']);
                     $client_id = $row['client_id'];
-                    $client_name = $row['client_name'];
-                    $contact_department = $row['contact_department'];
+                    $client_name = htmlentities($row['client_name']);
+                    $contact_department = htmlentities($row['contact_department']);
 
                     ?>
                     <tr>
@@ -147,8 +147,8 @@ if(isset($_GET['query'])){
                 <?php
 
                 while($row = mysqli_fetch_array($sql_vendors)){
-                    $vendor_name = $row['vendor_name'];
-                    $vendor_description = $row['vendor_description'];
+                    $vendor_name = htmlentities($row['vendor_name']);
+                    $vendor_description = htmlentities($row['vendor_description']);
                     $vendor_phone = formatPhoneNumber($row['vendor_phone']);
                     ?>
                     <tr>
@@ -189,8 +189,8 @@ if(isset($_GET['query'])){
                         <?php
 
                         while($row = mysqli_fetch_array($sql_products)){
-                            $product_name = $row['product_name'];
-                            $product_description = $row['product_description'];
+                            $product_name = htmlentities($row['product_name']);
+                            $product_description = htmlentities($row['product_description']);
                             ?>
                             <tr>
                                 <td><a href="products.php?q=<?php echo $q ?>"><?php echo $product_name; ?></a></td>
@@ -230,9 +230,9 @@ if(isset($_GET['query'])){
                         <?php
 
                         while($row = mysqli_fetch_array($sql_documents)){
-                            $document_name = $row['document_name'];
+                            $document_name = htmlentities($row['document_name']);
                             $document_client_id = $row['document_client_id'];
-                            $document_client = $row['client_name'];
+                            $document_client = htmlentities($row['client_name']);
                             $document_updated = $row['document_updated_at'];
 
                             ?>
@@ -276,9 +276,9 @@ if(isset($_GET['query'])){
 
                         while($row = mysqli_fetch_array($sql_tickets)){
                             $ticket_id = $row['ticket_id'];
-                            $ticket_subject = $row['ticket_subject'];
-                            $ticket_client = $row['client_name'];
-                            $ticket_status = $row['ticket_status'];
+                            $ticket_subject = htmlentities($row['ticket_subject']);
+                            $ticket_client = htmlentities($row['client_name']);
+                            $ticket_status = htmlentities($row['ticket_status']);
 
                             ?>
                             <tr>
@@ -321,10 +321,10 @@ if(isset($_GET['query'])){
                         <?php
 
                         while($row = mysqli_fetch_array($sql_logins)){
-                            $login_name = $row['login_name'];
+                            $login_name = htmlentities($row['login_name']);
                             $login_client_id = $row['login_client_id'];
-                            $login_username = $row['login_username'];
-                            $login_password = decryptLoginEntry($row['login_password']);
+                            $login_username = htmlentities($row['login_username']);
+                            $login_password = htmlentities(decryptLoginEntry($row['login_password']));
 
                             ?>
                             <tr>

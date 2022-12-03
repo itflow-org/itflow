@@ -13,10 +13,10 @@
         // Query is run from client_assets.php
         while($row = mysqli_fetch_array($sql_tickets)){
           $ticket_id = $row['ticket_id'];
-          $ticket_prefix = $row['ticket_prefix'];
-          $ticket_number = $row['ticket_number'];
-          $ticket_subject = $row['ticket_subject'];
-          $ticket_status = $row['ticket_status'];
+          $ticket_prefix = htmlentities($row['ticket_prefix']);
+          $ticket_number = htmlentities($row['ticket_number']);
+          $ticket_subject = htmlentities($row['ticket_subject']);
+          $ticket_status = htmlentities($row['ticket_status']);
           $ticket_created_at = $row['ticket_created_at'];
           $ticket_updated_at = $row['ticket_updated_at'];
           ?>

@@ -118,7 +118,7 @@
                     $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE (contact_archived_at > '$location_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_name ASC"); 
                     while($row = mysqli_fetch_array($sql_contacts)){
                       $contact_id_select = $row['contact_id'];
-                      $contact_name_select = $row['contact_name'];
+                      $contact_name_select = htmlentities($row['contact_name']);
 
                     ?>
                       <option <?php if($location_contact_id == $contact_id_select){ echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>

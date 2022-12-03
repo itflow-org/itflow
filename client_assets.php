@@ -164,30 +164,30 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $asset_id = $row['asset_id'];
-            $asset_type = $row['asset_type'];
-            $asset_name = $row['asset_name'];
-            $asset_make = $row['asset_make'];
-            $asset_model = $row['asset_model'];
-            $asset_serial = $row['asset_serial'];
+            $asset_type = htmlentities($row['asset_type']);
+            $asset_name = htmlentities($row['asset_name']);
+            $asset_make = htmlentities($row['asset_make']);
+            $asset_model = htmlentities($row['asset_model']);
+            $asset_serial = htmlentities($row['asset_serial']);
             if(empty($asset_serial)){
               $asset_serial_display = "-";
             }else{
               $asset_serial_display = $asset_serial;
             }
-            $asset_os = $row['asset_os'];
+            $asset_os = htmlentities($row['asset_os']);
             if(empty($asset_os)){
               $asset_os_display = "-";
             }else{
               $asset_os_display = $asset_os;
             }
-            $asset_ip = $row['asset_ip'];
+            $asset_ip = htmlentities($row['asset_ip']);
             if(empty($asset_ip)){
               $asset_ip_display = "-";
             }else{
               $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text='$asset_ip'><i class='far fa-copy text-secondary'></i></button>";
             }
-            $asset_mac = $row['asset_mac'];
-            $asset_status = $row['asset_status'];
+            $asset_mac = htmlentities($row['asset_mac']);
+            $asset_status = htmlentities($row['asset_status']);
             $asset_purchase_date = $row['asset_purchase_date'];
             $asset_warranty_expire = $row['asset_warranty_expire'];
             $asset_install_date = $row['asset_install_date'];
@@ -196,7 +196,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $asset_install_date_display = $asset_install_date;
             }
-            $asset_notes = $row['asset_notes'];
+            $asset_notes = htmlentities($row['asset_notes']);
             $asset_created_at = $row['asset_created_at'];
             $asset_vendor_id = $row['asset_vendor_id'];
             $asset_location_id = $row['asset_location_id'];
@@ -242,8 +242,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }
 
             $login_id = $row['login_id'];
-            $login_username = $row['login_username'];
-            $login_password = decryptLoginEntry($row['login_password']);
+            $login_username = htmlentities($row['login_username']);
+            $login_password = htmlentities(decryptLoginEntry($row['login_password']));
 
             // Related tickets
             $sql_tickets = mysqli_query($mysqli,"SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");

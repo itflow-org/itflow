@@ -25,14 +25,14 @@ if(isset($_GET['calendar_id'])){
 $sql = mysqli_query($mysqli,"SELECT * FROM calendars LEFT JOIN events ON calendar_id = event_calendar_id WHERE event_client_id = $client_id AND calendars.company_id = $session_company_id");
 while($row = mysqli_fetch_array($sql)){
   $event_id = $row['event_id'];
-  $event_title = $row['event_title'];
-  $event_description = $row['event_description'];
-  $event_start = $row['event_start'];
-  $event_end = $row['event_end'];
-  $event_repeat = $row['event_repeat'];
+  $event_title = htmlentities($row['event_title']);
+  $event_description = htmlentities($row['event_description']);
+  $event_start = htmlentities($row['event_start']);
+  $event_end = htmlentities($row['event_end']);
+  $event_repeat = htmlentities($row['event_repeat']);
   $calendar_id = $row['calendar_id'];
-  $calendar_name = $row['calendar_name'];
-  $calendar_color = $row['calendar_color'];
+  $calendar_name = htmlentities($row['calendar_name']);
+  $calendar_color = htmlentities($row['calendar_color']);
 
   include("calendar_event_edit_modal.php");
 
@@ -73,15 +73,15 @@ while($row = mysqli_fetch_array($sql)){
           <?php
           $sql = mysqli_query($mysqli,"SELECT * FROM calendars LEFT JOIN events ON calendar_id = event_calendar_id WHERE event_client_id = $client_id AND calendars.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
-            $event_id = $row['event_id'];
-            $event_title = $row['event_title'];
-            $event_start = $row['event_start'];
-            $event_end = $row['event_end'];
-            $calendar_id = $row['calendar_id'];
-            $calendar_name = $row['calendar_name'];
-            $calendar_color = $row['calendar_color'];
+            $event_id = json_encode($row['event_id']);
+            $event_title = json_encode($row['event_title']);
+            $event_start = json_encode($row['event_start']);
+            $event_end = json_encode($row['event_end']);
+            $calendar_id = json_encode($row['calendar_id']);
+            $calendar_name = json_encode($row['calendar_name']);
+            $calendar_color = json_encode($row['calendar_color']);
             
-            echo "{ id: '$event_id', title: '$event_title', start: '$event_start', end: '$event_end', color: '$calendar_color'},";
+            echo "{ id: $event_id, title: $event_title, start: $event_start, end: $event_end, color: $calendar_color },";
           }
           ?>
         ],

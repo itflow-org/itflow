@@ -68,20 +68,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     
           while($row = mysqli_fetch_array($sql)){    
             $software_id = $row['software_id'];
-            $software_name = $row['software_name'];
-            $software_version = $row['software_version'];
-            $software_type = $row['software_type'];
-            $software_license_type = $row['software_license_type'];
-            $software_key = $row['software_key'];
-            $software_seats = $row['software_seats'];
+            $software_name = htmlentities($row['software_name']);
+            $software_version = htmlentities($row['software_version']);
+            $software_type = htmlentities($row['software_type']);
+            $software_license_type = htmlentities($row['software_license_type']);
+            $software_key = htmlentities($row['software_key']);
+            $software_seats = htmlentities($row['software_seats']);
             $software_purchase = $row['software_purchase'];
             $software_expire = $row['software_expire'];
-            $software_notes = $row['software_notes'];
+            $software_notes = htmlentities($row['software_notes']);
 
             // Get Login
             $login_id = $row['login_id'];
-            $login_username = $row['login_username'];
-            $login_password = decryptLoginEntry($row['login_password']);
+            $login_username = htmlentities($row['login_username']);
+            $login_password = htmlentities(decryptLoginEntry($row['login_password']));
 
             $seat_count = 0;
 

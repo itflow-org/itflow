@@ -31,7 +31,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
             <?php }else{ ?>
               <img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-fluid">
             <?php } ?>
-            <h4 class="text-secondary mt-2"><?php echo $session_user_role_display; ?></h4>
+            <h4 class="text-secondary mt-2"><?php echo htmlentities($session_user_role_display); ?></h4>
           </center>
 
           <hr>
@@ -42,7 +42,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
               </div>
-              <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo $session_name; ?>" required>
+              <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo htmlentities($session_name); ?>" required>
             </div>
           </div>
 
@@ -52,7 +52,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
               </div>
-              <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo $session_email; ?>" required>
+              <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo htmlentities($session_email); ?>" required>
             </div>
           </div>
 
@@ -159,8 +159,8 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
 
         while($row = mysqli_fetch_array($sql_recent_logins)){
           $log_id = $row['log_id'];
-          $log_ip = $row['log_ip'];
-          $log_user_agent = $row['log_user_agent'];
+          $log_ip = htmlentities($row['log_ip']);
+          $log_user_agent = htmlentities($row['log_user_agent']);
           $log_created_at = $row['log_created_at'];
 
           ?>
@@ -191,9 +191,9 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
 
         while($row = mysqli_fetch_array($sql_recent_logs)){
           $log_id = $row['log_id'];
-          $log_type = $row['log_type'];
-          $log_action = $row['log_action'];
-          $log_description = $row['log_description'];
+          $log_type = htmlentities($row['log_type']);
+          $log_action = htmlentities($row['log_action']);
+          $log_description = htmlentities($row['log_description']);
           $log_created_at = $row['log_created_at'];
 
           if($log_action == 'Create'){
@@ -219,7 +219,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
         </tbody>
       </table>
       <div class="card-footer">
-        <a href="logs.php?q=<?php echo $session_name; ?>">See More...</a>
+        <a href="logs.php?q=<?php echo htmlentities($session_name); ?>">See More...</a>
       </div>
     </div>
   </div>

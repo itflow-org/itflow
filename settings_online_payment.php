@@ -24,7 +24,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_stripe_publishable" placeholder="Stripe Publishable API Key" value="<?php echo $config_stripe_publishable; ?>">
+          <input type="text" class="form-control" name="config_stripe_publishable" placeholder="Stripe Publishable API Key" value="<?php echo htmlentities($config_stripe_publishable); ?>">
         </div>
       </div>
 
@@ -34,7 +34,7 @@
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
           </div>
-          <input type="text" class="form-control" name="config_stripe_secret" placeholder="Stripe Secret API Key" value="<?php echo $config_stripe_secret; ?>">
+          <input type="text" class="form-control" name="config_stripe_secret" placeholder="Stripe Secret API Key" value="<?php echo htmlentities($config_stripe_secret); ?>">
         </div>
       </div>
 

@@ -55,7 +55,7 @@ $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $s
           <?php
           while($row = mysqli_fetch_array($sql_clients)){
             $client_id = $row['client_id'];
-            $client_name = $row['client_name'];
+            $client_name = htmlentities($row['client_name']);
 
             $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND invoice_client_id = $client_id");
             $row = mysqli_fetch_array($sql_amount_paid);

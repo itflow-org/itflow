@@ -282,7 +282,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                                     $sql_assign_to = mysqli_query($mysqli,"SELECT * FROM users WHERE user_archived_at IS NULL ORDER BY user_name ASC");
                                     while($row = mysqli_fetch_array($sql_assign_to)){
                                         $user_id = $row['user_id'];
-                                        $user_name = $row['user_name'];
+                                        $user_name = htmlentities($row['user_name']);
                                         ?>
                                         <option <?php if($ticket_assigned_filter == $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                                         <?php
@@ -334,12 +334,12 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $ticket_id = $row['ticket_id'];
-                        $ticket_prefix = $row['ticket_prefix'];
-                        $ticket_number = $row['ticket_number'];
-                        $ticket_subject = $row['ticket_subject'];
-                        $ticket_details = $row['ticket_details'];
-                        $ticket_priority = $row['ticket_priority'];
-                        $ticket_status = $row['ticket_status'];
+                        $ticket_prefix = htmlentities($row['ticket_prefix']);
+                        $ticket_number = htmlentities($row['ticket_number']);
+                        $ticket_subject = htmlentities($row['ticket_subject']);
+                        $ticket_details = htmlentities($row['ticket_details']);
+                        $ticket_priority = htmlentities($row['ticket_priority']);
+                        $ticket_status = htmlentities($row['ticket_status']);
                         $ticket_created_at = $row['ticket_created_at'];
                         $ticket_updated_at = $row['ticket_updated_at'];
                         if (empty($ticket_updated_at)) {
@@ -354,21 +354,14 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                         }
                         $ticket_closed_at = $row['ticket_closed_at'];
                         $client_id = $row['client_id'];
-                        $client_name = $row['client_name'];
+                        $client_name = htmlentities($row['client_name']);
                         $contact_id = $row['contact_id'];
-                        $contact_name = $row['contact_name'];
-                        $contact_title = $row['contact_title'];
-                        $contact_email = $row['contact_email'];
-                        $contact_phone = $row['contact_phone'];
-                        if (strlen($contact_phone) > 2) {
-                            $contact_phone = substr($row['contact_phone'], 0, 3) . "-" . substr($row['contact_phone'], 3, 3) . "-" . substr($row['contact_phone'], 6, 4);
-                        }
-                        $contact_extension = $row['contact_extension'];
-                        $contact_mobile = $row['contact_mobile'];
-                        if (strlen($contact_mobile) > 2) {
-                            $contact_mobile = substr($row['contact_mobile'], 0, 3) . "-" . substr($row['contact_mobile'], 3, 3) . "-" . substr($row['contact_mobile'], 6, 4);
-                        }
-
+                        $contact_name = htmlentities($row['contact_name']);
+                        $contact_title = htmlentities($row['contact_title']);
+                        $contact_email = htmlentities($row['contact_email']);
+                        $contact_phone = formatPhoneNumber($row['contact_phone']);
+                        $contact_extension = htmlentities($row['contact_extension']);
+                        $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                         if ($ticket_status == "Open") {
                             $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
                         } elseif ($ticket_status == "Working") {

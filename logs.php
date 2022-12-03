@@ -136,20 +136,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $log_id = $row['log_id'];
-            $log_type = $row['log_type'];
-            $log_action = $row['log_action'];
+            $log_type = htmlentities($row['log_type']);
+            $log_action = htmlentities($row['log_action']);
             $log_description = htmlentities($row['log_description']);
             $log_ip = htmlentities($row['log_ip']);
-            $log_user_agent = $row['log_user_agent'];
+            $log_user_agent = htmlentities($row['log_user_agent']);
             $log_created_at = $row['log_created_at'];
             $user_id = $row['user_id'];
-            $user_name = $row['user_name'];
+            $user_name = htmlentities($row['user_name']);
             if(empty($user_name)){
               $user_name_display = "-";
             }else{
               $user_name_display = $user_name;
             }
-            $client_name = $row['client_name'];
+            $client_name = htmlentities($row['client_name']);
             $client_id = $row['client_id'];
             if(empty($client_name)){
               $client_name_display = "-";

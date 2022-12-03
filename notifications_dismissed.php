@@ -90,11 +90,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           while($row = mysqli_fetch_array($sql)){
             $notification_id = $row['notification_id'];
             $notification_timestamp = $row['notification_timestamp'];
-            $notification_type = $row['notification_type'];
-            $notification = $row['notification'];
+            $notification_type = htmlentities($row['notification_type']);
+            $notification = htmlentities($row['notification']);
             $notification_dismissed_at = $row['notification_dismissed_at'];
-            $user_name = $row['user_name'];
-            $client_name = $row['client_name'];
+            $user_name = htmlentities($row['user_name']);
+            $client_name = htmlentities($row['client_name']);
             $client_id = $row['client_id'];
             if(empty($client_name)){
               $client_name_display = "-";

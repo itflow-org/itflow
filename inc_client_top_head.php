@@ -103,15 +103,14 @@ $location_phone = formatPhoneNumber($location_phone);
               <i class="fas fa-fw fa-ellipsis-v"></i>
             </button>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="client_print.php?client_id=<?php echo $client_id; ?>">Print</a>
-              <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>" target="_blank">Export PDF<br><small class="text-secondary">(without passwords)</small></a>
-              <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>&passwords" target="_blank">Export PDF<br><small class="text-secondary">(with passwords)</small></a>
+              <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>" target="_blank">Export Data PDF<br><small class="text-secondary">(without passwords)</small></a>
+              <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>&passwords" target="_blank">Export Data PDF<br><small class="text-secondary">(with passwords)</small></a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
+              <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit Client</a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item text-danger" href="post.php?archive_client=<?php echo $client_id; ?>">Archive</a>
+              <a class="dropdown-item text-danger" href="post.php?archive_client=<?php echo $client_id; ?>">Archive Client</a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">Delete</a>
+              <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">Delete Client</a>
             </div>
           </div>
         <?php } ?>

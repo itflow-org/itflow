@@ -151,14 +151,14 @@
           while($row = mysqli_fetch_array($sql)){
             $trip_id = $row['trip_id'];
             $trip_date = $row['trip_date'];
-            $trip_purpose = $row['trip_purpose'];
-            $trip_source = $row['trip_source'];
-            $trip_destination = $row['trip_destination'];
-            $trip_miles = $row['trip_miles'];
+            $trip_purpose = htmlentities($row['trip_purpose']);
+            $trip_source = htmlentities($row['trip_source']);
+            $trip_destination = htmlentities($row['trip_destination']);
+            $trip_miles = htmlentities($row['trip_miles']);
             $trip_user_id = $row['trip_user_id'];
-            $round_trip = $row['round_trip'];
+            $round_trip = htmlentities($row['round_trip']);
             $client_id = $row['client_id'];
-            $client_name = $row['client_name'];
+            $client_name = htmlentities($row['client_name']);
             if(empty($client_name)){
               $client_name_display = "-";
             }else{
@@ -169,7 +169,7 @@
             }else{
               $round_trip_display = "";
             }
-            $user_name = $row['user_name'];
+            $user_name = htmlentities($row['user_name']);
             if(empty($user_name)){
               $user_name_display = "-";
             }else{

@@ -83,14 +83,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           while($row = mysqli_fetch_array($sql)){
             $contact_id = $row['contact_id'];
-            $contact_name = $row['contact_name'];
-            $contact_title = $row['contact_title'];
+            $contact_name = htmlentities($row['contact_name']);
+            $contact_title = htmlentities($row['contact_title']);
             if(empty($contact_title)){
               $contact_title_display = "-";
             }else{
               $contact_title_display = "<small class='text-secondary'>$contact_title</small>";
             }
-            $contact_department = $row['contact_department'];
+            $contact_department =htmlentities($row['contact_department']);
             if(empty($contact_department)){
               $contact_department_display = "-";
             }else{
@@ -102,22 +102,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $contact_phone_display = "$contact_phone";
             }
-            $contact_extension = $row['contact_extension'];
+            $contact_extension = htmlentities($row['contact_extension']);
             $contact_mobile = formatPhoneNumber($row['contact_mobile']);
             if(empty($contact_mobile)){
               $contact_mobile_display = "-";
             }else{
               $contact_mobile_display = "$contact_mobile";
             }
-            $contact_email = $row['contact_email'];
+            $contact_email = htmlentities($row['contact_email']);
             if(empty($contact_email)){
               $contact_email_display = "-";
             }else{
               $contact_email_display = "<a href='mailto:$contact_email'>$contact_email</a><button class='btn btn-sm clipboardjs' data-clipboard-text='$contact_email'><i class='far fa-copy text-secondary'></i></button>";
             }
-            $contact_photo = $row['contact_photo'];
+            $contact_photo = htmlentities($row['contact_photo']);
             $contact_initials = initials($contact_name);
-            $contact_notes = $row['contact_notes'];
+            $contact_notes = htmlentities($row['contact_notes']);
             $contact_created_at = $row['contact_created_at'];
             if($contact_id == $primary_contact){
                 $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
@@ -125,13 +125,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $primary_contact_display = FALSE;
             }
             $contact_location_id = $row['contact_location_id'];
-            $location_name = $row['location_name'];
+            $location_name = htmlentities($row['location_name']);
             if(empty($location_name)){
               $location_name_display = "-";
             }else{
               $location_name_display = $location_name;
             }
-            $auth_method = $row['contact_auth_method'];
+            $auth_method = htmlentities($row['contact_auth_method']);
 
             // Related Assets Query
             $sql_related_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_contact_id = $contact_id AND company_id = $session_company_id ORDER BY asset_id DESC");

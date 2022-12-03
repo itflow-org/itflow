@@ -59,12 +59,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           while($row = mysqli_fetch_array($sql)){
             $service_id = $row['service_id'];
-            $service_name = $row['service_name'];
-            $service_description = $row['service_description'];
-            $service_category = $row['service_category'];
-            $service_importance = $row['service_importance'];
-            $service_backup = $row['service_backup'];
-            $service_notes = $row['service_notes'];
+            $service_name = htmlentities($row['service_name']);
+            $service_description = htmlentities($row['service_description']);
+            $service_category = htmlentities($row['service_category']);
+            $service_importance = htmlentities($row['service_importance']);
+            $service_backup = htmlentities($row['service_backup']);
+            $service_notes = htmlentities($row['service_notes']);
             $service_updated_at = $row['service_updated_at'];
             $service_review_due = $row['service_review_due'];
 
@@ -109,32 +109,36 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
             // Associated Assets (and their logins/networks/locations)
             $sql_assets = mysqli_query($mysqli, "SELECT * FROM service_assets 
-                                                            LEFT JOIN assets 
-                                                              ON service_assets.asset_id = assets.asset_id
-                                                            LEFT JOIN logins
-                                                              ON service_assets.asset_id = logins.login_asset_id
-                                                            LEFT JOIN networks
-                                                              ON assets.asset_network_id = networks.network_id
-                                                            LEFT JOIN locations
-                                                              ON assets.asset_location_id = locations.location_id
-                                                            WHERE service_id = '$service_id'");
+              LEFT JOIN assets 
+                ON service_assets.asset_id = assets.asset_id
+              LEFT JOIN logins
+                ON service_assets.asset_id = logins.login_asset_id
+              LEFT JOIN networks
+                ON assets.asset_network_id = networks.network_id
+              LEFT JOIN locations
+                ON assets.asset_location_id = locations.location_id
+              WHERE service_id = '$service_id'"
+            );
 
             // Associated logins
             $sql_logins = mysqli_query($mysqli, "SELECT * FROM service_logins
-                                                            LEFT JOIN logins
-                                                              ON service_logins.login_id = logins.login_id
-                                                            WHERE service_id = '$service_id'");
+              LEFT JOIN logins
+                ON service_logins.login_id = logins.login_id
+              WHERE service_id = '$service_id'"
+            );
 
             // Associated Domains
             $sql_domains = mysqli_query($mysqli, "SELECT * FROM service_domains
-                                                          LEFT JOIN domains
-                                                            ON service_domains.domain_id = domains.domain_id
-                                                          WHERE service_id = '$service_id'");
+              LEFT JOIN domains
+                ON service_domains.domain_id = domains.domain_id
+              WHERE service_id = '$service_id'"
+            );
             // Associated Certificates
             $sql_certificates = mysqli_query($mysqli, "SELECT * FROM service_certificates
-                                                          LEFT JOIN certificates
-                                                            ON service_certificates.certificate_id = certificates.certificate_id
-                                                          WHERE service_id = '$service_id'");
+              LEFT JOIN certificates
+                ON service_certificates.certificate_id = certificates.certificate_id
+              WHERE service_id = '$service_id'"
+            );
 
             // Associated URLs ---- REMOVED for now
             //$sql_urls = mysqli_query($mysqli, "SELECT * FROM service_urls
@@ -142,21 +146,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
             // Associated Vendors
             $sql_vendors = mysqli_query($mysqli, "SELECT * FROM service_vendors
-                                                          LEFT JOIN vendors
-                                                            ON service_vendors.vendor_id = vendors.vendor_id
-                                                          WHERE service_id = '$service_id'");
+              LEFT JOIN vendors
+                ON service_vendors.vendor_id = vendors.vendor_id
+              WHERE service_id = '$service_id'"
+            );
 
             // Associated Contacts
             $sql_contacts = mysqli_query($mysqli, "SELECT * FROM service_contacts
-                                                          LEFT JOIN contacts
-                                                            ON service_contacts.contact_id = contacts.contact_id
-                                                          WHERE service_id = '$service_id'");
+              LEFT JOIN contacts
+                ON service_contacts.contact_id = contacts.contact_id
+              WHERE service_id = '$service_id'"
+            );
 
             // Associated Documents
             $sql_docs = mysqli_query($mysqli, "SELECT * FROM service_documents
-                                                          LEFT JOIN documents
-                                                            ON service_documents.document_id = documents.document_id
-                                                          WHERE service_id = '$service_id'");
+              LEFT JOIN documents
+                ON service_documents.document_id = documents.document_id
+              WHERE service_id = '$service_id'"
+            );
 
             include("client_service_edit_modal.php");
             include("client_service_view_modal.php");

@@ -141,19 +141,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $transfer_date = $row['transfer_date'];
             $transfer_account_from = $row['transfer_account_from'];
             $transfer_account_to = $row['transfer_account_to'];
-            $transfer_amount = $row['transfer_amount'];
-            $transfer_notes = $row['transfer_notes'];
+            $transfer_amount = htmlentities($row['transfer_amount']);
+            $transfer_notes = htmlentities($row['transfer_notes']);
             $transfer_created_at = $row['transfer_created_at'];
             $expense_id = $row['transfer_expense_id'];
             $revenue_id = $row['transfer_revenue_id'];
    
             $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_id = $transfer_account_from");
             $row = mysqli_fetch_array($sql2);
-            $account_name_from = $row['account_name'];
+            $account_name_from = htmlentities($row['account_name']);
 
             $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_id = $transfer_account_to");
             $row = mysqli_fetch_array($sql2);
-            $account_name_to = $row['account_name'];
+            $account_name_to = htmlentities($row['account_name']);
 
           ?>
           <tr>

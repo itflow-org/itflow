@@ -67,9 +67,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
         while ($row = mysqli_fetch_array($sql)) {
           $scheduled_ticket_id = $row['scheduled_ticket_id'];
-          $scheduled_ticket_subject = $row['scheduled_ticket_subject'];
-          $scheduled_ticket_priority = $row['scheduled_ticket_priority'];
-          $scheduled_ticket_frequency = $row['scheduled_ticket_frequency'];
+          $scheduled_ticket_subject = htmlentities($row['scheduled_ticket_subject']);
+          $scheduled_ticket_priority = htmlentities($row['scheduled_ticket_priority']);
+          $scheduled_ticket_frequency = htmlentities($row['scheduled_ticket_frequency']);
           $scheduled_ticket_next_run = $row['scheduled_ticket_next_run'];
           ?>
 

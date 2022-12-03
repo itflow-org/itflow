@@ -22,13 +22,14 @@
                 <?php 
                 
                 $sql_assign_to_select = mysqli_query($mysqli,"SELECT users.user_id, user_name FROM users
-                                                                LEFT JOIN user_companies ON users.user_id = user_companies.user_id
-                                                                LEFT JOIN user_settings on users.user_id = user_settings.user_id
-                                                                WHERE user_companies.company_id = $session_company_id 
-                                                                AND user_role > 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+                  LEFT JOIN user_companies ON users.user_id = user_companies.user_id
+                  LEFT JOIN user_settings on users.user_id = user_settings.user_id
+                  WHERE user_companies.company_id = $session_company_id 
+                  AND user_role > 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
+                );
                 while($row = mysqli_fetch_array($sql_assign_to_select)){
                   $user_id = $row['user_id'];
-                  $user_name = $row['user_name'];
+                  $user_name = htmlentities($row['user_name']);
                 ?>
                 <option <?php if($ticket_assigned_to == $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                 
@@ -76,7 +77,7 @@
                 $sql_client_contacts_select = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                 while($row = mysqli_fetch_array($sql_client_contacts_select)){
                   $contact_id_select = $row['contact_id'];
-                  $contact_name_select = $row['contact_name'];
+                  $contact_name_select = htmlentities($row['contact_name']);
                 ?>
                 <option <?php if($contact_id_select == $contact_id){ echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
                 
@@ -100,7 +101,7 @@
                   $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
                   while($row = mysqli_fetch_array($sql_assets)){
                     $asset_id_select = $row['asset_id'];
-                    $asset_name_select = $row['asset_name'];
+                    $asset_name_select = htmlentities($row['asset_name']);
                     ?>
                     <option <?php if(!empty($asset_id) && $asset_id == $asset_id_select){ echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
 

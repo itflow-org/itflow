@@ -76,25 +76,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $invoice_id = $row['invoice_id'];
-            $invoice_prefix = $row['invoice_prefix'];
-            $invoice_number = $row['invoice_number'];
-            $invoice_scope = $row['invoice_scope'];
+            $invoice_prefix = htmlentities($row['invoice_prefix']);
+            $invoice_number = htmlentities($row['invoice_number']);
+            $invoice_scope = htmlentities($row['invoice_scope']);
             if(empty($invoice_scope)){
               $invoice_scope_display = "-";
             }else{
               $invoice_scope_display = $invoice_scope;
             }
-            $invoice_status = $row['invoice_status'];
+            $invoice_status = htmlentities($row['invoice_status']);
             $invoice_date = $row['invoice_date'];
             $invoice_due = $row['invoice_due'];
-            $invoice_amount = $row['invoice_amount'];
-            $invoice_currency_code = $row['invoice_currency_code'];
+            $invoice_amount = htmlentities($row['invoice_amount']);
+            $invoice_currency_code = htmlentities($row['invoice_currency_code']);
             $invoice_created_at = $row['invoice_created_at'];
             $category_id = $row['category_id'];
-            $category_name = $row['category_name'];
-            $now = time();
+            $category_name = htmlentities($row['category_name']);
 
-            if(($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) < $now ){
+            if(($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) < time() ){
                 $overdue_color = "text-danger font-weight-bold";
               }else{
                 $overdue_color = "";

@@ -41,7 +41,7 @@ $num_rows = mysqli_num_rows($sql);
       
           while($row = mysqli_fetch_array($sql)){
             $tax_id = $row['tax_id'];
-            $tax_name = $row['tax_name'];
+            $tax_name = htmlentities($row['tax_name']);
             $tax_percent = $row['tax_percent'];
       
           ?>

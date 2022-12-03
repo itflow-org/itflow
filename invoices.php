@@ -267,26 +267,26 @@
       
           while($row = mysqli_fetch_array($sql)){
             $invoice_id = $row['invoice_id'];
-            $invoice_prefix = $row['invoice_prefix'];
-            $invoice_number = $row['invoice_number'];
-            $invoice_scope = $row['invoice_scope'];
+            $invoice_prefix = htmlentities($row['invoice_prefix']);
+            $invoice_number = htmlentities($row['invoice_number']);
+            $invoice_scope = htmlentities($row['invoice_scope']);
             if(empty($invoice_scope)){
               $invoice_scope_display = "-";
             }else{
               $invoice_scope_display = $invoice_scope;
             }
-            $invoice_status = $row['invoice_status'];
+            $invoice_status = htmlentities($row['invoice_status']);
             $invoice_date = $row['invoice_date'];
             $invoice_due = $row['invoice_due'];
-            $invoice_amount = $row['invoice_amount'];
-            $invoice_currency_code = $row['invoice_currency_code'];
+            $invoice_amount = htmlentities($row['invoice_amount']);
+            $invoice_currency_code = htmlentities($row['invoice_currency_code']);
             $invoice_created_at = $row['invoice_created_at'];
             $client_id = $row['client_id'];
-            $client_name = $row['client_name'];
+            $client_name = htmlentities($row['client_name']);
             $category_id = $row['category_id'];
-            $category_name = $row['category_name'];
-            $client_currency_code = $row['client_currency_code'];
-            $client_net_terms = $row['client_net_terms'];
+            $category_name = htmlentities($row['category_name']);
+            $client_currency_code = htmlentities($row['client_currency_code']);
+            $client_net_terms = htmlentities($row['client_net_terms']);
             if($client_net_terms == 0){
               $client_net_terms = $config_default_net_terms;
             }

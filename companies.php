@@ -52,20 +52,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $company_id = $row['company_id'];
-            $company_name = $row['company_name'];
-            $company_country = $row['company_country'];
-            $company_address = $row['company_address'];
-            $company_city = $row['company_city'];
-            $company_state = $row['company_state'];
-            $company_zip = $row['company_zip'];
+            $company_name = htmlentities($row['company_name']);
+            $company_country = htmlentities($row['company_country']);
+            $company_address = htmlentities($row['company_address']);
+            $company_city = htmlentities($row['company_city']);
+            $company_state = htmlentities($row['company_state']);
+            $company_zip = htmlentities($row['company_zip']);
             $company_phone = formatPhoneNumber($row['company_phone']);
-            $company_email = $row['company_email'];
-            $company_website = $row['company_website'];
-            $company_logo = $row['company_logo'];
-            $company_locale = $row['company_locale'];
-            $company_currency = $row['company_currency'];
+            $company_email = htmlentities($row['company_email']);
+            $company_website = htmlentities($row['company_website']);
+            $company_logo = htmlentities($row['company_logo']);
+            $company_locale = htmlentities($row['company_locale']);
+            $company_currency = htmlentities($row['company_currency']);
             
-            $company_initials = initials($company_name);
+            $company_initials = htmlentities(initials($company_name));
 
             
       

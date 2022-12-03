@@ -139,23 +139,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $invoice_id = $row['invoice_id'];
-            $invoice_prefix = $row['invoice_prefix'];
-            $invoice_number = $row['invoice_number'];
-            $invoice_status = $row['invoice_status'];
+            $invoice_prefix = htmlentities($row['invoice_prefix']);
+            $invoice_number = htmlentities($row['invoice_number']);
+            $invoice_status = htmlentities($row['invoice_status']);
             $invoice_date = $row['invoice_date'];
             $payment_date = $row['payment_date'];
-            $payment_method = $row['payment_method'];
-            $payment_amount = $row['payment_amount'];
-            $payment_currency_code = $row['payment_currency_code'];
-            $payment_reference = $row['payment_reference'];
+            $payment_method = htmlentities($row['payment_method']);
+            $payment_amount = htmlentities($row['payment_amount']);
+            $payment_currency_code = htmlentities($row['payment_currency_code']);
+            $payment_reference = htmlentities($row['payment_reference']);
             if(empty($payment_reference)){
               $payment_reference_display = "-";
             }else{
               $payment_reference_display = $payment_reference;
             }
             $client_id = $row['client_id'];
-            $client_name = $row['client_name'];
-            $account_name = $row['account_name'];
+            $client_name = htmlentities($row['client_name']);
+            $account_name = htmlentities($row['account_name']);
 
           ?>
 

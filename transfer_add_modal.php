@@ -47,8 +47,8 @@
                 $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_archived_at IS NULL AND company_id = $session_company_id ORDER BY account_name ASC"); 
                 while($row = mysqli_fetch_array($sql)){
                   $account_id = $row['account_id'];
-                  $account_name = $row['account_name'];
-                  $opening_balance = $row['opening_balance'];
+                  $account_name = htmlentities($row['account_name']);
+                  $opening_balance = htmlentities($row['opening_balance']);
                   
                   $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                   $row = mysqli_fetch_array($sql_payments);
@@ -86,8 +86,8 @@
                 $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_archived_at IS NULL AND company_id = $session_company_id ORDER BY account_name ASC"); 
                 while($row = mysqli_fetch_array($sql)){
                   $account_id = $row['account_id'];
-                  $account_name = $row['account_name'];
-                  $opening_balance = $row['opening_balance'];
+                  $account_name = htmlentities($row['account_name']);
+                  $opening_balance = htmlentities($row['opening_balance']);
                 
                   $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                   $row = mysqli_fetch_array($sql_payments);

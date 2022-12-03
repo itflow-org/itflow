@@ -149,17 +149,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           while($row = mysqli_fetch_array($sql)){
             $expense_id = $row['expense_id'];
             $expense_date = $row['expense_date'];
-            $expense_amount = $row['expense_amount'];
-            $expense_currency_code = $row['expense_currency_code'];
-            $expense_description = $row['expense_description'];
-            $expense_receipt = $row['expense_receipt'];
-            $expense_reference = $row['expense_reference'];
+            $expense_amount = htmlentities($row['expense_amount']);
+            $expense_currency_code = htmlentities($row['expense_currency_code']);
+            $expense_description = htmlentities($row['expense_description']);
+            $expense_receipt = htmlentities($row['expense_receipt']);
+            $expense_reference = htmlentities($row['expense_reference']);
             $expense_created_at = $row['expense_created_at'];
             $expense_vendor_id = $row['expense_vendor_id'];
-            $vendor_name = $row['vendor_name'];
+            $vendor_name = htmlentities($row['vendor_name']);
             $expense_category_id = $row['expense_category_id'];
-            $category_name = $row['category_name'];
-            $account_name = $row['account_name'];
+            $category_name = htmlentities($row['category_name']);
+            $account_name = htmlentities($row['account_name']);
             $expense_account_id = $row['expense_account_id'];
 
             if(empty($expense_receipt)){

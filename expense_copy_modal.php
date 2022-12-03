@@ -47,8 +47,8 @@
                   $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC"); 
                   while($row = mysqli_fetch_array($sql_accounts)){
                     $account_id_select = $row['account_id'];
-                    $account_name_select = $row['account_name'];
-                    $opening_balance = $row['opening_balance'];
+                    $account_name_select = htmlentities($row['account_name']);
+                    $opening_balance = htmlentities($row['opening_balance']);
                     
                     $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id_select");
                     $row = mysqli_fetch_array($sql_payments);
@@ -85,7 +85,7 @@
                   $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE company_id = $session_company_id ORDER BY vendor_name ASC"); 
                   while($row = mysqli_fetch_array($sql_vendors)){
                     $vendor_id_select = $row['vendor_id'];
-                    $vendor_name_select = $row['vendor_name'];
+                    $vendor_name_select = htmlentities($row['vendor_name']);
                   ?>
                   <option <?php if($expense_vendor_id == $vendor_id_select){ ?> selected <?php } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
                   <?php
@@ -117,7 +117,7 @@
                   $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense' AND company_id = $session_company_id ORDER BY category_name ASC"); 
                   while($row = mysqli_fetch_array($sql_categories)){
                     $category_id_select = $row['category_id'];
-                    $category_name_select = $row['category_name'];
+                    $category_name_select = htmlentities($row['category_name']);
                   ?>
                   <option <?php if($expense_category_id == $category_id_select){ ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
                   <?php

@@ -75,21 +75,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $quote_id = $row['quote_id'];
-            $quote_prefix = $row['quote_prefix'];
-            $quote_number = $row['quote_number'];
-            $quote_scope = $row['quote_scope'];
+            $quote_prefix = htmlentities($row['quote_prefix']);
+            $quote_number = htmlentities($row['quote_number']);
+            $quote_scope = htmlentities($row['quote_scope']);
             if(empty($quote_scope)){
               $quote_scope_display = "-";
             }else{
               $quote_scope_display = $quote_scope;
             }
-            $quote_status = $row['quote_status'];
+            $quote_status = htmlentities($row['quote_status']);
             $quote_date = $row['quote_date'];
-            $quote_amount = $row['quote_amount'];
-            $quote_currency_code = $row['quote_currency_code'];
+            $quote_amount = htmlentities($row['quote_amount']);
+            $quote_currency_code = htmlentities($row['quote_currency_code']);
             $quote_created_at = $row['quote_created_at'];
             $category_id = $row['category_id'];
-            $category_name = $row['category_name'];
+            $category_name = htmlentities($row['category_name']);
 
             //Set Badge color based off of quote status
             if($quote_status == "Sent"){

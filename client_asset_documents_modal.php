@@ -12,7 +12,7 @@
         <?php
         while($row = mysqli_fetch_array($sql_related_documents)){
           $related_document_id = $row['document_id'];
-          $related_document_name = $row['document_name'];
+          $related_document_name = htmlentities($row['document_name']);
         ?>
           <p>
             <i class="fas fa-fw fa-document text-secondary"></i>

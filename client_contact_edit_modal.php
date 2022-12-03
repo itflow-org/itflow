@@ -119,7 +119,7 @@
                     $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE (location_archived_at > '$contact_created_at' OR location_archived_at IS NULL) AND location_client_id = $client_id ORDER BY location_name ASC");
                     while($row = mysqli_fetch_array($sql_locations)){
                       $location_id_select = $row['location_id'];
-                      $location_name_select = $row['location_name'];
+                      $location_name_select = htmlentities($row['location_name']);
                     ?>
                     <option <?php if($contact_location_id == $location_id_select){ echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
                     

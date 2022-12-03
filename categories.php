@@ -84,8 +84,8 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
 
           while($row = mysqli_fetch_array($sql)){
             $category_id = $row['category_id'];
-            $category_name = $row['category_name'];
-            $category_color = $row['category_color'];
+            $category_name = htmlentities($row['category_name']);
+            $category_color = htmlentities($row['category_color']);
             //$colors_used_array[] = $row['category_color'];
       
           ?>

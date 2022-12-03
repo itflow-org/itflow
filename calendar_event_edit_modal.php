@@ -40,8 +40,8 @@
                 $sql_calendars_select = mysqli_query($mysqli,"SELECT * FROM calendars WHERE company_id = $session_company_id ORDER BY calendar_name ASC"); 
                 while($row = mysqli_fetch_array($sql_calendars_select)){
                   $calendar_id_select = $row['calendar_id'];
-                  $calendar_name_select = $row['calendar_name'];
-                  $calendar_color_select = $row['calendar_color'];
+                  $calendar_name_select = htmlentities($row['calendar_name']);
+                  $calendar_color_select = htmlentities($row['calendar_color']);
                 ?>
                   <option data-content="<i class='fa fa-circle mr-2' style='color:<?php echo $calendar_color_select; ?>;'></i> <?php echo $calendar_name_select; ?>"<?php if($calendar_id == $calendar_id_select){ echo "selected"; } ?> value="<?php echo $calendar_id_select; ?>"><?php echo $calendar_name_select; ?></option>
                 
@@ -107,8 +107,8 @@
                 $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN contacts ON primary_contact = contact_id WHERE clients.company_id = $session_company_id ORDER BY client_name ASC"); 
                 while($row = mysqli_fetch_array($sql_clients)){
                   $client_id_select = $row['client_id'];
-                  $client_name_select = $row['client_name'];
-                  $contact_email_select = $row['contact_email'];
+                  $client_name_select = htmlentities($row['client_name']);
+                  $contact_email_select = htmlentities($row['contact_email']);
                 ?>
                   <option <?php if($client_id == $client_id_select){ echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
                 

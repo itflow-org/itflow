@@ -53,10 +53,10 @@
       
           while($row = mysqli_fetch_array($sql)){
             $user_id = $row['user_id'];
-            $user_name = $row['user_name'];
-            $user_email = $row['user_email'];
-            $user_avatar = $row['user_avatar'];
-            $user_token = $row['user_token'];
+            $user_name = htmlentities($row['user_name']);
+            $user_email = htmlentities($row['user_email']);
+            $user_avatar = htmlentities($row['user_avatar']);
+            $user_token = htmlentities($row['user_token']);
             $user_default_company = $row['user_default_company'];
             $user_role = $row['user_role'];
             if($user_role == 3){
@@ -73,7 +73,7 @@
             }
             $user_company_access = implode(',',$user_company_access_array);
 
-            $user_initials = initials($user_name);
+            $user_initials = htmlentities(initials($user_name));
 
             $sql_last_login = mysqli_query($mysqli,"SELECT * FROM logs 
               WHERE log_user_id = $user_id AND log_type = 'Login'
@@ -81,8 +81,8 @@
             );
             $row = mysqli_fetch_array($sql_last_login);
             $log_created_at = $row['log_created_at'];
-            $log_ip = $row['log_ip'];
-            $log_user_agent = $row['log_user_agent'];
+            $log_ip = htmlentities($row['log_ip']);
+            $log_user_agent = htmlentities($row['log_user_agent']);
 
             $last_login = "$log_ip - $log_user_agent";
             if(empty($last_login)){

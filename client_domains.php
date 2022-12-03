@@ -66,18 +66,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $domain_id = $row['domain_id'];
-            $domain_name = $row['domain_name'];
-            $domain_registrar = $row['domain_registrar'];
-            $domain_webhost = $row['domain_webhost'];
-            $domain_expire = $row['domain_expire'];
-            $domain_registrar_name = $row['vendor_name'];
+            $domain_name = htmlentities($row['domain_name']);
+            $domain_registrar = htmlentities($row['domain_registrar']);
+            $domain_webhost = htmlentities($row['domain_webhost']);
+            $domain_expire = htmlentities($row['domain_expire'];
+            $domain_registrar_name = htmlentities($row['vendor_name']);
             if(empty($domain_registrar_name)){
               $domain_registrar_name = "-";
             }
 
             $sql_domain_webhost = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $domain_webhost");
             $row = mysqli_fetch_array($sql_domain_webhost);
-            $domain_webhost_name = $row['vendor_name'];
+            $domain_webhost_name = htmlentities($row['vendor_name']);
             if(empty($domain_webhost_name)){
               $domain_webhost_name = "-";
             }

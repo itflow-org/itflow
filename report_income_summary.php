@@ -74,7 +74,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
           <?php
           while($row = mysqli_fetch_array($sql_categories)){
             $category_id = $row['category_id'];
-            $category_name = $row['category_name'];
+            $category_name = htmlentities($row['category_name']);
 
           ?>
 

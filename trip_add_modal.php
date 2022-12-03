@@ -75,7 +75,7 @@
                 $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id IN('$session_user_company_access') ORDER BY user_name ASC"); 
                 while($row = mysqli_fetch_array($sql)){
                   $user_id = $row['user_id'];
-                  $user_name = $row['user_name'];
+                  $user_name = htmlentities($row['user_name']);
                 ?>
                   <option <?php if($session_user_id == $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                 
@@ -103,7 +103,7 @@
                 $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC"); 
                 while($row = mysqli_fetch_array($sql)){
                   $client_id = $row['client_id'];
-                  $client_name = $row['client_name'];
+                  $client_name = htmlentities($row['client_name']);
                 ?>
                   <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
                 

@@ -54,7 +54,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
           <?php
           while($row = mysqli_fetch_array($sql_tax)){
             $tax_id = $row['tax_id'];
-            $tax_name = $row['tax_name'];
+            $tax_name = htmlentities($row['tax_name']);
           ?>
 
             <tr>

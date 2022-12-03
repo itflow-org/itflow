@@ -20,45 +20,45 @@ if(isset($_GET['invoice_id'])){
 
   $row = mysqli_fetch_array($sql);
   $invoice_id = $row['invoice_id'];
-  $invoice_prefix = $row['invoice_prefix'];
-  $invoice_number = $row['invoice_number'];
-  $invoice_scope = $row['invoice_scope'];
-  $invoice_status = $row['invoice_status'];
+  $invoice_prefix = htmlentities($row['invoice_prefix']);
+  $invoice_number = htmlentities($row['invoice_number']);
+  $invoice_scope = htmlentities($row['invoice_scope']);
+  $invoice_status = htmlentities($row['invoice_status']);
   $invoice_date = $row['invoice_date'];
   $invoice_due = $row['invoice_due'];
-  $invoice_amount = $row['invoice_amount'];
-  $invoice_currency_code = $row['invoice_currency_code'];
-  $invoice_note = $row['invoice_note'];
-  $invoice_url_key = $row['invoice_url_key'];
+  $invoice_amount = htmlentities($row['invoice_amount']);
+  $invoice_currency_code = htmlentities($row['invoice_currency_code']);
+  $invoice_note = htmlentities($row['invoice_note']);
+  $invoice_url_key = htmlentities($row['invoice_url_key']);
   $invoice_created_at = $row['invoice_created_at'];
   $category_id = $row['invoice_category_id'];
   $client_id = $row['client_id'];
-  $client_name = $row['client_name'];
-  $location_address = $row['location_address'];
-  $location_city = $row['location_city'];
-  $location_state = $row['location_state'];
-  $location_zip = $row['location_zip'];
-  $contact_email = $row['contact_email'];
+  $client_name = htmlentities($row['client_name']);
+  $location_address = htmlentities($row['location_address']);
+  $location_city = htmlentities($row['location_city']);
+  $location_state = htmlentities($row['location_state']);
+  $location_zip = htmlentities($row['location_zip']);
+  $contact_email = htmlentities($row['contact_email']);
   $contact_phone = formatPhoneNumber($row['contact_phone']);
-  $contact_extension = $row['contact_extension'];
+  $contact_extension = htmlentities($row['contact_extension']);
   $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-  $client_website = $row['client_website'];
-  $client_currency_code = $row['client_currency_code'];
-  $client_net_terms = $row['client_net_terms'];
+  $client_website = htmlentities($row['client_website']);
+  $client_currency_code = htmlentities($row['client_currency_code']);
+  $client_net_terms = htmlentities($row['client_net_terms']);
   if($client_net_terms == 0){
     $client_net_terms = $config_default_net_terms;
   }
   $company_id = $row['company_id'];
-  $company_name = $row['company_name'];
-  $company_country = $row['company_country'];
-  $company_address = $row['company_address'];
-  $company_city = $row['company_city'];
-  $company_state = $row['company_state'];
-  $company_zip = $row['company_zip'];
+  $company_name = htmlentities($row['company_name']);
+  $company_country = htmlentities($row['company_country']);
+  $company_address = htmlentities($row['company_address']);
+  $company_city = htmlentities($row['company_city']);
+  $company_state = htmlentities($row['company_state']);
+  $company_zip = htmlentities($row['company_zip']);
   $company_phone = formatPhoneNumber($row['company_phone']);
-  $company_email = $row['company_email'];
-  $company_website = $row['company_website'];
-  $company_logo = $row['company_logo'];
+  $company_email = htmlentities($row['company_email']);
+  $company_website = htmlentities($row['company_website']);
+  $company_logo = htmlentities($row['company_logo']);
   if(!empty($company_logo)){
   	$company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
 	}
@@ -257,13 +257,13 @@ if(isset($_GET['invoice_id'])){
           
                 while($row = mysqli_fetch_array($sql_invoice_items)){
                   $item_id = $row['item_id'];
-                  $item_name = $row['item_name'];
-                  $item_description = $row['item_description'];
-                  $item_quantity = $row['item_quantity'];
-                  $item_price = $row['item_price'];
-                  $item_subtotal = $row['item_price'];
-                  $item_tax = $row['item_tax'];
-                  $item_total = $row['item_total'];
+                  $item_name = htmlentities($row['item_name']);
+                  $item_description = htmlentities($row['item_description']);
+                  $item_quantity = htmlentities($row['item_quantity']);
+                  $item_price = htmlentities($row['item_price']);
+                  $item_subtotal = htmlentities($row['item_price']);
+                  $item_tax = htmlentities($row['item_tax']);
+                  $item_total = htmlentities($row['item_total']);
                   $item_created_at = $row['item_created_at'];
                   $tax_id = $row['item_tax_id'];
                   $total_tax = $item_tax + $total_tax;
@@ -308,8 +308,8 @@ if(isset($_GET['invoice_id'])){
                         $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
                         while($row = mysqli_fetch_array($taxes_sql)){
                           $tax_id = $row['tax_id'];
-                          $tax_name = $row['tax_name'];
-                          $tax_percent = $row['tax_percent'];
+                          $tax_name = htmlentities($row['tax_name']);
+                          $tax_percent = htmlentities($row['tax_percent']);
                         ?>
                           <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
                         
@@ -378,7 +378,7 @@ if(isset($_GET['invoice_id'])){
 
     <hr class="d-none d-print-block mt-5">
 
-    <center class="d-none d-print-block" style="white-space:pre-line"><?php echo $config_invoice_footer; ?></center>
+    <center class="d-none d-print-block" style="white-space:pre-line"><?php echo htmlentities($config_invoice_footer); ?></center>
   </div>
 </div>
 
@@ -410,8 +410,8 @@ if(isset($_GET['invoice_id'])){
       
             while($row = mysqli_fetch_array($sql_history)){
               $history_created_at = $row['history_created_at'];
-              $history_status = $row['history_status'];
-              $history_description = $row['history_description'];
+              $history_status = htmlentities($row['history_status']);
+              $history_description = htmlentities($row['history_description']);
              
             ?>
             <tr>
@@ -459,10 +459,10 @@ if(isset($_GET['invoice_id'])){
               while($row = mysqli_fetch_array($sql_payments)){
                 $payment_id = $row['payment_id'];
                 $payment_date = $row['payment_date'];
-                $payment_amount = $row['payment_amount'];
-                $payment_currency_code = $row['payment_currency_code'];
-                $payment_reference = $row['payment_reference'];
-                $account_name = $row['account_name'];
+                $payment_amount = htmlentities($row['payment_amount']);
+                $payment_currency_code = htmlentities($row['payment_currency_code']);
+                $payment_reference = htmlentities($row['payment_reference']);
+                $account_name = htmlentities($row['account_name']);
 
               ?>
               <tr>
@@ -524,8 +524,8 @@ include("footer.php");
 
 var docDefinition = {
 	info: {
-		title: '<?php echo "$company_name - Invoice"; ?>',
-		author: '<?php echo $company_name; ?>'
+		title: <?php echo json_encode(html_entity_decode($company_name) . "- Invoice") ?>,
+		author: <?php echo json_encode(html_entity_decode($company_name)) ?>
 	},
 
 	//watermark: {text: '<?php echo $invoice_status; ?>', color: 'lightgrey', opacity: 0.3, bold: true, italics: false},
@@ -536,7 +536,7 @@ var docDefinition = {
 			columns: [
 				<?php if(!empty($company_logo_base64)){ ?>
 				{
-					image: '<?php echo "data:image;base64,$company_logo_base64"; ?>',
+					image: <?php echo json_encode("data:image;base64,$company_logo_base64") ?>,
 					width: 120
 				},
 				<?php } ?>
@@ -548,7 +548,7 @@ var docDefinition = {
 						width: '*'
 					},
 					{
-						text: <?php echo json_encode("$invoice_prefix$invoice_number"); ?>, 
+						text: <?php echo json_encode(html_entity_decode("$invoice_prefix$invoice_number")) ?>, 
 						style: 'invoiceNumber',
 						width: '*'
 					},
@@ -559,12 +559,12 @@ var docDefinition = {
 		{
 			columns: [
 				{
-		    	text: <?php echo json_encode($company_name); ?>,
-		      style:'invoiceBillingTitle',
+		    	text: <?php echo json_encode(html_entity_decode($company_name)) ?>,
+		      style: 'invoiceBillingTitle',
 		    },
 		    {
-		      text: <?php echo json_encode($client_name); ?>,
-		      style:'invoiceBillingTitleClient',        
+		      text: <?php echo json_encode(html_entity_decode($client_name)) ?>,
+		      style: 'invoiceBillingTitleClient',        
 		    },
 			]
 		},
@@ -572,11 +572,11 @@ var docDefinition = {
 		{
 			columns: [
 		  	{
-		      text: <?php echo json_encode("$company_address \n $company_city $company_state $company_zip \n $company_phone \n $company_website"); ?>,
+		      text: <?php echo json_encode(html_entity_decode("$company_address \n $company_city $company_state $company_zip \n $company_phone \n $company_website")) ?>,
 		      style: 'invoiceBillingAddress'
 		    },
 		    {
-		      text: <?php echo json_encode("$location_address \n $location_city $location_state $location_zip \n $contact_email \n $contact_phone"); ?>,
+		      text: <?php echo json_encode(html_entity_decode("$location_address \n $location_city $location_state $location_zip \n $contact_email \n $contact_phone")) ?>,
 		      style: 'invoiceBillingAddressClient'
 		    },
 		  ]
@@ -593,7 +593,7 @@ var docDefinition = {
 		    	// Total
 		      [ 
 		      	{
-		      		text:'',
+		      		text: '',
 		      		rowSpan: 3
 		      	},
 		      	{}, 
@@ -602,23 +602,23 @@ var docDefinition = {
 		      [ 
 		      	{},
 		      	{
-							text:'Invoice Date',
-							style:'invoiceDateTitle',
+							text: 'Invoice Date',
+							style: 'invoiceDateTitle'
 						}, 
 						{
-							text:<?php echo json_encode($invoice_date); ?>,
-							style:'invoiceDateValue',
+							text: <?php echo json_encode($invoice_date) ?>,
+							style: 'invoiceDateValue'
 						},
 		      ],
 		      [ 
 		      	{},
 		      	{
-							text:'Due Date',
-							style:'invoiceDateTitle',
+							text: 'Due Date',
+							style: 'invoiceDateTitle'
 						}, 
 						{
-							text:<?php echo json_encode($invoice_due); ?>,
-							style:'invoiceDateValue',
+							text: <?php echo json_encode($invoice_due) ?>,
+							style: 'invoiceDateValue'
 						},
 		      ],
 		    ]
@@ -683,29 +683,29 @@ var docDefinition = {
 		      [	 
 		        [
 		        	{
-		          	text: <?php echo json_encode($item_name); ?>,
-		            style:'itemTitle'
+		          	text: <?php echo json_encode($item_name) ?>,
+		            style: 'itemTitle'
 		          },
 		          {
-		            text: <?php echo json_encode($item_description); ?>,
-		            style:'itemDescription'       
+		            text: <?php echo json_encode($item_description) ?>,
+		            style: 'itemDescription'       
 		          }
 		        ], 
 		        {
-		        	text:'<?php echo $item_quantity; ?>',
-		          style:'itemQty'
+		        	text: <?php echo json_encode($item_quantity) ?>,
+		          style: 'itemQty'
 		        }, 
 		        {
-		        	text:'<?php echo numfmt_format_currency($currency_format, $item_price, $invoice_currency_code); ?>',
-		         	style:'itemNumber'
+		        	text: <?php echo json_encode(numfmt_format_currency($currency_format, $item_price, $invoice_currency_code)) ?>,
+		         	style: 'itemNumber'
 		        }, 
 		        {
-		          text:'<?php echo numfmt_format_currency($currency_format, $item_tax, $invoice_currency_code); ?>',
-		          style:'itemNumber'
+		          text: <?php echo json_encode(numfmt_format_currency($currency_format, $item_tax, $invoice_currency_code)) ?>,
+		          style: 'itemNumber'
 		        }, 
 		        {
-		          text: '<?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?>',
-		          style:'itemNumber'
+		          text: <?php echo json_encode(numfmt_format_currency($currency_format, $item_total, $invoice_currency_code)) ?>,
+		          style: 'itemNumber'
 		        } 
 		    	],
 		
@@ -730,7 +730,7 @@ var docDefinition = {
 		      [ 
 		      	{
 		      		text: 'Notes',
-		  				style:'notesTitle'
+		  				style: 'notesTitle'
 		  			},
 		      	{},
 		      	{}
@@ -738,61 +738,61 @@ var docDefinition = {
 		      [ 
 		      	{
 		      		rowSpan: 5,
-							text: <?php echo json_encode($invoice_note); ?>,
-		  				style:'notesText'
+							text: <?php echo json_encode(html_entity_decode($invoice_note)) ?>,
+		  				style: 'notesText'
 		  			},
 		      	{
-		        	text:'Subtotal',
-		          style:'itemsFooterSubTitle'
+		        	text: 'Subtotal',
+		          style: 'itemsFooterSubTitle'
 		        }, 
 		        { 
-		         	text:'<?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?>',
-		          style:'itemsFooterSubValue'
+		         	text: <?php echo json_encode(numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code)) ?>,
+		          style: 'itemsFooterSubValue'
 		        }
 		      ],
 		      [ 
 		      	{},    	
 		      	{
-		        	text:'Tax',
-		          style:'itemsFooterSubTitle'
+		        	text: 'Tax',
+		          style: 'itemsFooterSubTitle'
 		        },
 		        {
-		         	text: '<?php echo numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code); ?>',
-		          style:'itemsFooterSubValue'
+		         	text: <?php echo json_encode(numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code)) ?>,
+		          style: 'itemsFooterSubValue'
 		        }
 		      ],
 		      [ 
 		      	{},
 		      	{
-		        	text:'Total',
-		          style:'itemsFooterSubTitle'
+		        	text: 'Total',
+		          style: 'itemsFooterSubTitle'
 		        }, 
 		        {
-		         	text: '<?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?>',
-		          style:'itemsFooterSubValue'
+		         	text: <?php echo json_encode(numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code)) ?>,
+		          style: 'itemsFooterSubValue'
 		        }
 		      ],
 		      [ 
 		      	{},
 		      	{
-		        	text:'Paid',
-		          style:'itemsFooterSubTitle'
+		        	text: 'Paid',
+		          style: 'itemsFooterSubTitle'
 		        },
 		        {
-		          text: '<?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?>',
-		          style:'itemsFooterSubValue'
+		          text: <?php echo json_encode(numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code)) ?>,
+		          style: 'itemsFooterSubValue'
 		        }
 		      ],
 		      [ 
 		      	{},
 		      	{
-		        	text:'Balance',
-		          style:'itemsFooterTotalTitle'
+		        	text: 'Balance',
+		          style: 'itemsFooterTotalTitle'
 		        },
 		        {
-		        	text: '<?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?>',
+		        	text: <?php echo json_encode(numfmt_format_currency($currency_format, $balance, $invoice_currency_code)) ?>,
 		          
-		          style:'itemsFooterTotalTitle'
+		          style: 'itemsFooterTotalTitle'
 		        }
 		      ],
 		    ]
@@ -801,7 +801,7 @@ var docDefinition = {
 		},
     // TERMS / FOOTER
     {
-      text: <?php echo json_encode("$config_invoice_footer"); ?>,
+      text: <?php echo json_encode($config_invoice_footer) ?>,
       style: 'documentFooterCenter'  
     }
 	], //End Content,
@@ -810,32 +810,32 @@ var docDefinition = {
 		documentFooterCenter: {
 			fontSize: 9,
 		  margin: [10,50,10,10],
-		  alignment:'center',
+		  alignment: 'center',
 		},
 		// Invoice Title
 		invoiceTitle: {
 			fontSize: 18,
 			bold: true,
-			alignment:'right',
-			margin:[0,0,0,3]
+			alignment: 'right',
+			margin: [0,0,0,3]
 		},
 		// Invoice Number
 		invoiceNumber: {
 			fontSize: 14,
-			alignment:'right'
+			alignment: 'right'
 		},
 		// Billing Headers
 		invoiceBillingTitle: {
 			fontSize: 14,
 			bold: true,
-			alignment:'left',
-			margin:[0,20,0,5]
+			alignment: 'left',
+			margin: [0,20,0,5]
 		},
 		invoiceBillingTitleClient: {
 			fontSize: 14,
 			bold: true,
-			alignment:'right',
-			margin:[0,20,0,5]
+			alignment: 'right',
+			margin: [0,20,0,5]
 		},
 		// Billing Details
 		invoiceBillingAddress: {
@@ -845,26 +845,26 @@ var docDefinition = {
 		invoiceBillingAddressClient: {
 			fontSize: 10,
 			lineHeight: 1.2,
-			alignment:'right',
-			margin:[0,0,0,30]
+			alignment: 'right',
+			margin: [0,0,0,30]
 		},
 		// Invoice Dates
 		invoiceDateTitle: {
 			fontSize: 10,
-			alignment:'left',
-			margin:[0,5,0,5]
+			alignment: 'left',
+			margin: [0,5,0,5]
 		},
 		invoiceDateValue: {
 			fontSize: 10,
-			alignment:'right',
-			margin:[0,5,0,5]
+			alignment: 'right',
+			margin: [0,5,0,5]
 		},
 		// Items Header
 		itemsHeader: {
 			fontSize: 10,
 			margin: [0,5,0,5],
 			bold: true,
-			alignment:'right'
+			alignment: 'right'
 		},
 		// Item Title
 		itemTitle: {
@@ -881,61 +881,61 @@ var docDefinition = {
 		itemQty: {
 			fontSize: 10,
 			margin: [0,5,0,5],
-			alignment: 'center',
+			alignment: 'center'
 		},
 		itemNumber: {
 		  fontSize: 10,
 		  margin: [0,5,0,5],
-		  alignment: 'right',
+		  alignment: 'right'
 		},
 		itemTotal: {
 		  fontSize: 10,
 		  margin: [0,5,0,5],
 		  bold: true,
-		  alignment: 'right',
+		  alignment: 'right'
 		},
 		// Items Footer (Subtotal, Total, Tax, etc)
 		itemsFooterSubTitle: {
 		  fontSize: 10,
 		  margin: [0,5,0,5],
-		  alignment:'right',
+		  alignment:'right'
 		},
 		itemsFooterSubValue: {
 		  fontSize: 10,
 		  margin: [0,5,0,5],
 		  bold: false,
-		  alignment:'right',
+		  alignment: 'right'
 		},
 		itemsFooterTotalTitle: {
 		  fontSize: 10,
 		  margin: [0,5,0,5],
 		  bold: true,
-		  alignment:'right',
+		  alignment: 'right'
 		},
 		itemsFooterTotalValue: {
 		  fontSize: 10,
 		  margin: [0,5,0,5],
 		  bold: true,
-		  alignment:'right',
+		  alignment: 'right'
 		},
 		notesTitle: {
 			fontSize: 10,
 			bold: true,  
-			margin: [0,5,0,5],
+			margin: [0,5,0,5]
 		},
 		notesText: {
 			fontSize: 9,
 			margin: [0,5,50,5]
 		},
 		left: {
-			alignment:'left',
+			alignment: 'left'
 		},
 		center: {
-			alignment:'center',
+			alignment: 'center'
 		},
 	},
 	defaultStyle: {
-		columnGap: 20,
+		columnGap: 20
 	}
 }
 </script>

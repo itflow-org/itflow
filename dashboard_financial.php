@@ -334,7 +334,7 @@ $vendors_added = $row['vendors_added'];
           	<?php
           	while($row = mysqli_fetch_array($sql_accounts)){
 	            $account_id = $row['account_id'];
-	            $account_name = $row['account_name'];
+	            $account_name = htmlentities($row['account_name']);
 	            $opening_balance = $row['opening_balance'];
 
 	          ?>
@@ -394,10 +394,10 @@ $vendors_added = $row['vendors_added'];
             <?php
           	while($row = mysqli_fetch_array($sql_latest_invoice_payments)){
 	            $payment_date = $row['payment_date'];
-	            $payment_amount = $row['payment_amount'];
-	            $invoice_prefix = $row['invoice_prefix'];
-              $invoice_number = $row['invoice_number'];
-	            $client_name = $row['client_name'];
+	            $payment_amount = htmlentities($row['payment_amount']);
+	            $invoice_prefix = htmlentities($row['invoice_prefix']);
+              $invoice_number = htmlentities($row['invoice_number']);
+	            $client_name = htmlentities($row['client_name']);
 		        ?>
             <tr>
               <td><?php echo $payment_date; ?></td>
@@ -437,9 +437,9 @@ $vendors_added = $row['vendors_added'];
           	<?php
           	while($row = mysqli_fetch_array($sql_latest_expenses)){
 	            $expense_date = $row['expense_date'];
-	            $expense_amount = $row['expense_amount'];
-	            $vendor_name = $row['vendor_name'];
-	            $category_name = $row['category_name'];
+	            $expense_amount = htmlentities($row['expense_amount']);
+	            $vendor_name = htmlentities($row['vendor_name']);
+	            $category_name = htmlentities($row['category_name']);
 
 		        ?>
             <tr>
@@ -741,8 +741,8 @@ var myPieChart = new Chart(ctx, {
       <?php
         $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_id FROM categories, invoices WHERE invoice_category_id = category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year AND categories.company_id = $session_company_id");
         while($row = mysqli_fetch_array($sql_categories)){
-          $category_name = $row['category_name'];
-          echo "\"$category_name\",";
+          $category_name = json_encode($row['category_name']);
+          echo "$category_name,";
         }
       
       ?>
@@ -768,8 +768,8 @@ var myPieChart = new Chart(ctx, {
         <?php
            $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_id, category_color FROM categories, invoices WHERE invoice_category_id = category_id AND YEAR(invoice_date) = $year AND categories.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql_categories)){
-            $category_color = $row['category_color'];
-            echo "\"$category_color\",";
+            $category_color = json_encode($row['category_color']);
+            echo "$category_color,";
           }
         
         ?>
@@ -798,8 +798,8 @@ var myPieChart = new Chart(ctx, {
       <?php
         $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, categories.category_id FROM categories, expenses WHERE expense_category_id = category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
         while($row = mysqli_fetch_array($sql_categories)){
-          $category_name = $row['category_name'];
-          echo "\"$category_name\",";
+          $category_name = json_encode($row['category_name']);
+          echo "$category_name,";
         }
       
       ?>
@@ -825,8 +825,8 @@ var myPieChart = new Chart(ctx, {
         <?php
           $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expense_category_id = categories.category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql_categories)){
-            $category_color = $row['category_color'];
-            echo "\"$category_color\",";
+            $category_color = json_encode($row['category_color']);
+            echo "$category_color,";
           }
         
         ?>
@@ -851,8 +851,8 @@ var myPieChart = new Chart(ctx, {
       <?php
         $sql_vendors = mysqli_query($mysqli,"SELECT DISTINCT vendor_name, vendor_id FROM vendors, expenses WHERE expense_vendor_id = vendor_id AND YEAR(expense_date) = $year AND vendors.company_id = $session_company_id");
         while($row = mysqli_fetch_array($sql_vendors)){
-          $vendor_name = $row['vendor_name'];
-          echo "\"$vendor_name\",";
+          $vendor_name = json_encode($row['vendor_name']);
+          echo "$vendor_name,";
         }
       
       ?>
@@ -878,8 +878,8 @@ var myPieChart = new Chart(ctx, {
         <?php
           $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expense_category_id = category_id AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql_categories)){
-            $category_color = $row['category_color'];
-            echo "\"$category_color\",";
+            $category_color = json_encode($row['category_color']);
+            echo "$category_color,";
           }
         
         ?>

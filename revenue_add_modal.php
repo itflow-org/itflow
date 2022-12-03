@@ -64,8 +64,8 @@
                   $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_archived_at IS NULL AND company_id = $session_company_id ORDER BY account_name ASC"); 
                     while($row = mysqli_fetch_array($sql)){
                       $account_id = $row['account_id'];
-                      $account_name = $row['account_name'];
-                      $opening_balance = $row['opening_balance'];
+                      $account_name = htmlentities($row['account_name']);
+                      $opening_balance = htmlentities($row['opening_balance']);
                       
                       $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                       $row = mysqli_fetch_array($sql_payments);
@@ -104,7 +104,7 @@
                   $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC"); 
                   while($row = mysqli_fetch_array($sql)){
                     $category_id = $row['category_id'];
-                    $category_name = $row['category_name'];
+                    $category_name = htmlentities($row['category_name']);
                   ?>
                     <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
                   
@@ -139,7 +139,7 @@
                   
                   $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC"); 
                   while($row = mysqli_fetch_array($sql)){
-                    $category_name = $row['category_name'];
+                    $category_name = htmlentities($row['category_name']);
                   ?>
                     <option><?php echo "$category_name"; ?></option>
                   

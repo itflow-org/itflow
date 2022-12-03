@@ -49,10 +49,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $account_id = $row['account_id'];
-            $account_name = $row['account_name'];
+            $account_name = htmlentities($row['account_name']);
             $opening_balance = $row['opening_balance'];
-            $account_currency_code = $row['account_currency_code'];
-            $account_notes = $row['account_notes'];
+            $account_currency_code = htmlentities($row['account_currency_code']);
+            $account_notes = htmlentities($row['account_notes']);
 
             $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
             $row = mysqli_fetch_array($sql_payments);

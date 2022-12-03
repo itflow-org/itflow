@@ -69,30 +69,30 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           while($row = mysqli_fetch_array($sql)){
             $item_id = $row['item_id'];
-            $item_active = $row['item_active'];
-            $item_key = $row['item_key'];
-            $item_type = $row['item_type'];
+            $item_active = htmlentities($row['item_active']);
+            $item_key = htmlentities($row['item_key']);
+            $item_type = htmlentities($row['item_type']);
             $item_related_id = $row['item_related_id'];
-            $item_note = $row['item_note'];
-            $item_views = $row['item_views'];
-            $item_view_limit = $row['item_view_limit'];
+            $item_note = htmlentities($row['item_note']);
+            $item_views = htmlentities($row['item_views']);
+            $item_view_limit = htmlentities($row['item_view_limit']);
             $item_created_at = $row['item_created_at'];
             $item_expire_at = $row['item_expire_at'];
 
             if($item_type == 'Login'){
               $share_item_sql = mysqli_query($mysqli, "SELECT login_name FROM logins WHERE login_id = '$item_related_id' AND login_client_id = '$client_id'");
               $share_item = mysqli_fetch_array($share_item_sql);
-              $item_name = $share_item['login_name'];
+              $item_name = htmlentities($share_item['login_name']);
             }
             elseif($item_type == 'Document'){
               $share_item_sql = mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = '$item_related_id' AND document_client_id = '$client_id'");
               $share_item = mysqli_fetch_array($share_item_sql);
-              $item_name = $share_item['document_name'];
+              $item_name = htmlentities($share_item['document_name']);
             }
             elseif($item_type == 'File'){
               $share_item_sql = mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = '$item_related_id' AND file_client_id = '$client_id'");
               $share_item = mysqli_fetch_array($share_item_sql);
-              $item_name = $share_item['file_name'];
+              $item_name = htmlentities($share_item['file_name']);
             }
 
 

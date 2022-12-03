@@ -35,11 +35,11 @@
 
               while($row = mysqli_fetch_array($sql_related_assets)){
                 $asset_id = $row['asset_id'];
-                $asset_type = $row['asset_type'];
-                $asset_name = $row['asset_name'];
-                $asset_make = $row['asset_make'];
-                $asset_model = $row['asset_model'];
-                $asset_serial = $row['asset_serial'];
+                $asset_type = htmlentities($row['asset_type']);
+                $asset_name = htmlentities($row['asset_name']);
+                $asset_make = htmlentities($row['asset_make']);
+                $asset_model = htmlentities($row['asset_model']);
+                $asset_serial = htmlentities($row['asset_serial']);
 
               ?>
               
@@ -58,11 +58,11 @@
 
               while($row = mysqli_fetch_array($sql_related_logins)){
                 $login_id = $row['login_id'];
-                $login_name = $row['login_name'];
-                $login_uri = $row['login_uri'];
-                $login_username = $row['login_username'];
-                $login_password = $row['login_password'];
-                $login_note = $row['login_note'];
+                $login_name = htmlentities($row['login_name']);
+                $login_uri = htmlentities($row['login_uri']);
+                $login_username = htmlentities($row['login_username']);
+                $login_password = htmlentities($row['login_password']);
+                $login_note = htmlentities($row['login_note']);
                 $vendor_id = $row['vendor_id'];
                 $asset_id = $row['asset_id'];
                 $software_id = $row['software_id'];
@@ -84,9 +84,9 @@
 
               while($row = mysqli_fetch_array($sql_related_software)){
                 $software_id = $row['software_id'];
-                $software_name = $row['software_name'];
-                $software_type = $row['software_type'];
-                $software_notes = $row['software_notes'];
+                $software_name = htmlentities($row['software_name']);
+                $software_type = htmlentities($row['software_type']);
+                $software_notes = htmlentities($row['software_notes']);
 
               ?>
               

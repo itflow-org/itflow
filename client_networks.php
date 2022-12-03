@@ -69,23 +69,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       
           while($row = mysqli_fetch_array($sql)){
             $network_id = $row['network_id'];
-            $network_name = $row['network_name'];
-            $network_vlan = $row['network_vlan'];
+            $network_name = htmlentities($row['network_name']);
+            $network_vlan = htmlentities($row['network_vlan']);
             if(empty($network_vlan)){
               $network_vlan_display = "-";
             }else{
               $network_vlan_display = $network_vlan;
             }
-            $network = $row['network'];
-            $network_gateway = $row['network_gateway'];
-            $network_dhcp_range = $row['network_dhcp_range'];
+            $network = htmlentities($row['network']);
+            $network_gateway = htmlentities($row['network_gateway']);
+            $network_dhcp_range = htmlentities($row['network_dhcp_range']);
             if(empty($network_dhcp_range)){
               $network_dhcp_range_display = "-";
             }else{
               $network_dhcp_range_display = $network_dhcp_range;
             }
             $network_location_id = $row['network_location_id'];
-            $location_name = $row['location_name'];
+            $location_name = htmlentities($row['location_name']);
             if(empty($location_name)){
               $location_name_display = "-";
             }else{
