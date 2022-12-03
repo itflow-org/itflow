@@ -77,7 +77,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
           while($row = mysqli_fetch_array($sql_contacts)){
             $contact_id = $row['contact_id'];
-            $contact_name = $row['contact_name'];
+            $contact_name = htmlentities($row['contact_name']);
             $contact_updated_at = $row['contact_updated_at'];
 
           ?>
@@ -93,7 +93,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
           while($row = mysqli_fetch_array($sql_vendors)){
             $vendor_id = $row['vendor_id'];
-            $vendor_name = $row['vendor_name'];
+            $vendor_name = htmlentities($row['vendor_name']);
             $vendor_updated_at = $row['vendor_updated_at'];
 
           ?>
@@ -121,7 +121,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
           while($row = mysqli_fetch_array($sql_contacts)){
             $contact_id = $row['contact_id'];
-            $contact_name = $row['contact_name'];
+            $contact_name = htmlentities($row['contact_name']);
             $contact_updated_at = $row['contact_updated_at'];
 
           ?>
@@ -137,7 +137,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
           while($row = mysqli_fetch_array($sql_vendors)){
             $vendor_id = $row['vendor_id'];
-            $vendor_name = $row['vendor_name'];
+            $vendor_name = htmlentities($row['vendor_name']);
             $vendor_updated_at = $row['vendor_updated_at'];
 
           ?>
@@ -165,7 +165,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
           while($row = mysqli_fetch_array($sql_domains_expiring)){
             $domain_id = $row['domain_id'];
-            $domain_name = $row['domain_name'];
+            $domain_name = htmlentities($row['domain_name']);
             $domain_expire = $row['domain_expire'];
 
           ?>
@@ -182,7 +182,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
           while($row = mysqli_fetch_array($sql_asset_warranties_expiring)){
             $asset_id = $row['asset_id'];
-            $asset_name = $row['asset_name'];
+            $asset_name = htmlentities($row['asset_name']);
             $asset_warranty_expire = $row['asset_warranty_expire'];
 
           ?>
@@ -201,7 +201,7 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
           while($row = mysqli_fetch_array($sql_asset_retire)){
             $asset_id = $row['asset_id'];
-            $asset_name = $row['asset_name'];
+            $asset_name = htmlentities($row['asset_name']);
             $asset_install_date = $row['asset_install_date'];
 
           ?>
@@ -234,9 +234,9 @@ $sql_tickets_stale = mysqli_query($mysqli,"SELECT * FROM tickets
 
           while($row = mysqli_fetch_array($sql_tickets_stale)){
             $ticket_id = $row['ticket_id'];
-            $ticket_prefix = $row['ticket_prefix'];
+            $ticket_prefix = htmlentities($row['ticket_prefix']);
             $ticket_number = $row['ticket_number'];
-            $ticket_subject = $row['ticket_subject'];
+            $ticket_subject = htmlentities($row['ticket_subject']);
             $ticket_created_at = $row['ticket_created_at'];
 
             ?>
