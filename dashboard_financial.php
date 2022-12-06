@@ -394,7 +394,7 @@ $vendors_added = $row['vendors_added'];
             <?php
           	while($row = mysqli_fetch_array($sql_latest_invoice_payments)){
 	            $payment_date = $row['payment_date'];
-	            $payment_amount = htmlentities($row['payment_amount']);
+	            $payment_amount = floatval($row['payment_amount']);
 	            $invoice_prefix = htmlentities($row['invoice_prefix']);
               $invoice_number = htmlentities($row['invoice_number']);
 	            $client_name = htmlentities($row['client_name']);
@@ -437,7 +437,7 @@ $vendors_added = $row['vendors_added'];
           	<?php
           	while($row = mysqli_fetch_array($sql_latest_expenses)){
 	            $expense_date = $row['expense_date'];
-	            $expense_amount = htmlentities($row['expense_amount']);
+	            $expense_amount = floatval($row['expense_amount']);
 	            $vendor_name = htmlentities($row['vendor_name']);
 	            $category_name = htmlentities($row['category_name']);
 

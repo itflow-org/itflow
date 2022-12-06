@@ -64,7 +64,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $product_description_display = "<div style='white-space:pre-line'>$product_description</div>";
             }
-            $product_price = htmlentities($row['product_price']);
+            $product_price = floatval($row['product_price']);
             $product_currency_code = htmlentities($row['product_currency_code']);
             $product_created_at = $row['product_created_at'];
             $category_id = $row['category_id'];

@@ -47,7 +47,7 @@
                   while($row = mysqli_fetch_array($sql)){
                     $account_id = $row['account_id'];
                     $account_name = htmlentities($row['account_name']);
-                    $opening_balance = htmlentities($row['opening_balance']);
+                    $opening_balance = floatval($row['opening_balance']);
                     
                     $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                     $row = mysqli_fetch_array($sql_payments);

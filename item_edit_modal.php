@@ -80,7 +80,7 @@
                 $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE (tax_archived_at > '$item_created_at' OR tax_archived_at IS NULL) AND company_id = $session_company_id ORDER BY tax_name ASC"); 
                 while($row = mysqli_fetch_array($taxes_sql)){
                   $tax_id_select = $row['tax_id'];
-                  $tax_name = $row['tax_name'];
+                  $tax_name = htmlentities($row['tax_name']);
                   $tax_percent = $row['tax_percent'];
                 ?>
                   <option <?php if($tax_id_select == $tax_id){ echo "selected"; } ?> value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>

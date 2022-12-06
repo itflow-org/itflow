@@ -77,7 +77,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $invoice_prefix = htmlentities($row['invoice_prefix']);
             $invoice_number = htmlentities($row['invoice_number']);
             $invoice_status = htmlentities($row['invoice_status']);
-            $invoice_amount = htmlentities($row['invoice_amount']);
+            $invoice_amount = floatval($row['invoice_amount']);
             $invoice_currency_code = htmlentities($row['invoice_currency_code']);
             $invoice_date = $row['invoice_date'];
             $payment_date = $row['payment_date'];
@@ -88,7 +88,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $payment_reference_display = $payment_reference;
             }
-            $payment_amount = htmlentities($row['payment_amount']);
+            $payment_amount = floatval($row['payment_amount']);
             $payment_currency_code = htmlentities($row['payment_currency_code']);
             $account_name = htmlentities($row['account_name']);
 

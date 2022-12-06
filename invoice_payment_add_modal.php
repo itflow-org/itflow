@@ -57,7 +57,7 @@
                 $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_archived_at IS NULL AND company_id = $session_company_id ORDER BY account_name ASC"); 
                 while($row = mysqli_fetch_array($sql)){
                   $account_id = $row['account_id'];
-                  $account_name = $row['account_name'];
+                  $account_name = htmlentities($row['account_name']);
                   $opening_balance = $row['opening_balance'];
                   
                   $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
@@ -96,7 +96,7 @@
                 
                 $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC"); 
                 while($row = mysqli_fetch_array($sql)){
-                  $category_name = $row['category_name'];
+                  $category_name = htmlentities($row['category_name']);
                 ?>
                   <option <?php if($config_default_payment_method == $category_name){ echo "selected"; } ?>><?php echo $category_name; ?></option>
                 

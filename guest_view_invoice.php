@@ -220,7 +220,6 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
                     $item_description = htmlentities($row['item_description']);
                     $item_quantity = floatval($row['item_quantity']);
                     $item_price = floatval($row['item_price']);
-                    $item_subtotal = floatval($row['item_price']);
                     $item_tax = floatval($row['item_tax']);
                     $item_total = floatval($row['item_total']);
                     $total_tax = $item_tax + $total_tax;

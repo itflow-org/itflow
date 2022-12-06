@@ -145,7 +145,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $invoice_date = $row['invoice_date'];
             $payment_date = $row['payment_date'];
             $payment_method = htmlentities($row['payment_method']);
-            $payment_amount = htmlentities($row['payment_amount']);
+            $payment_amount = floatval($row['payment_amount']);
             $payment_currency_code = htmlentities($row['payment_currency_code']);
             $payment_reference = htmlentities($row['payment_reference']);
             if(empty($payment_reference)){

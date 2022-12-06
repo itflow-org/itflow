@@ -27,7 +27,7 @@ if(isset($_GET['recurring_id'])){
     $recurring_last_sent = '-';
   }
   $recurring_next_date = $row['recurring_next_date'];
-  $recurring_amount = float($row['recurring_amount']);
+  $recurring_amount = floatval($row['recurring_amount']);
   $recurring_currency_code = htmlentities($row['recurring_currency_code']);
   $recurring_note = htmlentities($row['recurring_note']);
   $recurring_created_at = $row['recurring_created_at'];
@@ -287,17 +287,17 @@ if(isset($_GET['recurring_id'])){
           <tbody>    
             <tr class="border-bottom">
               <td>Subtotal</td>
-              <td class="text-right"><?php echo htmlentities(numfmt_format_currency($currency_format, $sub_total, $recurring_currency_code)); ?></td>
+              <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $recurring_currency_code); ?></td>
             </tr>
             <?php if($total_tax > 0){ ?>
             <tr class="border-bottom">
               <td>Tax</td>
-              <td class="text-right"><?php echo htmlentities(numfmt_format_currency($currency_format, $total_tax, $recurring_currency_code)); ?></td>        
+              <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $recurring_currency_code); ?></td>        
             </tr>
             <?php } ?>
             <tr class="border-bottom">
               <td><strong>Amount</strong></td>
-              <td class="text-right"><strong><?php echo htmlentities(numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code)); ?></strong></td>
+              <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code); ?></strong></td>
             </tr>
           </tbody>
         </table>

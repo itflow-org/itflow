@@ -148,7 +148,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }
             $revenue_date = $row['revenue_date'];
             $revenue_payment_method = htmlentities($row['revenue_payment_method']);
-            $revenue_amount = htmlentities($row['revenue_amount']);
+            $revenue_amount = floatval($row['revenue_amount']);
             $revenue_currency_code = htmlentities($row['revenue_currency_code']);
             $revenue_created_at = $row['revenue_created_at'];
             $account_id = $row['account_id'];
