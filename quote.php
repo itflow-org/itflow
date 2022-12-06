@@ -21,7 +21,7 @@ if(isset($_GET['quote_id'])){
   $quote_scope = htmlentities($row['quote_scope']);
   $quote_status = htmlentities($row['quote_status']);
   $quote_date = $row['quote_date'];
-  $quote_amount = htmlentities($row['quote_amount']);
+  $quote_amount = floatval($row['quote_amount']);
   $quote_currency_code = htmlentities($row['quote_currency_code']);
   $quote_note = htmlentities($row['quote_note']);
   $quote_url_key = htmlentities($row['quote_url_key']);
@@ -223,11 +223,10 @@ if(isset($_GET['quote_id'])){
                   $item_id = $row['item_id'];
                   $item_name = htmlentities($row['item_name']);
                   $item_description = htmlentities($row['item_description']);
-                  $item_quantity = htmlentities($row['item_quantity']);
-                  $item_price = htmlentities($row['item_price']);
-                  $item_subtotal = htmlentities($row['item_price']);
-                  $item_tax = htmlentities($row['item_tax']);
-                  $item_total = htmlentities($row['item_total']);
+                  $item_quantity = floatval($row['item_quantity']);
+                  $item_price = floatval($row['item_price']);
+                  $item_tax = floatval($row['item_tax']);
+                  $item_total = floatval($row['item_total']);
                   $item_created_at = $row['item_created_at'];
                   $tax_id = $row['item_tax_id'];
                   $total_tax = $item_tax + $total_tax;

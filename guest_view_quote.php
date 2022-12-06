@@ -26,7 +26,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     $quote_number = htmlentities($row['quote_number']);
     $quote_status = htmlentities($row['quote_status']);
     $quote_date = $row['quote_date'];
-    $quote_amount = htmlentities($row['quote_amount']);
+    $quote_amount = floatval($row['quote_amount']);
     $quote_currency_code = htmlentities($row['quote_currency_code']);
     $quote_note = htmlentities($row['quote_note']);
     $category_id = $row['category_id'];
@@ -172,11 +172,10 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
 	                  $item_id = $row['item_id'];
 	                  $item_name = htmlentities($row['item_name']);
 	                  $item_description = htmlentities($row['item_description']);
-	                  $item_quantity = $row['item_quantity'];
-	                  $item_price = $row['item_price'];
-	                  $item_subtotal = $row['item_price'];
-	                  $item_tax = $row['item_tax'];
-	                  $item_total = $row['item_total'];
+	                  $item_quantity = floatval($row['item_quantity']);
+	                  $item_price = floatval($row['item_price']);
+	                  $item_tax = floatval($row['item_tax']);
+	                  $item_total = floatval($row['item_total']);
 	                  $total_tax = $item_tax + $total_tax;
 	                  $sub_total = $item_price * $item_quantity + $sub_total;
 

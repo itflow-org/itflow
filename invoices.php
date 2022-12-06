@@ -278,7 +278,7 @@
             $invoice_status = htmlentities($row['invoice_status']);
             $invoice_date = $row['invoice_date'];
             $invoice_due = $row['invoice_due'];
-            $invoice_amount = htmlentities($row['invoice_amount']);
+            $invoice_amount = floatval($row['invoice_amount']);
             $invoice_currency_code = htmlentities($row['invoice_currency_code']);
             $invoice_created_at = $row['invoice_created_at'];
             $client_id = $row['client_id'];

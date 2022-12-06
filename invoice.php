@@ -26,7 +26,7 @@ if(isset($_GET['invoice_id'])){
   $invoice_status = htmlentities($row['invoice_status']);
   $invoice_date = $row['invoice_date'];
   $invoice_due = $row['invoice_due'];
-  $invoice_amount = htmlentities($row['invoice_amount']);
+  $invoice_amount = floatval($row['invoice_amount']);
   $invoice_currency_code = htmlentities($row['invoice_currency_code']);
   $invoice_note = htmlentities($row['invoice_note']);
   $invoice_url_key = htmlentities($row['invoice_url_key']);
@@ -259,11 +259,10 @@ if(isset($_GET['invoice_id'])){
                   $item_id = $row['item_id'];
                   $item_name = htmlentities($row['item_name']);
                   $item_description = htmlentities($row['item_description']);
-                  $item_quantity = htmlentities($row['item_quantity']);
-                  $item_price = htmlentities($row['item_price']);
-                  $item_subtotal = htmlentities($row['item_price']);
-                  $item_tax = htmlentities($row['item_tax']);
-                  $item_total = htmlentities($row['item_total']);
+                  $item_quantity = floatval($row['item_quantity']);
+                  $item_price = floatval($row['item_price']);
+                  $item_tax = floatval($row['item_tax']);
+                  $item_total = floatval($row['item_total']);
                   $item_created_at = $row['item_created_at'];
                   $tax_id = $row['item_tax_id'];
                   $total_tax = $item_tax + $total_tax;
@@ -459,7 +458,7 @@ if(isset($_GET['invoice_id'])){
               while($row = mysqli_fetch_array($sql_payments)){
                 $payment_id = $row['payment_id'];
                 $payment_date = $row['payment_date'];
-                $payment_amount = htmlentities($row['payment_amount']);
+                $payment_amount = floatval($row['payment_amount']);
                 $payment_currency_code = htmlentities($row['payment_currency_code']);
                 $payment_reference = htmlentities($row['payment_reference']);
                 $account_name = htmlentities($row['account_name']);

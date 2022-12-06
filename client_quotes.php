@@ -85,7 +85,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }
             $quote_status = htmlentities($row['quote_status']);
             $quote_date = $row['quote_date'];
-            $quote_amount = htmlentities($row['quote_amount']);
+            $quote_amount = floatval($row['quote_amount']);
             $quote_currency_code = htmlentities($row['quote_currency_code']);
             $quote_created_at = $row['quote_created_at'];
             $category_id = $row['category_id'];

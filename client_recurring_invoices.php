@@ -81,7 +81,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   $recurring_last_sent = "-";
                 }
                 $recurring_next_date = $row['recurring_next_date'];
-                $recurring_amount = htmlentities($row['recurring_amount']);
+                $recurring_amount = floatval($row['recurring_amount']);
                 $recurring_currency_code = htmlentities($row['recurring_currency_code']);
                 $recurring_created_at = $row['recurring_created_at'];
                 $category_id = $row['category_id'];

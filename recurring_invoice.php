@@ -27,7 +27,7 @@ if(isset($_GET['recurring_id'])){
     $recurring_last_sent = '-';
   }
   $recurring_next_date = $row['recurring_next_date'];
-  $recurring_amount = htmlentities($row['recurring_amount']);
+  $recurring_amount = float($row['recurring_amount']);
   $recurring_currency_code = htmlentities($row['recurring_currency_code']);
   $recurring_note = htmlentities($row['recurring_note']);
   $recurring_created_at = $row['recurring_created_at'];
@@ -194,11 +194,10 @@ if(isset($_GET['recurring_id'])){
                   $item_id = $row['item_id'];
                   $item_name = htmlentities($row['item_name']);
                   $item_description = htmlentities($row['item_description']);
-                  $item_quantity = htmlentities($row['item_quantity']);
-                  $item_price = htmlentities($row['item_price']);
-                  $item_subtotal = htmlentities($row['item_price']);
-                  $item_tax = htmlentities($row['item_tax']);
-                  $item_total = htmlentities($row['item_total']);
+                  $item_quantity = floatval($row['item_quantity']);
+                  $item_price = floatval($row['item_price']);
+                  $item_tax = floatval($row['item_tax']);
+                  $item_total = floatval($row['item_total']);
                   $item_created_at = $row['item_created_at'];
                   $tax_id = $row['item_tax_id'];
                   $total_tax = $item_tax + $total_tax;
