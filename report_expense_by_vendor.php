@@ -26,8 +26,8 @@ $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE company_id = $s
       <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
     </div>
   </div>
-  <div class="card-body p-0">
-    <form class="p-3">
+  <div class="card-body">
+    <form class="mb-3">
       <select onchange="this.form.submit()" class="form-control" name="year">
         <?php 
                 
@@ -48,7 +48,7 @@ $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE company_id = $s
         <thead>
           <tr>
             <th>Vendor</th>
-            <th>Paid</th>
+            <th class="text-right">Paid</th>
           </tr>
         </thead>
         <tbody>
@@ -60,7 +60,7 @@ $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE company_id = $s
             $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS amount_paid FROM expenses WHERE YEAR(expense_date) = $year AND expense_vendor_id = $vendor_id");
             $row = mysqli_fetch_array($sql_amount_paid);
             
-            $amount_paid = $row['amount_paid'];
+            $amount_paid = floatval($row['amount_paid']);
 
             if($amount_paid > 599){
 
@@ -68,7 +68,7 @@ $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE company_id = $s
 
               <tr>
                 <td><?php echo $vendor_name; ?></td>
-                <td><?php echo $amount_paid; ?></td>
+                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?></td>
               </tr>
               <?php 
               } 
