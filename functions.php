@@ -362,7 +362,7 @@ function getDomainExpirationDate($name){
   }
 
   $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, "https://itflow-whois.herokuapp.com/$name");
+  curl_setopt($ch, CURLOPT_URL, "http://lookup.itflow.org:8080/$name");
   curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
   $response = json_decode(curl_exec($ch),1);
 
