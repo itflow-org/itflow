@@ -6127,7 +6127,7 @@ if(isset($_POST['edit_ticket_reply'])){
 
     validateTechRole();
 
-  // HTML Purifier
+    // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
     $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
@@ -6135,8 +6135,9 @@ if(isset($_POST['edit_ticket_reply'])){
 
     $ticket_reply_id = intval($_POST['ticket_reply_id']);
     $ticket_reply = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['ticket_reply']))));
+    $ticket_reply_time_worked = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['time'])));
 
-    mysqli_query($mysqli,"UPDATE ticket_replies SET ticket_reply = '$ticket_reply' WHERE ticket_reply_id = $ticket_reply_id AND ticket_reply_type != 'Client' AND company_id = $session_company_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"UPDATE ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_time_worked = '$ticket_reply_time_worked' WHERE ticket_reply_id = $ticket_reply_id AND ticket_reply_type != 'Client' AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update Modify', log_action = 'Modify', log_description = '$ticket_update_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");

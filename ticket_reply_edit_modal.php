@@ -16,6 +16,13 @@
             <textarea class="form-control summernote" rows="8" name="ticket_reply"><?php echo $ticket_reply; ?></textarea>
           </div>
 
+          <b>Time worked</b>
+          <div class="col-3">
+            <div class="form-group">
+              <input class="form-control timepicker" id="time_worked" name="time" type="time" step="1" value="<?php echo date_format($ticket_reply_time_worked, 'H:i:s') ?>"/>
+            </div>
+          </div>
+
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
