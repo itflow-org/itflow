@@ -105,12 +105,15 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
       if($ticket_reply_type == "Client"){
         $ticket_reply_by_display = $row['contact_name'];
         $user_initials = initials($row['contact_name']);
+        $user_avatar = $row['contact_photo'];
+        $avatar_link = "../uploads/clients/$session_company_id/$session_client_id/$user_avatar";
       }
       else{
         $ticket_reply_by_display = $row['user_name'];
         $user_id = $row['user_id'];
         $user_avatar = $row['user_avatar'];
         $user_initials = initials($row['user_name']);
+        $avatar_link = "../uploads/users/$user_id/$user_avatar";
       }
       ?>
 
@@ -119,7 +122,7 @@ if(isset($_GET['id']) && intval($_GET['id'])) {
           <h3 class="card-title">
             <div class="media">
               <?php if(!empty($user_avatar)){ ?>
-                <img src="<?php echo "../uploads/users/$user_id/$user_avatar"; ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+                <img src="<?php echo $avatar_link ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
               <?php }else{ ?>
                 <span class="fa-stack fa-2x">
             <i class="fa fa-circle fa-stack-2x text-secondary"></i>
