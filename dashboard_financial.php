@@ -1,6 +1,17 @@
 <?php include("inc_all.php"); ?>
 
-<?php 
+<?php
+
+// Quick fix to prevent non-admins (i.e. techs) seeing financials - redirect to client list
+//  To be removed when we have a proper technical dashboard for techs
+if ($_SESSION['user_role'] != 3) { ?>
+  <script type="text/javascript">
+      window.location.href = 'clients.php';
+  </script>
+<?php
+  exit();
+}
+
 
 function roundUpToNearestMultiple($n, $increment = 1000)
 {
