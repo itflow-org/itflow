@@ -99,6 +99,27 @@
       
           </div>
 
+          <div class="tab-pane fade" id="pillsRelatedTickets<?php echo $contact_id; ?>">
+            <ul>
+              <?php
+
+              while($row = mysqli_fetch_array($sql_related_tickets)){
+                $ticket_id = $row['ticket_id'];
+                $ticket_prefix = $row['ticket_prefix'];
+                $ticket_number = $row['ticket_number'];
+                $ticket_subject = htmlentities($row['ticket_subject']);
+
+                ?>
+
+                <li><a href="ticket.php?ticket_id=<?=$ticket_id ?>"><?php echo "[$ticket_prefix$ticket_number] - $ticket_subject"; ?></a></li>
+
+                <?php
+              }
+              ?>
+            </ul>
+
+          </div>
+
         </div>
 
       </div>
