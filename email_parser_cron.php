@@ -91,7 +91,7 @@ if ($emails) {
       $ticket_assigned_to = $row['ticket_assigned_to'];
       $client_id = $row['ticket_client_id'];
       $session_company_id = $row['company_id'];
-      $ticket_reply_type = 'Client'; // Setting to client as a default value
+      $ticket_reply_type = 'Public'; // Setting to client as a default value
 
       // Check the ticket ID is valid
       if (intval($ticket_id) && $ticket_id !== '0') {
