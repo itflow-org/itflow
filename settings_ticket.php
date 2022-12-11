@@ -46,6 +46,12 @@
           <input type="text" class="form-control" name="config_ticket_from_name" placeholder="Name" value="<?php echo htmlentities($config_ticket_from_name); ?>">
         </div>
       </div>
+
+
+      <div class="custom-control custom-switch mb-2">
+        <input type="checkbox" class="custom-control-input" name="config_ticket_email_parse" <?php if($config_ticket_email_parse == 1){ echo "checked"; } ?> value="1" id="customSwitch1">
+        <label class="custom-control-label" for="customSwitch1">Email-to-ticket parsing (Beta) <small>(email_parser_cron.php must also be added to cron and run every few mins)</small></label>
+      </div>
     
       <hr>
       

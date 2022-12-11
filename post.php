@@ -809,8 +809,11 @@ if(isset($_POST['edit_mail_settings'])){
     $config_smtp_password = trim(mysqli_real_escape_string($mysqli,$_POST['config_smtp_password']));
     $config_mail_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_email'])));
     $config_mail_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name'])));
+    $config_imap_host = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_imap_host'])));
+    $config_imap_port = intval($_POST['config_imap_port']);
+    $config_imap_encryption = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_imap_encryption'])));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_encryption = '$config_smtp_encryption', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_encryption = '$config_smtp_encryption', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_imap_host = '$config_imap_host', config_imap_port = $config_imap_port, config_imap_encryption = '$config_imap_encryption' WHERE company_id = $session_company_id");
 
 
     //Update From Email and From Name if Invoice/Quote or Ticket fields are blank
@@ -838,7 +841,7 @@ if(isset($_POST['edit_mail_settings'])){
         mysqli_query($mysqli,"UPDATE settings SET config_ticket_from_email = '$config_mail_from_email' WHERE company_id = $session_company_id");
     }
 
-    //Logging
+    // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified mail settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Mail settings updated";
@@ -847,7 +850,7 @@ if(isset($_POST['edit_mail_settings'])){
 
 }
 
-if(isset($_POST['test_email'])){
+if(isset($_POST['test_email_smtp'])){
 
     validateAdminRole();
 
@@ -884,6 +887,27 @@ if(isset($_POST['test_email'])){
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if(isset($_POST['test_email_imap'])){
+
+    validateAdminRole();
+
+    // Prepare connection string with encryption (TLS/SSL/<blank>)
+    $imap_mailbox = "$config_imap_host:$config_imap_port/imap/readonly/$config_imap_encryption";
+
+    // Connect
+    $imap = imap_open("{{$imap_mailbox}}INBOX", $config_smtp_username, $config_smtp_password);
+
+    if ($imap) {
+          $_SESSION['alert_message'] = "Connected successfully";
+      } else {
+          $_SESSION['alert_type'] = "error";
+          $_SESSION['alert_message'] = "Test IMAP connection failed";
+      }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
 
 if(isset($_POST['edit_invoice_settings'])){
@@ -939,8 +963,10 @@ if(isset($_POST['edit_ticket_settings'])){
     $config_ticket_next_number = intval($_POST['config_ticket_next_number']);
     $config_ticket_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_from_email'])));
     $config_ticket_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_from_name'])));
+    $config_ticket_email_parse = intval($_POST['config_ticket_email_parse']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name' WHERE company_id = $session_company_id");
+
+  mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name', config_ticket_email_parse = '$config_ticket_email_parse' WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = 'Ticket settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
@@ -6104,7 +6130,7 @@ if(isset($_POST['add_ticket_reply'])){
                 $mail->isHTML(true);                                        // Set email format to HTML
 
                 $mail->Subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
-                $mail->Body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+                $mail->Body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
                 $mail->send();
             }
             catch(Exception $e){

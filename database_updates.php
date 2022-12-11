@@ -369,9 +369,18 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.1'");
   }
 
-  //if(CURRENT_DATABASE_VERSION == '0.2.1'){
+  if(CURRENT_DATABASE_VERSION == '0.2.1'){
   // Insert queries here required to update to DB version 0.2.2
+    mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_email_parse` INT(1) NOT NULL DEFAULT '0' AFTER `config_ticket_from_email`");
+    mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_imap_host` VARCHAR(200) NULL DEFAULT NULL AFTER `config_mail_from_name`, ADD `config_imap_port` INT(5) NULL DEFAULT NULL AFTER `config_imap_host`, ADD `config_imap_encryption` VARCHAR(200) NULL DEFAULT NULL AFTER `config_imap_port`;");
   
+  // Then, update the database to the next sequential version
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.2'");
+  }
+
+  //if(CURRENT_DATABASE_VERSION == '0.2.2'){
+  // Insert queries here required to update to DB version 0.2.3
+
   // Then, update the database to the next sequential version
   // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.2'");
   //}
