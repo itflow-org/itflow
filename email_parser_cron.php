@@ -17,12 +17,12 @@ Relate PRs to https://github.com/itflow-org/itflow/issues/225 & https://forum.it
 */
 
 // Get ITFlow config & helper functions
-include("config.php");
-include("functions.php");
+include_once("config.php");
+include_once("functions.php");
 
 // Get settings for the "default" company
 $session_company_id = 1;
-include("get_settings.php");
+include_once("get_settings.php");
 
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {
