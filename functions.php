@@ -35,10 +35,12 @@ function key32gen()
 }
 
 function initials($str) {
-  $ret = '';
-  foreach (explode(' ', $str) as $word)
-    $ret .= strtoupper($word[0]);
-  return $ret;
+  if(!empty($str)){
+    $ret = '';
+    foreach (explode(' ', $str) as $word)
+      $ret .= strtoupper($word[0]);
+    return $ret;
+  }
 }
 
 function removeDirectory($path) {
