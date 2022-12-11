@@ -276,7 +276,7 @@ if(isset($_GET['ticket_id'])){
     <?php
     $sql = mysqli_query($mysqli,"SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id LEFT JOIN contacts ON ticket_reply_by = contact_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL ORDER BY ticket_reply_id DESC");
 
-      while($row = mysqli_fetch_array($sql)){;
+      while($row = mysqli_fetch_array($sql)){
         $ticket_reply_id = $row['ticket_reply_id'];
         $ticket_reply = $row['ticket_reply'];
         $ticket_reply_type = htmlentities($row['ticket_reply_type']);

@@ -19,6 +19,10 @@ $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
 $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
+// Mail - IMAP
+$config_imap_host = $row['config_imap_host'];
+$config_imap_port = $row['config_imap_port'];
+$config_imap_encryption = $row['config_imap_encryption'];
 
 // Defaults
 $config_default_transfer_from_account = $row['config_default_transfer_from_account'];
@@ -53,6 +57,7 @@ $config_ticket_prefix = $row['config_ticket_prefix'];
 $config_ticket_next_number = $row['config_ticket_next_number'];
 $config_ticket_from_name = $row['config_ticket_from_name'];
 $config_ticket_from_email = $row['config_ticket_from_email'];
+$config_ticket_email_parse = $row['config_ticket_email_parse'];
 
 // Alerts
 $config_enable_cron = $row['config_enable_cron'];
