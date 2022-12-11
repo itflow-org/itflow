@@ -287,12 +287,15 @@ if(isset($_GET['ticket_id'])){
         if($ticket_reply_type == "Client"){
           $ticket_reply_by_display = htmlentities($row['contact_name']);
           $user_initials = initials($row['contact_name']);
+          $user_avatar = $row['contact_photo'];
+          $avatar_link = "uploads/clients/$session_company_id/$client_id/$user_avatar";
         }
         else{
           $ticket_reply_by_display = htmlentities($row['user_name']);
           $user_id = $row['user_id'];
           $user_avatar = htmlentities($row['user_avatar']);
           $user_initials = initials($row['user_name']);
+          $avatar_link = "uploads/users/$user_id/$user_avatar";
           $ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
         }
     ?>
@@ -302,7 +305,7 @@ if(isset($_GET['ticket_id'])){
         <h3 class="card-title">
           <div class="media">
             <?php if(!empty($user_avatar)){ ?>
-            <img src="<?php echo "uploads/users/$user_id/$user_avatar"; ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+            <img src="<?php echo $avatar_link; ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
             <?php }else{ ?>
             <span class="fa-stack fa-2x">
               <i class="fa fa-circle fa-stack-2x text-secondary"></i>
