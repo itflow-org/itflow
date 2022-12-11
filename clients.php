@@ -320,7 +320,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <?php } ?>
 
             <!-- Show actions for Admin role only -->
-            <?php //if($session_user_role == 3) { ?>
+            <?php if($session_user_role == 3) { ?>
               <td>
                 <div class="dropdown dropleft text-center">
                   <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -335,7 +335,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   </div>
                 </div>
               </td>
-            <?php //} ?>
+            <?php } ?>
           </tr>
 
           <?php
