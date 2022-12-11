@@ -202,7 +202,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_net_terms = htmlentities($row['client_net_terms']);
             $client_referral = htmlentities($row['client_referral']);
             $client_notes = htmlentities($row['client_notes']);
-            $client_created_at = $row['client_created_at'];
+            $client_created_at = date('Y-m-d',strtotime($row['client_created_at']));
             $client_updated_at = $row['client_updated_at'];
             $client_archive_at = $row['client_archived_at'];
 
@@ -266,7 +266,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <?php echo $client_tags_display; ?>
               <?php } ?>
               <br>
-              <small class="text-secondary"><b>Added:</b> <?php echo $client_created_at; ?></small>
+              <small class="text-secondary"><strong>Created:</strong> <?php echo $client_created_at; ?></small>
             </td>
             <td><?php echo $location_address_display; ?></td>
             <td>

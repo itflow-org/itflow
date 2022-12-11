@@ -9,6 +9,37 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
+          
+          <div class="form-group">
+            <label>Subject <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+              </div>
+              <input type="text" class="form-control" name="subject" placeholder="Subject" required>
+            </div>
+          </div>
+
+
+          
+          <div class="form-group">
+            <textarea class="form-control summernote" rows="8" name="details"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Priority <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+              </div>
+              <select class="form-control select2" name="priority" required>
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+              </select>
+            </div>
+          </div>
+
           <?php if(isset($_GET['client_id'])){ ?>
             <input type="hidden" name="client" value="<?php echo $client_id; ?>">
             <div class="form-group">
@@ -60,11 +91,37 @@
           </div>
           <?php } ?>
 
+          <?php if(isset($_GET['client_id'])){ ?>
+            <div class="form-group">
+              <label>Asset</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                </div>
+                <select class="form-control select2" name="asset">
+                  <option value="0">- None -</option>
+                  <?php
+
+                  $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+                  while($row = mysqli_fetch_array($sql_assets)){
+                    $asset_id_select = $row['asset_id'];
+                    $asset_name_select = htmlentities($row['asset_name']);
+                    ?>
+                    <option <?php if(!empty($asset_id) && $asset_id == $asset_id_select){ echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
+
+                  <?php
+                  }
+                  ?>
+                </select>
+              </div>
+            </div>
+          <?php } ?>
+
           <div class="form-group">
-            <label>Assigned to</label>
+            <label>Assign to</label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
               </div>
               <select class="form-control select2" name="assigned_to">
                 <option value="0">Not Assigned</option>
@@ -72,81 +129,28 @@
                 
                 //$sql = mysqli_query($mysqli,"SELECT * FROM users, user_companies WHERE users.user_id = user_companies.user_id AND user_archived_at IS NULL AND user_companies.company_id = $session_company_id ORDER BY user_name ASC");
                 $sql = mysqli_query($mysqli, "SELECT users.user_id, user_name FROM users
-                                                    LEFT JOIN user_companies ON users.user_id = user_companies.user_id
-                                                    LEFT JOIN user_settings on users.user_id = user_settings.user_id
-                                                    WHERE user_companies.company_id = $session_company_id 
-                                                    AND user_role > 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+                  LEFT JOIN user_companies ON users.user_id = user_companies.user_id
+                  LEFT JOIN user_settings on users.user_id = user_settings.user_id
+                  WHERE user_companies.company_id = $session_company_id 
+                  AND user_role > 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
+                );
                 while($row = mysqli_fetch_array($sql)){
                   $user_id = $row['user_id'];
                   $user_name = htmlentities($row['user_name']);
                 ?>
-                <option value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                <option <?php if($session_user_id == $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                 
                 <?php
                 }
                 ?>
               </select>
             </div>
-          </div>
-
-          <div class="form-group">
-            <label>Priority <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-              </div>
-              <select class="form-control select2" name="priority" required>
-                <option>Low</option>
-                <option>Medium</option>
-                <option>High</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>Subject <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-              </div>
-              <input type="text" class="form-control" name="subject" placeholder="Subject" required>
-            </div>
-          </div>
-
-          <?php if(isset($_GET['client_id'])){ ?>
-            <div class="form-group">
-                <label>Asset</label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                    </div>
-                    <select class="form-control select2" name="asset">
-                        <option value="0">- None -</option>
-                        <?php
-
-                        $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
-                        while($row = mysqli_fetch_array($sql_assets)){
-                            $asset_id_select = $row['asset_id'];
-                            $asset_name_select = htmlentities($row['asset_name']);
-                            ?>
-                            <option <?php if(!empty($asset_id) && $asset_id == $asset_id_select){ echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
-
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </div>
-            </div>
-          <?php } ?>
-          
-          <div class="form-group">
-            <textarea class="form-control summernote" rows="8" name="details"></textarea>
-          </div>
+          </div>    
 
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_ticket" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="add_ticket" class="btn btn-primary"><strong><i class="fa fa-check"></i> Create</strong></button>
         </div>
       </form>
     </div>

@@ -362,22 +362,20 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                         $contact_phone = formatPhoneNumber($row['contact_phone']);
                         $contact_extension = htmlentities($row['contact_extension']);
                         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-                        if ($ticket_status == "Open") {
-                            $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
-                        } elseif ($ticket_status == "Working") {
-                            $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
-                        } else {
-                            $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
+                        if($ticket_status == "Open"){
+                            $ticket_status_color = "primary";
+                        }elseif($ticket_status == "Working") {
+                            $ticket_status_display = "success";
+                        }else{
+                            $ticket_status_display = "secondary";
                         }
 
-                        if ($ticket_priority == "High") {
-                            $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
-                        } elseif ($ticket_priority == "Medium") {
-                            $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
-                        } elseif ($ticket_priority == "Low") {
-                            $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
-                        } else {
-                            $ticket_priority_display = "-";
+                        if($ticket_priority == "High"){
+                            $ticket_priority_color = "danger";
+                        }elseif($ticket_priority == "Medium"){
+                            $ticket_priority_color = "warning";
+                        }else{
+                            $ticket_priority_color = "info";
                         }
                         $ticket_assigned_to = $row['ticket_assigned_to'];
                         if (empty($ticket_assigned_to)) {
@@ -413,8 +411,8 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                                 <br>
                                 <?php echo $contact_display; ?>
                             </td>
-                            <td><?php echo $ticket_priority_display; ?></td>
-                            <td><?php echo $ticket_status_display; ?></td>
+                            <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'><?php echo $ticket_priority; ?></td>
+                            <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
                             <td><?php echo $ticket_assigned_to_display; ?></td>
                             <td><?php echo $ticket_updated_at_display; ?></td>
                             <td><?php echo $ticket_created_at; ?></td>
