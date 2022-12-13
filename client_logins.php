@@ -56,10 +56,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_name&o=<?php echo $disp; ?>">Name</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_uri&o=<?php echo $disp; ?>">URL/Host</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_username&o=<?php echo $disp; ?>">Username</a></th>
             <th>Password</th>
             <th>OTP</th>
+            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_uri&o=<?php echo $disp; ?>">URI</a></th>
             <th class="text-center">Action</th>
           </tr>
           </thead>
@@ -103,12 +103,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <?php echo $login_name; ?>
                 </a>
               </td>
-              <td><?php echo $login_uri_display; ?></td>
               <td><?php echo $login_username_display; ?></td>
               <td>
-                <a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
+                <a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="fas fa-circle text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
               </td>
               <td><?php echo $otp_display; ?></td>
+              <td><?php echo $login_uri_display; ?></td>
               <td>
                 <div class="dropdown dropleft text-center">
                   <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
