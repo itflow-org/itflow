@@ -71,7 +71,7 @@ if ($emails) {
     $date = trim(mysqli_real_escape_string($mysqli, htmlentities(strip_tags($metadata[0]->date))));
 
     // Check if we can identify a ticket number (in square brackets)
-    if (preg_match('/\[TCK-\d+\]/', $subject, $ticket_number)) {
+    if (preg_match("/\[$config_ticket_prefix\d+\]/", $subject, $ticket_number)) {
 
       // Get the actual ticket number (without the brackets)
       preg_match('/\d+/', $ticket_number[0], $ticket_number);
