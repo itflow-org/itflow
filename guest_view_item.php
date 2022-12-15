@@ -78,8 +78,7 @@ if($item_type == "Document"){
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Viewed shared $item_type via link - Item ID: $item_id', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
 
-}
-elseif($item_type == "File"){
+}elseif($item_type == "File"){
     $file_sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = '$item_related_id' AND file_client_id = '$client_id' LIMIT 1");
     $file_row = mysqli_fetch_array($file_sql);
 
@@ -98,8 +97,7 @@ elseif($item_type == "File"){
     echo "<a href=\"guest_download_file.php?id=$item_id&key=$item_key\" download=\"$file_name;\">Download $file_name</a>";
 
 
-}
-elseif($item_type == "Login"){
+}elseif($item_type == "Login"){
     $encryption_key = $_GET['ek'];
 
     $login_sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_id = '$item_related_id' AND login_client_id = '$client_id' LIMIT 1");

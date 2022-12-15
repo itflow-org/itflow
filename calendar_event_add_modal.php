@@ -72,7 +72,8 @@
                   <input type="datetime-local" class="form-control form-control-sm" name="start" required>
                 </div>
                 <div class="col-md-6 mb-3">
-                  <input type="datetime-local" class="form-control form-control-sm" name="end" required>
+                  <input type="datetime-local" class="form-control form-control-sm" name="end" 
+ required>
                 </div>
               </div>
 

@@ -12,6 +12,7 @@ TODO:
   - Better handle replying to closed tickets
   - Support for authenticating with OAuth
   - Documentation
+  - Seperate Mailbox Account for tickets 2022-12-14 - JQ
 
 Relate PRs to https://github.com/itflow-org/itflow/issues/225 & https://forum.itflow.org/d/11-road-map & https://forum.itflow.org/d/31-tickets-from-email
 */
