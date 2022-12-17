@@ -274,12 +274,12 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
               <?php } ?>
               <?php if($amount_paid > 0){ ?>
               <tr class="border-bottom">
-                <td><div class="text-success">Paid to Date</div></td>
+                <td><div class="text-success">Paid</div></td>
                 <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
               </tr>
               <?php } ?>
               <tr class="border-bottom">
-                <td><strong>Balance Due</strong></td>
+                <td><strong>Balance</strong></td>
                 <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>
               </tr>
             </tbody>

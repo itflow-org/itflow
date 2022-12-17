@@ -296,7 +296,7 @@ if(isset($_GET['recurring_id'])){
             </tr>
             <?php } ?>
             <tr class="border-bottom">
-              <td><strong>Amount</strong></td>
+              <td><strong>Total</strong></td>
               <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code); ?></strong></td>
             </tr>
           </tbody>
