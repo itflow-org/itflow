@@ -254,7 +254,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                   </div>
-                  <input type="date" class="form-control" name="install_date" value="<?php echo $asset_install_date; ?>">
+                  <input type="date" class="form-control" name="install_date" max="2999-12-31" value="<?php echo $asset_install_date; ?>">
                 </div>
               </div>
 
@@ -265,7 +265,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
                   </div>
-                  <input type="date" class="form-control" name="purchase_date" value="<?php echo $asset_purchase_date; ?>">
+                  <input type="date" class="form-control" name="purchase_date" max="2999-12-31" value="<?php echo $asset_purchase_date; ?>">
                 </div>
               </div>
               
@@ -275,7 +275,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                   </div>
-                  <input type="date" class="form-control" name="warranty_expire" value="<?php echo $asset_warranty_expire; ?>">
+                  <input type="date" class="form-control" name="warranty_expire" max="2999-12-31" value="<?php echo $asset_warranty_expire; ?>">
                 </div>
               </div>
               <?php } ?>

@@ -118,13 +118,13 @@
           <div class="col-md-2">
             <div class="form-group">
               <label>Date From</label>
-              <input type="date" class="form-control" name="dtf" value="<?php echo $dtf; ?>">
+              <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo $dtf; ?>">
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-group">
               <label>Date To</label>
-              <input type="date" class="form-control" name="dtt" value="<?php echo $dtt; ?>">
+              <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo $dtt; ?>">
             </div>
           </div>
         </div>    

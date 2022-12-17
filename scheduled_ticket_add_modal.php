@@ -82,7 +82,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                             </div>
-                            <input class="form-control" type="date" min="<?php echo date("Y-m-d"); ?>" name="start_date" required>
+                            <input class="form-control" type="date" name="start_date" min="<?php echo date("Y-m-d"); ?>" max="2999-12-31" required>
                         </div>
                     </div>
 

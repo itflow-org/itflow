@@ -18,7 +18,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
               </div>
-              <input type="date" class="form-control" name="next_date" value="<?php echo $recurring_next_date; ?>" required>
+              <input type="date" class="form-control" name="next_date" max="2999-12-31" value="<?php echo $recurring_next_date; ?>" required>
             </div>
           </div>
 
