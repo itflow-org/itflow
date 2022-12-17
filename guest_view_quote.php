@@ -141,7 +141,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
         <div class="col-sm-4">
           <table class="table">
             <tr>
-              <td>Quote Date</td>
+              <td>Date</td>
               <td class="text-right"><?php echo $quote_date; ?></td>
             </tr>
           </table>
@@ -332,7 +332,7 @@ var docDefinition = {
 		      [ 
 		      	{},
 		      	{
-							text: 'Quote Date',
+							text: 'Date',
 							style: 'invoiceDateTitle'
 						}, 
 						{

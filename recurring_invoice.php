@@ -21,7 +21,7 @@ if(isset($_GET['recurring_id'])){
   $recurring_scope = htmlentities($row['recurring_scope']);
   $recurring_frequency = htmlentities($row['recurring_frequency']);
   $recurring_status = htmlentities($row['recurring_status']);
-  $recurring_created_at = $row['recurring_created_at'];
+  $recurring_created_at = date('Y-m-d',strtotime($row['recurring_created_at']));
   $recurring_last_sent = $row['recurring_last_sent'];
   if($recurring_last_sent == 0){
     $recurring_last_sent = '-';
@@ -30,7 +30,6 @@ if(isset($_GET['recurring_id'])){
   $recurring_amount = floatval($row['recurring_amount']);
   $recurring_currency_code = htmlentities($row['recurring_currency_code']);
   $recurring_note = htmlentities($row['recurring_note']);
-  $recurring_created_at = $row['recurring_created_at'];
   $category_id = $row['recurring_category_id'];
   $client_id = $row['client_id'];
   $client_name = htmlentities($row['client_name']);

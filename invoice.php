@@ -220,11 +220,11 @@ if(isset($_GET['invoice_id'])){
       <div class="col-sm-4">
         <table class="table">
           <tr>
-            <td>Invoice Date</td>
+            <td>Date</td>
             <td class="text-right"><?php echo $invoice_date; ?></td>
           </tr>
           <tr>
-            <td>Due Date</td>
+            <td>Due</td>
             <td class="text-right"><?php echo $invoice_due; ?></td>
           </tr>
         </table>
@@ -601,7 +601,7 @@ var docDefinition = {
 		      [ 
 		      	{},
 		      	{
-							text: 'Invoice Date',
+							text: 'Date',
 							style: 'invoiceDateTitle'
 						}, 
 						{
@@ -612,7 +612,7 @@ var docDefinition = {
 		      [ 
 		      	{},
 		      	{
-							text: 'Due Date',
+							text: 'Due',
 							style: 'invoiceDateTitle'
 						}, 
 						{
