@@ -111,7 +111,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                   </div>
-                  <input type="date" class="form-control" name="purchase"> 
+                  <input type="date" class="form-control" name="purchase" max="2999-12-31">
                 </div>
               </div>
 
@@ -121,7 +121,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                   </div>
-                  <input type="date" class="form-control" name="expire"> 
+                  <input type="date" class="form-control" name="expire" max="2999-12-31">
                 </div>
               </div>
 

@@ -50,7 +50,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             </div>
-                            <input type="date" class="form-control" id="editExpire" name="expire"  value="">
+                            <input type="date" class="form-control" id="editExpire" name="expire" max="2999-12-31" value="">
                         </div>
                     </div>
 

@@ -11,12 +11,12 @@
 				<div class="modal-body bg-white">
           <div class="form-group">
             <label>Date From</label>
-            <input type="date" class="form-control" name="date_from" value="<?php echo $dtf; ?>">
+            <input type="date" class="form-control" name="date_from" max="2999-12-31" value="<?php echo $dtf; ?>">
           </div>
    
           <div class="form-group">
             <label>Date To</label>
-            <input type="date" class="form-control" name="date_to" value="<?php echo $dtt; ?>">
+            <input type="date" class="form-control" name="date_to" max="2999-12-31" value="<?php echo $dtt; ?>">
           </div>
           
 				</div>

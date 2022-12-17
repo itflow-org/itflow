@@ -148,13 +148,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <div class="col-md-2">
             <div class="form-group">
               <label>Date From</label>
-              <input type="date" class="form-control" name="date_from" value="<?php echo $date_from; ?>">
+              <input type="date" class="form-control" name="date_from" max="2999-12-31" value="<?php echo $date_from; ?>">
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-group">
               <label>Date To</label>
-              <input type="date" class="form-control" name="date_to" value="<?php echo $date_to; ?>">
+              <input type="date" class="form-control" name="date_to" max="2999-12-31" value="<?php echo $date_to; ?>">
             </div>
           </div>
         </div>    

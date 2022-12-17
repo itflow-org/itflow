@@ -35,7 +35,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
               </div>
-              <input class="form-control" type="date" name="next_date" id="editTicketNextRun">
+              <input class="form-control" type="date" name="next_date" id="editTicketNextRun" max="2999-12-31">
             </div>
           </div>
 
