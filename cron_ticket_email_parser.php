@@ -36,12 +36,6 @@ if (!function_exists('imap_open')) {
   exit();
 }
 
-// Setup PHP Mailer
-require("plugins/PHPMailer/src/PHPMailer.php");
-require("plugins/PHPMailer/src/SMTP.php");
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 // Prepare connection string with encryption (TLS/SSL/<blank>)
 $imap_mailbox = "$config_imap_host:$config_imap_port/imap/$config_imap_encryption";
 
@@ -178,33 +172,21 @@ if ($emails) {
 
 
         // E-mail client notification that ticket has been created
-        $mail = new PHPMailer(true);
 
-        try{
-          //Mail Server Settings
-          $mail->SMTPDebug = 0;                                       // Enable verbose debug output
-          $mail->isSMTP();                                            // Set mailer to use SMTP
-          $mail->Host       = $config_smtp_host;                      // Specify main and backup SMTP servers
-          $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-          $mail->Username   = $config_smtp_username;                  // SMTP username
-          $mail->Password   = $config_smtp_password;                  // SMTP password
-          $mail->SMTPSecure = $config_smtp_encryption;                // Enable TLS encryption, `ssl` also accepted
-          $mail->Port       = $config_smtp_port;                      // TCP port to connect to
+        $email_subject = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
+        $email_body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
-          //Recipients
-          $mail->setFrom($config_ticket_from_email, $config_ticket_from_name);
-          $mail->addAddress("$contact_email", "$contact_name");       // Add a recipient
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_ticket_from_email, $config_ticket_from_name,
+            $contact_email, $contact_name,
+            $email_subject, $email_body);
 
-          // Content
-          $mail->isHTML(true);                                        // Set email format to HTML
-
-          $mail->Subject = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
-          $mail->Body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
-          $mail->send();
+        if ($mail !== true) {
+          mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+          mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', company_id = $session_company_id");
         }
-        catch(Exception $e){
-          echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-        }
+
+
 
       } else {
 
