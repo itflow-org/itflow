@@ -69,11 +69,10 @@
               <label>Start / End <strong class="text-danger">*</strong></label>
               <div class="form-row">
                 <div class="col-md-6 mb-3">
-                  <input type="datetime-local" class="form-control form-control-sm" name="start" required>
+                  <input type="datetime-local" class="form-control form-control-sm" id="event_add_start" name="start" required onblur="updateIncrementEndTime()">
                 </div>
                 <div class="col-md-6 mb-3">
-                  <input type="datetime-local" class="form-control form-control-sm" name="end" 
- required>
+                  <input type="datetime-local" class="form-control form-control-sm" id="event_add_end" name="end" required>
                 </div>
               </div>
 
