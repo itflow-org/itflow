@@ -36,6 +36,12 @@ if (!function_exists('imap_open')) {
   exit();
 }
 
+// Setup PHP Mailer
+require("plugins/PHPMailer/src/PHPMailer.php");
+require("plugins/PHPMailer/src/SMTP.php");
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 // Prepare connection string with encryption (TLS/SSL/<blank>)
 $imap_mailbox = "$config_imap_host:$config_imap_port/imap/$config_imap_encryption";
 
@@ -139,6 +145,8 @@ if ($emails) {
       // Check if we can match the sender to a pre-existing contact
       $any_contact_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$from' LIMIT 1");
       $row = mysqli_fetch_array($any_contact_sql);
+
+      $contact_name = $row['contact_name'];
       $contact_id = $row['contact_id'];
       $contact_email = $row['contact_email'];
       $client_id = $row['contact_client_id'];
@@ -161,6 +169,42 @@ if ($emails) {
         // Logging
         echo "Created new ticket.<br>";
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Client contact $from created ticket $subject via email', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id");
+
+        // Get company name & phone
+        $sql = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = $session_company_id");
+        $row = mysqli_fetch_array($sql);
+        $company_phone = formatPhoneNumber($row['company_phone']);
+        $session_company_name = $row['company_name'];
+
+
+        // E-mail client notification that ticket has been created
+        $mail = new PHPMailer(true);
+
+        try{
+          //Mail Server Settings
+          $mail->SMTPDebug = 0;                                       // Enable verbose debug output
+          $mail->isSMTP();                                            // Set mailer to use SMTP
+          $mail->Host       = $config_smtp_host;                      // Specify main and backup SMTP servers
+          $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+          $mail->Username   = $config_smtp_username;                  // SMTP username
+          $mail->Password   = $config_smtp_password;                  // SMTP password
+          $mail->SMTPSecure = $config_smtp_encryption;                // Enable TLS encryption, `ssl` also accepted
+          $mail->Port       = $config_smtp_port;                      // TCP port to connect to
+
+          //Recipients
+          $mail->setFrom($config_ticket_from_email, $config_ticket_from_name);
+          $mail->addAddress("$contact_email", "$contact_name");       // Add a recipient
+
+          // Content
+          $mail->isHTML(true);                                        // Set email format to HTML
+
+          $mail->Subject = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
+          $mail->Body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+          $mail->send();
+        }
+        catch(Exception $e){
+          echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
 
       } else {
 
