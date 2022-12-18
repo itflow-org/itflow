@@ -5188,12 +5188,12 @@ if(isset($_GET['export_client_software_csv'])){
         $f = fopen('php://memory', 'w');
         
         //set column headers
-        $fields = array('Name', 'Type', 'License', 'Notes');
+        $fields = array('Name', 'Type', 'License', 'Key', 'Notes');
         fputcsv($f, $fields, $delimiter);
         
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
-            $lineData = array($row['software_name'], $row['software_type'], $row['software_license'], $row['software_notes']);
+            $lineData = array($row['software_name'], $row['software_type'], $row['software_license_type'], $row['software_key'], $row['software_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
         
