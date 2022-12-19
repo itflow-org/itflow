@@ -139,6 +139,8 @@ if ($emails) {
       // Check if we can match the sender to a pre-existing contact
       $any_contact_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$from' LIMIT 1");
       $row = mysqli_fetch_array($any_contact_sql);
+
+      $contact_name = $row['contact_name'];
       $contact_id = $row['contact_id'];
       $contact_email = $row['contact_email'];
       $client_id = $row['contact_client_id'];
@@ -161,6 +163,30 @@ if ($emails) {
         // Logging
         echo "Created new ticket.<br>";
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Client contact $from created ticket $subject via email', log_created_at = NOW(), log_client_id = $client_id, company_id = $session_company_id");
+
+        // Get company name & phone
+        $sql = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = $session_company_id");
+        $row = mysqli_fetch_array($sql);
+        $company_phone = formatPhoneNumber($row['company_phone']);
+        $session_company_name = $row['company_name'];
+
+
+        // E-mail client notification that ticket has been created
+
+        $email_subject = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
+        $email_body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_ticket_from_email, $config_ticket_from_name,
+            $contact_email, $contact_name,
+            $email_subject, $email_body);
+
+        if ($mail !== true) {
+          mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+          mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', company_id = $session_company_id");
+        }
+
+
 
       } else {
 
