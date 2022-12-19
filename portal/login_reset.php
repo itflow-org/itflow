@@ -4,12 +4,6 @@
  * Password reset page
  */
 
-// Initiate PHPMailer
-require_once("../plugins/PHPMailer/src/PHPMailer.php");
-require_once("../plugins/PHPMailer/src/SMTP.php");
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 $session_company_id = 1;
 require_once('../config.php');
 require_once('../functions.php');
@@ -62,37 +56,23 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
       mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = '$token' WHERE contact_id = $id LIMIT 1");
       mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $client, company_id = $company");
 
-      // Send email
-      $mail = new PHPMailer(true);
 
-      try{
-        //Mail Server Settings
-        $mail->SMTPDebug = false;                                   // No debug output as client facing
-        $mail->isSMTP();                                            // Set mailer to use SMTP
-        $mail->Host       = $config_smtp_host;                      // Specify main and backup SMTP servers
-        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-        $mail->Username   = $config_smtp_username;                  // SMTP username
-        $mail->Password   = $config_smtp_password;                  // SMTP password
-        $mail->SMTPSecure = $config_smtp_encryption;                // Enable TLS encryption, `ssl` also accepted
-        $mail->Port       = $config_smtp_port;                      // TCP port to connect to
+      // Send reset email
+      $subject = "Password reset for $company_name ITFlow Portal";
+      $body    = "Hello, $name<br><br>Someone (probably you) has requested a new password for your account on $company_name's ITFlow Client Portal. <br><br><b>Please <a href='$url'>click here</a> to reset your password.</b> <br><br>Alternatively, copy and paste this URL into your browser: $url<br><br><i>If you didn't request this change, you can safely ignore this email.</i><br><br>~<br>$company_name<br>Support Department<br>$config_mail_from_email";
 
-        //Recipients
-        $mail->setFrom($config_mail_from_email, $config_mail_from_name);
-        $mail->addAddress("$email", "$name");          // Add user as recipient
+      $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+        $config_mail_from_email, $config_mail_from_name,
+        $email, $name,
+        $subject, $body);
 
-        // Content
-        $mail->isHTML(true);                                  // Set email format to HTML
-
-        $mail->Subject = "Password reset for $company_name ITFlow Portal";
-        $mail->Body    = "Hello, $name<br><br>Someone (probably you) has requested a new password for your account on $company_name's ITFlow Client Portal. <br><br><b>Please <a href='$url'>click here</a> to reset your password.</b> <br><br>Alternatively, copy and paste this URL into your browser: $url<br><br><i>If you didn't request this change, you can safely ignore this email.</i><br><br>~<br>$company_name<br>Support Department<br>$config_mail_from_email";
-        $mail->send();
+      // Error handling
+      if ($mail !== true) {
+          mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', notification_timestamp = NOW(), company_id = $company");
+          mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', company_id = $company");
       }
-      catch(Exception $e){
-        echo "Message could not be sent. Please contact $company_name.";
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'FAILED to send a portal password reset e-mail for $email due to PHP Mailer error.', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $client, company_id = $company");
-        exit();
-      }
-      //End Mail IF Try-Catch
+
+      //End Mail IF
     } else {
       sleep(rand(2, 4)); // Mimic the e-mail send delay even if email is invalid to help prevent user enumeration
     }
@@ -129,36 +109,20 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
       mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Reset portal password for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $client, company_id = $company");
 
       // Send confirmation email
-      $mail = new PHPMailer(true);
+      $subject = "Password reset confirmation for $company_name ITFlow Portal";
+      $body    = "Hello, $name<br><br>Your password for your account on $company_name's ITFlow Client Portal was successfully reset. You should be all set! <br><br><b>If you didn't reset your password, please get in touch ASAP.</b><br><br>~<br>$company_name<br>Support Department<br>$config_mail_from_email";
 
-      try{
-        //Mail Server Settings
-        $mail->SMTPDebug = false;                                   // No debug output as client facing
-        $mail->isSMTP();                                            // Set mailer to use SMTP
-        $mail->Host       = $config_smtp_host;                      // Specify main and backup SMTP servers
-        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-        $mail->Username   = $config_smtp_username;                  // SMTP username
-        $mail->Password   = $config_smtp_password;                  // SMTP password
-        $mail->SMTPSecure = $config_smtp_encryption;                // Enable TLS encryption, `ssl` also accepted
-        $mail->Port       = $config_smtp_port;                      // TCP port to connect to
 
-        //Recipients
-        $mail->setFrom($config_mail_from_email, $config_mail_from_name);
-        $mail->addAddress("$email", "$name");          // Add user as recipient
+      $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+        $config_mail_from_email, $config_mail_from_name,
+        $email, $name,
+        $subject, $body);
 
-        // Content
-        $mail->isHTML(true);                                  // Set email format to HTML
-
-        $mail->Subject = "Password reset confirmation for $company_name ITFlow Portal";
-        $mail->Body    = "Hello, $name<br><br>Your password for your account on $company_name's ITFlow Client Portal was successfully reset. You should be all set! <br><br><b>If you didn't reset your password, please get in touch ASAP.</b><br><br>~<br>$company_name<br>Support Department<br>$config_mail_from_email";
-        $mail->send();
+      // Error handling
+      if ($mail !== true) {
+          mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', notification_timestamp = NOW(), company_id = $company");
+          mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', company_id = $company");
       }
-      catch(Exception $e){
-        echo "Message could not be sent. Please contact $company_name.";
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'FAILED to send a password reset e-mail for $email due to PHP Mailer error.', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $client, company_id = $company");
-        exit();
-      }
-      //End Mail IF Try-Catch
 
       // Redirect to login page
       $_SESSION['login_message'] = "Password reset successfully!";

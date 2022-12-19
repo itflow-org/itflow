@@ -4,13 +4,6 @@ include("config.php");
 include("functions.php");
 include("check_login.php");
 
-require("plugins/PHPMailer/src/PHPMailer.php");
-require("plugins/PHPMailer/src/SMTP.php");
-
-// Initiate PHPMailer
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 if(isset($_POST['change_records_per_page'])){
 
     $_SESSION['records_per_page'] = intval($_POST['change_records_per_page']);
@@ -124,31 +117,22 @@ if(isset($_POST['add_user'])){
     // Send e-mail to client if public update & email is setup
     if(isset($_POST['send_email']) && !empty($config_smtp_host)){
 
-        $mail = new PHPMailer(true);
-        
-        //Mail Server Settings
-        $mail->SMTPDebug = 2;                                       // Enable verbose debug output
-        $mail->isSMTP();                                            // Set mailer to use SMTP
-        $mail->Host       = $config_smtp_host;                      // Specify main and backup SMTP servers
-        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-        $mail->Username   = $config_smtp_username;                  // SMTP username
-        $mail->Password   = $config_smtp_password;                  // SMTP password
-        $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-        $mail->Port       = $config_smtp_port;                      // TCP port to connect to
+        $subject = "Your new $session_company_name ITFlow account";
+        $body = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: $config_base_url<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
 
-        //Recipients
-        $mail->setFrom($config_ticket_from_email, $config_ticket_from_name);
-        $mail->addAddress("$email", "$name");       // Add a recipient
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+          $config_ticket_from_email, $config_ticket_from_name,
+          $email, $name,
+          $subject, $body);
 
-        // Content
-        $mail->isHTML(true);                                        // Set email format to HTML
+        if ($mail !== true) {
+            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', notification_timestamp = NOW(), company_id = $session_company_id");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+        }
 
-        $mail->Subject = "Your new $session_company_name ITFlow account";
-        $mail->Body    = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: $config_base_url<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
-        $mail->send();
     }
 
-    //Logging
+    // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Create', log_description = '$session_name created user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> created";
@@ -855,33 +839,17 @@ if(isset($_POST['test_email_smtp'])){
     validateAdminRole();
 
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+    $subject = "Hi'ya there Chap";
+    $body    = "Hello there Chap ;) Don't worry this won't hurt a bit, it's just a test";
 
-    $mail = new PHPMailer(true);
+    $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+        $config_mail_from_email, $config_mail_from_name,
+        $email, $email,
+        $subject, $body);
 
-    //Mail Server Settings
-
-    $mail->SMTPDebug = 2;                                       // Enable verbose debug output
-    $mail->isSMTP();                                            // Set mailer to use SMTP
-    $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-    $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-    $mail->Username   = $config_smtp_username;                     // SMTP username
-    $mail->Password   = $config_smtp_password;                               // SMTP password
-    $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-    $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
-
-    //Recipients
-    $mail->setFrom($config_mail_from_email, $config_mail_from_name);
-    $mail->addAddress("$email");     // Add a recipient
-
-    // Content
-    $mail->isHTML(true);                                  // Set email format to HTML
-    
-    $mail->Subject = "Hi'ya there Chap";
-    $mail->Body    = "Hello there Chap ;) Don't worry this won't hurt a bit, it's just a test";
-
-    if($mail->send()){
+    if($mail === true){
         $_SESSION['alert_message'] = "Test email sent successfully";
-    }else{
+    } else {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Test email failed";
     }
@@ -1611,40 +1579,23 @@ if(isset($_POST['add_event'])){
         $company_website = $row['company_website'];
         $company_logo = $row['company_logo'];
 
-        $mail = new PHPMailer(true);
+        $subject = "New Calendar Event";
+        $body    = "Hello $contact_name,<br><br>A calendar event has been scheduled: $title at $start<br><br><br>~<br>$company_name<br>$company_phone";
 
-        try {
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_mail_from_email, $config_mail_from_name,
+            $contact_email, $contact_name,
+            $subject, $body);
 
-            //Mail Server Settings
-
-            $mail->SMTPDebug = 2;                                       // Enable verbose debug output
-            $mail->isSMTP();                                            // Set mailer to use SMTP
-            $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-            $mail->Username   = $config_smtp_username;                     // SMTP username
-            $mail->Password   = $config_smtp_password;                               // SMTP password
-            $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-            $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
-
-            //Recipients
-            $mail->setFrom($config_mail_from_email, $config_mail_from_name);
-            $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
-
-            // Content
-            $mail->isHTML(true);                                  // Set email format to HTML
-            $mail->Subject = "New Calendar Event";
-            $mail->Body    = "Hello $contact_name,<br><br>A calendar event has been scheduled: $title at $start<br><br><br>~<br>$company_name<br>$company_phone";
-
-            $mail->send();
-            echo 'Message has been sent';
-
-        } catch (Exception $e) {
-            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        // Logging for email (success/fail)
+        if ($mail === true) {
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Email', log_description = '$session_name emailed event $event_title to $contact_name from client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+        } else {
+            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
         }
 
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Email', log_description = '$session_name emailed event $event_title to $contact_name from client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
-    }
+    } // End mail IF
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Create', log_description = '$session_name created event $title in calendar', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
@@ -1688,40 +1639,24 @@ if(isset($_POST['edit_event'])){
         $company_website = $row['company_website'];
         $company_logo = $row['company_logo'];
 
-        $mail = new PHPMailer(true);
 
-        try {
+        $subject = "Calendar Event Rescheduled";
+        $body    = "Hello $contact_name,<br><br>A calendar event has been rescheduled: $title at $start<br><br><br>~<br>$company_name<br>$company_phone";
 
-            //Mail Server Settings
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_mail_from_email, $config_mail_from_name,
+            $contact_email, $contact_name,
+            $subject, $body);
 
-            $mail->SMTPDebug = 2;                                       // Enable verbose debug output
-            $mail->isSMTP();                                            // Set mailer to use SMTP
-            $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-            $mail->Username   = $config_smtp_username;                     // SMTP username
-            $mail->Password   = $config_smtp_password;                               // SMTP password
-            $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-            $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
-
-            //Recipients
-            $mail->setFrom($config_mail_from_email, $config_mail_from_name);
-            $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
-
-            // Content
-            $mail->isHTML(true);                                  // Set email format to HTML
-            $mail->Subject = "Calendar Event Rescheduled";
-            $mail->Body    = "Hello $contact_name,<br><br>A calendar event has been rescheduled: $title at $start<br><br><br>~<br>$company_name<br>$company_phone";
-
-            $mail->send();
-            echo 'Message has been sent';
-
-        } catch (Exception $e) {
-            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        // Logging for email (success/fail)
+        if ($mail === true) {
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Email', log_description = '$session_name Emailed modified event $title to $client_name email $client_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+        } else {
+            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
         }
 
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Email', log_description = '$session_name Emailed modified event $title to $client_name email $client_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
-    }
+    } // End mail IF
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Modify', log_description = '$session_name modified event $title in calendar', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
@@ -3104,50 +3039,32 @@ if(isset($_GET['email_quote'])){
     $company_website = $row['company_website'];
     $company_logo = $row['company_logo'];
 
-    $mail = new PHPMailer(true);
+    $subject = "Quote [$quote_scope]";
+    $body    = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href='https://$config_base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>Sales<br>$config_quote_from_email<br>$company_phone";
 
-    //Mail Server Settings
+    $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+        $config_quote_from_email, $config_quote_from_name,
+        $contact_email, $contact_name,
+        $subject, $body);
 
-    //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
-    $mail->isSMTP();                                            // Set mailer to use SMTP
-    $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-    $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-    $mail->Username   = $config_smtp_username;                     // SMTP username
-    $mail->Password   = $config_smtp_password;                               // SMTP password
-    $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-    $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+    // Logging
+    if ($mail === true) {
+          mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote!', history_quote_id = $quote_id, company_id = $session_company_id");
+          mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Email', log_description = '$quote_id emailed to $contact_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-    //Recipients
-    $mail->setFrom($config_quote_from_email, $config_quote_from_name);
-    $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
+          $_SESSION['alert_message'] = "Quote has been sent";
+      } else {
+          mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+          mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
-    // Attachments
-    //$mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
-    //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
-    //$mail->addAttachment("uploads/$quote_date-$config_company_name-Quote$quote_number.pdf");    // Optional name
-
-    // Content
-    $mail->isHTML(true);                                  // Set email format to HTML
-
-    $mail->Subject = "Quote [$quote_scope]";
-    $mail->Body    = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href='https://$config_base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>Sales<br>$config_quote_from_email<br>$company_phone";
-    
-    $mail->send();
-    echo 'Message has been sent';
-
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote!', history_quote_id = $quote_id, company_id = $session_company_id");
+          $_SESSION['alert_type'] = "error";
+          $_SESSION['alert_message'] = "Error sending quote";
+      }
 
     //Don't change the status to sent if the status is anything but draft
     if($quote_status == 'Draft'){
-
         mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent' WHERE quote_id = $quote_id AND company_id = $session_company_id");
-
     }
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Email', log_description = '$quote_id emailed to $contact_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "Quote has been sent";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -3608,71 +3525,55 @@ if(isset($_POST['add_payment'])){
         if($invoice_balance == 0){
             $invoice_status = "Paid";        
             if($email_receipt == 1){
-                $mail = new PHPMailer(true);
 
-                //Mail Server Settings
 
-                //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
-                $mail->isSMTP();                                            // Set mailer to use SMTP
-                $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-                $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-                $mail->Username   = $config_smtp_username;                     // SMTP username
-                $mail->Password   = $config_smtp_password;                               // SMTP password
-                $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-                $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+                $subject = "Payment Recieved - Invoice $invoice_prefix$invoice_number";
+                $body    = "Hello $contact_name,<br><br>We have recieved your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
-                //Recipients
-                $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
-                $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
+                $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+                      $config_invoice_from_email, $config_invoice_from_name,
+                      $contact_email, $contact_name,
+                      $subject, $body);
 
-                // Content
-                $mail->isHTML(true);                                  // Set email format to HTML
-                $mail->Subject = "Payment Recieved - Invoice $invoice_prefix$invoice_number";
-                $mail->Body    = "Hello $contact_name,<br><br>We have recieved your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
-
-                $mail->send();
-
-                if(!$mail->send()){
-                    $_SESSION['alert_message'] .= "Mailer Error ";
-                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Failed!', history_invoice_id = $invoice_id, company_id = $session_company_id");
-                }else{
+                // Email Logging
+                if ($mail === true) {
                     $_SESSION['alert_message'] .= "Email receipt sent ";
+
                     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id, company_id = $session_company_id");
+                } else {
+                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Failed!', history_invoice_id = $invoice_id, company_id = $session_company_id");
+                    $_SESSION['alert_message'] .= "Mailer Error ";
+
+                    mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+                    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
                 }
         
             }
         }else{
             $invoice_status = "Partial";
             if($email_receipt == 1){
-                $mail = new PHPMailer(true);
 
-                //Mail Server Settings
 
-                //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
-                $mail->isSMTP();                                            // Set mailer to use SMTP
-                $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-                $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-                $mail->Username   = $config_smtp_username;                     // SMTP username
-                $mail->Password   = $config_smtp_password;                               // SMTP password
-                $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-                $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+                $subject = "Partial Payment Recieved - Invoice $invoice_prefix$invoice_number";
+                $body    = "Hello $contact_name,<br><br>We have recieved partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
-                //Recipients
-                $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
-                $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
+                $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+                  $config_invoice_from_email, $config_invoice_from_name,
+                  $contact_email, $contact_name,
+                  $subject, $body);
 
-                // Content
-                $mail->isHTML(true);                                  // Set email format to HTML
-                $mail->Subject = "Partial Payment Recieved - Invoice $invoice_prefix$invoice_number";
-                $mail->Body    = "Hello $contact_name,<br><br>We have recieved partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+              // Email Logging
+              if ($mail === true) {
+                  $_SESSION['alert_message'] .= "Email receipt sent ";
 
-                if(!$mail->send()){
-                    $_SESSION['alert_message'] .= "Mailer Error ";
-                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Failed!', history_invoice_id = $invoice_id, company_id = $session_company_id");
-                }else{
-                    $_SESSION['alert_message'] .= "Email receipt sent ";
-                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id, company_id = $session_company_id");
-                }
+                  mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id, company_id = $session_company_id");
+              } else {
+                  mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Failed!', history_invoice_id = $invoice_id, company_id = $session_company_id");
+                  $_SESSION['alert_message'] .= "Mailer Error ";
+
+                  mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+                  mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+              }
               
             }
 
@@ -3788,54 +3689,40 @@ if(isset($_GET['email_invoice'])){
 
     $balance = $invoice_amount - $amount_paid;
 
-    $mail = new PHPMailer(true);
+    if($invoice_status == 'Paid') {
+      $subject = "Invoice $invoice_prefix$invoice_number Copy";
+      $body    = "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
-    //Mail Server Settings
+    } else {
 
-    //$mail->SMTPDebug = 2;                                       // Enable verbose debug output
-    $mail->isSMTP();                                            // Set mailer to use SMTP
-    $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-    $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-    $mail->Username   = $config_smtp_username;                     // SMTP username
-    $mail->Password   = $config_smtp_password;                               // SMTP password
-    $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-    $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
-
-    //Recipients
-    $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
-    $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
-
-    // Content
-    $mail->isHTML(true);                                  // Set email format to HTML
-    
-    if($invoice_status == 'Paid'){
-
-        $mail->Subject = "Invoice $invoice_prefix$invoice_number Copy";
-        $mail->Body    = "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
-
-    }else{
-
-        $mail->Subject = "Invoice $invoice_prefix$invoice_number";
-        $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
-        //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+      $subject = "Invoice $invoice_prefix$invoice_number";
+      $body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
     }
 
-    if(!$mail->send()){
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Invoice Failed to send ";
-        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Invoice Failed', history_invoice_id = $invoice_id, company_id = $session_company_id");
-    }else{
+    $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+      $config_invoice_from_email, $config_invoice_from_name,
+      $contact_email, $contact_name,
+      $subject, $body);
+
+    if ($mail === true) {
         $_SESSION['alert_message'] = "Invoice has been sent";
         mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed invoice', history_invoice_id = $invoice_id, company_id = $session_company_id");
 
         //Don't chnage the status to sent if the status is anything but draft
         if($invoice_status == 'Draft'){
-            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+          mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
         }
 
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Email', log_description = 'Invoice $invoice_prefix$invoice_number emailed to $client_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
+    } else {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Invoice Failed to send ";
+        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Invoice Failed', history_invoice_id = $invoice_id, company_id = $session_company_id");
+
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -5880,33 +5767,20 @@ if(isset($_POST['add_ticket'])){
 
         // Verify contact email is valid
         if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
-            $mail = new PHPMailer(true);
 
-            try{
-                //Mail Server Settings
-                $mail->SMTPDebug = 2;                                       // Enable verbose debug output
-                $mail->isSMTP();                                            // Set mailer to use SMTP
-                $mail->Host       = $config_smtp_host;                      // Specify main and backup SMTP servers
-                $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-                $mail->Username   = $config_smtp_username;                  // SMTP username
-                $mail->Password   = $config_smtp_password;                  // SMTP password
-                $mail->SMTPSecure = $config_smtp_encryption;                // Enable TLS encryption, `ssl` also accepted
-                $mail->Port       = $config_smtp_port;                      // TCP port to connect to
+            $subject = "Ticket created - [$ticket_prefix$ticket_number] - $subject";
+            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
-                //Recipients
-                $mail->setFrom($config_ticket_from_email, $config_ticket_from_name);
-                $mail->addAddress("$contact_email", "$contact_name");       // Add a recipient
+            $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+                $config_ticket_from_email, $config_ticket_from_name,
+                $contact_email, $contact_name,
+                $subject, $body);
 
-                // Content
-                $mail->isHTML(true);                                        // Set email format to HTML
-
-                $mail->Subject = "Ticket created - [$ticket_prefix$ticket_number] - $subject";
-                $mail->Body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
-                $mail->send();
+            if ($mail !== true) {
+                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+                mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
             }
-            catch(Exception $e){
-                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-            }
+
         }
     }
 
@@ -6158,36 +6032,21 @@ if(isset($_POST['add_ticket_reply'])){
 
         if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
 
-            $mail = new PHPMailer(true);
+            $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
+            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
-            try{
-                //Mail Server Settings
-                $mail->SMTPDebug = 2;                                       // Enable verbose debug output
-                $mail->isSMTP();                                            // Set mailer to use SMTP
-                $mail->Host       = $config_smtp_host;                      // Specify main and backup SMTP servers
-                $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-                $mail->Username   = $config_smtp_username;                  // SMTP username
-                $mail->Password   = $config_smtp_password;                  // SMTP password
-                $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-                $mail->Port       = $config_smtp_port;                      // TCP port to connect to
+            $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+                $config_ticket_from_email, $config_ticket_from_name,
+                $contact_email, $contact_name,
+                $subject, $body);
 
-                //Recipients
-                $mail->setFrom($config_ticket_from_email, $config_ticket_from_name);
-                $mail->addAddress("$contact_email", "$contact_name");       // Add a recipient
-
-                // Content
-                $mail->isHTML(true);                                        // Set email format to HTML
-
-                $mail->Subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
-                $mail->Body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
-                $mail->send();
-            }
-            catch(Exception $e){
-                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            if ($mail !== true) {
+              mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+              mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
             }
         }
     }
-    //End Mail IF Try-Catch
+    //End Mail IF
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Create', log_description = '$ticket_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -7050,35 +6909,29 @@ if(isset($_GET['force_recurring'])){
         $company_email = $row['company_email'];
         $company_website = $row['company_website'];
 
-        $mail = new PHPMailer(true);
 
-        //Mail Server Settings
+        // Email to client
 
-        $mail->SMTPDebug = 2;                                       // Enable verbose debug output
-        $mail->isSMTP();                                            // Set mailer to use SMTP
-        $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-        $mail->Username   = $config_smtp_username;                     // SMTP username
-        $mail->Password   = $config_smtp_password;                               // SMTP password
-        $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-        $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+        $subject = "Invoice $invoice_prefix$invoice_number";
+        $body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
 
-        //Recipients
-        $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
-        $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_invoice_from_email, $config_invoice_from_name,
+              $contact_email, $contact_name,
+              $subject, $body);
 
-        // Content
-        $mail->isHTML(true);                                  // Set email format to HTML
+        if ($mail === true) {
+            // Add send history
+            mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Force Emailed Invoice!', history_invoice_id = $new_invoice_id, company_id = $session_company_id");
 
-        $mail->Subject = "Invoice $invoice_prefix$invoice_number";
-        $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+            // Update Invoice Status to Sent
+            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id AND company_id = $session_company_id");
 
-        $mail->send();
-
-        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Auto Emailed Invoice!', history_invoice_id = $new_invoice_id, company_id = $session_company_id");
-
-        //Update Invoice Status to Sent
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id AND company_id = $session_company_id");
+        } else {
+            // Error reporting
+            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+        }
 
     } //End Recurring Invoices Loop
 

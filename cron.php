@@ -2,12 +2,6 @@
 <?php include("functions.php"); ?>
 <?php
 
-require("plugins/PHPMailer/src/PHPMailer.php");
-require("plugins/PHPMailer/src/SMTP.php");
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 ?>
 
 <?php
@@ -237,41 +231,24 @@ while($row = mysqli_fetch_array($sql_companies)){
 
         mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
-        $mail = new PHPMailer(true);
-
-        try{
-
-          //Mail Server Settings
-
-          $mail->SMTPDebug = 3;                                       // Enable verbose debug output
-          $mail->isSMTP();                                            // Set mailer to use SMTP
-          $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-          $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-          $mail->Username   = $config_smtp_username;                     // SMTP username
-          $mail->Password   = $config_smtp_password;                               // SMTP password
-          $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-          $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
-
-          //Recipients
-          $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
-          $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
-
-          // Content
-          $mail->isHTML(true);                                  // Set email format to HTML
-
-          $mail->Subject = "Overdue Invoice $invoice_prefix$invoice_number";
-          $mail->Body    = "Hello $contact_name,<br><br>According to our records, we have not received payment for invoice $invoice_prefix$invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $company_phone.
+        $subject = "Overdue Invoice $invoice_prefix$invoice_number";
+        $body    = "Hello $contact_name,<br><br>According to our records, we have not received payment for invoice $invoice_prefix$invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $company_phone.
             <br><br>
             Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
-          $mail->send();
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+          $config_invoice_from_email, $config_invoice_from_name,
+          $contact_email, $contact_name,
+          $subject, $body);
 
-          mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
+        if ($mail === true) {
+            mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
+        } else {
+            mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
 
-        }catch (Exception $e) {
-          echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-          mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
-        } //End Mail Try
+            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $company_id");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', company_id = $company_id");
+        }
 
       }
 
@@ -361,42 +338,26 @@ while($row = mysqli_fetch_array($sql_companies)){
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
 
-        $mail = new PHPMailer(true);
 
-        try{
+        $subject = "Invoice $invoice_prefix$invoice_number";
+        $body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
-          //Mail Server Settings
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_invoice_from_email, $config_invoice_from_name,
+            $contact_email, $contact_name,
+            $subject, $body);
 
-          $mail->SMTPDebug = 3;                                       // Enable verbose debug output
-          $mail->isSMTP();                                            // Set mailer to use SMTP
-          $mail->Host       = $config_smtp_host;  // Specify main and backup SMTP servers
-          $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-          $mail->Username   = $config_smtp_username;                     // SMTP username
-          $mail->Password   = $config_smtp_password;                               // SMTP password
-          $mail->SMTPSecure = $config_smtp_encryption;                                  // Enable TLS encryption, `ssl` also accepted
-          $mail->Port       = $config_smtp_port;                                    // TCP port to connect to
+        if ($mail === true) {
+            mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW(), invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id");
 
-          //Recipients
-          $mail->setFrom($config_invoice_from_email, $config_invoice_from_name);
-          $mail->addAddress("$contact_email", "$contact_name");     // Add a recipient
+        } else {
+            mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Cron Failed to send Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
 
-          // Content
-          $mail->isHTML(true);                                  // Set email format to HTML
+            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $company_id");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', company_id = $company_id");
+        }
 
-          $mail->Subject = "Invoice $invoice_prefix$invoice_number";
-          $mail->Body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
-
-          $mail->send();
-
-          mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
-
-          //Update Invoice Status to Sent
-          mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW(), invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id");
-
-        }catch (Exception $e) {
-          echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-          mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Cron Failed to send Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
-        } //End Mail Try
       } //End if Autosend is on
     } //End Recurring Invoices Loop
     //Send Alert to inform Cron was run

@@ -3,6 +3,14 @@
 // Role check failed wording
 DEFINE("WORDING_ROLECHECK_FAILED", "You are not permitted to do that!");
 
+// PHP Mailer Libs
+require_once("plugins/PHPMailer/src/Exception.php");
+require_once("plugins/PHPMailer/src/PHPMailer.php");
+require_once("plugins/PHPMailer/src/SMTP.php");
+// Initiate PHPMailer
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 function keygen()
 {
   $chars = "abcdefghijklmnopqrstuvwxyz";
@@ -501,6 +509,48 @@ function validateAccountantRole(){
     $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
     exit();
+  }
+}
+
+// Send a single email to a single recipient
+function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port, $from_email, $from_name, $to_email, $to_name, $subject, $body){
+
+  $mail = new PHPMailer(true);
+
+  try{
+    // Mail Server Settings
+    $mail->SMTPDebug = 0;                                       // No Debugging
+    $mail->isSMTP();                                            // Set mailer to use SMTP
+    $mail->Host       = $config_smtp_host;                      // Specify SMTP server
+    $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+    $mail->Username   = $config_smtp_username;                  // SMTP username
+    $mail->Password   = $config_smtp_password;                  // SMTP password
+    $mail->SMTPSecure = $config_smtp_encryption;                // Enable TLS encryption, `ssl` also accepted
+    $mail->Port       = $config_smtp_port;                      // TCP port to connect to
+
+    //Recipients
+    $mail->setFrom($from_email, $from_name);
+    $mail->addAddress("$to_email", "$to_name");    // Add a recipient
+
+    // Content
+    $mail->isHTML(true);                                  // Set email format to HTML
+    $mail->Subject = "$subject";                                // Subject
+    $mail->Body    = "$body";                                   // Content
+
+    // Attachments - todo
+    //$mail->addAttachment('/var/tmp/file.tar.gz');             // Add attachments
+    //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');        // Optional name
+
+    // Send
+    $mail->send();
+
+    // Return true if this was successful
+    return true;
+  }
+
+  catch(Exception $e){
+    // If we couldn't send the message return the error so we can log it
+    return "Message not sent. Mailer Error: {$mail->ErrorInfo}";
   }
 }
 
