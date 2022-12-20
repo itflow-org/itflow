@@ -143,6 +143,8 @@ if(isset($_POST['add_user'])){
 
 if(isset($_POST['edit_user'])){
 
+    validateAdminRole();
+
     if($session_user_role != 3 && $_POST['user_id'] !== $session_user_id){
       $_SESSION['alert_type'] = "error";
       $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
