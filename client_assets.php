@@ -32,7 +32,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(*) AS count FROM as
 $other_count = $row['count'];
 
 if(!empty($_GET['sb'])){
-  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+  $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "asset_name";
 }
@@ -75,18 +75,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop"></i> Assets</h3>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-fw fa-plus"></i> New <?php if(!empty($_GET['type'])){ echo ucwords(strip_tags($_GET['type'])); }else{ echo "Asset"; } ?></button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-fw fa-plus"></i> New <?php if(!empty($_GET['type'])){ echo ucwords(strip_tags(htmlentities($_GET['type']))); }else{ echo "Asset"; } ?></button>
     </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-      <input type="hidden" name="type" value="<?php echo strip_tags($_GET['type']); ?>">
+      <input type="hidden" name="type" value="<?php echo strip_tags(htmlentities($_GET['type'])); ?>">
       <div class="row">
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search <?php if(!empty($_GET['type'])){ echo ucwords(strip_tags($_GET['type'])); }else{ echo "Asset"; } ?>s">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(htmlentities($q)); } ?>" placeholder="Search <?php if(!empty($_GET['type'])){ echo ucwords(strip_tags(htmlentities($_GET['type']))); }else{ echo "Asset"; } ?>s">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>

@@ -12,13 +12,13 @@ if (isset($_GET['p'])) {
 }
 
 if (isset($_GET['q'])) {
-    $q = mysqli_real_escape_string($mysqli, $_GET['q']);
+    $q = strip_tags(mysqli_real_escape_string($mysqli, $_GET['q']));
 } else {
     $q = "";
 }
 
 if (!empty($_GET['sb'])) {
-    $sb = mysqli_real_escape_string($mysqli, $_GET['sb']);
+    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
 } else {
     $sb = "ticket_number";
 }
@@ -74,8 +74,8 @@ if (empty($_GET['canned_date'])) {
 }
 
 if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
-    $dtf = mysqli_real_escape_string($mysqli, $_GET['dtf']);
-    $dtt = mysqli_real_escape_string($mysqli, $_GET['dtt']);
+    $dtf = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtf']));
+    $dtt = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtt']));
 } elseif ($_GET['canned_date'] == "today") {
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');
@@ -176,7 +176,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                     <div class="col-sm-4">
                         <div class="input-group">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {
-                                echo htmlentities($q);
+                                echo stripslashes(htmlentities($q));
                             } ?>" placeholder="Search Tickets">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse"
@@ -252,13 +252,13 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date From</label>
-                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo $dtf; ?>">
+                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo htmlentities($dtf); ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date To</label>
-                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo $dtt; ?>">
+                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo htmlentities($dtt); ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -386,7 +386,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                                 $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
                             }
                         } else {
-                            $ticket_assigned_to_display = $row['user_name'];
+                            $ticket_assigned_to_display = htmlentities($row['user_name']);
                         }
 
                         if (empty($contact_name)) {

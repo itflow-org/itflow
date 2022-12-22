@@ -3,7 +3,7 @@
 <?php
 
 if(isset($_GET['q'])){
-  $q = mysqli_real_escape_string($mysqli,$_GET['q']);
+  $q = strip_tags(mysqli_real_escape_string($mysqli,$_GET['q']));
   //Phone Numbers
   $phone_query = preg_replace("/[^0-9]/", '',$q);
   if(empty($phone_query)){
@@ -42,7 +42,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <div class="col-md-4">
             <div class="input-group mb-3 mb-md-0">
-              <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Shared Items">
+              <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Shared Items">
               <div class="input-group-append">
                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
               </div>

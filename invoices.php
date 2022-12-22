@@ -85,8 +85,8 @@
   
   //Date Filter
   if($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])){
-    $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
-    $dtt = mysqli_real_escape_string($mysqli,$_GET['dtt']);
+    $dtf = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtf']));
+    $dtt = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtt']));
   }elseif($_GET['canned_date'] == "today"){
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');
@@ -201,11 +201,11 @@
 
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
-      <input type="hidden" name="status" value="<?php if(isset($_GET['status'])){ echo strip_tags($_GET['status']); } ?>">
+      <input type="hidden" name="status" value="<?php if(isset($_GET['status'])){ echo htmlentities($_GET['status']); } ?>">
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Invoices">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes(htmlentities($q));} ?>" placeholder="Search Invoices">
             <div class="input-group-append">
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>

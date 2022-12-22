@@ -1,7 +1,7 @@
 <?php include("inc_all.php");
 
 if(!empty($_GET['sb'])){
-  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+  $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "product_name";
 }
@@ -32,7 +32,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Products">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes(htmlentities($q));} ?>" placeholder="Search Products">
             <div class="input-group-append">
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>

@@ -4,7 +4,7 @@
 
 if(isset($_GET['query'])){
 
-    $query = mysqli_real_escape_string($mysqli,$_GET['query']);
+    $query = strip_tags(mysqli_real_escape_string($mysqli,$_GET['query']));
 
     $phone_query = preg_replace("/[^0-9]/", '',$query);
     if(empty($phone_query)){

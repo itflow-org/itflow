@@ -1,7 +1,7 @@
 <?php include("inc_all_settings.php");
 
 if(!empty($_GET['sb'])){
-  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+  $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "log_id";
 }
@@ -20,8 +20,8 @@ if(empty($_GET['canned_date'])){
 
 //Date Filter
 if($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])){
-  $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
-  $dtt = mysqli_real_escape_string($mysqli,$_GET['dtt']);
+  $dtf = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtf']));
+  $dtt = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtt']));
 }elseif($_GET['canned_date'] == "today"){
   $dtf = date('Y-m-d');
   $dtt = date('Y-m-d');
@@ -68,14 +68,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
   <div class="card-header">
-    <h3 class="card-title"><i class="fa fa-fw fa-eye"></i> Audit Logs <?php echo $extended_query; ?></h3>
+    <h3 class="card-title"><i class="fa fa-fw fa-eye"></i> Audit Logs</h3>
   </div>
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search audit logs">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(htmlentities($q)); } ?>" placeholder="Search audit logs">
             <div class="input-group-append">
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>

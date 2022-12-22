@@ -3,7 +3,7 @@
 <?php
 
 if(!empty($_GET['sb'])){
-  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+  $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "trip_date";
 }
@@ -16,8 +16,8 @@ if(!isset($_GET['o'])){
 
 //Date From and Date To Filter
 if(isset($_GET['dtf'])){
-  $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
-  $dtt = mysqli_real_escape_string($mysqli,$_GET['dtt']);
+  $dtf = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtf']));
+  $dtt = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtt']));
 }else{
   $dtf = "0000-00-00";
   $dtt = "9999-00-00";
@@ -52,7 +52,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Trips">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Trips">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>

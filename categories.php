@@ -1,13 +1,13 @@
 <?php include("inc_all_settings.php"); 
 
 if(isset($_GET['category'])){
-  $category = mysqli_real_escape_string($mysqli,$_GET['category']);
+  $category = strip_tags(mysqli_real_escape_string($mysqli,$_GET['category']));
 }else{
   $category = "Expense";
 }
 
 if(!empty($_GET['sb'])){
-  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+  $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "category_name";
 }
@@ -42,18 +42,18 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
 
 <div class="card card-dark">
   <div class="card-header py-2">
-    <h3 class="card-title mt-2"><i class="fa fa-fw fa-list"></i> <?php echo $category; ?> Categories</h3>
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-list"></i> <?php echo htmlentities($category); ?> Categories</h3>
     <div class="card-tools">
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCategoryModal"><i class="fas fa-fw fa-plus"></i> New</button>
     </div>
   </div>
   <div class="card-body">
     <form autocomplete="off">
-      <input type="hidden" name="category" value="<?php echo $category; ?>">
+      <input type="hidden" name="category" value="<?php echo htmlentities($category); ?>">
       <div class="row">
         <div class="col-sm-4 mb-2">
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Categories">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Categories">
             <div class="input-group-append">
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>

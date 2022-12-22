@@ -1,7 +1,7 @@
 <?php include("inc_all.php");
 
 if(isset($_GET['q'])){
-  $q = mysqli_real_escape_string($mysqli,$_GET['q']);
+  $q = strip_tags(mysqli_real_escape_string($mysqli,$_GET['q']));
   //Phone Numbers
   $phone_query = preg_replace("/[^0-9]/", '',$q);
   if(empty($phone_query)){
@@ -14,15 +14,15 @@ if(isset($_GET['q'])){
 
 //Column Filter
 if(!empty($_GET['sb'])){
-  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+  $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "vendor_name";
 }
 
 //Date From and Date To Filter
 if(!empty($_GET['dtf'])){
-  $dtf = mysqli_real_escape_string($mysqli,$_GET['dtf']);
-  $dtt = mysqli_real_escape_string($mysqli,$_GET['dtt']);
+  $dtf = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtf']));
+  $dtt = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtt']));
 }else{
   $dtf = "0000-00-00";
   $dtt = "9999-00-00";
@@ -56,7 +56,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Vendors">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo stripslashes(htmlentities($q));} ?>" placeholder="Search Vendors">
             <div class="input-group-append">
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -69,13 +69,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <div class="col-md-2">
             <div class="form-group">
               <label>Date From</label>
-              <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo $dtf; ?>">
+              <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo htmlentities($dtf); ?>">
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-group">
               <label>Date To</label>
-              <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo $dtt; ?>">
+              <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo htmlentities($dtt); ?>">
             </div>
           </div>
         </div>    

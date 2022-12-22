@@ -15,7 +15,7 @@ if(isset($_GET['p'])){
   
 //Custom Query Filter  
 if(isset($_GET['query'])){
-  $query = mysqli_real_escape_string($mysqli,$_GET['query']);
+  $query = strip_tags(mysqli_real_escape_string($mysqli,$_GET['query']));
   //Phone Numbers
   $phone_query = preg_replace("/[^0-9]/", '',$query);
   if(empty($phone_query)){
@@ -28,7 +28,7 @@ if(isset($_GET['query'])){
 
 //Column Filter
 if(!empty($_GET['sortby'])){
-  $sortby = mysqli_real_escape_string($mysqli,$_GET['sortby']);
+  $sortby = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sortby']));
 }else{
   $sortby = "client_accessed_at";
 }
@@ -55,8 +55,8 @@ if(empty($_GET['canned_date'])) {
 
 //Date Filter
 if($_GET['canned_date'] == "custom" && !empty($_GET['date_from'])){
-  $date_from = mysqli_real_escape_string($mysqli,$_GET['date_from']);
-  $date_to = mysqli_real_escape_string($mysqli,$_GET['date_to']);
+  $date_from = strip_tags(mysqli_real_escape_string($mysqli,$_GET['date_from']));
+  $date_to = strip_tags(mysqli_real_escape_string($mysqli,$_GET['date_to']));
 }elseif($_GET['canned_date'] == "today"){
   $date_from = date('Y-m-d');
   $date_to = date('Y-m-d');
@@ -119,7 +119,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
-            <input type="search" class="form-control" name="query" value="<?php if(isset($query)){echo stripslashes($query);} ?>" placeholder="Search Clients" autofocus>
+            <input type="search" class="form-control" name="query" value="<?php if(isset($query)){echo stripslashes(htmlentities($query));} ?>" placeholder="Search Clients" autofocus>
             <div class="input-group-append">
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -148,13 +148,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <div class="col-md-2">
             <div class="form-group">
               <label>Date From</label>
-              <input type="date" class="form-control" name="date_from" max="2999-12-31" value="<?php echo $date_from; ?>">
+              <input type="date" class="form-control" name="date_from" max="2999-12-31" value="<?php echo htmlentities($date_from); ?>">
             </div>
           </div>
           <div class="col-md-2">
             <div class="form-group">
               <label>Date To</label>
-              <input type="date" class="form-control" name="date_to" max="2999-12-31" value="<?php echo $date_to; ?>">
+              <input type="date" class="form-control" name="date_to" max="2999-12-31" value="<?php echo htmlentities($date_to); ?>">
             </div>
           </div>
         </div>    

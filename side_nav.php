@@ -15,7 +15,7 @@
 
       <div class="dropdown brand-link">
         <a class="" href="#" data-toggle="dropdown">
-          <h3 class="brand-text text-light mb-0"><?php echo $session_company_name; ?> <small><i class="fa fa-caret-down"></i></small></h3>
+          <h3 class="brand-text text-light mb-0"><?php echo htmlentities($session_company_name); ?> <small><i class="fa fa-caret-down"></i></small></h3>
         </a>
 
         <ul class="dropdown-menu">
@@ -48,7 +48,7 @@
 
       <form class="form-inline mb-3" action="global_search.php">
         <div class="input-group">
-          <input class="form-control form-control-sidebar" type="search" placeholder="Search" name="query" value="<?php if(isset($_GET['query'])){ echo strip_tags($_GET['query']); } ?>">
+          <input class="form-control form-control-sidebar" type="search" placeholder="Search" name="query" value="<?php if(isset($_GET['query'])){ echo htmlentities($_GET['query']); } ?>">
           <div class="input-group-append">
             <button class="btn btn-sidebar" type="submit">
               <i class="fas fa-search"></i>

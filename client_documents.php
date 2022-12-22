@@ -11,7 +11,7 @@ if(!empty($_GET['folder_id'])){
 
 // Sort by
 if(!empty($_GET['sb'])){
-  $sb = mysqli_real_escape_string($mysqli,$_GET['sb']);
+  $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "document_name";
 }
@@ -130,7 +130,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <input type="hidden" name="client_id" value="<?php echo intval($client_id); ?>">
           <input type="hidden" name="folder_id" value="<?php echo $get_folder_id; ?>">
           <div class="input-group">
-            <input type="search" class="form-control " name="q" value="<?php if(isset($q)){echo stripslashes($q);} ?>" placeholder="Search Documents">
+            <input type="search" class="form-control " name="q" value="<?php if(isset($q)){ echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Documents">
             <div class="input-group-append">
               <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
             </div>
