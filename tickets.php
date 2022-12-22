@@ -264,7 +264,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Ticket Status</label>
-                                <select class="form-control" name="status">
+                                <select class="form-control select2" name="status">
                                     <option value="%" <?php if($status == "%"){echo "selected";}?> >Any</option>
                                     <option value="Open" <?php if($status == "Open"){echo "selected";}?> >Open</option>
                                     <option value="Closed" <?php if($status == "Closed"){echo "selected";}?> >Closed</option>
