@@ -785,8 +785,7 @@ if(isset($_POST['add_database'])){
   // Test database connection before writing it to config.php
   try {
     mysqli_connect($host, $username, $password, $database);
-  }
-  catch (Exception $e) {
+  } catch (Exception $e) {
     exit("<b>Database connection failed - please check and try again</b> <br> <br> $e");
   }
 
