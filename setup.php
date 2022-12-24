@@ -782,6 +782,14 @@ if(isset($_POST['add_database'])){
   $password = $_POST['password'];
   $config_base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
 
+  // Test database connection before writing it to config.php
+  try {
+    mysqli_connect($host, $username, $password, $database);
+  }
+  catch (Exception $e) {
+    exit("<b>Database connection failed - please check and try again</b> <br> <br> $e");
+  }
+
   $new_config = array();
   $new_config[] = "<?php\n\n";
   $new_config[] = sprintf("\$dbhost = '%s';\n", addslashes($host));
