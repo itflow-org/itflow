@@ -98,8 +98,6 @@
 
         <?php } ?>
 
-        <?php if($session_user_role == 1 OR $session_user_role == 3 && $config_module_enable_accounting == 1){ ?>
-
         <li class="nav-header mt-3">SALES</li>
         <li class="nav-item">
           <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
@@ -131,7 +129,10 @@
             <p>Products</p>
           </a>
         </li>
-        <li class="nav-header mt-3">ACCOUNTING</li>
+
+        <?php if($session_user_role == 1 OR $session_user_role == 3 && $config_module_enable_accounting == 1){ ?>
+
+          <li class="nav-header mt-3">ACCOUNTING</li>
         <li class="nav-item">
           <a href="payments.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "payments.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-credit-card"></i>
