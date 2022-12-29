@@ -66,7 +66,7 @@ if(isset($_POST['login'])){
             $_SESSION['user_id'] = $row['user_id'];
             $_SESSION['user_name'] = $row['user_name'];
             $_SESSION['user_role'] = $row['user_role'];
-            $_SESSION['csrf_token'] = keygen();
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(78));
 
             // Setup encryption session key
             if (isset($row['user_specific_encryption_ciphertext']) && $row['user_role'] > 1) {

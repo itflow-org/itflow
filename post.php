@@ -384,7 +384,7 @@ if(isset($_GET['archive_user'])){
 
     // Variables from GET
     $user_id = intval($_GET['archive_user']);
-    $password = password_hash(key32gen(), PASSWORD_DEFAULT);
+    $password = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
 
     // Get user details
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
@@ -3855,7 +3855,7 @@ if(isset($_POST['add_contact'])){
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
     $location_id = intval($_POST['location']);
     $auth_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['auth_method'])));
-    $password = password_hash(keygen(), PASSWORD_DEFAULT);
+    $password = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
 
 
   if(!file_exists("uploads/clients/$session_company_id/$client_id")) {

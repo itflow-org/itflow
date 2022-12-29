@@ -14,6 +14,11 @@
 <p>This is a great starting point for new custom pages.</p>
 
 <?php echo CURRENT_DATABASE_VERSION; ?>
+<br>
+
+<?php echo bin2hex(random_bytes(8)); ?>
+<br>
+<?php echo keygen(); ?>
 
 <script>toastr.success('Have Fun Wozz!!')</script>
 

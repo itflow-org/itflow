@@ -239,8 +239,8 @@ if(isset($_GET['share_generate_link'])){
 
     // Decrypt & re-encrypt password for sharing
     $login_password_cleartext = decryptLoginEntry($row['login_password']);
-    $login_encryption_key = keygen();
-    $iv = keygen();
+    $login_encryption_key = bin2hex(random_bytes(8));
+    $iv = bin2hex(random_bytes(8));
     $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $login_encryption_key, 0, $iv);
 
     $item_encrypted_credential = $iv . $ciphertext;

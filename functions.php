@@ -236,8 +236,8 @@ function mkdir_missing($dir) {
 // Called during initial setup
 // Encrypts the master key with the user's password
 function setupFirstUserSpecificKey($user_password, $site_encryption_master_key){
-  $iv = keygen();
-  $salt = keygen();
+  $iv = bin2hex(random_bytes(8));
+  $salt = bin2hex(random_bytes(8));
 
   //Generate 128-bit (16 byte/char) kdhash of the users password
   $user_password_kdhash = hash_pbkdf2('sha256', $user_password, $salt, 100000, 16);
@@ -256,8 +256,8 @@ function setupFirstUserSpecificKey($user_password, $site_encryption_master_key){
  * Password Changes: Will use the current info in the session.
 */
 function encryptUserSpecificKey($user_password){
-  $iv = keygen();
-  $salt = keygen();
+  $iv = bin2hex(random_bytes(8));
+  $salt = bin2hex(random_bytes(8));
 
   // Get the session info.
   $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
@@ -304,9 +304,9 @@ Generates what is probably best described as a session key (ephemeral-ish)
 */
 function generateUserSessionKey($site_encryption_master_key){
 
-  // Generate both of these using keygen()
-  $user_encryption_session_key = keygen();
-  $user_encryption_session_iv = keygen();
+  // Generate both of these using bin2hex(random_bytes(8))
+  $user_encryption_session_key = bin2hex(random_bytes(8));
+  $user_encryption_session_iv = bin2hex(random_bytes(8));
   $user_encryption_session_ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
 
   // Store ciphertext in the user's session
@@ -346,7 +346,7 @@ function decryptLoginEntry($login_password_ciphertext){
 
 // Encrypts a website/asset login password
 function encryptLoginEntry($login_password_cleartext){
-  $iv = keygen();
+  $iv = bin2hex(random_bytes(8));
 
   // Get the user session info.
   $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
