@@ -43,6 +43,7 @@ if(isset($_GET['switch_company'])){
 }
 
 if(isset($_POST['add_user'])){
+
     validateAdminRole();
 
     // CSRF Check
@@ -141,6 +142,7 @@ if(isset($_POST['add_user'])){
 }
 
 if(isset($_POST['edit_user'])){
+
     validateAdminRole();
 
     if($session_user_role != 3 && $_POST['user_id'] !== $session_user_id){
@@ -352,6 +354,7 @@ if(isset($_POST['edit_profile'])){
 }
 
 if(isset($_POST['edit_user_companies'])){
+
     validateAdminRole();
 
     $user_id = intval($_POST['user_id']);
@@ -377,6 +380,7 @@ if(isset($_POST['edit_user_companies'])){
 }
 
 if(isset($_GET['archive_user'])){
+
     validateAdminRole();
 
     // CSRF Check
@@ -406,6 +410,7 @@ if(isset($_GET['archive_user'])){
 
 // API Key
 if(isset($_POST['add_api_key'])){
+
     validateAdminRole();
 
     // CSRF Check
@@ -430,6 +435,7 @@ if(isset($_POST['add_api_key'])){
 }
 
 if(isset($_GET['delete_api_key'])){
+
     validateAdminRole();
 
     // CSRF Check
@@ -454,6 +460,7 @@ if(isset($_GET['delete_api_key'])){
 }
 
 if(isset($_POST['add_company'])){
+
     validateAdminRole();
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -553,8 +560,8 @@ if(isset($_POST['add_company'])){
 }
 
 if(isset($_POST['edit_company'])){
-    validateAdminRole();
 
+    validateAdminRole();
     $company_id = intval($_POST['company_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
@@ -651,6 +658,7 @@ if(isset($_GET['archive_company'])){
 }
 
 if(isset($_GET['delete_company'])){
+
     validateAdminRole();
 
     // CSRF Check
@@ -777,6 +785,7 @@ if(isset($_POST['verify'])){
 }
 
 if(isset($_POST['edit_mail_settings'])){
+
     validateAdminRole();
 
     $config_smtp_host = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_host'])));
@@ -828,6 +837,7 @@ if(isset($_POST['edit_mail_settings'])){
 }
 
 if(isset($_POST['test_email_smtp'])){
+
     validateAdminRole();
 
     $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
@@ -850,6 +860,7 @@ if(isset($_POST['test_email_smtp'])){
 }
 
 if(isset($_POST['test_email_imap'])){
+
     validateAdminRole();
 
     // Prepare connection string with encryption (TLS/SSL/<blank>)
@@ -870,6 +881,7 @@ if(isset($_POST['test_email_imap'])){
 }
 
 if(isset($_POST['edit_invoice_settings'])){
+
     validateAdminRole();
 
     $config_invoice_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_prefix'])));
@@ -893,6 +905,7 @@ if(isset($_POST['edit_invoice_settings'])){
 }
 
 if(isset($_POST['edit_quote_settings'])){
+
     validateAdminRole();
 
     $config_quote_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_prefix'])));
@@ -913,6 +926,7 @@ if(isset($_POST['edit_quote_settings'])){
 }
 
 if(isset($_POST['edit_ticket_settings'])){
+
     validateAdminRole();
 
     $config_ticket_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_prefix'])));
@@ -934,6 +948,7 @@ if(isset($_POST['edit_ticket_settings'])){
 }
 
 if(isset($_POST['edit_default_settings'])){
+
     validateAdminRole();
 
     $expense_account = intval($_POST['expense_account']);
@@ -956,6 +971,7 @@ if(isset($_POST['edit_default_settings'])){
 }
 
 if(isset($_POST['edit_alert_settings'])){
+
     validateAdminRole();
 
     $config_enable_cron = intval($_POST['config_enable_cron']);
@@ -975,6 +991,7 @@ if(isset($_POST['edit_alert_settings'])){
 }
 
 if(isset($_POST['edit_online_payment_settings'])){
+
     validateAdminRole();
 
     $config_stripe_enable = intval($_POST['config_stripe_enable']);
@@ -992,6 +1009,7 @@ if(isset($_POST['edit_online_payment_settings'])){
 }
 
 if(isset($_POST['edit_integrations_settings'])){
+
     validateAdminRole();
 
     $azure_client_id = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['azure_client_id'])));
@@ -1009,6 +1027,7 @@ if(isset($_POST['edit_integrations_settings'])){
 }
 
 if(isset($_POST['edit_module_settings'])){
+
     validateAdminRole();
 
     $config_module_enable_itdoc = intval($_POST['config_module_enable_itdoc']);
@@ -1055,6 +1074,7 @@ if(isset($_POST['disable_2fa'])){
 }
 
 if(isset($_GET['download_database'])){
+
     validateAdminRole();
 
     // Get All Table Names From the Database
@@ -1134,6 +1154,7 @@ if(isset($_GET['download_database'])){
 }
 
 if(isset($_POST['backup_master_key'])){
+
     validateAdminRole();
 
     $password = $_POST['password'];
@@ -1165,6 +1186,7 @@ if(isset($_POST['backup_master_key'])){
 }
 
 if(isset($_GET['update'])){
+
     validateAdminRole();
 
     exec("git pull");
@@ -1187,6 +1209,7 @@ if(isset($_GET['update'])){
 }
 
 if(isset($_GET['update_db'])){
+
     validateAdminRole();
 
     // Get the current version
@@ -1204,6 +1227,7 @@ if(isset($_GET['update_db'])){
 }
 
 if(isset($_POST['add_client'])){
+
     validateAdminRole();
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -1316,6 +1340,7 @@ if(isset($_POST['add_client'])){
 }
 
 if(isset($_POST['edit_client'])){
+
     validateAdminRole();
 
     $client_id = intval($_POST['client_id']);
@@ -1348,6 +1373,7 @@ if(isset($_POST['edit_client'])){
 }
 
 if(isset($_GET['archive_client'])){
+
     validateAdminRole();
 
     $client_id = intval($_GET['archive_client']);
@@ -1369,7 +1395,6 @@ if(isset($_GET['archive_client'])){
 }
 
 if(isset($_GET['undo_archive_client'])){
-    validateAdminRole();
 
     $client_id = intval($_GET['undo_archive_client']);
 
@@ -1389,6 +1414,7 @@ if(isset($_GET['undo_archive_client'])){
 }
 
 if(isset($_GET['delete_client'])){
+
     validateAdminRole();
 
     // CSRF Check
@@ -1806,7 +1832,6 @@ if(isset($_GET['export_client_vendors_csv'])){
 
 // Products
 if(isset($_POST['add_product'])){
-    validateAccountantRole();
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
@@ -1826,7 +1851,6 @@ if(isset($_POST['add_product'])){
 }
 
 if(isset($_POST['edit_product'])){
-    validateAccountantRole();
 
     $product_id = intval($_POST['product_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -1850,8 +1874,6 @@ if(isset($_POST['edit_product'])){
 }
 
 if(isset($_GET['delete_product'])){
-    validateAccountantRole();
-
     $product_id = intval($_GET['delete_product']);
 
     //Get Product Name
@@ -1935,7 +1957,6 @@ if(isset($_GET['delete_trip'])){
 }
 
 if(isset($_POST['add_account'])){
-    validateAccountantRole();
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $opening_balance = floatval($_POST['opening_balance']);
@@ -1954,7 +1975,6 @@ if(isset($_POST['add_account'])){
 }
 
 if(isset($_POST['edit_account'])){
-    validateAccountantRole();
 
     $account_id = intval($_POST['account_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -1972,8 +1992,6 @@ if(isset($_POST['edit_account'])){
 }
 
 if(isset($_GET['archive_account'])){
-    validateAccountantRole();
-
     $account_id = intval($_GET['archive_account']);
 
     mysqli_query($mysqli,"UPDATE accounts SET account_archived_at = NOW() WHERE account_id = $account_id");
@@ -1988,8 +2006,6 @@ if(isset($_GET['archive_account'])){
 }
 
 if(isset($_GET['delete_account'])){
-    validateAccountantRole();
-
     $account_id = intval($_GET['delete_account']);
 
     mysqli_query($mysqli,"DELETE FROM accounts WHERE account_id = $account_id AND company_id = $session_company_id");
@@ -2126,7 +2142,6 @@ if(isset($_GET['delete_tag'])){
 //Tax
 
 if(isset($_POST['add_tax'])){
-    validateAccountantRole();
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $percent = floatval($_POST['percent']);
@@ -2143,7 +2158,6 @@ if(isset($_POST['add_tax'])){
 }
 
 if(isset($_POST['edit_tax'])){
-    validateAccountantRole();
 
     $tax_id = intval($_POST['tax_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -2161,8 +2175,6 @@ if(isset($_POST['edit_tax'])){
 }
 
 if(isset($_GET['archive_tax'])){
-    validateAccountantRole();
-
     $tax_id = intval($_GET['archive_tax']);
 
     mysqli_query($mysqli,"UPDATE taxes SET tax_archived_at = NOW() WHERE tax_id = $tax_id");
@@ -2177,8 +2189,6 @@ if(isset($_GET['archive_tax'])){
 }
 
 if(isset($_GET['delete_tax'])){
-    validateAccountantRole();
-
     $tax_id = intval($_GET['delete_tax']);
 
     mysqli_query($mysqli,"DELETE FROM taxes WHERE tax_id = $tax_id AND company_id = $session_company_id");
@@ -2234,7 +2244,6 @@ if(isset($_GET['dismiss_all_notifications'])){
 }
 
 if(isset($_POST['add_expense'])){
-    validateAccountantRole();
 
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $amount = floatval($_POST['amount']);
@@ -2300,7 +2309,6 @@ if(isset($_POST['add_expense'])){
 }
 
 if(isset($_POST['edit_expense'])){
-    validateAccountantRole();
 
     $expense_id = intval($_POST['expense_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -2369,8 +2377,6 @@ if(isset($_POST['edit_expense'])){
 }
 
 if(isset($_GET['delete_expense'])){
-    validateAccountantRole();
-
     $expense_id = intval($_GET['delete_expense']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id AND company_id = $session_company_id");
@@ -2391,8 +2397,6 @@ if(isset($_GET['delete_expense'])){
 }
 
 if(isset($_POST['export_expenses_csv'])){
-    validateAccountantRole();
-
     $date_from = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_from'])));
     $date_to = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_to'])));
     if(!empty($date_from) && !empty($date_to)){
@@ -2449,7 +2453,6 @@ if(isset($_POST['export_expenses_csv'])){
 }
 
 if(isset($_POST['add_transfer'])){
-    validateAccountantRole();
 
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $amount = floatval($_POST['amount']);
@@ -2475,7 +2478,6 @@ if(isset($_POST['add_transfer'])){
 }
 
 if(isset($_POST['edit_transfer'])){
-    validateAccountantRole();
 
     $transfer_id = intval($_POST['transfer_id']);
     $expense_id = intval($_POST['expense_id']);
@@ -2502,8 +2504,6 @@ if(isset($_POST['edit_transfer'])){
 }
 
 if(isset($_GET['delete_transfer'])){
-    validateAccountantRole();
-
     $transfer_id = intval($_GET['delete_transfer']);
 
     //Query the transfer ID to get the Payment and Expense IDs so we can delete those as well
@@ -2528,8 +2528,6 @@ if(isset($_GET['delete_transfer'])){
 }
 
 if(isset($_POST['add_invoice'])){
-    validateAccountantRole();
-
     $client = intval($_POST['client']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $category = intval($_POST['category']);
@@ -2562,7 +2560,6 @@ if(isset($_POST['add_invoice'])){
 }
 
 if(isset($_POST['edit_invoice'])){
-    validateAccountantRole();
 
     $invoice_id = intval($_POST['invoice_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -2582,7 +2579,6 @@ if(isset($_POST['edit_invoice'])){
 }
 
 if(isset($_POST['add_invoice_copy'])){
-    validateAccountantRole();
 
     $invoice_id = intval($_POST['invoice_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -2639,7 +2635,6 @@ if(isset($_POST['add_invoice_copy'])){
 }
 
 if(isset($_POST['add_invoice_recurring'])){
-    validateAccountantRole();
 
     $invoice_id = intval($_POST['invoice_id']);
     $recurring_frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
@@ -2690,7 +2685,6 @@ if(isset($_POST['add_invoice_recurring'])){
 }
 
 if(isset($_POST['add_quote'])){
-    validateAccountantRole();
 
     $client = intval($_POST['client']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -2722,7 +2716,6 @@ if(isset($_POST['add_quote'])){
 }
 
 if(isset($_POST['add_quote_copy'])){
-    validateAccountantRole();
 
     $quote_id = intval($_POST['quote_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -2775,7 +2768,6 @@ if(isset($_POST['add_quote_copy'])){
 }
 
 if(isset($_POST['add_quote_to_invoice'])){
-    validateAccountantRole();
 
     $quote_id = intval($_POST['quote_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -2831,7 +2823,6 @@ if(isset($_POST['add_quote_to_invoice'])){
 }
 
 if(isset($_POST['add_quote_item'])){
-    validateAccountantRole();
 
     $quote_id = intval($_POST['quote_id']);
     
@@ -2872,7 +2863,6 @@ if(isset($_POST['add_quote_item'])){
 }
 
 if(isset($_POST['quote_note'])){
-    validateAccountantRole();
     
     $quote_id = intval($_POST['quote_id']);
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
@@ -2886,7 +2876,6 @@ if(isset($_POST['quote_note'])){
 }
 
 if(isset($_POST['edit_quote'])){
-    validateAccountantRole();
 
     $quote_id = intval($_POST['quote_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -2905,8 +2894,6 @@ if(isset($_POST['edit_quote'])){
 }
 
 if(isset($_GET['delete_quote'])){
-    validateAccountantRole();
-
     $quote_id = intval($_GET['delete_quote']);
 
     mysqli_query($mysqli,"DELETE FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
@@ -2935,8 +2922,6 @@ if(isset($_GET['delete_quote'])){
 }
 
 if(isset($_GET['delete_quote_item'])){
-    validateAccountantRole();
-
     $item_id = intval($_GET['delete_quote_item']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
@@ -2965,7 +2950,6 @@ if(isset($_GET['delete_quote_item'])){
 }
 
 if(isset($_GET['mark_quote_sent'])){
-    validateAccountantRole();
 
     $quote_id = intval($_GET['mark_quote_sent']);
 
@@ -2983,7 +2967,6 @@ if(isset($_GET['mark_quote_sent'])){
 }
 
 if(isset($_GET['accept_quote'])){
-    validateAccountantRole();
 
     $quote_id = intval($_GET['accept_quote']);
 
@@ -3001,7 +2984,6 @@ if(isset($_GET['accept_quote'])){
 }
 
 if(isset($_GET['decline_quote'])){
-    validateAccountantRole();
 
     $quote_id = intval($_GET['decline_quote']);
 
@@ -3019,8 +3001,6 @@ if(isset($_GET['decline_quote'])){
 }
 
 if(isset($_GET['email_quote'])){
-    validateAccountantRole();
-
     $quote_id = intval($_GET['email_quote']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes
@@ -3093,7 +3073,6 @@ if(isset($_GET['email_quote'])){
 }
 
 if(isset($_POST['add_recurring'])){
-    validateAccountantRole();
 
     $client = intval($_POST['client']);
     $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
@@ -3123,7 +3102,6 @@ if(isset($_POST['add_recurring'])){
 }
 
 if(isset($_POST['edit_recurring'])){
-    validateAccountantRole();
 
     $recurring_id = intval($_POST['recurring_id']);
     $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
@@ -3145,7 +3123,6 @@ if(isset($_POST['edit_recurring'])){
 }
 
 if(isset($_POST['edit_recurring_next_date'])){
-    validateAccountantRole();
 
     $recurring_id = intval($_POST['recurring_id']);
     $next_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['next_date'])));
@@ -3164,8 +3141,6 @@ if(isset($_POST['edit_recurring_next_date'])){
 }
 
 if(isset($_GET['delete_recurring'])){
-    validateAccountantRole();
-
     $recurring_id = intval($_GET['delete_recurring']);
 
     mysqli_query($mysqli,"DELETE FROM recurring WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
@@ -3194,7 +3169,6 @@ if(isset($_GET['delete_recurring'])){
 }
 
 if(isset($_POST['add_recurring_item'])){
-    validateAccountantRole();
 
     $recurring_id = intval($_POST['recurring_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -3234,7 +3208,6 @@ if(isset($_POST['add_recurring_item'])){
 }
 
 if(isset($_POST['recurring_note'])){
-    validateAccountantRole();
     
     $recurring_id = intval($_POST['recurring_id']);
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
@@ -3248,8 +3221,6 @@ if(isset($_POST['recurring_note'])){
 }
 
 if(isset($_GET['delete_recurring_item'])){
-    validateAccountantRole();
-
     $item_id = intval($_GET['delete_recurring_item']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
@@ -3278,7 +3249,6 @@ if(isset($_GET['delete_recurring_item'])){
 }
 
 if(isset($_GET['mark_invoice_sent'])){
-    validateAccountantRole();
 
     $invoice_id = intval($_GET['mark_invoice_sent']);
 
@@ -3296,7 +3266,6 @@ if(isset($_GET['mark_invoice_sent'])){
 }
 
 if(isset($_GET['cancel_invoice'])){
-    validateAccountantRole();
 
     $invoice_id = intval($_GET['cancel_invoice']);
 
@@ -3314,8 +3283,6 @@ if(isset($_GET['cancel_invoice'])){
 }
 
 if(isset($_GET['delete_invoice'])){
-    validateAccountantRole();
-
     $invoice_id = intval($_GET['delete_invoice']);
 
     mysqli_query($mysqli,"DELETE FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
@@ -3351,7 +3318,6 @@ if(isset($_GET['delete_invoice'])){
 }
 
 if(isset($_POST['add_invoice_item'])){
-    validateAccountantRole();
 
     $invoice_id = intval($_POST['invoice_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -3392,7 +3358,6 @@ if(isset($_POST['add_invoice_item'])){
 }
 
 if(isset($_POST['invoice_note'])){
-    validateAccountantRole();
 
     $invoice_id = intval($_POST['invoice_id']);
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
@@ -3406,7 +3371,6 @@ if(isset($_POST['invoice_note'])){
 }
 
 if(isset($_POST['edit_item'])){
-    validateAccountantRole();
 
     $invoice_id = intval($_POST['invoice_id']);
     $quote_id = intval($_POST['quote_id']);
@@ -3467,8 +3431,6 @@ if(isset($_POST['edit_item'])){
 }
 
 if(isset($_GET['delete_invoice_item'])){
-    validateAccountantRole();
-
     $item_id = intval($_GET['delete_invoice_item']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
@@ -3497,7 +3459,6 @@ if(isset($_GET['delete_invoice_item'])){
 }
 
 if(isset($_POST['add_payment'])){
-    validateAccountantRole();
 
     $invoice_id = intval($_POST['invoice_id']);
     $balance = floatval($_POST['balance']);
@@ -3636,8 +3597,6 @@ if(isset($_POST['add_payment'])){
 }
 
 if(isset($_GET['delete_payment'])){
-    validateAccountantRole();
-
     $payment_id = intval($_GET['delete_payment']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_id = $payment_id AND company_id = $session_company_id");
@@ -3683,8 +3642,6 @@ if(isset($_GET['delete_payment'])){
 }
 
 if(isset($_GET['email_invoice'])){
-    validateAccountantRole();
-
     $invoice_id = intval($_GET['email_invoice']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices
@@ -3775,7 +3732,6 @@ if(isset($_GET['email_invoice'])){
 }
 
 if(isset($_POST['add_revenue'])){
-    validateAccountantRole();
 
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $amount = floatval($_POST['amount']);
@@ -3798,7 +3754,6 @@ if(isset($_POST['add_revenue'])){
 }
 
 if(isset($_POST['edit_revenue'])){
-    validateAccountantRole();
 
     $revenue_id = intval($_POST['revenue_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -3822,8 +3777,6 @@ if(isset($_POST['edit_revenue'])){
 }
 
 if(isset($_GET['delete_revenue'])){
-    validateAccountantRole();
-
     $revenue_id = intval($_GET['delete_revenue']);
 
     mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
