@@ -589,17 +589,12 @@ if(isset($_GET['ticket_id'])){
 
     <?php if($config_module_enable_accounting){ ?>
     <div class="card card-body card-outline card-dark mb-2">
-      <div>
-        <?php
-        if($_SESSION['user_role'] == 1 || $_SESSION['user_role'] == 3){
-        ?>
-          <a href="#" class="btn btn-outline-success btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">Invoice Ticket</a>
-        <?php } ?>
-
+      <div class="">
+        <a href="#" class="btn btn-outline-success btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">Invoice Ticket</a>
         <?php
         if($ticket_status !== "Closed"){
         ?>
-          <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">Close Ticket</a>
+        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">Close Ticket</a>
         <?php } ?>
       </div>
     </div>
