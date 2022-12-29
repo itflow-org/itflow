@@ -847,7 +847,7 @@ if(isset($_POST['add_user'])){
   $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
   //Generate master encryption key
-  $site_encryption_master_key = keygen();
+  $site_encryption_master_key = bin2hex(random_bytes(8));
 
   //Generate user specific key
   $user_specific_encryption_ciphertext = setupFirstUserSpecificKey($_POST['password'], $site_encryption_master_key);
