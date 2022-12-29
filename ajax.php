@@ -219,7 +219,7 @@ if(isset($_GET['share_generate_link'])){
   $item_note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['note'])));
   $item_view_limit = intval($_GET['views']);
   $item_expires = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['expires'])));
-  $item_key = keygen();
+  $item_key = bin2hex(random_bytes(78));
 
   if($item_type == "Document"){
     $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = '$item_id' AND document_client_id = '$client_id' LIMIT 1"));
