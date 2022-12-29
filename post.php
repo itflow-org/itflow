@@ -324,7 +324,7 @@ if(isset($_POST['edit_profile'])){
     // Enable extension access, only if it isn't already setup (user doesn't have cookie)
     if(isset($_POST['extension']) && $_POST['extension'] == 'Yes'){
         if(!isset($_COOKIE['user_extension_key'])){
-            $extension_key = keygen();
+            $extension_key = bin2hex(random_bytes(78));
             mysqli_query($mysqli, "UPDATE users SET user_extension_key = '$extension_key' WHERE user_id = $user_id");
 
             $extended_log_description .= ", extension access enabled";
