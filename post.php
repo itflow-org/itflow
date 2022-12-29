@@ -25,7 +25,8 @@ if(isset($_GET['switch_company'])){
         
         mysqli_query($mysqli,"UPDATE user_settings SET user_default_company = $company_id WHERE user_id = $session_user_id");
 
-        $_SESSION['alert_message'] = "Switched Companies!";
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Switched Companies. <a href='https://forum.itflow.org/d/74-removing-the-multi-company-feature' target='_blank'>Deprecated!</a>";
 
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Switch', log_description = '$session_name switched to company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");

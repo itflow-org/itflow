@@ -26,6 +26,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     </div>
   </div>
   <div class="card-body">
+    <div class="alert alert-danger" role="alert">
+      <b>The multi-company feature should be considered deprecated.</b> It may be removed in the near future - please see the <a href="https://forum.itflow.org/d/74-removing-the-multi-company-feature">forum post</a>.
+    </div>
+    <hr>
     <form autocomplete="off">
       <div class="input-group">
         <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){ echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Companies">
