@@ -5073,17 +5073,42 @@ if(isset($_GET['export_client_software_csv'])){
     if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Software-" . date('Y-m-d') . ".csv";
-        
+
         //create a file pointer
         $f = fopen('php://memory', 'w');
         
         //set column headers
-        $fields = array('Name', 'Type', 'License', 'Key', 'Notes');
+        $fields = array('Name', 'Version', 'Type', 'License Type', 'Seats', 'Key', 'Assets', 'Contacts', 'Purchased', 'Expires', 'Notes');
         fputcsv($f, $fields, $delimiter);
         
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
-            $lineData = array($row['software_name'], $row['software_type'], $row['software_license_type'], $row['software_key'], $row['software_notes']);
+
+            // Generate asset & user license list for this software
+
+            // Asset licenses
+            $assigned_to_assets = '';
+            $asset_licenses_sql = mysqli_query($mysqli,"SELECT software_assets.asset_id, assets.asset_name 
+                                                    FROM software_assets
+                                                    LEFT JOIN assets
+                                                        ON software_assets.asset_id = assets.asset_id
+                                                    WHERE software_id = $row[software_id]");
+            while($asset_row = mysqli_fetch_array($asset_licenses_sql)){
+              $assigned_to_assets .= $asset_row['asset_name'] . ", ";
+            }
+
+            // Contact Licenses
+            $assigned_to_contacts = '';
+            $contact_licenses_sql = mysqli_query($mysqli,"SELECT software_contacts.contact_id, contacts.contact_name
+                                                      FROM software_contacts
+                                                      LEFT JOIN contacts
+                                                          ON software_contacts.contact_id = contacts.contact_id
+                                                      WHERE software_id = $row[software_id]");
+            while($contact_row = mysqli_fetch_array($contact_licenses_sql)){
+              $assigned_to_contacts .= $contact_row['contact_name'] . ", ";
+            }
+
+            $lineData = array($row['software_name'], $row['software_version'], $row['software_type'], $row['software_license_type'], $row['software_seats'], $row['software_key'], $assigned_to_assets, $assigned_to_contacts, $row['software_purchase'], $row['software_expire'], $row['software_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
         
