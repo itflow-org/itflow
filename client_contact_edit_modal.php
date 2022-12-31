@@ -165,6 +165,11 @@
 
               <?php } ?>
 
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" name="send_email" value=""/>
+                <label class="form-check-label">Send user e-mail with login details?</label>
+              </div>
+
             </div>
 
             <div class="tab-pane fade" id="pills-photo<?php echo $contact_id; ?>">

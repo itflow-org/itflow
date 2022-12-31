@@ -115,7 +115,6 @@ if(isset($_POST['add_user'])){
     mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $default_company");
 
     // Send user e-mail, if specified
-    // Send e-mail to client if public update & email is setup
     if(isset($_POST['send_email']) && !empty($config_smtp_host)){
 
         $subject = "Your new $session_company_name ITFlow account";
@@ -3911,6 +3910,30 @@ if(isset($_POST['edit_contact'])){
     if(!empty($_POST['contact_password'])){
       $password_hash = mysqli_real_escape_string($mysqli,password_hash($_POST['contact_password'], PASSWORD_DEFAULT));
       mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_client_id = '$client_id'");
+    }
+
+    // Send contact a welcome e-mail, if specified
+    if(isset($_POST['send_email']) && !empty($auth_method) && !empty($config_smtp_host)){
+
+      if($auth_method == 'azure') {
+        $password_info = "Login with your Microsoft (Azure AD) account.";
+      } else {
+        $password_info = $_POST['contact_password'];
+      }
+
+      $subject = "Your new $session_company_name ITFlow account";
+      $body = "Hello, $name<br><br>An ITFlow account has been set up for you. <br><br>Username: $email <br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+
+      $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+        $config_ticket_from_email, $config_ticket_from_name,
+        $email, $name,
+        $subject, $body);
+
+      if ($mail !== true) {
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', notification_timestamp = NOW(), company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+      }
+
     }
 
     // Check to see if a file is attached
