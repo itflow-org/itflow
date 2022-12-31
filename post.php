@@ -115,7 +115,6 @@ if(isset($_POST['add_user'])){
     mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $default_company");
 
     // Send user e-mail, if specified
-    // Send e-mail to client if public update & email is setup
     if(isset($_POST['send_email']) && !empty($config_smtp_host)){
 
         $subject = "Your new $session_company_name ITFlow account";
@@ -3915,6 +3914,30 @@ if(isset($_POST['edit_contact'])){
       mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_client_id = '$client_id'");
     }
 
+    // Send contact a welcome e-mail, if specified
+    if(isset($_POST['send_email']) && !empty($auth_method) && !empty($config_smtp_host)){
+
+      if($auth_method == 'azure') {
+        $password_info = "Login with your Microsoft (Azure AD) account.";
+      } else {
+        $password_info = $_POST['contact_password'];
+      }
+
+      $subject = "Your new $session_company_name ITFlow account";
+      $body = "Hello, $name<br><br>An ITFlow account has been set up for you. <br><br>Username: $email <br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+
+      $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+        $config_ticket_from_email, $config_ticket_from_name,
+        $email, $name,
+        $subject, $body);
+
+      if ($mail !== true) {
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', notification_timestamp = NOW(), company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+      }
+
+    }
+
     // Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
     
@@ -5075,17 +5098,42 @@ if(isset($_GET['export_client_software_csv'])){
     if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Software-" . date('Y-m-d') . ".csv";
-        
+
         //create a file pointer
         $f = fopen('php://memory', 'w');
         
         //set column headers
-        $fields = array('Name', 'Type', 'License', 'Key', 'Notes');
+        $fields = array('Name', 'Version', 'Type', 'License Type', 'Seats', 'Key', 'Assets', 'Contacts', 'Purchased', 'Expires', 'Notes');
         fputcsv($f, $fields, $delimiter);
         
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
-            $lineData = array($row['software_name'], $row['software_type'], $row['software_license_type'], $row['software_key'], $row['software_notes']);
+
+            // Generate asset & user license list for this software
+
+            // Asset licenses
+            $assigned_to_assets = '';
+            $asset_licenses_sql = mysqli_query($mysqli,"SELECT software_assets.asset_id, assets.asset_name 
+                                                    FROM software_assets
+                                                    LEFT JOIN assets
+                                                        ON software_assets.asset_id = assets.asset_id
+                                                    WHERE software_id = $row[software_id]");
+            while($asset_row = mysqli_fetch_array($asset_licenses_sql)){
+              $assigned_to_assets .= $asset_row['asset_name'] . ", ";
+            }
+
+            // Contact Licenses
+            $assigned_to_contacts = '';
+            $contact_licenses_sql = mysqli_query($mysqli,"SELECT software_contacts.contact_id, contacts.contact_name
+                                                      FROM software_contacts
+                                                      LEFT JOIN contacts
+                                                          ON software_contacts.contact_id = contacts.contact_id
+                                                      WHERE software_id = $row[software_id]");
+            while($contact_row = mysqli_fetch_array($contact_licenses_sql)){
+              $assigned_to_contacts .= $contact_row['contact_name'] . ", ";
+            }
+
+            $lineData = array($row['software_name'], $row['software_version'], $row['software_type'], $row['software_license_type'], $row['software_seats'], $row['software_key'], $assigned_to_assets, $assigned_to_contacts, $row['software_purchase'], $row['software_expire'], $row['software_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
         
@@ -5774,7 +5822,7 @@ if(isset($_POST['add_ticket'])){
         if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
 
             $subject = "Ticket created - [$ticket_prefix$ticket_number] - $subject";
-            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
             $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
                 $config_ticket_from_email, $config_ticket_from_name,
@@ -6016,7 +6064,7 @@ if(isset($_POST['add_ticket_reply'])){
     // Update Ticket Last Response Field
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
-    // Send e-mail to client if public update & email is setup
+    // Send e-mail to client if public update & email is set up
     if($ticket_reply_type == 'Public' && !empty($config_smtp_host)){
 
         $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
@@ -6037,8 +6085,18 @@ if(isset($_POST['add_ticket_reply'])){
 
         if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
 
-            $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
-            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+            // Slightly different email subject/text depending on if this update closed the ticket or not
+
+            if($ticket_status == 'Closed') {
+              $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
+              $body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+
+            } else {
+              $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
+              $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+
+            }
+
 
             $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
                 $config_ticket_from_email, $config_ticket_from_name,
@@ -6170,10 +6228,49 @@ if(isset($_GET['close_ticket'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id Closed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
+    // Client notification email
+    if (!empty($config_smtp_host)) {
+
+      // Get details
+      $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
+            LEFT JOIN clients ON ticket_client_id = client_id 
+            LEFT JOIN contacts ON ticket_contact_id = contact_id
+            LEFT JOIN companies ON tickets.company_id = companies.company_id
+            WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id
+        ");
+      $row = mysqli_fetch_array($ticket_sql);
+
+      $contact_name = $row['contact_name'];
+      $contact_email = $row['contact_email'];
+      $ticket_prefix = $row['ticket_prefix'];
+      $ticket_number = $row['ticket_number'];
+      $ticket_subject = $row['ticket_subject'];
+      $company_phone = formatPhoneNumber($row['company_phone']);
+
+      // Check email valid
+      if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
+
+        $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
+        $body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+          $config_ticket_from_email, $config_ticket_from_name,
+          $contact_email, $contact_name,
+          $subject, $body);
+
+        if ($mail !== true) {
+            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+        }
+
+      }
+
+    }
+    //End Mail IF
+
     $_SESSION['alert_message'] = "Ticket Closed, this cannot not be reopened but you may start another one";
-    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-    
+
 }
 
 if(isset($_POST['add_invoice_from_ticket'])){
