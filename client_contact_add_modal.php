@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="far fa-fw fa-address-card"></i> New Contact</h5>
+        <h5 class="modal-title"><i class="fas fa-user-plus"></i> New Contact</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -33,17 +33,22 @@
             <div class="tab-pane fade show active" id="pills-details"> 
           
               <div class="form-group">
-                <label>Name <strong class="text-danger">*</strong></label>
+                <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Primary Contact</span></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                   </div>
                   <input type="text" class="form-control" name="name" placeholder="Full Name" required autofocus>
+                  <div class="input-group-append">
+                    <div class="input-group-text">
+                      <input type="checkbox" name="primary_contact" value="1" <?php if($primary_contact == 0){ echo "checked"; } ?>>
+                    </div>
+                  </div>
                 </div>
               </div>
               
               <div class="form-group">
-                <label>Title / Primary Contact</label>
+                <label>Title / <span class="text-secondary">Important Contact</span></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
@@ -51,7 +56,7 @@
                   <input type="text" class="form-control" name="title" placeholder="Title">
                   <div class="input-group-append">
                     <div class="input-group-text">
-                      <input type="checkbox" name="primary_contact" value="1" <?php if($primary_contact == 0){ echo "checked"; } ?>>
+                      <input type="checkbox" name="contact_important" value="1">
                     </div>
                   </div>
                 </div>
@@ -169,8 +174,8 @@
         
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_contact" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="add_contact" class="btn btn-primary"><strong><i class="fas fa-check"></i> Create</button>
         </div>
       </form>
     </div>

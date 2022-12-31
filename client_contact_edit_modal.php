@@ -35,17 +35,22 @@
             <div class="tab-pane fade show active" id="pills-details<?php echo $contact_id; ?>">
 
               <div class="form-group">
-                <label>Name <strong class="text-danger">*</strong></label>
+                <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Primary Contact</span></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                   </div>
                   <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo $contact_name; ?>" required>
+                  <div class="input-group-append">
+                    <div class="input-group-text">
+                      <input type="checkbox" name="primary_contact" value="1" <?php if($contact_id == $primary_contact){ echo "checked"; } ?>>
+                    </div>
+                  </div>
                 </div>
               </div>
               
               <div class="form-group">
-                <label>Title / Primary Contact</label>
+                <label>Title / <span class="text-secondary">Important Contact</span></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
@@ -53,7 +58,7 @@
                   <input type="text" class="form-control" name="title" placeholder="Title" value="<?php echo $contact_title; ?>">
                   <div class="input-group-append">
                     <div class="input-group-text">
-                      <input type="checkbox" name="primary_contact" value="1" <?php if($contact_id == $primary_contact){ echo "checked"; } ?>>
+                      <input type="checkbox" name="contact_important" value="1" <?php if($contact_important == 1){ echo "checked"; } ?>>
                     </div>
                   </div>
                 </div>
@@ -198,8 +203,8 @@
 
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="edit_contact" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="edit_contact" class="btn btn-primary"><i class="fas fa-check"></i> Save</button>
         </div>
       </form>
     </div>

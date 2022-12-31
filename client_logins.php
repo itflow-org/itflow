@@ -157,7 +157,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       }
 
       function generatePassword(){
-          document.getElementById("password").value = "<?php echo keygen() ?>"
+          document.getElementById("password").value = "<?php echo bin2hex(random_bytes(8)); ?>"
       }
   </script>
 

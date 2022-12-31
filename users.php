@@ -23,7 +23,15 @@
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-users"></i> Users</h3>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal"><i class="fas fa-fw fa-plus"></i> New User</button>
+      <div class="btn-group">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">
+          <i class="fas fa-fw fa-plus"></i> New User
+        </button>
+        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#userInviteModal"><i class="fas fa-paper-plane mr-2"></i>Invite User</a>
+        </div>
+      </div>
     </div>
   </div>
   <div class="card-body">
@@ -151,6 +159,7 @@
 <?php
   
   include("user_add_modal.php");
+  include("user_invite_modal.php");
   
   include("footer.php");
 

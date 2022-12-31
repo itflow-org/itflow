@@ -3807,6 +3807,7 @@ if(isset($_POST['add_contact'])){
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $primary_contact = intval($_POST['primary_contact']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $contact_important = intval($_POST['contact_important']);
     $location_id = intval($_POST['location']);
     $auth_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['auth_method'])));
     $password = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
@@ -3816,7 +3817,7 @@ if(isset($_POST['add_contact'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_password_hash = '$password', contact_department = '$department', contact_location_id = $location_id, contact_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_important = $contact_important, contact_auth_method = '$auth_method', contact_password_hash = '$password', contact_department = '$department', contact_location_id = $location_id, contact_client_id = $client_id, company_id = $session_company_id");
 
     $contact_id = mysqli_insert_id($mysqli);
 
@@ -3891,6 +3892,7 @@ if(isset($_POST['edit_contact'])){
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $primary_contact = intval($_POST['primary_contact']);
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $contact_important = intval($_POST['contact_important']);
     $location_id = intval($_POST['location']);
     $auth_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['auth_method'])));
 
@@ -3900,7 +3902,7 @@ if(isset($_POST['edit_contact'])){
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id WHERE contact_id = $contact_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_important = $contact_important, contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     // Update Primary contact in clients if primary contact is checked
     if($primary_contact > 0){
