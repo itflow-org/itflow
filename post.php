@@ -5772,7 +5772,7 @@ if(isset($_POST['add_ticket'])){
         if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
 
             $subject = "Ticket created - [$ticket_prefix$ticket_number] - $subject";
-            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
             $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
                 $config_ticket_from_email, $config_ticket_from_name,
@@ -6014,7 +6014,7 @@ if(isset($_POST['add_ticket_reply'])){
     // Update Ticket Last Response Field
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
-    // Send e-mail to client if public update & email is setup
+    // Send e-mail to client if public update & email is set up
     if($ticket_reply_type == 'Public' && !empty($config_smtp_host)){
 
         $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
@@ -6035,8 +6035,18 @@ if(isset($_POST['add_ticket_reply'])){
 
         if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
 
-            $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
-            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+            // Slightly different email subject/text depending on if this update closed the ticket or not
+
+            if($ticket_status == 'Closed') {
+              $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
+              $body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+
+            } else {
+              $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
+              $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+
+            }
+
 
             $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
                 $config_ticket_from_email, $config_ticket_from_name,
@@ -6168,10 +6178,49 @@ if(isset($_GET['close_ticket'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id Closed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
+    // Client notification email
+    if (!empty($config_smtp_host)) {
+
+      // Get details
+      $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
+            LEFT JOIN clients ON ticket_client_id = client_id 
+            LEFT JOIN contacts ON ticket_contact_id = contact_id
+            LEFT JOIN companies ON tickets.company_id = companies.company_id
+            WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id
+        ");
+      $row = mysqli_fetch_array($ticket_sql);
+
+      $contact_name = $row['contact_name'];
+      $contact_email = $row['contact_email'];
+      $ticket_prefix = $row['ticket_prefix'];
+      $ticket_number = $row['ticket_number'];
+      $ticket_subject = $row['ticket_subject'];
+      $company_phone = formatPhoneNumber($row['company_phone']);
+
+      // Check email valid
+      if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
+
+        $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
+        $body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+          $config_ticket_from_email, $config_ticket_from_name,
+          $contact_email, $contact_name,
+          $subject, $body);
+
+        if ($mail !== true) {
+            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+        }
+
+      }
+
+    }
+    //End Mail IF
+
     $_SESSION['alert_message'] = "Ticket Closed, this cannot not be reopened but you may start another one";
-    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-    
+
 }
 
 if(isset($_POST['add_invoice_from_ticket'])){
