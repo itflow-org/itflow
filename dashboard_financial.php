@@ -6,7 +6,7 @@
 //  To be removed when we have a proper technical dashboard for techs
 if ($_SESSION['user_role'] != 3) { ?>
   <script type="text/javascript">
-      window.location.href = 'clients.php';
+      window.location.href = 'dashboard_technical.php';
   </script>
 <?php
   exit();
