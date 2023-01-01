@@ -341,7 +341,7 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
       ADD `vendor_code` VARCHAR(200) NULL DEFAULT NULL AFTER `vendor_sla`,
       ADD `vendor_template_id` INT(11) DEFAULT 0 AFTER `vendor_archived_at`
     ");
-  
+
     mysqli_query($mysqli, "ALTER TABLE `vendors`
       DROP `vendor_country`, 
       DROP `vendor_address`, 
@@ -350,7 +350,7 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
       DROP `vendor_zip`, 
       DROP `vendor_global`
     ");
-    
+
     //Create New Vendor Templates Table
     mysqli_query($mysqli, "CREATE TABLE `vendor_templates` (`vendor_template_id` int(11) AUTO_INCREMENT PRIMARY KEY,
       `vendor_template_name` varchar(200) NOT NULL,
@@ -370,21 +370,37 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
   }
 
   if(CURRENT_DATABASE_VERSION == '0.2.1'){
-  // Insert queries here required to update to DB version 0.2.2
+    // Insert queries here required to update to DB version 0.2.2
     mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_email_parse` INT(1) NOT NULL DEFAULT '0' AFTER `config_ticket_from_email`");
     mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_imap_host` VARCHAR(200) NULL DEFAULT NULL AFTER `config_mail_from_name`, ADD `config_imap_port` INT(5) NULL DEFAULT NULL AFTER `config_imap_host`, ADD `config_imap_encryption` VARCHAR(200) NULL DEFAULT NULL AFTER `config_imap_port`;");
-  
-  // Then, update the database to the next sequential version
+
+    // Then, update the database to the next sequential version
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.2'");
   }
 
-  //if(CURRENT_DATABASE_VERSION == '0.2.2'){
-  // Insert queries here required to update to DB version 0.2.3
+  if(CURRENT_DATABASE_VERSION == '0.2.2'){
+    // Insert queries here required to update to DB version 0.2.3
+
+    // Add contact_important field to those who don't have it (installed before March 2022)
+    try {
+      mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_important` tinyint(1) NOT NULL DEFAULT 0 AFTER contact_password_hash;");
+    } catch (Exception $e) {
+      // Field already exists - that's fine
+    }
+
+    // Then, update the database to the next sequential version
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.3'");
+  }
+
+  //if(CURRENT_DATABASE_VERSION == '0.2.3'){
+  // Insert queries here required to update to DB version 0.2.4
 
   // Then, update the database to the next sequential version
-  // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.2'");
+  // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.4'");
   //}
 
+
+
 }else{
-    // Up-to-date
+  // Up-to-date
 }
