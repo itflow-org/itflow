@@ -1,122 +1,139 @@
-<?php include("inc_all.php"); ?>
+<?php include_once("inc_all.php"); ?>
 
 <?php
 
-if(isset($_GET['year'])){
+if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
-}else{
+} else {
     $year = date('Y');
 }
 
-//GET unique years from expenses, payments and revenues
-$sql_payment_years = mysqli_query($mysqli,"SELECT YEAR(expense_date) AS all_years FROM expenses WHERE company_id = $session_company_id UNION DISTINCT SELECT YEAR(payment_date) FROM payments WHERE company_id = $session_company_id UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues WHERE company_id = $session_company_id ORDER BY all_years DESC");
+// GET unique years from expenses, payments and revenues
+$sql_payment_years = mysqli_query($mysqli, "SELECT YEAR(expense_date) AS all_years FROM expenses 
+    WHERE company_id = $session_company_id 
+    UNION DISTINCT SELECT YEAR(payment_date) FROM payments WHERE company_id = $session_company_id 
+    UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues WHERE company_id = $session_company_id 
+    ORDER BY all_years DESC"
+);
 
 // Get Total Clients added
-$sql_clients = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_id') AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND company_id = $session_company_id"));
+$sql_clients = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS clients_added FROM clients 
+    WHERE YEAR(client_created_at) = $year
+    AND company_id = $session_company_id")
+);
 $clients_added = $sql_clients['clients_added'];
 
 // Ticket count
-$sql_tickets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS active_tickets FROM tickets WHERE ticket_status != 'Closed' AND company_id = $session_company_id"));
+$sql_tickets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS active_tickets 
+    FROM tickets 
+    WHERE ticket_status != 'Closed' 
+    AND company_id = $session_company_id")
+);
 $active_tickets = $sql_tickets['active_tickets'];
 
 // Expiring domains (but not ones that have already expired)
-$sql_domains_expiring = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('domain_id') as expiring_domains FROM domains
+$sql_domains_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('domain_id') as expiring_domains
+    FROM domains
     WHERE domain_expire != '0000-00-00'
-    AND domain_archived_at IS NULL
     AND domain_expire > CURRENT_DATE
     AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
-    AND company_id = $session_company_id"));
+    AND domain_archived_at IS NULL
+    AND company_id = $session_company_id")
+);
 $expiring_domains = $sql_domains_expiring['expiring_domains'];
 
 // Expiring Certificates (but not ones that have already expired)
-$sql_certs_expiring = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('certificate_id') as expiring_certs FROM certificates
+$sql_certs_expiring = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('certificate_id') as expiring_certs 
+    FROM certificates
     WHERE certificate_expire != '0000-00-00'
-    AND certificate_archived_at IS NULL
     AND certificate_expire > CURRENT_DATE
-    AND certificate_expire < CURRENT_DATE + INTERVAL 30 DAY
-    AND company_id = $session_company_id"));
+    AND certificate_expire < CURRENT_DATE + INTERVAL 30 DAY      
+    AND certificate_archived_at IS NULL
+    AND company_id = $session_company_id")
+);
 $expiring_certificates = $sql_certs_expiring['expiring_certs'];
 
 ?>
 
-    <form class="mb-3">
-        <select onchange="this.form.submit()" class="form-control" name="year">
-            <?php
+<form class="mb-3">
+    <select onchange="this.form.submit()" class="form-control" name="year">
+        <?php
 
-            while($row = mysqli_fetch_array($sql_payment_years)){
-                $payment_year = $row['all_years'];
-                if(empty($payment_year)){
-                    $payment_year = date('Y');
-                }
-                ?>
-                <option <?php if($year == $payment_year){ echo "selected"; } ?> > <?php echo $payment_year; ?></option>
-
-                <?php
+        while ($row = mysqli_fetch_array($sql_payment_years)) {
+            $payment_year = $row['all_years'];
+            if (empty($payment_year)) {
+                $payment_year = date('Y');
             }
             ?>
+            <option <?php if ($year == $payment_year) { echo "selected"; } ?> > <?php echo $payment_year; ?></option>
 
-        </select>
-    </form>
+            <?php
+        }
+        ?>
 
-    <!-- Icon Cards-->
-    <div class="row">
+    </select>
+</form>
 
-        <div class="col-lg-4 col-6">
-            <!-- small box -->
-            <a class="small-box bg-secondary" href="clients.php?date_from=<?php echo $year; ?>-01-01&date_to=<?php echo $year; ?>-12-31">
-                <div class="inner">
-                    <h3><?php echo $clients_added; ?></h3>
-                    <p>New Clients</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-users"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
+<!-- Icon Cards-->
+<div class="row">
 
-        <div class="col-lg-4 col-6">
-            <!-- small box -->
-            <a class="small-box bg-danger" href="tickets.php">
-                <div class="inner">
-                    <h3><?php echo $active_tickets; ?></h3>
-                    <p>Active Tickets</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-ticket-alt"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
+    <div class="col-lg-4 col-6">
+        <!-- small box -->
+        <a class="small-box bg-secondary" href="clients.php?date_from=<?php echo $year; ?>-01-01&date_to=<?php echo $year; ?>-12-31">
+            <div class="inner">
+                <h3><?php echo $clients_added; ?></h3>
+                <p>New Clients</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-users"></i>
+            </div>
+        </a>
+    </div>
+    <!-- ./col -->
 
-        <div class="col-lg-4 col-6">
-            <!-- small box -->
-            <a class="small-box bg-warning">
-                <div class="inner">
-                    <h3><?php echo $expiring_domains; ?></h3>
-                    <p>Expiring Domains</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-globe"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
+    <div class="col-lg-4 col-6">
+        <!-- small box -->
+        <a class="small-box bg-danger" href="tickets.php">
+            <div class="inner">
+                <h3><?php echo $active_tickets; ?></h3>
+                <p>Active Tickets</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-ticket-alt"></i>
+            </div>
+        </a>
+    </div>
+    <!-- ./col -->
 
-        <div class="col-lg-4 col-6">
-            <!-- small box -->
-            <a class="small-box bg-primary">
-                <div class="inner">
-                    <h3><?php echo $expiring_certificates; ?></h3>
-                    <p>Expiring Certificates</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-lock"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
+    <div class="col-lg-4 col-6">
+        <!-- small box -->
+        <a class="small-box bg-warning">
+            <div class="inner">
+                <h3><?php echo $expiring_domains; ?></h3>
+                <p>Expiring Domains</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-globe"></i>
+            </div>
+        </a>
+    </div>
+    <!-- ./col -->
 
-    </div> <!-- row -->
+    <div class="col-lg-4 col-6">
+        <!-- small box -->
+        <a class="small-box bg-primary">
+            <div class="inner">
+                <h3><?php echo $expiring_certificates; ?></h3>
+                <p>Expiring Certificates</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-lock"></i>
+            </div>
+        </a>
+    </div>
+    <!-- ./col -->
 
-<?php include("footer.php"); ?>
+</div> <!-- row -->
+
+<?php include_once("footer.php"); ?>
+
