@@ -17,7 +17,7 @@ ini_set("session.cookie_httponly", True);
 
 // Tell client to only send cookie(s) over HTTPS
 if($config_https_only){
-  ini_set("session.cookie_secure", True);
+    ini_set("session.cookie_secure", True);
 }
 
 // Handle POST login request
@@ -28,22 +28,22 @@ if(isset($_POST['login'])){
 
     // Check recent failed login attempts for this IP (more than 10 failed logins in 5 mins)
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(log_id) AS failed_login_count FROM logs WHERE log_ip = '$ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
-    
+
     $failed_login_count = $row['failed_login_count'];
 
     // Login brute force check
     if($failed_login_count >= 10){
 
-      // Logging
-      mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent'");
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent'");
 
-      // Send an alert only count hits 10 to reduce flooding alerts (using 1 as "default" company)
-      if($failed_login_count == 10){
-          mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Lockout', notification = '$ip was locked out for repeated failed login attempts.', notification_timestamp = NOW() company_id = '1'");
-      }
+        // Send an alert only count hits 10 to reduce flooding alerts (using 1 as "default" company)
+        if($failed_login_count == 10){
+            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Lockout', notification = '$ip was locked out for repeated failed login attempts.', notification_timestamp = NOW() company_id = '1'");
+        }
 
-      // Inform user
-      $response = '<div class=\'alert alert-danger\'>IP Lockout - Please try again later.<button class=\'close\' data-dismiss=\'alert\'>&times;</button></div>';
+        // Inform user
+        $response = '<div class=\'alert alert-danger\'>IP Lockout - Please try again later.<button class=\'close\' data-dismiss=\'alert\'>&times;</button></div>';
     }
 
     // Passed login brute force check
@@ -74,24 +74,34 @@ if(isset($_POST['login'])){
                 $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
                 generateUserSessionKey($site_encryption_master_key);
 
-              // Setup extension
+                // Setup extension
                 if (isset($row['user_extension_key']) && !empty($row['user_extension_key'])) {
-                  // Extension cookie
-                  // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
-                  setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
+                    // Extension cookie
+                    // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
+                    setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
 
-                  // Set PHP session in DB so we can access the session encryption data (above)
-                  $user_php_session = session_id();
-                  mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = '$user_id'");
+                    // Set PHP session in DB so we can access the session encryption data (above)
+                    $user_php_session = session_id();
+                    mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = '$user_id'");
                 }
             }
 
             if (empty($token)) {
+                // Full Login successful
+
                 $_SESSION['logged'] = TRUE;
                 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$user_name successfully logged in', log_ip = '$ip', log_user_agent = '$user_agent', log_user_id = $user_id");
 
-                header("Location: dashboard_financial.php");
+                // Show start page/dashboard depending on role
+                if ($row['user_role'] == 2) {
+                    header("Location: dashboard_technical.php");
+                } else {
+                    header("Location: dashboard_financial.php");
+                }
+
             } else {
+                // Prompt for MFA
+
                 $token_field = "<div class='input-group mb-3'>
                 <input type='text' class='form-control' placeholder='Token' name='current_code' autofocus>
                 <div class='input-group-append'>
@@ -104,10 +114,17 @@ if(isset($_POST['login'])){
                 require_once("rfc6238.php");
 
                 if (TokenAuth6238::verify($token, $current_code)) {
+                    // Full login (with MFA) successful
                     $_SESSION['logged'] = TRUE;
                     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login 2FA', log_action = 'Success', log_description = '$user_name successfully logged in using 2FA', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
-                    //header("Location: $config_start_page");
-                    header("Location: dashboard_financial.php");
+
+                    // Show start page/dashboard depending on role
+                    if ($row['user_role'] == 2) {
+                        header("Location: dashboard_technical.php");
+                    } else {
+                        header("Location: dashboard_financial.php");
+                    }
+
                 } else {
                     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$user_name failed 2FA', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
 
@@ -138,60 +155,60 @@ if(isset($_POST['login'])){
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title><?php echo $config_app_name; ?> | Login</title>
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="noindex">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="dist/css/adminlte.min.css">
-    <!-- Google Font: Source Sans Pro -->
-    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title><?php echo $config_app_name; ?> | Login</title>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="dist/css/adminlte.min.css">
+  <!-- Google Font: Source Sans Pro -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
 <body class="hold-transition login-page">
 <div class="login-box">
-    <div class="login-logo">
-        <b>IT</b>Flow
-    </div>
+  <div class="login-logo">
+    <b>IT</b>Flow
+  </div>
 
-    <!-- /.login-logo -->
-    <div class="card">
-        <div class="card-body login-card-body">
-            <p class="login-box-msg"><?php if(isset($response)) { echo $response; } ?></p>
-            <form method="post">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Agent Email" name="email" value="<?php if(!empty($token_field)){ echo $email; }?>" required <?php if(empty($token_field)){ echo "autofocus"; } ?> >
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-envelope"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group mb-3">
-                    <input type="password" class="form-control" placeholder="Agent Password" name="password" value="<?php if(!empty($token_field)){ echo $password; } ?>" required>
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
-                        </div>
-                    </div>
-                </div>
-                <?php if(!empty($token_field)){ echo $token_field; } ?>
-
-                <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
-
-                <hr><br>
-
-                <h4>Looking for the <a href="portal">Client Portal?<a/></h4>
-
-            </form>
-
+  <!-- /.login-logo -->
+  <div class="card">
+    <div class="card-body login-card-body">
+      <p class="login-box-msg"><?php if(isset($response)) { echo $response; } ?></p>
+      <form method="post">
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" placeholder="Agent Email" name="email" value="<?php if(!empty($token_field)){ echo $email; }?>" required <?php if(empty($token_field)){ echo "autofocus"; } ?> >
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-envelope"></span>
+            </div>
+          </div>
         </div>
-        <!-- /.login-card-body -->
+        <div class="input-group mb-3">
+          <input type="password" class="form-control" placeholder="Agent Password" name="password" value="<?php if(!empty($token_field)){ echo $password; } ?>" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+          <?php if(!empty($token_field)){ echo $token_field; } ?>
+
+        <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
+
+        <hr><br>
+
+        <h4>Looking for the <a href="portal">Client Portal?<a/></h4>
+
+      </form>
+
     </div>
+    <!-- /.login-card-body -->
+  </div>
 </div>
 <!-- /.login-box -->
 
