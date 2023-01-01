@@ -16,14 +16,8 @@ $sql_clients = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_id'
 $clients_added = $sql_clients['clients_added'];
 
 // Ticket count
-$sql_tickets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS active_tickets FROM tickets WHERE ticket_status != 'Closed'"));
+$sql_tickets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS active_tickets FROM tickets WHERE ticket_status != 'Closed'"));
 $active_tickets = $sql_tickets['active_tickets'];
-
-//Get Monthly Recurring Total
-$sql_recurring_monthly_total = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND company_id = $session_company_id");
-$row = mysqli_fetch_array($sql_recurring_monthly_total);
-$recurring_monthly_total = $row['recurring_monthly_total'];
-
 
 ?>
 
