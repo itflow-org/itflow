@@ -9,26 +9,26 @@ if (isset($_GET['year'])) {
 }
 
 // GET unique years from expenses, payments and revenues
-$sql_payment_years = mysqli_query($mysqli, "SELECT YEAR(expense_date) AS all_years FROM expenses 
-    WHERE company_id = $session_company_id 
-    UNION DISTINCT SELECT YEAR(payment_date) FROM payments WHERE company_id = $session_company_id 
-    UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues WHERE company_id = $session_company_id 
+$sql_payment_years = mysqli_query($mysqli, "SELECT YEAR(expense_date) AS all_years FROM expenses
+    WHERE company_id = $session_company_id
+    UNION DISTINCT SELECT YEAR(payment_date) FROM payments WHERE company_id = $session_company_id
+    UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues WHERE company_id = $session_company_id
     ORDER BY all_years DESC"
 );
 
 // Get Total Clients added
-$sql_clients = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS clients_added FROM clients 
+$sql_clients = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS clients_added FROM clients
     WHERE YEAR(client_created_at) = $year
-    AND company_id = $session_company_id")
-);
+    AND company_id = $session_company_id"
+));
 $clients_added = $sql_clients['clients_added'];
 
 // Ticket count
-$sql_tickets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS active_tickets 
-    FROM tickets 
-    WHERE ticket_status != 'Closed' 
-    AND company_id = $session_company_id")
-);
+$sql_tickets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS active_tickets
+    FROM tickets
+    WHERE ticket_status != 'Closed'
+    AND company_id = $session_company_id"
+));
 $active_tickets = $sql_tickets['active_tickets'];
 
 // Expiring domains (but not ones that have already expired)
@@ -38,19 +38,19 @@ $sql_domains_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('
     AND domain_expire > CURRENT_DATE
     AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
     AND domain_archived_at IS NULL
-    AND company_id = $session_company_id")
-);
+    AND company_id = $session_company_id"
+));
 $expiring_domains = $sql_domains_expiring['expiring_domains'];
 
 // Expiring Certificates (but not ones that have already expired)
-$sql_certs_expiring = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('certificate_id') as expiring_certs 
+$sql_certs_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('certificate_id') as expiring_certs
     FROM certificates
     WHERE certificate_expire != '0000-00-00'
     AND certificate_expire > CURRENT_DATE
-    AND certificate_expire < CURRENT_DATE + INTERVAL 30 DAY      
+    AND certificate_expire < CURRENT_DATE + INTERVAL 30 DAY
     AND certificate_archived_at IS NULL
-    AND company_id = $session_company_id")
-);
+    AND company_id = $session_company_id"
+));
 $expiring_certificates = $sql_certs_expiring['expiring_certs'];
 
 ?>
