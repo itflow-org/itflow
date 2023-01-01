@@ -171,7 +171,7 @@ if(isset($_GET['client_id'])){
 
     // Expiring Items
 
-    // Get Domains Expiring within 30 Days
+    // Count Domains Expiring within 30 Days
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('domain_id') AS num FROM domains
       WHERE domain_client_id = $client_id
       AND domain_expire != '0000-00-00'
@@ -181,7 +181,7 @@ if(isset($_GET['client_id'])){
     ));
     $num_domains_expiring = $row['num'];
 
-    // Get Certificates Expiring within 30 Days
+    // Count Certificates Expiring within 30 Days
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('certificate_id') AS num FROM certificates
       WHERE certificate_client_id = $client_id
       AND certificate_expire != '0000-00-00'
