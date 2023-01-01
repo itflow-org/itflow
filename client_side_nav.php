@@ -108,10 +108,15 @@
             <i class="nav-icon fas fa-lock"></i>
             <p>
               Certificates
+
               <?php 
               if($num_certificates > 0){ ?>
               <span class="right badge badge-light"><?php echo $num_certificates; ?></span>
               <?php } ?>
+
+            <?php if($num_certs_expiring > 0){ ?>
+                <span class="right fa fa-fw fa-circle text-warning"></span>
+            <?php } ?>
             </p>
           </a>
         </li>

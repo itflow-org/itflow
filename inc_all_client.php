@@ -171,15 +171,25 @@ if(isset($_GET['client_id'])){
 
     // Expiring Items
 
-    // Get Domains Expiring within 30 Days
+    // Count Domains Expiring within 30 Days
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('domain_id') AS num FROM domains
       WHERE domain_client_id = $client_id
       AND domain_expire != '0000-00-00'
-      AND domain_archived_at IS NULL
       AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
+      AND domain_archived_at IS NULL
       AND company_id = $session_company_id"
     ));
     $num_domains_expiring = $row['num'];
+
+    // Count Certificates Expiring within 30 Days
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('certificate_id') AS num FROM certificates
+      WHERE certificate_client_id = $client_id
+      AND certificate_expire != '0000-00-00'
+      AND certificate_expire < CURRENT_DATE + INTERVAL 30 DAY
+      AND certificate_archived_at IS NULL
+      AND company_id = $session_company_id"
+    ));
+    $num_certs_expiring = $row['num'];
 
     // Get Asset Warranties Expiring
     $sql_asset_warranties_expiring = mysqli_query($mysqli,"SELECT * FROM assets

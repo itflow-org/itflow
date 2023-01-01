@@ -15,7 +15,6 @@ $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id =
 // Expiring Items
 
 // Get Domains Expiring
-// TODO: Need to work out whether we can remove this one too - very similar functionality in inc_all_client.php
 $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
     WHERE domain_client_id = $client_id
     AND domain_expire != '0000-00-00'
