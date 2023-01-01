@@ -7,19 +7,19 @@
 $session_company_id = 1;
 require_once('../config.php');
 require_once('../functions.php');
-require_once ('../get_settings.php');
+require_once('../get_settings.php');
 
 if (empty($config_smtp_host)) {
   header("Location: login.php");
   exit();
 }
 
-if(!isset($_SESSION)){
+if (!isset($_SESSION)) {
   // HTTP Only cookies
-  ini_set("session.cookie_httponly", True);
-  if($config_https_only){
+  ini_set("session.cookie_httponly", true);
+  if ($config_https_only) {
     // Tell client to only send cookie(s) over HTTPS
-    ini_set("session.cookie_secure", True);
+    ini_set("session.cookie_secure", true);
   }
   session_start();
 }
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
   /*
    * Send password reset email
    */
-  if(isset($_POST['password_reset_email_request'])){
+  if (isset($_POST['password_reset_email_request'])) {
 
     $email = strip_tags(mysqli_real_escape_string($mysqli, $_POST['email']));
 
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
       $token = key32gen();
       $url = "https://$config_base_url/portal/login_reset.php?email=$email&token=$token&client=$client";
       mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = '$token' WHERE contact_id = $id LIMIT 1");
-      mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $client, company_id = $company");
+      mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $client, company_id = $company");
 
 
       // Send reset email
@@ -82,10 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     /*
      * Do password reset
      */
-  }
-  elseif(isset($_POST['password_reset_set_password'])){
+  } elseif (isset($_POST['password_reset_set_password'])) {
 
-    if(!isset($_POST['new_password']) || !isset($_POST['email']) || !isset($_POST['token']) || !isset($_POST['client'])) {
+    if (!isset($_POST['new_password']) || !isset($_POST['email']) || !isset($_POST['token']) || !isset($_POST['client'])) {
       $_SESSION['login_message'] = WORDING_ERROR;
     }
 
@@ -106,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
       // Set password, invalidate token, logging
       $password = mysqli_real_escape_string($mysqli, password_hash($_POST['new_password'], PASSWORD_DEFAULT));
       mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password', contact_password_reset_token = NULL WHERE contact_id = $contact_id LIMIT 1");
-      mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Reset portal password for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $client, company_id = $company");
+      mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Reset portal password for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $client, company_id = $company");
 
       // Send confirmation email
       $subject = "Password reset confirmation for $company_name ITFlow Portal";
@@ -232,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
       <p class="login-box-msg text-danger">
         <?php
         // Show feedback from session
-        if(!empty($_SESSION['login_message'])){
+        if (!empty($_SESSION['login_message'])) {
           echo $_SESSION['login_message'];
           unset($_SESSION['login_message']);
         }
