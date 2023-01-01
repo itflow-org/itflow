@@ -383,7 +383,7 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
 
     // Add contact_important field to those who don't have it (installed before March 2022)
     try {
-      mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_important` tinyint(1) NOT NULL DEFAULT 0 AFTER contact_password_hash;");
+      mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_important` tinyint(1) NOT NULL DEFAULT 0 AFTER contact_password_reset_token;");
     } catch (Exception $e) {
       // Field already exists - that's fine
     }
