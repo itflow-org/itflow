@@ -31,7 +31,7 @@ $token_grant_url = "https://login.microsoftonline.com/organizations/oauth2/v2.0/
 
 // Initial Login Request, via Microsoft
 // Returns a authorization code if login was successful
-if ($_SERVER['REQUEST_METHOD'] == "GET"){
+if ($_SERVER['REQUEST_METHOD'] == "GET") {
 
     $params = array (
         'client_id' => $client_id,
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET"){
 
 // Login was successful, Microsoft has returned us a authorization code via POST
 // Request an access token using authorization code (& client secret) (server side)
-if (isset($_POST['code']) && $_POST['state'] == session_id()){
+if (isset($_POST['code']) && $_POST['state'] == session_id()) {
 
     $params = array (
         'client_id' =>$client_id,
@@ -70,7 +70,7 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()){
 
     // Check if we have an access token
     // If we do, send a request to Microsoft Graph API to get user info
-    if (isset($access_token_response['access_token'])){
+    if (isset($access_token_response['access_token'])) {
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array ('Authorization: Bearer '.$access_token_response['access_token'],
@@ -81,7 +81,7 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()){
 
         $msgraph_response = json_decode(curl_exec($ch), 1);
 
-        if (isset($msgraph_response['error'])){
+        if (isset($msgraph_response['error'])) {
             // Something went wrong verifying the token/using the Graph API - quit
             echo "Error with MS Graph API. Details:";
             var_dump($msgraph_response['error']);
@@ -119,5 +119,5 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()){
 
 // If the user is just sat on the page, redirect them to login to try again
 if (empty($_GET)) {
-    echo "<script> setTimeout(function(){ window.location = \"login.php\"; },1000);</script>";
+    echo "<script> setTimeout(function() { window.location = \"login.php\"; },1000);</script>";
 }
