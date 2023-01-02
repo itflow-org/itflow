@@ -88,7 +88,7 @@ if (isset($api_key)) {
 
         // Set client ID, company ID & key name
         $row = mysqli_fetch_array($sql);
-        $api_key_name = $row['api_key_name'];
+        $api_key_name = htmlentities($row['api_key_name']);
         $client_id = $row['api_key_client_id'];
         $company_id = $row['company_id'];
 
