@@ -115,10 +115,10 @@ if(isset($_POST['add_user'])){
     mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $default_company");
 
     // Send user e-mail, if specified
-    if(isset($_POST['send_email']) && !empty($config_smtp_host)){
+    if(isset($_POST['send_email']) && !empty($config_smtp_host) && filter_var($email, FILTER_VALIDATE_EMAIL)){
 
         $subject = "Your new $session_company_name ITFlow account";
-        $body = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: $config_base_url<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+        $body = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: https://$config_base_url<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
 
         $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
           $config_ticket_from_email, $config_ticket_from_name,
@@ -144,13 +144,6 @@ if(isset($_POST['add_user'])){
 if(isset($_POST['edit_user'])){
 
     validateAdminRole();
-
-    if($session_user_role != 3 && $_POST['user_id'] !== $session_user_id){
-      $_SESSION['alert_type'] = "error";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
 
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
@@ -246,17 +239,10 @@ if(isset($_POST['edit_user'])){
 
 if(isset($_POST['edit_profile'])){
 
-    if($session_user_role != 3 && $_POST['user_id'] !== $session_user_id){
-      $_SESSION['alert_type'] = "error";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
 
-    $user_id = intval($_POST['user_id']);
+    $user_id = $session_user_id;
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $new_password = trim($_POST['new_password']);
@@ -741,9 +727,6 @@ if(isset($_GET['delete_company'])){
     mysqli_query($mysqli,"DELETE FROM tickets WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM ticket_replies WHERE company_id = $company_id");
     
-    // TODO ticket views is missing company_id
-    // mysqli_query($mysqli,"DELETE FROM ticket_views WHERE company_id = $company_id");
-    
     mysqli_query($mysqli,"DELETE FROM transfers WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM trips WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM user_companies WHERE company_id = $company_id");
@@ -1047,6 +1030,9 @@ if(isset($_POST['edit_module_settings'])){
 
 if(isset($_POST['enable_2fa'])){
 
+    // CSRF Check
+    validateCSRFToken($_POST['csrf_token']);
+
     $token = mysqli_real_escape_string($mysqli,$_POST['token']);
 
     mysqli_query($mysqli,"UPDATE users SET user_token = '$token' WHERE user_id = $session_user_id");
@@ -1061,6 +1047,9 @@ if(isset($_POST['enable_2fa'])){
 }
 
 if(isset($_POST['disable_2fa'])){
+
+    // CSRF Check
+    validateCSRFToken($_POST['csrf_token']);
 
     mysqli_query($mysqli,"UPDATE users SET user_token = '' WHERE user_id = $session_user_id");
 
@@ -1155,6 +1144,7 @@ if(isset($_GET['download_database'])){
 
 if(isset($_POST['backup_master_key'])){
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $password = $_POST['password'];

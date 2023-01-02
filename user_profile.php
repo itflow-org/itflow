@@ -22,7 +22,6 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
 
         <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
           <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-          <input type="hidden" name="user_id" value="<?php echo $session_user_id; ?>">
           <input type="hidden" name="existing_file_name" value="<?php echo $session_avatar; ?>">
 
           <center class="mb-3 p-4">
@@ -96,6 +95,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
         <h3>2-Factor Authentication</h3>
 
         <form class="p-3" action="post.php" method="post" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
           <?php if(empty($session_token)){ ?>
             <p>You have not setup 2FA, click on enable to setup 2FA.</p>

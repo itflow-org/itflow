@@ -18,6 +18,7 @@
     <div class="card-body">
         <center>
             <form action="post.php" method="POST">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                 <div class="input-group col-4">
                     <div class="input-group-prepend">
                         <input type="password" class="form-control" placeholder="Enter your account password" name="password" autocomplete="new-password" required>
