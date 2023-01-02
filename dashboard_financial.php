@@ -18,14 +18,19 @@ function roundUpToNearestMultiple($n, $increment = 1000)
     return (int) ($increment * ceil($n / $increment));
 }
 
-if(isset($_GET['year'])){
-  $year = intval($_GET['year']);
-}else{
-  $year = date('Y');
+if (isset($_GET['year'])) {
+    $year = intval($_GET['year']);
+} else {
+    $year = date('Y');
 }
 
-//GET unique years from expenses, payments and revenues
-$sql_payment_years = mysqli_query($mysqli,"SELECT YEAR(expense_date) AS all_years FROM expenses WHERE company_id = $session_company_id UNION DISTINCT SELECT YEAR(payment_date) FROM payments WHERE company_id = $session_company_id UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues WHERE company_id = $session_company_id ORDER BY all_years DESC");
+//GET unique years from expenses, payments invoices and revenues
+$sql_years_select = mysqli_query($mysqli,"SELECT YEAR(expense_date) AS all_years FROM expenses WHERE company_id = $session_company_id 
+    UNION DISTINCT SELECT YEAR(payment_date) FROM payments WHERE company_id = $session_company_id 
+    UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues WHERE company_id = $session_company_id
+    UNION DISTINCT SELECT YEAR(invoice_date) FROM invoices WHERE company_id = $session_company_id
+    ORDER BY all_years DESC
+");
 
 //Define var so it doesnt throw errors in logs
 $largest_income_month = 0;
@@ -67,17 +72,17 @@ $profit = $total_income - $total_expenses;
 $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id");
 
 $sql_latest_invoice_payments = mysqli_query($mysqli,"SELECT * FROM payments, invoices, clients 
-	WHERE payment_invoice_id = invoice_id 
-	AND invoice_client_id = client_id
+    WHERE payment_invoice_id = invoice_id 
+    AND invoice_client_id = client_id
   AND clients.company_id = $session_company_id
-	ORDER BY payment_id DESC LIMIT 5"
+    ORDER BY payment_id DESC LIMIT 5"
 );
 
 $sql_latest_expenses = mysqli_query($mysqli,"SELECT * FROM expenses, vendors, categories 
-	WHERE expense_vendor_id = vendor_id 
-	AND expense_category_id = category_id
+    WHERE expense_vendor_id = vendor_id 
+    AND expense_category_id = category_id
   AND expenses.company_id = $session_company_id
-	ORDER BY expense_id DESC LIMIT 5"
+    ORDER BY expense_id DESC LIMIT 5"
 );
 
 //Get Monthly Recurring Total
@@ -109,13 +114,13 @@ $vendors_added = $row['vendors_added'];
   <select onchange="this.form.submit()" class="form-control" name="year">
     <?php 
             
-    while($row = mysqli_fetch_array($sql_payment_years)){
-      $payment_year = $row['all_years'];
-      if(empty($payment_year)){
-        $payment_year = date('Y');
+    while($row = mysqli_fetch_array($sql_years_select)){
+      $year_select = $row['all_years'];
+      if(empty($year_select)){
+        $year_select = date('Y');
       }
     ?>
-    <option <?php if($year == $payment_year){ echo "selected"; } ?> > <?php echo $payment_year; ?></option>
+    <option <?php if($year == $year_select){ echo "selected"; } ?> > <?php echo $year_select; ?></option>
     
     <?php
     }
@@ -339,39 +344,39 @@ $vendors_added = $row['vendors_added'];
       <div class="table-responsive">
         <table class="table table-borderless">
           <tbody>
-          	<?php
-          	while($row = mysqli_fetch_array($sql_accounts)){
-	            $account_id = $row['account_id'];
-	            $account_name = htmlentities($row['account_name']);
-	            $opening_balance = $row['opening_balance'];
+            <?php
+            while($row = mysqli_fetch_array($sql_accounts)){
+                $account_id = $row['account_id'];
+                $account_name = htmlentities($row['account_name']);
+                $opening_balance = $row['opening_balance'];
 
-	          ?>
+              ?>
             <tr>
-	            <td><?php echo $account_name; ?></a></td>
-	            <?php
-	            $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
+                <td><?php echo $account_name; ?></a></td>
+                <?php
+                $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
               $row = mysqli_fetch_array($sql_payments);
               $total_payments = $row['total_payments'];
-	            
-	            $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
+                
+                $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
               $row = mysqli_fetch_array($sql_revenues);
               $total_revenues = $row['total_revenues'];
               
               $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
               $row = mysqli_fetch_array($sql_expenses);
               $total_expenses = $row['total_expenses'];
-	            
+                
               $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
-	            if($balance == ''){
-	              $balance = '0.00'; 
-	            }
-	            ?>
-	            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, "$session_company_currency"); ?></td>
-	          </tr>
-	          <?php
-	        	}
-	        	?>
+                if($balance == ''){
+                  $balance = '0.00'; 
+                }
+                ?>
+                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, "$session_company_currency"); ?></td>
+              </tr>
+              <?php
+                }
+                ?>
 
           </tbody>
         </table>
@@ -400,13 +405,13 @@ $vendors_added = $row['vendors_added'];
           </thead>
           <tbody>
             <?php
-          	while($row = mysqli_fetch_array($sql_latest_invoice_payments)){
-	            $payment_date = $row['payment_date'];
-	            $payment_amount = floatval($row['payment_amount']);
-	            $invoice_prefix = htmlentities($row['invoice_prefix']);
+            while($row = mysqli_fetch_array($sql_latest_invoice_payments)){
+                $payment_date = $row['payment_date'];
+                $payment_amount = floatval($row['payment_amount']);
+                $invoice_prefix = htmlentities($row['invoice_prefix']);
               $invoice_number = htmlentities($row['invoice_number']);
-	            $client_name = htmlentities($row['client_name']);
-		        ?>
+                $client_name = htmlentities($row['client_name']);
+                ?>
             <tr>
               <td><?php echo $payment_date; ?></td>
               <td><?php echo $client_name; ?></td>
@@ -414,8 +419,8 @@ $vendors_added = $row['vendors_added'];
               <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, "$session_company_currency"); ?></td>
             </tr>
             <?php
-		        }
-		        ?>
+                }
+                ?>
           </tbody>
         </table>
       </div>
@@ -436,29 +441,29 @@ $vendors_added = $row['vendors_added'];
           <thead>
             <tr>
               <th>Date</th>
-          		<th>Vendor</th>
+                <th>Vendor</th>
               <th>Category</th>
               <th class="text-right">Amount</th>
             </tr>
           </thead>
           <tbody>
-          	<?php
-          	while($row = mysqli_fetch_array($sql_latest_expenses)){
-	            $expense_date = $row['expense_date'];
-	            $expense_amount = floatval($row['expense_amount']);
-	            $vendor_name = htmlentities($row['vendor_name']);
-	            $category_name = htmlentities($row['category_name']);
+            <?php
+            while($row = mysqli_fetch_array($sql_latest_expenses)){
+                $expense_date = $row['expense_date'];
+                $expense_amount = floatval($row['expense_amount']);
+                $vendor_name = htmlentities($row['vendor_name']);
+                $category_name = htmlentities($row['category_name']);
 
-		        ?>
+                ?>
             <tr>
               <td><?php echo $expense_date; ?></td>
               <td><?php echo $vendor_name; ?></td>
               <td><?php echo $category_name; ?></td>
               <td class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, "$session_company_currency"); ?></td>
             </tr>
-           	<?php
-		        }
-		        ?>
+            <?php
+                }
+                ?>
           </tbody>
         </table>
       </div>
@@ -786,10 +791,10 @@ var myPieChart = new Chart(ctx, {
     }],
   },
   options: {
-  	legend: {
-    	display: true,
-    	position: 'right'
-  	}
+    legend: {
+        display: true,
+        position: 'right'
+    }
   }
 });
 
@@ -843,10 +848,10 @@ var myPieChart = new Chart(ctx, {
     }],
   },
   options: {
-  	legend: {
-    	display: true,
-    	position: 'right'
-  	}
+    legend: {
+        display: true,
+        position: 'right'
+    }
   }
 });
 
@@ -896,10 +901,10 @@ var myPieChart = new Chart(ctx, {
     }],
   },
   options: {
-  	legend: {
-    	display: true,
-    	position: 'right'
-  	}
+    legend: {
+        display: true,
+        position: 'right'
+    }
   }
 });
 
