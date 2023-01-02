@@ -222,19 +222,19 @@ if (isset($_GET['share_generate_link'])) {
 
     if ($item_type == "Document") {
         $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = '$item_id' AND document_client_id = '$client_id' LIMIT 1"));
-        $item_name = $row['document_name'];
+        $item_name = strip_tags(mysqli_real_escape_string($mysqli, $row['document_name']));
     }
 
     if ($item_type == "File") {
         $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = '$item_id' AND file_client_id = '$client_id' LIMIT 1"));
-        $item_name = $row['file_name'];
+        $item_name = strip_tags(mysqli_real_escape_string($mysqli, $row['file_name']));
     }
 
     if ($item_type == "Login") {
         $login = mysqli_query($mysqli, "SELECT login_name, login_password FROM logins WHERE login_id = '$item_id' AND login_client_id = '$client_id' LIMIT 1");
         $row = mysqli_fetch_array($login);
 
-        $item_name = $row['login_name'];
+        $item_name = strip_tags(mysqli_real_escape_string($mysqli, $row['login_name']));
 
         // Decrypt & re-encrypt password for sharing
         $login_password_cleartext = decryptLoginEntry($row['login_password']);
