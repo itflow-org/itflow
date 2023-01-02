@@ -110,7 +110,7 @@ if (isset($_GET['merge_ticket_get_json_details'])) {
 
     $merge_into_ticket_number = intval($_GET['merge_into_ticket_number']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM tickets
+    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_number, ticket_prefix, ticket_subject, ticket_priority, ticket_status, client_name, contact_name FROM tickets
       LEFT JOIN clients ON ticket_client_id = client_id 
       LEFT JOIN contacts ON ticket_contact_id = contact_id
       WHERE ticket_number = '$merge_into_ticket_number' AND tickets.company_id = '$session_company_id'");
@@ -120,7 +120,8 @@ if (isset($_GET['merge_ticket_get_json_details'])) {
     } else {
         //Return ticket, client and contact details for the given ticket number
         $response = mysqli_fetch_array($sql);
-        echo json_encode($response);
+        $response = array_map('htmlentities', $response);
+        echo json_encode( $response);
     }
 }
 
