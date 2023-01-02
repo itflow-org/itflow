@@ -1,4 +1,7 @@
-<?php 
+<?php
+
+exit();
+
 include("config.php");
 include("check_login.php");
 include("functions.php");
@@ -15,7 +18,7 @@ include("functions.php");
     <link rel="stylesheet" href="global.css" />
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
-    <script src="client.js" defer></script>
+    <script src="test_stripe_client.js" defer></script>
   </head>
 
   <body>
