@@ -1367,7 +1367,7 @@ if(isset($_POST['edit_client'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modify', log_description = '$session_name modified client $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Client <strong>".stripslashes($client_name)."</strong> updated";
+    $_SESSION['alert_message'] = "Client <strong>".htmlentities($client_name)."</strong> updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -1389,7 +1389,7 @@ if(isset($_GET['archive_client'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Archive', log_description = '$session_name archived client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Client ".stripslashes($client_name)." archive. <a href='post.php?undo_archive_client=$client_id'>Undo</a>";
+    $_SESSION['alert_message'] = "Client ".htmlentities($client_name)." archived. <a href='post.php?undo_archive_client=$client_id'>Undo</a>";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -1408,7 +1408,7 @@ if(isset($_GET['undo_archive_client'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Undo Archive', log_description = '$session_name unarchived client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Client ".stripslashes($client_name)." unarchived.";
+    $_SESSION['alert_message'] = "Client ".htmlentities($client_name)." unarchived.";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -4009,7 +4009,7 @@ if(isset($_GET['archive_contact'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Contact ".stripslashes($contact_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
+    $_SESSION['alert_message'] = "Contact ".htmlentities($contact_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -4407,7 +4407,7 @@ if(isset($_GET['archive_location'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Archive', log_description = '$session_name archived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Location ".stripslashes($location_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
+    $_SESSION['alert_message'] = "Location ".htmlentities($location_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -4428,7 +4428,7 @@ if(isset($_GET['undo_archive_location'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Undo Archive', log_description = '$session_name unarchived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Location ".stripslashes($location_name)." unarchived.";
+    $_SESSION['alert_message'] = "Location ".htmlentities($location_name)." unarchived.";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
