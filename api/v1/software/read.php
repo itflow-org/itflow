@@ -9,10 +9,10 @@ if (isset($_GET['software_id'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_id = '$id' AND software_client_id LIKE '$client_id' AND company_id = '$company_id'");
 }
 
-// Specific software via License ID
-if (isset($_GET['software_license'])) {
-    $license = mysqli_real_escape_string($mysqli, $_GET['software_license']);
-    $sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_license_type = '$license' AND software_client_id LIKE '$client_id' AND company_id = '$company_id' ORDER BY software_id LIMIT $limit OFFSET $offset");
+// Specific software via key
+if (isset($_GET['software_key'])) {
+    $key = mysqli_real_escape_string($mysqli, $_GET['software_license']);
+    $sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_key = '$key' AND software_client_id LIKE '$client_id' AND company_id = '$company_id' ORDER BY software_id LIMIT $limit OFFSET $offset");
 }
 
 // Software by name
