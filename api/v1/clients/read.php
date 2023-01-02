@@ -11,7 +11,7 @@ if (isset($_GET['client_id'])) {
 
 // Specific client via name (single)
 elseif (isset($_GET['client_name'])) {
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $_GET['client_name'])));
+    $name = mysqli_real_escape_string($mysqli, $_GET['client_name']);
     $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_name = '$name' AND client_id LIKE '$client_id' AND company_id = '$company_id'");
 }
 
