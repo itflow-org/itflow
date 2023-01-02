@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $company = $row['company_id'];
 
         if ($row['contact_email'] == $email) {
-            $token = key32gen();
+            $token = bin2hex(random_bytes(78));
             $url = "https://$config_base_url/portal/login_reset.php?email=$email&token=$token&client=$client";
             mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = '$token' WHERE contact_id = $id LIMIT 1");
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $client, company_id = $company");
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
             // Send reset email
             $subject = "Password reset for $company_name ITFlow Portal";
-            $body    = "Hello, $name<br><br>Someone (probably you) has requested a new password for your account on $company_name's ITFlow Client Portal. <br><br><b>Please <a href='$url'>click here</a> to reset your password.</b> <br><br>Alternatively, copy and paste this URL into your browser: $url<br><br><i>If you didn't request this change, you can safely ignore this email.</i><br><br>~<br>$company_name<br>Support Department<br>$config_mail_from_email";
+            $body    = "Hello, $name<br><br>Someone (probably you) has requested a new password for your account on $company_name's ITFlow Client Portal. <br><br><b>Please <a href='$url'>click here</a> to reset your password.</b> <br><br>Alternatively, copy and paste this URL into your browser:<br> $url<br><br><i>If you didn't request this change, you can safely ignore this email.</i><br><br>~<br>$company_name<br>Support Department<br>$config_mail_from_email";
 
             $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
                 $config_mail_from_email, $config_mail_from_name,
