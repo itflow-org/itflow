@@ -1,5 +1,8 @@
 <?php 
 
+// Still in development, for use with Stripe Pay - exit
+exit();
+
 include("config.php");
 
 session_start();
