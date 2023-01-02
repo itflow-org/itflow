@@ -105,7 +105,7 @@
 
               while($row = mysqli_fetch_array($sql_related_tickets)){
                 $ticket_id = $row['ticket_id'];
-                $ticket_prefix = $row['ticket_prefix'];
+                $ticket_prefix = htmlentities($row['ticket_prefix']);
                 $ticket_number = $row['ticket_number'];
                 $ticket_subject = htmlentities($row['ticket_subject']);
 
