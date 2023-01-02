@@ -1,5 +1,5 @@
-<?php include("config.php"); ?>
-<?php include("functions.php"); ?>
+<?php require_once("config.php"); ?>
+<?php require_once("functions.php"); ?>
 <?php
 
 ?>
@@ -85,7 +85,7 @@ while($row = mysqli_fetch_array($sql_companies)){
       while($row = mysqli_fetch_array($sql)){
         $certificate_id = $row['certificate_id'];
         $certificate_name = mysqli_real_escape_string($mysqli,$row['certificate_name']);
-        $certificate_domain = $row['certificate_domain']);
+        $certificate_domain = $row['certificate_domain'];
         $certificate_expire = $row['certificate_expire'];
         $client_id = $row['client_id'];
         $client_name = mysqli_real_escape_string($mysqli,$row['client_name']);
