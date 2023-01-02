@@ -53,7 +53,7 @@ if(isset($_POST['add_user'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $user_specific_encryption_ciphertext = encryptUserSpecificKey($_POST['password']); //TODO: Consider this users role - if they don't need access to logins, potentially don't set this -- just know it's a pain to add afterwards (you'd need to reset their password).
+    $user_specific_encryption_ciphertext = encryptUserSpecificKey($_POST['password']);
     $default_company = intval($_POST['default_company']);
     $role = intval($_POST['role']);
 
