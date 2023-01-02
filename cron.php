@@ -225,7 +225,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         $invoice_amount = $row['invoice_amount'];
         $invoice_currency_code = $row['invoice_currency_code'];
         $client_id = $row['client_id'];
-        $client_name = $row['client_name'];
+        $client_name = mysqli_real_escape_string($mysqli,$row['client_name']);
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
 
