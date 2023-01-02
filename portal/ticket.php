@@ -112,12 +112,12 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
             $ticket_reply_type = $row['ticket_reply_type'];
 
             if ($ticket_reply_type == "Client") {
-                $ticket_reply_by_display = $row['contact_name'];
+                $ticket_reply_by_display = htmlentities($row['contact_name']);
                 $user_initials = initials($row['contact_name']);
                 $user_avatar = $row['contact_photo'];
                 $avatar_link = "../uploads/clients/$session_company_id/$session_client_id/$user_avatar";
             } else {
-                $ticket_reply_by_display = $row['user_name'];
+                $ticket_reply_by_display = htmlentities($row['user_name']);
                 $user_id = $row['user_id'];
                 $user_avatar = $row['user_avatar'];
                 $user_initials = initials($row['user_name']);
