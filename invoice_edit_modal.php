@@ -23,7 +23,7 @@
           </div>
 
           <div class="form-group">
-            <label>Payment Due <strong class="text-danger">*</strong></label>
+            <label>Invoice Due <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar-alt"></i></span>

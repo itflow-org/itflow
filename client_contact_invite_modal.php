@@ -30,9 +30,9 @@
                 <span class="input-group-text"><i class="fas fa-fw fa-envelope-open-text"></i></span>
               </div>
               <select class="form-control select2" name="welcome_letter">
-                <option value="">- Select One -</option>
-                <option value="">Standard</option>
-                <option value="">Big Wig</option>
+                <option value="1">- Select One -</option>
+                <option value="2">Standard</option>
+                <option value="3">Big Wig</option>
               </select>
             </div>
           </div>
