@@ -41,7 +41,7 @@
                                     }
                                     ?>
                                 </ul>
-                            <?php
+                                <?php
                             }
                             ?>
 
@@ -69,18 +69,16 @@
                                 if(!empty($networks)){ ?>
                                     <h5><i class="nav-icon fas fa-network-wired"></i> Networks</h5>
                                     <ul>
-                                <?php
+                                    <?php
                                 }
                                 foreach($networks as $network){
-                                        $network = explode(":", $network);
-                                        echo "<li><a href=\"client_networks.php?client_id=$client_id&q=$network[0]\">$network[0] </a>(VLAN $network[1])</li>";
+                                    $network = explode(":", $network);
+                                    echo "<li><a href=\"client_networks.php?client_id=$client_id&q=$network[0]\">$network[0] </a>(VLAN $network[1])</li>";
                                 }
 
-                                // Not showing/haven't added explicitly linked networks - can't see a need for a network that doesn't have an asset on it?
-                                // Can add at a later date if there is a use case for this
                                 ?>
                                 </ul>
-                            <?php
+                                <?php
                             }
                             ?>
 
@@ -110,7 +108,7 @@
                                     <?php
                                 }
                                 foreach($location_names as $location){
-                                        echo "<li><a href=\"client_locations.php?client_id=$client_id&q=$location\">$location</a></li>";
+                                    echo "<li><a href=\"client_locations.php?client_id=$client_id&q=$location\">$location</a></li>";
                                 }
                                 ?>
                                 </ul>
@@ -284,14 +282,14 @@
                             }
                             ?>
 
-<!--                            <h5><i class="nav-icon fas fa-file-alt"></i> Services</h5>-->
-<!--                            <ul>-->
-<!--                                <li>Related Service - Coming soon!</li>-->
-<!--                            </ul>-->
+                            <!--                            <h5><i class="nav-icon fas fa-file-alt"></i> Services</h5>-->
+                            <!--                            <ul>-->
+                            <!--                                <li>Related Service - Coming soon!</li>-->
+                            <!--                            </ul>-->
 
                         </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
