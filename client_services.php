@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <form autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="input-group">
-          <input type="search" class="form-control " name="q" value="<?php if(isset($q)){ echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Services">
+          <input type="search" class="form-control " name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Services">
           <div class="input-group-append">
             <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
           </div>

@@ -53,7 +53,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
       <div class="row">
         <div class="col-sm-4 mb-2">
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Categories">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Categories">
             <div class="input-group-append">
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>

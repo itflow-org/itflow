@@ -176,7 +176,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                     <div class="col-sm-4">
                         <div class="input-group">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {
-                                echo stripslashes(htmlentities($q));
+                                echo strip_tags(htmlentities($q));
                             } ?>" placeholder="Search Tickets">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse"

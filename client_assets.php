@@ -86,7 +86,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(htmlentities($q)); } ?>" placeholder="Search <?php if(!empty($_GET['type'])){ echo ucwords(strip_tags(htmlentities($_GET['type']))); }else{ echo "Asset"; } ?>s">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search <?php if(!empty($_GET['type'])){ echo ucwords(strip_tags(htmlentities($_GET['type']))); }else{ echo "Asset"; } ?>s">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
