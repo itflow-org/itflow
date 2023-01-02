@@ -625,10 +625,36 @@ if($ticket_status !== "Closed"){ ?>
   <!-- Ticket Time Tracking JS -->
   <script type="text/javascript">
       // Default values
-      var hours = 0;
-      var minutes = 0;
-      var seconds = 0;
-      setInterval(countTime, 1000);
+     // var hours = 0;
+      //var minutes = 0;
+      //var seconds = 0;
+var startDateTime = new Date("<?= $ticket_created_at;?>"); // (start time and date from DB)
+var startStamp = startDateTime.getTime();
+
+var newDate = new Date();
+var newStamp = newDate.getTime();
+
+var timer; // for storing the interval (to stop or pause later if needed)
+
+function updateClock() {
+    newDate = new Date();
+    newStamp = newDate.getTime();
+    var diff = Math.round((newStamp-startStamp)/1000);
+    
+    var d = Math.floor(diff/(24*60*60)); 
+    diff = diff-(d*24*60*60);
+    var h = Math.floor(diff/(60*60));
+    diff = diff-(h*60*60);
+    var m = Math.floor(diff/(60));
+    diff = diff-(m*60);
+    var s = diff;
+    var time_worked = pad(h) + ":" + pad(m) + ":" + pad(s);
+    document.getElementById("time_worked").value = time_worked;
+  
+}
+
+
+timer = setInterval(updateClock, 1000);
 
       // Counter
       function countTime()
@@ -644,8 +670,8 @@ if($ticket_status !== "Closed"){ ?>
           }
 
           // Total timeworked
-          var time_worked = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
-          document.getElementById("time_worked").value = time_worked;
+        //  var time_worked = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
+         // document.getElementById("time_worked").value = time_worked;
       }
 
       // Allows manually adjusting the timer
