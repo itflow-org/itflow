@@ -476,8 +476,7 @@ if (isset($_GET['ticket_id'])) {
                                 <br>
                             <?php }
 
-                            if ($ticket_asset_count > 0 ) {
-                                ?>
+                            if ($ticket_asset_count > 0 ) { ?>
 
                                 <button class="btn btn-block btn-secondary" data-toggle="modal" data-target="#assetTicketsModal">Service History (<?php echo $ticket_asset_count; ?>)</button>
 
@@ -518,7 +517,6 @@ if (isset($_GET['ticket_id'])) {
                                         </div>
                                     </div>
                                 </div>
-
 
                                 <?php
 
@@ -582,100 +580,12 @@ if (isset($_GET['ticket_id'])) {
 
 ?>
 
-
-<?php
-if ($ticket_status !== "Closed") { ?>
-    <!-- Ticket Time Tracking JS -->
-    <script type="text/javascript">
-        // Default values
-        var hours = 0;
-        var minutes = 0;
-        var seconds = 0;
-        setInterval(countTime, 1000);
-
-        // Counter
-        function countTime()
-        {
-            ++seconds;
-            if (seconds == 60) {
-                seconds = 0;
-                minutes++;
-            }
-            if (minutes == 60) {
-                minutes = 0;
-                hours++;
-            }
-
-            // Total timeworked
-            var time_worked = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
-            document.getElementById("time_worked").value = time_worked;
-        }
-
-        // Allows manually adjusting the timer
-        function setTime()
-        {
-            var time_as_text = document.getElementById("time_worked").value;
-            const time_text_array = time_as_text.split(":");
-            hours = parseInt(time_text_array[0]);
-            minutes = parseInt(time_text_array[1]);
-            seconds = parseInt(time_text_array[2]);
-        }
-
-        // This function "pads" out the values, adding zeros if they are required
-        function pad(val)
-        {
-            var valString = val + "";
-            if (valString.length < 2)
-            {
-                return "0" + valString;
-            }
-            else
-            {
-                return valString;
-            }
-        }
-    </script>
-
-<?php } ?>
-
 <?php include("footer.php");
 
-// jQuery is called in footer, so this must be below it
 if ($ticket_status !== "Closed") { ?>
-    <script type="text/javascript">
+    <!-- Ticket Time Tracking JS -->
+    <script src="js/ticket_time_tracking.js"></script>
 
-        // Collision detection
-        // Adds a "view" entry of the current ticket every 2 mins into the database
-        // Updates the currently viewing (ticket_collision_viewing) element with anyone that's looked at this ticket in the last two mins
-        function ticket_collision_detection() {
-
-            // Get the page ticket id
-            var ticket_id = document.getElementById("ticket_id").value;
-
-            //Send a GET request to ajax.php as ajax.php?ticket_add_view=true&ticket_id=NUMBER
-            jQuery.get(
-                "ajax.php",
-                {ticket_add_view: 'true', ticket_id: ticket_id},
-                function(data) {
-                    // We don't care about a response
-                }
-            );
-
-            //Send a GET request to ajax.php as ajax.php?ticket_query_views=true&ticket_id=NUMBER
-            jQuery.get(
-                "ajax.php",
-                {ticket_query_views: 'true', ticket_id: ticket_id},
-                function(data) {
-                    //If we get a response from ajax.php, parse it as JSON
-                    const ticket_view_data = JSON.parse(data);
-                    document.getElementById("ticket_collision_viewing").innerText = ticket_view_data.message;
-                }
-            );
-        }
-        // Call on page load
-        ticket_collision_detection();
-
-        // Run every 2 mins
-        setInterval(ticket_collision_detection, 120*1000);
-    </script>
+    <!-- Ticket collision detect JS (jQuery is called in footer, so collision detection script MUST be below it) -->
+    <script src="js/ticket_collision_detection.js"></script>
 <?php } ?>
