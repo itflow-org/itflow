@@ -95,6 +95,7 @@ if(isset($_GET['ticket_id'])){
   }else{
     $ticket_assigned_to_display = htmlentities($row['user_name']);
   }
+
   //Ticket Created By
   $ticket_created_by = $row['ticket_created_by'];
   $ticket_created_by_sql = mysqli_query($mysqli,"SELECT user_name FROM users WHERE user_id = $ticket_created_by");
@@ -107,12 +108,6 @@ if(isset($_GET['ticket_id'])){
   }else{
     $ticket_assigned_to_display = htmlentities($row['user_name']);
   }
-
-//  if($contact_id == $primary_contact){
-//     $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
-//  }else{
-//    $primary_contact_display = "<small class='text-danger'>Needs approval</small>";
-//  }
 
   if($contact_id){
     //Get Contact Ticket Stats
@@ -248,8 +243,6 @@ if(isset($_GET['ticket_id'])){
             </div>
         </div>
 
-        <?php //if(!empty($config_smtp_host) AND !empty($client_email)){ ?>
-
         <div class="col-md-2">
           <div class="form-group">
             <div class="custom-control custom-checkbox">
@@ -258,8 +251,6 @@ if(isset($_GET['ticket_id'])){
             </div>
           </div>
         </div>
-
-        <?php //} ?>
 
         <div class="col-md-2">
           <button type="submit" name="add_ticket_reply" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save & Reply</button>
@@ -391,8 +382,6 @@ if(isset($_GET['ticket_id'])){
         <h4 class="text-secondary">Contact</h4>
         <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $contact_name; ?></strong>
         <br>
-<!--        <i class="fa fa-fw fa-info-circle text-secondary ml-1 mr-2 mb-2"></i>--><?php //echo $primary_contact_display; ?>
-<!--        <br>-->
         <span class="ml-1">Related tickets: Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong></span>
         <hr>
         <?php
@@ -608,7 +597,6 @@ if(isset($_GET['ticket_id'])){
       include("ticket_edit_modal.php");
       include("ticket_merge_modal.php");
       include("ticket_invoice_add_modal.php");
-      //include("ticket_invoice_existing_add_modal.php");
 ?>
 
 <?php
