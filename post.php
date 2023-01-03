@@ -3095,11 +3095,12 @@ if(isset($_POST['edit_recurring'])){
 
     $recurring_id = intval($_POST['recurring_id']);
     $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
+    $next_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['next_date'])));
     $category = intval($_POST['category']);
     $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
     $status = intval($_POST['status']);
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_scope = '$scope', recurring_frequency = '$frequency', recurring_category_id = $category, recurring_status = $status WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_scope = '$scope', recurring_frequency = '$frequency', recurring_next_date = '$next_date', recurring_category_id = $category, recurring_status = $status WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = '$status', history_description = 'Recurring modified', history_recurring_id = $recurring_id, company_id = $session_company_id");
 
@@ -3107,24 +3108,6 @@ if(isset($_POST['edit_recurring'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Modify', log_description = '$recurring_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice modified";
-    
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_POST['edit_recurring_next_date'])){
-
-    $recurring_id = intval($_POST['recurring_id']);
-    $next_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['next_date'])));
-
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_next_date = '$next_date' WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
-
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = '$status', history_description = 'Recurring next date modified', history_recurring_id = $recurring_id, company_id = $session_company_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Modify', log_description = '$recurring_id next date modified', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
-
-    $_SESSION['alert_message'] = "Recurring Invoice next date modified";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

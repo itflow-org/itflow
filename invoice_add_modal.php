@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-file"></i> New Invoice</h5>
+        <h5 class="modal-title"><i class="fa fa-file mr-2"></i>New Invoice</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -54,7 +54,7 @@
             <label>Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
               </div>
               <select class="form-control select2" name="category" required>
                 <option value="">- Category -</option>
@@ -89,8 +89,8 @@
 
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_invoice" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="add_invoice" class="btn btn-primary"><strong><i class="fas fa-check"></i> Create</strong></button>
         </div>
       </form>
     </div>
