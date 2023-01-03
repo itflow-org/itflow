@@ -29,7 +29,7 @@
   <div class="card-body">
     <form autocomplete="off">
       <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){ echo stripslashes(htmlentities($q)); } ?>" placeholder="Search keys">
+        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search keys">
         <div class="input-group-append">
           <button class="btn btn-primary"><i class="fa fa-search"></i></button>
         </div>

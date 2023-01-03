@@ -51,7 +51,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
       <div class="col-sm-4 mb-2">
         <form autocomplete="off">  
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Tags">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Tags">
             <div class="input-group-append">
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>

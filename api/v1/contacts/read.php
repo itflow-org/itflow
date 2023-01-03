@@ -11,7 +11,7 @@ if (isset($_GET['contact_id'])) {
 
 // Specific contact via email (single)
 elseif (isset($_GET['contact_email'])) {
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli, $_GET['contact_email'])));
+    $email = mysqli_real_escape_string($mysqli, $_GET['contact_email']);
     $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' AND contact_client_id LIKE '$client_id' AND company_id = '$company_id'");
 }
 

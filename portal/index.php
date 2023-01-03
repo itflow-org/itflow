@@ -86,11 +86,17 @@ $total_tickets = $row['total_tickets'];
           <tbody>
 
             <?php
-            while ($ticket = mysqli_fetch_array($contact_tickets)) {
+            while ($row = mysqli_fetch_array($contact_tickets)) {
+                $ticket_id = $row['ticket_id'];
+                $ticket_prefix = htmlentities($row['ticket_prefix']);
+                $ticket_number = $row['ticket_number'];
+                $ticket_subject = htmlentities($row['ticket_subject']);
+                $ticket_status = htmlentities($row['ticket_status']);
+
                 echo "<tr>";
-                echo "<td> <a href='ticket.php?id=$ticket[ticket_id]'> $ticket[ticket_prefix]$ticket[ticket_number]</a></td>";
-                echo "<td> <a href='ticket.php?id=$ticket[ticket_id]'> $ticket[ticket_subject]</a></td>";
-                echo "<td>$ticket[ticket_status]</td>";
+                echo "<td> <a href='ticket.php?id=$ticket_id'> $ticket_prefix$ticket_number</a></td>";
+                echo "<td> <a href='ticket.php?id=$ticket_id'> $ticket_subject</a></td>";
+                echo "<td>$ticket_status</td>";
                 echo "</tr>";
             }
             ?>

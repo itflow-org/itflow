@@ -32,7 +32,7 @@ $session_user_id = $_SESSION['user_id'];
 
 $sql = mysqli_query($mysqli,"SELECT * FROM users, user_settings WHERE users.user_id = user_settings.user_id AND users.user_id = $session_user_id");
 $row = mysqli_fetch_array($sql);
-$session_name = $row['user_name'];
+$session_name = mysqli_real_escape_string($mysqli, $row['user_name']);
 $session_email = $row['user_email'];
 $session_avatar = $row['user_avatar'];
 $session_token = $row['user_token'];

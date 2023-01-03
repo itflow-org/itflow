@@ -24,7 +24,7 @@ $user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_
 
 $sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id FROM settings WHERE company_id = '1'");
 $settings = mysqli_fetch_array($sql_settings);
-$client_id = $settings['config_azure_client_id'];
+$azure_client_id = $settings['config_azure_client_id'];
 
 $company_sql = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = '1'");
 $company_results = mysqli_fetch_array($company_sql);
@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             </form>
 
             <?php
-            if (!empty($client_id)) { ?>
+            if (!empty($azure_client_id)) { ?>
                 <hr>
                 <div class="col text-center">
                     <button type="button" class="btn btn-secondary" onclick="location.href = 'login_microsoft.php';">Login with Microsoft Azure AD</button>

@@ -73,10 +73,10 @@ if (isset($api_key)) {
     if (mysqli_num_rows($sql) !== 1) {
         // Invalid Key
         header(WORDING_UNAUTHORIZED);
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired Key', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired key', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
 
         $return_arr['success'] = "False";
-        $return_arr['message'] = "API Key authentication failure or expired.";
+        $return_arr['message'] = "Authentication failed. API key is invalid or has expired.";
 
         header(WORDING_UNAUTHORIZED);
         echo json_encode($return_arr);
@@ -88,7 +88,7 @@ if (isset($api_key)) {
 
         // Set client ID, company ID & key name
         $row = mysqli_fetch_array($sql);
-        $api_key_name = $row['api_key_name'];
+        $api_key_name = htmlentities($row['api_key_name']);
         $client_id = $row['api_key_client_id'];
         $company_id = $row['company_id'];
 

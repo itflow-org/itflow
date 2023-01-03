@@ -110,7 +110,7 @@ if (isset($_GET['merge_ticket_get_json_details'])) {
 
     $merge_into_ticket_number = intval($_GET['merge_into_ticket_number']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM tickets
+    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_number, ticket_prefix, ticket_subject, ticket_priority, ticket_status, client_name, contact_name FROM tickets
       LEFT JOIN clients ON ticket_client_id = client_id 
       LEFT JOIN contacts ON ticket_contact_id = contact_id
       WHERE ticket_number = '$merge_into_ticket_number' AND tickets.company_id = '$session_company_id'");
@@ -120,7 +120,8 @@ if (isset($_GET['merge_ticket_get_json_details'])) {
     } else {
         //Return ticket, client and contact details for the given ticket number
         $response = mysqli_fetch_array($sql);
-        echo json_encode($response);
+        $response = array_map('htmlentities', $response);
+        echo json_encode( $response);
     }
 }
 
@@ -190,10 +191,10 @@ if (isset($_GET['ticket_query_views'])) {
         $users = array_unique($users);
         if (count($users) > 1) {
             // Multiple viewers
-            $response['message'] = implode(", ", $users) . " are viewing this ticket.";
+            $response['message'] = htmlentities(implode(", ", $users) . " are viewing this ticket.");
         } else {
             // Single viewer
-            $response['message'] = implode("", $users) . " is viewing this ticket.";
+            $response['message'] = htmlentities(implode("", $users) . " is viewing this ticket.");
         }
     } else {
         // No viewers
@@ -221,19 +222,19 @@ if (isset($_GET['share_generate_link'])) {
 
     if ($item_type == "Document") {
         $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = '$item_id' AND document_client_id = '$client_id' LIMIT 1"));
-        $item_name = $row['document_name'];
+        $item_name = strip_tags(mysqli_real_escape_string($mysqli, $row['document_name']));
     }
 
     if ($item_type == "File") {
         $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = '$item_id' AND file_client_id = '$client_id' LIMIT 1"));
-        $item_name = $row['file_name'];
+        $item_name = strip_tags(mysqli_real_escape_string($mysqli, $row['file_name']));
     }
 
     if ($item_type == "Login") {
         $login = mysqli_query($mysqli, "SELECT login_name, login_password FROM logins WHERE login_id = '$item_id' AND login_client_id = '$client_id' LIMIT 1");
         $row = mysqli_fetch_array($login);
 
-        $item_name = $row['login_name'];
+        $item_name = strip_tags(mysqli_real_escape_string($mysqli, $row['login_name']));
 
         // Decrypt & re-encrypt password for sharing
         $login_password_cleartext = decryptLoginEntry($row['login_password']);

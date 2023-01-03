@@ -65,7 +65,7 @@ $key = bin2hex(random_bytes(78));
                 $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
                 while($row = mysqli_fetch_array($sql)){
                   $client_id = $row['client_id'];
-                  $client_name = $row['client_name'];
+                  $client_name = htmlentities($row['client_name']);
                   ?>
                   <option value="<?php echo $client_id; ?>"><?php echo "$client_name  (Client ID: $client_id)"; ?></option>
 

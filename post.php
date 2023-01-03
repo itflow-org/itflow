@@ -53,7 +53,7 @@ if(isset($_POST['add_user'])){
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $user_specific_encryption_ciphertext = encryptUserSpecificKey($_POST['password']); //TODO: Consider this users role - if they don't need access to logins, potentially don't set this -- just know it's a pain to add afterwards (you'd need to reset their password).
+    $user_specific_encryption_ciphertext = encryptUserSpecificKey($_POST['password']);
     $default_company = intval($_POST['default_company']);
     $role = intval($_POST['role']);
 
@@ -115,10 +115,10 @@ if(isset($_POST['add_user'])){
     mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $default_company");
 
     // Send user e-mail, if specified
-    if(isset($_POST['send_email']) && !empty($config_smtp_host)){
+    if(isset($_POST['send_email']) && !empty($config_smtp_host) && filter_var($email, FILTER_VALIDATE_EMAIL)){
 
         $subject = "Your new $session_company_name ITFlow account";
-        $body = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: $config_base_url<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+        $body = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: https://$config_base_url<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
 
         $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
           $config_ticket_from_email, $config_ticket_from_name,
@@ -144,13 +144,6 @@ if(isset($_POST['add_user'])){
 if(isset($_POST['edit_user'])){
 
     validateAdminRole();
-
-    if($session_user_role != 3 && $_POST['user_id'] !== $session_user_id){
-      $_SESSION['alert_type'] = "error";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
 
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
@@ -246,17 +239,10 @@ if(isset($_POST['edit_user'])){
 
 if(isset($_POST['edit_profile'])){
 
-    if($session_user_role != 3 && $_POST['user_id'] !== $session_user_id){
-      $_SESSION['alert_type'] = "error";
-      $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
-    }
-
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
 
-    $user_id = intval($_POST['user_id']);
+    $user_id = $session_user_id;
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $new_password = trim($_POST['new_password']);
@@ -741,9 +727,6 @@ if(isset($_GET['delete_company'])){
     mysqli_query($mysqli,"DELETE FROM tickets WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM ticket_replies WHERE company_id = $company_id");
     
-    // TODO ticket views is missing company_id
-    // mysqli_query($mysqli,"DELETE FROM ticket_views WHERE company_id = $company_id");
-    
     mysqli_query($mysqli,"DELETE FROM transfers WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM trips WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM user_companies WHERE company_id = $company_id");
@@ -1047,6 +1030,9 @@ if(isset($_POST['edit_module_settings'])){
 
 if(isset($_POST['enable_2fa'])){
 
+    // CSRF Check
+    validateCSRFToken($_POST['csrf_token']);
+
     $token = mysqli_real_escape_string($mysqli,$_POST['token']);
 
     mysqli_query($mysqli,"UPDATE users SET user_token = '$token' WHERE user_id = $session_user_id");
@@ -1061,6 +1047,9 @@ if(isset($_POST['enable_2fa'])){
 }
 
 if(isset($_POST['disable_2fa'])){
+
+    // CSRF Check
+    validateCSRFToken($_POST['csrf_token']);
 
     mysqli_query($mysqli,"UPDATE users SET user_token = '' WHERE user_id = $session_user_id");
 
@@ -1155,6 +1144,7 @@ if(isset($_GET['download_database'])){
 
 if(isset($_POST['backup_master_key'])){
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $password = $_POST['password'];
@@ -1367,7 +1357,7 @@ if(isset($_POST['edit_client'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modify', log_description = '$session_name modified client $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Client <strong>".stripslashes($client_name)."</strong> updated";
+    $_SESSION['alert_message'] = "Client <strong>".htmlentities($client_name)."</strong> updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -1389,7 +1379,7 @@ if(isset($_GET['archive_client'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Archive', log_description = '$session_name archived client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Client ".stripslashes($client_name)." archive. <a href='post.php?undo_archive_client=$client_id'>Undo</a>";
+    $_SESSION['alert_message'] = "Client ".htmlentities($client_name)." archived. <a href='post.php?undo_archive_client=$client_id'>Undo</a>";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -1408,7 +1398,7 @@ if(isset($_GET['undo_archive_client'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Undo Archive', log_description = '$session_name unarchived client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Client ".stripslashes($client_name)." unarchived.";
+    $_SESSION['alert_message'] = "Client ".htmlentities($client_name)." unarchived.";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -4009,7 +3999,7 @@ if(isset($_GET['archive_contact'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Contact ".stripslashes($contact_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
+    $_SESSION['alert_message'] = "Contact ".htmlentities($contact_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -4407,7 +4397,7 @@ if(isset($_GET['archive_location'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Archive', log_description = '$session_name archived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Location ".stripslashes($location_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
+    $_SESSION['alert_message'] = "Location ".htmlentities($location_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -4428,7 +4418,7 @@ if(isset($_GET['undo_archive_location'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Undo Archive', log_description = '$session_name unarchived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Location ".stripslashes($location_name)." unarchived.";
+    $_SESSION['alert_message'] = "Location ".htmlentities($location_name)." unarchived.";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }

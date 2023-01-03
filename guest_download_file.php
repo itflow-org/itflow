@@ -44,7 +44,7 @@ if(isset($_GET['id']) && isset($_GET['key'])){
         exit("No file.");
     }
 
-    $file_name = $file_row['file_name'];
+    $file_name = strip_tags(mysqli_real_escape_string($mysqli, $file_row['file_name']));
     $file_ext = $file_row['file_ext'];
     $file_reference_name = $file_row['file_reference_name'];
     $client_id = $file_row['file_client_id'];
@@ -54,7 +54,7 @@ if(isset($_GET['id']) && isset($_GET['key'])){
     // Display file as download
     $mime_type = mime_content_type($file_path);
     header('Content-type: '.$mime_type);
-    header('Content-Disposition: attachment; filename=download.' .$file_ext);
+    header('Content-Disposition: attachment; filename=download.' . $file_ext);
     readfile($file_path);
 
     // Update file view count
@@ -62,7 +62,7 @@ if(isset($_GET['id']) && isset($_GET['key'])){
     mysqli_query($mysqli, "UPDATE shared_items SET item_views = '$new_item_views' WHERE item_id = '$item_id'");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Downloaded shared file via link - Item ID: $item_id', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Downloaded shared file $file_name via link', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
 
 
 }

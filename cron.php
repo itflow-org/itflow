@@ -1,5 +1,5 @@
-<?php include("config.php"); ?>
-<?php include("functions.php"); ?>
+<?php require_once("config.php"); ?>
+<?php require_once("functions.php"); ?>
 <?php
 
 ?>
@@ -58,10 +58,10 @@ while($row = mysqli_fetch_array($sql_companies)){
 
       while($row = mysqli_fetch_array($sql)){
         $domain_id = $row['domain_id'];
-        $domain_name = $row['domain_name'];
+        $domain_name = mysqli_real_escape_string($mysqli,$row['domain_name']);
         $domain_expire = $row['domain_expire'];
         $client_id = $row['client_id'];
-        $client_name = $row['client_name'];
+        $client_name = mysqli_real_escape_string($mysqli,$row['client_name']);
 
         mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Domain', notification = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
@@ -75,7 +75,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
     foreach($certificateAlertArray as $day){
 
-      //Get Domains Expiring
+      //Get Certs Expiring
       $sql = mysqli_query($mysqli,"SELECT * FROM certificates
         LEFT JOIN clients ON certificate_client_id = client_id 
         WHERE certificate_expire = CURDATE() + INTERVAL $day DAY
@@ -84,11 +84,11 @@ while($row = mysqli_fetch_array($sql_companies)){
 
       while($row = mysqli_fetch_array($sql)){
         $certificate_id = $row['certificate_id'];
-        $certificate_name = $row['certificate_name'];
+        $certificate_name = mysqli_real_escape_string($mysqli,$row['certificate_name']);
         $certificate_domain = $row['certificate_domain'];
         $certificate_expire = $row['certificate_expire'];
         $client_id = $row['client_id'];
-        $client_name = $row['client_name'];
+        $client_name = mysqli_real_escape_string($mysqli,$row['client_name']);
 
         mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Certificate', notification = 'Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
@@ -111,10 +111,10 @@ while($row = mysqli_fetch_array($sql_companies)){
 
       while($row = mysqli_fetch_array($sql)){
         $asset_id = $row['asset_id'];
-        $asset_name = $row['asset_name'];
+        $asset_name = mysqli_real_escape_string($mysqli,$row['asset_name']);
         $asset_warranty_expire = $row['asset_warranty_expire'];
         $client_id = $row['client_id'];
-        $client_name = $row['client_name'];
+        $client_name = mysqli_real_escape_string($mysqli,$row['client_name']);
 
         mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Asset', notification = 'Asset $asset_name warranty for $client_name will expire in $day Days on $asset_warranty_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
@@ -134,8 +134,8 @@ while($row = mysqli_fetch_array($sql_companies)){
     if(mysqli_num_rows($sql_scheduled_tickets) > 0){
       while($row = mysqli_fetch_array($sql_scheduled_tickets)){
         $schedule_id = $row['scheduled_ticket_id'];
-        $subject = $row['scheduled_ticket_subject'];
-        $details = $row['scheduled_ticket_details'];
+        $subject = mysqli_real_escape_string($mysqli,$row['scheduled_ticket_subject']);
+        $details = mysqli_real_escape_string($mysqli,$row['scheduled_ticket_details']);
         $priority = $row['scheduled_ticket_priority'];
         $frequency = strtolower($row['scheduled_ticket_frequency']);
         $created_id = $row['scheduled_ticket_created_by'];
@@ -225,7 +225,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         $invoice_amount = $row['invoice_amount'];
         $invoice_currency_code = $row['invoice_currency_code'];
         $client_id = $row['client_id'];
-        $client_name = $row['client_name'];
+        $client_name = mysqli_real_escape_string($mysqli,$row['client_name']);
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
 

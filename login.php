@@ -59,12 +59,12 @@ if(isset($_POST['login'])){
 
             // User variables
             $token = $row['user_token'];
-            $user_name = $row['user_name'];
+            $user_name = strip_tags(mysqli_real_escape_string($mysqli, $row['user_name']));
             $user_id = $row['user_id'];
 
             // Session info
-            $_SESSION['user_id'] = $row['user_id'];
-            $_SESSION['user_name'] = $row['user_name'];
+            $_SESSION['user_id'] = $user_id;
+            $_SESSION['user_name'] = $user_name;
             $_SESSION['user_role'] = $row['user_role'];
             $_SESSION['csrf_token'] = bin2hex(random_bytes(78));
 
