@@ -88,9 +88,10 @@
               ORDER BY log_id DESC LIMIT 1"
             );
             $row = mysqli_fetch_array($sql_last_login);
-            $log_created_at = $row['log_created_at'];
-            $log_ip = htmlentities($row['log_ip']);
-            $log_user_agent = htmlentities($row['log_user_agent']);
+            $log_created_at = empty($row['log_created_at']) ? date('Y - m - d h:i:s') : $row['log_created_at'];
+            $log_ip = empty(($row['log_ip'])) ? '' : htmlentities($row['log_ip']);
+            $log_user_agent = empty(($row['log_user_agent'])) ? '' : $row['log_user_agent'];
+
 
             $last_login = "$log_ip - $log_user_agent";
             if(empty($last_login)){
