@@ -92,7 +92,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
                 $payment_amount_for_month = $row['payment_amount_for_month'];
 
                 //Revenues
-                $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
+                $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
                 $row = mysqli_fetch_array($sql_revenues);
                 $revenues_amount_for_month = $row['revenue_amount_for_month'];
 
