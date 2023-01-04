@@ -37,6 +37,7 @@ services:
       - ITFLOW_URL=it.$ROOT_DOMAIN
       - ITFLOW_PORT=8080
       - ITFLOW_REPO=github.com/itflow-org/itflow
+      - ITFLOW_REPO_BRANCH=master
       - ITFLOW_LOG_LEVEL=info
       - ITFLOW_DB_HOST=itflow-db
       - ITFLOW_DB_PASS=$ITFLOW_DB_PASS

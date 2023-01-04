@@ -13,6 +13,8 @@ ENV ITFLOW_PORT 8080
 
 ENV ITFLOW_REPO github.com/itflow-org/itflow
 
+ENV ITFLOW_REPO_BRANCH master
+
 # apache2 log levels: emerg, alert, crit, error, warn, notice, info, debug
 ENV ITFLOW_LOG_LEVEL warn
 

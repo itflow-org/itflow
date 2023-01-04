@@ -20,7 +20,7 @@ if [[ -f /var/www/html/index.php ]]; then
     cd /var/www/html
     git fetch
 else
-    git clone https://$ITFLOW_REPO /var/www/html
+    git clone --branch $ITFLOW_REPO_BRANCH https://$ITFLOW_REPO /var/www/html
 fi
 
 git config --global --add safe.directory /var/www/html
