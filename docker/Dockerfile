@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-LABEL dockerfile.version="v1.1" dockerfile.release-date="2023-01-03"
+LABEL dockerfile.version="v1.2" dockerfile.release-date="2023-01-04"
 
 # Set up ENVs that will be utilized in compose file.
 ENV TZ Etc/UTC

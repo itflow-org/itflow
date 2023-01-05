@@ -6,7 +6,7 @@ include("database_version.php");
 <?php
 
 //fetch the latest code changes but don't apply them\
-$repo_branch = "master";
+$repo_branch = 'master';
 exec("git fetch", $output, $result);
 $latest_version = exec("git rev-parse origin/$repo_branch");
 $current_version = exec("git rev-parse HEAD");
