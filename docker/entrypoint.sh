@@ -49,7 +49,7 @@ else
     chmod -R 777 /var/www/html
 fi
 
-if [[-f /var/www/html/settings_update.php ]]; then 
+if [[ -f /var/www/html/settings_update.php ]]; then 
     sed -i "s/\$repo_branch.*';/\$repo_branch = '$ITFLOW_REPO_BRANCH';/g" /var/www/html/settings_update.php
 fi
 
