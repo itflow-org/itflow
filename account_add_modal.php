@@ -52,8 +52,8 @@
         
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_account" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="add_account" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Create</button>
         </div>
       </form>
     </div>

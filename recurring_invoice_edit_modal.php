@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-sync-alt"></i> <?php echo "$recurring_prefix$recurring_number"; ?></h5>
+        <h5 class="modal-title"><i class="fas fa-sync-alt mr-2"></i><?php echo "$recurring_prefix$recurring_number"; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>

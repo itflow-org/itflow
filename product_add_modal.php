@@ -9,9 +9,15 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
+          
           <div class="form-group">
             <label>Name <strong class="text-danger">*</strong></label>
-            <input type="text" class="form-control" name="name" placeholder="Product name" required autofocus>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-fw fa-box"></i></span>
+              </div>
+              <input type="text" class="form-control" name="name" placeholder="Product name" required autofocus>
+            </div>
           </div>
           
           <div class="form-group">
@@ -21,7 +27,7 @@
                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
               </div>
               <select class="form-control select2" name="category" required>
-                <option value="">- Category -</option>
+                <option value="">- Select Category -</option>
                 <?php 
                 
                 $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL AND company_id = $session_company_id"); 
@@ -40,41 +46,51 @@
               </div>
             </div>
           </div>
+          
+          <div class="form-row">
+            <div class="col">
+              <div class="form-group">
+                <label>Price <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                  </div>
+                  <input type="number" step="0.01" min="0" class="form-control" name="price" placeholder="Price" required>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col">
+              <div class="form-group">
+                <label>Tax</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+                  </div>
+                  <select class="form-control select2" name="tax">
+                    <option value="0">None</option>
+                    <?php 
+                    
+                    $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_archived_at IS NULL AND company_id = $session_company_id ORDER BY tax_name ASC"); 
+                    while($row = mysqli_fetch_array($taxes_sql)){
+                      $tax_id = $row['tax_id'];
+                      $tax_name = htmlentities($row['tax_name']);
+                      $tax_percent = htmlentities($row['tax_percent']);
+                    ?>
+                      <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                    
+                    <?php
+                    }
+                    ?>
+                  </select>        
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" name="description" placeholder="Product description"></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label>Price <strong class="text-danger">*</strong></label>
-            <input type="number" step="0.01" min="0" class="form-control" name="price" placeholder="Price" required>
-          </div>
-
-          <div class="form-group">
-            <label>Tax</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-              </div>
-              <select class="form-control select2" name="tax">
-                <option value="0">None</option>
-                <?php 
-                
-                $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_archived_at IS NULL AND company_id = $session_company_id ORDER BY tax_name ASC"); 
-                while($row = mysqli_fetch_array($taxes_sql)){
-                  $tax_id = $row['tax_id'];
-                  $tax_name = htmlentities($row['tax_name']);
-                  $tax_percent = htmlentities($row['tax_percent']);
-                ?>
-                  <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
-                
-                <?php
-                }
-                ?>
-              </select>
-              
-            </div>
+            <textarea class="form-control" rows="8" name="description" placeholder="Product description"></textarea>
           </div>
         
         </div>

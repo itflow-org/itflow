@@ -124,7 +124,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           ?>
 
           <tr>
-            <td>
+            <th>
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?><a>
               <?php
               if(!empty($vendor_account_number)){
@@ -135,7 +135,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               }
               ?>
 
-            </td>
+            </th>
             <td><?php echo $vendor_description_display; ?></td>
             <td>
               <?php
