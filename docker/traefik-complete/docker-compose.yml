@@ -1,0 +1,190 @@
+version: "3.9"
+########################### NETWORKS
+
+networks:
+  wan:
+    name: wan
+    driver: bridge
+        
+  dockersocket:
+    name: dockersocket
+
+  itflow-db:
+    name: itflow-db
+    external: false
+
+########################### VOLUMES
+
+volumes:
+  traefik-acme:
+  itflow-db:
+
+########################### DOCKER / TRAEFIK
+
+services:
+  traefik: # Reverse Proxy & Router
+    image: traefik
+    hostname: traefik
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - --global.sendAnonymousUsage=false
+      - --entryPoints.web.address=:80
+      - --entryPoints.websecure.address=:443
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      # Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
+      - --entrypoints.websecure.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,172.64.0.0/13,131.0.72.0/22
+      - --api=true
+      - --log=true
+      - --log.level=DEBUG # DEBUG, INFO, WARN, ERROR, FATAL, PANIC
+      - --providers.docker
+      - --providers.docker.endpoint=tcp://docker_proxy:2375 #unix:///var/run/docker.sock
+      - --providers.docker.defaultrule=Host(`{{ index .Labels "com.docker.compose.service" }}`)
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.network=wan
+      - --providers.docker.swarmMode=false
+      # Test acme resolution through LetsEncrypt's acme-staging-v02 URL to avoid blacklisting your IP.
+      # When ready, uncomment the line below and comment out the "acme-staging-v02" URL and uncomment the "acme-v02" URL.
+      #- --certificatesResolvers.dns-cloudflare.acme.caServer=https://acme-v02.api.letsencrypt.org/directory
+      - --certificatesResolvers.dns-cloudflare.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+      - --certificatesResolvers.dns-cloudflare.acme.email=$CLOUDFLARE_EMAIL
+      - --certificatesResolvers.dns-cloudflare.acme.storage=/acme/acme.json
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.provider=cloudflare
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.delayBeforeCheck=90
+      - --providers.file.directory=/dynamic-conf # Load dynamic configuration from one or more .toml or .yml files in a directory.
+      - --providers.file.watch=true # Only works on top level files in the rules folder
+    networks:
+      - wan
+      - dockersocket
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - traefik-acme:/acme
+      - ${DOCKERDIR}/traefik:/dynamic-conf
+    environment:
+      - CF_API_EMAIL=$CLOUDFLARE_EMAIL
+      - CF_API_KEY=$CLOUDFLARE_API_KEY
+      - TZ=$TZ
+    labels:
+      - "traefik.enable=true"
+      # Middleware Rules
+      # # Basic Authentication - https://doc.traefik.io/traefik/middlewares/http/basicauth/
+      # - "traefik.http.middlewares.basic-auth.basicAuth.realm=Traefik Basic Authentication"
+      # - "traefik.http.middlewares.basic-auth.basicAuth.users=admin:$$2y$$05$$so1Qmqxf8H6iA19nmqQX1usVZblGrKBM9w3SDEqS1WmEiYUqF3mT2"
+      # # Rate Limit
+      - "traefik.http.middlewares.rate-limit.rateLimit.average=100"
+      - "traefik.http.middlewares.rate-limit.rateLimit.burst=50"      # # Secure Headers
+      - "traefik.http.middlewares.secure-headers.headers.framedeny=false"
+      - "traefik.http.middlewares.secure-headers.headers.stsincludesubdomains=true"
+      - "traefik.http.middlewares.secure-headers.headers.stspreload=true"
+      - "traefik.http.middlewares.secure-headers.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.secure-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.secure-headers.headers.stsseconds=63072000"
+      - "traefik.http.middlewares.secure-headers.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.secure-headers.headers.contenttypenosniff=true"
+      - "traefik.http.middlewares.secure-headers.headers.accesscontrolallowmethods=GET,POST,PUT,OPTIONS"
+      - "traefik.http.middlewares.secure-headers.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.secure-headers.headers.addvaryheader=true"
+      #- "traefik.http.middlewares.secure-headers.headers.contentsecuritypolicy=script-src 'self'"
+      - "traefik.http.middlewares.secure-headers.headers.referrerpolicy=origin-when-cross-origin"
+      #- "traefik.http.middlewares.secure-headers.headers.customResponseHeaders=none,noarchive,nosnippet,notranslate,noimageindex"
+      - "traefik.http.middlewares.secure-headers.headers.hostsProxyHeaders=X-Forwarded-Host"
+      # Middleware Chains
+      - "traefik.http.middlewares.chain-no-auth.chain.middlewares=rate-limit,secure-headers"
+      #- "traefik.http.middlewares.chain-basic-auth.chain.middlewares=rate-limit,secure-headers,basic-auth"
+      # Services - API
+      - "traefik.http.routers.traefik-rtr.service=api@internal"
+      # HTTP Routers
+      - "traefik.http.routers.traefik-rtr.entrypoints=websecure"      
+      - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$ROOT_DOMAIN`)"
+      - "traefik.http.routers.traefik-rtr.tls=true"
+      # Setting TLS to $DOMAIN#
+      - "traefik.http.routers.traefik-rtr.tls.certResolver=dns-cloudflare"
+      - "traefik.http.routers.traefik-rtr.tls.domains[0].main=$ROOT_DOMAIN"
+      - "traefik.http.routers.traefik-rtr.tls.domains[0].sans=*.$ROOT_DOMAIN"
+
+  watchtower:
+    image: containrrr/watchtower
+    hostname: watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    networks:
+      - dockersocket
+    environment:
+      DOCKER_HOST: tcp://docker_proxy:2375
+
+  docker_proxy:
+    image: tecnativa/docker-socket-proxy
+    hostname: docker_proxy
+    container_name: docker_proxy
+    restart: unless-stopped
+    networks:
+      - dockersocket
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      CONTAINERS: 1
+      NETWORKS: 1
+      SERVICES: 1
+      INFO: 1
+      IMAGES: 1
+      VOLUMES: 1
+      POST: 1
+
+########################### ITFLOW
+
+  itflow:
+    hostname: itflow
+    container_name: itflow
+    image: lued/itflow
+    # build: ../.
+    restart: unless-stopped
+    depends_on: 
+      - itflow-db
+    networks:
+      - wan
+      - itflow-db
+    environment:
+      - TZ=$TZ
+      - ITFLOW_NAME=ITFlow
+      - ITFLOW_URL=$ITFLOW_URL
+      - ITFLOW_PORT=8080
+      - ITFLOW_REPO=github.com/itflow-org/itflow
+      - ITFLOW_REPO_BRANCH=master
+      - ITFLOW_LOG_LEVEL=info
+      - ITFLOW_DB_HOST=itflow-db
+      - ITFLOW_DB_PASS=$ITFLOW_DB_PASS
+    volumes:
+      - ${DOCKERDIR}/itflow/:/var/www/html
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.itflow-rtr.entrypoints=websecure"
+      - "traefik.http.routers.itflow-rtr.tls=true"
+      - "traefik.http.routers.itflow-rtr.rule=Host(`$ITFLOW_URL`)"
+      ## Middlewares
+      - "traefik.http.routers.itflow-rtr.middlewares=chain-no-auth@docker"
+      ## HTTP Services
+      - "traefik.http.routers.itflow-rtr.service=itflow-svc"
+      - "traefik.http.services.itflow-svc.loadbalancer.server.port=8080"
+
+  itflow-db:
+    hostname: itflow-db
+    container_name: itflow-db
+    image: mariadb:10.6.11
+    restart: always
+    networks:
+      - itflow-db
+    environment:
+      - TZ=$TZ
+      - MARIADB_RANDOM_ROOT_PASSWORD=true
+      - MARIADB_DATABASE=itflow
+      - MARIADB_USER=itflow
+      - MARIADB_PASSWORD=$ITFLOW_DB_PASS
+    volumes:
+      - itflow-db:/var/lib/mysql/

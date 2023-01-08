@@ -5,9 +5,10 @@ include("database_version.php");
 
 <?php
 
-//fetch the latest code changes but don't apply them
+//fetch the latest code changes but don't apply them\
+$repo_branch = 'master';
 exec("git fetch", $output, $result);
-$latest_version = exec("gitrev-parse origin/master");
+$latest_version = exec("git rev-parse origin/$repo_branch");
 $current_version = exec("git rev-parse HEAD");
 
 if($current_version == $latest_version){
@@ -16,7 +17,7 @@ if($current_version == $latest_version){
   $update_message = "New Updates are Available [$latest_version]";
 }
 
-$git_log = shell_exec("git log master..origin/master --pretty=format:'<tr><td>%h</td><td>%ar</td><td>%s</td></tr>'");
+$git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format:'<tr><td>%h</td><td>%ar</td><td>%s</td></tr>'");
 
 ?>
 

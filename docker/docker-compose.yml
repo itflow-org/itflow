@@ -1,0 +1,60 @@
+version: "3.9"
+########################### NETWORKS
+
+networks:
+  wan:
+    name: wan
+    driver: bridge
+      
+  itflow-db:
+    name: itflow-db
+    external: false
+
+########################### VOLUMES
+
+volumes:
+  itflow-db:
+
+########################### ITFLOW
+services:
+  itflow:
+    hostname: itflow
+    container_name: itflow
+    # Comment out build for docker.io image
+    image: lued/itflow
+    # build: .
+    restart: unless-stopped
+    depends_on: 
+      - itflow-db
+    networks:
+      - wan
+      - itflow-db
+    ports:
+      - "80:8080"
+    environment:
+      - TZ=$TZ
+      - ITFLOW_NAME=ITFlow
+      - ITFLOW_URL=it.$ROOT_DOMAIN
+      - ITFLOW_PORT=8080
+      - ITFLOW_REPO=github.com/itflow-org/itflow
+      - ITFLOW_REPO_BRANCH=master
+      - ITFLOW_LOG_LEVEL=info
+      - ITFLOW_DB_HOST=itflow-db
+      - ITFLOW_DB_PASS=$ITFLOW_DB_PASS
+    volumes:
+      - ./itflow/:/var/www/html
+
+  itflow-db:
+    hostname: itflow-db
+    container_name: itflow-db
+    image: mariadb:10.6.11
+    restart: always
+    networks:
+      - itflow-db
+    environment:
+      - MARIADB_RANDOM_ROOT_PASSWORD=true
+      - MARIADB_DATABASE=itflow
+      - MARIADB_USER=itflow
+      - MARIADB_PASSWORD=$ITFLOW_DB_PASS
+    volumes:
+      - itflow-db:/var/lib/mysql/
