@@ -55,7 +55,10 @@ if(isset($_POST['login'])){
         }
 
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_email = '$email' AND user_archived_at IS NULL"));
-        if (password_verify($password, $row['user_password'])) {
+        
+        if ($row) {
+        
+        if (password_verify($password, $row['user_password'])) 
 
             // User variables
             $token = $row['user_token'];
