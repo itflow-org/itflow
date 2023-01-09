@@ -89,6 +89,20 @@ if(isset($_GET['client_id'])){
 
     $balance = $invoice_amounts - $amount_paid;
 
+    //Get Monthly Recurring Total
+    $sql_recurring_monthly_total = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND recurring_client_id = $client_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql_recurring_monthly_total);
+    
+    $recurring_monthly_total = $row['recurring_monthly_total'];
+
+    //Get Yearly Recurring Total
+    $sql_recurring_yearly_total = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND recurring_client_id = $client_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql_recurring_yearly_total);
+    
+    $recurring_yearly_total = $row['recurring_yearly_total'] / 12;
+
+    $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
+
     //Badge Counts
 
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('contact_id') AS num FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id"));
