@@ -56,7 +56,7 @@ $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $s
             ?>
             <tr>
               <th>Total</th>
-              <td class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_total, $session_company_currency); ?></td>
+              <th class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_total, $session_company_currency); ?></th>
             </tr>
         </tbody>
       </table>
