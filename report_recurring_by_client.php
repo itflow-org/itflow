@@ -14,7 +14,7 @@ $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $s
   </div>
   <div class="card-body">
     <div class="table-responsive">
-      <table class="table table-striped">
+      <table class="table table-striped table-sm">
         <thead>
           <tr>
             <th>Client</th>
