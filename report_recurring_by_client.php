@@ -40,6 +40,7 @@ $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $s
             $recurring_yearly_total = $row['recurring_yearly_total'] / 12;
 
             $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
+            $recurring_total = $recurring_total + $recurring_monthly;
 
             if($recurring_monthly > 0){
 
@@ -53,6 +54,10 @@ $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $s
               } 
             }
             ?>
+            <tr>
+              <th>Total</th>
+              <td class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_total, $session_company_currency); ?></td>
+            </tr>
         </tbody>
       </table>
     </div>
