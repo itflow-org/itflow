@@ -799,6 +799,7 @@ if(isset($_POST['add_database'])){
   $new_config[] = "\$config_app_name = 'ITFlow';\n";
   $new_config[] = sprintf("\$config_base_url = '%s';\n", addslashes($config_base_url));
   $new_config[] = "\$config_https_only = TRUE;\n";
+  $new_config[] = "\$repo_branch = 'master';\n";
 
   file_put_contents("config.php", $new_config);
 
