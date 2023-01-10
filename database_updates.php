@@ -392,11 +392,32 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.3'");
   }
 
-  //if(CURRENT_DATABASE_VERSION == '0.2.3'){
-  // Insert queries here required to update to DB version 0.2.4
+  if(CURRENT_DATABASE_VERSION == '0.2.3'){
+  
+  //Create New interfaces Table
+  mysqli_query($mysqli, "CREATE TABLE `interfaces` (`interface_id` int(11) AUTO_INCREMENT PRIMARY KEY,
+    `interface_number` int(11) NULL DEFAULT NULL,
+    `interface_description` varchar(200) NULL DEFAULT NULL,
+    `interface_connected_asset` varchar(200) NULL DEFAULT NULL, 
+    `interface_ip` varchar(200) NULL DEFAULT NULL,
+    `interface_created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+    `interface_updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP,
+    `interface_archived_at` datetime NULL DEFAULT NULL,
+    `interface_connected_asset_id` int(11) NOT NULL DEFAULT 0,
+    `interface_network_id` int(11) NOT NULL DEFAULT 0,
+    `interface_asset_id` int(11) NOT NULL,
+    `company_id` int(11) NOT NULL
+  )");
+
+  mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.4'");
+  
+  }
+
+  //if(CURRENT_DATABASE_VERSION == '0.2.4'){
+  // Insert queries here required to update to DB version 0.2.5
 
   // Then, update the database to the next sequential version
-  // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.4'");
+  // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.5'");
   //}
 
 
