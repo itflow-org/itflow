@@ -87,6 +87,7 @@ $location_phone = formatPhoneNumber($location_phone);
         <h4 class="text-secondary">Billing</h4>
         <h6 class="ml-1 text-secondary">Paid <div class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $amount_paid, $client_currency_code); ?></div></h6>
         <h6 class="ml-1 text-secondary">Balance <div class="<?php if($balance > 0){ echo "text-danger"; }else{ echo "text-dark"; } ?> float-right"> <?php echo numfmt_format_currency($currency_format, $balance, $client_currency_code); ?></div></h6>
+        <h6 class="ml-1 text-secondary">Monthly Recurring <div class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $client_currency_code); ?></div></h6>
         <h6 class="ml-1 text-secondary">Net Terms <div class="text-dark float-right"><?php echo $client_net_terms; ?> <small class="text-secondary">Days</small></div></h6>
       </div>
       <?php } ?>

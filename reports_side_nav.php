@@ -31,6 +31,12 @@
           </a>
         </li>
         <li class="nav-item">
+          <a href="report_recurring_by_client.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_recurring_by_client.php") { echo "active"; } ?>">
+            <i class="fa fa-sync nav-icon"></i>
+            <p>Recurring Income By Client</p>
+          </a>
+        </li>
+        <li class="nav-item">
           <a href="report_expense_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_expense_summary.php") { echo "active"; } ?>">
             <i class="far fa-credit-card nav-icon"></i>
             <p>Expense</p>

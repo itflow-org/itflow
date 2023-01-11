@@ -503,6 +503,30 @@ CREATE TABLE `history` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `interfaces`
+--
+
+DROP TABLE IF EXISTS `interfaces`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `interfaces` (
+  `interface_id` int(11) NOT NULL AUTO_INCREMENT,
+  `interface_number` int(11) DEFAULT NULL,
+  `interface_description` varchar(200) DEFAULT NULL,
+  `interface_connected_asset` varchar(200) DEFAULT NULL,
+  `interface_ip` varchar(200) DEFAULT NULL,
+  `interface_created_at` datetime DEFAULT current_timestamp(),
+  `interface_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `interface_archived_at` datetime DEFAULT NULL,
+  `interface_connected_asset_id` int(11) NOT NULL DEFAULT 0,
+  `interface_network_id` int(11) NOT NULL DEFAULT 0,
+  `interface_asset_id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`interface_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `invoice_items`
 --
 
@@ -1498,4 +1522,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-12-19 11:42:40
+-- Dump completed on 2023-01-09 19:14:30
