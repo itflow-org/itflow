@@ -41,6 +41,8 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 
   </div>
 
+
+<?php if(mysqli_num_rows($sql_contacts) > 0 || mysqli_num_rows($sql_vendors) > 0 ){ ?>
   <div class="col-md-3">
 
     <div class="card card-outline card-primary mb-3">
@@ -84,6 +86,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
       </div>
     </div>
   </div>
+<?php } ?>
 
 <?php if(mysqli_num_rows($sql_important_contacts) > 0 ){ ?>
 
@@ -131,6 +134,8 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 
 <?php } ?>
 
+<?php if(mysqli_num_rows($sql_contacts) > 0 || mysqli_num_rows($sql_vendors) > 0 ){ ?>
+
   <div class="col-md-3">
 
     <div class="card card-outline card-primary mb-3">
@@ -174,6 +179,8 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
       </div>
     </div>
   </div>
+
+<?php } ?>
 
   <div class="col-md-4">
 

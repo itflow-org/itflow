@@ -192,7 +192,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#contactDetailsModal<?php echo $contact_id; ?>">View Details</a>
+                  <a class="dropdown-item" href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">View Details</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">Edit</a>
                   <?php if($session_user_role == 3 && $contact_id !== $primary_contact) { ?>
                     <div class="dropdown-divider"></div>
@@ -208,7 +208,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <?php
           
           include("client_contact_edit_modal.php");
-          include("client_contact_details_modal.php");
+          //include("client_contact_details_modal.php");
 
           }
           
