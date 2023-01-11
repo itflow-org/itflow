@@ -59,7 +59,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
           ?>
             <p class="mb-1">
               <i class="fa fa-fw fa-user text-secondary mr-1"></i>
-              <a href="client_contacts.php?client_id=<?php echo $client_id; ?>&q=<?php echo $contact_name; ?>"><?php echo $contact_name; ?></a>
+              <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"><?php echo $contact_name; ?></a>
             </p>
           <?php
           }
@@ -110,7 +110,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
           ?>
           <tr>
             <td>
-              <a href="client_contacts.php?client_id=<?php echo $client_id; ?>&q=<?php echo $contact_name; ?>" class="text-bold"><?php echo $contact_name; ?></a>
+              <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="text-bold"><?php echo $contact_name; ?></a>
               <br>
               <small class="text-secondary"><?php echo $contact_title; ?></small>
             </td>

@@ -106,7 +106,7 @@ if(isset($_GET['query'])){
 
                     ?>
                     <tr>
-                        <td><a href="client_contacts.php?client_id=<?php echo $client_id; ?>&q=<?php echo $contact_name; ?>"><?php echo $contact_name; ?></a>
+                        <td><a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"><?php echo $contact_name; ?></a>
                             <br><small class="text-secondary"><?php echo $contact_title; ?></small>
                         </td>
                         <td><?php echo $contact_email; ?></td>
