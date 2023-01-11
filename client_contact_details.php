@@ -103,7 +103,7 @@ if(isset($_GET['contact_id'])){
         <h3><?php echo $contact_name; ?></h3>
         <div class="mb-3 text-secondary"><?php echo $contact_title; ?></div>
 
-        <div class="mb-2"><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name_display; ?></div>
+        <div class="mb-1"><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name_display; ?></div>
         <div><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><?php echo $contact_email_display; ?></div>
         <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone_display $contact_phone_extention"; ?></div>
         <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile_display; ?></div>
@@ -138,7 +138,7 @@ if(isset($_GET['contact_id'])){
     </ol>
 
 
-    <div class="card card-dark">
+    <div class="card card-dark <?php if($asset_count == 0){ echo "d-none"; } ?>">
       <div class="card-header">
         <h3 class="card-title"><i class="fa fa-fw fa-desktop"></i> Assets</h3>
       </div>
@@ -276,14 +276,14 @@ if(isset($_GET['contact_id'])){
 
 
 
-    <div class="card card-dark">
+    <div class="card card-dark <?php if($login_count == 0){ echo "d-none"; } ?>">
       <div class="card-header">
         <h3 class="card-title"><i class="fa fa-fw fa-key"></i> Passwords</h3>
       </div>
       <div class="card-body">
         <div class="table-responsive">
         <table class="table table-striped table-borderless table-hover">
-          <thead class="text-dark <?php if($login_count == 0){ echo "d-none"; } ?>">
+          <thead>
           <tr>
             <th>Name</th>
             <th>Username</th>
