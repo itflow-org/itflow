@@ -326,6 +326,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                 <div class="dropdown-menu">
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAssetInterfaceModal<?php echo $asset_id; ?>">Interfaces</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#copyAssetModal<?php echo $asset_id; ?>">Copy</a>
                   <?php if($document_count > 0){ ?>
@@ -349,6 +350,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           include("client_asset_edit_modal.php");
           include("client_asset_copy_modal.php");
           include("client_asset_tickets_modal.php");
+          include("client_asset_interface_add_modal.php");
           }
           
           ?>

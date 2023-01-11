@@ -161,7 +161,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           ?>
           <tr>
             <th class="text-center">
-              <a class="text-dark" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
+              <a class="text-dark" href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
                 <?php if(!empty($contact_photo)){ ?>
               
                 <img class="img-size-50 img-circle" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">

@@ -4,6 +4,8 @@
 
 $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contacts.company_id = $session_company_id ORDER BY contact_updated_at, contact_created_at DESC LIMIT 5");
 
+$sql_important_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_important = 1 AND contact_archived_at IS NULL AND contacts.company_id = $session_company_id ORDER BY contact_updated_at, contact_name DESC");
+
 $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL AND company_id = $session_company_id ORDER BY vendor_updated_at DESC LIMIT 5");
 
 $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = $client_id AND document_archived_at IS NULL AND documents.company_id = $session_company_id ORDER BY document_updated_at DESC LIMIT 5");
@@ -82,6 +84,52 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
       </div>
     </div>
   </div>
+
+<?php if(mysqli_num_rows($sql_important_contacts) > 0 ){ ?>
+
+  <div class="col-md-4">
+
+
+    <div class="card card-outline card-primary mb-3">
+      <div class="card-header">
+        <h5 class="card-title"><i class="fa fa-users mr-2"></i>Important Contacts</h5>
+      </div>
+      <div class="card-body p-1">
+        <table class="table table-borderless table-sm">
+          <?php
+
+          while($row = mysqli_fetch_array($sql_important_contacts)){
+            $contact_id = $row['contact_id'];
+            $contact_name = htmlentities($row['contact_name']);
+            $contact_title = htmlentities($row['contact_title']);
+            $contact_email = htmlentities($row['contact_email']);
+            $contact_phone = formatPhoneNumber($row['contact_phone']);
+            $contact_extension = htmlentities($row['contact_extension']);
+            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+
+          ?>
+          <tr>
+            <td>
+              <a href="client_contacts.php?client_id=<?php echo $client_id; ?>&q=<?php echo $contact_name; ?>" class="text-bold"><?php echo $contact_name; ?></a>
+              <br>
+              <small class="text-secondary"><?php echo $contact_title; ?></small>
+            </td>
+            <td>
+              <?php echo "$contact_phone $contact_extension"; ?>
+              <br>
+              <div class="text-secondary"><?php echo "$contact_mobile"; ?></div>
+            </td>
+          </tr>
+        <?php
+        }
+        ?>
+
+        </table>
+      </div>
+    </div>
+  </div>
+
+<?php } ?>
 
   <div class="col-md-3">
 

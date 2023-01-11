@@ -413,11 +413,17 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
   
   }
 
-  //if(CURRENT_DATABASE_VERSION == '0.2.4'){
-  // Insert queries here required to update to DB version 0.2.5
+  if(CURRENT_DATABASE_VERSION == '0.2.4'){
+    mysqli_query($mysqli, "CREATE TABLE `contact_assets` (`contact_id` int(11) NOT NULL,`asset_id` int(11) NOT NULL, PRIMARY KEY (`contact_id`,`asset_id`))");
+
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.5'");
+  }
+
+  //if(CURRENT_DATABASE_VERSION == '0.2.5'){
+  // Insert queries here required to update to DB version 0.2.6
 
   // Then, update the database to the next sequential version
-  // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.5'");
+  // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.6'");
   //}
 
 
