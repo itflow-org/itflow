@@ -303,7 +303,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_client" class="btn btn-primary" onclick="promptPrimaryContact()"><strong><i class="fas fa-check"></i> Create</strong></button>
+          <button type="submit" name="add_client" class="btn btn-primary text-bold" onclick="promptPrimaryContact()"><i class="fa fa-check"></i> Create</button>
         </div>
       </form>
     </div>

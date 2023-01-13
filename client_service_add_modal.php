@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-md">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i> New Service</h5>
+        <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream"></i> New Service</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -96,10 +96,8 @@
 
             <div class="tab-pane fade" id="pills-general">
               <div class="form-group">
-                <label for="contacts">Contacts</label>
-                <p></p>
-                <select class="form-select" id="contacts" name="contacts[]" multiple="multiple">
-                  <option value="">- Contacts -</option>
+                <label for="contacts">Select related Contacts</label>
+                <select multiple class="form-control" id="contacts" name="contacts[]">
                   <?php
                   $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = '$client_id'");
                   while($row = mysqli_fetch_array($sql)){
@@ -112,10 +110,8 @@
               </div>
 
               <div class="form-group">
-                <label for="vendors">Vendors</label>
-                <p></p>
-                <select class="form-select" id="vendors" name="vendors[]" multiple="multiple">
-                  <option value="">- Vendors -</option>
+                <label for="vendors">Select related vendors</label>
+                <select multiple class="form-control" id="vendors" name="vendors[]">
                   <?php
                   $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = '$client_id'");
                   while($row = mysqli_fetch_array($sql)){
@@ -128,10 +124,8 @@
               </div>
 
               <div class="form-group">
-                <label for="documents">Documents</label>
-                <p></p>
-                <select class="form-select" id="documents" name="documents[]" multiple="multiple">
-                  <option value="">- Documents -</option>
+                <label for="documents">Select related documents</label>
+                <select multiple class="form-control" id="documents" name="documents[]">
                   <?php
                   $sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = '$client_id'");
                   while($row = mysqli_fetch_array($sql)){
@@ -154,10 +148,8 @@
 
                 <div class="col">
                   <div class="form-group">
-                    <label for="assets">Assets</label>
-                    <p></p>
-                    <select class="form-select" id="assets" name="assets[]" multiple="multiple">
-                      <option value="">- Assets -</option>
+                    <label for="assets">Select related assets</label>
+                    <select multiple class="form-control" id="assets" name="assets[]">
                       <?php
                       $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = '$client_id'");
                       while($row = mysqli_fetch_array($sql)){
@@ -172,10 +164,8 @@
 
                 <div class="col">
                   <div class="form-group">
-                    <label for="logins">Logins</label>
-                    <p></p>
-                    <select class="form-select" id="logins" name="logins[]" multiple="multiple">
-                      <option value="">- Logins -</option>
+                    <label for="logins">Select related logins</label>
+                    <select multiple class="form-control" id="logins" name="logins[]">
                       <?php
                       $sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id = '$client_id'");
                       while($row = mysqli_fetch_array($sql)){
@@ -195,10 +185,8 @@
 
                 <div class="col">
                   <div class="form-group">
-                    <label for="domains">Domains</label>
-                    <p></p>
-                    <select class="form-select" id="domains" name="domains[]" multiple="multiple">
-                      <option value="">- Domains -</option>
+                    <label for="domains">Select related domains</label>
+                    <select multiple class="form-control" id="domains" name="domains[]">
                       <?php
                       $sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = '$client_id'");
                       while($row = mysqli_fetch_array($sql)){
@@ -213,10 +201,8 @@
 
                 <div class="col">
                   <div class="form-group">
-                    <label for="certificates">Certificates</label>
-                    <p></p>
-                    <select class="form-select" id="certificates" name="certificates[]" multiple="multiple">
-                      <option value="">- Certificates -</option>
+                    <label for="certificates">Select related certificates</label>
+                    <select multiple class="form-control" id="certificates" name="certificates[]">
                       <?php
                       $sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id = '$client_id'");
                       while($row = mysqli_fetch_array($sql)){
@@ -237,8 +223,8 @@
           </div>
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_service" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="add_service" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
         </div>
       </form>
     </div>

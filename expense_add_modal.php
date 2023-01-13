@@ -103,7 +103,7 @@
 
           <div class="form-group">
             <label>Description <strong class="text-danger">*</strong></label>
-            <textarea class="form-control" rows="4" name="description" placeholder="Enter a description" required></textarea>
+            <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required></textarea>
           </div>
           
           <div class="form-row">
@@ -158,8 +158,8 @@
           
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_expense" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="add_expense" class="btn btn-primary text-bold"><i class="fa fa-fw fa-check"></i> Create</button>
         </div>
       </form>
     </div>

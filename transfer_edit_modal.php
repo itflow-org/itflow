@@ -116,15 +116,15 @@
           </div>
             
           <div class="form-group">
-            <textarea class="form-control" rows="4" name="notes" placeholder="Enter some notes"><?php echo $transfer_notes; ?></textarea>
+            <textarea class="form-control" rows="5" name="notes" placeholder="Enter some notes"><?php echo $transfer_notes; ?></textarea>
           </div>
 
 
         </div>
 
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="edit_transfer" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="edit_transfer" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
         </div>
       </form>
     </div>

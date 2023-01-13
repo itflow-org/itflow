@@ -155,7 +155,7 @@ function populateNetworkEditModal(client_id, network_id) {
       const locations = response.locations;
 
       // Populate the network modal fields
-      document.getElementById("editNetworkHeader").innerText = " " + network.network_name;
+      document.getElementById("editNetworkHeader").innerText = network.network_name;
       document.getElementById("editNetworkId").value = network_id;
       document.getElementById("editNetworkName").value = network.network_name;
       document.getElementById("editNetworkVlan").value = network.network_vlan;

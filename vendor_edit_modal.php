@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-building"></i> <?php echo $vendor_name; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-building"></i> Editing vendor: <strong><?php echo $vendor_name; ?></strong></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>

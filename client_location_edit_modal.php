@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-map-marker-alt"></i> <?php echo $location_name; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-map-marker-alt"></i> Editing location: <strong><?php echo $location_name; ?></strong></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -32,7 +32,7 @@
             <div class="tab-pane fade show active" id="pills-address<?php echo $location_id; ?>">
 
               <div class="form-group">
-                <label>Location Name / Primary <strong class="text-danger">*</strong></label>
+                <label>Location Name <strong class="text-danger">*</strong> / <span class="text-secondary">Primary</span></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
@@ -151,7 +151,7 @@
               </div>
 
               <div class="form-group">
-                <textarea class="form-control" rows="6" name="notes" placeholder="Enter some notes"><?php echo $location_notes; ?></textarea>
+                <textarea class="form-control" rows="5" name="notes" placeholder="Enter some notes"><?php echo $location_notes; ?></textarea>
               </div>
 
             </div>
@@ -174,8 +174,8 @@
 
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="edit_location" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="edit_location" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
         </div>
       </form>
     </div>

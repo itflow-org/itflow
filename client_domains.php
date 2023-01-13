@@ -137,7 +137,7 @@ include("client_domain_add_modal.php");
                 const vendors = response.vendors;
 
                 // Populate the domain modal fields
-                document.getElementById("editHeader").innerText = " " + domain.domain_name;
+                document.getElementById("editHeader").innerText = domain.domain_name;
                 document.getElementById("editDomainId").value = domain_id;
                 document.getElementById("editDomainName").value = domain.domain_name;
                 document.getElementById("editExpire").value = domain.domain_expire;

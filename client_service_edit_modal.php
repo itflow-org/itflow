@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-md">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i><?php echo "Edit $service_name"; ?> </h5>
+        <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream"></i> Editing service: <strong><?php echo "$service_name"; ?></strong></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -98,9 +98,7 @@
             <div class="tab-pane fade" id="pills-general<?php echo $service_id ?>">
               <div class="form-group">
                 <label for="contacts">Contacts</label>
-                <p></p>
-                <select class="form-select" id="contacts" name="contacts[]" multiple="multiple">
-                  <option value="">- Contacts -</option>
+                <select multiple class="form-control" id="contacts" name="contacts[]">
                   <?php
                   // Get just the currently selected contact IDs
                   $selected_ids = array_column(mysqli_fetch_all($sql_contacts,MYSQLI_ASSOC), "contact_id");
@@ -126,9 +124,7 @@
 
               <div class="form-group">
                 <label for="vendors">Vendors</label>
-                <p></p>
-                <select class="form-select" id="vendors" name="vendors[]" multiple="multiple">
-                  <option value="">- Vendors -</option>
+                <select multiple class="form-control" id="vendors" name="vendors[]">
                   <?php
                   $selected_ids = array_column(mysqli_fetch_all($sql_vendors,MYSQLI_ASSOC), "vendor_id");
 
@@ -150,9 +146,7 @@
 
               <div class="form-group">
                 <label for="documents">Documents</label>
-                <p></p>
-                <select class="form-select" id="documents" name="documents[]" multiple="multiple">
-                  <option value="">- Documents -</option>
+                <select multiple class="form-control" id="documents" name="documents[]">
                   <?php
                   $selected_ids = array_column(mysqli_fetch_all($sql_docs,MYSQLI_ASSOC), "document_id");
 
@@ -185,9 +179,7 @@
                 <div class="col">
                   <div class="form-group">
                     <label for="assets">Assets</label>
-                    <p></p>
-                    <select class="form-select" id="assets" name="assets[]" multiple="multiple">
-                      <option value="">- Assets -</option>
+                    <select multiple class="form-control" id="assets" name="assets[]">
                       <?php
                       $selected_ids = array_column(mysqli_fetch_all($sql_assets,MYSQLI_ASSOC), "asset_id");
 
@@ -211,9 +203,7 @@
                 <div class="col">
                   <div class="form-group">
                     <label for="logins">Logins</label>
-                    <p></p>
-                    <select class="form-select" id="logins" name="logins[]" multiple="multiple">
-                      <option value="">- Logins -</option>
+                    <select multiple class="form-control" id="logins" name="logins[]">
                       <?php
                       $selected_ids = array_column(mysqli_fetch_all($sql_logins,MYSQLI_ASSOC), "login_id");
 
@@ -242,9 +232,7 @@
                 <div class="col">
                   <div class="form-group">
                     <label for="domains">Domains</label>
-                    <p></p>
-                    <select class="form-select" id="domains" name="domains[]" multiple="multiple">
-                      <option value="">- Domains -</option>
+                    <select multiple class="form-control" id="domains" name="domains[]">
                       <?php
                       $selected_ids = array_column(mysqli_fetch_all($sql_domains,MYSQLI_ASSOC), "domain_id");
 
@@ -268,9 +256,7 @@
                 <div class="col">
                   <div class="form-group">
                     <label for="certificates">Certificates</label>
-                    <p></p>
-                    <select class="form-select" id="certificates" name="certificates[]" multiple="multiple">
-                      <option value="">- Certificates -</option>
+                    <select multiple class="form-control" id="certificates" name="certificates[]">
                       <?php
                       $selected_ids = array_column(mysqli_fetch_all($sql_certificates,MYSQLI_ASSOC), "certificate_id");
 
@@ -298,8 +284,8 @@
           </div>
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="edit_service" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="edit_service" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
         </div>
       </form>
     </div>

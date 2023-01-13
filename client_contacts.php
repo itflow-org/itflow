@@ -208,7 +208,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <?php
           
           include("client_contact_edit_modal.php");
-          //include("client_contact_details_modal.php");
 
           }
           

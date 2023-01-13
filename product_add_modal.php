@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-box mr-2"></i>New Product</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-box"></i> New Product</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -90,7 +90,7 @@
 
           <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="8" name="description" placeholder="Product description"></textarea>
+            <textarea class="form-control" rows="5" name="description" placeholder="Product description"></textarea>
           </div>
         
         </div>

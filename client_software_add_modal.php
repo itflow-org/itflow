@@ -89,7 +89,7 @@
                 <label>Seats</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                    <span class="input-group-text"><i class="fa fa-fw fa-chair"></i></span>
                   </div>
                   <input type="number" class="form-control" name="seats" placeholder="Number of seats"> 
                 </div>
@@ -229,8 +229,8 @@
 
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_software" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="add_software" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
         </div>
       </form>
     </div>

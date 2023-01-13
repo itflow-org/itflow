@@ -23,7 +23,7 @@
 
 
                     <div class="form-group">
-                        <textarea class="form-control summernote" rows="8" name="details"></textarea>
+                        <textarea class="form-control summernote" rows="5" name="details"></textarea>
                     </div>
 
                     <div class="form-group">
@@ -135,7 +135,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_ticket" class="btn btn-primary"><strong><i class="fa fa-check"></i> Create</strong></button>
+                    <button type="submit" name="add_ticket" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
                 </div>
             </form>
         </div>

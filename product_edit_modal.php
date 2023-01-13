@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-box mr-2"></i><?php echo $product_name; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-box"></i> Editing product: <strong><?php echo $product_name; ?></strong></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -89,14 +89,14 @@
 
           <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="8" name="description"><?php echo $product_description; ?></textarea>
+            <textarea class="form-control" rows="5" name="description"><?php echo $product_description; ?></textarea>
           </div>
         
         </div>
         
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="edit_product" class="btn btn-primary"><strong><i class="fa fa-check"></i> Save</strong></button>
+          <button type="submit" name="edit_product" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
         </div>
       </form>
     </div>

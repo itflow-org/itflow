@@ -24,7 +24,7 @@
             </div>
             
             <div class="form-group col">
-              <label>Miles / Roundtrip <strong class="text-danger">*</strong></label>
+              <label>Miles <strong class="text-danger">*</strong> / <span class="text-secondary">Roundtrip</span></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-bicycle"></i></span>
@@ -122,8 +122,8 @@
         </div>
  
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="edit_trip" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="edit_trip" class="btn btn-primary text-bold"><i class="fa fa-fw fa-check"></i> Save</button>
         </div>
       </form>
     </div>

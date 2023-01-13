@@ -125,7 +125,7 @@ include("client_certificate_add_modal.php");
                 const domains = response.domains;
 
                 // Populate the cert modal fields
-                document.getElementById("editHeader").innerText = " " + certificate.certificate_name;
+                document.getElementById("editHeader").innerText = certificate.certificate_name;
                 document.getElementById("editCertificateId").value = certificate_id;
                 document.getElementById("editCertificateName").value = certificate.certificate_name;
                 document.getElementById("editDomain").value = certificate.certificate_domain;

@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-recycle"></i> Refund</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-sync"></i> Refunding expense</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -38,7 +38,7 @@
           
           <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="4" name="description" placeholder="Enter a description" required>Refund: <?php echo $expense_description; ?></textarea>
+            <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required>Refund: <?php echo $expense_description; ?></textarea>
           </div>
           
           <div class="form-group">
@@ -58,8 +58,8 @@
           
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_expense" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="add_expense" class="btn btn-primary text-bold"><i class="fa fa-fw fa-check"></i> Refund</button>
         </div>
       </form>
     </div>
