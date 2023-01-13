@@ -54,7 +54,7 @@ if(isset($_POST['login'])){
             $current_code = strip_tags(mysqli_real_escape_string($mysqli, $_POST['current_code']));
         }
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_email = '$email' AND user_archived_at IS NULL"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_email = '$email' AND user_archived_at IS NULL AND user_status = 1"));
         if (password_verify($password, $row['user_password'])) {
 
             // User variables

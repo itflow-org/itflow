@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-money-bill-alt mr-2"></i>New Revenue</h5>
+        <h5 class="modal-title"><i class="fas fa-money-bill-alt"></i> New Revenue</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -43,7 +43,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                 </div>
-                <input type="number" class="form-control" step="0.01" min="0.00" name="amount" required>
+                <input type="number" class="form-control" step="0.01" min="0.00" name="amount" placeholder="Enter an amount" required>
               </div>
             </div>
           
@@ -122,7 +122,7 @@
 
           <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="4" name="description"></textarea>
+            <textarea class="form-control" rows="5" name="description" placeholder="Enter a description"></textarea>
           </div>
 
           <div class="form-row">

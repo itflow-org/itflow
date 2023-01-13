@@ -50,8 +50,8 @@
           <tr>
             <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_email&o=<?php echo $disp; ?>">Email</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=Permission_level&o=<?php echo $disp; ?>">Role</a></th>
-            <th>Status</th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_role&o=<?php echo $disp; ?>">Role</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_status&o=<?php echo $disp; ?>">Status</a></th>
             <th>Last Login</th>
             <th class="text-center">Action</th>
           </tr>
@@ -63,6 +63,14 @@
             $user_id = $row['user_id'];
             $user_name = htmlentities($row['user_name']);
             $user_email = htmlentities($row['user_email']);
+            $user_status = intval($row['user_status']);
+            if($user_status == 2){
+              $user_status_display = "<span class='text-info'>Invited</span>";
+            }elseif($user_status == 1){
+              $user_status_display = "<span class='text-success'>Active</span>";
+            }else{
+              $user_status_display = "<span class='text-danger'>Disabled</span>";  
+            }
             $user_avatar = htmlentities($row['user_avatar']);
             $user_token = htmlentities($row['user_token']);
             $user_default_company = $row['user_default_company'];
@@ -116,7 +124,7 @@
             </td>
             <td><a href="mailto:<?php echo $user_email; ?>"><?php echo $user_email; ?></a></td>
             <td><?php echo $user_role_display; ?></td>
-            <td>-</td>
+            <td><?php echo $user_status_display; ?></td>
             <td><?php echo $log_created_at; ?> <br> <small class="text-secondary"><?php echo $last_login; ?></small></td>
             <td>
               <div class="dropdown dropleft text-center">
@@ -125,6 +133,11 @@
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">Edit</a>
+                  <?php if($user_status == 0){ ?>
+                  <a class="dropdown-item text-success" href="post.php?activate_user=<?php echo $user_id; ?>">Activate</a>
+                  <?php }elseif($user_status == 1){ ?>
+                  <a class="dropdown-item text-danger" href="post.php?disable_user=<?php echo $user_id; ?>">Disable</a>
+                  <?php } ?>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserCompaniesModal<?php echo $user_id; ?>">Company Access</a>
                   <div class="dropdown-divider"></div>

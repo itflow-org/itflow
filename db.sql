@@ -267,6 +267,20 @@ CREATE TABLE `companies` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `contact_assets`
+--
+
+DROP TABLE IF EXISTS `contact_assets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `contact_assets` (
+  `contact_id` int(11) NOT NULL,
+  `asset_id` int(11) NOT NULL,
+  PRIMARY KEY (`contact_id`,`asset_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `contact_documents`
 --
 
@@ -1405,6 +1419,7 @@ CREATE TABLE `users` (
   `user_name` varchar(200) NOT NULL,
   `user_email` varchar(200) NOT NULL,
   `user_password` varchar(200) NOT NULL,
+  `user_status` tinyint(1) DEFAULT 1,
   `user_token` varchar(200) DEFAULT NULL,
   `user_avatar` varchar(200) DEFAULT NULL,
   `user_specific_encryption_ciphertext` varchar(200) DEFAULT NULL,
@@ -1522,4 +1537,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-09 19:14:30
+-- Dump completed on 2023-01-13 18:23:52

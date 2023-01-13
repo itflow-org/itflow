@@ -237,6 +237,41 @@ if(isset($_POST['edit_user'])){
 
 }
 
+if(isset($_GET['activate_user'])){
+
+    validateAdminRole();
+
+    $user_id = intval($_GET['activate_user']);
+    
+    mysqli_query($mysqli,"UPDATE users SET user_status = 1 WHERE user_id = $user_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Activate', log_description = '$session_name activated user $user_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "User activated!";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['disable_user'])){
+
+    validateAdminRole();
+
+    $user_id = intval($_GET['disable_user']);
+    
+    mysqli_query($mysqli,"UPDATE users SET user_status = 0 WHERE user_id = $user_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Disabled', log_description = '$session_name disabled user $user_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "User disabled!";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['edit_profile'])){
 
     // CSRF Check
