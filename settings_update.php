@@ -1,12 +1,12 @@
 <?php
 include("inc_all_settings.php");
 include("database_version.php");
+include("config.php")
 ?>
 
 <?php
 
-//fetch the latest code changes but don't apply them\
-$repo_branch = 'master';
+//fetch the latest code changes but don't apply them
 exec("git fetch", $output, $result);
 $latest_version = exec("git rev-parse origin/$repo_branch");
 $current_version = exec("git rev-parse HEAD");
