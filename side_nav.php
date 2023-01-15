@@ -113,37 +113,41 @@
 
                 <?php } ?>
 
-                <li class="nav-header mt-3">SALES</li>
-                <li class="nav-item">
-                    <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-file-invoice"></i>
-                        <p>Quotes</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="invoices.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "invoices.php" || basename($_SERVER["PHP_SELF"]) == "invoice.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-file-invoice-dollar"></i>
-                        <p>Invoices</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="revenues.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "revenues.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-credit-card"></i>
-                        <p>Revenues</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="recurring_invoices.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-sync-alt"></i>
-                        <p>Recurring</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="products.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "products.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-box"></i>
-                        <p>Products</p>
-                    </a>
-                </li>
+                <?php if ($config_module_enable_accounting == 1) { ?>
+
+                    <li class="nav-header mt-3">SALES</li>
+                    <li class="nav-item">
+                        <a href="quotes.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-file-invoice"></i>
+                            <p>Quotes</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="invoices.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "invoices.php" || basename($_SERVER["PHP_SELF"]) == "invoice.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                            <p>Invoices</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="revenues.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "revenues.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-credit-card"></i>
+                            <p>Revenues</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="recurring_invoices.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-sync-alt"></i>
+                            <p>Recurring</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="products.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "products.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-box"></i>
+                            <p>Products</p>
+                        </a>
+                    </li>
+
+                <?php } ?>
 
                 <?php if($session_user_role == 1 OR $session_user_role == 3 && $config_module_enable_accounting == 1){ ?>
 
