@@ -54,6 +54,8 @@
         </div>
       </div>
 
+      <hr>
+
       <legend>Recurring Invoice</legend>
 
       <div class="form-group">
@@ -80,7 +82,7 @@
     
       <hr>
 
-      <button type="submit" name="edit_invoice_settings" class="btn btn-primary">Save</button>        
+      <button type="submit" name="edit_invoice_settings" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>        
     
     </form>
   </div>

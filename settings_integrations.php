@@ -30,7 +30,7 @@
 
       <hr>
       
-      <button type="submit" name="edit_integrations_settings" class="btn btn-primary">Save</button>
+      <button type="submit" name="edit_integrations_settings" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
         
     </form>
   </div>

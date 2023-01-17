@@ -6,8 +6,6 @@
   </div>
   <div class="card-body">
     <form action="post.php" method="post" autocomplete="off">
-      
-      <legend>Quote</legend>
 
       <div class="form-group">
         <label>Quote Prefix</label>
@@ -56,7 +54,7 @@
     
       <hr>
 
-      <button type="submit" name="edit_quote_settings" class="btn btn-primary">Save</button>        
+      <button type="submit" name="edit_quote_settings" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>        
     
     </form>
   </div>

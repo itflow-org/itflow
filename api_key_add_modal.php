@@ -78,8 +78,8 @@ $key = bin2hex(random_bytes(78));
 
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_api_key" class="btn btn-primary">Add</button>
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" name="add_api_key" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
         </div>
       </form>
     </div>
