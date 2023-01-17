@@ -42,22 +42,19 @@
                 </li>
                 <?php if ($session_contact_id == $session_client_primary_contact_id) { ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="ticket_view_all.php">All Tickets</a>
+                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "tickets.php" || basename($_SERVER['PHP_SELF']) == "ticket_add.php") {echo "active";} ?>" href="tickets.php">Tickets</a>
                     </li>
                 <?php } ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="ticket_add.php">New Ticket</a>
-                </li>
             </ul>
             <ul class="nav navbar-nav pull-right">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
                         <?php echo $session_contact_name ?>
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="profile.php">Profile</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="portal_post.php?logout">Logout</a>
+                        <a class="dropdown-item" href="portal_post.php?logout">Sign out</a>
                     </div>
                 </li>
             </ul>

@@ -121,11 +121,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-success btn-block mb-3" name="login">Login</button>
+                <button type="submit" class="btn btn-success btn-block mb-3" name="login">Sign in</button>
 
                 <?php
                 if (!empty($config_smtp_host)) { ?>
-                    <a href="login_reset.php">Forgotten password?</a>
+                    <a href="login_reset.php">Forgot password?</a>
                 <?php } ?>
 
             </form>

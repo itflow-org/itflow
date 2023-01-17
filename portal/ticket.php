@@ -27,33 +27,31 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         $ticket_details = $ticket_row['ticket_details'];
         $ticket_feedback = htmlentities($ticket_row['ticket_feedback']);
 
-
         ?>
 
-        <nav class="navbar navbar-dark bg-dark">
-
-            <i class="fas fa-fw fa-ticket-alt text-secondary"></i> <a class="navbar-brand">Ticket <?php echo $ticket_prefix, $ticket_number ?></a>
-
-            <span class="navbar-text">
-      <?php
-      if ($ticket_status !== "Closed") { ?>
-          <button class="btn btn-sm btn-outline-success my-2 my-sm-0 form-inline my-2 my-lg-0" type="submit"><a href="portal_post.php?close_ticket=<?php echo $ticket_id; ?>"><i class="fas fa-fw fa-check text-secondary text-success"></i>  Close ticket</a></button>
-      <?php } ?>
-    </span>
-
-        </nav>
-
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title"><b>Subject:</b> <?php echo $ticket_subject ?></h3>
+            <div class="card-header bg-dark">
+                <h4 class="text-center mt-1">
+                    Ticket <?php echo $ticket_prefix, $ticket_number ?> 
+                    <?php
+                    if ($ticket_status !== "Closed") {
+                    ?>
+                    <a href="portal_post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-sm btn-outline-success float-right text-white"><i class="fas fa-fw fa-check text-success"></i> Close ticket</a>
+                    <?php
+                    }
+                    ?>
+                </h4>
             </div>
+
             <div class="card-body">
+                <h5><strong>Subject:</strong> <?php echo $ticket_subject ?></h5>
+                <hr>
                 <p>
-                    <b>State:</b> <?php echo $ticket_status ?>
+                    <strong>State:</strong> <?php echo $ticket_status ?>
                     <br>
-                    <b>Priority:</b> <?php echo $ticket_priority ?>
+                    <strong>Priority:</strong> <?php echo $ticket_priority ?>
                 </p>
-                <b>Issue:</b> <?php echo $ticket_details ?>
+                <strong>Issue:</strong> <?php echo $ticket_details ?>
             </div>
         </div>
 
@@ -61,15 +59,15 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         <!-- Either show the reply comments box, ticket smiley feedback, or thanks for feedback -->
 
         <?php if ($ticket_status !== "Closed") { ?>
-            <div class="form-group">
-                <form action="portal_post.php" method="post">
-                    <div class="form-group">
-                        <textarea class="form-control" name="comment" placeholder="Add comments.."></textarea>
-                    </div>
-                    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id ?>">
-                    <button type="submit" class="btn btn-primary" name="add_ticket_comment">Save reply</button>
-                </form>
-            </div>
+           
+            <form action="portal_post.php" method="post">
+                <input type="hidden" name="ticket_id" value="<?php echo $ticket_id ?>">
+                <div class="form-group">
+                    <textarea class="form-control" name="comment" placeholder="Add comments.."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" name="add_ticket_comment">Save reply</button>
+            </form>
+           
         <?php }
 
         elseif (empty($ticket_feedback)) { ?>
@@ -98,7 +96,8 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
         <!-- End comments/feedback -->
 
-        <hr><br>
+        <hr>
+        <br>
 
         <?php
         $sql = mysqli_query($mysqli, "SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id LEFT JOIN contacts ON ticket_reply_by = contact_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL AND ticket_reply_type != 'Internal' ORDER BY ticket_reply_id DESC");
@@ -129,14 +128,18 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 <div class="card-header">
                     <h3 class="card-title">
                         <div class="media">
-                            <?php if (!empty($user_avatar)) { ?>
+                            <?php 
+                            if (!empty($user_avatar)) { 
+                            ?>
                                 <img src="<?php echo $avatar_link ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
-                            <?php } else { ?>
+                            <?php 
+                            } else { 
+                            ?>
                                 <span class="fa-stack fa-2x">
-            <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-            <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
-          </span>
-                                <?php
+                                    <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                                    <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
+                                </span>
+                            <?php
                             }
                             ?>
 
