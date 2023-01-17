@@ -29,9 +29,19 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
         ?>
 
+        <ol class="breadcrumb d-print-none">
+            <li class="breadcrumb-item">
+                <a href="index.php">Home</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="tickets.php">Tickets</a>
+            </li>
+            <li class="breadcrumb-item active">Ticket <?php echo $ticket_number; ?></li>
+        </ol>
+
         <div class="card">
-            <div class="card-header bg-dark">
-                <h4 class="text-center mt-1">
+            <div class="card-header bg-dark text-center">
+                <h4 class="mt-1">
                     Ticket <?php echo $ticket_prefix, $ticket_number ?> 
                     <?php
                     if ($ticket_status !== "Closed") {

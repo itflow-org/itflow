@@ -43,7 +43,7 @@ $total_tickets = $row['total_tickets'];
 ?>
 
 <div class="row">
-    <div class="col-1 text-center">
+    <div class="col-md-1 text-center">
         <?php if (!empty($session_contact_photo)) { ?>
             <img src="<?php echo "../uploads/clients/$session_company_id/$session_client_id/$session_contact_photo"; ?>" alt="..." height="50" width="50" class="img-circle img-responsive">
 
@@ -56,7 +56,7 @@ $total_tickets = $row['total_tickets'];
         <?php } ?>
     </div>
 
-    <div class="col-11 p-0">
+    <div class="col-md-11 p-0">
         <h4>Welcome, <strong><?php echo $session_contact_name ?></strong>!</h4>
         <hr>
     </div>
@@ -67,7 +67,7 @@ $total_tickets = $row['total_tickets'];
 
 <div class="row">
 
-    <div class="col-10">
+    <div class="col-md-10">
         
         <table class="table tabled-bordered border border-dark">
             <thead class="thead-dark">
@@ -105,7 +105,7 @@ $total_tickets = $row['total_tickets'];
         
     </div>
 
-    <div class="col-2">
+    <div class="col-md-2">
 
         <a href="ticket_add.php" class="btn btn-primary btn-block">New ticket</a>
 

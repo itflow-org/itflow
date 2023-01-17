@@ -42,7 +42,7 @@
                 </li>
                 <?php if ($session_contact_id == $session_client_primary_contact_id) { ?>
                     <li class="nav-item">
-                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "tickets.php" || basename($_SERVER['PHP_SELF']) == "ticket_add.php") {echo "active";} ?>" href="tickets.php">Tickets</a>
+                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "tickets.php" || basename($_SERVER['PHP_SELF']) == "ticket_add.php" || basename($_SERVER['PHP_SELF']) == "ticket.php") {echo "active";} ?>" href="tickets.php">Tickets</a>
                     </li>
                 <?php } ?>
             </ul>
