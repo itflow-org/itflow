@@ -49,13 +49,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-alt"></i> Documents</h3>
     <div class="card-tools">
-      
-      <div class="dropdown">
-        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="fas fa-fw fa-plus"></i> New</button>
+
+      <div class="btn-group">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDocumentModal">
+          <i class="fas fa-fw fa-plus"></i> New Document
+        </button>
+        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
         <div class="dropdown-menu">
-          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addFolderModal">Folder</a>
+          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addFolderModal"><i class="fa fa-fw fa-folder-plus"></i> Folder</a>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentModal">Document</a>
           <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentFromTemplateModal">From Template</a>
         </div>
       </div>
@@ -213,5 +215,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <?php include("share_modal.php"); ?>
 <?php include("client_document_add_modal.php"); ?>
+<?php include("client_document_add_from_template_modal.php"); ?>
 
 <?php include("footer.php"); ?>

@@ -6778,6 +6778,46 @@ if(isset($_POST['add_document'])){
 
 }
 
+if(isset($_POST['add_document_from_template'])){
+
+    // ROLE Check
+    validateTechRole();
+
+    // HTML Purifier
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+    $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+    $purifier = new HTMLPurifier($purifier_config);
+
+    // GET POST Data
+    $client_id = intval($_POST['client_id']);
+    $document_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $document_template_id = intval($_POST['document_template_id']);
+    $folder = intval($_POST['folder']);
+    
+    //GET Document Info
+    $sql_document = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_id = $document_template_id AND company_id = $session_company_id");
+
+    $row = mysqli_fetch_array($sql_document);
+
+    $document_template_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['document_name'])));
+    $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($row['document_content']))));
+    $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $row['document_content']))));
+
+    // Document add query
+    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$document_name', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_client_id = $client_id, company_id = $session_company_id");
+    
+    $document_id = $mysqli->insert_id;
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = 'Document $document_name created from template $document_template_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Document created from template";
+    
+     header("Location: client_document_details.php?client_id=$client_id&folder_id=$folder_id&document_id=$document_id");
+
+}
+
 if(isset($_POST['edit_document'])){
 
     validateTechRole();

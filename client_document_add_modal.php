@@ -30,7 +30,6 @@
               <select class="form-control" name="template">
                 <option value="0">Document</option>
                 <option value="1">Template</option>
-                <option value="3">Global Template</option>
               </select>
             </div>
           </div>
