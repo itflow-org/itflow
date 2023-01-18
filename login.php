@@ -16,23 +16,22 @@ $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_A
 ini_set("session.cookie_httponly", True);
 
 // Tell client to only send cookie(s) over HTTPS
-if($config_https_only){
+if ($config_https_only) {
     ini_set("session.cookie_secure", True);
 }
 
 // Handle POST login request
-if(isset($_POST['login'])){
+if (isset($_POST['login'])) {
 
     // Sessions should start after the user has POSTed data
     session_start();
 
     // Check recent failed login attempts for this IP (more than 10 failed logins in 5 mins)
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(log_id) AS failed_login_count FROM logs WHERE log_ip = '$ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
-
     $failed_login_count = $row['failed_login_count'];
 
     // Login brute force check
-    if($failed_login_count >= 10){
+    if ($failed_login_count >= 10) {
 
         // Logging
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent'");
@@ -44,18 +43,17 @@ if(isset($_POST['login'])){
 
         // Inform user
         $response = '<div class=\'alert alert-danger\'>IP Lockout - Please try again later.<button class=\'close\' data-dismiss=\'alert\'>&times;</button></div>';
-    }
 
-    // Passed login brute force check
-    else{
+    } else {
+        // Passed login brute force check
         $email = strip_tags(mysqli_real_escape_string($mysqli, $_POST['email']));
         $password = $_POST['password'];
-        if(isset($_POST['current_code'])){
+        if (isset($_POST['current_code'])) {
             $current_code = strip_tags(mysqli_real_escape_string($mysqli, $_POST['current_code']));
         }
 
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_email = '$email' AND user_archived_at IS NULL AND user_status = 1"));
-        if (password_verify($password, $row['user_password'])) {
+        if ($row && password_verify($password, $row['user_password'])) {
 
             // User variables
             $token = $row['user_token'];
