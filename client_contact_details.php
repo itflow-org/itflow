@@ -14,36 +14,11 @@ if(isset($_GET['contact_id'])){
   $contact_id = $row['contact_id'];
   $contact_name = htmlentities($row['contact_name']);
   $contact_title = htmlentities($row['contact_title']);
-  if(empty($contact_title)){
-    $contact_title_display = "-";
-  }else{
-    $contact_title_display = "<small class='text-secondary'>$contact_title</small>";
-  }
   $contact_department =htmlentities($row['contact_department']);
-  if(empty($contact_department)){
-    $contact_department_display = "-";
-  }else{
-    $contact_department_display = $contact_department;
-  }
   $contact_phone = formatPhoneNumber($row['contact_phone']);
-  if(empty($contact_phone)){
-    $contact_phone_display = "-";
-  }else{
-    $contact_phone_display = "$contact_phone";
-  }
   $contact_extension = htmlentities($row['contact_extension']);
   $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-  if(empty($contact_mobile)){
-    $contact_mobile_display = "-";
-  }else{
-    $contact_mobile_display = "$contact_mobile";
-  }
   $contact_email = htmlentities($row['contact_email']);
-  if(empty($contact_email)){
-    $contact_email_display = "-";
-  }else{
-    $contact_email_display = "<a href='mailto:$contact_email'>$contact_email</a><button class='btn btn-sm clipboardjs' data-clipboard-text='$contact_email'><i class='far fa-copy text-secondary'></i></button>";
-  }
   $contact_photo = htmlentities($row['contact_photo']);
   $contact_initials = initials($contact_name);
   $contact_notes = htmlentities($row['contact_notes']);
@@ -91,7 +66,7 @@ if(isset($_GET['contact_id'])){
       <div class="card-body">
         <div class="text-center">
           <?php if(!empty($contact_photo)){ ?>
-          <img class="img-fluid" alt="contact_photo" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
+          <img class="img-fluid img-circle p-3" alt="contact_photo" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
           <?php }else{ ?>
           <span class="fa-stack fa-4x">
             <i class="fa fa-circle fa-stack-2x text-secondary"></i>
@@ -101,12 +76,21 @@ if(isset($_GET['contact_id'])){
         </div>
         <hr>
         <h3><?php echo $contact_name; ?></h3>
+        <?php if(!empty($contact_title)){ ?>
         <div class="mb-3 text-secondary"><?php echo $contact_title; ?></div>
-
+        <?php } ?>
+        <?php if(!empty($contact_title)){ ?>
         <div class="mb-1"><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name_display; ?></div>
-        <div><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><?php echo $contact_email_display; ?></div>
-        <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone_display $contact_phone_extention"; ?></div>
-        <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile_display; ?></div>
+        <?php } ?>
+        <?php if(!empty($contact_email)){ ?>
+        <div><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
+        <?php } ?>
+        <?php if(!empty($contact_phone)){ ?>
+        <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone $contact_phone_extention"; ?></div>
+        <?php } ?>
+        <?php if(!empty($contact_mobile)){ ?>
+        <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile; ?></div>
+        <?php } ?>
         <div class="mb-2"><i class="fa fa-fw fa-clock text-secondary mr-3"></i><?php echo date('Y-m-d',strtotime($contact_created_at)); ?></div>
         <hr>
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
