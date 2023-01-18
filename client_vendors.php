@@ -33,9 +33,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
   <div class="card-header py-2">
-    <h3 class="card-title mt-2"><i class="fa fa-fw fa-building"></i> Vendors</h3>
+    <h3 class="card-title mt-2 dropdown-toggle" data-toggle="dropdown">
+        <i class="fa fa-fw fa-building"></i> Vendors
+       
+      <div class="dropdown-menu">
+          <a class="dropdown-item text-dark" href="#">Global Vendors</a>
+      </div>
+
+
+    </h3>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addVendorModal"><i class="fas fa-fw fa-plus"></i> New Vendor</button>
+      <div class="btn-group">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addVendorModal">
+          <i class="fas fa-fw fa-plus"></i> New Vendor
+        </button>
+        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#contactInviteModal">From Template</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#contactInviteModal">Template</a>
+        </div>
+      </div>
     </div>
   </div>
   <div class="card-body">
