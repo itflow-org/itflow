@@ -504,7 +504,7 @@ if (isset($_GET['ticket_id'])) {
                                                     ?>
                                                     <p>
                                                         <i class="fas fa-fw fa-ticket-alt"></i>
-                                                        Ticket: <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo "$service_ticket_prefix$service_ticket_number" ?></a> on <?php echo $service_ticket_created_at; ?> <?php echo $service_ticket_subject; ?>
+                                                        Ticket: <a href="ticket.php?ticket_id=<?php echo $service_ticket_id; ?>"><?php echo "$service_ticket_prefix$service_ticket_number" ?></a> <?php echo "on $service_ticket_created_at - <b>$service_ticket_subject</b> ($service_ticket_status)"; ?>
                                                     </p>
                                                     <?php
                                                 }
