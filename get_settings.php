@@ -932,7 +932,6 @@ $asset_status_array = array(
 
 $themes_array = array(
     'blue',
-    'secondary',
     'green',
     'cyan',
     'yellow',
