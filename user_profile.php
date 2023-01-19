@@ -14,8 +14,8 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
 
 <div class="row">
   <div class="col-md-4">
-    <div class="card">
-      <div class="card-header bg-dark text-white">
+    <div class="card card-dark">
+      <div class="card-header py-3">
         <h3 class="card-title"><i class="fa fa-fw fa-user"></i> User Details</h3>
       </div>
       <div class="card-body">
@@ -149,8 +149,8 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
   </div>
 
   <div class="col-md-8">
-    <div class="card">
-      <div class="card-header bg-dark text-white">
+    <div class="card card-dark">
+      <div class="card-header py-3">
         <h3 class="card-title"><i class="fa fa-fw fa-sign-in-alt"></i> Recent Logins</h3>
       </div>
       <table class="table">
@@ -179,8 +179,8 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header bg-dark text-white">
+    <div class="card card-dark">
+      <div class="card-header py-3">
         <h3 class="card-title"><i class="fa fa-fw fa-history"></i> Your Recent Activity</h3>
       </div>
 

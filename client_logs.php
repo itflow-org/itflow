@@ -29,7 +29,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 ?>
 
 <div class="card card-dark">
-  <div class="card-header">
+  <div class="card-header py-3">
     <h3 class="card-title"><i class="fa fa-fw fa-eye"></i> Logs</h3>
   </div>
 
@@ -53,8 +53,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       </div>
     </form>
     <hr>
-    <div class="table-responsive">
-      <table class="table table-sm table-striped table-borderless table-hover">
+    <div class="table-responsive border">
+      <table class="table table-hover">
         <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_created_at&o=<?php echo $disp; ?>">Timestamp</a></th>

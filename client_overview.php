@@ -33,19 +33,71 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 
   <div class="col-12">
 
-    <div class="card card-outline card-primary mb-3">
+    <div class="card card-dark mb-5 elevation-3">
+      <div class="card-header">
+        <h5 class="card-title"><i class="fa fa-fw fa-edit mr-2"></i>Quick Notes</h5>
+      </div>
       <div class="card-body">
-        <textarea class="form-control" rows=5 id="clientNotes" placeholder="Enter client notes here" onblur="updateClientNotes(<?php echo $client_id ?>)"><?php echo $client_notes ?></textarea>
+        <textarea class="form-control" rows=5 id="clientNotes" placeholder="Enter quick notes here" onblur="updateClientNotes(<?php echo $client_id ?>)"><?php echo $client_notes ?></textarea>
       </div>
     </div>
 
   </div>
 
+<?php if(mysqli_num_rows($sql_important_contacts) > 0 ){ ?>
+
+  <div class="col-md-4">
+
+
+    <div class="card card-dark mb-3">
+      <div class="card-header">
+        <h5 class="card-title"><i class="fa fa-fw fa-users mr-2"></i>Important Contacts</h5>
+      </div>
+      <div class="card-body p-1">
+        <table class="table table-borderless table-sm">
+          <?php
+
+          while($row = mysqli_fetch_array($sql_important_contacts)){
+            $contact_id = $row['contact_id'];
+            $contact_name = htmlentities($row['contact_name']);
+            $contact_title = htmlentities($row['contact_title']);
+            $contact_email = htmlentities($row['contact_email']);
+            $contact_phone = formatPhoneNumber($row['contact_phone']);
+            $contact_extension = htmlentities($row['contact_extension']);
+            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+
+          ?>
+          <tr>
+            <td>
+              <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="text-bold"><?php echo $contact_name; ?></a>
+              <br>
+              <small class="text-secondary"><?php echo $contact_title; ?></small>
+            </td>
+            <td>
+              <?php if(!empty($contact_phone)){ ?>
+              <?php echo "<i class='fa fa-fw fa-phone text-secondary'></i> $contact_phone $contact_extension"; ?>
+              <?php } ?>
+              <?php if(!empty($contact_mobile)){ ?>
+              <br>
+              <div class="text-secondary"><i class='fa fa-fw fa-mobile-alt text-secondary'></i> <?php echo "$contact_mobile"; ?></div>
+              <?php } ?>
+            </td>
+          </tr>
+        <?php
+        }
+        ?>
+
+        </table>
+      </div>
+    </div>
+  </div>
+
+<?php } ?>
 
 <?php if(mysqli_num_rows($sql_contacts) > 0 || mysqli_num_rows($sql_vendors) > 0 ){ ?>
   <div class="col-md-3">
 
-    <div class="card card-outline card-primary mb-3">
+    <div class="card card-dark mb-3">
       <div class="card-header">
         <h5 class="card-title"><i class="fa fa-history mr-2"></i>Recently Updated</h5>
       </div>
@@ -88,59 +140,13 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
   </div>
 <?php } ?>
 
-<?php if(mysqli_num_rows($sql_important_contacts) > 0 ){ ?>
-
-  <div class="col-md-4">
-
-
-    <div class="card card-outline card-primary mb-3">
-      <div class="card-header">
-        <h5 class="card-title"><i class="fa fa-users mr-2"></i>Important Contacts</h5>
-      </div>
-      <div class="card-body p-1">
-        <table class="table table-borderless table-sm">
-          <?php
-
-          while($row = mysqli_fetch_array($sql_important_contacts)){
-            $contact_id = $row['contact_id'];
-            $contact_name = htmlentities($row['contact_name']);
-            $contact_title = htmlentities($row['contact_title']);
-            $contact_email = htmlentities($row['contact_email']);
-            $contact_phone = formatPhoneNumber($row['contact_phone']);
-            $contact_extension = htmlentities($row['contact_extension']);
-            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-
-          ?>
-          <tr>
-            <td>
-              <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="text-bold"><?php echo $contact_name; ?></a>
-              <br>
-              <small class="text-secondary"><?php echo $contact_title; ?></small>
-            </td>
-            <td>
-              <?php echo "$contact_phone $contact_extension"; ?>
-              <br>
-              <div class="text-secondary"><?php echo "$contact_mobile"; ?></div>
-            </td>
-          </tr>
-        <?php
-        }
-        ?>
-
-        </table>
-      </div>
-    </div>
-  </div>
-
-<?php } ?>
-
 <?php if(mysqli_num_rows($sql_contacts) > 0 || mysqli_num_rows($sql_vendors) > 0 ){ ?>
 
   <div class="col-md-3">
 
-    <div class="card card-outline card-primary mb-3">
+    <div class="card card-dark mb-3">
       <div class="card-header">
-        <h5 class="card-title"><i class="fa fa-eye mr-2"></i>Recently Viewed</h5>
+        <h5 class="card-title"><i class="fa fa-fw fa-eye mr-2"></i>Recently Viewed</h5>
       </div>
       <div class="card-body">
         
@@ -184,9 +190,9 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 
   <div class="col-md-4">
 
-    <div class="card card-outline card-warning mb-3">
+    <div class="card card-dark mb-3">
       <div class="card-header">
-        <h5 class="card-title"><i class="fas fa-calendar-alt mr-2"></i>Upcoming Expirations</h5>
+        <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning mr-2"></i>Upcoming Expirations</h5>
       </div>
       <div class="card-body">
         
@@ -254,7 +260,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 
   <div class="col-md-5">
 
-    <div class="card card-outline card-danger mb-3">
+    <div class="card card-danger mb-3">
       <div class="card-body">
         <h5 class="card-title mb-2"><i class="fa fa-life-ring"></i> Stale Tickets <small class="text-secondary">(14d)</small></h5>
         <table class="table table-borderless table-sm">

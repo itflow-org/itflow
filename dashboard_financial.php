@@ -264,29 +264,10 @@ $vendors_added = $row['vendors_added'];
     </div>
   </div>
 
-  <div class="col-md-12">
+  <div class="col-lg-4">
     <div class="card card-dark mb-3">
       <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-fw fa-route"></i> Trip Flow</h3>
-        <div class="card-tools">
-          <a href="trips.php" class="btn btn-tool">
-            <i class="fas fa-eye"></i>
-          </a>
-          <button type="button" class="btn btn-tool" data-card-widget="remove">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-      </div>
-      <div class="card-body">
-        <canvas id="tripFlow" width="100%" height="20"></canvas>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-lg-6">
-    <div class="card card-dark mb-3">
-      <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Income By Category</h3>
+        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Income by Category</h3>
         <div class="card-tools">
           <button type="button" class="btn btn-tool" data-card-widget="remove">
             <i class="fas fa-times"></i>
@@ -299,10 +280,10 @@ $vendors_added = $row['vendors_added'];
     </div>
   </div>
 
-  <div class="col-lg-6">
+  <div class="col-lg-4">
     <div class="card card-dark mb-3">
       <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Expenses By Category</h3>
+        <h3 class="card-title"><i class="fa fa-fw fa-shopping-cart"></i> Expenses by Category</h3>
         <div class="card-tools">
           <button type="button" class="btn btn-tool" data-card-widget="remove">
             <i class="fas fa-times"></i>
@@ -315,10 +296,10 @@ $vendors_added = $row['vendors_added'];
     </div>
   </div>
 
-  <div class="col-lg-6">
+  <div class="col-lg-4">
     <div class="card card-dark mb-3">
       <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Expenses By Vendor</h3>
+        <h3 class="card-title"><i class="fa fa-fw fa-building"></i> Expenses by Vendor</h3>
         <div class="card-tools">
           <button type="button" class="btn btn-tool" data-card-widget="remove">
             <i class="fas fa-times"></i>
@@ -331,10 +312,10 @@ $vendors_added = $row['vendors_added'];
     </div>
   </div>
 
-  <div class="col-md-6">
+  <div class="col-md-4">
     <div class="card card-dark mb-3">
       <div class="card-header">
-        <h3 class="card-title">Account Balance</h3>
+        <h3 class="card-title"><i class="fa fa-fw fa-piggy-bank"></i> Account Balances</h3>
         <div class="card-tools">
           <button type="button" class="btn btn-tool" data-card-widget="remove">
             <i class="fas fa-times"></i>
@@ -342,7 +323,7 @@ $vendors_added = $row['vendors_added'];
         </div>
       </div>
       <div class="table-responsive">
-        <table class="table table-borderless">
+        <table class="table">
           <tbody>
             <?php
             while($row = mysqli_fetch_array($sql_accounts)){
@@ -383,7 +364,7 @@ $vendors_added = $row['vendors_added'];
       </div>
     </div>
   </div> <!-- .col -->
-  <div class="col-md-6">
+  <div class="col-md-4">
     <div class="card card-dark mb-3">
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-credit-card"></i> Latest Income</h3>
@@ -394,7 +375,7 @@ $vendors_added = $row['vendors_added'];
         </div>
       </div>
       <div class="table-responsive">
-        <table class="table table-borderless">
+        <table class="table table-borderless table-sm">
           <thead>
             <tr>
               <th>Date</th>
@@ -426,7 +407,7 @@ $vendors_added = $row['vendors_added'];
       </div>
     </div>
   </div> <!-- .col -->
-  <div class="col-md-6">
+  <div class="col-md-4">
     <div class="card card-dark mb-3">
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-shopping-cart"></i> Latest Expenses</h3>
@@ -437,7 +418,7 @@ $vendors_added = $row['vendors_added'];
         </div>
       </div>
       <div class="table-responsive">
-        <table class="table table-borderless">
+        <table class="table table-sm table-borderless">
           <thead>
             <tr>
               <th>Date</th>
@@ -469,6 +450,24 @@ $vendors_added = $row['vendors_added'];
       </div>
     </div>
   </div> <!-- .col -->
+  <div class="col-md-12">
+    <div class="card card-dark mb-3">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-fw fa-route"></i> Trip Flow</h3>
+        <div class="card-tools">
+          <a href="trips.php" class="btn btn-tool">
+            <i class="fas fa-eye"></i>
+          </a>
+          <button type="button" class="btn btn-tool" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <canvas id="tripFlow" width="100%" height="20"></canvas>
+      </div>
+    </div>
+  </div>
 </div> <!-- row -->
 
 <?php include("footer.php"); ?>
