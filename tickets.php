@@ -160,6 +160,10 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                     <a href="?status=Closed"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
                 </small>
             </h3>
+            <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item text-dark" href="scheduled_tickets.php">Scheduled Tickets</a>
+            </div>
 
             <div class='card-tools'>
                 <div class="float-left">

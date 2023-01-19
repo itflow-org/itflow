@@ -33,15 +33,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
   <div class="card-header py-2">
-    <h3 class="card-title mt-2 dropdown-toggle" data-toggle="dropdown">
-        <i class="fa fa-fw fa-building"></i> Vendors
-       
-      <div class="dropdown-menu">
-          <a class="dropdown-item text-dark" href="#">Global Vendors</a>
-      </div>
-
-
+    <h3 class="card-title mt-2">
+      <i class="fa fa-fw fa-building"></i> Vendors
     </h3>
+    <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item text-dark" href="client_vendor_templates.php?client_id=<?php echo $client_id; ?>">Templates</a>
+    </div>
     <div class="card-tools">
       <div class="btn-group">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addVendorModal">

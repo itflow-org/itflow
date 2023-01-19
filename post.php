@@ -6763,26 +6763,45 @@ if(isset($_POST['add_document'])){
     $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
     
-    $template = intval($_POST['template']);
-    //Templates don't go into folders
-    if($template == 0){
-        $folder = intval($_POST['folder']);
-    }else{
-        $folder = 0;
-    }
-    //Templates don't have assigned client_ids
-    if($template == 1){
-        $client_id = 0;
-    }
+    $folder = intval($_POST['folder']);
 
     // Document add query
-    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_template = $template, document_folder_id = $folder, document_client_id = $client_id, company_id = $session_company_id");
+    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_client_id = $client_id, company_id = $session_company_id");
     $document_id = $mysqli->insert_id;
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = 'Created $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Document added";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['add_document_template'])){
+
+    validateTechRole();
+
+  // HTML Purifier
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+    $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+    $purifier = new HTMLPurifier($purifier_config);
+
+    $client_id = intval($_POST['client_id']);
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
+    $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
+    // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
+
+    // Document add query
+    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_template = 1, document_folder_id = 0, document_client_id = 0, company_id = $session_company_id");
+    $document_id = $mysqli->insert_id;
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document Template', log_action = 'Create', log_description = 'Created Document Template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Document Template created";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6824,7 +6843,7 @@ if(isset($_POST['add_document_from_template'])){
 
     $_SESSION['alert_message'] = "Document created from template";
     
-     header("Location: client_document_details.php?client_id=$client_id&folder_id=$folder_id&document_id=$document_id");
+     header("Location: client_document_template_details.php?client_id=$client_id&document_id=$document_id");
 
 }
 
@@ -6854,6 +6873,35 @@ if(isset($_POST['edit_document'])){
 
 
     $_SESSION['alert_message'] = "Document updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_document_template'])){
+
+    validateTechRole();
+
+  // HTML Purifier
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+    $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+    $purifier = new HTMLPurifier($purifier_config);
+
+    $document_id = intval($_POST['document_id']);
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
+    $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
+    // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
+
+    // Document edit query
+    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw' WHERE document_id = $document_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document Template', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+
+
+    $_SESSION['alert_message'] = "Document Template updated";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

@@ -28,6 +28,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 <div class="card card-dark">
   <div class="card-header">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-sync"></i> Scheduled Tickets</h3>
+    <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item text-dark" href="client_tickets.php?client_id=<?php echo $client_id; ?>">Tickets</a>
+    </div>
   </div>
 
   <div class="card-body">
