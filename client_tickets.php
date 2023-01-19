@@ -38,8 +38,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <a class="dropdown-item text-dark" href="client_scheduled_tickets.php?client_id=<?php echo $client_id; ?>">Scheduled Tickets</a>
     </div>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i> New Ticket</button>
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addScheduledTicketModal"><i class="fas fa-fw fa-plus"></i> Scheduled Ticket</button>
+      <div class="btn-group">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i> New Ticket</button>
+        </button>
+        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addScheduledTicketModal">Scheduled</a>
+        </div>
+      </div>
     </div>
   </div>
   <div class="card-body">
