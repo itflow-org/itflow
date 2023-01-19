@@ -82,7 +82,11 @@ $config_module_enable_accounting = $row['config_module_enable_accounting'];
 $config_currency_format = "US_en";
 
 // Theme
+$config_theme = $row['config_theme'];
 $config_enable_dark_mode = "dark_mode";
+$config_theme_navbar_color = $config_theme;
+$config_theme_side_nav_accent_color = $config_theme;
+$config_theme_hyperlink_accent = "";
 
 $colors_array = array(
     'green',
@@ -924,6 +928,29 @@ $asset_status_array = array(
     'Out for Repair',
     'Lost/Stolen',
     'Retired'
+);
+
+$themes_array = array(
+    'blue',
+    'secondary',
+    'green',
+    'cyan',
+    'yellow',
+    'red',
+    'black',
+    'gray-dark',
+    'gray',
+    'light',
+    'indigo',
+    'navy',
+    'purple',
+    'fuchsia',
+    'pink',
+    'maroon',
+    'orange',
+    'lime',
+    'teal',
+    'olive'
 );
 
 ?>

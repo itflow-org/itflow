@@ -38,5 +38,5 @@ header("X-Frame-Options: DENY");
   <script src="plugins/toastr/toastr.min.js"></script>
 
 </head>
-<body class="hold-transition sidebar-mini">
+<body class="hold-transition sidebar-mini accent-<?php echo $config_theme_hyperlink_accent; ?>">
   <div class="wrapper text-sm">

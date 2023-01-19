@@ -1,5 +1,5 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-primary d-print-none">
+<aside class="main-sidebar sidebar-dark-<?php echo $config_theme_side_nav_accent_color; ?> d-print-none">
 
   <!-- Sidebar -->
   <div class="sidebar">
@@ -67,6 +67,14 @@
         </li>
 
         <li class="nav-header mt-3">SETTINGS</li>
+
+        <li class="nav-item">
+          <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings_theme.php") { echo "active"; } ?>" 
+            href="settings_theme.php">
+            <i class="nav-icon fa fa-palette"></i>
+            <p>Theme</p>
+          </a> 
+        </li>
 
         <li class="nav-item">
           <a class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "settings_mail.php") { echo "active"; } ?>" 

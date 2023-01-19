@@ -988,6 +988,23 @@ if(isset($_POST['edit_default_settings'])){
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if(isset($_POST['edit_theme_settings'])){
+
+    validateAdminRole();
+
+    $theme = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['theme'])));
+
+    mysqli_query($mysqli,"UPDATE settings SET config_theme = '$theme' WHERE company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified theme settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Theme updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+
 if(isset($_POST['edit_alert_settings'])){
 
     validateAdminRole();

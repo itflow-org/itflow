@@ -1,5 +1,5 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-primary elevation-3 d-print-none">
+<aside class="main-sidebar sidebar-dark-<?php echo $config_theme_side_nav_accent_color; ?> elevation-3 d-print-none">
 
     <!-- Sidebar -->
     <div class="sidebar">
