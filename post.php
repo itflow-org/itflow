@@ -6762,8 +6762,18 @@ if(isset($_POST['add_document'])){
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
     $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
+    
     $template = intval($_POST['template']);
-    $folder = intval($_POST['folder']);
+    //Templates don't go into folders
+    if($template == 0){
+        $folder = intval($_POST['folder']);
+    }else{
+        $folder = 0;
+    }
+    //Templates don't have assigned client_ids
+    if($template == 1){
+        $client_id = 0;
+    }
 
     // Document add query
     $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_template = $template, document_folder_id = $folder, document_client_id = $client_id, company_id = $session_company_id");
