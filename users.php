@@ -99,8 +99,9 @@
             $log_created_at = $row['log_created_at'];
             $log_ip = htmlentities($row['log_ip']);
             $log_user_agent = htmlentities($row['log_user_agent']);
-
-            $last_login = "$log_ip - $log_user_agent";
+            $log_user_os = get_os($log_user_agent);
+            $log_user_browser = get_web_browser($log_user_agent);
+            $last_login = "$log_user_os<br>$log_user_browser<br><i class='fa fa-fw fa-globe'></i> $log_ip";
             if(empty($last_login)){
               $last_login = "Never logged in"; 
             }
@@ -125,7 +126,11 @@
             <td><a href="mailto:<?php echo $user_email; ?>"><?php echo $user_email; ?></a></td>
             <td><?php echo $user_role_display; ?></td>
             <td><?php echo $user_status_display; ?></td>
-            <td><?php echo $log_created_at; ?> <br> <small class="text-secondary"><?php echo $last_login; ?></small></td>
+            <td>
+              <?php echo $log_created_at; ?> 
+              <br>
+              <small class="text-secondary"><?php echo $last_login; ?></small>
+            </td>
             <td>
               <div class="dropdown dropleft text-center">
                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
