@@ -86,26 +86,25 @@ $config_theme = $row['config_theme'];
 $config_enable_dark_mode = "dark_mode";
 
 $colors_array = array(
-    'green',
-    'olive',
-    'yellowgreen',
-    'lime',
     'blue',
-    'darkblue',
-    'cadetblue',
+    'green',
     'cyan',
-    'purple',
-    'indigo',
-    'magenta',
+    'yellow',
     'red',
-    'crimson',
-    'indianred',
-    'pink',
-    'orange',
-    'teal',
     'black',
     'gray-dark',
-    'gray' 
+    'gray',
+    'light',
+    'indigo',
+    'navy',
+    'purple',
+    'fuchsia',
+    'pink',
+    'maroon',
+    'orange',
+    'lime',
+    'teal',
+    'olive'
 );
 
 $net_terms_array = array(
@@ -925,28 +924,6 @@ $asset_status_array = array(
     'Out for Repair',
     'Lost/Stolen',
     'Retired'
-);
-
-$themes_array = array(
-    'blue',
-    'green',
-    'cyan',
-    'yellow',
-    'red',
-    'black',
-    'gray-dark',
-    'gray',
-    'light',
-    'indigo',
-    'navy',
-    'purple',
-    'fuchsia',
-    'pink',
-    'maroon',
-    'orange',
-    'lime',
-    'teal',
-    'olive'
 );
 
 ?>

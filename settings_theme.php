@@ -12,17 +12,17 @@
 
           <?php
           
-          foreach($themes_array as $theme_color) {
+          foreach($colors_array as $color) {
           
           ?>
           
           <div class="col-3 text-center mb-3">
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="theme" value="<?php echo $theme_color; ?>" <?php if($config_theme == $theme_color){ echo "checked"; } ?>>
+              <input class="form-check-input" type="radio" name="theme" value="<?php echo $color; ?>" <?php if($config_theme == $color){ echo "checked"; } ?>>
               <label class="form-check-label">
-                <i class="fa fa-fw fa-6x fa-circle text-<?php echo $theme_color; ?>"></i>
+                <i class="fa fa-fw fa-6x fa-circle text-<?php echo $color; ?>"></i>
                 <br>
-                <?php echo $theme_color; ?>
+                <?php echo $color; ?>
               </label>
             </div>
           </div>
