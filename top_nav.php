@@ -8,14 +8,12 @@
     </li>
   </ul>
 
-  
-
   <!-- Right navbar links -->
 
   <ul class="navbar-nav ml-auto">
 
     <!-- SEARCH FORM -->
-    <form class="form-inline mx-auto" action="global_search.php">
+    <form class="form-inline" action="global_search.php">
       <div class="input-group input-group-sm">
         <input class="form-control form-control-navbar" type="search" placeholder="Search" name="query" value="<?php if(isset($_GET['query'])){ echo htmlentities($_GET['query']); } ?>">
         <div class="input-group-append">
@@ -29,7 +27,7 @@
     <!-- Notifications -->
     <li class="nav-item">
       <a class="nav-link" href="notifications.php">
-        <i class="fas fa-bell mr-2 ml-5"></i>
+        <i class="fa fa-fw fa-bell mx-1"></i>
         <?php if($num_notifications > 0){ ?>
         <span class="badge badge-danger navbar-badge"><?php echo $num_notifications; ?></span>
         <?php } ?>
@@ -39,7 +37,7 @@
     <li class="nav-item dropdown user-menu">
       <a href="#" class="nav-link" data-toggle="dropdown">
         <?php if(empty($session_avatar)){ ?>
-        	<i class="fas fa-user"></i>
+        	<i class="fa fa-fw fa-user"></i>
         <?php }else{ ?>
         <img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="user-image img-circle">
         <?php } ?>
