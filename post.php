@@ -6860,7 +6860,7 @@ if(isset($_POST['add_document_from_template'])){
 
     $_SESSION['alert_message'] = "Document created from template";
     
-     header("Location: client_document_template_details.php?client_id=$client_id&document_id=$document_id");
+     header("Location: client_document_details.php?client_id=$client_id&document_id=$document_id");
 
 }
 
@@ -6879,11 +6879,10 @@ if(isset($_POST['edit_document'])){
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
     $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
-    $template = intval($_POST['template']);
     $folder = intval($_POST['folder']);
 
     // Document edit query
-    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_template = $template, document_folder_id = $folder WHERE document_id = $document_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_folder_id = $folder WHERE document_id = $document_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");

@@ -83,7 +83,7 @@ $config_currency_format = "US_en";
 
 // Theme
 $config_theme = $row['config_theme'];
-$config_enable_dark_mode = "dark_mode";
+$config_theme_mode = "dark_mode";
 
 $colors_array = array(
     'blue',

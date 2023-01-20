@@ -18,24 +18,8 @@
           <div class="form-group">
             <textarea class="form-control summernote" name="content"><?php echo $document_content; ?></textarea>
           </div>
-        
-        </div>
-        <div class="modal-footer bg-white">
 
-          <div class="form-group mr-auto">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
-              </div>
-              <select class="form-control" name="template">
-                <option value="0">Document</option>
-                <option value="1">Template</option>
-                <option value="3">Global Template</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group ml-auto">
+          <div class="form-group">
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
@@ -55,7 +39,9 @@
               </select>
             </div>
           </div>
-
+        
+        </div>
+        <div class="modal-footer bg-white">
           <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
           <button type="submit" name="edit_document" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
         </div>

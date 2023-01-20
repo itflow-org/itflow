@@ -180,7 +180,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
               <tr>
                 <td>
-                  <a href="client_document_details.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $document_folder_id; ?>&document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt"></i> <?php echo $document_name; ?></a>
+                  <a href="client_document_details.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt"></i> <?php echo $document_name; ?></a>
                 </td>
                 <td><?php echo $document_created_at; ?></td>
                 <td><?php echo $document_updated_at; ?></td>

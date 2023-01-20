@@ -2,10 +2,6 @@
 
 <?php 
 
-if(isset($_GET['folder_id'])){
-  $folder_id = intval($_GET['folder_id']);
-}
-
 if(isset($_GET['document_id'])){
 	$document_id = intval($_GET['document_id']);
 }
@@ -14,8 +10,8 @@ if(isset($_GET['document_id'])){
 $sql_document = mysqli_query($mysqli,"SELECT * FROM documents LEFT JOIN folders ON document_folder_id = folder_id WHERE document_client_id = $client_id AND document_id = $document_id AND documents.company_id = $session_company_id");
 
 $row = mysqli_fetch_array($sql_document);
-$folder_name = $row['folder_name'];
 
+$folder_name = htmlentities($row['folder_name']);
 $document_name = htmlentities($row['document_name']);
 $document_content = $row['document_content'];
 $document_created_at = $row['document_created_at'];
@@ -37,9 +33,9 @@ $document_folder_id = $row['document_folder_id'];
   <li class="breadcrumb-item">
     <a href="client_documents.php?client_id=<?php echo $client_id; ?>">Documents</a>
   </li>
-  <?php if($folder_id > 0){ ?>
+  <?php if($document_folder_id > 0){ ?>
   <li class="breadcrumb-item">
-    <a href="client_documents.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>"><i class="fas fa-folder-open"></i> <?php echo $folder_name; ?></a>
+    <a href="client_documents.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $document_folder_id; ?>"><i class="fas fa-folder-open"></i> <?php echo $folder_name; ?></a>
   </li>
   <?php } ?>
   <li class="breadcrumb-item active"><i class="fas fa-file"></i> <?php echo "$document_name"; ?></li>
