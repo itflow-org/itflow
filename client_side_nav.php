@@ -317,7 +317,7 @@
         <li class="nav-item">
           <a href="client_logs.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "client_logs.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-eye"></i>
-            <p>Logs</p>
+            <p>Audit Logs</p>
           </a>
         </li>
 
