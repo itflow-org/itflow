@@ -141,6 +141,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $log_description = htmlentities($row['log_description']);
             $log_ip = htmlentities($row['log_ip']);
             $log_user_agent = htmlentities($row['log_user_agent']);
+            $log_user_os = get_os($log_user_agent);
+            $log_user_browser = get_web_browser($log_user_agent);
             $log_created_at = $row['log_created_at'];
             $user_id = $row['user_id'];
             $user_name = htmlentities($row['user_name']);
@@ -167,7 +169,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $log_action; ?></td>
             <td><?php echo $log_description; ?></td>
             <td><?php echo $log_ip; ?></td>
-            <td><?php echo $log_user_agent; ?></td>
+            <td><?php echo "$log_user_os<br>$log_user_browser"; ?></td>
           </tr>
 
           <?php

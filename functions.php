@@ -90,17 +90,12 @@ function get_web_browser() {
   $user_agent = get_user_agent();
   $browser        =   "Unknown Browser";
   $browser_array  =   array(
-    '/msie/i'       =>  'Internet Explorer',
-    '/Trident/i'    =>  'Internet Explorer',
-    '/firefox/i'    =>  'Firefox',
-    '/safari/i'     =>  'Safari',
-    '/chrome/i'     =>  'Chrome',
-    '/edge/i'       =>  'Edge',
-    '/opera/i'      =>  'Opera',
-    '/netscape/i'   =>  'Netscape',
-    '/maxthon/i'    =>  'Maxthon',
-    '/konqueror/i'  =>  'Konqueror',
-    '/ubrowser/i'   =>  'UC Browser',
+    '/msie/i'       =>  "<i class='fab fa-fw fa-internet-explorer text-secondary'></i> Internet Explorer",
+    '/firefox/i'    =>  "<i class='fab fa-fw fa-firefox text-secondary'></i> Firefox",
+    '/safari/i'     =>  "<i class='fab fa-fw fa-safari text-secondary'></i> Safari",
+    '/chrome/i'     =>  "<i class='fab fa-fw fa-chrome text-secondary'></i> Chrome",
+    '/edge/i'       =>  "<i class='fab fa-fw fa-edge text-secondary'></i> Edge",
+    '/opera/i'      =>  "<i class='fab fa-fw fa-opera text-secondary'></i> Opera"
   );
   foreach ($browser_array as $regex => $value) {
     if (preg_match($regex, $user_agent)) {
@@ -114,23 +109,21 @@ function get_os() {
   $user_agent = get_user_agent();
   $os_platform    =   "Unknown OS";
   $os_array       =   array(
-    '/windows nt 10/i'      =>  'Windows 10',
-    '/windows nt 6.3/i'     =>  'Windows 8.1',
-    '/windows nt 6.2/i'     =>  'Windows 8',
-    '/windows nt 6.1/i'     =>  'Windows 7',
-    '/windows nt 6.0/i'     =>  'Windows Vista',
-    '/windows nt 5.2/i'     =>  'Windows Server 2003/XP x64',
-    '/windows nt 5.1/i'     =>  'Windows XP',
-    '/windows xp/i'         =>  'Windows XP',
-    '/macintosh|mac os x/i' =>  'MacOS',
-    '/linux/i'              =>  'Linux',
-    '/ubuntu/i'             =>  'Ubuntu',
-    '/iphone/i'             =>  'iPhone',
-    '/ipod/i'               =>  'iPod',
-    '/ipad/i'               =>  'iPad',
-    '/android/i'            =>  'Android',
-    '/blackberry/i'         =>  'BlackBerry',
-    '/webos/i'              =>  'Mobile'
+    '/windows nt 10/i'      =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 10",
+    '/windows nt 6.3/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 8.1",
+    '/windows nt 6.2/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 8",
+    '/windows nt 6.1/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 7",
+    '/windows nt 6.0/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows Vista",
+    '/windows nt 5.2/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows Server 2003/XP x64",
+    '/windows nt 5.1/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows XP",
+    '/windows xp/i'         =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows XP",
+    '/macintosh|mac os x/i' =>  "<i class='fab fa-fw fa-apple text-secondary'></i> MacOS",
+    '/linux/i'              =>  "<i class='fab fa-fw fa-linux text-secondary'></i> Linux",
+    '/ubuntu/i'             =>  "<i class='fab fa-fw fa-ubuntu text-secondary'></i> Ubuntu",
+    '/iphone/i'             =>  "<i class='fab fa-fw fa-apple text-secondary'></i> iPhone",
+    '/ipod/i'               =>  "<i class='fab fa-fw fa-apple text-secondary'></i> iPod",
+    '/ipad/i'               =>  "<i class='fab fa-fw fa-apple text-secondary'></i> iPad",
+    '/android/i'            =>  "<i class='fab fa-fw fa-android text-secondary'></i> Android"
   );
   foreach ($os_array as $regex => $value) {
     if (preg_match($regex, $user_agent)) {

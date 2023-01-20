@@ -4,19 +4,19 @@
 
 $sql_recent_logins = mysqli_query($mysqli,"SELECT * FROM logs 
     WHERE log_type = 'Login' OR log_type = 'Login 2FA' AND log_action = 'Success' AND log_user_id = $session_user_id
-    ORDER BY log_id DESC LIMIT 5");
+    ORDER BY log_id DESC LIMIT 3");
 
 $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs 
     WHERE log_user_id = $session_user_id AND log_type NOT LIKE 'Login'
-    ORDER BY log_id DESC LIMIT 10");
+    ORDER BY log_id DESC LIMIT 5");
 
 ?>
 
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-3">
     <div class="card card-dark">
       <div class="card-header py-3">
-        <h3 class="card-title"><i class="fa fa-fw fa-user"></i> User Details</h3>
+        <h3 class="card-title"><i class="fa fa-fw fa-user"></i> Your User Details</h3>
       </div>
       <div class="card-body">
 
@@ -24,7 +24,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
           <input type="hidden" name="existing_file_name" value="<?php echo $session_avatar; ?>">
 
-          <center class="mb-3 p-4">
+          <center class="mb-3 px-5">
             <?php if(empty($session_avatar)){ ?>
               <i class="fas fa-user-circle fa-8x text-secondary"></i>
             <?php }else{ ?>
@@ -36,7 +36,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           <hr>
 
           <div class="form-group">
-            <label>Name <strong class="text-danger">*</strong></label>
+            <label>Your Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
@@ -46,7 +46,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           </div>
 
           <div class="form-group">
-            <label>Email <strong class="text-danger">*</strong></label>
+            <label>Your Email <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
@@ -56,7 +56,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           </div>
 
           <div class="form-group">
-            <label>New Password</label>
+            <label>Your New Password</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
@@ -69,7 +69,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           </div>
 
           <div class="form-group">
-            <label>Avatar</label>
+            <label>Your Avatar</label>
             <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
           </div>
 
@@ -78,31 +78,28 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
             <div class="form-group">
               <div class="form-check">
                 <input type="checkbox" class="form-check-input" name="extension" id="extension" value="Yes" <?php if(isset($_COOKIE['user_extension_key'])) {echo "checked";} ?>>
-                <label class="form-check-label" for="extension">Extension access enabled?</label>
-                <p>Note: You must log out and back in again for these changes take effect.</p>
+                <label class="form-check-label" for="extension">Enable Browser Extention?</label>
+                <p class="small">Note: You must log out and back in again for these changes take effect.</p>
               </div>
             </div>
 
           <?php } ?>
 
-          <button type="submit" name="edit_profile" class="btn btn-primary mt-3"><i class="fa fa-fw fa-check"></i> Save</button>
+          <button type="submit" name="edit_profile" class="btn btn-primary btn-block mt-3"><i class="fa fa-fw fa-check"></i> Save</button>
 
 
         </form>
 
         <hr>
 
-        <h3>2-Factor Authentication</h3>
-
-        <form class="p-3" action="post.php" method="post" autocomplete="off">
+        <form action="post.php" method="post" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
           <?php if(empty($session_token)){ ?>
-            <p>You have not setup 2FA, click on enable to setup 2FA.</p>
-            <button type="submit" name="enable_2fa" class="btn btn-primary mt-3"><i class="fa fa-fw fa-lock"></i> Enable 2FA</button>
+            <button type="submit" name="enable_2fa" class="btn btn-success btn-block mt-3"><i class="fa fa-fw fa-lock"></i><br> Enable 2FA</button>
           <?php }else{ ?>
             <p>You have setup 2FA. Your QR code is below.</p>
-            <button type="submit" name="disable_2fa" class="btn btn-danger mt-3"><i class="fa fa-fw fa-unlock"></i> Disable 2FA</button>
+            <button type="submit" name="disable_2fa" class="btn btn-danger btn-block mt-3"><i class="fa fa-fw fa-unlock"></i><br>Disable 2FA</button>
           <?php } ?>
 
           <center>
@@ -129,7 +126,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
         </form>
 
         <?php if(!empty($session_token)){ ?>
-          <form class="p-3" action="post.php" method="post" autocomplete="off">
+          <form action="post.php" method="post" autocomplete="off">
             <div class="form-group">
               <div class="input-group">
                 <div class="input-group-prepend">
@@ -137,7 +134,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
                 </div>
                 <input type="text" class="form-control" name="code" placeholder="Verify 2FA Code" required>
                 <div class="input-group-append">
-                  <button type="submit" name="verify" class="btn btn-primary">Verify</button>
+                  <button type="submit" name="verify" class="btn btn-success">Verify</button>
                 </div>
               </div>
             </div>
@@ -148,12 +145,12 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
     </div>
   </div>
 
-  <div class="col-md-8">
+  <div class="col-md-3">
     <div class="card card-dark">
       <div class="card-header py-3">
-        <h3 class="card-title"><i class="fa fa-fw fa-sign-in-alt"></i> Recent Logins</h3>
+        <h3 class="card-title"><i class="fa fa-fw fa-sign-in-alt"></i> Your Recent Logins</h3>
       </div>
-      <table class="table">
+      <table class="table table-borderless table-sm">
         <tbody>
         <?php
 
@@ -161,13 +158,16 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           $log_id = $row['log_id'];
           $log_ip = htmlentities($row['log_ip']);
           $log_user_agent = htmlentities($row['log_user_agent']);
+          $log_user_os = get_os($log_user_agent);
+          $log_user_browser = get_web_browser($log_user_agent);
           $log_created_at = $row['log_created_at'];
 
           ?>
 
           <tr>
-            <td><i class="fa fa-fw fa-sign-in-alt text-secondary"></i> <?php echo "$log_ip - $log_user_agent"; ?></td>
             <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
+            <td><?php echo "<strong>$log_user_os</strong><br>$log_user_browser<br><i class='fa fa-fw fa-globe text-secondary'></i> $log_ip"; ?></td>
+            
           </tr>
           <?php
         }
@@ -178,14 +178,16 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
         <a href="logs.php?q=<?php echo "$session_name successfully logged in"; ?>">See More...</a>
       </div>
     </div>
+  </div>
 
+  <div class="col-md-6">
     <div class="card card-dark">
       <div class="card-header py-3">
         <h3 class="card-title"><i class="fa fa-fw fa-history"></i> Your Recent Activity</h3>
       </div>
 
 
-      <table class="table">
+      <table class="table table-borderless table-sm">
         <tbody>
         <?php
 
@@ -209,9 +211,12 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           ?>
 
           <tr>
-            <td><i class="fa fa-fw text-secondary fa-<?php echo $log_icon; ?>"></i> <?php echo $log_type; ?></td>
-            <td><?php echo $log_description; ?></td>
             <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
+            <td><strong><i class="fa fa-fw text-secondary fa-<?php echo $log_icon; ?>"></i> <?php echo $log_type; ?></strong>
+              <br>
+              <span class="text-secondary"><?php echo $log_description; ?></span>
+            </td>
+            
           </tr>
           <?php
         }
