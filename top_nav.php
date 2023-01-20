@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="main-header navbar navbar-expand navbar-<?php echo $config_theme_navbar_color; ?> navbar-dark">
+<nav class="main-header navbar navbar-expand navbar-<?php echo $config_theme; ?> navbar-dark">
 
   <!-- Left navbar links -->
   <ul class="navbar-nav">

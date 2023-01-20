@@ -84,9 +84,6 @@ $config_currency_format = "US_en";
 // Theme
 $config_theme = $row['config_theme'];
 $config_enable_dark_mode = "dark_mode";
-$config_theme_navbar_color = $config_theme;
-$config_theme_side_nav_accent_color = $config_theme;
-$config_theme_hyperlink_accent = "";
 
 $colors_array = array(
     'green',

@@ -156,8 +156,8 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring"></i> Tickets
                 <small class="ml-3">
-                    <a href="?status=Open"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
-                    <a href="?status=Closed"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
+                    <a href="?status=Open" class="text-white"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
+                    <a href="?status=Closed" class="text-white"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
                 </small>
             </h3>
             <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
