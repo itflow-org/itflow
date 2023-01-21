@@ -16,7 +16,7 @@ if(!isset($config_enable_setup) || $config_enable_setup == 1){
   exit;
 }
 
-if(!$_SESSION['logged']){
+if(!isset($_SESSION['logged']) || !$_SESSION['logged']){
   header("Location: login.php");
   die;
 }

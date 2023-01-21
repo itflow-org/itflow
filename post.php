@@ -156,7 +156,9 @@ if(isset($_POST['edit_user'])){
     $role = intval($_POST['role']);
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
     $extended_log_description = '';
-    $two_fa = $_POST['2fa'];
+    if(!empty($_POST['2fa'])) {
+        $two_fa = $_POST['2fa'];
+    }
 
     if(!file_exists("uploads/users/$user_id/")) {
         mkdir("uploads/users/$user_id");
@@ -285,6 +287,32 @@ if(isset($_POST['edit_profile'])){
     $logout = FALSE;
     $extended_log_description = '';
 
+    // Email notification when password or email is changed
+    $user_old_email_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_email FROM users WHERE user_id = $user_id"));
+    $user_old_email = $user_old_email_sql['user_email'];
+
+    if (!empty($config_smtp_host) && (!empty($new_password) || $user_old_email !== $email)) {
+
+        // Determine exactly what changed
+        if ($user_old_email !== $email && !empty($new_password)) {
+            $details = "Your e-mail address and password were changed. New email: $email.";
+        }
+        elseif ($user_old_email !== $email) {
+            $details = "Your email address was changed. New email: $email.";
+        }
+        elseif (!empty($new_password)) {
+            $details = "Your password was changed.";
+        }
+
+        $subject = "$config_app_name account update confirmation for $name";
+        $body = "Hi $name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>$details</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>ITFlow<br>$session_company_name";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_mail_from_email, $config_mail_from_name,
+            $user_old_email, $name,
+            $subject, $body);
+    }
+
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
     
@@ -332,8 +360,6 @@ if(isset($_POST['edit_profile'])){
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
-    
-    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $user_id");
 
     if(!empty($new_password)){
         $new_password = password_hash($new_password, PASSWORD_DEFAULT);
@@ -360,6 +386,8 @@ if(isset($_POST['edit_profile'])){
         mysqli_query($mysqli, "UPDATE users SET user_extension_key = '' WHERE user_id = $user_id");
         $extended_log_description .= ", extension access disabled";
     }
+
+    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $user_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Preferences', log_action = 'Modify', log_description = '$session_name modified their preferences$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
@@ -952,9 +980,9 @@ if(isset($_POST['edit_ticket_settings'])){
     $config_ticket_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_from_email'])));
     $config_ticket_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_from_name'])));
     $config_ticket_email_parse = intval($_POST['config_ticket_email_parse']);
+    $config_ticket_client_general_notifications = intval($_POST['config_ticket_client_general_notifications']);
 
-
-  mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name', config_ticket_email_parse = '$config_ticket_email_parse' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name', config_ticket_email_parse = '$config_ticket_email_parse', config_ticket_client_general_notifications = $config_ticket_client_general_notifications WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = 'Ticket settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
@@ -1107,6 +1135,17 @@ if(isset($_POST['disable_2fa'])){
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Settings', log_action = 'Modify', log_description = '$session_name disabled 2FA on their account', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+
+    // Email notification
+    if (!empty($config_smtp_host)) {
+        $subject = "$config_app_name account update confirmation for $session_name";
+        $body = "Hi $session_name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>2FA was disabled.</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>ITFlow<br>$session_company_name";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_mail_from_email, $config_mail_from_name,
+            $session_email, $session_name,
+            $subject, $body);
+    }
 
     $_SESSION['alert_message'] = "Two-factor authentication disabled";
 
@@ -5918,10 +5957,10 @@ if(isset($_POST['add_ticket'])){
     $id = mysqli_insert_id($mysqli);
 
     // E-mail client
-    if (!empty($config_smtp_host)) {
+    if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 
         // Get contact/ticket details
-        $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, company_phone FROM tickets 
+        $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
               LEFT JOIN clients ON ticket_client_id = client_id 
               LEFT JOIN contacts ON ticket_contact_id = contact_id
               LEFT JOIN companies ON tickets.company_id = companies.company_id
@@ -5932,13 +5971,14 @@ if(isset($_POST['add_ticket'])){
         $contact_email = $row['contact_email'];
         $ticket_prefix = $row['ticket_prefix'];
         $ticket_number = $row['ticket_number'];
+        $ticket_subject = $row['ticket_subject'];
         $company_phone = formatPhoneNumber($row['company_phone']);
 
         // Verify contact email is valid
         if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
 
-            $subject = "Ticket created - [$ticket_prefix$ticket_number] - $subject";
-            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+            $subject = "Ticket created - [$ticket_prefix$ticket_number] - $ticket_subject";
+            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$ticket_subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
             $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
                 $config_ticket_from_email, $config_ticket_from_name,
@@ -6096,10 +6136,11 @@ if(isset($_POST['assign_ticket'])){
 
     } else {
       // Get & verify assigned agent details
-      $agent_details_sql = mysqli_query($mysqli, "SELECT user_name FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = '$assigned_to' AND user_settings.user_role > 1");
+      $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = '$assigned_to' AND user_settings.user_role > 1");
       $agent_details = mysqli_fetch_array($agent_details_sql);
       $agent_name = $agent_details['user_name'];
-      $ticket_reply = "Ticket re-assigned to $agent_details[user_name].";
+      $agent_email = $agent_details['user_email'];
+      $ticket_reply = "Ticket re-assigned to $agent_name.";
 
       if(!$agent_name){
         $_SESSION['alert_type'] = "error";
@@ -6110,8 +6151,10 @@ if(isset($_POST['assign_ticket'])){
     }
 
     // Get & verify ticket details
-    $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_subject FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_status != 'Closed'");
+    $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_status != 'Closed'");
     $ticket_details = mysqli_fetch_array($ticket_details_sql);
+    $ticket_prefix = $ticket_details['ticket_prefix'];
+    $ticket_number = $ticket_details['ticket_number'];
     $ticket_subject = $ticket_details['ticket_subject'];
 
     if(!$ticket_subject){
@@ -6127,7 +6170,19 @@ if(isset($_POST['assign_ticket'])){
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$ticket_subject reassigned to $agent_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$ticket_subject ($ticket_id) - $ticket_reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
+
+    // Email notification
+    if (intval($session_user_id) !== $assigned_to) {
+        $subject = "$config_app_name ticket $ticket_prefix$ticket_number assigned to you";
+        $body = "Hi $agent_name, <br><br>A ticket has been assigned to you!<br><br>ID: $ticket_prefix$ticket_number<br> Subject: $ticket_subject <br><br>Thanks, <br>$session_name<br>ITFlow";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_ticket_from_email, $config_ticket_from_name,
+            $agent_email, $agent_name,
+            $subject, $body);
+    }
+
 
     $_SESSION['alert_message'] = "Ticket re-assigned";
     
@@ -6345,7 +6400,7 @@ if(isset($_GET['close_ticket'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id Closed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     // Client notification email
-    if (!empty($config_smtp_host)) {
+    if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 
       // Get details
       $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
