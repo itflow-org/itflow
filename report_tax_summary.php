@@ -2,7 +2,7 @@
 
 <?php
 
-if(isset($_GET['year'])){
+if (isset($_GET['year'])) {
   $year = intval($_GET['year']);
 }else{
   $year = date('Y');
@@ -27,10 +27,10 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
       <select onchange="this.form.submit()" class="form-control" name="year">
         <?php 
                 
-        while($row = mysqli_fetch_array($sql_all_years)){
+        while ($row = mysqli_fetch_array($sql_all_years)) {
           $all_years = $row['all_years'];
         ?>
-        <option <?php if($year == $all_years){ echo "selected"; } ?> > <?php echo $all_years; ?></option>
+        <option <?php if ($year == $all_years) { echo "selected"; } ?> > <?php echo $all_years; ?></option>
         
         <?php
         }
@@ -52,7 +52,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
         </thead>
         <tbody>
           <?php
-          while($row = mysqli_fetch_array($sql_tax)){
+          while ($row = mysqli_fetch_array($sql_tax)) {
             $tax_id = $row['tax_id'];
             $tax_name = htmlentities($row['tax_name']);
           ?>

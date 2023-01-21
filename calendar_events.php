@@ -4,7 +4,7 @@
 
 <?php 
 
-if(isset($_GET['calendar_id'])){
+if (isset($_GET['calendar_id'])) {
   $calendar_selected_id = intval($_GET['calendar_id']);
 }
 
@@ -23,7 +23,7 @@ if(isset($_GET['calendar_id'])){
 <?php
 //loop through IDs and create a modal for each
 $sql = mysqli_query($mysqli,"SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id WHERE calendars.company_id = $session_company_id");
-while($row = mysqli_fetch_array($sql)){
+while ($row = mysqli_fetch_array($sql)) {
   $event_id = $row['event_id'];
   $event_title = htmlentities($row['event_title']);
   $event_description = htmlentities($row['event_description']);
@@ -75,7 +75,7 @@ while($row = mysqli_fetch_array($sql)){
         events: [
           <?php
           $sql = mysqli_query($mysqli,"SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id WHERE calendars.company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $event_id = json_encode($row['event_id']);
             $event_title = json_encode($row['event_title']);
             $event_start = json_encode($row['event_start']);
@@ -91,7 +91,7 @@ while($row = mysqli_fetch_array($sql)){
           <?php
           //Invoices Created
           $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN invoices ON client_id = invoice_client_id WHERE clients.company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $event_id = json_encode($row['invoice_id']);
             $event_title = json_encode($row['invoice_prefix'] . $row['invoice_number'] . " " . $row['invoice_scope']);
             $event_start = json_encode($row['invoice_date']);
@@ -103,7 +103,7 @@ while($row = mysqli_fetch_array($sql)){
           <?php
           //Quotes Created
           $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN quotes ON client_id = quote_client_id WHERE clients.company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $event_id = json_encode($row['quote_id']);
             $event_title = json_encode($row['quote_prefix'] . $row['quote_number'] . " " . $row['quote_scope']);
             $event_start = json_encode($row['quote_date']);
@@ -115,7 +115,7 @@ while($row = mysqli_fetch_array($sql)){
           <?php
           //Tickets Created
           $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN tickets ON client_id = ticket_client_id WHERE clients.company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $event_id = json_encode($row['ticket_id']);
             $event_title = json_encode($row['ticket_prefix'] . $row['ticket_number'] . " " . $row['ticket_subject']);
             $event_start = json_encode($row['ticket_created_at']);
@@ -129,7 +129,7 @@ while($row = mysqli_fetch_array($sql)){
           <?php
           //Vendors Added Created
           $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN vendors ON client_id = vendor_client_id WHERE vendor_template = 0 AND clients.company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $event_id = json_encode($row['vendor_id']);
             $event_title = json_encode($row['vendor_name']);
             $event_start = json_encode($row['vendor_created_at']);
@@ -141,7 +141,7 @@ while($row = mysqli_fetch_array($sql)){
           <?php
           //Clients Added
           $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE clients.company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $event_id = json_encode($row['client_id']);
             $event_title = json_encode($row['client_name']);
             $event_start = json_encode($row['client_created_at']);

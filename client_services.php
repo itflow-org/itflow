@@ -2,7 +2,7 @@
 
 <?php
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "service_name";
@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <form autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="input-group">
-          <input type="search" class="form-control " name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Services">
+          <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Services">
           <div class="input-group-append">
             <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
           </div>
@@ -44,7 +44,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
       <div class="table-responsive">
         <table class="table table-striped table-borderless table-hover">
-          <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+          <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark">Name</a></th>
             <th><a class="text-dark">Category</a></th>
@@ -57,7 +57,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tbody>
           <?php
 
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $service_id = $row['service_id'];
             $service_name = htmlentities($row['service_name']);
             $service_description = htmlentities($row['service_description']);
@@ -69,11 +69,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $service_review_due = $row['service_review_due'];
 
             // Service Importance
-            if($service_importance == "High"){
+            if ($service_importance == "High") {
               $service_importance_display = "<span class='p-2 badge badge-danger'>$service_importance</span>";
-            }elseif($service_importance == "Medium"){
+            }elseif ($service_importance == "Medium") {
               $service_importance_display = "<span class='p-2 badge badge-warning'>$service_importance</span>";
-            }elseif($service_importance == "Low"){
+            }elseif ($service_importance == "Low") {
               $service_importance_display = "<span class='p-2 badge badge-info'>$service_importance</span>";
             }else{
               $service_importance_display = "-";
@@ -96,7 +96,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   </button>
                   <div class="dropdown-menu">
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editServiceModal<?php echo $service_id; ?>">Edit</a>
-                    <?php if($session_user_role == 3) { ?>
+                    <?php if ($session_user_role == 3) { ?>
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item text-danger" href="post.php?delete_service=<?php echo $service_id; ?>">Delete</a>
                     <?php } ?>

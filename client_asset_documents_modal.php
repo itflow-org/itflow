@@ -10,7 +10,7 @@
         
       <div class="modal-body bg-white">
         <?php
-        while($row = mysqli_fetch_array($sql_related_documents)){
+        while ($row = mysqli_fetch_array($sql_related_documents)) {
           $related_document_id = $row['document_id'];
           $related_document_name = htmlentities($row['document_name']);
         ?>

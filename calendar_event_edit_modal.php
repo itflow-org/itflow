@@ -51,12 +51,12 @@
                     <?php 
                     
                     $sql_calendars_select = mysqli_query($mysqli,"SELECT * FROM calendars WHERE company_id = $session_company_id ORDER BY calendar_name ASC"); 
-                    while($row = mysqli_fetch_array($sql_calendars_select)){
+                    while ($row = mysqli_fetch_array($sql_calendars_select)) {
                       $calendar_id_select = $row['calendar_id'];
                       $calendar_name_select = htmlentities($row['calendar_name']);
                       $calendar_color_select = htmlentities($row['calendar_color']);
                     ?>
-                      <option data-content="<i class='fa fa-circle mr-2' style='color:<?php echo $calendar_color_select; ?>;'></i> <?php echo $calendar_name_select; ?>"<?php if($calendar_id == $calendar_id_select){ echo "selected"; } ?> value="<?php echo $calendar_id_select; ?>"><?php echo $calendar_name_select; ?></option>
+                      <option data-content="<i class='fa fa-circle mr-2' style='color:<?php echo $calendar_color_select; ?>;'></i> <?php echo $calendar_name_select; ?>"<?php if ($calendar_id == $calendar_id_select) { echo "selected"; } ?> value="<?php echo $calendar_id_select; ?>"><?php echo $calendar_name_select; ?></option>
                     
                     <?php
                     }
@@ -91,11 +91,11 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
                   </div>
                   <select class="form-control select2" name="repeat">
-                    <option <?php if(empty($event_repeat)){ echo "selected"; } ?> value="">Never</option>
-                    <option <?php if($event_repeat == "Day"){ echo "selected"; } ?>>Day</option>
-                    <option <?php if($event_repeat == "Week"){ echo "selected"; } ?>>Week</option>
-                    <option <?php if($event_repeat == "Month"){ echo "selected"; } ?>>Month</option>
-                    <option <?php if($event_repeat == "Year"){ echo "selected"; } ?>>Year</option>
+                    <option <?php if (empty($event_repeat)) { echo "selected"; } ?> value="">Never</option>
+                    <option <?php if ($event_repeat == "Day") { echo "selected"; } ?>>Day</option>
+                    <option <?php if ($event_repeat == "Week") { echo "selected"; } ?>>Week</option>
+                    <option <?php if ($event_repeat == "Month") { echo "selected"; } ?>>Month</option>
+                    <option <?php if ($event_repeat == "Year") { echo "selected"; } ?>>Year</option>
                   </select>
                 </div>
               </div>
@@ -104,7 +104,7 @@
 
             <div class="tab-pane fade" id="pills-attendees<?php echo $event_id; ?>">
 
-              <?php if(isset($_GET['client_id'])){ ?>
+              <?php if (isset($_GET['client_id'])) { ?>
 
               <input type="hidden" name="client" value="<?php echo $client_id; ?>">
 
@@ -121,12 +121,12 @@
                     <?php 
                     
                     $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN contacts ON primary_contact = contact_id WHERE clients.company_id = $session_company_id ORDER BY client_name ASC"); 
-                    while($row = mysqli_fetch_array($sql_clients)){
+                    while ($row = mysqli_fetch_array($sql_clients)) {
                       $client_id_select = $row['client_id'];
                       $client_name_select = htmlentities($row['client_name']);
                       $contact_email_select = htmlentities($row['contact_email']);
                     ?>
-                      <option <?php if($client_id == $client_id_select){ echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
+                      <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
                     
                     <?php
                     }
@@ -137,7 +137,7 @@
 
               <?php } ?>
 
-              <?php if(!empty($config_smtp_host)){ ?>
+              <?php if (!empty($config_smtp_host)) { ?>
               <div class="custom-control custom-checkbox">
                 <input type="checkbox" class="custom-control-input" id="customControlAutosizing<?php echo $event_id; ?>" name="email_event" value="1" >
                 <label class="custom-control-label" for="customControlAutosizing<?php echo $event_id; ?>">Email Event</label>

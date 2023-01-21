@@ -14,7 +14,7 @@
         <div class="modal-body bg-white">    
           
           <center class="mb-3">
-            <?php if(!empty($user_avatar)){ ?>
+            <?php if (!empty($user_avatar)) { ?>
             <img class="img-fluid" src="<?php echo "uploads/users/$user_id/$user_avatar"; ?>">
             <?php }else{ ?>
             <span class="fa-stack fa-4x">
@@ -68,11 +68,11 @@
                 <?php 
                 
                 $sql_companies_select = mysqli_query($mysqli,"SELECT * FROM companies ORDER BY company_name ASC"); 
-                while($row = mysqli_fetch_array($sql_companies_select)){
+                while ($row = mysqli_fetch_array($sql_companies_select)) {
                   $company_id_select = $row['company_id'];
                   $company_name_select = htmlentities($row['company_name']);
                 ?>
-                  <option <?php if($company_id_select == $user_default_company){ echo "selected"; } ?> value="<?php echo $company_id_select; ?>"><?php echo $company_name_select; ?></option>
+                  <option <?php if ($company_id_select == $user_default_company) { echo "selected"; } ?> value="<?php echo $company_id_select; ?>"><?php echo $company_name_select; ?></option>
                 
                 <?php
                 }
@@ -89,9 +89,9 @@
               </div>
               <select class="form-control select2" name="role" required>
                 <option value="">- Role -</option>
-                <option <?php if($user_role == 3){ echo "selected"; } ?> value="3">Administrator</option>
-                <option <?php if($user_role == 2){ echo "selected"; } ?> value="2">Technician</option>
-                <option <?php if($user_role == 1){ echo "selected"; } ?> value="1">Accountant</option>
+                <option <?php if ($user_role == 3) { echo "selected"; } ?> value="3">Administrator</option>
+                <option <?php if ($user_role == 2) { echo "selected"; } ?> value="2">Technician</option>
+                <option <?php if ($user_role == 1) { echo "selected"; } ?> value="1">Accountant</option>
               </select>
             </div>
           </div>
@@ -101,7 +101,7 @@
             <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
           </div>
 
-          <?php if(!empty($user_token)) { ?>
+          <?php if (!empty($user_token)) { ?>
 
             <div class="form-group">
               <label>2FA</label>

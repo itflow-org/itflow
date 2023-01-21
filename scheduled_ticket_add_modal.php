@@ -9,7 +9,7 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <div class="modal-body bg-white">
-                    <?php if(isset($_GET['client_id'])){ ?>
+                    <?php if (isset($_GET['client_id'])) { ?>
                         <input type="hidden" name="client" value="<?php echo $client_id; ?>">
                         <div class="form-group">
                             <label>Contact <strong class="text-danger">*</strong></label>
@@ -22,11 +22,11 @@
                                     <?php
 
                                     $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
-                                    while($row = mysqli_fetch_array($sql)){
+                                    while ($row = mysqli_fetch_array($sql)) {
                                         $contact_id = $row['contact_id'];
                                         $contact_name = htmlentities($row['contact_name']);
                                         ?>
-                                        <option value="<?php echo $contact_id; ?>" <?php if($primary_contact == $contact_id){ echo "selected"; } ?>><?php echo "$contact_name"; ?></option>
+                                        <option value="<?php echo $contact_id; ?>" <?php if ($primary_contact == $contact_id) { echo "selected"; } ?>><?php echo "$contact_name"; ?></option>
 
                                         <?php
                                     }
@@ -46,7 +46,7 @@
                                     <?php
 
                                     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
-                                    while($row = mysqli_fetch_array($sql)){
+                                    while ($row = mysqli_fetch_array($sql)) {
                                         $client_id = $row['client_id'];
                                         $client_name = htmlentities($row['client_name']);
                                         ?>
@@ -121,7 +121,7 @@
                                 <?php
 
                                 $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
-                                while($row = mysqli_fetch_array($sql_assets)){
+                                while ($row = mysqli_fetch_array($sql_assets)) {
                                     $asset_id_select = $row['asset_id'];
                                     $asset_name_select = htmlentities($row['asset_name']);
                                     ?>

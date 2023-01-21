@@ -1,9 +1,9 @@
 <?php
 
-if(!isset($_SESSION)){
+if (!isset($_SESSION)) {
   // HTTP Only cookies
   ini_set("session.cookie_httponly", True);
-  if($config_https_only){
+  if ($config_https_only) {
     // Tell client to only send cookie(s) over HTTPS
     ini_set("session.cookie_secure", True);
   }
@@ -11,12 +11,12 @@ if(!isset($_SESSION)){
 }
 
 //Check to see if setup is enabled
-if(!isset($config_enable_setup) || $config_enable_setup == 1){
+if (!isset($config_enable_setup) || $config_enable_setup == 1) {
   header("Location: setup.php");
   exit;
 }
 
-if(!$_SESSION['logged']){
+if (!$_SESSION['logged']) {
   header("Location: login.php");
   die;
 }
@@ -38,9 +38,9 @@ $session_avatar = $row['user_avatar'];
 $session_token = $row['user_token'];
 $session_company_id = $row['user_default_company'];
 $session_user_role = $row['user_role'];
-if($session_user_role == 3){
+if ($session_user_role == 3) {
   $session_user_role_display = "Administrator";
-}elseif($session_user_role == 2){
+}elseif ($session_user_role == 2) {
   $session_user_role_display = "Technician";
 }else{
   $session_user_role_display = "Accountant";
@@ -49,13 +49,13 @@ if($session_user_role == 3){
 //LOAD USER COMPANY ACCESS PERMISSIONS
 $session_user_company_access_sql = mysqli_query($mysqli,"SELECT company_id FROM user_companies WHERE user_id = $session_user_id");
 $session_user_company_access_array = array();
-while($row = mysqli_fetch_array($session_user_company_access_sql)){
+while ($row = mysqli_fetch_array($session_user_company_access_sql)) {
   $session_user_company_access_array[] = $row['company_id'];
 }
 $session_user_company_access = implode(',',$session_user_company_access_array);
 
 //Check to see if user has rights to company Prevents User from access a company he is not allowed to have access to.
-if(!in_array($session_company_id,$session_user_company_access_array)){
+if (!in_array($session_company_id,$session_user_company_access_array)) {
   session_start();
   session_destroy();
   header('Location: login.php');
@@ -76,7 +76,7 @@ $iPod = stripos($_SERVER['HTTP_USER_AGENT'],"iPod");
 $iPhone = stripos($_SERVER['HTTP_USER_AGENT'],"iPhone");
 $iPad = stripos($_SERVER['HTTP_USER_AGENT'],"iPad");
 
-if($iPod || $iPhone || $iPad){
+if ($iPod || $iPhone || $iPad) {
   $session_map_source = "apple";
 }else{
   $session_map_source = "google";

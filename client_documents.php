@@ -3,21 +3,21 @@
 <?php
 
 // Folder
-if(!empty($_GET['folder_id'])){
+if (!empty($_GET['folder_id'])) {
   $folder = intval($_GET['folder_id']);
 }else{
   $folder = 0;
 }
 
 // Sort by
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "document_name";
 }
 
 // Search query SQL snippet
-if(!empty($q)){
+if (!empty($q)) {
   $query_snippet = "AND (MATCH(document_content_raw) AGAINST ('$q') OR document_name LIKE '%$q%')";
 }else{
   $query_snippet = ""; // empty
@@ -28,7 +28,7 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 
 // Folder ID
 $get_folder_id = 0;
-if(!empty($_GET['folder_id'])){
+if (!empty($_GET['folder_id'])) {
   $get_folder_id = intval($_GET['folder_id']);
 }
 
@@ -79,11 +79,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <hr>
         <ul class="nav nav-pills flex-column bg-light">
           <li class="nav-item">
-            <a class="nav-link <?php if($get_folder_id == 0){ echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&folder_id=0">/</a>
+            <a class="nav-link <?php if ($get_folder_id == 0) { echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&folder_id=0">/</a>
           </li>
           <?php 
           $sql_folders = mysqli_query($mysqli,"SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
-          while($row = mysqli_fetch_array($sql_folders)){
+          while ($row = mysqli_fetch_array($sql_folders)) {
             $folder_id = $row['folder_id'];
             $folder_name = htmlentities($row['folder_name']);
 
@@ -95,9 +95,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <li class="nav-item">
             <div class="row">
               <div class="col-10">
-                <a class="nav-link <?php if($get_folder_id == $folder_id){ echo "active"; } ?> " href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>">
+                <a class="nav-link <?php if ($get_folder_id == $folder_id) { echo "active"; } ?> " href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>">
                   <?php
-                  if($get_folder_id == $folder_id){ ?>
+                  if ($get_folder_id == $folder_id) { ?>
                   <i class="fas fa-fw fa-folder-open"></i> 
                   <?php
                   }else{
@@ -105,7 +105,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <i class="fas fa-fw fa-folder"></i>
                   <?php } ?>
 
-                  <?php echo $folder_name; ?> <?php if($num_documents > 0){ echo "<span class='badge badge-pill badge-dark float-right mt-1'>$num_documents</span>"; } ?>
+                  <?php echo $folder_name; ?> <?php if ($num_documents > 0) { echo "<span class='badge badge-pill badge-dark float-right mt-1'>$num_documents</span>"; } ?>
                 </a> 
               </div>
               <div class="col-2">
@@ -115,7 +115,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   </button>
                   <div class="dropdown-menu">
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFolderModal<?php echo $folder_id; ?>">Rename</a>
-                    <?php if($session_user_role == 3) { ?>
+                    <?php if ($session_user_role == 3) { ?>
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item text-danger" href="post.php?delete_folder=<?php echo $folder_id; ?>">Delete</a>
                     <?php } ?>
@@ -139,7 +139,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <input type="hidden" name="client_id" value="<?php echo intval($client_id); ?>">
           <input type="hidden" name="folder_id" value="<?php echo $get_folder_id; ?>">
           <div class="input-group">
-            <input type="search" class="form-control " name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Documents">
+            <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Documents">
             <div class="input-group-append">
               <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
             </div>
@@ -149,7 +149,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
         <div class="table-responsive">
           <table class="table table-striped table-sm table-borderless table-hover">
-            <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+            <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
               <tr>
                 <th>
                   <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=document_name&o=<?php echo $disp; ?>">Name</a>
@@ -168,7 +168,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <tbody>
               <?php
           
-              while($row = mysqli_fetch_array($sql)){
+              while ($row = mysqli_fetch_array($sql)) {
                 $document_id = $row['document_id'];
                 $document_name = htmlentities($row['document_name']);
                 $document_content = $row['document_content'];
@@ -192,7 +192,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                     <div class="dropdown-menu">
                       <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">Edit</a>
                       <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">Share</a>
-                      <?php if($session_user_role == 3) { ?>
+                      <?php if ($session_user_role == 3) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="post.php?delete_document=<?php echo $document_id; ?>">Delete</a>
                       <?php } ?>

@@ -25,7 +25,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           <input type="hidden" name="existing_file_name" value="<?php echo $session_avatar; ?>">
 
           <center class="mb-3 px-5">
-            <?php if(empty($session_avatar)){ ?>
+            <?php if (empty($session_avatar)) { ?>
               <i class="fas fa-user-circle fa-8x text-secondary"></i>
             <?php }else{ ?>
               <img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-fluid">
@@ -73,11 +73,11 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
             <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
           </div>
 
-          <?php if($session_user_role > 1){ ?>
+          <?php if ($session_user_role > 1) { ?>
 
             <div class="form-group">
               <div class="form-check">
-                <input type="checkbox" class="form-check-input" name="extension" id="extension" value="Yes" <?php if(isset($_COOKIE['user_extension_key'])) {echo "checked";} ?>>
+                <input type="checkbox" class="form-check-input" name="extension" id="extension" value="Yes" <?php if (isset($_COOKIE['user_extension_key'])) {echo "checked";} ?>>
                 <label class="form-check-label" for="extension">Enable Browser Extention?</label>
                 <p class="small">Note: You must log out and back in again for these changes take effect.</p>
               </div>
@@ -95,7 +95,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
         <form action="post.php" method="post" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
-          <?php if(empty($session_token)){ ?>
+          <?php if (empty($session_token)) { ?>
             <button type="submit" name="enable_2fa" class="btn btn-success btn-block mt-3"><i class="fa fa-fw fa-lock"></i><br> Enable 2FA</button>
           <?php }else{ ?>
             <p>You have setup 2FA. Your QR code is below.</p>
@@ -110,7 +110,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
             //Generate a base32 Key
             $secretkey = key32gen();
 
-            if(!empty($session_token)){
+            if (!empty($session_token)) {
 
               //Generate QR Code based off the generated key
               print sprintf('<img src="%s"/>',TokenAuth6238::getBarCodeUrl($session_name,' ',$session_token,$_SERVER['SERVER_NAME']));
@@ -125,7 +125,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
 
         </form>
 
-        <?php if(!empty($session_token)){ ?>
+        <?php if (!empty($session_token)) { ?>
           <form action="post.php" method="post" autocomplete="off">
             <div class="form-group">
               <div class="input-group">
@@ -154,7 +154,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
         <tbody>
         <?php
 
-        while($row = mysqli_fetch_array($sql_recent_logins)){
+        while ($row = mysqli_fetch_array($sql_recent_logins)) {
           $log_id = $row['log_id'];
           $log_ip = htmlentities($row['log_ip']);
           $log_user_agent = htmlentities($row['log_user_agent']);
@@ -191,18 +191,18 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
         <tbody>
         <?php
 
-        while($row = mysqli_fetch_array($sql_recent_logs)){
+        while ($row = mysqli_fetch_array($sql_recent_logs)) {
           $log_id = $row['log_id'];
           $log_type = htmlentities($row['log_type']);
           $log_action = htmlentities($row['log_action']);
           $log_description = htmlentities($row['log_description']);
           $log_created_at = $row['log_created_at'];
 
-          if($log_action == 'Create'){
+          if ($log_action == 'Create') {
             $log_icon = "plus text-success";
-          }elseif($log_action == 'Modify'){
+          }elseif ($log_action == 'Modify') {
             $log_icon = "edit text-info";
-          }elseif($log_action == 'Delete'){
+          }elseif ($log_action == 'Delete') {
             $log_icon = "trash-alt text-danger";
           }else{
             $log_icon = "pencil";

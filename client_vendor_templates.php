@@ -2,11 +2,11 @@
 
 <?php
 
-if(isset($_GET['q'])){
+if (isset($_GET['q'])) {
   $q = strip_tags(mysqli_real_escape_string($mysqli,$_GET['q']));
   //Phone Numbers
   $phone_query = preg_replace("/[^0-9]/", '',$q);
-  if(empty($phone_query)){
+  if (empty($phone_query)) {
     $phone_query = $q;
   }
 }else{
@@ -14,7 +14,7 @@ if(isset($_GET['q'])){
   $phone_query = "";
 }
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "vendor_name";
@@ -53,7 +53,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Vendors Templates">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Vendors Templates">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -65,7 +65,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_name&o=<?php echo $disp; ?>">Vendor</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_description&o=<?php echo $disp; ?>">Description</a></th>
@@ -76,18 +76,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $vendor_id = $row['vendor_id'];
             $vendor_name = htmlentities($row['vendor_name']);
             $vendor_description = htmlentities($row['vendor_description']);
-            if(empty($vendor_description)){
+            if (empty($vendor_description)) {
               $vendor_description_display = "-";
             }else{
               $vendor_description_display = $vendor_description;
             }
             $vendor_account_number = htmlentities($row['vendor_account_number']);
             $vendor_contact_name = htmlentities($row['vendor_contact_name']);
-            if(empty($vendor_contact_name)){
+            if (empty($vendor_contact_name)) {
               $vendor_contact_name_display = "-";
             }else{
               $vendor_contact_name_display = $vendor_contact_name;
@@ -107,7 +107,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <i class="fa fa-fw fa-building text-secondary"></i> 
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editVendorTemplateModal<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></a>
               <?php
-              if(!empty($vendor_account_number)){
+              if (!empty($vendor_account_number)) {
               ?>
               <br>
               <small class="text-secondary"><?php echo $vendor_account_number; ?></small>
@@ -118,7 +118,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $vendor_description_display; ?></td>
             <td>
               <?php
-              if(!empty($vendor_contact_name)){
+              if (!empty($vendor_contact_name)) {
               ?>
               <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $vendor_contact_name_display; ?>
               <br>
@@ -128,7 +128,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               }
               ?>
               <?php
-              if(!empty($vendor_phone)){
+              if (!empty($vendor_phone)) {
               ?>
               <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $vendor_phone; ?>
               <br>
@@ -136,7 +136,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               }
               ?>
               <?php
-              if(!empty($vendor_email)){
+              if (!empty($vendor_email)) {
               ?>
               <i class="fa fa-fw fa-envelope text-secondary mr-2 mb-2"></i><?php echo $vendor_email; ?>
               <br>
@@ -151,7 +151,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editVendorTemplateModal<?php echo $vendor_id; ?>">Edit</a>
-                  <?php if($session_user_role == 3) { ?>
+                  <?php if ($session_user_role == 3) { ?>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger" href="post.php?delete_vendor=<?php echo $vendor_id; ?>">Delete</a>
                   <?php } ?>

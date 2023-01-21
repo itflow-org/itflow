@@ -35,8 +35,8 @@
           </div>
           <select class="form-control" name="config_smtp_encryption">
             <option value=''>None</option>
-            <option <?php if($config_smtp_encryption == 'tls'){ echo "selected"; } ?> value="tls">TLS</option>
-            <option <?php if($config_smtp_encryption == 'ssl'){ echo "selected"; } ?> value="ssl">SSL</option>
+            <option <?php if ($config_smtp_encryption == 'tls') { echo "selected"; } ?> value="tls">TLS</option>
+            <option <?php if ($config_smtp_encryption == 'ssl') { echo "selected"; } ?> value="ssl">SSL</option>
           </select>
         </div>
       </div>
@@ -114,8 +114,8 @@
           </div>
           <select class="form-control" name="config_imap_encryption">
             <option value=''>None</option>
-            <option <?php if($config_imap_encryption == 'tls'){ echo "selected"; } ?> value="tls">TLS</option>
-            <option <?php if($config_imap_encryption == 'ssl'){ echo "selected"; } ?> value="ssl">SSL</option>
+            <option <?php if ($config_imap_encryption == 'tls') { echo "selected"; } ?> value="tls">TLS</option>
+            <option <?php if ($config_imap_encryption == 'ssl') { echo "selected"; } ?> value="ssl">SSL</option>
           </select>
         </div>
       </div>
@@ -128,7 +128,7 @@
   </div>
 </div>
 
-<?php if(!empty($config_smtp_host) && !empty($config_smtp_port) && !empty($config_smtp_username) && !empty($config_smtp_password) && !empty($config_mail_from_email) && !empty($config_mail_from_name)){ ?>
+<?php if (!empty($config_smtp_host) && !empty($config_smtp_port) && !empty($config_smtp_username) && !empty($config_smtp_password) && !empty($config_mail_from_email) && !empty($config_mail_from_name)) { ?>
 
 <div class="card card-dark">
   <div class="card-header py-3">
@@ -148,7 +148,7 @@
 
 <?php } ?>
 
-<?php if(!empty($config_smtp_username) && !empty($config_smtp_password) && !empty($config_imap_host) && !empty($config_imap_port)){ ?>
+<?php if (!empty($config_smtp_username) && !empty($config_smtp_password) && !empty($config_imap_host) && !empty($config_imap_port)) { ?>
 
 <div class="card card-dark">
   <div class="card-header py-3">

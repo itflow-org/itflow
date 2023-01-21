@@ -102,7 +102,7 @@
                   <select class="form-control select2" name="country">
                     <option value="">- Country -</option>
                     <?php foreach($countries_array as $country_name) { ?>
-                    <option <?php if($company_country == $country_name) { echo "selected"; } ?>><?php echo $country_name; ?></option>
+                    <option <?php if ($company_country == $country_name) { echo "selected"; } ?>><?php echo $country_name; ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -155,7 +155,7 @@
                   <select class="form-control select2" name="locale" required>
                     <option value="">- Select a Locale -</option>
                     <?php foreach($locales_array as $locale_code => $locale_name) { ?>
-                    <option <?php if($company_locale == $locale_code){ echo "selected"; } ?> value="<?php echo $locale_code; ?>"><?php echo "$locale_code - $locale_name"; ?></option>
+                    <option <?php if ($company_locale == $locale_code) { echo "selected"; } ?> value="<?php echo $locale_code; ?>"><?php echo "$locale_code - $locale_name"; ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -170,7 +170,7 @@
                   <select class="form-control select2" name="currency_code" required>
                     <option value="">- Currency -</option>
                     <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                    <option <?php if($company_currency == $currency_code){ echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                    <option <?php if ($company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
                     <?php } ?>
                   </select>
                 </div>

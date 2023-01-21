@@ -7,14 +7,14 @@ include("config.php");
 
 session_start();
 
-if(isset($_POST['pay_invoice'])){
+if (isset($_POST['pay_invoice'])) {
   
   $email = mysqli_real_escape_string($mysqli,$_POST['email']);
   $password = md5(mysqli_real_escape_string($mysqli,$_POST['password']));
 
   $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE email = '$email' AND password = '$password'");
   
-  if(mysqli_num_rows($sql) == 1){
+  if (mysqli_num_rows($sql) == 1) {
     $row = mysqli_fetch_array($sql);
     $_SESSION['logged'] = TRUE;
     $_SESSION['user_id'] = $row['user_id'];
@@ -68,7 +68,7 @@ if(isset($_POST['pay_invoice'])){
           <i class="fab fa-fw fa-3x fa-cc-discover"></i> 
           <i class="fab fa-fw fa-3x fa-cc-amex"></i>
         </center>
-        <?php if(isset($response)) { echo $response; } ?>
+        <?php if (isset($response)) { echo $response; } ?>
         <form method="post">
           <div class="form-group">      
             <label>Name on card</label>

@@ -2,20 +2,20 @@
 
 <?php
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "trip_date";
 }
 
 // Reverse default sort
-if(!isset($_GET['o'])){
+if (!isset($_GET['o'])) {
   $o = "DESC";
   $disp = "ASC";
 }
 
 //Date From and Date To Filter
-if(isset($_GET['dtf'])){
+if (isset($_GET['dtf'])) {
   $dtf = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtf']));
   $dtt = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtt']));
 }else{
@@ -52,7 +52,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Trips">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Trips">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -71,7 +71,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=trip_date&o=<?php echo $disp; ?>">Date</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">Driver</a></th>
@@ -85,7 +85,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $trip_id = $row['trip_id'];
             $trip_date = $row['trip_date'];
             $trip_purpose = htmlentities($row['trip_purpose']);
@@ -96,13 +96,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $round_trip = htmlentities($row['round_trip']);
             $client_id = $row['trip_client_id'];
 
-            if($round_trip == 1){
+            if ($round_trip == 1) {
               $round_trip_display = "<i class='fa fa-fw fa-sync-alt text-secondary'></i>";
             }else{
               $round_trip_display = "";
             }
             $user_name = htmlentities($row['user_name']);
-            if(empty($user_name)){
+            if (empty($user_name)) {
               $user_name_display = "-";
             }else{
               $user_name_display = $user_name;

@@ -4,7 +4,7 @@
 
 <?php
 
-if(isset($_GET['calendar_id'])){
+if (isset($_GET['calendar_id'])) {
   $calendar_selected_id = intval($_GET['calendar_id']);
 }
 
@@ -23,7 +23,7 @@ if(isset($_GET['calendar_id'])){
 <?php
 //loop through IDs and create a modal for each
 $sql = mysqli_query($mysqli,"SELECT * FROM calendars LEFT JOIN events ON calendar_id = event_calendar_id WHERE event_client_id = $client_id AND calendars.company_id = $session_company_id");
-while($row = mysqli_fetch_array($sql)){
+while ($row = mysqli_fetch_array($sql)) {
   $event_id = $row['event_id'];
   $event_title = htmlentities($row['event_title']);
   $event_description = htmlentities($row['event_description']);
@@ -72,7 +72,7 @@ while($row = mysqli_fetch_array($sql)){
         events: [
           <?php
           $sql = mysqli_query($mysqli,"SELECT * FROM calendars LEFT JOIN events ON calendar_id = event_calendar_id WHERE event_client_id = $client_id AND calendars.company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $event_id = json_encode($row['event_id']);
             $event_title = json_encode($row['event_title']);
             $event_start = json_encode($row['event_start']);

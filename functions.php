@@ -43,7 +43,7 @@ function key32gen()
 }
 
 function initials($str) {
-  if(!empty($str)){
+  if (!empty($str)) {
     $ret = '';
     foreach (explode(' ', $str) as $word)
       $ret .= strtoupper($word[0]);
@@ -69,8 +69,8 @@ function get_user_agent() {
 
 function get_ip() {
    
-  if(defined("CONST_GET_IP_METHOD")){
-    if(CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR"){
+  if (defined("CONST_GET_IP_METHOD")) {
+    if (CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
       $ip = getenv('HTTP_X_FORWARDED_FOR');
     }
   
@@ -132,7 +132,7 @@ function get_os($user_os) {
   return $os_platform;
 }
 
-function get_device(){
+function get_device() {
   $tablet_browser = 0;
   $mobile_browser = 0;
   if (preg_match('/(tablet|ipad|playbook)|(android(?!.*(mobi|opera mini)))/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
@@ -194,7 +194,7 @@ function truncate($text, $chars) {
 function formatPhoneNumber($phoneNumber) {
   $phoneNumber = preg_replace('/[^0-9]/','',$phoneNumber);
 
-  if(strlen($phoneNumber) > 10) {
+  if (strlen($phoneNumber) > 10) {
     $countryCode = substr($phoneNumber, 0, strlen($phoneNumber)-10);
     $areaCode = substr($phoneNumber, -10, 3);
     $nextThree = substr($phoneNumber, -7, 3);
@@ -202,14 +202,14 @@ function formatPhoneNumber($phoneNumber) {
 
     $phoneNumber = '+'.$countryCode.' ('.$areaCode.') '.$nextThree.'-'.$lastFour;
   }
-  else if(strlen($phoneNumber) == 10) {
+  else if (strlen($phoneNumber) == 10) {
     $areaCode = substr($phoneNumber, 0, 3);
     $nextThree = substr($phoneNumber, 3, 3);
     $lastFour = substr($phoneNumber, 6, 4);
 
     $phoneNumber = '('.$areaCode.') '.$nextThree.'-'.$lastFour;
   }
-  else if(strlen($phoneNumber) == 7) {
+  else if (strlen($phoneNumber) == 7) {
     $nextThree = substr($phoneNumber, 0, 3);
     $lastFour = substr($phoneNumber, 3, 4);
 
@@ -227,7 +227,7 @@ function mkdir_missing($dir) {
 
 // Called during initial setup
 // Encrypts the master key with the user's password
-function setupFirstUserSpecificKey($user_password, $site_encryption_master_key){
+function setupFirstUserSpecificKey($user_password, $site_encryption_master_key) {
   $iv = bin2hex(random_bytes(8));
   $salt = bin2hex(random_bytes(8));
 
@@ -247,7 +247,7 @@ function setupFirstUserSpecificKey($user_password, $site_encryption_master_key){
  * New Users: Requires the admin setting up their account have a Specific/Session key configured
  * Password Changes: Will use the current info in the session.
 */
-function encryptUserSpecificKey($user_password){
+function encryptUserSpecificKey($user_password) {
   $iv = bin2hex(random_bytes(8));
   $salt = bin2hex(random_bytes(8));
 
@@ -273,7 +273,7 @@ function encryptUserSpecificKey($user_password){
 
 // Given a ciphertext (incl. IV) and the user's password, returns the site master key
 // Ran at login, to facilitate generateUserSessionKey
-function decryptUserSpecificKey($user_encryption_ciphertext, $user_password){
+function decryptUserSpecificKey($user_encryption_ciphertext, $user_password) {
   //Get the IV, salt and ciphertext
   $salt = substr($user_encryption_ciphertext, 0, 16);
   $iv = substr($user_encryption_ciphertext, 16, 16);
@@ -294,7 +294,7 @@ Generates what is probably best described as a session key (ephemeral-ish)
 - Only the user can decrypt their session ciphertext to get the master key
 - Encryption key never hits the disk in cleartext
 */
-function generateUserSessionKey($site_encryption_master_key){
+function generateUserSessionKey($site_encryption_master_key) {
 
   // Generate both of these using bin2hex(random_bytes(8))
   $user_encryption_session_key = bin2hex(random_bytes(8));
@@ -307,7 +307,7 @@ function generateUserSessionKey($site_encryption_master_key){
 
   // Give the user "their" key as a cookie
   include('config.php');
-  if($config_https_only){
+  if ($config_https_only) {
     setcookie("user_encryption_session_key", "$user_encryption_session_key", ['path' => '/','secure' => true,'httponly' => true,'samesite' => 'None']);
   } else{
     setcookie("user_encryption_session_key", $user_encryption_session_key, 0, "/");
@@ -316,7 +316,7 @@ function generateUserSessionKey($site_encryption_master_key){
 }
 
 // Decrypts an encrypted password (website/asset login), returns it as a string
-function decryptLoginEntry($login_password_ciphertext){
+function decryptLoginEntry($login_password_ciphertext) {
 
   // Split the login into IV and Ciphertext
   $login_iv =  substr($login_password_ciphertext, 0, 16);
@@ -337,7 +337,7 @@ function decryptLoginEntry($login_password_ciphertext){
 }
 
 // Encrypts a website/asset login password
-function encryptLoginEntry($login_password_cleartext){
+function encryptLoginEntry($login_password_cleartext) {
   $iv = bin2hex(random_bytes(8));
 
   // Get the user session info.
@@ -356,10 +356,10 @@ function encryptLoginEntry($login_password_cleartext){
 }
 
 // Get domain expiration date
-function getDomainExpirationDate($name){
+function getDomainExpirationDate($name) {
 
   // Only run if we think the domain is valid
-  if(!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+  if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
     return '0000-00-00';
   }
 
@@ -368,8 +368,8 @@ function getDomainExpirationDate($name){
   curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
   $response = json_decode(curl_exec($ch),1);
 
-  if($response){
-    if(is_array($response['expiration_date'])){
+  if ($response) {
+    if (is_array($response['expiration_date'])) {
       $expiry = new DateTime($response['expiration_date'][1]);
     }
     else{
@@ -384,12 +384,12 @@ function getDomainExpirationDate($name){
 }
 
 // Get domain general info (whois + NS/A/MX records)
-function getDomainRecords($name){
+function getDomainRecords($name) {
 
   $records = array();
 
   // Only run if we think the domain is valid
-  if(!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+  if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
     $records['a'] = '';
     $records['ns'] = '';
     $records['mx'] = '';
@@ -409,13 +409,13 @@ function getDomainRecords($name){
 
 // Used to automatically attempt to get SSL certificates as part of adding domains
 // The logic for the fetch (sync) button on the client_certificates page is in ajax.php, and allows ports other than 443
-function getSSL($name){
+function getSSL($name) {
 
   $certificate = array();
   $certificate['success'] = FALSE;
 
   // Only run if we think the domain is valid
-  if(!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+  if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
     $certificate['expire'] = '';
     $certificate['issued_by'] = '';
     $certificate['public_key'] = '';
@@ -428,12 +428,12 @@ function getSSL($name){
   $read = stream_socket_client($socket, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $get);
 
   // If the socket connected
-  if($read){
+  if ($read) {
     $cert = stream_context_get_params($read);
     $cert_public_key_obj = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
     openssl_x509_export($cert['options']['ssl']['peer_certificate'], $export);
 
-    if($cert_public_key_obj){
+    if ($cert_public_key_obj) {
       $certificate['success'] = TRUE;
       $certificate['expire'] = date('Y-m-d', $cert_public_key_obj['validTo_time_t']);
       $certificate['issued_by'] = strip_tags($cert_public_key_obj['issuer']['O']);
@@ -444,7 +444,7 @@ function getSSL($name){
   return $certificate;
 }
 
-function strto_AZaz09($string){
+function strto_AZaz09($string) {
   $string = ucwords(strtolower($string));
   
   // Replace spaces with _
@@ -458,8 +458,8 @@ function strto_AZaz09($string){
 
 // Cross-Site Request Forgery check for sensitive functions
 // Validates the CSRF token provided matches the one in the users session
-function validateCSRFToken($token){
-  if(hash_equals($token, $_SESSION['csrf_token'])){
+function validateCSRFToken($token) {
+  if (hash_equals($token, $_SESSION['csrf_token'])) {
     return true;
   }
   else{
@@ -477,8 +477,8 @@ function validateCSRFToken($token){
  * Accountant - 1
  */
 
-function validateAdminRole(){
-  if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 3){
+function validateAdminRole() {
+  if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 3) {
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -486,8 +486,8 @@ function validateAdminRole(){
   }
 }
 
-function validateTechRole(){
-  if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 1){
+function validateTechRole() {
+  if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 1) {
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -495,8 +495,8 @@ function validateTechRole(){
   }
 }
 
-function validateAccountantRole(){
-  if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 2){
+function validateAccountantRole() {
+  if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 2) {
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -505,7 +505,7 @@ function validateAccountantRole(){
 }
 
 // Send a single email to a single recipient
-function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port, $from_email, $from_name, $to_email, $to_name, $subject, $body){
+function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port, $from_email, $from_name, $to_email, $to_name, $subject, $body) {
 
   $mail = new PHPMailer(true);
 
@@ -540,7 +540,7 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
     return true;
   }
 
-  catch(Exception $e){
+  catch(Exception $e) {
     // If we couldn't send the message return the error so we can log it
     return "Message not sent. Mailer Error: {$mail->ErrorInfo}";
   }

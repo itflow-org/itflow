@@ -2,7 +2,7 @@
 
 <?php
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "recurring_id";
@@ -35,7 +35,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Recurring Invoices">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Recurring Invoices">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -53,7 +53,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_number&o=<?php echo $disp; ?>">Number</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=recurring_scope&o=<?php echo $disp; ?>">Scope</a></th>
@@ -69,7 +69,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
       
-           while($row = mysqli_fetch_array($sql)){
+           while ($row = mysqli_fetch_array($sql)) {
                 $recurring_id = $row['recurring_id'];
                 $recurring_prefix = htmlentities($row['recurring_prefix']);
                 $recurring_number = htmlentities($row['recurring_number']);
@@ -77,7 +77,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 $recurring_frequency = htmlentities($row['recurring_frequency']);
                 $recurring_status = htmlentities($row['recurring_status']);
                 $recurring_last_sent = $row['recurring_last_sent'];
-                if($recurring_last_sent == 0){
+                if ($recurring_last_sent == 0) {
                   $recurring_last_sent = "-";
                 }
                 $recurring_next_date = $row['recurring_next_date'];
@@ -86,7 +86,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 $recurring_created_at = $row['recurring_created_at'];
                 $category_id = $row['category_id'];
                 $category_name = htmlentities($row['category_name']);
-                if($recurring_status == 1){
+                if ($recurring_status == 1) {
                   $status = "Active";
                   $status_badge_color = "success";
                 }else{

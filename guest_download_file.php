@@ -5,7 +5,7 @@ include("functions.php");
 $ip = trim(strip_tags(mysqli_real_escape_string($mysqli,get_ip())));
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
 
-if(isset($_GET['id']) && isset($_GET['key'])){
+if (isset($_GET['id']) && isset($_GET['key'])) {
     $item_id = intval($_GET['id']);
     $item_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['key'])));
 
@@ -13,24 +13,24 @@ if(isset($_GET['id']) && isset($_GET['key'])){
     $row = mysqli_fetch_array($sql);
 
     // Check result
-    if(mysqli_num_rows($sql) !== 1 || !$row){
+    if (mysqli_num_rows($sql) !== 1 || !$row) {
         exit("No file.");
     }
 
     // Check it is a file
-    if($row['item_type'] !== "File"){
+    if ($row['item_type'] !== "File") {
         exit("Bad item type.");
     }
 
     // Check item share is active & hasn't been viewed too many times
-    if($row['item_active'] !== "1" || $row['item_views'] >= $row['item_view_limit']){
+    if ($row['item_active'] !== "1" || $row['item_views'] >= $row['item_view_limit']) {
         exit("Item cannot be viewed at this time.");
     }
 
     $item_related_id = $row['item_related_id'];
     $client_id = $row['item_client_id'];
 
-    if(empty($row['item_views'])){
+    if (empty($row['item_views'])) {
         $item_views = 0;
     }
     else {
@@ -40,7 +40,7 @@ if(isset($_GET['id']) && isset($_GET['key'])){
     $file_sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = '$item_related_id' AND file_client_id = '$client_id' LIMIT 1");
     $file_row = mysqli_fetch_array($file_sql);
 
-    if(mysqli_num_rows($file_sql) !== 1 || !$file_row){
+    if (mysqli_num_rows($file_sql) !== 1 || !$file_row) {
         exit("No file.");
     }
 

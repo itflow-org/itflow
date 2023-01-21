@@ -11,7 +11,7 @@ exec("git fetch", $output, $result);
 $latest_version = exec("git rev-parse origin/$repo_branch");
 $current_version = exec("git rev-parse HEAD");
 
-if($current_version == $latest_version){
+if ($current_version == $latest_version) {
   $update_message = "No Updates available";
 }else{
   $update_message = "New Updates are Available [$latest_version]";
@@ -29,17 +29,17 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
       <center>
 
         <!-- Check if git fetch result is zero (success) -->
-        <?php if($result !== 0) { ?>
+        <?php if ($result !== 0) { ?>
           <div class="alert alert-danger" role="alert">
             <strong>Warning: Could not find execute 'git fetch'. Do you have git installed?</strong>
           </div>
         <?php } ?>
 
-        <?php if(!empty($git_log)){ ?>
+        <?php if (!empty($git_log)) { ?>
           <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fas fa-fw fa-4x fa-arrow-alt-circle-up mb-1"></i><h5>Update App</h5></a>
           <?php
         }else{
-            if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){ ?>
+            if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) { ?>
               <div class="alert alert-warning" role="alert">
                 <strong>Ensure you have a current app & database backup before updating!</strong>
               </div>
@@ -60,7 +60,7 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
       </center>
 
       <?php
-      if(!empty($git_log)){
+      if (!empty($git_log)) {
         ?>
         <table class="table ">
           <thead>

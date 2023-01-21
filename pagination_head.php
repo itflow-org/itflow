@@ -8,7 +8,7 @@
  */
 
 // Paging
-if(isset($_GET['p'])){
+if (isset($_GET['p'])) {
   $p = intval($_GET['p']);
   $record_from = (($p)-1)*$_SESSION['records_per_page'];
   $record_to = $_SESSION['records_per_page'];
@@ -19,8 +19,8 @@ if(isset($_GET['p'])){
 }
 
 // Order
-if(isset($_GET['o'])){
-  if($_GET['o'] == 'ASC'){
+if (isset($_GET['o'])) {
+  if ($_GET['o'] == 'ASC') {
     $o = "ASC";
     $disp = "DESC";
   }else{
@@ -33,7 +33,7 @@ if(isset($_GET['o'])){
 }
 
 // Search
-if(isset($_GET['q'])){
+if (isset($_GET['q'])) {
   $q = strip_tags(mysqli_real_escape_string($mysqli,trim($_GET['q'])));
 }else{
   $q = "";

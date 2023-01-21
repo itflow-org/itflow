@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-desktop"></i> New <?php if(!empty($_GET['type'])){ echo ucwords(strip_tags($_GET['type'])); }else{ echo "Asset"; } ?></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-desktop"></i> New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags($_GET['type'])); }else{ echo "Asset"; } ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -64,7 +64,7 @@
               </div>
               
               <?php //Do not display Make Model or Serial if Virtual is selected 
-              if($_GET['type'] !== 'virtual'){ ?>
+              if ($_GET['type'] !== 'virtual') { ?>
               <div class="form-group">
                 <label>Make </label>
                 <div class="input-group">
@@ -96,7 +96,7 @@
               </div>
               <?php } ?>
 
-              <?php if($_GET['type'] !== 'network' && $_GET['type'] !== 'other'){ ?>
+              <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
               <div class="form-group">
                 <label>Operating System</label>
                 <div class="input-group">
@@ -123,7 +123,7 @@
                     <?php 
                     
                     $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC"); 
-                    while($row = mysqli_fetch_array($sql)){
+                    while ($row = mysqli_fetch_array($sql)) {
                       $location_id = $row['location_id'];
                       $location_name = htmlentities($row['location_name']);
                     ?>
@@ -136,7 +136,7 @@
                 </div>
               </div>
 
-              <?php if($_GET['type'] !== 'network' && $_GET['type'] !== 'servers' && $_GET['type'] !== 'other'){ ?>
+              <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'servers' && $_GET['type'] !== 'other') { ?>
               <div class="form-group">
                 <label>Assigned To</label>
                 <div class="input-group">
@@ -148,7 +148,7 @@
                     <?php 
                     
                     $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC"); 
-                    while($row = mysqli_fetch_array($sql)){
+                    while ($row = mysqli_fetch_array($sql)) {
                       $contact_id = $row['contact_id'];
                       $contact_name = htmlentities($row['contact_name']);
                     ?>
@@ -188,7 +188,7 @@
                     <?php 
                     
                     $sql = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC"); 
-                    while($row = mysqli_fetch_array($sql)){
+                    while ($row = mysqli_fetch_array($sql)) {
                       $network_id = $row['network_id'];
                       $network_name = htmlentities($row['network_name']);
                       $network = htmlentities($row['network']);
@@ -238,7 +238,7 @@
                     <?php 
                     
                     $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id AND vendor_template = 0 ORDER BY vendor_name ASC"); 
-                    while($row = mysqli_fetch_array($sql)){
+                    while ($row = mysqli_fetch_array($sql)) {
                       $vendor_id = $row['vendor_id'];
                       $vendor_name = htmlentities($row['vendor_name']);
                     ?>
@@ -261,7 +261,7 @@
                 </div>
               </div>
 
-              <?php if($_GET['type'] !== 'virtual'){ ?>
+              <?php if ($_GET['type'] !== 'virtual') { ?>
               <div class="form-group">
                 <label>Purchase Date</label>
                 <div class="input-group">

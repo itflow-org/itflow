@@ -114,13 +114,13 @@ $vendors_added = $row['vendors_added'];
   <select onchange="this.form.submit()" class="form-control" name="year">
     <?php 
             
-    while($row = mysqli_fetch_array($sql_years_select)){
+    while ($row = mysqli_fetch_array($sql_years_select)) {
       $year_select = $row['all_years'];
-      if(empty($year_select)){
+      if (empty($year_select)) {
         $year_select = date('Y');
       }
     ?>
-    <option <?php if($year == $year_select){ echo "selected"; } ?> > <?php echo $year_select; ?></option>
+    <option <?php if ($year == $year_select) { echo "selected"; } ?> > <?php echo $year_select; ?></option>
     
     <?php
     }
@@ -326,7 +326,7 @@ $vendors_added = $row['vendors_added'];
         <table class="table">
           <tbody>
             <?php
-            while($row = mysqli_fetch_array($sql_accounts)){
+            while ($row = mysqli_fetch_array($sql_accounts)) {
                 $account_id = $row['account_id'];
                 $account_name = htmlentities($row['account_name']);
                 $opening_balance = $row['opening_balance'];
@@ -349,7 +349,7 @@ $vendors_added = $row['vendors_added'];
                 
               $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
-                if($balance == ''){
+                if ($balance == '') {
                   $balance = '0.00'; 
                 }
                 ?>
@@ -386,7 +386,7 @@ $vendors_added = $row['vendors_added'];
           </thead>
           <tbody>
             <?php
-            while($row = mysqli_fetch_array($sql_latest_invoice_payments)){
+            while ($row = mysqli_fetch_array($sql_latest_invoice_payments)) {
                 $payment_date = $row['payment_date'];
                 $payment_amount = floatval($row['payment_amount']);
                 $invoice_prefix = htmlentities($row['invoice_prefix']);
@@ -429,7 +429,7 @@ $vendors_added = $row['vendors_added'];
           </thead>
           <tbody>
             <?php
-            while($row = mysqli_fetch_array($sql_latest_expenses)){
+            while ($row = mysqli_fetch_array($sql_latest_expenses)) {
                 $expense_date = $row['expense_date'];
                 $expense_amount = floatval($row['expense_amount']);
                 $vendor_name = htmlentities($row['vendor_name']);
@@ -505,7 +505,7 @@ var myLineChart = new Chart(ctx, {
 
           $income_for_month = $payments_for_month + $revenues_for_month;
           
-          if($income_for_month > 0 && $income_for_month > $largest_income_month){
+          if ($income_for_month > 0 && $income_for_month > $largest_income_month) {
             $largest_income_month = $income_for_month;
           }
           
@@ -544,7 +544,7 @@ var myLineChart = new Chart(ctx, {
 
           $income_for_month = $payments_for_month + $revenues_for_month;
           
-          if($income_for_month > 0 && $income_for_month > $largest_income_month){
+          if ($income_for_month > 0 && $income_for_month > $largest_income_month) {
             $largest_income_month = $income_for_month;
           }
           
@@ -580,7 +580,7 @@ var myLineChart = new Chart(ctx, {
           $row = mysqli_fetch_array($sql_projected);
           $invoice_for_month = $row['invoice_amount_for_month'];
 
-          if($invoice_for_month > 0 && $invoice_for_month > $largest_invoice_month){
+          if ($invoice_for_month > 0 && $invoice_for_month > $largest_invoice_month) {
             $largest_invoice_month = $invoice_for_month;
           }
           
@@ -616,7 +616,7 @@ var myLineChart = new Chart(ctx, {
           $row = mysqli_fetch_array($sql_expenses);
           $expenses_for_month = $row['expense_amount_for_month'];
           
-          if($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month){
+          if ($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month) {
             $largest_expense_month = $expenses_for_month;
           }
           
@@ -693,7 +693,7 @@ var myLineChart = new Chart(ctx, {
           $trip_miles_for_month = $row['trip_miles_for_month'];
           $largest_trip_miles_month = 0;
           
-          if($trip_miles_for_month > 0 && $trip_miles_for_month > $largest_trip_miles_month){
+          if ($trip_miles_for_month > 0 && $trip_miles_for_month > $largest_trip_miles_month) {
             $largest_trip_miles_month = $trip_miles_for_month;
           }
           
@@ -752,7 +752,7 @@ var myPieChart = new Chart(ctx, {
     labels: [
       <?php
         $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_id FROM categories, invoices WHERE invoice_category_id = category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year AND categories.company_id = $session_company_id");
-        while($row = mysqli_fetch_array($sql_categories)){
+        while ($row = mysqli_fetch_array($sql_categories)) {
           $category_name = json_encode($row['category_name']);
           echo "$category_name,";
         }
@@ -764,7 +764,7 @@ var myPieChart = new Chart(ctx, {
       data: [
         <?php
           $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_id FROM categories, invoices WHERE invoice_category_id = category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year AND categories.company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql_categories)){
+          while ($row = mysqli_fetch_array($sql_categories)) {
             $category_id = $row['category_id'];
 
             $sql_invoices = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS income_amount_for_year FROM invoices WHERE invoice_category_id = $category_id AND YEAR(invoice_date) = $year AND company_id = $session_company_id");
@@ -779,7 +779,7 @@ var myPieChart = new Chart(ctx, {
       backgroundColor: [
         <?php
            $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_id, category_color FROM categories, invoices WHERE invoice_category_id = category_id AND YEAR(invoice_date) = $year AND categories.company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql_categories)){
+          while ($row = mysqli_fetch_array($sql_categories)) {
             $category_color = json_encode($row['category_color']);
             echo "$category_color,";
           }
@@ -809,7 +809,7 @@ var myPieChart = new Chart(ctx, {
     labels: [
       <?php
         $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, categories.category_id FROM categories, expenses WHERE expense_category_id = category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
-        while($row = mysqli_fetch_array($sql_categories)){
+        while ($row = mysqli_fetch_array($sql_categories)) {
           $category_name = json_encode($row['category_name']);
           echo "$category_name,";
         }
@@ -821,7 +821,7 @@ var myPieChart = new Chart(ctx, {
       data: [
         <?php
           $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, categories.category_id FROM categories, expenses WHERE expense_category_id = category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql_categories)){
+          while ($row = mysqli_fetch_array($sql_categories)) {
             $category_id = $row['category_id'];
 
             $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_year FROM expenses WHERE expense_category_id = $category_id AND YEAR(expense_date) = $year");
@@ -836,7 +836,7 @@ var myPieChart = new Chart(ctx, {
       backgroundColor: [
         <?php
           $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expense_category_id = categories.category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql_categories)){
+          while ($row = mysqli_fetch_array($sql_categories)) {
             $category_color = json_encode($row['category_color']);
             echo "$category_color,";
           }
@@ -862,7 +862,7 @@ var myPieChart = new Chart(ctx, {
     labels: [
       <?php
         $sql_vendors = mysqli_query($mysqli,"SELECT DISTINCT vendor_name, vendor_id FROM vendors, expenses WHERE expense_vendor_id = vendor_id AND YEAR(expense_date) = $year AND vendors.company_id = $session_company_id");
-        while($row = mysqli_fetch_array($sql_vendors)){
+        while ($row = mysqli_fetch_array($sql_vendors)) {
           $vendor_name = json_encode($row['vendor_name']);
           echo "$vendor_name,";
         }
@@ -874,7 +874,7 @@ var myPieChart = new Chart(ctx, {
       data: [
         <?php
           $sql_vendors = mysqli_query($mysqli,"SELECT DISTINCT vendor_name, vendor_id FROM vendors, expenses WHERE expense_vendor_id = vendor_id AND YEAR(expense_date) = $year AND vendors.company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql_vendors)){
+          while ($row = mysqli_fetch_array($sql_vendors)) {
             $vendor_id = $row['vendor_id'];
 
             $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_year FROM expenses WHERE expense_vendor_id = $vendor_id AND YEAR(expense_date) = $year");
@@ -889,7 +889,7 @@ var myPieChart = new Chart(ctx, {
       backgroundColor: [
         <?php
           $sql_categories = mysqli_query($mysqli,"SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expense_category_id = category_id AND YEAR(expense_date) = $year AND categories.company_id = $session_company_id");
-          while($row = mysqli_fetch_array($sql_categories)){
+          while ($row = mysqli_fetch_array($sql_categories)) {
             $category_color = json_encode($row['category_color']);
             echo "$category_color,";
           }

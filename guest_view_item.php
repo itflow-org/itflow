@@ -11,7 +11,7 @@ include("guest_header.php"); ?>
 <hr>
 
 <?php
-if(!isset($_GET['id']) || !isset($_GET['key'])){
+if (!isset($_GET['id']) || !isset($_GET['key'])) {
     echo "<div class=\"alert alert-danger\" role=\"alert\">Incorrect URL.</div>";
     include("guest_footer.php");
     exit();
@@ -24,14 +24,14 @@ $sql = mysqli_query($mysqli, "SELECT * FROM shared_items WHERE item_id = '$item_
 $row = mysqli_fetch_array($sql);
 
 // Check we got a result
-if(mysqli_num_rows($sql) !== 1 || !$row){
+if (mysqli_num_rows($sql) !== 1 || !$row) {
     echo "<div class=\"alert alert-danger\" role=\"alert\">No item to view. Check with the person that sent you this link to ensure it is correct and has not expired.</div>";
     include("guest_footer.php");
     exit();
 }
 
 // Check item share is active & hasn't been viewed too many times
-if($row['item_active'] !== "1" || $row['item_views'] >= $row['item_view_limit']){
+if ($row['item_active'] !== "1" || $row['item_views'] >= $row['item_view_limit']) {
     echo "<div class=\"alert alert-danger\" role=\"alert\">Item cannot be viewed at this time. Check with the person that sent you this link to ensure it is correct and has not expired.</div>";
     include("guest_footer.php");
     exit();
@@ -50,11 +50,11 @@ $item_created = $row['item_created_at'];
 $item_expire = $row['item_expire_at'];
 $client_id = $row['item_client_id'];
 
-if($item_type == "Document"){
+if ($item_type == "Document") {
     $doc_sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = '$item_related_id' AND document_client_id = '$client_id' LIMIT 1");
     $doc_row = mysqli_fetch_array($doc_sql);
 
-    if(mysqli_num_rows($doc_sql) !== 1 || !$doc_row){
+    if (mysqli_num_rows($doc_sql) !== 1 || !$doc_row) {
         echo "<div class=\"alert alert-danger\" role=\"alert\">Error retrieving document to view.</div>";
         include("guest_footer.php");
         exit();
@@ -64,7 +64,7 @@ if($item_type == "Document"){
     $doc_content = $doc_row['document_content'];
 
     echo "<h3>A document has been shared with you</h3>";
-    if(!empty($item_note)){
+    if (!empty($item_note)) {
         echo "<p class=\"lead\">Note: <i>$item_note</i></p>";
     }
     echo "<br>";
@@ -79,11 +79,11 @@ if($item_type == "Document"){
     $name = mysqli_real_escape_string($mysqli, $doc_title);
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Viewed shared $item_type $name via link', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
 
-}elseif($item_type == "File"){
+}elseif ($item_type == "File") {
     $file_sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = '$item_related_id' AND file_client_id = '$client_id' LIMIT 1");
     $file_row = mysqli_fetch_array($file_sql);
 
-    if(mysqli_num_rows($file_sql) !== 1 || !$file_row){
+    if (mysqli_num_rows($file_sql) !== 1 || !$file_row) {
         echo "<div class=\"alert alert-danger\" role=\"alert\">Error retrieving file.</div>";
         include("guest_footer.php");
         exit();
@@ -92,18 +92,18 @@ if($item_type == "Document"){
     $file_name = htmlentities($file_row['file_name']);
 
     echo "<h3>A file has been shared with you</h3>";
-    if(!empty($item_note)){
+    if (!empty($item_note)) {
       echo "<p class=\"lead\">Note: <i>$item_note</i></p>";
     }
     echo "<a href=\"guest_download_file.php?id=$item_id&key=$item_key\" download=\"$file_name;\">Download $file_name</a>";
 
 
-}elseif($item_type == "Login"){
+}elseif ($item_type == "Login") {
     $encryption_key = $_GET['ek'];
 
     $login_sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_id = '$item_related_id' AND login_client_id = '$client_id' LIMIT 1");
     $login_row = mysqli_fetch_array($login_sql);
-    if(mysqli_num_rows($login_sql) !== 1 || !$login_row){
+    if (mysqli_num_rows($login_sql) !== 1 || !$login_row) {
         echo "<div class=\"alert alert-danger\" role=\"alert\">Error retrieving login.</div>";
         include("guest_footer.php");
         exit();
@@ -119,7 +119,7 @@ if($item_type == "Document"){
     $login_notes = htmlentities($login_row['login_note']);
 
     echo "<h3>A login entry has been shared with you</h3>";
-    if(!empty($item_note)){
+    if (!empty($item_note)) {
       echo "<p class=\"lead\">Note: <i>$item_note</i></p>";
     }
     echo "<br>";

@@ -2,7 +2,7 @@
 
 <?php 
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "certificate_name";
@@ -33,7 +33,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Certificates">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Certificates">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -51,7 +51,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_domain&o=<?php echo $disp; ?>">Domain</a></th>
@@ -63,7 +63,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $certificate_id = $row['certificate_id'];
             $certificate_name = htmlentities($row['certificate_name']);
             $certificate_domain = htmlentities($row['certificate_domain']);
@@ -83,7 +83,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal">Edit</a>
-                  <?php if($session_user_role == 3) { ?>
+                  <?php if ($session_user_role == 3) { ?>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger" href="post.php?delete_certificate=<?php echo $certificate_id; ?>">Delete</a>
                   <?php } ?>
@@ -115,7 +115,7 @@ include("client_certificate_add_modal.php");
         jQuery.get(
             "ajax.php",
             {certificate_get_json_details: 'true', client_id: client_id, certificate_id: certificate_id},
-            function(data){
+            function(data) {
 
                 // If we get a response from post.php, parse it as JSON
                 const response = JSON.parse(data);
@@ -145,7 +145,7 @@ include("client_certificate_add_modal.php");
 
                 // Populate domain dropdown
                 domains.forEach(domain => {
-                    if(parseInt(domain.domain_id) == parseInt(certificate.certificate_domain_id)){
+                    if (parseInt(domain.domain_id) == parseInt(certificate.certificate_domain_id)) {
                         // Selected domain
                         domainDropdown[domainDropdown.length] = new Option(domain.domain_name, domain.domain_id, true, true);
                     }
@@ -162,14 +162,14 @@ include("client_certificate_add_modal.php");
     function fetchSSL(type)
     {
         // Get the domain name input & issued/expire/key fields, based on whether this is a new cert or updating an existing
-        if(type == 'new'){
+        if (type == 'new') {
             var domain = document.getElementById("domain").value;
             var issuedBy = document.getElementById("issuedBy");
             var expire = document.getElementById("expire");
             var publicKey = document.getElementById("publicKey");
 
         }
-        if(type == 'edit'){
+        if (type == 'edit') {
             var domain = document.getElementById("editDomain").value;
             var issuedBy = document.getElementById("editIssuedBy");
             var expire = document.getElementById("editExpire");
@@ -180,11 +180,11 @@ include("client_certificate_add_modal.php");
         jQuery.get(
             "ajax.php",
             {certificate_fetch_parse_json_details: 'TRUE', domain: domain},
-            function(data){
+            function(data) {
                 //If we get a response from post.php, parse it as JSON
                 const ssl_data = JSON.parse(data);
 
-                if(ssl_data.success == "TRUE"){
+                if (ssl_data.success == "TRUE") {
                     // Fill the form fields with the cert data
                     issuedBy.value = ssl_data.issued_by;
                     expire.value = ssl_data.expire;

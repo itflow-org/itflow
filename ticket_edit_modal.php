@@ -27,11 +27,11 @@
                   WHERE user_companies.company_id = $session_company_id 
                   AND user_role > 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
                 );
-                while($row = mysqli_fetch_array($sql_assign_to_select)){
+                while ($row = mysqli_fetch_array($sql_assign_to_select)) {
                   $user_id = $row['user_id'];
                   $user_name = htmlentities($row['user_name']);
                 ?>
-                <option <?php if($ticket_assigned_to == $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                <option <?php if ($ticket_assigned_to == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                 
                 <?php
                 }
@@ -47,9 +47,9 @@
                 <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
               </div>
               <select class="form-control select2" name="priority" required>
-                <option <?php if($ticket_priority == 'Low'){ echo "selected"; } ?> >Low</option>
-                <option <?php if($ticket_priority == 'Medium'){ echo "selected"; } ?> >Medium</option>
-                <option <?php if($ticket_priority == 'High'){ echo "selected"; } ?> >High</option>
+                <option <?php if ($ticket_priority == 'Low') { echo "selected"; } ?> >Low</option>
+                <option <?php if ($ticket_priority == 'Medium') { echo "selected"; } ?> >Medium</option>
+                <option <?php if ($ticket_priority == 'High') { echo "selected"; } ?> >High</option>
               </select>
             </div>
           </div>
@@ -75,11 +75,11 @@
                 <?php 
                 
                 $sql_client_contacts_select = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
-                while($row = mysqli_fetch_array($sql_client_contacts_select)){
+                while ($row = mysqli_fetch_array($sql_client_contacts_select)) {
                   $contact_id_select = $row['contact_id'];
                   $contact_name_select = htmlentities($row['contact_name']);
                 ?>
-                <option <?php if($contact_id_select == $contact_id){ echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
+                <option <?php if ($contact_id_select == $contact_id) { echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
                 
                 <?php
                 }
@@ -99,11 +99,11 @@
                 <?php
 
                   $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
-                  while($row = mysqli_fetch_array($sql_assets)){
+                  while ($row = mysqli_fetch_array($sql_assets)) {
                     $asset_id_select = $row['asset_id'];
                     $asset_name_select = htmlentities($row['asset_name']);
                     ?>
-                    <option <?php if(!empty($asset_id) && $asset_id == $asset_id_select){ echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
+                    <option <?php if (!empty($asset_id) && $asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
 
                 <?php
                 }

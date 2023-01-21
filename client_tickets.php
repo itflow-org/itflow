@@ -2,14 +2,14 @@
 
 <?php 
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "ticket_number";
 }
 
 // Reverse default sort
-if(!isset($_GET['o'])){
+if (!isset($_GET['o'])) {
   $o = "DESC";
   $disp = "ASC";
 }
@@ -55,7 +55,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Tickets">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Tickets">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -73,7 +73,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_number&o=<?php echo $disp; ?>">Number</a></th> 
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_subject&o=<?php echo $disp; ?>">Subject</a></th> 
@@ -90,7 +90,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $ticket_id = $row['ticket_id'];
             $ticket_prefix = htmlentities($row['ticket_prefix']);
             $ticket_number = htmlentities($row['ticket_number']);
@@ -101,7 +101,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $ticket_created_at = $row['ticket_created_at'];
             $ticket_updated_at = $row['ticket_updated_at'];
               if (empty($ticket_updated_at)) {
-                  if($ticket_status == "Closed"){
+                  if ($ticket_status == "Closed") {
                       $ticket_updated_at_display = "<p>Never</p>";
                   }
                   else{
@@ -112,26 +112,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               }
             $ticket_closed_at = $row['ticket_closed_at'];
             
-            if($ticket_status == "Open"){
+            if ($ticket_status == "Open") {
               $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
-            }elseif($ticket_status == "Working"){
+            }elseif ($ticket_status == "Working") {
               $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
             }else{
               $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
             }
 
-            if($ticket_priority == "High"){
+            if ($ticket_priority == "High") {
               $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
-            }elseif($ticket_priority == "Medium"){
+            }elseif ($ticket_priority == "Medium") {
               $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
-            }elseif($ticket_priority == "Low"){
+            }elseif ($ticket_priority == "Low") {
               $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
             }else{
               $ticket_priority_display = "-";
             }
               $ticket_assigned_to = $row['ticket_assigned_to'];
               if (empty($ticket_assigned_to)) {
-                  if($ticket_status == "Closed"){
+                  if ($ticket_status == "Closed") {
                       $ticket_assigned_to_display = "<p>Not Assigned</p>";
                   }
                   else{
@@ -142,7 +142,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               }
             $contact_id = $row['contact_id'];
             $contact_name = htmlentities($row['contact_name']);
-            if(empty($contact_name)){
+            if (empty($contact_name)) {
               $contact_display = "-";
             }else{
               $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
@@ -165,14 +165,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $ticket_updated_at_display; ?></td>
             <td><?php echo $ticket_created_at; ?></td>
             <td>
-              <?php if($ticket_status !== "Closed") { ?>
+              <?php if ($ticket_status !== "Closed") { ?>
                 <div class="dropdown dropleft text-center">
                   <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                     <i class="fas fa-ellipsis-h"></i>
                   </button>
                   <div class="dropdown-menu">
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
-                    <?php if($session_user_role == 3) { ?>
+                    <?php if ($session_user_role == 3) { ?>
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item text-danger" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
                     <?php } ?>

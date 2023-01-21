@@ -1,6 +1,6 @@
 <?php include("inc_all_settings.php");
 
-  if(!empty($_GET['sb'])){
+  if (!empty($_GET['sb'])) {
     $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
   }else{
     $sb = "api_key_name";
@@ -29,7 +29,7 @@
   <div class="card-body">
     <form autocomplete="off">
       <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search keys">
+        <input type="search" class="form-control col-md-4" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search keys">
         <div class="input-group-append">
           <button class="btn btn-primary"><i class="fa fa-search"></i></button>
         </div>
@@ -38,7 +38,7 @@
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=api_key_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=api_key_client_id&o=<?php echo $disp; ?>">Client</a></th>
@@ -51,17 +51,17 @@
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $api_key_id = $row['api_key_id'];
             $api_key_name = htmlentities($row['api_key_name']);
             $api_key_secret = htmlentities("************" . substr($row['api_key_secret'], -4));
             $api_key_created_at = $row['api_key_created_at'];
             $api_key_expire = $row['api_key_expire'];
-            if($api_key_expire < date("Y-m-d H:i:s")){
+            if ($api_key_expire < date("Y-m-d H:i:s")) {
               $api_key_expire = $api_key_expire . " (Expired)";
             }
 
-            if($row['api_key_client_id'] == 0){
+            if ($row['api_key_client_id'] == 0) {
               $api_key_client = "<i>All Clients</i>";
             }
             else{

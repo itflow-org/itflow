@@ -64,7 +64,7 @@
                   </div>
                   <select class="form-control select2" name="type" required>
                     <?php foreach($software_types_array as $software_type_select) { ?>
-                    <option <?php if($software_type == $software_type_select) { echo "selected"; } ?>><?php echo $software_type_select; ?></option>
+                    <option <?php if ($software_type == $software_type_select) { echo "selected"; } ?>><?php echo $software_type_select; ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -79,7 +79,7 @@
                   <select class="form-control select2" name="license_type">
                     <option value="">- Select a License Type -</option>
                     <?php foreach($license_types_array as $license_type_select) { ?>
-                    <option <?php if($license_type_select == $software_license_type){ echo "selected"; } ?>><?php echo $license_type_select; ?></option>
+                    <option <?php if ($license_type_select == $software_license_type) { echo "selected"; } ?>><?php echo $license_type_select; ?></option>
                     <?php } ?>
                   </select> 
                 </div>
@@ -138,7 +138,7 @@
                 <?php
                 $sql_assets_select = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
 
-                while($row = mysqli_fetch_array($sql_assets_select)){
+                while ($row = mysqli_fetch_array($sql_assets_select)) {
                   $asset_id_select = $row['asset_id'];
                   $asset_name_select = htmlentities($row['asset_name']);
                   $asset_type_select = htmlentities($row['asset_type']);
@@ -147,7 +147,7 @@
                 ?>
                   <li class="list-group-item">
                     <div class="form-check">
-                      <input type="checkbox" class="form-check-input" name="assets[]" value="<?php echo $asset_id_select; ?>" <?php if(in_array($asset_id_select,$asset_licenses_array)){ echo "checked"; } ?>>
+                      <input type="checkbox" class="form-check-input" name="assets[]" value="<?php echo $asset_id_select; ?>" <?php if (in_array($asset_id_select,$asset_licenses_array)) { echo "checked"; } ?>>
                       <label class="form-check-label ml-2"><?php echo "$asset_name_select - $contact_name_select"; ?></label>
                     </div>
                   </li>
@@ -171,7 +171,7 @@
                 <?php
                 $sql_contacts_select = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
 
-                while($row = mysqli_fetch_array($sql_contacts_select)){
+                while ($row = mysqli_fetch_array($sql_contacts_select)) {
                   $contact_id_select = $row['contact_id'];
                   $contact_name_select = htmlentities($row['contact_name']);
                   $contact_email_select = htmlentities($row['contact_email']);
@@ -179,7 +179,7 @@
                 ?>
                   <li class="list-group-item">
                     <div class="form-check">
-                      <input type="checkbox" class="form-check-input" name="contacts[]" value="<?php echo $contact_id_select; ?>" <?php if(in_array("$contact_id_select",$contact_licenses_array)){ echo "checked"; } ?>>
+                      <input type="checkbox" class="form-check-input" name="contacts[]" value="<?php echo $contact_id_select; ?>" <?php if (in_array("$contact_id_select",$contact_licenses_array)) { echo "checked"; } ?>>
                       <label class="form-check-label ml-2"><?php echo "$contact_name_select - $contact_email_select"; ?></label>
                     </div>
                   </li>

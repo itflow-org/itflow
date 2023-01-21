@@ -1,6 +1,6 @@
 <?php
 
-if(!file_exists('config.php')){
+if (!file_exists('config.php')) {
     header("Location: setup.php");
     exit;
 }
@@ -37,7 +37,7 @@ if (isset($_POST['login'])) {
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent'");
 
         // Send an alert only count hits 10 to reduce flooding alerts (using 1 as "default" company)
-        if($failed_login_count == 10){
+        if ($failed_login_count == 10) {
             mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Lockout', notification = '$ip was locked out for repeated failed login attempts.', notification_timestamp = NOW() company_id = '1'");
         }
 
@@ -176,10 +176,10 @@ if (isset($_POST['login'])) {
   <!-- /.login-logo -->
   <div class="card">
     <div class="card-body login-card-body">
-      <p class="login-box-msg"><?php if(isset($response)) { echo $response; } ?></p>
+      <p class="login-box-msg"><?php if (isset($response)) { echo $response; } ?></p>
       <form method="post">
         <div class="input-group mb-3">
-          <input type="text" class="form-control" placeholder="Agent Email" name="email" value="<?php if(!empty($token_field)){ echo $email; }?>" required <?php if(empty($token_field)){ echo "autofocus"; } ?> >
+          <input type="text" class="form-control" placeholder="Agent Email" name="email" value="<?php if (!empty($token_field)) { echo $email; }?>" required <?php if (empty($token_field)) { echo "autofocus"; } ?> >
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>
@@ -187,14 +187,14 @@ if (isset($_POST['login'])) {
           </div>
         </div>
         <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="Agent Password" name="password" value="<?php if(!empty($token_field)){ echo $password; } ?>" required>
+          <input type="password" class="form-control" placeholder="Agent Password" name="password" value="<?php if (!empty($token_field)) { echo $password; } ?>" required>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
             </div>
           </div>
         </div>
-          <?php if(!empty($token_field)){ echo $token_field; } ?>
+          <?php if (!empty($token_field)) { echo $token_field; } ?>
 
         <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
 
@@ -222,7 +222,7 @@ if (isset($_POST['login'])) {
 <!-- Prevents resubmit on refresh or back -->
 <script>
 
-    if(window.history.replaceState){
+    if (window.history.replaceState) {
         window.history.replaceState(null,null,window.location.href);
     }
 

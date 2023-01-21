@@ -23,15 +23,15 @@
 
                             <!-- Assets -->
                             <?php
-                            if(mysqli_num_rows($sql_assets) > 0){ ?>
+                            if (mysqli_num_rows($sql_assets) > 0) { ?>
                                 <h5><i class="nav-icon fas fa-desktop"></i> Assets</h5>
                                 <ul>
                                     <?php
                                     // Reset the $sql_assets pointer to the start - as we've already cycled through once
                                     mysqli_data_seek($sql_assets, 0);
 
-                                    while($row = mysqli_fetch_array($sql_assets)){
-                                        if(!empty($row['asset_ip'])){
+                                    while ($row = mysqli_fetch_array($sql_assets)) {
+                                        if (!empty($row['asset_ip'])) {
                                             $ip = '('.$row["asset_ip"].')';
                                         }
                                         else{
@@ -47,7 +47,7 @@
 
                             <!-- Networks -->
                             <?php
-                            if($sql_assets){
+                            if ($sql_assets) {
 
                                 $networks = [];
 
@@ -55,8 +55,8 @@
                                 mysqli_data_seek($sql_assets, 0);
 
                                 // Get networks linked to assets - push name to array
-                                while($row = mysqli_fetch_array($sql_assets)){
-                                    if(!empty($row['network_name'])){
+                                while ($row = mysqli_fetch_array($sql_assets)) {
+                                    if (!empty($row['network_name'])) {
                                         $network_data = "$row[network_name]:$row[network_vlan]";
                                         array_push($networks, $network_data);
                                     }
@@ -66,12 +66,12 @@
                                 $networks = array_unique($networks);
 
                                 // Display
-                                if(!empty($networks)){ ?>
+                                if (!empty($networks)) { ?>
                                     <h5><i class="nav-icon fas fa-network-wired"></i> Networks</h5>
                                     <ul>
                                     <?php
                                 }
-                                foreach($networks as $network){
+                                foreach($networks as $network) {
                                     $network = explode(":", $network);
                                     echo "<li><a href=\"client_networks.php?client_id=$client_id&q=$network[0]\">$network[0] </a>(VLAN $network[1])</li>";
                                 }
@@ -84,7 +84,7 @@
 
                             <!-- Locations -->
                             <?php
-                            if($sql_assets){
+                            if ($sql_assets) {
 
                                 $location_names = [];
 
@@ -92,8 +92,8 @@
                                 mysqli_data_seek($sql_assets, 0);
 
                                 // Get locations linked to assets - push their name and vlan to arrays
-                                while($row = mysqli_fetch_array($sql_assets)){
-                                    if(!empty($row['location_name'])){
+                                while ($row = mysqli_fetch_array($sql_assets)) {
+                                    if (!empty($row['location_name'])) {
                                         array_push($location_names, $row['location_name']);
                                     }
                                 }
@@ -102,12 +102,12 @@
                                 $location_names = array_unique($location_names);
 
                                 // Display
-                                if(!empty($location_names)){ ?>
+                                if (!empty($location_names)) { ?>
                                     <h5><i class="nav-icon fas fa-map-marker-alt"></i> Locations</h5>
                                     <ul>
                                     <?php
                                 }
-                                foreach($location_names as $location){
+                                foreach($location_names as $location) {
                                     echo "<li><a href=\"client_locations.php?client_id=$client_id&q=$location\">$location</a></li>";
                                 }
                                 ?>
@@ -118,7 +118,7 @@
 
                             <!-- Domains -->
                             <?php
-                            if(mysqli_num_rows($sql_domains) > 0){ ?>
+                            if (mysqli_num_rows($sql_domains) > 0) { ?>
                                 <h5><i class="nav-icon fas fa-globe"></i> Domains</h5>
                                 <ul>
                                     <?php
@@ -126,8 +126,8 @@
                                     mysqli_data_seek($sql_domains, 0);
 
                                     // Showing linked domains
-                                    while($row = mysqli_fetch_array($sql_domains)){
-                                        if(!empty($row['domain_name'])){
+                                    while ($row = mysqli_fetch_array($sql_domains)) {
+                                        if (!empty($row['domain_name'])) {
                                             echo "<li><a href=\"client_domains.php?client_id=$client_id&q=$row[domain_name]\">$row[domain_name]</a></li>";
                                         }
                                     }
@@ -139,7 +139,7 @@
 
                             <!-- Certificates -->
                             <?php
-                            if(mysqli_num_rows($sql_certificates) > 0){ ?>
+                            if (mysqli_num_rows($sql_certificates) > 0) { ?>
                                 <h5><i class="nav-icon fas fa-lock"></i> Certificates</h5>
                                 <ul>
                                     <?php
@@ -147,8 +147,8 @@
                                     mysqli_data_seek($sql_certificates, 0);
 
                                     // Showing linked certs
-                                    while($row = mysqli_fetch_array($sql_certificates)){
-                                        if(!empty($row['certificate_name'])){
+                                    while ($row = mysqli_fetch_array($sql_certificates)) {
+                                        if (!empty($row['certificate_name'])) {
                                             echo "<li><a href=\"client_certificates.php?client_id=$client_id&q=$row[certificate_name]\">$row[certificate_name] ($row[certificate_domain])</a></li>";
                                         }
                                     }
@@ -173,11 +173,11 @@
                             // Reset the $sql_vendors pointer to the start
                             mysqli_data_seek($sql_vendors, 0);
 
-                            if(mysqli_num_rows($sql_vendors) > 0){ ?>
+                            if (mysqli_num_rows($sql_vendors) > 0) { ?>
                                 <h5><i class="nav-icon fas fa-users"></i> Vendors</h5>
                                 <ul>
                                     <?php
-                                    while($row = mysqli_fetch_array($sql_vendors)){
+                                    while ($row = mysqli_fetch_array($sql_vendors)) {
                                         echo "<li><a href=\"client_vendors.php?client_id=$client_id&q=$row[vendor_name]\">$row[vendor_name]</a></li>";
                                     }
                                     ?>
@@ -188,14 +188,14 @@
 
                             <!-- Contacts -->
                             <?php
-                            if(mysqli_num_rows($sql_contacts) > 0){ ?>
+                            if (mysqli_num_rows($sql_contacts) > 0) { ?>
                                 <h5><i class="nav-icon fas fa-building"></i> Contacts</h5>
                                 <ul>
                                     <?php
                                     // Reset the $sql_contacts pointer to the start
                                     mysqli_data_seek($sql_contacts, 0);
 
-                                    while($row = mysqli_fetch_array($sql_contacts)){
+                                    while ($row = mysqli_fetch_array($sql_contacts)) {
                                         echo "<li><a href=\"client_contacts.php?client_id=$client_id&q=$row[contact_name]\">$row[contact_name]</a></li>";
                                     }
                                     ?>
@@ -206,7 +206,7 @@
 
                             <!-- Logins -->
                             <?php
-                            if(mysqli_num_rows($sql_assets) > 0 || mysqli_num_rows($sql_logins) > 0){ ?>
+                            if (mysqli_num_rows($sql_assets) > 0 || mysqli_num_rows($sql_logins) > 0) { ?>
                                 <h5><i class="nav-icon fas fa-key"></i> Logins</h5>
                                 <ul>
                                     <?php
@@ -215,15 +215,15 @@
                                     mysqli_data_seek($sql_logins, 0);
 
                                     // Showing logins linked to assets
-                                    while($row = mysqli_fetch_array($sql_assets)){
-                                        if(!empty($row['login_name'])){
+                                    while ($row = mysqli_fetch_array($sql_assets)) {
+                                        if (!empty($row['login_name'])) {
                                             echo "<li><a href=\"client_logins.php?client_id=$client_id&q=$row[login_name]\">$row[login_name]</a></li>";
                                         }
                                     }
 
                                     // Showing explicitly linked logins
-                                    while($row = mysqli_fetch_array($sql_logins)){
-                                        if(!empty($row['login_name'])){
+                                    while ($row = mysqli_fetch_array($sql_logins)) {
+                                        if (!empty($row['login_name'])) {
                                             echo "<li><a href=\"client_logins.php?client_id=$client_id&q=$row[login_name]\">$row[login_name]</a></li>";
                                         }
                                     }
@@ -235,7 +235,7 @@
 
                             <!-- URLs -->
                             <?php
-                            if($sql_logins || $sql_assets){ ?>
+                            if ($sql_logins || $sql_assets) { ?>
                                 <h5><i class="nav-icon fas fa-link"></i> URLs</h5>
                                 <ul>
                                     <?php
@@ -243,8 +243,8 @@
                                     mysqli_data_seek($sql_logins, 0);
 
                                     // Showing URLs linked to logins
-                                    while($row = mysqli_fetch_array($sql_logins)){
-                                        if(!empty($row['login_uri'])){
+                                    while ($row = mysqli_fetch_array($sql_logins)) {
+                                        if (!empty($row['login_uri'])) {
                                             echo "<li><a href=\"https://$row[login_uri]\">$row[login_uri]</a></li>";
                                         }
                                     }
@@ -253,8 +253,8 @@
                                     mysqli_data_seek($sql_assets, 0);
 
                                     // Show URLs linked to assets, that also have logins
-                                    while($row = mysqli_fetch_array($sql_assets)){
-                                        if(!empty($row['login_uri'])){
+                                    while ($row = mysqli_fetch_array($sql_assets)) {
+                                        if (!empty($row['login_uri'])) {
                                             echo "<li><a href=\"https://$row[login_uri]\">$row[login_uri]</a></li>";
                                         }
                                     }
@@ -266,14 +266,14 @@
 
                             <!-- Documents -->
                             <?php
-                            if(mysqli_num_rows($sql_docs) > 0){ ?>
+                            if (mysqli_num_rows($sql_docs) > 0) { ?>
                                 <h5><i class="nav-icon fas fa-file-alt"></i> Documents</h5>
                                 <ul>
                                     <?php
                                     // Reset the $sql_docs pointer to the start
                                     mysqli_data_seek($sql_docs, 0);
 
-                                    while($row = mysqli_fetch_array($sql_docs)){
+                                    while ($row = mysqli_fetch_array($sql_docs)) {
                                         echo "<li><a href=\"client_documents.php?client_id=$client_id&q=$row[document_name]\">$row[document_name]</a></li>";
                                     }
                                     ?>

@@ -31,7 +31,7 @@
                 <?php 
                 
                 $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL AND company_id = $session_company_id"); 
-                while($row = mysqli_fetch_array($sql)){
+                while ($row = mysqli_fetch_array($sql)) {
                   $category_id = $row['category_id'];
                   $category_name = htmlentities($row['category_name']);
                 ?>
@@ -72,7 +72,7 @@
                     <?php 
                     
                     $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_archived_at IS NULL AND company_id = $session_company_id ORDER BY tax_name ASC"); 
-                    while($row = mysqli_fetch_array($taxes_sql)){
+                    while ($row = mysqli_fetch_array($taxes_sql)) {
                       $tax_id = $row['tax_id'];
                       $tax_name = htmlentities($row['tax_name']);
                       $tax_percent = htmlentities($row['tax_percent']);

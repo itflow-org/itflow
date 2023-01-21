@@ -10,7 +10,7 @@ include("top_nav.php");
 
 <?php 
 
-if(isset($_GET['client_id'])){
+if (isset($_GET['client_id'])) {
   $client_id = intval($_GET['client_id']);
 
   $sql = mysqli_query($mysqli,"UPDATE clients SET client_accessed_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
@@ -21,7 +21,7 @@ if(isset($_GET['client_id'])){
     WHERE client_id = $client_id 
     AND clients.company_id = $session_company_id");
 
-  if(mysqli_num_rows($sql) == 0){
+  if (mysqli_num_rows($sql) == 0) {
     include("header.php");
     echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1></center>";
   }else{
@@ -33,7 +33,7 @@ if(isset($_GET['client_id'])){
     $client_referral = htmlentities($row['client_referral']);
     $client_currency_code = htmlentities($row['client_currency_code']);
     $client_net_terms = $row['client_net_terms'];
-    if($client_net_terms == 0){
+    if ($client_net_terms == 0) {
       $client_net_terms = $config_default_net_terms;
     }
     $client_notes = htmlentities($row['client_notes']);
@@ -61,13 +61,13 @@ if(isset($_GET['client_id'])){
     $client_tag_name_display_array = array();
     $client_tag_id_array = array();
     $sql_client_tags = mysqli_query($mysqli,"SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_tags.client_id = $client_id");
-    while($row = mysqli_fetch_array($sql_client_tags)){
+    while ($row = mysqli_fetch_array($sql_client_tags)) {
 
       $client_tag_id = $row['tag_id'];
       $client_tag_name = htmlentities($row['tag_name']);
       $client_tag_color = htmlentities($row['tag_color']);
       $client_tag_icon = htmlentities($row['tag_icon']);
-      if(empty($client_tag_icon)){
+      if (empty($client_tag_icon)) {
         $client_tag_icon = "tag";
       }
     

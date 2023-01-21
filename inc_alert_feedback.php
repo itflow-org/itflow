@@ -1,8 +1,8 @@
 <?php
 
 //Alert Feedback
-if(!empty($_SESSION['alert_message'])){
-    if (!isset($_SESSION['alert_type'])){
+if (!empty($_SESSION['alert_message'])) {
+    if (!isset($_SESSION['alert_type'])) {
         $_SESSION['alert_type'] = "success";
     }
   ?>
@@ -17,7 +17,7 @@ if(!empty($_SESSION['alert_message'])){
 }
 
 //Set Records Per Page
-if(empty($_SESSION['records_per_page'])){
+if (empty($_SESSION['records_per_page'])) {
   $_SESSION['records_per_page'] = 10;
 }
 

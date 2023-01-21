@@ -3,7 +3,7 @@
 <?php 
 
 
-if(isset($_GET['document_id'])){
+if (isset($_GET['document_id'])) {
 	$document_id = intval($_GET['document_id']);
 }
 

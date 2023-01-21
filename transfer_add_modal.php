@@ -45,7 +45,7 @@
                 <?php 
                 
                 $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_archived_at IS NULL AND company_id = $session_company_id ORDER BY account_name ASC"); 
-                while($row = mysqli_fetch_array($sql)){
+                while ($row = mysqli_fetch_array($sql)) {
                   $account_id = $row['account_id'];
                   $account_name = htmlentities($row['account_name']);
                   $opening_balance = floatval($row['opening_balance']);
@@ -65,7 +65,7 @@
                   $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
                 
                 ?>
-                  <option <?php if($config_default_transfer_from_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                  <option <?php if ($config_default_transfer_from_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
                 
                 <?php
                 }
@@ -84,7 +84,7 @@
                 <?php 
                 
                 $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_archived_at IS NULL AND company_id = $session_company_id ORDER BY account_name ASC"); 
-                while($row = mysqli_fetch_array($sql)){
+                while ($row = mysqli_fetch_array($sql)) {
                   $account_id = $row['account_id'];
                   $account_name = htmlentities($row['account_name']);
                   $opening_balance = floatval($row['opening_balance']);
@@ -104,7 +104,7 @@
                   $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                 ?>
-                  <option <?php if($config_default_transfer_to_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                  <option <?php if ($config_default_transfer_to_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
                 
                 <?php
                 }

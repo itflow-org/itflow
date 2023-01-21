@@ -2,7 +2,7 @@
 
 include("guest_header.php");
 
-if(isset($_GET['quote_id'], $_GET['url_key'])){
+if (isset($_GET['quote_id'], $_GET['url_key'])) {
 
   $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
   $quote_id = intval($_GET['quote_id']);
@@ -17,7 +17,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     AND quote_url_key = '$url_key'"
   );
 
-  if(mysqli_num_rows($sql) == 1){
+  if (mysqli_num_rows($sql) == 1) {
 
     $row = mysqli_fetch_array($sql);
 
@@ -43,7 +43,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     $client_website = htmlentities($row['client_website']);
     $client_currency_code = htmlentities($row['client_currency_code']);
     $client_net_terms = htmlentities($row['client_net_terms']);
-    if($client_net_terms == 0){
+    if ($client_net_terms == 0) {
       $client_net_terms = $config_default_net_terms;
     }
     $company_id = $row['company_id'];
@@ -55,7 +55,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     $company_phone = formatPhoneNumber($row['company_phone']);
     $company_email = htmlentities($row['company_email']);
     $company_logo = htmlentities($row['company_logo']);
-    if(!empty($company_logo)){
+    if (!empty($company_logo)) {
       $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
     }
     $company_locale = htmlentities($row['company_locale']);
@@ -70,7 +70,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     $device = get_device();
 
     //Update status to Viewed only if invoice_status = "Sent" 
-    if($quote_status == 'Sent'){
+    if ($quote_status == 'Sent') {
       mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Viewed' WHERE quote_id = $quote_id");
     }
 
@@ -88,7 +88,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     <div class="card-header d-print-none">
       <div class="float-left">
         <?php
-        if($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Viewed"){
+        if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Viewed") {
         ?>
         <a class="btn btn-success" href="guest_post.php?accept_quote=<?php echo $quote_id; ?>&company_id=<?php echo $company_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-check"></i> Accept</a>
         <a class="btn btn-danger" href="guest_post.php?decline_quote=<?php echo $quote_id; ?>&company_id=<?php echo $company_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-times"></i> Decline</a>
@@ -170,7 +170,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
 	              <tbody>
 	                <?php
 	          
-	                while($row = mysqli_fetch_array($sql_items)){
+	                while ($row = mysqli_fetch_array($sql_items)) {
 	                  $item_id = $row['item_id'];
 	                  $item_name = htmlentities($row['item_name']);
 	                  $item_description = htmlentities($row['item_description']);
@@ -207,7 +207,7 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
 
       <div class="row mb-4">
         <div class="col-sm-7">
-          <?php if(!empty($quote_note)){ ?>
+          <?php if (!empty($quote_note)) { ?>
           <div class="card">
             <div class="card-body">
               <div style="white-space:pre-line"><?php echo $quote_note; ?></div>
@@ -223,13 +223,13 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
                 <td>Subtotal</td>
                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?></td>
               </tr>
-              <?php if($discount > 0){ ?>
+              <?php if ($discount > 0) { ?>
               <tr class="border-bottom">
                 <td>Discount</td>
                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code); ?></td>          
               </tr>
               <?php } ?>
-              <?php if($total_tax > 0){ ?>
+              <?php if ($total_tax > 0) { ?>
               <tr class="border-bottom">
                 <td>Tax</td>
                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?></td>        
@@ -266,7 +266,7 @@ var docDefinition = {
 		// Header
 		{
 			columns: [
-				<?php if(!empty($company_logo_base64)){ ?>
+				<?php if (!empty($company_logo_base64)) { ?>
 				{
 					image: <?php echo json_encode("data:image;base64,$company_logo_base64") ?>,
 					width: 120
@@ -387,7 +387,7 @@ var docDefinition = {
 
 		      $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_id ASC");
 		      
-		      while($row = mysqli_fetch_array($sql_invoice_items)){
+		      while ($row = mysqli_fetch_array($sql_invoice_items)) {
 		        $item_name = $row['item_name'];
 		        $item_description = $row['item_description'];
 		        $item_quantity = $row['item_quantity'];

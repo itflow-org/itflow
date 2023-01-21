@@ -2,7 +2,7 @@
 
 <?php
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "tag_name";
@@ -19,14 +19,14 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM tags
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
-if($num_row > 0){
+if ($num_row > 0) {
 //Colors Used
 $sql_colors_used = mysqli_query($mysqli,"SELECT tag_color FROM tags 
   WHERE tag_archived_at IS NULL
   AND company_id = $session_company_id"
 );
 
-while($color_used_row = mysqli_fetch_array($sql_colors_used)){
+while ($color_used_row = mysqli_fetch_array($sql_colors_used)) {
   $colors_used_array[] = $color_used_row['tag_color'];
 }
 $colors_diff = array_diff($colors_array,$colors_used_array);
@@ -51,7 +51,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
       <div class="col-sm-4 mb-2">
         <form autocomplete="off">  
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Tags">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Tags">
             <div class="input-group-append">
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>
@@ -65,7 +65,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tag_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tag_type&o=<?php echo $disp; ?>">Type</a></th>
@@ -76,7 +76,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
         <tbody>
           <?php
 
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $tag_id = $row['tag_id'];
             $tag_name = htmlentities($row['tag_name']);
             $tag_type = htmlentities($row['tag_type']);

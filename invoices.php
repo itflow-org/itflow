@@ -52,63 +52,63 @@
   $real_overdue_amount = $total_overdue - $total_overdue_partial;
 
 
-  if(!empty($_GET['sb'])){
+  if (!empty($_GET['sb'])) {
     $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
   }else{
     $sb = "invoice_number";
   }
 
   // Reverse default sort
-  if(!isset($_GET['o'])){
+  if (!isset($_GET['o'])) {
     $o = "DESC";
     $disp = "ASC";
   }
 
-  if(empty($_GET['canned_date'])){
+  if (empty($_GET['canned_date'])) {
     //Prevents lots of undefined variable errors.
     // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
     $_GET['canned_date'] = 'custom';
   }
 
   //Invoice status from GET
-  if(isset($_GET['status']) && ($_GET['status']) == 'Draft'){
+  if (isset($_GET['status']) && ($_GET['status']) == 'Draft') {
     $status_query = 'Draft';
-  }elseif(isset($_GET['status']) && ($_GET['status']) == 'Sent'){
+  }elseif (isset($_GET['status']) && ($_GET['status']) == 'Sent') {
     $status_query = 'Sent';
-  }elseif(isset($_GET['status']) && ($_GET['status']) == 'Viewed'){
+  }elseif (isset($_GET['status']) && ($_GET['status']) == 'Viewed') {
     $status_query = 'Viewed';
-  }elseif(isset($_GET['status']) && ($_GET['status']) == 'Partial'){
+  }elseif (isset($_GET['status']) && ($_GET['status']) == 'Partial') {
     $status_query = 'Partial';
   }else{
     $status_query = '%';
   }
   
   //Date Filter
-  if($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])){
+  if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
     $dtf = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtf']));
     $dtt = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtt']));
-  }elseif($_GET['canned_date'] == "today"){
+  }elseif ($_GET['canned_date'] == "today") {
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');
-  }elseif($_GET['canned_date'] == "yesterday"){
+  }elseif ($_GET['canned_date'] == "yesterday") {
     $dtf = date('Y-m-d',strtotime("yesterday"));
     $dtt = date('Y-m-d',strtotime("yesterday"));
-  }elseif($_GET['canned_date'] == "thisweek"){
+  }elseif ($_GET['canned_date'] == "thisweek") {
     $dtf = date('Y-m-d',strtotime("monday this week"));
     $dtt = date('Y-m-d');
-  }elseif($_GET['canned_date'] == "lastweek"){
+  }elseif ($_GET['canned_date'] == "lastweek") {
     $dtf = date('Y-m-d',strtotime("monday last week"));
     $dtt = date('Y-m-d',strtotime("sunday last week"));
-  }elseif($_GET['canned_date'] == "thismonth"){
+  }elseif ($_GET['canned_date'] == "thismonth") {
     $dtf = date('Y-m-01');
     $dtt = date('Y-m-d');
-  }elseif($_GET['canned_date'] == "lastmonth"){
+  }elseif ($_GET['canned_date'] == "lastmonth") {
     $dtf = date('Y-m-d',strtotime("first day of last month"));
     $dtt = date('Y-m-d',strtotime("last day of last month"));
-  }elseif($_GET['canned_date'] == "thisyear"){
+  }elseif ($_GET['canned_date'] == "thisyear") {
     $dtf = date('Y-01-01');
     $dtt = date('Y-m-d');
-  }elseif($_GET['canned_date'] == "lastyear"){
+  }elseif ($_GET['canned_date'] == "lastyear") {
     $dtf = date('Y-m-d',strtotime("first day of january last year"));
     $dtt = date('Y-m-d',strtotime("last day of december last year"));  
   }else{
@@ -201,11 +201,11 @@
 
   <div class="card-body">
     <form class="mb-4" autocomplete="off">
-      <input type="hidden" name="status" value="<?php if(isset($_GET['status'])){ echo htmlentities($_GET['status']); } ?>">
+      <input type="hidden" name="status" value="<?php if (isset($_GET['status'])) { echo htmlentities($_GET['status']); } ?>">
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo strip_tags(htmlentities($q));} ?>" placeholder="Search Invoices">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo strip_tags(htmlentities($q));} ?>" placeholder="Search Invoices">
             <div class="input-group-append">
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -213,21 +213,21 @@
           </div>
         </div>
       </div>
-      <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
+      <div class="collapse mt-3 <?php if (!empty($_GET['dtf'])) { echo "show"; } ?>" id="advancedFilter">
         <div class="row">
           <div class="col-md-2">
             <div class="form-group">
               <label>Canned Date</label>
               <select class="form-control select2" name="canned_date">
-                <option <?php if($_GET['canned_date'] == "custom"){ echo "selected"; } ?> value="custom">Custom</option>
-                <option <?php if($_GET['canned_date'] == "today"){ echo "selected"; } ?> value="today">Today</option>
-                <option <?php if($_GET['canned_date'] == "yesterday"){ echo "selected"; } ?> value="yesterday">Yesterday</option>
-                <option <?php if($_GET['canned_date'] == "thisweek"){ echo "selected"; } ?> value="thisweek">This Week</option>
-                <option <?php if($_GET['canned_date'] == "lastweek"){ echo "selected"; } ?> value="lastweek">Last Week</option>
-                <option <?php if($_GET['canned_date'] == "thismonth"){ echo "selected"; } ?> value="thismonth">This Month</option>
-                <option <?php if($_GET['canned_date'] == "lastmonth"){ echo "selected"; } ?> value="lastmonth">Last Month</option>
-                <option <?php if($_GET['canned_date'] == "thisyear"){ echo "selected"; } ?> value="thisyear">This Year</option>
-                <option <?php if($_GET['canned_date'] == "lastyear"){ echo "selected"; } ?> value="lastyear">Last Year</option>
+                <option <?php if ($_GET['canned_date'] == "custom") { echo "selected"; } ?> value="custom">Custom</option>
+                <option <?php if ($_GET['canned_date'] == "today") { echo "selected"; } ?> value="today">Today</option>
+                <option <?php if ($_GET['canned_date'] == "yesterday") { echo "selected"; } ?> value="yesterday">Yesterday</option>
+                <option <?php if ($_GET['canned_date'] == "thisweek") { echo "selected"; } ?> value="thisweek">This Week</option>
+                <option <?php if ($_GET['canned_date'] == "lastweek") { echo "selected"; } ?> value="lastweek">Last Week</option>
+                <option <?php if ($_GET['canned_date'] == "thismonth") { echo "selected"; } ?> value="thismonth">This Month</option>
+                <option <?php if ($_GET['canned_date'] == "lastmonth") { echo "selected"; } ?> value="lastmonth">Last Month</option>
+                <option <?php if ($_GET['canned_date'] == "thisyear") { echo "selected"; } ?> value="thisyear">This Year</option>
+                <option <?php if ($_GET['canned_date'] == "lastyear") { echo "selected"; } ?> value="lastyear">Last Year</option>
               </select>
             </div>
           </div>
@@ -249,7 +249,7 @@
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_number&o=<?php echo $disp; ?>">Number</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_scope&o=<?php echo $disp; ?>">Scope</a></th>
@@ -265,12 +265,12 @@
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $invoice_id = $row['invoice_id'];
             $invoice_prefix = htmlentities($row['invoice_prefix']);
             $invoice_number = htmlentities($row['invoice_number']);
             $invoice_scope = htmlentities($row['invoice_scope']);
-            if(empty($invoice_scope)){
+            if (empty($invoice_scope)) {
               $invoice_scope_display = "-";
             }else{
               $invoice_scope_display = $invoice_scope;
@@ -287,27 +287,27 @@
             $category_name = htmlentities($row['category_name']);
             $client_currency_code = htmlentities($row['client_currency_code']);
             $client_net_terms = htmlentities($row['client_net_terms']);
-            if($client_net_terms == 0){
+            if ($client_net_terms == 0) {
               $client_net_terms = $config_default_net_terms;
             }
 
             $now = time();
 
-            if(($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) + 86400 < $now ){
+            if (($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) + 86400 < $now ) {
               $overdue_color = "text-danger font-weight-bold";
             }else{
               $overdue_color = "";
             }
 
-            if($invoice_status == "Sent"){
+            if ($invoice_status == "Sent") {
               $invoice_badge_color = "warning text-white";
-            }elseif($invoice_status == "Viewed"){
+            }elseif ($invoice_status == "Viewed") {
               $invoice_badge_color = "info";
-            }elseif($invoice_status == "Partial"){
+            }elseif ($invoice_status == "Partial") {
               $invoice_badge_color = "primary";
-            }elseif($invoice_status == "Paid"){
+            }elseif ($invoice_status == "Paid") {
               $invoice_badge_color = "success";
-            }elseif($invoice_status == "Cancelled"){
+            }elseif ($invoice_status == "Cancelled") {
               $invoice_badge_color = "danger";
             }else{
               $invoice_badge_color = "secondary";
@@ -337,7 +337,7 @@
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
                   <div class="dropdown-divider"></div>
-                  <?php if(!empty($config_smtp_host)){ ?>
+                  <?php if (!empty($config_smtp_host)) { ?>
                   <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send</a>
                   <div class="dropdown-divider"></div>
                   <?php } ?>

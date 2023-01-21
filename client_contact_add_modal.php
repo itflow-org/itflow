@@ -41,7 +41,7 @@
                   <input type="text" class="form-control" name="name" placeholder="Full Name" required autofocus>
                   <div class="input-group-append">
                     <div class="input-group-text">
-                      <input type="checkbox" name="primary_contact" value="1" <?php if($primary_contact == 0){ echo "checked"; } ?>>
+                      <input type="checkbox" name="primary_contact" value="1" <?php if ($primary_contact == 0) { echo "checked"; } ?>>
                     </div>
                   </div>
                 </div>
@@ -120,7 +120,7 @@
                     <?php 
                     
                     $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC"); 
-                    while($row = mysqli_fetch_array($sql)){
+                    while ($row = mysqli_fetch_array($sql)) {
                       $location_id = $row['location_id'];
                       $location_name = htmlentities($row['location_name']);
                     ?>

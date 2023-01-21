@@ -2,14 +2,14 @@
 
 <?php
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "quote_number";
 }
 
 // Reverse default sort
-if(!isset($_GET['o'])){
+if (!isset($_GET['o'])) {
   $o = "DESC";
   $disp = "ASC";
 }
@@ -41,7 +41,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Quotes">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Quotes">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -59,7 +59,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=quote_number&o=<?php echo $disp; ?>">Number</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=quote_scope&o=<?php echo $disp; ?>">Scope</a></th>
@@ -73,12 +73,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $quote_id = $row['quote_id'];
             $quote_prefix = htmlentities($row['quote_prefix']);
             $quote_number = htmlentities($row['quote_number']);
             $quote_scope = htmlentities($row['quote_scope']);
-            if(empty($quote_scope)){
+            if (empty($quote_scope)) {
               $quote_scope_display = "-";
             }else{
               $quote_scope_display = $quote_scope;
@@ -92,15 +92,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $category_name = htmlentities($row['category_name']);
 
             //Set Badge color based off of quote status
-            if($quote_status == "Sent"){
+            if ($quote_status == "Sent") {
               $quote_badge_color = "warning text-white";
-            }elseif($quote_status == "Viewed"){
+            }elseif ($quote_status == "Viewed") {
               $quote_badge_color = "primary";
-            }elseif($quote_status == "Accepted"){
+            }elseif ($quote_status == "Accepted") {
               $quote_badge_color = "success";
-            }elseif($quote_status == "Declined"){
+            }elseif ($quote_status == "Declined") {
               $quote_badge_color = "danger";
-            }elseif($quote_status == "Invoiced"){
+            }elseif ($quote_status == "Invoiced") {
               $quote_badge_color = "info";
             }else{
               $quote_badge_color = "secondary";
@@ -128,7 +128,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuoteModal<?php echo $quote_id; ?>">Edit</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">Copy</a>
                   <div class="dropdown-divider"></div>
-                  <?php if(!empty($config_smtp_host)){ ?>
+                  <?php if (!empty($config_smtp_host)) { ?>
                   <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send</a>
                   <div class="dropdown-divider"></div>
                   <?php } ?>

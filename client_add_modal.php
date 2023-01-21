@@ -65,7 +65,7 @@
                     <?php 
                     
                     $referral_sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC"); 
-                    while($row = mysqli_fetch_array($referral_sql)){
+                    while ($row = mysqli_fetch_array($referral_sql)) {
                       $referral = htmlentities($row['category_name']);
                     ?>
                       <option><?php echo $referral; ?></option>
@@ -155,7 +155,7 @@
                   <select class="form-control select2" name="country">
                     <option value="">- Country -</option>
                     <?php foreach($countries_array as $country_name) { ?>
-                    <option <?php if($session_company_country == $country_name){ echo "selected"; } ?> ><?php echo $country_name; ?></option>
+                    <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?> ><?php echo $country_name; ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -227,7 +227,7 @@
 
             <div class="tab-pane fade" id="pills-additional">
 
-              <?php if($config_module_enable_accounting){ ?>
+              <?php if ($config_module_enable_accounting) { ?>
               <div class="form-group">
                 <label>Currency <strong class="text-danger">*</strong></label>
                 <div class="input-group">
@@ -237,7 +237,7 @@
                   <select class="form-control select2" name="currency_code" required>
                     <option value="">- Currency -</option>
                     <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                    <option <?php if($session_company_currency == $currency_code){ echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                    <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -251,7 +251,7 @@
                   </div>
                   <select class="form-control select2" name="net_terms">
                     <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
-                    <option <?php if($config_default_net_terms == $net_term_value){ echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+                    <option <?php if ($config_default_net_terms == $net_term_value) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -277,7 +277,7 @@
                 <?php
                 $sql_tags_select = mysqli_query($mysqli,"SELECT * FROM tags WHERE tag_type = 1 AND company_id = $session_company_id ORDER BY tag_name ASC");
 
-                while($row = mysqli_fetch_array($sql_tags_select)){
+                while ($row = mysqli_fetch_array($sql_tags_select)) {
                   $tag_id_select = $row['tag_id'];
                   $tag_name_select = htmlentities($row['tag_name']);
                   $tag_color_select = htmlentities($row['tag_color']);
@@ -312,9 +312,9 @@
 
 <script>
     // Checks/prompts that the primary contact field (required) is populated
-    function promptPrimaryContact(){
+    function promptPrimaryContact() {
         let primaryContactField = document.getElementById("primaryContact").value;
-        if (primaryContactField == null || primaryContactField === ""){
+        if (primaryContactField == null || primaryContactField === "") {
             document.getElementById("contactNavPill").click();
         }
     }

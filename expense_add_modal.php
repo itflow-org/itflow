@@ -44,7 +44,7 @@
                   <?php 
                   
                   $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_archived_at IS NULL AND company_id = $session_company_id ORDER BY account_name ASC"); 
-                  while($row = mysqli_fetch_array($sql)){
+                  while ($row = mysqli_fetch_array($sql)) {
                     $account_id = $row['account_id'];
                     $account_name = htmlentities($row['account_name']);
                     $opening_balance = floatval($row['opening_balance']);
@@ -64,7 +64,7 @@
                     $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                   ?>
-                    <option <?php if($config_default_expense_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><div class="float-left"><?php echo $account_name; ?></div><div class="float-right"> [$<?php echo number_format($balance,2); ?>]</div></option>
+                    <option <?php if ($config_default_expense_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><div class="float-left"><?php echo $account_name; ?></div><div class="float-right"> [$<?php echo number_format($balance,2); ?>]</div></option>
                   
                   <?php
                   }
@@ -84,7 +84,7 @@
                   <?php 
                   
                   $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND vendor_archived_at IS NULL AND company_id = $session_company_id ORDER BY vendor_name ASC"); 
-                  while($row = mysqli_fetch_array($sql)){
+                  while ($row = mysqli_fetch_array($sql)) {
                     $vendor_id = $row['vendor_id'];
                     $vendor_name = htmlentities($row['vendor_name']);
                   ?>
@@ -119,7 +119,7 @@
                   <?php 
                   
                   $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC"); 
-                  while($row = mysqli_fetch_array($sql)){
+                  while ($row = mysqli_fetch_array($sql)) {
                     $category_id = $row['category_id'];
                     $category_name = htmlentities($row['category_name']);
                   ?>

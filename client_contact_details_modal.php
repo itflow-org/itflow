@@ -33,7 +33,7 @@
 
               <?php
 
-              while($row = mysqli_fetch_array($sql_related_assets)){
+              while ($row = mysqli_fetch_array($sql_related_assets)) {
                 $asset_id = $row['asset_id'];
                 $asset_type = htmlentities($row['asset_type']);
                 $asset_name = htmlentities($row['asset_name']);
@@ -56,7 +56,7 @@
             <ul>
               <?php
 
-              while($row = mysqli_fetch_array($sql_related_logins)){
+              while ($row = mysqli_fetch_array($sql_related_logins)) {
                 $login_id = $row['login_id'];
                 $login_name = htmlentities($row['login_name']);
                 $login_uri = htmlentities($row['login_uri']);
@@ -82,7 +82,7 @@
             <ul>
               <?php
 
-              while($row = mysqli_fetch_array($sql_related_software)){
+              while ($row = mysqli_fetch_array($sql_related_software)) {
                 $software_id = $row['software_id'];
                 $software_name = htmlentities($row['software_name']);
                 $software_type = htmlentities($row['software_type']);
@@ -103,7 +103,7 @@
             <ul>
               <?php
 
-              while($row = mysqli_fetch_array($sql_related_tickets)){
+              while ($row = mysqli_fetch_array($sql_related_tickets)) {
                 $ticket_id = $row['ticket_id'];
                 $ticket_prefix = htmlentities($row['ticket_prefix']);
                 $ticket_number = $row['ticket_number'];

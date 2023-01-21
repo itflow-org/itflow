@@ -1,6 +1,6 @@
 <?php include("inc_all_settings.php"); 
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "tax_name";
@@ -29,7 +29,7 @@ $num_rows = mysqli_num_rows($sql);
   <div class="card-body">
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tax_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tax_percent&o=<?php echo $disp; ?>">Percent</a></th>
@@ -39,7 +39,7 @@ $num_rows = mysqli_num_rows($sql);
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $tax_id = $row['tax_id'];
             $tax_name = htmlentities($row['tax_name']);
             $tax_percent = $row['tax_percent'];
@@ -67,7 +67,7 @@ $num_rows = mysqli_num_rows($sql);
           include("settings_tax_edit_modal.php");
           }
           
-          if($num_rows == 0){
+          if ($num_rows == 0) {
             echo "<center><h3 class='text-secondary mt-3'>No Records Here</h3></center>";
           }
           

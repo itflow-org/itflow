@@ -2,7 +2,7 @@
 
 <?php
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "login_name";
@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <div class="col-md-4">
             <div class="input-group mb-3 mb-md-0">
-              <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Passwords">
+              <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Passwords">
               <div class="input-group-append">
                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
               </div>
@@ -53,7 +53,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <hr>
       <div class="table-responsive">
         <table class="table table-striped table-borderless table-hover">
-          <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+          <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_username&o=<?php echo $disp; ?>">Username</a></th>
@@ -66,17 +66,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tbody>
           <?php
 
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $login_id = $row['login_id'];
             $login_name = htmlentities($row['login_name']);
             $login_uri = htmlentities($row['login_uri']);
-            if(empty($login_uri)){
+            if (empty($login_uri)) {
               $login_uri_display = "-";
             }else{
               $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='https://$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
             }
             $login_username = htmlentities($row['login_username']);
-            if(empty($login_username)){
+            if (empty($login_username)) {
               $login_username_display = "-";
             }else{
               $login_username_display = "$login_username<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_username'><i class='far fa-copy text-secondary'></i></button>";
@@ -84,7 +84,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $login_password = htmlentities(decryptLoginEntry($row['login_password']));
             $login_otp_secret = htmlentities($row['login_otp_secret']);
             $login_id_with_secret = '"' . $row['login_id'] . '","' . $row['login_otp_secret'] . '"';
-            if(empty($login_otp_secret)){
+            if (empty($login_otp_secret)) {
               $otp_display = "-";
             }else{
               $otp_display = "<span onmouseenter='showOTP($login_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
@@ -117,7 +117,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <div class="dropdown-menu">
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">Edit</a>
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">Share</a>
-                    <?php if($session_user_role == 3) { ?>
+                    <?php if ($session_user_role == 3) { ?>
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item text-danger" href="post.php?delete_login=<?php echo $login_id; ?>">Delete</a>
                     <?php } ?>
@@ -141,12 +141,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 
   <script>
-      function showOTP(id, secret){
+      function showOTP(id, secret) {
           //Send a GET request to ajax.php as ajax.php?get_totp_token=true&totp_secret=SECRET
           jQuery.get(
               "ajax.php",
               {get_totp_token: 'true', totp_secret: secret},
-              function(data){
+              function(data) {
                   //If we get a response from post.php, parse it as JSON
                   const token = JSON.parse(data);
 
@@ -156,7 +156,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           );
       }
 
-      function generatePassword(){
+      function generatePassword() {
           document.getElementById("password").value = "<?php echo bin2hex(random_bytes(8)); ?>"
       }
   </script>

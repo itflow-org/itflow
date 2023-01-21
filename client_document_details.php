@@ -2,7 +2,7 @@
 
 <?php 
 
-if(isset($_GET['document_id'])){
+if (isset($_GET['document_id'])) {
 	$document_id = intval($_GET['document_id']);
 }
 
@@ -33,7 +33,7 @@ $document_folder_id = $row['document_folder_id'];
   <li class="breadcrumb-item">
     <a href="client_documents.php?client_id=<?php echo $client_id; ?>">Documents</a>
   </li>
-  <?php if($document_folder_id > 0){ ?>
+  <?php if ($document_folder_id > 0) { ?>
   <li class="breadcrumb-item">
     <a href="client_documents.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $document_folder_id; ?>"><i class="fas fa-folder-open"></i> <?php echo $folder_name; ?></a>
   </li>

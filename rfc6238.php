@@ -132,13 +132,13 @@
       $result=""; 
 			
 			// Convert to dec
-      if($debug) {
+      if ($debug) {
         print "converting hex hash into characters<br/>";
       }
       
       $hashcharacters = str_split($hash,2);
       
-      if($debug) {
+      if ($debug) {
         print_r($hashcharacters);
         print "<br/>and convert to decimals:<br/>"; 
       }
@@ -146,14 +146,14 @@
 				$hmac_result[]=hexdec($hashcharacters[$j]);
 			}
 			
-      if($debug) {
+      if ($debug) {
         print_r($hmac_result);
       }
       // http://php.net/manual/ru/function.hash-hmac.php 
       // adopted from brent at thebrent dot net 21-May-2009 08:17 comment
 			$offset = $hmac_result[19] & 0xf;
 			
-      if($debug) {
+      if ($debug) {
         print "Calculating offset as 19th element of hmac:".$hmac_result[19]."<br/>";
         print "offset:".$offset;
       }

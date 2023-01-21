@@ -16,7 +16,7 @@
             <textarea class="form-control summernote" rows="8" name="ticket_reply"><?php echo $ticket_reply; ?></textarea>
           </div>
 
-          <?php if(!empty($ticket_reply_time_worked)) { ?>
+          <?php if (!empty($ticket_reply_time_worked)) { ?>
           <b>Time worked</b>
           <div class="col-3">
             <div class="form-group">
