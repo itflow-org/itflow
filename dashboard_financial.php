@@ -105,7 +105,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_id') AS cli
 $clients_added = $row['clients_added'];
 
 //Get Total Vendors added
-$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND company_id = $session_company_id"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND vendor_template = 0 AND company_id = $session_company_id"));
 $vendors_added = $row['vendors_added'];
 
 ?>

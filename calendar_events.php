@@ -128,7 +128,7 @@ while($row = mysqli_fetch_array($sql)){
 
           <?php
           //Vendors Added Created
-          $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN vendors ON client_id = vendor_client_id WHERE clients.company_id = $session_company_id");
+          $sql = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN vendors ON client_id = vendor_client_id WHERE vendor_template = 0 AND clients.company_id = $session_company_id");
           while($row = mysqli_fetch_array($sql)){
             $event_id = json_encode($row['vendor_id']);
             $event_title = json_encode($row['vendor_name']);

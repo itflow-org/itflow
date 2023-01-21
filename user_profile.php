@@ -148,7 +148,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
   <div class="col-md-3">
     <div class="card card-dark">
       <div class="card-header py-3">
-        <h3 class="card-title"><i class="fa fa-fw fa-sign-in-alt"></i> Your Recent Logins</h3>
+        <h3 class="card-title"><i class="fa fa-fw fa-sign-in-alt"></i> Your Recent Sign ins</h3>
       </div>
       <table class="table table-borderless table-sm">
         <tbody>

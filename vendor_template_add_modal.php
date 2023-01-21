@@ -1,4 +1,4 @@
-<div class="modal" id="addVendorModal" tabindex="-1">
+<div class="modal" id="addVendorTemplateModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
@@ -48,6 +48,16 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
                   </div>
                   <input type="text" class="form-control" name="description" placeholder="Description">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Account Number</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-fingerprint"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="account_number" placeholder="Account number">
                 </div>
               </div>
 
@@ -111,6 +121,16 @@
                   <input type="text" class="form-control" name="website" placeholder="Do not include http(s)://">
                 </div>
               </div>
+
+              <div class="form-group">
+                <label>Pin/Code</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="code" placeholder="Access Code or Pin">
+                </div>
+              </div>
               
               <div class="form-group">
                 <label>SLA</label>
@@ -137,7 +157,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_vendor" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
+          <button type="submit" name="add_vendor_template" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create Template</button>
         </div>
       </form>
     </div>

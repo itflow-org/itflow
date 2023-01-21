@@ -82,7 +82,7 @@
                 <select class="form-control select2" name="vendor" required>
                   <?php 
                   
-                  $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE company_id = $session_company_id ORDER BY vendor_name ASC"); 
+                  $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND company_id = $session_company_id ORDER BY vendor_name ASC"); 
                   while($row = mysqli_fetch_array($sql_vendors)){
                     $vendor_id_select = $row['vendor_id'];
                     $vendor_name_select = htmlentities($row['vendor_name']);

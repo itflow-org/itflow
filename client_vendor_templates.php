@@ -24,8 +24,7 @@ if(!empty($_GET['sb'])){
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM vendors 
-  WHERE vendor_client_id = $client_id
-  AND vendor_template = 0
+  WHERE vendor_template = 1 
   AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' OR vendor_website LIKE '%$q%' OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_phone LIKE '%$phone_query%') ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -35,22 +34,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 <div class="card card-dark">
   <div class="card-header py-2">
     <h3 class="card-title mt-2">
-      <i class="fa fa-fw fa-building"></i> Vendors
+      <i class="fa fa-fw fa-building"></i> Vendor Templates
     </h3>
     <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
     <div class="dropdown-menu">
-      <a class="dropdown-item text-dark" href="client_vendor_templates.php?client_id=<?php echo $client_id; ?>">Templates</a>
+      <a class="dropdown-item text-dark" href="client_vendors.php?client_id=<?php echo $client_id; ?>">Vendors</a>
     </div>
     <div class="card-tools">
-      <div class="btn-group">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addVendorModal">
-          <i class="fas fa-fw fa-plus"></i> New Vendor
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addVendorTemplateModal">
+          <i class="fas fa-fw fa-plus"></i> New Template
         </button>
-        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
-        <div class="dropdown-menu">
-          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addVendorFromTemplateModal">From Template</a>
-        </div>
-      </div>
     </div>
   </div>
   <div class="card-body">
@@ -60,17 +53,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Vendors">
+            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Vendors Templates">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
-          </div>
-        </div>
-
-        <div class="col-md-8">
-          <div class="float-right">
-            <a href="post.php?export_client_vendors_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
-            <a href="#" class="btn btn-default"><i class="fa fa-fw fa-upload"></i> Import</a>
           </div>
         </div>
 
@@ -114,13 +100,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $vendor_sla = htmlentities($row['vendor_sla']);
             $vendor_code = htmlentities($row['vendor_code']);
             $vendor_notes = htmlentities($row['vendor_notes']);
-            $vendor_template_id = $row['vendor_template_id'];
               
           ?>
           <tr>
             <th>
               <i class="fa fa-fw fa-building text-secondary"></i> 
-              <a class="text-dark" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></a>
+              <a class="text-dark" href="#" data-toggle="modal" data-target="#editVendorTemplateModal<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></a>
               <?php
               if(!empty($vendor_account_number)){
               ?>
@@ -165,7 +150,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editVendorModal<?php echo $vendor_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editVendorTemplateModal<?php echo $vendor_id; ?>">Edit</a>
                   <?php if($session_user_role == 3) { ?>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger" href="post.php?delete_vendor=<?php echo $vendor_id; ?>">Delete</a>
@@ -177,7 +162,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <?php
           
-          include("vendor_edit_modal.php");
+          include("vendor_template_edit_modal.php");
           }
           
           ?>
@@ -189,7 +174,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
 </div>
 
-<?php include("vendor_add_modal.php"); ?>
-<?php include("vendor_add_from_template_modal.php"); ?>
+<?php include("vendor_template_add_modal.php"); ?>
 
 <?php include("footer.php"); ?>

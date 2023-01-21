@@ -113,7 +113,7 @@
                 <label for="vendors">Select related vendors</label>
                 <select multiple class="form-control" id="vendors" name="vendors[]">
                   <?php
-                  $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = '$client_id'");
+                  $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 0 AND vendor_client_id = '$client_id'");
                   while($row = mysqli_fetch_array($sql)){
                     $vendor_id = $row['vendor_id'];
                     $vendor_name = htmlentities($row['vendor_name']);

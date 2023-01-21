@@ -9,7 +9,6 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="vendor_id" value="<?php echo $vendor_id; ?>">
-        <input type="hidden" name="template_id" value="0">
         <div class="modal-body bg-white">
 
           <ul class="nav nav-pills nav-justified mb-3">

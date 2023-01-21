@@ -128,7 +128,7 @@
                   <?php
                   $selected_ids = array_column(mysqli_fetch_all($sql_vendors,MYSQLI_ASSOC), "vendor_id");
 
-                  $sql_all = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = '$client_id'");
+                  $sql_all = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 0 AND vendor_client_id = '$client_id'");
                   while($row_all = mysqli_fetch_array($sql_all)){
                     $vendor_id = $row_all['vendor_id'];
                     $vendor_name = htmlentities($row_all['vendor_name']);

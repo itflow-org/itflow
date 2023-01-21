@@ -6,7 +6,7 @@ $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_clien
 
 $sql_important_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_important = 1 AND contact_archived_at IS NULL AND contacts.company_id = $session_company_id ORDER BY contact_updated_at, contact_name DESC");
 
-$sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL AND company_id = $session_company_id ORDER BY vendor_updated_at DESC LIMIT 5");
+$sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL AND company_id = $session_company_id ORDER BY vendor_updated_at DESC LIMIT 5");
 
 $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = $client_id AND document_archived_at IS NULL AND documents.company_id = $session_company_id ORDER BY document_updated_at DESC LIMIT 5");
 
