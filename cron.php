@@ -159,7 +159,7 @@ while($row = mysqli_fetch_array($sql_companies)){
                 mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created scheduled $frequency ticket - $subject', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id, log_user_id = $created_id");
 
                 // E-mail client
-                if (!empty($config_smtp_host)) {
+                if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 
                     // Get contact/ticket/company details
                     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 

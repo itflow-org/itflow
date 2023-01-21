@@ -1066,6 +1066,7 @@ CREATE TABLE `settings` (
   `config_ticket_from_name` varchar(200) DEFAULT NULL,
   `config_ticket_from_email` varchar(200) DEFAULT NULL,
   `config_ticket_email_parse` int(1) NOT NULL DEFAULT 0,
+  `config_ticket_client_general_notifications` int(1) NOT NULL DEFAULT 0,
   `config_enable_cron` tinyint(1) DEFAULT NULL,
   `config_recurring_auto_send_invoice` tinyint(1) DEFAULT NULL,
   `config_enable_alert_domain_expire` tinyint(1) DEFAULT NULL,

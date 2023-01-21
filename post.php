@@ -980,9 +980,9 @@ if(isset($_POST['edit_ticket_settings'])){
     $config_ticket_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_from_email'])));
     $config_ticket_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_from_name'])));
     $config_ticket_email_parse = intval($_POST['config_ticket_email_parse']);
+    $config_ticket_client_general_notifications = intval($_POST['config_ticket_client_general_notifications']);
 
-
-  mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name', config_ticket_email_parse = '$config_ticket_email_parse' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name', config_ticket_email_parse = '$config_ticket_email_parse', config_ticket_client_general_notifications = $config_ticket_client_general_notifications WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = 'Ticket settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
@@ -5957,7 +5957,7 @@ if(isset($_POST['add_ticket'])){
     $id = mysqli_insert_id($mysqli);
 
     // E-mail client
-    if (!empty($config_smtp_host)) {
+    if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 
         // Get contact/ticket details
         $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
@@ -6385,7 +6385,7 @@ if(isset($_GET['close_ticket'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id Closed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     // Client notification email
-    if (!empty($config_smtp_host)) {
+    if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 
       // Get details
       $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
