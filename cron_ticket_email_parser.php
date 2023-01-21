@@ -63,7 +63,7 @@ if ($emails) {
   foreach($emails as $email) {
 
     // Get message details
-    $metadata = imap_fetch_overview($imap, $email,0); // Date, Subject, Size
+    $metadata = imap_fetch_overview($imap, $email); // Date, Subject, Size
     $header = imap_headerinfo($imap, $email); // To get the From as an email, not a contact name
     $message = imap_fetchbody($imap, $email, 1); // Body
 

@@ -525,7 +525,6 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
     $mail->addAddress("$to_email", "$to_name");    // Add a recipient
 
     // Content
-    $mail->isHTML(true);                                  // Set email format to HTML
     $mail->Subject = "$subject";                                // Subject
     $mail->Body    = "$body";                                   // Content
 
