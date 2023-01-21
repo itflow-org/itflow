@@ -24,7 +24,7 @@ if ($failed_login_count >= 15) {
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Blocked', log_description = '$ip was blocked access to login due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent'");
 
     // Inform user & quit processing page
-    exit("<h2>ITFlow</h2>Your IP address has been blocked due to repeated failed login attempts. Please try again later. <br><br>This action has been logged.");
+    exit("<h2>$config_app_name</h2>Your IP address has been blocked due to repeated failed login attempts. Please try again later. <br><br>This action has been logged.");
 }
 
 // Query Settings for "default" company (as companies are being removed shortly)
@@ -146,8 +146,8 @@ if (isset($_POST['login'])) {
 
                 // Email the tech to advise their credentials may be compromised
                 if (!empty($config_smtp_host)) {
-                    $subject = "Important: ITFlow failed 2FA login attempt for $user_name";
-                    $body = "Hi $user_name, <br><br>A recent login to ITFlow was unsuccessful due to an incorrect 2FA code. If you did not attempt this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
+                    $subject = "Important: $config_app_name failed 2FA login attempt for $user_name";
+                    $body = "Hi $user_name, <br><br>A recent login to $config_app_name was unsuccessful due to an incorrect 2FA code. If you did not attempt this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
 
                     $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
                         $config_mail_from_email, $config_mail_from_name,
