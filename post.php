@@ -5921,7 +5921,7 @@ if(isset($_POST['add_ticket'])){
     if (!empty($config_smtp_host)) {
 
         // Get contact/ticket details
-        $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, company_phone FROM tickets 
+        $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
               LEFT JOIN clients ON ticket_client_id = client_id 
               LEFT JOIN contacts ON ticket_contact_id = contact_id
               LEFT JOIN companies ON tickets.company_id = companies.company_id
@@ -5932,13 +5932,14 @@ if(isset($_POST['add_ticket'])){
         $contact_email = $row['contact_email'];
         $ticket_prefix = $row['ticket_prefix'];
         $ticket_number = $row['ticket_number'];
+        $ticket_subject = $row['ticket_subject'];
         $company_phone = formatPhoneNumber($row['company_phone']);
 
         // Verify contact email is valid
         if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
 
-            $subject = "Ticket created - [$ticket_prefix$ticket_number] - $subject";
-            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+            $subject = "Ticket created - [$ticket_prefix$ticket_number] - $ticket_subject";
+            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$ticket_subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
             $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
                 $config_ticket_from_email, $config_ticket_from_name,
