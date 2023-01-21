@@ -6136,10 +6136,11 @@ if(isset($_POST['assign_ticket'])){
 
     } else {
       // Get & verify assigned agent details
-      $agent_details_sql = mysqli_query($mysqli, "SELECT user_name FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = '$assigned_to' AND user_settings.user_role > 1");
+      $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = '$assigned_to' AND user_settings.user_role > 1");
       $agent_details = mysqli_fetch_array($agent_details_sql);
       $agent_name = $agent_details['user_name'];
-      $ticket_reply = "Ticket re-assigned to $agent_details[user_name].";
+      $agent_email = $agent_details['user_email'];
+      $ticket_reply = "Ticket re-assigned to $agent_name.";
 
       if(!$agent_name){
         $_SESSION['alert_type'] = "error";
@@ -6150,8 +6151,10 @@ if(isset($_POST['assign_ticket'])){
     }
 
     // Get & verify ticket details
-    $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_subject FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_status != 'Closed'");
+    $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_status != 'Closed'");
     $ticket_details = mysqli_fetch_array($ticket_details_sql);
+    $ticket_prefix = $ticket_details['ticket_prefix'];
+    $ticket_number = $ticket_details['ticket_number'];
     $ticket_subject = $ticket_details['ticket_subject'];
 
     if(!$ticket_subject){
@@ -6167,7 +6170,19 @@ if(isset($_POST['assign_ticket'])){
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$ticket_subject reassigned to $agent_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$ticket_subject ($ticket_id) - $ticket_reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
+
+    // Email notification
+    if (intval($session_user_id) !== $assigned_to) {
+        $subject = "$config_app_name ticket $ticket_prefix$ticket_number assigned to you";
+        $body = "Hi $agent_name, <br><br>A ticket has been assigned to you!<br><br>ID: $ticket_prefix$ticket_number<br> Subject: $ticket_subject <br><br>Thanks, <br>$session_name<br>ITFlow";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_ticket_from_email, $config_ticket_from_name,
+            $agent_email, $agent_name,
+            $subject, $body);
+    }
+
 
     $_SESSION['alert_message'] = "Ticket re-assigned";
     
