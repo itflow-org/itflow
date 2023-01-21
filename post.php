@@ -295,10 +295,10 @@ if(isset($_POST['edit_profile'])){
 
         // Determine exactly what changed
         if ($user_old_email !== $email && !empty($new_password)) {
-            $details = "Your e-mail address and password were changed. New email: $email";
+            $details = "Your e-mail address and password were changed. New email: $email.";
         }
         elseif ($user_old_email !== $email) {
-            $details = "Your email address was changed. New email: $email";
+            $details = "Your email address was changed. New email: $email.";
         }
         elseif (!empty($new_password)) {
             $details = "Your password was changed.";
@@ -1135,6 +1135,17 @@ if(isset($_POST['disable_2fa'])){
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Settings', log_action = 'Modify', log_description = '$session_name disabled 2FA on their account', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+
+    // Email notification
+    if (!empty($config_smtp_host)) {
+        $subject = "$config_app_name account update confirmation for $session_name";
+        $body = "Hi $session_name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>2FA was disabled.</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>ITFlow<br>$session_company_name";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_mail_from_email, $config_mail_from_name,
+            $session_email, $session_name,
+            $subject, $body);
+    }
 
     $_SESSION['alert_message'] = "Two-factor authentication disabled";
 
