@@ -3033,14 +3033,14 @@ if (isset($_GET['delete_quote'])) {
 
     //Delete Items Associated with the Quote
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {;
+    while ($row = mysqli_fetch_array($sql)) {
         $item_id = $row['item_id'];
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     }
 
     //Delete History Associated with the Quote
     $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE history_quote_id = $quote_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {;
+    while ($row = mysqli_fetch_array($sql)) {
         $history_id = $row['history_id'];
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
@@ -3263,14 +3263,14 @@ if (isset($_GET['delete_recurring'])) {
 
     //Delete Items Associated with the Recurring
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {;
+    while ($row = mysqli_fetch_array($sql)) {
         $item_id = $row['item_id'];
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     }
 
     //Delete History Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE history_recurring_id = $recurring_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {;
+    while ($row = mysqli_fetch_array($sql)) {
         $history_id = $row['history_id'];
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
@@ -3405,21 +3405,21 @@ if (isset($_GET['delete_invoice'])) {
 
     //Delete Items Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {;
+    while ($row = mysqli_fetch_array($sql)) {
         $item_id = $row['item_id'];
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     }
 
     //Delete History Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE history_invoice_id = $invoice_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {;
+    while ($row = mysqli_fetch_array($sql)) {
         $history_id = $row['history_id'];
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
 
     //Delete Payments Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_invoice_id = $invoice_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {;
+    while ($row = mysqli_fetch_array($sql)) {
         $payment_id = $row['payment_id'];
         mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id AND company_id = $session_company_id");
     }
