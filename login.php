@@ -5,12 +5,27 @@ if(!file_exists('config.php')){
     exit;
 }
 
-include("config.php");
-include("functions.php");
+require_once("config.php");
+require_once("functions.php");
+require_once("rfc6238.php");
 
 // IP & User Agent for logging
 $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
+
+// Block brute force password attacks - check recent failed login attempts for this IP
+//  Block access if more than 15 failed login attempts have happened in the last 10 minutes
+$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(log_id) AS failed_login_count FROM logs WHERE log_ip = '$ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 10 MINUTE)"));
+$failed_login_count = $row['failed_login_count'];
+
+if ($failed_login_count >= 15) {
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Blocked', log_description = '$ip was blocked access to login due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent'");
+
+    // Inform user & quit processing page
+    exit("<h2>ITFlow</h2>Your IP address has been blocked due to repeated failed login attempts. Please try again later. <br><br>This action has been logged.");
+}
 
 // Query Settings for "default" company (as companies are being removed shortly)
 $sql_settings = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = 1");
@@ -24,7 +39,6 @@ $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
 $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
-
 
 // HTTP-Only cookies
 ini_set("session.cookie_httponly", True);
@@ -40,101 +54,81 @@ if (isset($_POST['login'])) {
     // Sessions should start after the user has POSTed data
     session_start();
 
-    // Check recent failed login attempts for this IP (more than 10 failed logins in 5 mins)
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(log_id) AS failed_login_count FROM logs WHERE log_ip = '$ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
-    $failed_login_count = $row['failed_login_count'];
+    // Passed login brute force check
+    $email = strip_tags(mysqli_real_escape_string($mysqli, $_POST['email']));
+    $password = $_POST['password'];
 
-    // Login brute force check
-    if ($failed_login_count >= 10) {
+    $current_code = 0; // Default value
+    if (isset($_POST['current_code'])) {
+        $current_code = strip_tags(mysqli_real_escape_string($mysqli, $_POST['current_code']));
+    }
 
-        // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent'");
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_email = '$email' AND user_archived_at IS NULL AND user_status = 1"));
 
-        // Send an alert only count hits 10 to reduce flooding alerts (using 1 as "default" company)
-        if($failed_login_count == 10){
-            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Lockout', notification = '$ip was locked out for repeated failed login attempts.', notification_timestamp = NOW() company_id = '1'");
-        }
+    // Check password
+    if ($row && password_verify($password, $row['user_password'])) {
 
-        // Inform user
-        $response = '<div class=\'alert alert-danger\'>IP Lockout - Please try again later.<button class=\'close\' data-dismiss=\'alert\'>&times;</button></div>';
+        // User password correct (partial login)
 
-    } else {
-        // Passed login brute force check
-        $email = strip_tags(mysqli_real_escape_string($mysqli, $_POST['email']));
-        $password = $_POST['password'];
+        // Set temporary user variables
+        $user_name = strip_tags(mysqli_real_escape_string($mysqli, $row['user_name']));
+        $user_id = $row['user_id'];
+        $user_email = $row['user_email'];
+        $token = $row['user_token'];
 
-        $current_code = 0; // Default value
-        if (isset($_POST['current_code'])) {
-            $current_code = strip_tags(mysqli_real_escape_string($mysqli, $_POST['current_code']));
-        }
+        // Checking for user 2FA
+        if (empty($token) || TokenAuth6238::verify($token, $current_code)) {
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_email = '$email' AND user_archived_at IS NULL AND user_status = 1"));
+            // FULL LOGIN SUCCESS - 2FA not configured or was successful
 
-        // Check password
-        if ($row && password_verify($password, $row['user_password'])) {
+            // Determine whether 2FA was used (for logs)
+            $extended_log = ''; // Default value
+            if ($current_code !== 0 ) {
+                $extended_log = 'with 2FA';
+            }
 
-            // User password correct (partial login)
+            // Logging successful login
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$user_name successfully logged in $extended_log', log_ip = '$ip', log_user_agent = '$user_agent', log_user_id = $user_id");
 
-            // Set temporary user variables
-            $user_name = strip_tags(mysqli_real_escape_string($mysqli, $row['user_name']));
-            $user_id = $row['user_id'];
-            $user_email = $row['user_email'];
-            $token = $row['user_token'];
+            // Session info
+            $_SESSION['user_id'] = $user_id;
+            $_SESSION['user_name'] = $user_name;
+            $_SESSION['user_role'] = $row['user_role'];
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(78));
+            $_SESSION['logged'] = TRUE;
 
-            // Checking for user 2FA
-            require_once("rfc6238.php");
-            if (empty($token) || TokenAuth6238::verify($token, $current_code)) {
+            // Setup encryption session key
+            if (isset($row['user_specific_encryption_ciphertext']) && $row['user_role'] > 1) {
+                $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
+                $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
+                generateUserSessionKey($site_encryption_master_key);
 
-                // FULL LOGIN SUCCESS - 2FA not configured or was successful
+                // Setup extension
+                if (isset($row['user_extension_key']) && !empty($row['user_extension_key'])) {
+                    // Extension cookie
+                    // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
+                    setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
 
-                // Determine whether 2FA was used (for logs)
-                $extended_log = ''; // Default value
-                if ($current_code !== 0 ) {
-                    $extended_log = 'with 2FA';
+                    // Set PHP session in DB so we can access the session encryption data (above)
+                    $user_php_session = session_id();
+                    mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = '$user_id'");
                 }
+            }
 
-                // Logging successful login
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$user_name successfully logged in $extended_log', log_ip = '$ip', log_user_agent = '$user_agent', log_user_id = $user_id");
-
-                // Session info
-                $_SESSION['user_id'] = $user_id;
-                $_SESSION['user_name'] = $user_name;
-                $_SESSION['user_role'] = $row['user_role'];
-                $_SESSION['csrf_token'] = bin2hex(random_bytes(78));
-                $_SESSION['logged'] = TRUE;
-
-                // Setup encryption session key
-                if (isset($row['user_specific_encryption_ciphertext']) && $row['user_role'] > 1) {
-                    $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
-                    $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
-                    generateUserSessionKey($site_encryption_master_key);
-
-                    // Setup extension
-                    if (isset($row['user_extension_key']) && !empty($row['user_extension_key'])) {
-                        // Extension cookie
-                        // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
-                        setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
-
-                        // Set PHP session in DB so we can access the session encryption data (above)
-                        $user_php_session = session_id();
-                        mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = '$user_id'");
-                    }
-                }
-
-                // Show start page/dashboard depending on role
-                if ($row['user_role'] == 2) {
-                    header("Location: dashboard_technical.php");
-                } else {
-                    header("Location: dashboard_financial.php");
-                }
-
-
+            // Show start page/dashboard depending on role
+            if ($row['user_role'] == 2) {
+                header("Location: dashboard_technical.php");
             } else {
+                header("Location: dashboard_financial.php");
+            }
 
-                // MFA is configured and needs to be confirmed, or was unsuccessful
 
-                // HTML code for the token input field
-                $token_field = "
+        } else {
+
+            // MFA is configured and needs to be confirmed, or was unsuccessful
+
+            // HTML code for the token input field
+            $token_field = "
                     <div class='input-group mb-3'>
                         <input type='text' class='form-control' placeholder='2FA Token' name='current_code' required autofocus>
                         <div class='input-group-append'>
@@ -144,44 +138,43 @@ if (isset($_POST['login'])) {
                         </div>
                       </div>";
 
-                // Log/notify if MFA was unsuccessful
-                if ($current_code !== 0) {
+            // Log/notify if MFA was unsuccessful
+            if ($current_code !== 0) {
 
-                    // Logging
-                    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$user_name failed 2FA', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
+                // Logging
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$user_name failed 2FA', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
 
-                    // Email the tech to advise their credentials may be compromised
-                    if (!empty($config_smtp_host)) {
-                        $subject = "Important: ITFlow failed 2FA login attempt for $user_name";
-                        $body = "Hi $user_name, <br><br>A recent login to ITFlow was unsuccessful due to an incorrect 2FA code. If you did not attempt this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
+                // Email the tech to advise their credentials may be compromised
+                if (!empty($config_smtp_host)) {
+                    $subject = "Important: ITFlow failed 2FA login attempt for $user_name";
+                    $body = "Hi $user_name, <br><br>A recent login to ITFlow was unsuccessful due to an incorrect 2FA code. If you did not attempt this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
 
-                        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-                            $config_mail_from_email, $config_mail_from_name,
-                            $user_email, $user_name,
-                            $subject, $body);
-                    }
+                    $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+                        $config_mail_from_email, $config_mail_from_name,
+                        $user_email, $user_name,
+                        $subject, $body);
+                }
 
-                    // HTML feedback for incorrect 2FA code
-                    $response = "
+                // HTML feedback for incorrect 2FA code
+                $response = "
                       <div class='alert alert-warning'>
                         Please Enter 2FA Key!
                         <button class='close' data-dismiss='alert'>&times;</button>
                       </div>";
-                }
             }
+        }
 
-        } else {
+    } else {
 
-            // Password incorrect or user doesn't exist - show generic error
+        // Password incorrect or user doesn't exist - show generic error
 
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
 
-            $response = "
+        $response = "
               <div class='alert alert-danger'>
                 Incorrect username or password.
                 <button class='close' data-dismiss='alert'>&times;</button>
               </div>";
-        }
     }
 }
 
