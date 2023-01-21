@@ -1,7 +1,7 @@
 <?php include("inc_all_settings.php"); ?>
 
 <div class="card card-dark mb-3">
-    <div class="card-header">
+    <div class="card-header py-3">
         <h3 class="card-title"><i class="fa fa-fw fa-database"></i> Download Database</h3>
     </div>
     <div class="card-body">
@@ -12,7 +12,7 @@
 </div>
 
 <div class="card card-dark">
-    <div class="card-header">
+    <div class="card-header py-3">
         <h3 class="card-title"><i class="fa fa-fw fa-key"></i> Backup Master Encryption Key</h3>
     </div>
     <div class="card-body">

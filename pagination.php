@@ -79,7 +79,7 @@ if ($total_found_rows > 10) {
 			}
 
 			if($p <> $total_pages){
-				echo "<li class='page_item $next_class'><a class='page-link' href='?$url_query_strings&p=$next_page'>Next</a></li>";
+				echo "<li class='page-item $next_class'><a class='page-link' href='?$url_query_strings&p=$next_page'>Next</a></li>";
 			}
 
 		?>

@@ -31,7 +31,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 
   <!-- Notes -->
 
-  <div class="col-12">
+  <div class="col-9">
 
     <div class="card card-dark mb-5 elevation-3">
       <div class="card-header">

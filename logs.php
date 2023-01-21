@@ -67,7 +67,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 ?>
 
 <div class="card card-dark">
-  <div class="card-header">
+  <div class="card-header py-3">
     <h3 class="card-title"><i class="fa fa-fw fa-eye"></i> Audit Logs</h3>
   </div>
   <div class="card-body">
@@ -169,7 +169,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $log_action; ?></td>
             <td><?php echo $log_description; ?></td>
             <td><?php echo $log_ip; ?></td>
-            <td><?php echo "$log_user_os<br>$log_user_browser"; ?></td>
+            <td><?php echo "$log_user_os<br>$log_user_browser<br>$log_user_agent"; ?></td>
           </tr>
 
           <?php

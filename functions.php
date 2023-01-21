@@ -86,8 +86,8 @@ function get_ip() {
   return $ip;
 }
 
-function get_web_browser() {
-  $user_agent = get_user_agent();
+function get_web_browser($user_browser) {
+  //$user_agent = $log_user_agent;
   $browser        =   "Unknown Browser";
   $browser_array  =   array(
     '/msie/i'       =>  "<i class='fab fa-fw fa-internet-explorer text-secondary'></i> Internet Explorer",
@@ -98,15 +98,14 @@ function get_web_browser() {
     '/opera/i'      =>  "<i class='fab fa-fw fa-opera text-secondary'></i> Opera"
   );
   foreach ($browser_array as $regex => $value) {
-    if (preg_match($regex, $user_agent)) {
+    if (preg_match($regex, $user_browser)) {
       $browser    =   $value;
     }
   }
   return $browser;
 }
 
-function get_os() {
-  $user_agent = get_user_agent();
+function get_os($user_os) {
   $os_platform    =   "Unknown OS";
   $os_array       =   array(
     '/windows nt 10/i'      =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 10",
@@ -126,7 +125,7 @@ function get_os() {
     '/android/i'            =>  "<i class='fab fa-fw fa-android text-secondary'></i> Android"
   );
   foreach ($os_array as $regex => $value) {
-    if (preg_match($regex, $user_agent)) {
+    if (preg_match($regex, $user_os)) {
       $os_platform    =   $value;
     }
   }

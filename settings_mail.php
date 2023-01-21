@@ -1,7 +1,7 @@
 <?php include("inc_all_settings.php"); ?>
 
 <div class="card card-dark">
-  <div class="card-header">
+  <div class="card-header py-3">
     <h3 class="card-title"><i class="fa fa-fw fa-envelope"></i> Mail Settings</h3>
   </div>
   <div class="card-body">
@@ -131,7 +131,7 @@
 <?php if(!empty($config_smtp_host) && !empty($config_smtp_port) && !empty($config_smtp_username) && !empty($config_smtp_password) && !empty($config_mail_from_email) && !empty($config_mail_from_name)){ ?>
 
 <div class="card card-dark">
-  <div class="card-header">
+  <div class="card-header py-3">
     <h3 class="card-title"><i class="fa fa-fw fa-paper-plane"></i> Test Email Sending</h3>
   </div>
   <div class="card-body">
@@ -151,7 +151,7 @@
 <?php if(!empty($config_smtp_username) && !empty($config_smtp_password) && !empty($config_imap_host) && !empty($config_imap_port)){ ?>
 
 <div class="card card-dark">
-  <div class="card-header">
+  <div class="card-header py-3">
     <h3 class="card-title"><i class="fa fa-fw fa-paper-plane"></i> Test Email Receiving</h3>
   </div>
   <div class="card-body">

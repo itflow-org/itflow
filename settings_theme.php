@@ -1,7 +1,7 @@
 <?php include("inc_all_settings.php"); ?>
 
 <div class="card card-dark">
-  <div class="card-header">
+  <div class="card-header py-3">
     <h3 class="card-title"><i class="fa fa-fw fa-palette"></i> Theme</h3>
   </div>
   <div class="card-body">
