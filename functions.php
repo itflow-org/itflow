@@ -187,8 +187,7 @@ function truncate($text, $chars) {
   $text = $text." ";
   $text = substr($text,0,$chars);
   $text = substr($text,0,strrpos($text,' '));
-  $text = $text."...";
-  return $text;
+  return $text."...";
 }
 
 function formatPhoneNumber($phoneNumber) {
@@ -237,9 +236,7 @@ function setupFirstUserSpecificKey($user_password, $site_encryption_master_key) 
   //Encrypt the master key with the users kdf'd hash and the IV
   $ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
 
-  $user_encryption_ciphertext = $salt . $iv . $ciphertext;
-
-  return $user_encryption_ciphertext;
+  return $salt . $iv . $ciphertext;
 }
 
 /*
@@ -265,9 +262,7 @@ function encryptUserSpecificKey($user_password) {
   // Encrypt the master key with the users kdf'd hash and the IV
   $ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
 
-  $user_encryption_ciphertext = $salt . $iv . $ciphertext;
-
-  return $user_encryption_ciphertext;
+  return $salt . $iv . $ciphertext;
 
 }
 
@@ -283,8 +278,7 @@ function decryptUserSpecificKey($user_encryption_ciphertext, $user_password) {
   $user_password_kdhash = hash_pbkdf2('sha256', $user_password, $salt, 100000, 16);
 
   //Use this hash to get the original/master key
-  $site_encryption_master_key = openssl_decrypt($ciphertext, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
-  return $site_encryption_master_key;
+  return openssl_decrypt($ciphertext, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
 }
 
 /*
@@ -331,8 +325,7 @@ function decryptLoginEntry($login_password_ciphertext) {
   $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
 
   // Decrypt the login password using the master key
-  $login_password_cleartext = openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
-  return $login_password_cleartext;
+  return openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
 
 }
 
@@ -351,8 +344,7 @@ function encryptLoginEntry($login_password_cleartext) {
   //Encrypt the website/asset login using the master key
   $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
 
-  $login_password_ciphertext = $iv . $ciphertext;
-  return $login_password_ciphertext;
+  return $iv . $ciphertext;
 }
 
 // Get domain expiration date
@@ -451,9 +443,7 @@ function strto_AZaz09($string) {
   //$string = str_replace(' ', '_', $string);
 
   // Gets rid of non-alphanumerics
-  $strto_AZaz09 = preg_replace( '/[^A-Za-z0-9_]/', '', $string );
-
-  return $strto_AZaz09;
+  return preg_replace( '/[^A-Za-z0-9_]/', '', $string );
 }
 
 // Cross-Site Request Forgery check for sensitive functions
