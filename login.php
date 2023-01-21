@@ -81,6 +81,25 @@ if (isset($_POST['login'])) {
 
             // FULL LOGIN SUCCESS - 2FA not configured or was successful
 
+            // Check this login isn't suspicious
+            $sql_ip_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ip_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_ip = '$ip' AND log_user_id = '$user_id'"));
+            $ip_previous_logins = $sql_ip_prev_logins['ip_previous_logins'];
+
+            $sql_ua_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ua_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_user_agent = '$user_agent' AND log_user_id = '$user_id'"));
+            $ua_prev_logins = $sql_ua_prev_logins['ua_previous_logins'];
+
+            // Notify if both the user agent and IP are different
+            if (!empty($config_smtp_host) && $ip_previous_logins == 0 && $ua_prev_logins == 0) {
+                $subject = "$config_app_name new login for $user_name";
+                $body = "Hi $user_name, <br><br>A recent successful login to your $config_app_name account was considered a little unusual. If this was you, you can safely ignore this email!<br><br>IP Address: $ip<br> User Agent: $user_agent <br><br>If you did not perform this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
+
+                $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+                    $config_mail_from_email, $config_mail_from_name,
+                    $user_email, $user_name,
+                    $subject, $body);
+            }
+
+
             // Determine whether 2FA was used (for logs)
             $extended_log = ''; // Default value
             if ($current_code !== 0 ) {
@@ -147,7 +166,7 @@ if (isset($_POST['login'])) {
                 // Email the tech to advise their credentials may be compromised
                 if (!empty($config_smtp_host)) {
                     $subject = "Important: $config_app_name failed 2FA login attempt for $user_name";
-                    $body = "Hi $user_name, <br><br>A recent login to $config_app_name was unsuccessful due to an incorrect 2FA code. If you did not attempt this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
+                    $body = "Hi $user_name, <br><br>A recent login to your $config_app_name account was unsuccessful due to an incorrect 2FA code. If you did not attempt this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
 
                     $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
                         $config_mail_from_email, $config_mail_from_name,
