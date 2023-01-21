@@ -13,7 +13,8 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM software 
   LEFT JOIN logins ON login_software_id = software_id
-  WHERE software_client_id = $client_id 
+  WHERE software_client_id = $client_id
+  AND software_template = 0
   AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
@@ -24,8 +25,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 <div class="card card-dark">
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube"></i> Licenses</h3>
+    <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item text-dark" href="client_software_templates.php?client_id=<?php echo $client_id; ?>">Templates</a>
+    </div>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSoftwareModal"><i class="fas fa-fw fa-plus"></i> New License</button>
+      <div class="btn-group">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSoftwareModal">
+          <i class="fas fa-fw fa-plus"></i> New License
+        </button>
+        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addSoftwareFromTemplateModal">From Template</a>
+        </div>
+      </div>
     </div>
   </div>
   <div class="card-body">
@@ -184,5 +197,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 </div>
 
 <?php include("client_software_add_modal.php"); ?>
+<?php include("client_software_add_from_template_modal.php"); ?>
 
 <?php include("footer.php"); ?>

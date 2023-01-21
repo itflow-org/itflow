@@ -5091,6 +5091,82 @@ if(isset($_GET['export_client_assets_csv'])){
   
 }
 
+// Client Software/License
+
+// Templatee
+
+if(isset($_POST['add_software_template'])){
+
+    validateTechRole();
+
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['version'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license_type'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_template = 1, software_client_id = 0, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software Template', log_action = 'Create', log_description = '$session_user_name created software template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Software template created";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_software_template'])){
+
+    validateTechRole();
+
+    $software_id = intval($_POST['software_id']);
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['version'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license_type'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+
+    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes' WHERE software_id = $software_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software Teplate', log_action = 'Modify', log_description = '$session_name updated software template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Software template updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['add_software_from_template'])){
+
+    // GET POST Data
+    $client_id = intval($_POST['client_id']);
+    $software_template_id = intval($_POST['software_template_id']);
+
+    // GET Software Info
+    $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_id = $software_template_id AND company_id = $session_company_id");
+
+    $row = mysqli_fetch_array($sql_software);
+
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_name'])));
+    $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_version'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_type'])));
+    $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_license_type'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_notes'])));
+
+    // Software add query
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_client_id = $client_id, company_id = $session_company_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Create', log_description = 'Software created from template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Software created from template";
+    
+     header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['add_software'])){
 
     validateTechRole();
