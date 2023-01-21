@@ -769,7 +769,7 @@ $locales_array = [
 
 if (isset($_POST['add_database'])) {
 
-  // Check if database has been setup already. If it has, direct user to edit directly instead.
+  // Check if database has been set up already. If it has, direct user to edit directly instead.
   if (file_exists('config.php')) {
     $_SESSION['alert_message'] = "Database already configured. Any further changes should be made by editing the config.php file.";
     header("Location: setup.php?user");

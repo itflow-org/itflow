@@ -20,7 +20,7 @@ ITFlow is in Beta.
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-If you have discovered a security issue, please report it to us in as much detail as possible so we can fix it. 
+If you have discovered a security issue, please report it to us in as much detail as possible, so we can fix it. 
 You should expect to receive an initial acknowledgement within 72 hours. If you do not, please get in touch discretely via GitHub issues/Forum/Discord to ensure we received your e-mail.
 
 Security contact:

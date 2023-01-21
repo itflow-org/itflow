@@ -254,7 +254,7 @@ while ($row = mysqli_fetch_array($sql_companies)) {
 
     }
 
-    //Send Recurring Invoices that match todays date and are active
+    //Send Recurring Invoices that match today's date and are active
 
     //Loop through all recurring that match today's date and is active
     $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring LEFT JOIN clients ON client_id = recurring_client_id WHERE recurring_next_date = CURDATE() AND recurring_status = 1 AND recurring.company_id = $company_id");
@@ -296,8 +296,8 @@ while ($row = mysqli_fetch_array($sql_companies)) {
 
       while ($row = mysqli_fetch_array($sql_invoice_items)) {
         $item_id = $row['item_id'];
-        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']); //SQL Escape incase of ,
-        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']); //SQL Escape incase of ,
+        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']); //SQL Escape in case of ,
+        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']); //SQL Escape in case of ,
         $item_quantity = $row['item_quantity'];
         $item_price = $row['item_price'];
         $item_subtotal = $row['item_subtotal'];

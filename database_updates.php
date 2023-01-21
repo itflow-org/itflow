@@ -243,7 +243,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
   if (CURRENT_DATABASE_VERSION == '0.1.1') {
     // Insert queries here required to update to DB version 0.1.2
-    // Create Many to Many Relationship tables for Assets, Contacts, Software and Vendors
+    // Create Many-to-Many Relationship tables for Assets, Contacts, Software and Vendors
 
     mysqli_query($mysqli, "CREATE TABLE `asset_documents` (`asset_id` int(11) NOT NULL,`document_id` int(11) NOT NULL, PRIMARY KEY (`asset_id`,`document_id`))");
     mysqli_query($mysqli, "CREATE TABLE `asset_logins` (`asset_id` int(11) NOT NULL,`login_id` int(11) NOT NULL, PRIMARY KEY (`asset_id`,`login_id`))");
@@ -393,7 +393,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
   }
 
   if (CURRENT_DATABASE_VERSION == '0.2.3') {
-  
+
   //Create New interfaces Table
   mysqli_query($mysqli, "CREATE TABLE `interfaces` (`interface_id` int(11) AUTO_INCREMENT PRIMARY KEY,
     `interface_number` int(11) NULL DEFAULT NULL,
@@ -410,7 +410,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
   )");
 
   mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.4'");
-  
+
   }
 
   if (CURRENT_DATABASE_VERSION == '0.2.4') {
@@ -427,7 +427,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
   if (CURRENT_DATABASE_VERSION == '0.2.6') {
     // Insert queries here required to update to DB version 0.2.7
     mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_token_expire` DATETIME NULL DEFAULT NULL AFTER `contact_password_reset_token`");
-    
+
     // Update config.php var with new version var for use with docker
     file_put_contents("config.php", "\$repo_branch = 'master';" . PHP_EOL, FILE_APPEND);
 
@@ -437,19 +437,19 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
   }
 
   if (CURRENT_DATABASE_VERSION == '0.2.7') {
-  
+
     mysqli_query($mysqli, "ALTER TABLE `vendors` ADD `vendor_template` TINYINT(1) DEFAULT 0 AFTER `vendor_notes`");
     mysqli_query($mysqli, "ALTER TABLE `software` ADD `software_template` TINYINT(1) DEFAULT 0 AFTER `software_notes`");
     mysqli_query($mysqli, "ALTER TABLE `vendors` DROP `vendor_template_id`");
     mysqli_query($mysqli, "DROP TABLE vendor_templates");
-    
+
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.8'");
   }
 
   if (CURRENT_DATABASE_VERSION == '0.2.8') {
-  
+
     mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_theme` VARCHAR(200) DEFAULT 'blue' AFTER `config_module_enable_ticketing`");
-  
+
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.9'");
   }
 

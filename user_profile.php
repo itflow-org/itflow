@@ -98,7 +98,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           <?php if (empty($session_token)) { ?>
             <button type="submit" name="enable_2fa" class="btn btn-success btn-block mt-3"><i class="fa fa-fw fa-lock"></i><br> Enable 2FA</button>
           <?php }else{ ?>
-            <p>You have setup 2FA. Your QR code is below.</p>
+            <p>You have set up 2FA. Your QR code is below.</p>
             <button type="submit" name="disable_2fa" class="btn btn-danger btn-block mt-3"><i class="fa fa-fw fa-unlock"></i><br>Disable 2FA</button>
           <?php } ?>
 
@@ -167,7 +167,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
           <tr>
             <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
             <td><?php echo "<strong>$log_user_os</strong><br>$log_user_browser<br><i class='fa fa-fw fa-globe text-secondary'></i> $log_ip"; ?></td>
-            
+
           </tr>
           <?php
         }
@@ -216,7 +216,7 @@ $sql_recent_logs = mysqli_query($mysqli,"SELECT * FROM logs
               <br>
               <span class="text-secondary"><?php echo $log_description; ?></span>
             </td>
-            
+
           </tr>
           <?php
         }

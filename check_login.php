@@ -71,7 +71,7 @@ $session_company_currency = $row['company_currency'];
 
 include("get_settings.php");
 
-//Detects if using an apple device and uses apple maps instead of google
+//Detects if using an Apple device and uses Apple Maps instead of google
 $iPod = stripos($_SERVER['HTTP_USER_AGENT'],"iPod");
 $iPhone = stripos($_SERVER['HTTP_USER_AGENT'],"iPhone");
 $iPad = stripos($_SERVER['HTTP_USER_AGENT'],"iPad");

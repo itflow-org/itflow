@@ -78,7 +78,7 @@ if (isset($_POST['login'])) {
                     // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
                     setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
 
-                    // Set PHP session in DB so we can access the session encryption data (above)
+                    // Set PHP session in DB, so we can access the session encryption data (above)
                     $user_php_session = session_id();
                     mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = '$user_id'");
                 }

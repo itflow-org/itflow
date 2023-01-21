@@ -16,7 +16,7 @@
       	<div class="mb-4" style="text-align: center;">
       		<i class="far fa-10x fa-times-circle text-danger mb-3 mt-3"></i>
       		<h2>Are you sure?</h2>
-          <h6 class="mb-4 text-secondary">Do you really want to <b>delete <?php echo $client_name; ?></b> and all associated data including financial data, logs, shared links etc? This process cannot be undone.</h6>
+          <h6 class="mb-4 text-secondary">Do you really want to <b>delete <?php echo $client_name; ?></b> and all associated data including financial data, logs, shared links etc.? This process cannot be undone.</h6>
           <div class="form-group">
             <input type="hidden" id="clientName<?php echo $client_id ?>" value="<?php echo $client_name; ?>">
             <input class="form-control" type="text" id="clientNameProvided<?php echo $client_id ?>" onkeyup="validateClientNameDelete(<?php echo $client_id ?>)" placeholder="Please enter: '<?php echo $client_name; ?>'">

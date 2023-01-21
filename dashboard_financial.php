@@ -39,7 +39,7 @@ $largest_income_month = 0;
 $sql_total_payments_to_invoices = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_to_invoices FROM payments WHERE YEAR(payment_date) = $year AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_payments_to_invoices);
 $total_payments_to_invoices = $row['total_payments_to_invoices'];
-//Do not grab transfer payment as these have an category_id of 0
+//Do not grab transfer payment as these have a category_id of 0
 $sql_total_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE YEAR(revenue_date) = $year AND revenue_category_id > 0 AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_revenues);
 $total_revenues = $row['total_revenues'];
@@ -65,7 +65,7 @@ $sql_invoice_totals_all_years = mysqli_query($mysqli,"SELECT SUM(invoice_amount)
 $row = mysqli_fetch_array($sql_invoice_totals_all_years);
 $invoice_totals_all_years = $row['invoice_totals_all_years'];
 
-$receivables = $invoice_totals_all_years - $total_payments_to_invoices_all_years; 
+$receivables = $invoice_totals_all_years - $total_payments_to_invoices_all_years;
 
 $profit = $total_income - $total_expenses;
 
@@ -112,8 +112,8 @@ $vendors_added = $row['vendors_added'];
 
 <form class="mb-3">
   <select onchange="this.form.submit()" class="form-control" name="year">
-    <?php 
-            
+    <?php
+
     while ($row = mysqli_fetch_array($sql_years_select)) {
       $year_select = $row['all_years'];
       if (empty($year_select)) {
@@ -121,7 +121,7 @@ $vendors_added = $row['vendors_added'];
       }
     ?>
     <option <?php if ($year == $year_select) { echo "selected"; } ?> > <?php echo $year_select; ?></option>
-    
+
     <?php
     }
     ?>
@@ -272,7 +272,7 @@ $vendors_added = $row['vendors_added'];
           <button type="button" class="btn btn-tool" data-card-widget="remove">
             <i class="fas fa-times"></i>
           </button>
-        </div>       
+        </div>
       </div>
       <div class="card-body">
         <canvas id="incomeByCategoryPieChart" width="100%" height="60"></canvas>
@@ -338,19 +338,19 @@ $vendors_added = $row['vendors_added'];
                 $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
               $row = mysqli_fetch_array($sql_payments);
               $total_payments = $row['total_payments'];
-                
+
                 $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
               $row = mysqli_fetch_array($sql_revenues);
               $total_revenues = $row['total_revenues'];
-              
+
               $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
               $row = mysqli_fetch_array($sql_expenses);
               $total_expenses = $row['total_expenses'];
-                
+
               $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                 if ($balance == '') {
-                  $balance = '0.00'; 
+                  $balance = '0.00';
                 }
                 ?>
                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, "$session_company_currency"); ?></td>
@@ -504,17 +504,17 @@ var myLineChart = new Chart(ctx, {
           $revenues_for_month = $row['revenue_amount_for_month'];
 
           $income_for_month = $payments_for_month + $revenues_for_month;
-          
+
           if ($income_for_month > 0 && $income_for_month > $largest_income_month) {
             $largest_income_month = $income_for_month;
           }
-          
+
 
         ?>
           <?php echo "$income_for_month,"; ?>
-        
+
         <?php
-        
+
         }
 
         ?>
@@ -543,17 +543,17 @@ var myLineChart = new Chart(ctx, {
           $revenues_for_month = $row['revenue_amount_for_month'];
 
           $income_for_month = $payments_for_month + $revenues_for_month;
-          
+
           if ($income_for_month > 0 && $income_for_month > $largest_income_month) {
             $largest_income_month = $income_for_month;
           }
-          
+
 
         ?>
           <?php echo "$income_for_month,"; ?>
-        
+
         <?php
-        
+
         }
 
         ?>
@@ -583,18 +583,18 @@ var myLineChart = new Chart(ctx, {
           if ($invoice_for_month > 0 && $invoice_for_month > $largest_invoice_month) {
             $largest_invoice_month = $invoice_for_month;
           }
-          
+
         ?>
           <?php echo "$invoice_for_month,"; ?>
-        
+
         <?php
-        
+
         }
 
         ?>
 
       ],
-    }, 
+    },
     {
       label: "Expense",
       lineTension: 0.3,
@@ -608,24 +608,24 @@ var myLineChart = new Chart(ctx, {
       pointBorderWidth: 2,
       data: [
       <?php
-      
+
       $largest_expense_month = 0;
-      
+
       for($month = 1; $month<=12; $month++) {
           $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND expenses.company_id = $session_company_id");
           $row = mysqli_fetch_array($sql_expenses);
           $expenses_for_month = $row['expense_amount_for_month'];
-          
+
           if ($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month) {
             $largest_expense_month = $expenses_for_month;
           }
-          
+
 
         ?>
           <?php echo "$expenses_for_month,"; ?>
-        
+
         <?php
-        
+
         }
 
         ?>
@@ -692,17 +692,17 @@ var myLineChart = new Chart(ctx, {
           $row = mysqli_fetch_array($sql_trips);
           $trip_miles_for_month = $row['trip_miles_for_month'];
           $largest_trip_miles_month = 0;
-          
+
           if ($trip_miles_for_month > 0 && $trip_miles_for_month > $largest_trip_miles_month) {
             $largest_trip_miles_month = $trip_miles_for_month;
           }
-          
+
 
         ?>
           <?php echo "$trip_miles_for_month,"; ?>
-        
+
         <?php
-        
+
         }
 
         ?>
@@ -756,7 +756,7 @@ var myPieChart = new Chart(ctx, {
           $category_name = json_encode($row['category_name']);
           echo "$category_name,";
         }
-      
+
       ?>
 
     ],
@@ -772,7 +772,7 @@ var myPieChart = new Chart(ctx, {
             $income_amount_for_year = $row['income_amount_for_year'];
             echo "$income_amount_for_year,";
           }
-        
+
         ?>
 
       ],
@@ -783,7 +783,7 @@ var myPieChart = new Chart(ctx, {
             $category_color = json_encode($row['category_color']);
             echo "$category_color,";
           }
-        
+
         ?>
 
       ],
@@ -813,7 +813,7 @@ var myPieChart = new Chart(ctx, {
           $category_name = json_encode($row['category_name']);
           echo "$category_name,";
         }
-      
+
       ?>
 
     ],
@@ -829,7 +829,7 @@ var myPieChart = new Chart(ctx, {
             $expense_amount_for_year = $row['expense_amount_for_year'];
             echo "$expense_amount_for_year,";
           }
-        
+
         ?>
 
       ],
@@ -840,7 +840,7 @@ var myPieChart = new Chart(ctx, {
             $category_color = json_encode($row['category_color']);
             echo "$category_color,";
           }
-        
+
         ?>
 
       ],
@@ -866,7 +866,7 @@ var myPieChart = new Chart(ctx, {
           $vendor_name = json_encode($row['vendor_name']);
           echo "$vendor_name,";
         }
-      
+
       ?>
 
     ],
@@ -882,7 +882,7 @@ var myPieChart = new Chart(ctx, {
             $expense_amount_for_year = $row['expense_amount_for_year'];
             echo "$expense_amount_for_year,";
           }
-        
+
         ?>
 
       ],
@@ -893,7 +893,7 @@ var myPieChart = new Chart(ctx, {
             $category_color = json_encode($row['category_color']);
             echo "$category_color,";
           }
-        
+
         ?>
 
       ],

@@ -68,14 +68,14 @@ function get_user_agent() {
 }
 
 function get_ip() {
-   
+
   if (defined("CONST_GET_IP_METHOD")) {
     if (CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
       $ip = getenv('HTTP_X_FORWARDED_FOR');
     }
-  
+
     else{
-     
+
       $ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
     }
   }
@@ -160,7 +160,7 @@ function get_device() {
   }
   if (strpos(strtolower(get_user_agent()),'opera mini') > 0) {
     $mobile_browser++;
-    //Check for tablets on opera mini alternative headers
+    //Check for tablets on Opera Mini alternative headers
     $stock_ua = strtolower(isset($_SERVER['HTTP_X_OPERAMINI_PHONE_UA'])?$_SERVER['HTTP_X_OPERAMINI_PHONE_UA']:(isset($_SERVER['HTTP_DEVICE_STOCK_UA'])?$_SERVER['HTTP_DEVICE_STOCK_UA']:''));
     if (preg_match('/(tablet|ipad|playbook)|(android(?!.*mobile))/i', $stock_ua)) {
       $tablet_browser++;
@@ -290,7 +290,7 @@ function decryptUserSpecificKey($user_encryption_ciphertext, $user_password) {
 /*
 Generates what is probably best described as a session key (ephemeral-ish)
 - Allows us to store the master key on the server whilst the user is using the application, without prompting to type their password everytime they want to decrypt a credential
-- Ciphertext/IV is stored on the server in the users session, encryption key is controlled/provided by the user as a cookie
+- Ciphertext/IV is stored on the server in the users' session, encryption key is controlled/provided by the user as a cookie
 - Only the user can decrypt their session ciphertext to get the master key
 - Encryption key never hits the disk in cleartext
 */
@@ -446,7 +446,7 @@ function getSSL($name) {
 
 function strto_AZaz09($string) {
   $string = ucwords(strtolower($string));
-  
+
   // Replace spaces with _
   //$string = str_replace(' ', '_', $string);
 
@@ -541,7 +541,7 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
   }
 
   catch(Exception $e) {
-    // If we couldn't send the message return the error so we can log it
+    // If we couldn't send the message return the error, so we can log it
     return "Message not sent. Mailer Error: {$mail->ErrorInfo}";
   }
 }

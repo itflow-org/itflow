@@ -30,7 +30,7 @@ $auth_code_url = "https://login.microsoftonline.com/organizations/oauth2/v2.0/au
 $token_grant_url = "https://login.microsoftonline.com/organizations/oauth2/v2.0/token";
 
 // Initial Login Request, via Microsoft
-// Returns a authorization code if login was successful
+// Returns an authorization code if login was successful
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
 
     $params = array (
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
 
 }
 
-// Login was successful, Microsoft has returned us a authorization code via POST
+// Login was successful, Microsoft has returned us an authorization code via POST
 // Request an access token using authorization code (& client secret) (server side)
 if (isset($_POST['code']) && $_POST['state'] == session_id()) {
 
@@ -117,7 +117,7 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
 
 }
 
-// If the user is just sat on the page, redirect them to login to try again
+// If the user is just sat on the page, redirect them to log in to try again
 if (empty($_GET)) {
     echo "<script> setTimeout(function() { window.location = \"login.php\"; },1000);</script>";
 }
