@@ -64,10 +64,11 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     //Set Currency Format
   	$currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
-    $ip = get_ip();
-    $os = get_os();
-    $browser = get_web_browser();
-    $device = get_device();
+    $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
+    
+    $session_user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
+    $os = strip_tags(mysqli_real_escape_string($mysqli,get_os($session_user_agent)));
+    $browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser($session_user_agent)));
 
     //Update status to Viewed only if invoice_status = "Sent" 
     if($quote_status == 'Sent'){
@@ -75,11 +76,11 @@ if(isset($_GET['quote_id'], $_GET['url_key'])){
     }
 
     //Mark viewed in history
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser - $device', history_created_at = NOW(), history_quote_id = $quote_id, company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser', history_created_at = NOW(), history_quote_id = $quote_id, company_id = $company_id");
 
     //Prevent SQL Error if client_name has ' in their name example Bill's Market
     $client_name_escaped = mysqli_escape_string($mysqli,$row['client_name']);
-    mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Quote Viewed', notification = 'Quote $quote_prefix$quote_number has been viewed by $client_name_escaped - $ip - $os - $browser - $device', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Quote Viewed', notification = 'Quote $quote_prefix$quote_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 
   ?>
 
