@@ -11,7 +11,7 @@ if (isset($_GET['asset_id'])) {
 
 // Asset query via type
 elseif (isset($_GET['asset_type'])) {
-    $type = mysqli_real_escape_string($mysqli,ucfirst($_GET['asset_type']));
+    $type = mysqli_real_escape_string($mysqli, ucfirst($_GET['asset_type']));
     $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_type = '$type' AND asset_client_id LIKE '$client_id' AND company_id = '$company_id' ORDER BY asset_id LIMIT $limit OFFSET $offset");
 }
 
