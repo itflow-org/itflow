@@ -89,4 +89,4 @@ $num_notifications = $row['num'];
 //Set Currency Format
 $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);
 
-?>
+

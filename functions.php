@@ -535,4 +535,4 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
   }
 }
 
-?>
+

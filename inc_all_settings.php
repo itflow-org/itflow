@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 include("config.php");
 include_once("functions.php");
@@ -13,4 +13,3 @@ include("inc_wrapper.php");
 include("inc_alert_feedback.php");
 include("pagination_head.php");
 
-?>
