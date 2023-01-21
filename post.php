@@ -156,7 +156,9 @@ if(isset($_POST['edit_user'])){
     $role = intval($_POST['role']);
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
     $extended_log_description = '';
-    $two_fa = $_POST['2fa'];
+    if(!empty($_POST['2fa'])) {
+        $two_fa = $_POST['2fa'];
+    }
 
     if(!file_exists("uploads/users/$user_id/")) {
         mkdir("uploads/users/$user_id");
@@ -285,6 +287,32 @@ if(isset($_POST['edit_profile'])){
     $logout = FALSE;
     $extended_log_description = '';
 
+    // Email notification when password or email is changed
+    $user_old_email_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_email FROM users WHERE user_id = $user_id"));
+    $user_old_email = $user_old_email_sql['user_email'];
+
+    if (!empty($config_smtp_host) && (!empty($new_password) || $user_old_email !== $email)) {
+
+        // Determine exactly what changed
+        if ($user_old_email !== $email && !empty($new_password)) {
+            $details = "Your e-mail address and password were changed. New email: $email";
+        }
+        elseif ($user_old_email !== $email) {
+            $details = "Your email address was changed. New email: $email";
+        }
+        elseif (!empty($new_password)) {
+            $details = "Your password was changed.";
+        }
+
+        $subject = "$config_app_name account update confirmation for $name";
+        $body = "Hi $name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>$details</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>ITFlow<br>$session_company_name";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_mail_from_email, $config_mail_from_name,
+            $user_old_email, $name,
+            $subject, $body);
+    }
+
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
     
@@ -332,8 +360,6 @@ if(isset($_POST['edit_profile'])){
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
-    
-    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $user_id");
 
     if(!empty($new_password)){
         $new_password = password_hash($new_password, PASSWORD_DEFAULT);
@@ -360,6 +386,8 @@ if(isset($_POST['edit_profile'])){
         mysqli_query($mysqli, "UPDATE users SET user_extension_key = '' WHERE user_id = $user_id");
         $extended_log_description .= ", extension access disabled";
     }
+
+    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $user_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Preferences', log_action = 'Modify', log_description = '$session_name modified their preferences$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
