@@ -1,4 +1,4 @@
-<?php include("inc_all_settings.php"); ?>
+<?php require_once("inc_all_settings.php"); ?>
 
 <div class="alert alert-warning">
   Work in Progress
