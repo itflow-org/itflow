@@ -58,6 +58,7 @@ $config_ticket_next_number = $row['config_ticket_next_number'];
 $config_ticket_from_name = $row['config_ticket_from_name'];
 $config_ticket_from_email = $row['config_ticket_from_email'];
 $config_ticket_email_parse = $row['config_ticket_email_parse'];
+$config_ticket_client_general_notifications = $row['config_ticket_client_general_notifications'];
 
 // Alerts
 $config_enable_cron = $row['config_enable_cron'];

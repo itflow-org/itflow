@@ -87,7 +87,6 @@ function get_ip() {
 }
 
 function get_web_browser($user_browser) {
-  //$user_agent = $log_user_agent;
   $browser        =   "Unknown Browser";
   $browser_array  =   array(
     '/msie/i'       =>  "<i class='fab fa-fw fa-internet-explorer text-secondary'></i> Internet Explorer",

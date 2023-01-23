@@ -6,7 +6,7 @@ $location_phone = formatPhoneNumber($location_phone);
 
 ?>
 
-<div class="card mb-3">
+<div class="card">
   <div class="card-body">
     <div class="row">
       <div class="col-md">

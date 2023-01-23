@@ -4,15 +4,15 @@ include("config.php");
 include("functions.php");
 include("check_login.php");
 
-if (isset($_POST['change_records_per_page'])) {
+if(isset($_POST['change_records_per_page'])){
 
     $_SESSION['records_per_page'] = intval($_POST['change_records_per_page']);
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['switch_company'])) {
+if(isset($_GET['switch_company'])){
     $company_id = intval($_GET['switch_company']);
 
     //Get Company Name
@@ -21,8 +21,8 @@ if (isset($_GET['switch_company'])) {
     $company_name = $row['company_name'];
 
     //Check to see if user has Permission to access the company
-    if (in_array($company_id,$session_user_company_access_array)) {
-
+    if(in_array($company_id,$session_user_company_access_array)){
+        
         mysqli_query($mysqli,"UPDATE user_settings SET user_default_company = $company_id WHERE user_id = $session_user_id");
 
         $_SESSION['alert_type'] = "error";
@@ -30,7 +30,7 @@ if (isset($_GET['switch_company'])) {
 
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Switch', log_description = '$session_name switched to company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
-
+    
     }else{
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "You do not have permission to switch to this company";
@@ -38,12 +38,12 @@ if (isset($_GET['switch_company'])) {
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Switch', log_description = '$session_name attempted to switch to company $company_name but did not have permission', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
     }
-
+    
     header("Location: dashboard_financial.php");
-
+  
 }
 
-if (isset($_POST['add_user'])) {
+if(isset($_POST['add_user'])){
 
     validateAdminRole();
 
@@ -61,13 +61,13 @@ if (isset($_POST['add_user'])) {
 
     $user_id = mysqli_insert_id($mysqli);
 
-    if (!file_exists("uploads/users/$user_id/")) {
+    if(!file_exists("uploads/users/$user_id/")) {
         mkdir("uploads/users/$user_id");
     }
 
     //Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
-
+    if($_FILES['file']['tmp_name'] != ''){
+        
         // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
@@ -81,17 +81,17 @@ if (isset($_POST['add_user'])) {
 
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;
         }
 
         //Check File Size
-        if ($file_size > 2097152) {
+        if($file_size > 2097152){
             $file_error = 1;
         }
 
-        if ($file_error == 0) {
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/users/$user_id/";
             $dest_path = $upload_file_dir . $new_file_name;
@@ -115,7 +115,7 @@ if (isset($_POST['add_user'])) {
     mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $default_company");
 
     // Send user e-mail, if specified
-    if (isset($_POST['send_email']) && !empty($config_smtp_host) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if(isset($_POST['send_email']) && !empty($config_smtp_host) && filter_var($email, FILTER_VALIDATE_EMAIL)){
 
         $subject = "Your new $session_company_name ITFlow account";
         $body = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: https://$config_base_url<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
@@ -136,12 +136,12 @@ if (isset($_POST['add_user'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Create', log_description = '$session_name created user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> created";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_user'])) {
+if(isset($_POST['edit_user'])){
 
     validateAdminRole();
 
@@ -156,15 +156,17 @@ if (isset($_POST['edit_user'])) {
     $role = intval($_POST['role']);
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
     $extended_log_description = '';
-    $two_fa = $_POST['2fa'];
+    if(!empty($_POST['2fa'])) {
+        $two_fa = $_POST['2fa'];
+    }
 
-    if (!file_exists("uploads/users/$user_id/")) {
+    if(!file_exists("uploads/users/$user_id/")) {
         mkdir("uploads/users/$user_id");
     }
 
     //Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
-
+    if($_FILES['file']['tmp_name'] != ''){
+    
     // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
@@ -178,17 +180,17 @@ if (isset($_POST['edit_user'])) {
 
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;
         }
 
         //Check File Size
-        if ($file_size > 2097152) {
+        if($file_size > 2097152){
             $file_error = 1;
         }
 
-        if ($file_error == 0) {
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/users/$user_id/";
             $dest_path = $upload_file_dir . $new_file_name;
@@ -197,7 +199,7 @@ if (isset($_POST['edit_user'])) {
 
             //Delete old file
             unlink("uploads/users/$user_id/$existing_file_name");
-
+            
             mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
 
             //Extended Logging
@@ -209,10 +211,10 @@ if (isset($_POST['edit_user'])) {
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
-
+    
     mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $user_id");
 
-    if (!empty($new_password)) {
+    if(!empty($new_password)){
         $new_password = password_hash($new_password, PASSWORD_DEFAULT);
         $user_specific_encryption_ciphertext = encryptUserSpecificKey($_POST['new_password']);
         mysqli_query($mysqli,"UPDATE users SET user_password = '$new_password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' WHERE user_id = $user_id");
@@ -220,7 +222,7 @@ if (isset($_POST['edit_user'])) {
         $extended_log_description .= ", password changed";
     }
 
-    if (!empty($two_fa) && $two_fa == 'disable') {
+    if(!empty($two_fa) && $two_fa == 'disable'){
       mysqli_query($mysqli, "UPDATE users SET user_token = '' WHERE user_id = '$user_id'");
       mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name disabled 2FA for $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
     }
@@ -232,34 +234,34 @@ if (isset($_POST['edit_user'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name modified user $name $extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['activate_user'])) {
+if(isset($_GET['activate_user'])){
 
     validateAdminRole();
 
     $user_id = intval($_GET['activate_user']);
-
+    
     mysqli_query($mysqli,"UPDATE users SET user_status = 1 WHERE user_id = $user_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Activate', log_description = '$session_name activated user $user_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "User activated!";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['disable_user'])) {
+if(isset($_GET['disable_user'])){
 
     validateAdminRole();
 
     $user_id = intval($_GET['disable_user']);
-
+    
     mysqli_query($mysqli,"UPDATE users SET user_status = 0 WHERE user_id = $user_id");
 
     //Logging
@@ -267,12 +269,12 @@ if (isset($_GET['disable_user'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "User disabled!";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_profile'])) {
+if(isset($_POST['edit_profile'])){
 
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
@@ -285,9 +287,35 @@ if (isset($_POST['edit_profile'])) {
     $logout = FALSE;
     $extended_log_description = '';
 
-    //Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
+    // Email notification when password or email is changed
+    $user_old_email_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_email FROM users WHERE user_id = $user_id"));
+    $user_old_email = $user_old_email_sql['user_email'];
 
+    if (!empty($config_smtp_host) && (!empty($new_password) || $user_old_email !== $email)) {
+
+        // Determine exactly what changed
+        if ($user_old_email !== $email && !empty($new_password)) {
+            $details = "Your e-mail address and password were changed. New email: $email.";
+        }
+        elseif ($user_old_email !== $email) {
+            $details = "Your email address was changed. New email: $email.";
+        }
+        elseif (!empty($new_password)) {
+            $details = "Your password was changed.";
+        }
+
+        $subject = "$config_app_name account update confirmation for $name";
+        $body = "Hi $name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>$details</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>ITFlow<br>$session_company_name";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_mail_from_email, $config_mail_from_name,
+            $user_old_email, $name,
+            $subject, $body);
+    }
+
+    //Check to see if a file is attached
+    if($_FILES['file']['tmp_name'] != ''){
+    
     // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
@@ -301,17 +329,17 @@ if (isset($_POST['edit_profile'])) {
 
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;
         }
 
         //Check File Size
-        if ($file_size > 2097152) {
+        if($file_size > 2097152){
             $file_error = 1;
         }
 
-        if ($file_error == 0) {
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/users/$user_id/";
             $dest_path = $upload_file_dir . $new_file_name;
@@ -320,7 +348,7 @@ if (isset($_POST['edit_profile'])) {
 
             //Delete old file
             unlink("uploads/users/$user_id/$existing_file_name");
-
+            
             mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
 
             //Extended Logging
@@ -333,9 +361,7 @@ if (isset($_POST['edit_profile'])) {
         }
     }
 
-    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $user_id");
-
-    if (!empty($new_password)) {
+    if(!empty($new_password)){
         $new_password = password_hash($new_password, PASSWORD_DEFAULT);
         $user_specific_encryption_ciphertext = encryptUserSpecificKey($_POST['new_password']);
         mysqli_query($mysqli,"UPDATE users SET user_password = '$new_password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' WHERE user_id = $user_id");
@@ -345,8 +371,8 @@ if (isset($_POST['edit_profile'])) {
     }
 
     // Enable extension access, only if it isn't already setup (user doesn't have cookie)
-    if (isset($_POST['extension']) && $_POST['extension'] == 'Yes') {
-        if (!isset($_COOKIE['user_extension_key'])) {
+    if(isset($_POST['extension']) && $_POST['extension'] == 'Yes'){
+        if(!isset($_COOKIE['user_extension_key'])){
             $extension_key = bin2hex(random_bytes(78));
             mysqli_query($mysqli, "UPDATE users SET user_extension_key = '$extension_key' WHERE user_id = $user_id");
 
@@ -356,17 +382,19 @@ if (isset($_POST['edit_profile'])) {
     }
 
     // Disable extension access
-    if (!isset($_POST['extension'])) {
+    if(!isset($_POST['extension'])){
         mysqli_query($mysqli, "UPDATE users SET user_extension_key = '' WHERE user_id = $user_id");
         $extended_log_description .= ", extension access disabled";
     }
+
+    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $user_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Preferences', log_action = 'Modify', log_description = '$session_name modified their preferences$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "User preferences updated";
 
-    if ($logout) {
+    if ($logout){
         header('Location: post.php?logout');
     }
     else{
@@ -374,7 +402,7 @@ if (isset($_POST['edit_profile'])) {
     }
 }
 
-if (isset($_POST['edit_user_companies'])) {
+if(isset($_POST['edit_user_companies'])){
 
     validateAdminRole();
 
@@ -382,7 +410,7 @@ if (isset($_POST['edit_user_companies'])) {
 
     mysqli_query($mysqli,"DELETE FROM user_companies WHERE user_id = $user_id");
 
-    foreach($_POST['companies'] as $company) {
+    foreach($_POST['companies'] as $company){
         $company = intval($company);
         mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company");
     }
@@ -395,12 +423,12 @@ if (isset($_POST['edit_user_companies'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name updated company permissions for user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Company permssions updated for user <strong>$name</strong>";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['archive_user'])) {
+if(isset($_GET['archive_user'])){
 
     validateAdminRole();
 
@@ -424,13 +452,13 @@ if (isset($_GET['archive_user'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "User <strong>$name</strong> archived";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
 // API Key
-if (isset($_POST['add_api_key'])) {
+if(isset($_POST['add_api_key'])){
 
     validateAdminRole();
 
@@ -450,12 +478,12 @@ if (isset($_POST['add_api_key'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Create', log_description = '$session_name created API Key $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "API Key <strong>$name</strong> created";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_api_key'])) {
+if(isset($_GET['delete_api_key'])){
 
     validateAdminRole();
 
@@ -470,17 +498,17 @@ if (isset($_GET['delete_api_key'])) {
 
     mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_id = $api_key_id AND company_id = $session_company_id");
 
-    // Logging
+    // Logging   
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Delete', log_description = '$session_name deleted API key $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "API Key <strong>$name</strong> deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_POST['add_company'])) {
+if(isset($_POST['add_company'])){
 
     validateAdminRole();
 
@@ -495,20 +523,20 @@ if (isset($_POST['add_company'])) {
     $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
     $locale = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['locale'])));
     $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
-
+    
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code'");
 
     $company_id = mysqli_insert_id($mysqli);
     $current_database_version = CURRENT_DATABASE_VERSION;
-
+    
     mkdir("uploads/clients/$company_id");
     mkdir("uploads/expenses/$company_id");
     mkdir("uploads/settings/$company_id");
     mkdir("uploads/tmp/$company_id");
 
     //Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
-
+    if($_FILES['file']['tmp_name'] != ''){
+        
         // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
@@ -522,17 +550,17 @@ if (isset($_POST['add_company'])) {
 
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;
         }
 
         //Check File Size
-        if ($file_size > 2097152) {
+        if($file_size > 2097152){
             $file_error = 1;
         }
 
-        if ($file_error == 0) {
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/settings/$company_id/";
             $dest_path = $upload_file_dir . $new_file_name;
@@ -543,7 +571,7 @@ if (isset($_POST['add_company'])) {
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-
+            
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -575,12 +603,12 @@ if (isset($_POST['add_company'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Create', log_description = '$session_name created company $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> created";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_company'])) {
+if(isset($_POST['edit_company'])){
 
     validateAdminRole();
     $company_id = intval($_POST['company_id']);
@@ -598,13 +626,13 @@ if (isset($_POST['edit_company'])) {
 
     $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
 
-    if (!file_exists("uploads/settings/$company_id/")) {
+    if(!file_exists("uploads/settings/$company_id/")) {
         mkdir("uploads/settings/$company_id");
     }
 
     //Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
-
+    if($_FILES['file']['tmp_name'] != ''){
+    
     // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
@@ -618,17 +646,17 @@ if (isset($_POST['edit_company'])) {
 
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;
         }
 
         //Check File Size
-        if ($file_size > 2097152) {
+        if($file_size > 2097152){
             $file_error = 1;
         }
 
-        if ($file_error == 0) {
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/settings/$company_id/";
             $dest_path = $upload_file_dir . $new_file_name;
@@ -637,12 +665,12 @@ if (isset($_POST['edit_company'])) {
 
             //Delete old file
             unlink("uploads/settings/$company_id/$existing_file_name");
-
+            
             mysqli_query($mysqli,"UPDATE companies SET company_logo = '$new_file_name' WHERE company_id = $company_id");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-
+            
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -653,12 +681,12 @@ if (isset($_POST['edit_company'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Modify', log_description = '$session_name modified company $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['archive_company'])) {
+if(isset($_GET['archive_company'])){
     $company_id = intval($_GET['archive_company']);
 
     mysqli_query($mysqli,"UPDATE companies SET company_archived_at = NOW() WHERE company_id = $company_id");
@@ -673,12 +701,12 @@ if (isset($_GET['archive_company'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Company <strong>$company_name</strong> archived";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_company'])) {
+if(isset($_GET['delete_company'])){
 
     validateAdminRole();
 
@@ -703,7 +731,7 @@ if (isset($_GET['delete_company'])) {
     mysqli_query($mysqli,"DELETE FROM certificates WHERE company_id = $company_id");
 
     $sql = mysqli_query($mysqli,"SELECT client_id FROM clients WHERE company_id = $company_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){
         $client_id = $row['client_id'];
         mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_id = $client_id");
         mysqli_query($mysqli,"DELETE FROM shared_items WHERE item_client_id = $client_id");
@@ -731,11 +759,11 @@ if (isset($_GET['delete_company'])) {
     mysqli_query($mysqli,"DELETE FROM records WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM recurring WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM revenues WHERE company_id = $company_id");
-    mysqli_query($mysqli,"DELETE FROM scheduled_tickets WHERE company_id = $company_id");
-
+    mysqli_query($mysqli,"DELETE FROM scheduled_tickets WHERE company_id = $company_id");    
+    
     // Delete Items Associated Services
     $sql = mysqli_query($mysqli,"SELECT service_id FROM services WHERE company_id = $company_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){
         $service_id = $row['service_id'];
         mysqli_query($mysqli,"DELETE FROM service_assets WHERE service_id = $service_id");
         mysqli_query($mysqli,"DELETE FROM service_certificates WHERE service_id = $service_id");
@@ -748,20 +776,20 @@ if (isset($_GET['delete_company'])) {
     mysqli_query($mysqli,"DELETE FROM services WHERE company_id = $company_id");
 
     mysqli_query($mysqli,"DELETE FROM settings WHERE company_id = $company_id");
-
+    
     $sql = mysqli_query($mysqli,"SELECT software_id FROM software WHERE company_id = $company_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){
         $software_id = $row['software_id'];
         mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
         mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
     }
-    mysqli_query($mysqli,"DELETE FROM software WHERE company_id = $company_id");
+    mysqli_query($mysqli,"DELETE FROM software WHERE company_id = $company_id");    
 
     mysqli_query($mysqli,"DELETE FROM tags WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM taxes WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM tickets WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM ticket_replies WHERE company_id = $company_id");
-
+    
     mysqli_query($mysqli,"DELETE FROM transfers WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM trips WHERE company_id = $company_id");
     mysqli_query($mysqli,"DELETE FROM user_companies WHERE company_id = $company_id");
@@ -781,28 +809,28 @@ if (isset($_GET['delete_company'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Company <strong>$company_name</strong> deleted";
-
+    
     header("Location: post.php?logout");
-
+  
 }
 
-if (isset($_POST['verify'])) {
+if(isset($_POST['verify'])){
 
     require_once("rfc6238.php");
     $currentcode = mysqli_real_escape_string($mysqli,$_POST['code']);  //code to validate, for example received from device
 
-    if (TokenAuth6238::verify($session_token,$currentcode)) {
+    if(TokenAuth6238::verify($session_token,$currentcode)){
         $_SESSION['alert_message'] = "VALID!";
     }else{
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "IN-VALID!";
-    }
+    } 
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_mail_settings'])) {
+if(isset($_POST['edit_mail_settings'])){
 
     validateAdminRole();
 
@@ -821,27 +849,27 @@ if (isset($_POST['edit_mail_settings'])) {
 
 
     //Update From Email and From Name if Invoice/Quote or Ticket fields are blank
-    if (empty($config_invoice_from_name)) {
+    if(empty($config_invoice_from_name)){
         mysqli_query($mysqli,"UPDATE settings SET config_invoice_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
     }
 
-    if (empty($config_invoice_from_email)) {
+    if(empty($config_invoice_from_email)){
         mysqli_query($mysqli,"UPDATE settings SET config_invoice_from_email = '$config_mail_from_email' WHERE company_id = $session_company_id");
     }
 
-    if (empty($config_quote_from_name)) {
+    if(empty($config_quote_from_name)){
         mysqli_query($mysqli,"UPDATE settings SET config_quote_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
     }
 
-    if (empty($config_quote_from_email)) {
+    if(empty($config_quote_from_email)){
         mysqli_query($mysqli,"UPDATE settings SET config_quote_from_email = '$config_mail_from_email' WHERE company_id = $session_company_id");
     }
 
-    if (empty($config_ticket_from_name)) {
+    if(empty($config_ticket_from_name)){
         mysqli_query($mysqli,"UPDATE settings SET config_ticket_from_name = '$config_mail_from_name' WHERE company_id = $session_company_id");
     }
 
-    if (empty($config_ticket_from_email)) {
+    if(empty($config_ticket_from_email)){
         mysqli_query($mysqli,"UPDATE settings SET config_ticket_from_email = '$config_mail_from_email' WHERE company_id = $session_company_id");
     }
 
@@ -854,7 +882,7 @@ if (isset($_POST['edit_mail_settings'])) {
 
 }
 
-if (isset($_POST['test_email_smtp'])) {
+if(isset($_POST['test_email_smtp'])){
 
     validateAdminRole();
 
@@ -867,7 +895,7 @@ if (isset($_POST['test_email_smtp'])) {
         $email, $email,
         $subject, $body);
 
-    if ($mail === true) {
+    if($mail === true){
         $_SESSION['alert_message'] = "Test email sent successfully";
     } else {
         $_SESSION['alert_type'] = "error";
@@ -877,7 +905,7 @@ if (isset($_POST['test_email_smtp'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['test_email_imap'])) {
+if(isset($_POST['test_email_imap'])){
 
     validateAdminRole();
 
@@ -898,7 +926,7 @@ if (isset($_POST['test_email_imap'])) {
 
 }
 
-if (isset($_POST['edit_invoice_settings'])) {
+if(isset($_POST['edit_invoice_settings'])){
 
     validateAdminRole();
 
@@ -922,7 +950,7 @@ if (isset($_POST['edit_invoice_settings'])) {
 
 }
 
-if (isset($_POST['edit_quote_settings'])) {
+if(isset($_POST['edit_quote_settings'])){
 
     validateAdminRole();
 
@@ -943,7 +971,7 @@ if (isset($_POST['edit_quote_settings'])) {
 
 }
 
-if (isset($_POST['edit_ticket_settings'])) {
+if(isset($_POST['edit_ticket_settings'])){
 
     validateAdminRole();
 
@@ -952,9 +980,9 @@ if (isset($_POST['edit_ticket_settings'])) {
     $config_ticket_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_from_email'])));
     $config_ticket_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_from_name'])));
     $config_ticket_email_parse = intval($_POST['config_ticket_email_parse']);
+    $config_ticket_client_general_notifications = intval($_POST['config_ticket_client_general_notifications']);
 
-
-  mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name', config_ticket_email_parse = '$config_ticket_email_parse' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name', config_ticket_email_parse = '$config_ticket_email_parse', config_ticket_client_general_notifications = $config_ticket_client_general_notifications WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = 'Ticket settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
@@ -965,7 +993,7 @@ if (isset($_POST['edit_ticket_settings'])) {
 
 }
 
-if (isset($_POST['edit_default_settings'])) {
+if(isset($_POST['edit_default_settings'])){
 
     validateAdminRole();
 
@@ -988,7 +1016,7 @@ if (isset($_POST['edit_default_settings'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['edit_theme_settings'])) {
+if(isset($_POST['edit_theme_settings'])){
 
     validateAdminRole();
 
@@ -1005,7 +1033,7 @@ if (isset($_POST['edit_theme_settings'])) {
 }
 
 
-if (isset($_POST['edit_alert_settings'])) {
+if(isset($_POST['edit_alert_settings'])){
 
     validateAdminRole();
 
@@ -1025,7 +1053,7 @@ if (isset($_POST['edit_alert_settings'])) {
 
 }
 
-if (isset($_POST['edit_online_payment_settings'])) {
+if(isset($_POST['edit_online_payment_settings'])){
 
     validateAdminRole();
 
@@ -1043,7 +1071,7 @@ if (isset($_POST['edit_online_payment_settings'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['edit_integrations_settings'])) {
+if(isset($_POST['edit_integrations_settings'])){
 
     validateAdminRole();
 
@@ -1061,7 +1089,7 @@ if (isset($_POST['edit_integrations_settings'])) {
 
 }
 
-if (isset($_POST['edit_module_settings'])) {
+if(isset($_POST['edit_module_settings'])){
 
     validateAdminRole();
 
@@ -1080,7 +1108,7 @@ if (isset($_POST['edit_module_settings'])) {
 
 }
 
-if (isset($_POST['enable_2fa'])) {
+if(isset($_POST['enable_2fa'])){
 
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
@@ -1098,7 +1126,7 @@ if (isset($_POST['enable_2fa'])) {
 
 }
 
-if (isset($_POST['disable_2fa'])) {
+if(isset($_POST['disable_2fa'])){
 
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
@@ -1108,13 +1136,24 @@ if (isset($_POST['disable_2fa'])) {
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Settings', log_action = 'Modify', log_description = '$session_name disabled 2FA on their account', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
+    // Email notification
+    if (!empty($config_smtp_host)) {
+        $subject = "$config_app_name account update confirmation for $session_name";
+        $body = "Hi $session_name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>2FA was disabled.</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>ITFlow<br>$session_company_name";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_mail_from_email, $config_mail_from_name,
+            $session_email, $session_name,
+            $subject, $body);
+    }
+
     $_SESSION['alert_message'] = "Two-factor authentication disabled";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['download_database'])) {
+if(isset($_GET['download_database'])){
 
     validateAdminRole();
 
@@ -1129,26 +1168,26 @@ if (isset($_GET['download_database'])) {
 
     $sqlScript = "";
     foreach ($tables as $table) {
-
+        
         // Prepare SQLscript for creating table structure
         $query = "SHOW CREATE TABLE $table";
         $result = mysqli_query($mysqli, $query);
         $row = mysqli_fetch_row($result);
-
+        
         $sqlScript .= "\n\n" . $row[1] . ";\n\n";
-
-
+        
+        
         $query = "SELECT * FROM $table";
         $result = mysqli_query($mysqli, $query);
-
+        
         $columnCount = mysqli_num_fields($result);
-
+        
         // Prepare SQLscript for dumping data for each table
         for ($i = 0; $i < $columnCount; $i ++) {
             while ($row = mysqli_fetch_row($result)) {
                 $sqlScript .= "INSERT INTO $table VALUES(";
                 for ($j = 0; $j < $columnCount; $j ++) {
-
+                    
                     if (isset($row[$j])) {
                         $sqlScript .= '"' . $row[$j] . '"';
                     } else {
@@ -1161,17 +1200,17 @@ if (isset($_GET['download_database'])) {
                 $sqlScript .= ");\n";
             }
         }
-
-        $sqlScript .= "\n";
+        
+        $sqlScript .= "\n"; 
     }
 
-    if (!empty($sqlScript))
+    if(!empty($sqlScript))
     {
         // Save the SQL script to a backup file
         $backup_file_name = date('Y-m-d') . '_' . $config_company_name . '_backup.sql';
         $fileHandler = fopen($backup_file_name, 'w+');
         $number_of_lines = fwrite($fileHandler, $sqlScript);
-        fclose($fileHandler);
+        fclose($fileHandler); 
 
         // Download the SQL backup file to the browser
         header('Content-Description: File Transfer');
@@ -1185,7 +1224,7 @@ if (isset($_GET['download_database'])) {
         ob_clean();
         flush();
         readfile($backup_file_name);
-        exec('rm ' . $backup_file_name);
+        exec('rm ' . $backup_file_name); 
     }
 
     //Logging
@@ -1194,7 +1233,7 @@ if (isset($_GET['download_database'])) {
     $_SESSION['alert_message'] = "Database downloaded";
 }
 
-if (isset($_POST['backup_master_key'])) {
+if(isset($_POST['backup_master_key'])){
 
     validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
@@ -1204,7 +1243,7 @@ if (isset($_POST['backup_master_key'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = '$session_user_id'");
     $userRow = mysqli_fetch_array($sql);
 
-    if (password_verify($password, $userRow['user_password'])) {
+    if(password_verify($password, $userRow['user_password'])) {
         $site_encryption_master_key = decryptUserSpecificKey($userRow['user_specific_encryption_ciphertext'], $password);
 
         //Logging
@@ -1227,7 +1266,7 @@ if (isset($_POST['backup_master_key'])) {
     }
 }
 
-if (isset($_GET['update'])) {
+if(isset($_GET['update'])){
 
     validateAdminRole();
 
@@ -1250,7 +1289,7 @@ if (isset($_GET['update'])) {
 
 }
 
-if (isset($_GET['update_db'])) {
+if(isset($_GET['update_db'])){
 
     validateAdminRole();
 
@@ -1268,7 +1307,7 @@ if (isset($_GET['update_db'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['add_client'])) {
+if(isset($_POST['add_client'])){
 
     validateAdminRole();
 
@@ -1297,15 +1336,15 @@ if (isset($_POST['add_client'])) {
 
     $client_id = mysqli_insert_id($mysqli);
 
-    if (!file_exists("uploads/clients/$session_company_id/$client_id")) {
+    if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
         file_put_contents("uploads/clients/$session_company_id/$client_id/index.php", "");
     }
 
     //Add Location
-    if (!empty($location_phone) || !empty($address) || !empty($city) || !empty($state) || !empty($zip)) {
+    if(!empty($location_phone) || !empty($address) || !empty($city) || !empty($state) || !empty($zip)){
         mysqli_query($mysqli,"INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$location_phone', location_country = '$country', location_client_id = $client_id, company_id = $session_company_id");
-
+        
         //Update Primay location in clients
         $location_id = mysqli_insert_id($mysqli);
         mysqli_query($mysqli,"UPDATE clients SET primary_location = $location_id WHERE client_id = $client_id");
@@ -1314,29 +1353,29 @@ if (isset($_POST['add_client'])) {
         $extended_log_description .= ", primary location $address added";
     }
 
-
+    
     //Add Contact
-    if (!empty($contact) || !empty($title) || !empty($contact_phone) || !empty($contact_mobile) || !empty($contact_email)) {
+    if(!empty($contact) || !empty($title) || !empty($contact_phone) || !empty($contact_mobile) || !empty($contact_email)){
         mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$contact', contact_title = '$title', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_client_id = $client_id, company_id = $session_company_id");
-
+        
         //Update Primary contact in clients
         $contact_id = mysqli_insert_id($mysqli);
         mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");
-
+    
         //Extended Logging
         $extended_log_description .= ", primary contact $contact added";
     }
 
     //Add Tags
-    if (isset($_POST['tags'])) {
-        foreach($_POST['tags'] as $tag) {
+    if(isset($_POST['tags'])){
+        foreach($_POST['tags'] as $tag){
             $tag = intval($tag);
             mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
         }
     }
 
     //Add domain to domains/certificates
-    if (!empty($website) && filter_var($website, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+    if(!empty($website) && filter_var($website, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)){
         // Get domain expiry date
         $expire = getDomainExpirationDate($website);
 
@@ -1358,7 +1397,7 @@ if (isset($_POST['add_client'])) {
 
         // Get SSL cert for domain (if exists)
         $certificate = getSSL($website);
-        if ($certificate['success'] == "TRUE") {
+        if($certificate['success'] == "TRUE"){
             $expire = mysqli_real_escape_string($mysqli, $certificate['expire']);
             $issued_by = mysqli_real_escape_string($mysqli, $certificate['issued_by']);
             $public_key = mysqli_real_escape_string($mysqli, $certificate['public_key']);
@@ -1375,13 +1414,13 @@ if (isset($_POST['add_client'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Create', log_description = '$session_name created $name$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Client <strong>$name</strong> created";
-
+    
     header("Location: clients.php");
     exit;
-
+    
 }
 
-if (isset($_POST['edit_client'])) {
+if(isset($_POST['edit_client'])){
 
     validateAdminRole();
 
@@ -1399,9 +1438,9 @@ if (isset($_POST['edit_client'])) {
     //Tags
     //Delete existing tags
     mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_id = $client_id");
-
+    
     //Add new tags
-    foreach($_POST['tags'] as $tag) {
+    foreach($_POST['tags'] as $tag){
         $tag = intval($tag);
         mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
     }
@@ -1410,11 +1449,11 @@ if (isset($_POST['edit_client'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Modify', log_description = '$session_name modified client $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Client <strong>".htmlentities($client_name)."</strong> updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_GET['archive_client'])) {
+if(isset($_GET['archive_client'])){
 
     validateAdminRole();
 
@@ -1432,11 +1471,11 @@ if (isset($_GET['archive_client'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Client ".htmlentities($client_name)." archived. <a href='post.php?undo_archive_client=$client_id'>Undo</a>";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_GET['undo_archive_client'])) {
+if(isset($_GET['undo_archive_client'])){
 
     $client_id = intval($_GET['undo_archive_client']);
 
@@ -1451,11 +1490,11 @@ if (isset($_GET['undo_archive_client'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Undo Archive', log_description = '$session_name unarchived client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Client ".htmlentities($client_name)." unarchived.";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_GET['delete_client'])) {
+if(isset($_GET['delete_client'])){
 
     validateAdminRole();
 
@@ -1476,10 +1515,10 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM documents WHERE document_client_id = $client_id");
-
+    
     // Delete Domains and associated records
     $sql = mysqli_query($mysqli,"SELECT domain_id FROM domains WHERE domain_client_id = $client_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){
         $domain_id = $row['domain_id'];
         mysqli_query($mysqli,"DELETE FROM records WHERE record_domain_id = $domain_id");
     }
@@ -1491,7 +1530,7 @@ if (isset($_GET['delete_client'])) {
 
     //Delete Invoices and Invoice Referencing data
     $sql = mysqli_query($mysqli,"SELECT invoice_id FROM invoices WHERE invoice_client_id = $client_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){
         $invoice_id = $row['invoice_id'];
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_invoice_id = $invoice_id");
         mysqli_query($mysqli,"DELETE FROM payments WHERE payment_invoice_id = $invoice_id");
@@ -1507,16 +1546,16 @@ if (isset($_GET['delete_client'])) {
 
     //Delete Quote  and related items
     $sql = mysqli_query($mysqli,"SELECT quote_id FROM quotes WHERE quote_client_id = $client_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){
         $quote_id = $row['quote_id'];
 
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_quote_id = $quote_id");
     }
     mysqli_query($mysqli,"DELETE FROM quotes WHERE quote_client_id = $client_id");
-
+    
     // Delete Recurring Invoices and associated items
     $sql = mysqli_query($mysqli,"SELECT recurring_id FROM recurring WHERE recurring_client_id = $client_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){
         $recurring_id = $row['recurring_id'];
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_recurring_id = $recurring_id");
     }
@@ -1527,7 +1566,7 @@ if (isset($_GET['delete_client'])) {
 
     // Delete Services and items associated with services
     $sql = mysqli_query($mysqli,"SELECT service_id FROM services WHERE service_client_id = $client_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){
         $service_id = $row['service_id'];
         mysqli_query($mysqli,"DELETE FROM service_assets WHERE service_id = $service_id");
         mysqli_query($mysqli,"DELETE FROM service_certificates WHERE service_id = $service_id");
@@ -1540,9 +1579,9 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli,"DELETE FROM services WHERE service_client_id = $client_id");
 
     mysqli_query($mysqli,"DELETE FROM shared_items WHERE item_client_id = $client_id");
-
+    
     $sql = mysqli_query($mysqli,"SELECT software_id FROM software WHERE software_client_id = $client_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){
         $software_id = $row['software_id'];
         mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
         mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
@@ -1551,7 +1590,7 @@ if (isset($_GET['delete_client'])) {
 
     // Delete tickets and related data
     $sql = mysqli_query($mysqli,"SELECT ticket_id FROM tickets WHERE ticket_client_id = $client_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){
         $ticket_id = $row['ticket_id'];
         mysqli_query($mysqli,"DELETE FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
         mysqli_query($mysqli,"DELETE FROM ticket_views WHERE view_ticket_id = $ticket_id");
@@ -1571,11 +1610,11 @@ if (isset($_GET['delete_client'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Client $client_name deleted along with all associated data";
-
+    
     header("Location: clients.php");
 }
 
-if (isset($_POST['add_calendar'])) {
+if(isset($_POST['add_calendar'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
@@ -1586,12 +1625,12 @@ if (isset($_POST['add_calendar'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar', log_action = 'Create', log_description = '$session_name created calendar $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Calendar created, now lets add some events!";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['add_event'])) {
+if(isset($_POST['add_event'])){
 
     $calendar_id = intval($_POST['calendar']);
     $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
@@ -1605,7 +1644,7 @@ if (isset($_POST['add_event'])) {
     mysqli_query($mysqli,"INSERT INTO events SET event_title = '$title', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client, company_id = $session_company_id");
 
     //If email is checked
-    if ($email_event == 1) {
+    if($email_event == 1){
 
         $sql = mysqli_query($mysqli,"SELECT * FROM clients JOIN companies ON clients.company_id = companies.company_id JOIN contacts ON primary_contact = contact_id WHERE client_id = $client AND companies.company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
@@ -1645,12 +1684,12 @@ if (isset($_POST['add_event'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Create', log_description = '$session_name created event $title in calendar', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Event added to the calendar";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_event'])) {
+if(isset($_POST['edit_event'])){
 
     $event_id = intval($_POST['event_id']);
     $calendar_id = intval($_POST['calendar']);
@@ -1665,7 +1704,7 @@ if (isset($_POST['edit_event'])) {
     mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client WHERE event_id = $event_id AND company_id = $session_company_id");
 
     //If email is checked
-    if ($email_event == 1) {
+    if($email_event == 1){
 
         $sql = mysqli_query($mysqli,"SELECT * FROM clients JOIN companies ON clients.company_id = companies.company_id JOIN contacts ON primary_contact = contact_id WHERE client_id = $client AND companies.company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
@@ -1706,12 +1745,12 @@ if (isset($_POST['edit_event'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Modify', log_description = '$session_name modified event $title in calendar', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Event modified on the calendar";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_event'])) {
+if(isset($_GET['delete_event'])){
     $event_id = intval($_GET['delete_event']);
 
     //Get Event Title
@@ -1726,14 +1765,14 @@ if (isset($_GET['delete_event'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Event <strong>$event_title</strong> deleted on the calendar";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
 //Vendor Templates
 
-if (isset($_POST['add_vendor_template'])) {
+if(isset($_POST['add_vendor_template'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
@@ -1747,7 +1786,7 @@ if (isset($_POST['add_vendor_template'])) {
     $sla = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['sla'])));
     $code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['code'])));
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
-
+    
     mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_template = 1, vendor_client_id = 0, company_id = $session_company_id");
 
     $vendor_id = mysqli_insert_id($mysqli);
@@ -1756,11 +1795,11 @@ if (isset($_POST['add_vendor_template'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor Template', log_action = 'Create', log_description = '$session_name created vendor template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Vendor template <strong>$name</strong> created";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['edit_vendor_template'])) {
+if(isset($_POST['edit_vendor_template'])){
 
     $vendor_id = intval($_POST['vendor_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -1782,11 +1821,11 @@ if (isset($_POST['edit_vendor_template'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor Template', log_action = 'Modify', log_description = '$session_name modified vendor template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Vendor template <strong>$name</strong> modified";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['add_vendor_from_template'])) {
+if(isset($_POST['add_vendor_from_template'])){
 
     // GET POST Data
     $client_id = intval($_POST['client_id']); //Used if this vendor is under a contact otherwise its 0 for under company and or template
@@ -1819,14 +1858,14 @@ if (isset($_POST['add_vendor_from_template'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Create', log_description = 'Vendor created from template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Vendor created from template";
-
+    
      header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
 // Vendors
 
-if (isset($_POST['add_vendor'])) {
+if(isset($_POST['add_vendor'])){
 
     $client_id = intval($_POST['client_id']); //Used if this vendor is under a contact otherwise its 0 for under company
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -1841,7 +1880,7 @@ if (isset($_POST['add_vendor'])) {
     $sla = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['sla'])));
     $code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['code'])));
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
-
+    
     mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_client_id = $client_id, company_id = $session_company_id");
 
     $vendor_id = mysqli_insert_id($mysqli);
@@ -1850,11 +1889,11 @@ if (isset($_POST['add_vendor'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Create', log_description = '$session_name created vendor $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Vendor <strong>$name</strong> created";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['edit_vendor'])) {
+if(isset($_POST['edit_vendor'])){
 
     $vendor_id = intval($_POST['vendor_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -1876,11 +1915,11 @@ if (isset($_POST['edit_vendor'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Modify', log_description = '$session_name modified vendor $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Vendor <strong>$name</strong> modified";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_GET['archive_vendor'])) {
+if(isset($_GET['archive_vendor'])){
     $vendor_id = intval($_GET['archive_vendor']);
 
     //Get Vendor Name
@@ -1895,11 +1934,11 @@ if (isset($_GET['archive_vendor'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Vendor <strong>$vendor_name archived";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_GET['delete_vendor'])) {
+if(isset($_GET['delete_vendor'])){
     $vendor_id = intval($_GET['delete_vendor']);
 
     //Get Vendor Name
@@ -1915,11 +1954,11 @@ if (isset($_GET['delete_vendor'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_GET['export_client_vendors_csv'])) {
+if(isset($_GET['export_client_vendors_csv'])){
     $client_id = intval($_GET['export_client_vendors_csv']);
 
     //get records from database
@@ -1927,36 +1966,36 @@ if (isset($_GET['export_client_vendors_csv'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Vendors-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Name', 'Description', 'Contact Name', 'Phone', 'Website', 'Account Number', 'Notes');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $lineData = array($row['vendor_name'], $row['vendor_description'], $row['vendor_contact_name'], $row['vendor_phone'], $row['vendor_website'], $row['vendor_account_number'], $row['vendor_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
-
+    
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Export', log_description = '$session_name exported vendors to CSV', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
@@ -1964,7 +2003,7 @@ if (isset($_GET['export_client_vendors_csv'])) {
 }
 
 // Products
-if (isset($_POST['add_product'])) {
+if(isset($_POST['add_product'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
@@ -1978,12 +2017,12 @@ if (isset($_POST['add_product'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Create', log_description = '$session_name created product $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Product <strong>$name</strong> created";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_product'])) {
+if(isset($_POST['edit_product'])){
 
     $product_id = intval($_POST['product_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -2001,12 +2040,12 @@ if (isset($_POST['edit_product'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Modify', log_description = '$session_name modifyed product $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Product <strong>$name</strong> modified";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_product'])) {
+if(isset($_GET['delete_product'])){
     $product_id = intval($_GET['delete_product']);
 
     //Get Product Name
@@ -2021,12 +2060,12 @@ if (isset($_GET['delete_product'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Product <strong>$product_name</strong> deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_POST['add_trip'])) {
+if(isset($_POST['add_trip'])){
 
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $source = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['source'])));
@@ -2043,12 +2082,12 @@ if (isset($_POST['add_trip'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Create', log_description = '$session_name logged trip to $destination', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Trip added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_trip'])) {
+if(isset($_POST['edit_trip'])){
 
     $trip_id = intval($_POST['trip_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -2066,12 +2105,12 @@ if (isset($_POST['edit_trip'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Modify', log_description = '$date', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Trip modified";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_trip'])) {
+if(isset($_GET['delete_trip'])){
     $trip_id = intval($_GET['delete_trip']);
 
     //Get Client ID
@@ -2084,12 +2123,12 @@ if (isset($_GET['delete_trip'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Delete', log_description = '$trip_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Trip deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_POST['add_account'])) {
+if(isset($_POST['add_account'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $opening_balance = floatval($_POST['opening_balance']);
@@ -2102,12 +2141,12 @@ if (isset($_POST['add_account'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Account added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_account'])) {
+if(isset($_POST['edit_account'])){
 
     $account_id = intval($_POST['account_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -2119,12 +2158,12 @@ if (isset($_POST['edit_account'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Account modified";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['archive_account'])) {
+if(isset($_GET['archive_account'])){
     $account_id = intval($_GET['archive_account']);
 
     mysqli_query($mysqli,"UPDATE accounts SET account_archived_at = NOW() WHERE account_id = $account_id");
@@ -2133,12 +2172,12 @@ if (isset($_GET['archive_account'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Archive', log_description = '$account_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
 
     $_SESSION['alert_message'] = "Account Archived";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_account'])) {
+if(isset($_GET['delete_account'])){
     $account_id = intval($_GET['delete_account']);
 
     mysqli_query($mysqli,"DELETE FROM accounts WHERE account_id = $account_id AND company_id = $session_company_id");
@@ -2147,12 +2186,12 @@ if (isset($_GET['delete_account'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Delete', log_description = '$account_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Account deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_POST['add_category'])) {
+if(isset($_POST['add_category'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
@@ -2164,12 +2203,12 @@ if (isset($_POST['add_category'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Category added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_category'])) {
+if(isset($_POST['edit_category'])){
 
     $category_id = intval($_POST['category_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -2182,12 +2221,12 @@ if (isset($_POST['edit_category'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Category modified";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['archive_category'])) {
+if(isset($_GET['archive_category'])){
     $category_id = intval($_GET['archive_category']);
 
     mysqli_query($mysqli,"UPDATE categories SET category_archived_at = NOW() WHERE category_id = $category_id");
@@ -2196,12 +2235,12 @@ if (isset($_GET['archive_category'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Archive', log_description = '$category_id'");
 
     $_SESSION['alert_message'] = "Category Archived";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_category'])) {
+if(isset($_GET['delete_category'])){
     $category_id = intval($_GET['delete_category']);
 
     mysqli_query($mysqli,"DELETE FROM categories WHERE category_id = $category_id AND company_id = $session_company_id");
@@ -2211,15 +2250,15 @@ if (isset($_GET['delete_category'])) {
 
     $_SESSION['alert_message'] = "Category deleted";
     $_SESSION['alert_type'] = "error";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
 
 //Tags
 
-if (isset($_POST['add_tag'])) {
+if(isset($_POST['add_tag'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $type = intval($_POST['type']);
@@ -2232,12 +2271,12 @@ if (isset($_POST['add_tag'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Tag added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_tag'])) {
+if(isset($_POST['edit_tag'])){
 
     $tag_id = intval($_POST['tag_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -2251,12 +2290,12 @@ if (isset($_POST['edit_tag'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Tag modified";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_tag'])) {
+if(isset($_GET['delete_tag'])){
     $tag_id = intval($_GET['delete_tag']);
 
     mysqli_query($mysqli,"DELETE FROM tags WHERE tag_id = $tag_id AND company_id = $session_company_id");
@@ -2267,14 +2306,14 @@ if (isset($_GET['delete_tag'])) {
 
     $_SESSION['alert_message'] = "Tag deleted";
     $_SESSION['alert_type'] = "error";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
 //Tax
 
-if (isset($_POST['add_tax'])) {
+if(isset($_POST['add_tax'])){
 
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $percent = floatval($_POST['percent']);
@@ -2285,12 +2324,12 @@ if (isset($_POST['add_tax'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Create', log_description = '$name - $percent', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Tax added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_tax'])) {
+if(isset($_POST['edit_tax'])){
 
     $tax_id = intval($_POST['tax_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -2302,12 +2341,12 @@ if (isset($_POST['edit_tax'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Modify', log_description = '$name - $percent', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Tax modified";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['archive_tax'])) {
+if(isset($_GET['archive_tax'])){
     $tax_id = intval($_GET['archive_tax']);
 
     mysqli_query($mysqli,"UPDATE taxes SET tax_archived_at = NOW() WHERE tax_id = $tax_id");
@@ -2316,12 +2355,12 @@ if (isset($_GET['archive_tax'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Archive', log_description = '$tax_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
 
     $_SESSION['alert_message'] = "Tax Archived";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_tax'])) {
+if(isset($_GET['delete_tax'])){
     $tax_id = intval($_GET['delete_tax']);
 
     mysqli_query($mysqli,"DELETE FROM taxes WHERE tax_id = $tax_id AND company_id = $session_company_id");
@@ -2331,14 +2370,14 @@ if (isset($_GET['delete_tax'])) {
 
     $_SESSION['alert_message'] = "Tax deleted";
     $_SESSION['alert_type'] = "error";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
 //End Tax
 
-if (isset($_GET['dismiss_notification'])) {
+if(isset($_GET['dismiss_notification'])){
 
     $notification_id = intval($_GET['dismiss_notification']);
 
@@ -2348,35 +2387,35 @@ if (isset($_GET['dismiss_notification'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Notification', log_action = 'Dismiss', log_description = '$session_name dismissed notification', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Notification Dismissed";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['dismiss_all_notifications'])) {
+if(isset($_GET['dismiss_all_notifications'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM notifications WHERE company_id = $session_company_id AND notification_dismissed_at IS NULL");
 
     $num_notifications = mysqli_num_rows($sql);
-
-    while ($row = mysqli_fetch_array($sql)) {
+    
+    while($row = mysqli_fetch_array($sql)){
         $notification_id = $row['notification_id'];
         $notification_dismissed_at = $row['notification_dismissed_at'];
 
         mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = CURDATE(), notification_dismissed_by = $session_user_id WHERE notification_id = $notification_id");
-
+    
     }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Notification', log_action = 'Dismiss', log_description = '$session_name dismissed $num_notifications notifications', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
-
+    
     $_SESSION['alert_message'] = "$num_notifications Notifications Dismissed";
-
+    
     header("Location: notifications.php");
 
 }
 
-if (isset($_POST['add_expense'])) {
+if(isset($_POST['add_expense'])){
 
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $amount = floatval($_POST['amount']);
@@ -2391,8 +2430,8 @@ if (isset($_POST['add_expense'])) {
     $expense_id = mysqli_insert_id($mysqli);
 
     //Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
-
+    if($_FILES['file']['tmp_name'] != ''){
+        
         // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
@@ -2406,28 +2445,28 @@ if (isset($_POST['add_expense'])) {
 
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png', 'pdf');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;
         }
 
         //Check File Size
-        if ($file_size > 9097152) {
+        if($file_size > 9097152){
             $file_error = 1;
         }
 
-        if ($file_error == 0) {
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/expenses/$session_company_id/";
             $dest_path = $upload_file_dir . $new_file_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
-
+            
             mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-
+            
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -2436,12 +2475,12 @@ if (isset($_POST['add_expense'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Create', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Expense added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_expense'])) {
+if(isset($_POST['edit_expense'])){
 
     $expense_id = intval($_POST['expense_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -2454,8 +2493,8 @@ if (isset($_POST['edit_expense'])) {
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
 
     //Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
-
+    if($_FILES['file']['tmp_name'] != ''){
+        
         // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
@@ -2469,17 +2508,17 @@ if (isset($_POST['edit_expense'])) {
 
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png', 'pdf');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;
         }
 
         //Check File Size
-        if ($file_size > 9097152) {
+        if($file_size > 9097152){
             $file_error = 1;
         }
 
-        if ($file_error == 0) {
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/expenses/$session_company_id/";
             $dest_path = $upload_file_dir . $new_file_name;
@@ -2488,12 +2527,12 @@ if (isset($_POST['edit_expense'])) {
 
             //Delete old file
             unlink("uploads/expenses/$session_company_id/$existing_file_name");
-
+            
             mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-
+            
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -2504,12 +2543,12 @@ if (isset($_POST['edit_expense'])) {
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Modify', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_expense'])) {
+if(isset($_GET['delete_expense'])){
     $expense_id = intval($_GET['delete_expense']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id AND company_id = $session_company_id");
@@ -2524,22 +2563,22 @@ if (isset($_GET['delete_expense'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Delete', log_description = '$epense_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Expense deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_POST['export_expenses_csv'])) {
+if(isset($_POST['export_expenses_csv'])){
     $date_from = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_from'])));
     $date_to = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_to'])));
-    if (!empty($date_from) && !empty($date_to)) {
+    if(!empty($date_from) && !empty($date_to)){
         $date_query = "AND DATE(expense_date) BETWEEN '$date_from' AND '$date_to'";
         $file_name_date = "$date_from-to-$date_to";
     }else{
         $date_query = "";
         $file_name_date = date('Y-m-d');
     }
-
+    
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM expenses
       LEFT JOIN categories ON expense_category_id = category_id
@@ -2551,41 +2590,41 @@ if (isset($_POST['export_expenses_csv'])) {
       ORDER BY expense_date DESC
     ");
 
-    if (mysqli_num_rows($sql) > 0) {
+    if(mysqli_num_rows($sql) > 0){
         $delimiter = ",";
         $filename = "$session_company_name-Expenses-$file_name_date.csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Date', 'Amount', 'Vendor', 'Description', 'Category', 'Account');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = mysqli_fetch_assoc($sql)) {
+        while($row = mysqli_fetch_assoc($sql)){
             $lineData = array($row['expense_date'], $row['expense_amount'], $row['vendor_name'], $row['expense_description'], $row['category_name'], $row['account_name']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
-
+    
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Export', log_description = '$session_name exported expenses to CSV File', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     exit;
 }
 
-if (isset($_POST['add_transfer'])) {
+if(isset($_POST['add_transfer'])){
 
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $amount = floatval($_POST['amount']);
@@ -2595,7 +2634,7 @@ if (isset($_POST['add_transfer'])) {
 
     mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', expense_currency_code = '$session_company_currency', expense_vendor_id = 0, expense_category_id = 0, expense_account_id = $account_from, company_id = $session_company_id");
     $expense_id = mysqli_insert_id($mysqli);
-
+    
     mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_currency_code = '$session_company_currency', revenue_account_id = $account_to, revenue_category_id = 0, company_id = $session_company_id");
     $revenue_id = mysqli_insert_id($mysqli);
 
@@ -2605,12 +2644,12 @@ if (isset($_POST['add_transfer'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Create', log_description = '$date - $amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Transfer added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_transfer'])) {
+if(isset($_POST['edit_transfer'])){
 
     $transfer_id = intval($_POST['transfer_id']);
     $expense_id = intval($_POST['expense_id']);
@@ -2631,12 +2670,12 @@ if (isset($_POST['edit_transfer'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Modifed', log_description = '$date - $amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Transfer modified";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_transfer'])) {
+if(isset($_GET['delete_transfer'])){
     $transfer_id = intval($_GET['delete_transfer']);
 
     //Query the transfer ID to get the Payment and Expense IDs so we can delete those as well
@@ -2655,22 +2694,22 @@ if (isset($_GET['delete_transfer'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Delete', log_description = '$transfer_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Transfer deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_POST['add_invoice'])) {
+if(isset($_POST['add_invoice'])){
     $client = intval($_POST['client']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $category = intval($_POST['category']);
     $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
-
+    
     //Get Net Terms
-    $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients WHERE client_id = $client AND company_id = $session_company_id");
+    $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients WHERE client_id = $client AND company_id = $session_company_id"); 
     $row = mysqli_fetch_array($sql);
     $client_net_terms = $row['client_net_terms'];
-
+    
     //Get the last Invoice Number and add 1 for the new invoice number
     $invoice_number = $config_invoice_next_number;
     $new_config_invoice_next_number = $config_invoice_next_number + 1;
@@ -2681,18 +2720,18 @@ if (isset($_POST['add_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_currency_code = '$session_company_currency', invoice_category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_client_id = $client, company_id = $session_company_id");
     $invoice_id = mysqli_insert_id($mysqli);
-
+    
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'INVOICE added!', history_invoice_id = $invoice_id, company_id = $session_company_id");
-
+    
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Create', log_description = '$config_invoice_prefix$invoice_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Invoice added";
-
+    
     header("Location: invoice.php?invoice_id=$invoice_id");
 }
 
-if (isset($_POST['edit_invoice'])) {
+if(isset($_POST['edit_invoice'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -2706,12 +2745,12 @@ if (isset($_POST['edit_invoice'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Modify', log_description = '$invoice_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Invoice modified";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['add_invoice_copy'])) {
+if(isset($_POST['add_invoice_copy'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -2737,14 +2776,14 @@ if (isset($_POST['add_invoice_copy'])) {
     //Generate a unique URL key for clients to access
     $url_key = bin2hex(random_bytes(78));
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$invoice_scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_currency_code = '$invoice_currency_code', invoice_note = '$invoice_note', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $session_company_id") or die();
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$invoice_scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_currency_code = '$invoice_currency_code', invoice_note = '$invoice_note', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $session_company_id") or die(mysql_error());
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Copied INVOICE!', history_invoice_id = $new_invoice_id, company_id = $session_company_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id");
-    while ($row = mysqli_fetch_array($sql_items)) {
+    while($row = mysqli_fetch_array($sql_items)){
         $item_id = $row['item_id'];
         $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
         $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
@@ -2762,12 +2801,12 @@ if (isset($_POST['add_invoice_copy'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Create', log_description = 'Copied Invoice', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Invoice copied";
-
+    
     header("Location: invoice.php?invoice_id=$new_invoice_id");
 
 }
 
-if (isset($_POST['add_invoice_recurring'])) {
+if(isset($_POST['add_invoice_recurring'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $recurring_frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
@@ -2794,7 +2833,7 @@ if (isset($_POST['add_invoice_recurring'])) {
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Recurring Created from INVOICE!', history_recurring_id = $recurring_id, company_id = $session_company_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql_items)) {
+    while($row = mysqli_fetch_array($sql_items)){
         $item_id = $row['item_id'];
         $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
         $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
@@ -2812,19 +2851,19 @@ if (isset($_POST['add_invoice_recurring'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Create', log_description = 'From recurring invoice', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Created recurring Invoice from this Invoice";
-
+    
     header("Location: recurring_invoice.php?recurring_id=$recurring_id");
 
 }
 
-if (isset($_POST['add_quote'])) {
+if(isset($_POST['add_quote'])){
 
     $client = intval($_POST['client']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $category = intval($_POST['category']);
     $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
     $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
-
+    
     //Get the last Quote Number and add 1 for the new Quote number
     $quote_number = $config_quote_next_number;
     $new_config_quote_next_number = $config_quote_next_number + 1;
@@ -2843,16 +2882,16 @@ if (isset($_POST['add_quote'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Create', log_description = '$quote_prefix$quote_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Quote added";
-
+    
     header("Location: quote.php?quote_id=$quote_id");
 
 }
 
-if (isset($_POST['add_quote_copy'])) {
+if(isset($_POST['add_quote_copy'])){
 
     $quote_id = intval($_POST['quote_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
-
+    
     //Get the last Invoice Number and add 1 for the new invoice number
     $quote_number = $config_quote_next_number;
     $new_config_quote_next_number = $config_quote_next_number + 1;
@@ -2877,7 +2916,7 @@ if (isset($_POST['add_quote_copy'])) {
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Quote copied!', history_quote_id = $new_quote_id, company_id = $session_company_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
-    while ($row = mysqli_fetch_array($sql_items)) {
+    while($row = mysqli_fetch_array($sql_items)){
         $item_id = $row['item_id'];
         $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
         $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
@@ -2895,17 +2934,17 @@ if (isset($_POST['add_quote_copy'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Create', log_description = 'Copied Quote', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Quote copied";
-
+    
     header("Location: quote.php?quote_id=$new_quote_id");
 
 }
 
-if (isset($_POST['add_quote_to_invoice'])) {
+if(isset($_POST['add_quote_to_invoice'])){
 
     $quote_id = intval($_POST['quote_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $client_net_terms = intval($_POST['client_net_terms']);
-
+    
     $invoice_number = $config_invoice_next_number;
     $new_config_invoice_next_number = $config_invoice_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
@@ -2916,7 +2955,7 @@ if (isset($_POST['add_quote_to_invoice'])) {
     $quote_currency_code = $row['quote_currency_code'];
     $quote_scope = mysqli_real_escape_string($mysqli,$row['quote_scope']);
     $quote_note = mysqli_real_escape_string($mysqli,$row['quote_note']);
-
+    
     $client_id = $row['quote_client_id'];
     $category_id = $row['quote_category_id'];
 
@@ -2930,7 +2969,7 @@ if (isset($_POST['add_quote_to_invoice'])) {
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Quote copied to Invoice!', history_invoice_id = $new_invoice_id, company_id = $session_company_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
-    while ($row = mysqli_fetch_array($sql_items)) {
+    while($row = mysqli_fetch_array($sql_items)){
         $item_id = $row['item_id'];
         $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
         $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
@@ -2950,24 +2989,24 @@ if (isset($_POST['add_quote_to_invoice'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Create', log_description = 'Quote copied to Invoice', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Quote copied to Invoice";
-
+    
     header("Location: invoice.php?invoice_id=$new_invoice_id");
 
 }
 
-if (isset($_POST['add_quote_item'])) {
+if(isset($_POST['add_quote_item'])){
 
     $quote_id = intval($_POST['quote_id']);
-
+    
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
-
+    
     $subtotal = $price * $qty;
-
-    if ($tax_id > 0) {
+    
+    if($tax_id > 0){
         $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_array($sql);
         $tax_percent = $row['tax_percent'];
@@ -2975,7 +3014,7 @@ if (isset($_POST['add_quote_item'])) {
     }else{
         $tax_amount = 0;
     }
-
+    
     $total = $subtotal + $tax_amount;
 
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_tax_id = $tax_id, item_quote_id = $quote_id, company_id = $session_company_id");
@@ -2995,8 +3034,8 @@ if (isset($_POST['add_quote_item'])) {
 
 }
 
-if (isset($_POST['quote_note'])) {
-
+if(isset($_POST['quote_note'])){
+    
     $quote_id = intval($_POST['quote_id']);
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
 
@@ -3008,7 +3047,7 @@ if (isset($_POST['quote_note'])) {
 
 }
 
-if (isset($_POST['edit_quote'])) {
+if(isset($_POST['edit_quote'])){
 
     $quote_id = intval($_POST['quote_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -3021,26 +3060,26 @@ if (isset($_POST['edit_quote'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = '$quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Quote modified";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_quote'])) {
+if(isset($_GET['delete_quote'])){
     $quote_id = intval($_GET['delete_quote']);
 
     mysqli_query($mysqli,"DELETE FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     //Delete Items Associated with the Quote
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){;
         $item_id = $row['item_id'];
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     }
 
     //Delete History Associated with the Quote
     $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE history_quote_id = $quote_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){;
         $history_id = $row['history_id'];
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
@@ -3049,12 +3088,12 @@ if (isset($_GET['delete_quote'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Delete', log_description = '$quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Quotes deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_GET['delete_quote_item'])) {
+if(isset($_GET['delete_quote_item'])){
     $item_id = intval($_GET['delete_quote_item']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
@@ -3066,7 +3105,7 @@ if (isset($_GET['delete_quote_item'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-
+    
     $new_quote_amount = $row['quote_amount'] - $item_total;
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount' WHERE quote_id = $quote_id AND company_id = $session_company_id");
@@ -3077,12 +3116,12 @@ if (isset($_GET['delete_quote_item'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote Item', log_action = 'Delete', log_description = '$item_id from $quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Item deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_GET['mark_quote_sent'])) {
+if(isset($_GET['mark_quote_sent'])){
 
     $quote_id = intval($_GET['mark_quote_sent']);
 
@@ -3094,12 +3133,12 @@ if (isset($_GET['mark_quote_sent'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Update', log_description = '$quote_id marked sent', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> Quote marked sent";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['accept_quote'])) {
+if(isset($_GET['accept_quote'])){
 
     $quote_id = intval($_GET['accept_quote']);
 
@@ -3111,12 +3150,12 @@ if (isset($_GET['accept_quote'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = 'Accepted Quote $quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> Quote accepted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['decline_quote'])) {
+if(isset($_GET['decline_quote'])){
 
     $quote_id = intval($_GET['decline_quote']);
 
@@ -3128,12 +3167,12 @@ if (isset($_GET['decline_quote'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = 'Declined Quote $quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Quote declined";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['email_quote'])) {
+if(isset($_GET['email_quote'])){
     $quote_id = intval($_GET['email_quote']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes
@@ -3197,7 +3236,7 @@ if (isset($_GET['email_quote'])) {
       }
 
     //Don't change the status to sent if the status is anything but draft
-    if ($quote_status == 'Draft') {
+    if($quote_status == 'Draft'){
         mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent' WHERE quote_id = $quote_id AND company_id = $session_company_id");
     }
 
@@ -3205,7 +3244,7 @@ if (isset($_GET['email_quote'])) {
 
 }
 
-if (isset($_POST['add_recurring'])) {
+if(isset($_POST['add_recurring'])){
 
     $client = intval($_POST['client']);
     $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
@@ -3229,12 +3268,12 @@ if (isset($_POST['add_recurring'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Create', log_description = '$start_date - $category', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice added";
-
+    
     header("Location: recurring_invoice.php?recurring_id=$recurring_id");
 
 }
 
-if (isset($_POST['edit_recurring'])) {
+if(isset($_POST['edit_recurring'])){
 
     $recurring_id = intval($_POST['recurring_id']);
     $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
@@ -3251,26 +3290,26 @@ if (isset($_POST['edit_recurring'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Modify', log_description = '$recurring_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice modified";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_recurring'])) {
+if(isset($_GET['delete_recurring'])){
     $recurring_id = intval($_GET['delete_recurring']);
 
     mysqli_query($mysqli,"DELETE FROM recurring WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
-
+    
     //Delete Items Associated with the Recurring
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){;
         $item_id = $row['item_id'];
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     }
 
     //Delete History Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE history_recurring_id = $recurring_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){;
         $history_id = $row['history_id'];
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
@@ -3279,12 +3318,12 @@ if (isset($_GET['delete_recurring'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Delete', log_description = '$recurring_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_POST['add_recurring_item'])) {
+if(isset($_POST['add_recurring_item'])){
 
     $recurring_id = intval($_POST['recurring_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -3292,10 +3331,10 @@ if (isset($_POST['add_recurring_item'])) {
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
-
+    
     $subtotal = $price * $qty;
-
-    if ($tax_id > 0) {
+    
+    if($tax_id > 0){
         $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_array($sql);
         $tax_percent = $row['tax_percent'];
@@ -3303,7 +3342,7 @@ if (isset($_POST['add_recurring_item'])) {
     }else{
         $tax_amount = 0;
     }
-
+    
     $total = $subtotal + $tax_amount;
 
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_tax_id = $tax_id, item_recurring_id = $recurring_id, company_id = $session_company_id");
@@ -3323,8 +3362,8 @@ if (isset($_POST['add_recurring_item'])) {
 
 }
 
-if (isset($_POST['recurring_note'])) {
-
+if(isset($_POST['recurring_note'])){
+    
     $recurring_id = intval($_POST['recurring_id']);
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
 
@@ -3336,7 +3375,7 @@ if (isset($_POST['recurring_note'])) {
 
 }
 
-if (isset($_GET['delete_recurring_item'])) {
+if(isset($_GET['delete_recurring_item'])){
     $item_id = intval($_GET['delete_recurring_item']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
@@ -3348,7 +3387,7 @@ if (isset($_GET['delete_recurring_item'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-
+    
     $new_recurring_amount = $row['recurring_amount'] - $item_total;
 
     mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount' WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
@@ -3359,12 +3398,12 @@ if (isset($_GET['delete_recurring_item'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring Item', log_action = 'Delete', log_description = 'Item ID $item_id from Recurring ID $recurring_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Item deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_GET['mark_invoice_sent'])) {
+if(isset($_GET['mark_invoice_sent'])){
 
     $invoice_id = intval($_GET['mark_invoice_sent']);
 
@@ -3376,12 +3415,12 @@ if (isset($_GET['mark_invoice_sent'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Update', log_description = '$invoice_id marked sent', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Invoice marked sent";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['cancel_invoice'])) {
+if(isset($_GET['cancel_invoice'])){
 
     $invoice_id = intval($_GET['cancel_invoice']);
 
@@ -3393,33 +3432,33 @@ if (isset($_GET['cancel_invoice'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Modify', log_description = 'Cancelled', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Invoice cancelled";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_invoice'])) {
+if(isset($_GET['delete_invoice'])){
     $invoice_id = intval($_GET['delete_invoice']);
 
     mysqli_query($mysqli,"DELETE FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     //Delete Items Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){;
         $item_id = $row['item_id'];
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     }
 
     //Delete History Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE history_invoice_id = $invoice_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){;
         $history_id = $row['history_id'];
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
 
     //Delete Payments Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_invoice_id = $invoice_id AND company_id = $session_company_id");
-    while ($row = mysqli_fetch_array($sql)) {
+    while($row = mysqli_fetch_array($sql)){;
         $payment_id = $row['payment_id'];
         mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id AND company_id = $session_company_id");
     }
@@ -3428,12 +3467,12 @@ if (isset($_GET['delete_invoice'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Delete', log_description = '$invoice_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Invoice deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_POST['add_invoice_item'])) {
+if(isset($_POST['add_invoice_item'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
@@ -3441,10 +3480,10 @@ if (isset($_POST['add_invoice_item'])) {
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
-
+    
     $subtotal = $price * $qty;
-
-    if ($tax_id > 0) {
+    
+    if($tax_id > 0){
         $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_array($sql);
         $tax_percent = $row['tax_percent'];
@@ -3452,7 +3491,7 @@ if (isset($_POST['add_invoice_item'])) {
     }else{
         $tax_amount = 0;
     }
-
+    
     $total = $subtotal + $tax_amount;
 
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_tax_id = $tax_id, item_invoice_id = $invoice_id, company_id = $session_company_id");
@@ -3473,7 +3512,7 @@ if (isset($_POST['add_invoice_item'])) {
 
 }
 
-if (isset($_POST['invoice_note'])) {
+if(isset($_POST['invoice_note'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
@@ -3486,7 +3525,7 @@ if (isset($_POST['invoice_note'])) {
 
 }
 
-if (isset($_POST['edit_item'])) {
+if(isset($_POST['edit_item'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $quote_id = intval($_POST['quote_id']);
@@ -3497,10 +3536,10 @@ if (isset($_POST['edit_item'])) {
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
-
+    
     $subtotal = $price * $qty;
-
-    if ($tax_id > 0) {
+    
+    if($tax_id > 0){
         $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_array($sql);
         $tax_percent = $row['tax_percent'];
@@ -3508,20 +3547,20 @@ if (isset($_POST['edit_item'])) {
     }else{
         $tax_amount = 0;
     }
-
+    
     $total = $subtotal + $tax_amount;
 
     mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_tax_id = $tax_id WHERE item_id = $item_id");
 
-    if ($invoice_id > 0) {
+    if($invoice_id > 0){
         //Update Invoice Balances by tallying up invoice items
         $sql_invoice_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS invoice_total FROM invoice_items WHERE item_invoice_id = $invoice_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql_invoice_total);
         $new_invoice_amount = $row['invoice_total'];
 
         mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
-
-    }elseif ($quote_id > 0) {
+    
+    }elseif($quote_id > 0){
         //Update Quote Balances by tallying up items
         $sql_quote_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS quote_total FROM invoice_items WHERE item_quote_id = $quote_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql_quote_total);
@@ -3546,7 +3585,7 @@ if (isset($_POST['edit_item'])) {
 
 }
 
-if (isset($_GET['delete_invoice_item'])) {
+if(isset($_GET['delete_invoice_item'])){
     $item_id = intval($_GET['delete_invoice_item']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
@@ -3558,7 +3597,7 @@ if (isset($_GET['delete_invoice_item'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-
+    
     $new_invoice_amount = $row['invoice_amount'] - $item_total;
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
@@ -3569,12 +3608,12 @@ if (isset($_GET['delete_invoice_item'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice Item', log_action = 'Delete', log_description = '$item_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Item deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_POST['add_payment'])) {
+if(isset($_POST['add_payment'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $balance = floatval($_POST['balance']);
@@ -3587,7 +3626,7 @@ if (isset($_POST['add_payment'])) {
     $email_receipt = intval($_POST['email_receipt']);
 
     //Check to see if amount entered is greater than the balance of the invoice
-    if ($amount > $balance) {
+    if($amount > $balance){
         $_SESSION['alert_message'] = "Payment is more than the balance";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }else{
@@ -3597,7 +3636,7 @@ if (isset($_POST['add_payment'])) {
         $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payments_amount FROM payments WHERE payment_invoice_id = $invoice_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql_total_payments_amount);
         $total_payments_amount = $row['payments_amount'];
-
+        
         //Get the invoice total
         $sql = mysqli_query($mysqli,"SELECT * FROM invoices
             LEFT JOIN clients ON invoice_client_id = client_id
@@ -3617,12 +3656,12 @@ if (isset($_POST['add_payment'])) {
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
         $contact_phone = $row['contact_phone'];
-        if (strlen($contact_phone)>2) {
+        if(strlen($contact_phone)>2){ 
             $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
         }
         $contact_extension = $row['contact_extension'];
         $contact_mobile = $row['contact_mobile'];
-        if (strlen($contact_mobile)>2) {
+        if(strlen($contact_mobile)>2){ 
             $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
         }
         $company_name = $row['company_name'];
@@ -3638,11 +3677,11 @@ if (isset($_POST['add_payment'])) {
 
         //Calculate the Invoice balance
         $invoice_balance = $invoice_amount - $total_payments_amount;
-
+        
         //Determine if invoice has been paid then set the status accordingly
-        if ($invoice_balance == 0) {
-            $invoice_status = "Paid";
-            if ($email_receipt == 1) {
+        if($invoice_balance == 0){
+            $invoice_status = "Paid";        
+            if($email_receipt == 1){
 
 
                 $subject = "Payment Recieved - Invoice $invoice_prefix$invoice_number";
@@ -3665,11 +3704,11 @@ if (isset($_POST['add_payment'])) {
                     mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
                     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
                 }
-
+        
             }
         }else{
             $invoice_status = "Partial";
-            if ($email_receipt == 1) {
+            if($email_receipt == 1){
 
 
                 $subject = "Partial Payment Recieved - Invoice $invoice_prefix$invoice_number";
@@ -3692,7 +3731,7 @@ if (isset($_POST['add_payment'])) {
                   mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
                   mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
               }
-
+              
             }
 
         }
@@ -3707,12 +3746,12 @@ if (isset($_POST['add_payment'])) {
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = '$payment_amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
         $_SESSION['alert_message'] .= "Payment added";
-
+        
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
 }
 
-if (isset($_GET['delete_payment'])) {
+if(isset($_GET['delete_payment'])){
     $payment_id = intval($_GET['delete_payment']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_id = $payment_id AND company_id = $session_company_id");
@@ -3724,7 +3763,7 @@ if (isset($_GET['delete_payment'])) {
     $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_amount FROM payments WHERE payment_invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql_total_payments_amount);
     $total_payments_amount = $row['total_payments_amount'];
-
+    
     //Get the invoice total
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
@@ -3734,7 +3773,7 @@ if (isset($_GET['delete_payment'])) {
     $invoice_balance = $invoice_amount - $total_payments_amount + $deleted_payment_amount;
 
     //Determine if invoice has been paid
-    if ($invoice_balance == 0) {
+    if($invoice_balance == 0){
         $invoice_status = "Paid";
     }else{
         $invoice_status = "Partial";
@@ -3752,12 +3791,12 @@ if (isset($_GET['delete_payment'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Delete', log_description = '$payment_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Payment deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_GET['email_invoice'])) {
+if(isset($_GET['email_invoice'])){
     $invoice_id = intval($_GET['email_invoice']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices
@@ -3786,7 +3825,7 @@ if (isset($_GET['email_invoice'])) {
     $contact_extension = $row['contact_extension'];
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $client_website = $row['client_website'];
-
+    
     $company_name = $row['company_name'];
     $company_country = $row['company_country'];
     $company_address = $row['company_address'];
@@ -3807,7 +3846,7 @@ if (isset($_GET['email_invoice'])) {
 
     $balance = $invoice_amount - $amount_paid;
 
-    if ($invoice_status == 'Paid') {
+    if($invoice_status == 'Paid') {
       $subject = "Invoice $invoice_prefix$invoice_number Copy";
       $body    = "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
@@ -3827,7 +3866,7 @@ if (isset($_GET['email_invoice'])) {
         mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed invoice', history_invoice_id = $invoice_id, company_id = $session_company_id");
 
         //Don't chnage the status to sent if the status is anything but draft
-        if ($invoice_status == 'Draft') {
+        if($invoice_status == 'Draft'){
           mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
         }
 
@@ -3847,7 +3886,7 @@ if (isset($_GET['email_invoice'])) {
 
 }
 
-if (isset($_POST['add_revenue'])) {
+if(isset($_POST['add_revenue'])){
 
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $amount = floatval($_POST['amount']);
@@ -3864,12 +3903,12 @@ if (isset($_POST['add_revenue'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Create', log_description = '$date - $amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Revenue added!";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_revenue'])) {
+if(isset($_POST['edit_revenue'])){
 
     $revenue_id = intval($_POST['revenue_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -3887,12 +3926,12 @@ if (isset($_POST['edit_revenue'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Modify', log_description = '$revenue_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Revenue modified!";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+    
 }
 
-if (isset($_GET['delete_revenue'])) {
+if(isset($_GET['delete_revenue'])){
     $revenue_id = intval($_GET['delete_revenue']);
 
     mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
@@ -3901,14 +3940,14 @@ if (isset($_GET['delete_revenue'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Delete', log_description = '$revenue_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Revenue deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
 // Client Section
 
-if (isset($_POST['add_contact'])) {
+if(isset($_POST['add_contact'])){
 
     validateTechRole();
 
@@ -3928,7 +3967,7 @@ if (isset($_POST['add_contact'])) {
     $password = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
 
 
-  if (!file_exists("uploads/clients/$session_company_id/$client_id")) {
+  if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
@@ -3937,13 +3976,13 @@ if (isset($_POST['add_contact'])) {
     $contact_id = mysqli_insert_id($mysqli);
 
     //Update Primary contact in clients if primary contact is checked
-    if ($primary_contact > 0) {
+    if($primary_contact > 0){   
         mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");
     }
 
     //Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
-
+    if($_FILES['file']['tmp_name'] != ''){
+        
         // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
@@ -3957,28 +3996,28 @@ if (isset($_POST['add_contact'])) {
 
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;
         }
 
         //Check File Size
-        if ($file_size > 2097152) {
+        if($file_size > 2097152){
             $file_error = 1;
         }
 
-        if ($file_error == 0) {
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
-
+            
             mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '$new_file_name' WHERE contact_id = $contact_id");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-
+            
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -3987,12 +4026,12 @@ if (isset($_POST['add_contact'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = '$session_name created contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] .= "Contact added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_contact'])) {
+if(isset($_POST['edit_contact'])){
 
     validateTechRole();
 
@@ -4013,27 +4052,27 @@ if (isset($_POST['edit_contact'])) {
 
     $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
 
-    if (!file_exists("uploads/clients/$session_company_id/$client_id")) {
+    if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_important = $contact_important, contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     // Update Primary contact in clients if primary contact is checked
-    if ($primary_contact > 0) {
+    if($primary_contact > 0){
         mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");
     }
 
     // Set password
-    if (!empty($_POST['contact_password'])) {
+    if(!empty($_POST['contact_password'])){
       $password_hash = mysqli_real_escape_string($mysqli,password_hash($_POST['contact_password'], PASSWORD_DEFAULT));
       mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_client_id = '$client_id'");
     }
 
     // Send contact a welcome e-mail, if specified
-    if (isset($_POST['send_email']) && !empty($auth_method) && !empty($config_smtp_host)) {
+    if(isset($_POST['send_email']) && !empty($auth_method) && !empty($config_smtp_host)){
 
-      if ($auth_method == 'azure') {
+      if($auth_method == 'azure') {
         $password_info = "Login with your Microsoft (Azure AD) account.";
       } else {
         $password_info = $_POST['contact_password'];
@@ -4055,8 +4094,8 @@ if (isset($_POST['edit_contact'])) {
     }
 
     // Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
-
+    if($_FILES['file']['tmp_name'] != ''){
+    
     // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
@@ -4070,17 +4109,17 @@ if (isset($_POST['edit_contact'])) {
 
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;
         }
 
         //Check File Size
-        if ($file_size > 2097152) {
+        if($file_size > 2097152){
             $file_error = 1;
         }
 
-        if ($file_error == 0) {
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
@@ -4088,12 +4127,12 @@ if (isset($_POST['edit_contact'])) {
             move_uploaded_file($file_tmp_path, $dest_path);
             //Delete old file
             unlink("uploads/clients/$session_company_id/$client_id/$existing_file_name");
-
+            
             mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '$new_file_name' WHERE contact_id = $contact_id");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-
+            
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -4102,12 +4141,12 @@ if (isset($_POST['edit_contact'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] .= "Contact updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['archive_contact'])) {
+if(isset($_GET['archive_contact'])){
 
     validateAdminRole();
 
@@ -4126,12 +4165,12 @@ if (isset($_GET['archive_contact'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact ".htmlentities($contact_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_contact'])) {
+if(isset($_GET['delete_contact'])){
 
     validateAdminRole();
 
@@ -4150,12 +4189,12 @@ if (isset($_GET['delete_contact'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_GET['export_client_contacts_csv'])) {
+if(isset($_GET['export_client_contacts_csv'])){
     $client_id = intval($_GET['export_client_contacts_csv']);
 
     //get records from database
@@ -4163,33 +4202,33 @@ if (isset($_GET['export_client_contacts_csv'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     //Contacts
     $sql = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN locations ON location_id = contact_location_id WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = strto_AZaz09($client_name) . "-Contacts-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Name', 'Title', 'Department', 'Email', 'Phone', 'Ext', 'Mobile', 'Location');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $lineData = array($row['contact_name'], $row['contact_title'], $row['contact_department'], $row['contact_email'], formatPhoneNumber($row['contact_phone']), $row['contact_extension'], formatPhoneNumber($row['contact_mobile']), $row['location_name']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
 
@@ -4201,7 +4240,7 @@ if (isset($_GET['export_client_contacts_csv'])) {
 
 }
 
-if (isset($_POST["import_client_contacts_csv"])) {
+if(isset($_POST["import_client_contacts_csv"])){
 
     validateTechRole();
 
@@ -4212,58 +4251,58 @@ if (isset($_POST["import_client_contacts_csv"])) {
     //Check file is CSV
     $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
     $allowed_file_extensions = array('csv');
-    if (in_array($file_extension,$allowed_file_extensions) === false) {
+    if(in_array($file_extension,$allowed_file_extensions) === false){
         $error = TRUE;
         $_SESSION['alert_message'] = "Bad file extension";
     }
 
     //Check file isn't empty
-    elseif ($_FILES["file"]["size"] < 1) {
+    elseif($_FILES["file"]["size"] < 1){
         $error = TRUE;
         $_SESSION['alert_message'] = "Bad file size (empty?)";
     }
 
     //(Else)Check column count
     $f = fopen($file_name, "r");
-    $f_columns = fgetcsv($f, 1000);
-    if (!$error & count($f_columns) != 8) {
+    $f_columns = fgetcsv($f, 1000, ",");
+    if(!$error & count($f_columns) != 8) {
         $error = TRUE;
         $_SESSION['alert_message'] = "Bad column count.";
     }
 
     //Else, parse the file
-    if (!$error) {
+    if(!$error){
         $file = fopen($file_name, "r");
-        fgetcsv($file, 1000); // Skip first line
+        fgetcsv($file, 1000, ","); // Skip first line
         $row_count = 0;
         $duplicate_count = 0;
-        while (($column = fgetcsv($file, 1000)) !== FALSE) {
+        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
             $duplicate_detect = 0;
-            if (isset($column[0])) {
+            if(isset($column[0])){
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$name' AND contact_client_id = $client_id")) > 0) {
+                if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$name' AND contact_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }
-            if (isset($column[1])) {
+            if(isset($column[1])){
                 $title = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[1])));
             }
-            if (isset($column[2])) {
+            if(isset($column[2])){
                 $department = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[2])));
             }
-            if (isset($column[3])) {
+            if(isset($column[3])){
                 $email = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[3])));
             }
-            if (isset($column[4])) {
+            if(isset($column[4])){
                 $phone = preg_replace("/[^0-9]/", '',$column[4]);
             }
-            if (isset($column[5])) {
+            if(isset($column[5])){
                 $ext = preg_replace("/[^0-9]/", '',$column[5]);
             }
-            if (isset($column[6])) {
+            if(isset($column[6])){
                 $mobile = preg_replace("/[^0-9]/", '',$column[6]);
             }
-            if (isset($column[7])) {
+            if(isset($column[7])){
                 $location = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[7])));
                 $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
                 $row = mysqli_fetch_assoc($sql_location);
@@ -4271,15 +4310,15 @@ if (isset($_POST["import_client_contacts_csv"])) {
             }
             // Potentially import the rest in the future?
 
-
+            
             // Check if duplicate was detected
-            if ($duplicate_detect == 0) {
+            if($duplicate_detect == 0){
                 //Add
                 mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_department = '$department', contact_email = '$email', contact_phone = '$phone', contact_extension = '$ext', contact_mobile = '$mobile', contact_location_id = $location_id, contact_client_id = $client_id, company_id = $session_company_id");
                 $row_count = $row_count + 1;
             }else{
                 $duplicate_count = $duplicate_count + 1;
-            }
+            }  
         }
         fclose($file);
 
@@ -4290,13 +4329,13 @@ if (isset($_POST["import_client_contacts_csv"])) {
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
     //Check for any errors, if there are notify user and redirect
-    if ($error) {
+    if($error) {
         $_SESSION['alert_type'] = "warning";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
 }
 
-if (isset($_GET['download_client_contacts_csv_template'])) {
+if(isset($_GET['download_client_contacts_csv_template'])){
     $client_id = intval($_GET['download_client_contacts_csv_template']);
 
     //get records from database
@@ -4304,13 +4343,13 @@ if (isset($_GET['download_client_contacts_csv_template'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $delimiter = ",";
     $filename = strto_AZaz09($client_name) . "-Contacts-Template.csv";
-
+    
     //create a file pointer
     $f = fopen('php://memory', 'w');
-
+    
     //set column headers
     $fields = array(
         'Full Name           ',
@@ -4323,23 +4362,23 @@ if (isset($_GET['download_client_contacts_csv_template'])) {
         'Office Location     '
     );
     fputcsv($f, $fields, $delimiter);
-
+    
     //move back to beginning of file
     fseek($f, 0);
-
+    
     //set headers to download file rather than displayed
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+    
     //output all remaining data on a file pointer
     fpassthru($f);
     exit;
-
+  
 }
 
 // 2022-05-14 Johnny Left Off Adding log_entity_id and logs / alert cleanups import / archive etc
 
-if (isset($_POST['add_location'])) {
+if(isset($_POST['add_location'])){
 
     validateAdminRole();
 
@@ -4356,7 +4395,7 @@ if (isset($_POST['add_location'])) {
     $contact = intval($_POST['contact']);
     $primary_location = intval($_POST['primary_location']);
 
-    if (!file_exists("uploads/clients/$session_company_id/$client_id")) {
+    if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
@@ -4365,13 +4404,13 @@ if (isset($_POST['add_location'])) {
     $location_id = mysqli_insert_id($mysqli);
 
     //Update Primay location in clients if primary location is checked
-    if ($primary_location > 0) {
+    if($primary_location > 0){
         mysqli_query($mysqli,"UPDATE clients SET primary_location = $location_id WHERE client_id = $client_id");
     }
 
     //Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
-
+    if($_FILES['file']['tmp_name'] != ''){
+        
         // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
@@ -4385,28 +4424,28 @@ if (isset($_POST['add_location'])) {
 
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;
         }
 
         //Check File Size
-        if ($file_size > 2097152) {
+        if($file_size > 2097152){
             $file_error = 1;
         }
 
-        if ($file_error == 0) {
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
-
+            
             mysqli_query($mysqli,"UPDATE locations SET location_photo = '$new_file_name' WHERE location_id = $location_id");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-
+            
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -4415,12 +4454,12 @@ if (isset($_POST['add_location'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] .= "Location added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_location'])) {
+if(isset($_POST['edit_location'])){
 
     validateAdminRole();
 
@@ -4440,20 +4479,20 @@ if (isset($_POST['edit_location'])) {
 
     $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
 
-    if (!file_exists("uploads/clients/$session_company_id/$client_id")) {
+    if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
     mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact WHERE location_id = $location_id AND company_id = $session_company_id");
 
     //Update Primay location in clients if primary location is checked
-    if ($primary_location > 0) {
+    if($primary_location > 0){
         mysqli_query($mysqli,"UPDATE clients SET primary_location = $location_id WHERE client_id = $client_id");
     }
 
     //Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
-
+    if($_FILES['file']['tmp_name'] != ''){
+    
     // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
@@ -4467,17 +4506,17 @@ if (isset($_POST['edit_location'])) {
 
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;
         }
 
         //Check File Size
-        if ($file_size > 2097152) {
+        if($file_size > 2097152){
             $file_error = 1;
         }
 
-        if ($file_error == 0) {
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
@@ -4486,12 +4525,12 @@ if (isset($_POST['edit_location'])) {
 
             //Delete old file
             unlink("uploads/clients/$session_company_id/$client_id/$existing_file_name");
-
+            
             mysqli_query($mysqli,"UPDATE locations SET location_photo = '$new_file_name' WHERE location_id = $location_id");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-
+            
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -4500,12 +4539,12 @@ if (isset($_POST['edit_location'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] .= "Location updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['archive_location'])) {
+if(isset($_GET['archive_location'])){
 
     validateTechRole();
 
@@ -4524,12 +4563,12 @@ if (isset($_GET['archive_location'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Location ".htmlentities($location_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['undo_archive_location'])) {
+if(isset($_GET['undo_archive_location'])){
 
     $location_id = intval($_GET['undo_archive_location']);
 
@@ -4545,11 +4584,11 @@ if (isset($_GET['undo_archive_location'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Undo Archive', log_description = '$session_name unarchived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Location ".htmlentities($location_name)." unarchived.";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_GET['delete_location'])) {
+if(isset($_GET['delete_location'])){
 
     validateAdminRole();
 
@@ -4568,12 +4607,12 @@ if (isset($_GET['delete_location'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Location deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_GET['export_client_locations_csv'])) {
+if(isset($_GET['export_client_locations_csv'])){
     $client_id = intval($_GET['export_client_locations_csv']);
 
     //get records from database
@@ -4581,41 +4620,41 @@ if (isset($_GET['export_client_locations_csv'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     //Locations
     $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL AND company_id = $session_company_id ORDER BY location_name ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = strto_AZaz09($client_name) . "-Locations-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Name', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Hours');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $lineData = array($row['location_name'], $row['location_address'], $row['location_city'], $row['location_state'], $row['location_zip'], $row['location_phone'], $row['location_hours']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
-
+  
 }
 
-if (isset($_POST["import_client_locations_csv"])) {
+if(isset($_POST["import_client_locations_csv"])){
 
     validateTechRole();
 
@@ -4626,66 +4665,66 @@ if (isset($_POST["import_client_locations_csv"])) {
     //Check file is CSV
     $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
     $allowed_file_extensions = array('csv');
-    if (in_array($file_extension,$allowed_file_extensions) === false) {
+    if(in_array($file_extension,$allowed_file_extensions) === false){
         $error = TRUE;
         $_SESSION['alert_message'] = "Bad file extension";
     }
 
     //Check file isn't empty
-    elseif ($_FILES["file"]["size"] < 1) {
+    elseif($_FILES["file"]["size"] < 1){
         $error = TRUE;
         $_SESSION['alert_message'] = "Bad file size (empty?)";
     }
 
     //(Else)Check column count
     $f = fopen($file_name, "r");
-    $f_columns = fgetcsv($f, 1000);
-    if (!$error & count($f_columns) != 7) {
+    $f_columns = fgetcsv($f, 1000, ",");
+    if(!$error & count($f_columns) != 7) {
         $error = TRUE;
         $_SESSION['alert_message'] = "Bad column count.";
     }
 
     //Else, parse the file
-    if (!$error) {
+    if(!$error){
         $file = fopen($file_name, "r");
-        fgetcsv($file, 1000); // Skip first line
+        fgetcsv($file, 1000, ","); // Skip first line
         $row_count = 0;
         $duplicate_count = 0;
-        while (($column = fgetcsv($file, 1000)) !== FALSE) {
+        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
             $duplicate_detect = 0;
-            if (isset($column[0])) {
+            if(isset($column[0])){
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$name' AND location_client_id = $client_id")) > 0) {
+                if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$name' AND location_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }
-            if (isset($column[1])) {
+            if(isset($column[1])){
                 $address = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[1])));
             }
-            if (isset($column[2])) {
+            if(isset($column[2])){
                 $city = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[2])));
             }
-            if (isset($column[3])) {
+            if(isset($column[3])){
                 $state = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[3])));
             }
-            if (isset($column[4])) {
+            if(isset($column[4])){
                 $zip = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[4])));
             }
-            if (isset($column[5])) {
+            if(isset($column[5])){
                 $phone = preg_replace("/[^0-9]/", '',$column[5]);
             }
-            if (isset($column[6])) {
+            if(isset($column[6])){
                 $hours = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[6])));
             }
-
+            
             // Check if duplicate was detected
-            if ($duplicate_detect == 0) {
+            if($duplicate_detect == 0){
                 //Add
                 mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_client_id = $client_id, company_id = $session_company_id");
                 $row_count = $row_count + 1;
             }else{
                 $duplicate_count = $duplicate_count + 1;
-            }
+            }  
         }
         fclose($file);
 
@@ -4696,13 +4735,13 @@ if (isset($_POST["import_client_locations_csv"])) {
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
     //Check for any errors, if there are notify user and redirect
-    if ($error) {
+    if($error) {
         $_SESSION['alert_type'] = "warning";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
 }
 
-if (isset($_GET['download_client_locations_csv_template'])) {
+if(isset($_GET['download_client_locations_csv_template'])){
     $client_id = intval($_GET['download_client_locations_csv_template']);
 
     //get records from database
@@ -4710,31 +4749,31 @@ if (isset($_GET['download_client_locations_csv_template'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $delimiter = ",";
     $filename = strto_AZaz09($client_name) . "-Locations-Template.csv";
-
+    
     //create a file pointer
     $f = fopen('php://memory', 'w');
-
+    
     //set column headers
     $fields = array('Name', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Hours');
     fputcsv($f, $fields, $delimiter);
-
+    
     //move back to beginning of file
     fseek($f, 0);
-
+    
     //set headers to download file rather than displayed
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+    
     //output all remaining data on a file pointer
     fpassthru($f);
     exit;
-
+  
 }
 
-if (isset($_POST['add_asset'])) {
+if(isset($_POST['add_asset'])){
 
     validateTechRole();
 
@@ -4753,22 +4792,22 @@ if (isset($_POST['add_asset'])) {
     $contact = intval($_POST['contact']);
     $network = intval($_POST['network']);
     $purchase_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date'])));
-    if (empty($purchase_date)) {
+    if(empty($purchase_date)){
         $purchase_date = "0000-00-00";
     }
     $warranty_expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire'])));
-    if (empty($warranty_expire)) {
+    if(empty($warranty_expire)){
         $warranty_expire = "0000-00-00";
     }
     $install_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['install_date'])));
-    if (empty($install_date)) {
+    if(empty($install_date)){
         $install_date = "0000-00-00";
     }
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id, company_id = $session_company_id");
 
-    if (!empty($_POST['username'])) {
+    if(!empty($_POST['username'])) {
         $asset_id = mysqli_insert_id($mysqli);
         $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
         $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
@@ -4781,12 +4820,12 @@ if (isset($_POST['add_asset'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Asset added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_asset'])) {
+if(isset($_POST['edit_asset'])){
 
     validateTechRole();
 
@@ -4807,15 +4846,15 @@ if (isset($_POST['edit_asset'])) {
     $contact = intval($_POST['contact']);
     $network = intval($_POST['network']);
     $purchase_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date'])));
-    if (empty($purchase_date)) {
+    if(empty($purchase_date)){
         $purchase_date = "0000-00-00";
     }
     $warranty_expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire'])));
-    if (empty($warranty_expire)) {
+    if(empty($warranty_expire)){
         $warranty_expire = "0000-00-00";
     }
     $install_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['install_date'])));
-    if (empty($install_date)) {
+    if(empty($install_date)){
         $install_date = "0000-00-00";
     }
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
@@ -4825,12 +4864,12 @@ if (isset($_POST['edit_asset'])) {
     mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
 
     //If login exists then update the login
-    if ($login_id > 0) {
+    if($login_id > 0){
         mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password' WHERE login_id = $login_id AND company_id = $session_company_id");
     }else{
     //If Username is filled in then add a login
-        if (!empty($username)) {
-
+        if(!empty($username)) {
+            
             mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_asset_id = $asset_id, login_client_id = $client_id, company_id = $session_company_id");
 
         }
@@ -4840,12 +4879,12 @@ if (isset($_POST['edit_asset'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Asset updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['archive_asset'])) {
+if(isset($_GET['archive_asset'])){
 
     validateAdminRole();
 
@@ -4858,12 +4897,12 @@ if (isset($_GET['archive_asset'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Asset archived";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_asset'])) {
+if(isset($_GET['delete_asset'])){
 
     validateAdminRole();
 
@@ -4875,12 +4914,12 @@ if (isset($_GET['delete_asset'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Delete', log_description = '$asset_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Asset deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_POST["import_client_assets_csv"])) {
+if(isset($_POST["import_client_assets_csv"])){
 
     validateTechRole();
 
@@ -4891,75 +4930,75 @@ if (isset($_POST["import_client_assets_csv"])) {
     //Check file is CSV
     $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
     $allowed_file_extensions = array('csv');
-    if (in_array($file_extension,$allowed_file_extensions) === false) {
+    if(in_array($file_extension,$allowed_file_extensions) === false){
         $error = TRUE;
         $_SESSION['alert_message'] = "Bad file extension";
     }
 
     //Check file isn't empty
-    elseif ($_FILES["file"]["size"] < 1) {
+    elseif($_FILES["file"]["size"] < 1){
         $error = TRUE;
         $_SESSION['alert_message'] = "Bad file size (empty?)";
     }
 
     //(Else)Check column count (name, type, make, model, serial, os)
     $f = fopen($file_name, "r");
-    $f_columns = fgetcsv($f, 1000);
-    if (!$error & count($f_columns) != 8) {
+    $f_columns = fgetcsv($f, 1000, ",");
+    if(!$error & count($f_columns) != 8) {
         $error = TRUE;
         $_SESSION['alert_message'] = "Bad column count.";
     }
 
     //Else, parse the file
-    if (!$error) {
+    if(!$error){
         $file = fopen($file_name, "r");
-        fgetcsv($file, 1000); // Skip first line
+        fgetcsv($file, 1000, ","); // Skip first line
         $row_count = 0;
         $duplicate_count = 0;
-        while (($column = fgetcsv($file, 1000)) !== FALSE) {
+        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
             $duplicate_detect = 0;
-            if (isset($column[0])) {
+            if(isset($column[0])){
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_name = '$name' AND asset_client_id = $client_id")) > 0) {
+                if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_name = '$name' AND asset_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }
-            if (isset($column[1])) {
+            if(isset($column[1])){
                 $type = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[1])));
             }
-            if (isset($column[2])) {
+            if(isset($column[2])){
                 $make = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[2])));
             }
-            if (isset($column[3])) {
+            if(isset($column[3])){
                 $model = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[3])));
             }
-            if (isset($column[4])) {
+            if(isset($column[4])){
                 $serial = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[4])));
             }
-            if (isset($column[5])) {
+            if(isset($column[5])){
                 $os = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[5])));
             }
-            if (isset($column[6])) {
+            if(isset($column[6])){
                 $contact = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[6])));
                 $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$contact' AND contact_client_id = $client_id");
                 $row = mysqli_fetch_assoc($sql_contact);
                 $contact_id = intval($row['contact_id']);
             }
-            if (isset($column[7])) {
+            if(isset($column[7])){
                 $location = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[7])));
                 $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
                 $row = mysqli_fetch_assoc($sql_location);
                 $location_id = intval($row['location_id']);
             }
-
+            
             // Check if duplicate was detected
-            if ($duplicate_detect == 0) {
+            if($duplicate_detect == 0){
                 //Add
                 mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id, company_id = $session_company_id");
                 $row_count = $row_count + 1;
             }else{
                 $duplicate_count = $duplicate_count + 1;
-            }
+            }  
         }
         fclose($file);
 
@@ -4970,13 +5009,13 @@ if (isset($_POST["import_client_assets_csv"])) {
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
     //Check for any errors, if there are notify user and redirect
-    if ($error) {
+    if($error) {
         $_SESSION['alert_type'] = "warning";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
 }
 
-if (isset($_GET['download_client_assets_csv_template'])) {
+if(isset($_GET['download_client_assets_csv_template'])){
     $client_id = intval($_GET['download_client_assets_csv_template']);
 
     //get records from database
@@ -4984,31 +5023,31 @@ if (isset($_GET['download_client_assets_csv_template'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $delimiter = ",";
     $filename = strto_AZaz09($client_name) . "-Assets-Template.csv";
-
+    
     //create a file pointer
     $f = fopen('php://memory', 'w');
-
+    
     //set column headers
     $fields = array('Name', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Assigned To', 'Location');
     fputcsv($f, $fields, $delimiter);
-
+    
     //move back to beginning of file
     fseek($f, 0);
-
+    
     //set headers to download file rather than displayed
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+    
     //output all remaining data on a file pointer
     fpassthru($f);
     exit;
-
+  
 }
 
-if (isset($_GET['export_client_assets_csv'])) {
+if(isset($_GET['export_client_assets_csv'])){
 
     validateTechRole();
 
@@ -5019,40 +5058,116 @@ if (isset($_GET['export_client_assets_csv'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = strto_AZaz09($client_name) . "-Assets-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Name', 'Type', 'Make', 'Model', 'Serial Number', 'Operating System', 'Purchase Date', 'Warranty Expire', 'Install Date', 'Assigned To', 'Location', 'Notes');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $lineData = array($row['asset_name'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_install_date'], $row['contact_name'], $row['location_name'], $row['asset_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
+  
+}
+
+// Client Software/License
+
+// Templatee
+
+if(isset($_POST['add_software_template'])){
+
+    validateTechRole();
+
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['version'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license_type'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_template = 1, software_client_id = 0, company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software Template', log_action = 'Create', log_description = '$session_user_name created software template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Software template created";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['add_software'])) {
+if(isset($_POST['edit_software_template'])){
+
+    validateTechRole();
+
+    $software_id = intval($_POST['software_id']);
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['version'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
+    $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license_type'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+
+    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes' WHERE software_id = $software_id AND company_id = $session_company_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software Teplate', log_action = 'Modify', log_description = '$session_name updated software template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Software template updated";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['add_software_from_template'])){
+
+    // GET POST Data
+    $client_id = intval($_POST['client_id']);
+    $software_template_id = intval($_POST['software_template_id']);
+
+    // GET Software Info
+    $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_id = $software_template_id AND company_id = $session_company_id");
+
+    $row = mysqli_fetch_array($sql_software);
+
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_name'])));
+    $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_version'])));
+    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_type'])));
+    $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_license_type'])));
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_notes'])));
+
+    // Software add query
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_client_id = $client_id, company_id = $session_company_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Create', log_description = 'Software created from template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Software created from template";
+    
+     header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['add_software'])){
 
     validateTechRole();
 
@@ -5064,11 +5179,11 @@ if (isset($_POST['add_software'])) {
     $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license_type'])));
     $seats = intval($_POST['seats']);
     $purchase = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase'])));
-    if (empty($purchase)) {
+    if(empty($purchase)){
         $purchase = "0000-00-00";
     }
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
-    if (empty($expire)) {
+    if(empty($expire)){
         $expire = "0000-00-00";
     }
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
@@ -5078,22 +5193,22 @@ if (isset($_POST['add_software'])) {
     $software_id = mysqli_insert_id($mysqli);
 
     // Add Asset Licenses
-    if (!empty($_POST['assets'])) {
-        foreach($_POST['assets'] as $asset) {
+    if(!empty($_POST['assets'])){
+        foreach($_POST['assets'] as $asset){
             $asset = intval($asset);
             mysqli_query($mysqli,"INSERT INTO software_assets SET software_id = $software_id, asset_id = $asset");
         }
     }
 
     // Add Contact Licenses
-    if (!empty($_POST['contacts'])) {
-        foreach($_POST['contacts'] as $contact) {
+    if(!empty($_POST['contacts'])){
+        foreach($_POST['contacts'] as $contact){
             $contact = intval($contact);
             mysqli_query($mysqli,"INSERT INTO software_contacts SET software_id = $software_id, contact_id = $contact");
         }
     }
 
-    if (!empty($_POST['username'])) {
+    if(!empty($_POST['username'])) {
         $software_id = mysqli_insert_id($mysqli);
         $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
         $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
@@ -5106,12 +5221,12 @@ if (isset($_POST['add_software'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Software added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_software'])) {
+if(isset($_POST['edit_software'])){
 
     validateTechRole();
 
@@ -5124,11 +5239,11 @@ if (isset($_POST['edit_software'])) {
     $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license_type'])));
     $seats = intval($_POST['seats']);
     $purchase = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase'])));
-    if (empty($purchase)) {
+    if(empty($purchase)){
         $purchase = "0000-00-00";
     }
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
-    if (empty($expire)) {
+    if(empty($expire)){
         $expire = "0000-00-00";
     }
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
@@ -5140,8 +5255,8 @@ if (isset($_POST['edit_software'])) {
 
     // Update Asset Licenses
     mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
-    if (!empty($_POST['assets'])) {
-        foreach($_POST['assets'] as $asset) {
+    if(!empty($_POST['assets'])){
+        foreach($_POST['assets'] as $asset){
             $asset = intval($asset);
             mysqli_query($mysqli,"INSERT INTO software_assets SET software_id = $software_id, asset_id = $asset");
         }
@@ -5149,20 +5264,20 @@ if (isset($_POST['edit_software'])) {
 
     // Update Contact Licenses
     mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
-    if (!empty($_POST['contacts'])) {
-        foreach($_POST['contacts'] as $contact) {
+    if(!empty($_POST['contacts'])){
+        foreach($_POST['contacts'] as $contact){
             $contact = intval($contact);
             mysqli_query($mysqli,"INSERT INTO software_contacts SET software_id = $software_id, contact_id = $contact");
         }
     }
 
     //If login exists then update the login
-    if ($login_id > 0) {
+    if($login_id > 0){
         mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password' WHERE login_id = $login_id AND company_id = $session_company_id");
     }else{
     //If Username is filled in then add a login
-        if (!empty($username)) {
-
+        if(!empty($username)) {
+            
             mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_software_id = $software_id, login_client_id = $client_id, company_id = $session_company_id");
 
         }
@@ -5172,12 +5287,12 @@ if (isset($_POST['edit_software'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Software updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_software'])) {
+if(isset($_GET['delete_software'])){
 
     validateAdminRole();
 
@@ -5185,7 +5300,7 @@ if (isset($_GET['delete_software'])) {
 
     mysqli_query($mysqli,"DELETE FROM software WHERE software_id = $software_id AND company_id = $session_company_id");
 
-    // Remove Software Relations
+    // Remove Software Relations 
     mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
     mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
 
@@ -5193,12 +5308,12 @@ if (isset($_GET['delete_software'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Delete', log_description = '$software_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Software deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_GET['export_client_software_csv'])) {
+if(isset($_GET['export_client_software_csv'])){
 
     validateTechRole();
 
@@ -5209,21 +5324,21 @@ if (isset($_GET['export_client_software_csv'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $sql = mysqli_query($mysqli,"SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Software-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Name', 'Version', 'Type', 'License Type', 'Seats', 'Key', 'Assets', 'Contacts', 'Purchased', 'Expires', 'Notes');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
 
             // Generate asset & user license list for this software
 
@@ -5234,7 +5349,7 @@ if (isset($_GET['export_client_software_csv'])) {
                                                     LEFT JOIN assets
                                                         ON software_assets.asset_id = assets.asset_id
                                                     WHERE software_id = $row[software_id]");
-            while ($asset_row = mysqli_fetch_array($asset_licenses_sql)) {
+            while($asset_row = mysqli_fetch_array($asset_licenses_sql)){
               $assigned_to_assets .= $asset_row['asset_name'] . ", ";
             }
 
@@ -5245,29 +5360,29 @@ if (isset($_GET['export_client_software_csv'])) {
                                                       LEFT JOIN contacts
                                                           ON software_contacts.contact_id = contacts.contact_id
                                                       WHERE software_id = $row[software_id]");
-            while ($contact_row = mysqli_fetch_array($contact_licenses_sql)) {
+            while($contact_row = mysqli_fetch_array($contact_licenses_sql)){
               $assigned_to_contacts .= $contact_row['contact_name'] . ", ";
             }
 
             $lineData = array($row['software_name'], $row['software_version'], $row['software_type'], $row['software_license_type'], $row['software_seats'], $row['software_key'], $assigned_to_assets, $assigned_to_contacts, $row['software_purchase'], $row['software_expire'], $row['software_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
-
+  
 }
 
-if (isset($_POST['add_login'])) {
+if(isset($_POST['add_login'])){
 
     validateTechRole();
 
@@ -5289,12 +5404,12 @@ if (isset($_POST['add_login'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Login added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_login'])) {
+if(isset($_POST['edit_login'])){
 
     validateTechRole();
 
@@ -5316,12 +5431,12 @@ if (isset($_POST['edit_login'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Login updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_login'])) {
+if(isset($_GET['delete_login'])){
 
     validateAdminRole();
 
@@ -5333,12 +5448,12 @@ if (isset($_GET['delete_login'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Delete', log_description = '$login_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Login deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_GET['export_client_logins_csv'])) {
+if(isset($_GET['export_client_logins_csv'])){
 
     validateAdminRole();
 
@@ -5349,41 +5464,41 @@ if (isset($_GET['export_client_logins_csv'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $sql = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = strto_AZaz09($client_name) . "-Logins-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Name', 'Username', 'Password', 'URL');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $login_password = decryptLoginEntry($row['login_password']);
             $lineData = array($row['login_name'], $row['login_username'], $login_password, $row['login_uri']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
-
+  
 }
 
-if (isset($_POST["import_client_logins_csv"])) {
+if(isset($_POST["import_client_logins_csv"])){
 
     validateTechRole();
 
@@ -5394,57 +5509,57 @@ if (isset($_POST["import_client_logins_csv"])) {
     //Check file is CSV
     $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
     $allowed_file_extensions = array('csv');
-    if (in_array($file_extension,$allowed_file_extensions) === false) {
+    if(in_array($file_extension,$allowed_file_extensions) === false){
         $error = TRUE;
         $_SESSION['alert_message'] = "Bad file extension";
     }
 
     //Check file isn't empty
-    elseif ($_FILES["file"]["size"] < 1) {
+    elseif($_FILES["file"]["size"] < 1){
         $error = TRUE;
         $_SESSION['alert_message'] = "Bad file size (empty?)";
     }
 
     //(Else)Check column count
     $f = fopen($file_name, "r");
-    $f_columns = fgetcsv($f, 1000);
-    if (!$error & count($f_columns) != 4) {
+    $f_columns = fgetcsv($f, 1000, ",");
+    if(!$error & count($f_columns) != 4) {
         $error = TRUE;
         $_SESSION['alert_message'] = "Bad column count.";
     }
 
     //Else, parse the file
-    if (!$error) {
+    if(!$error){
         $file = fopen($file_name, "r");
-        fgetcsv($file, 1000); // Skip first line
+        fgetcsv($file, 1000, ","); // Skip first line
         $row_count = 0;
         $duplicate_count = 0;
-        while (($column = fgetcsv($file, 1000)) !== FALSE) {
+        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
             $duplicate_detect = 0;
-            if (isset($column[0])) {
+            if(isset($column[0])){
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM logins WHERE login_name = '$name' AND login_client_id = $client_id")) > 0) {
+                if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM logins WHERE login_name = '$name' AND login_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }
-            if (isset($column[1])) {
+            if(isset($column[1])){
                 $username = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[1])));
             }
-            if (isset($column[2])) {
+            if(isset($column[2])){
                 $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($column[2])));
             }
-            if (isset($column[3])) {
+            if(isset($column[3])){
                 $url = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[3])));
             }
-
+            
             // Check if duplicate was detected
-            if ($duplicate_detect == 0) {
+            if($duplicate_detect == 0){
                 //Add
                 mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_client_id = $client_id, company_id = $session_company_id");
                 $row_count = $row_count + 1;
             }else{
                 $duplicate_count = $duplicate_count + 1;
-            }
+            }  
         }
         fclose($file);
 
@@ -5455,13 +5570,13 @@ if (isset($_POST["import_client_logins_csv"])) {
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
     //Check for any errors, if there are notify user and redirect
-    if ($error) {
+    if($error) {
         $_SESSION['alert_type'] = "warning";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
 }
 
-if (isset($_GET['download_client_logins_csv_template'])) {
+if(isset($_GET['download_client_logins_csv_template'])){
     $client_id = intval($_GET['download_client_logins_csv_template']);
 
     //get records from database
@@ -5469,31 +5584,31 @@ if (isset($_GET['download_client_logins_csv_template'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $delimiter = ",";
     $filename = strto_AZaz09($client_name) . "-Logins-Template.csv";
-
+    
     //create a file pointer
     $f = fopen('php://memory', 'w');
-
+    
     //set column headers
     $fields = array('Name', 'Username', 'Password', 'URL');
     fputcsv($f, $fields, $delimiter);
-
+    
     //move back to beginning of file
     fseek($f, 0);
-
+    
     //set headers to download file rather than displayed
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+    
     //output all remaining data on a file pointer
     fpassthru($f);
     exit;
-
+  
 }
 
-if (isset($_POST['add_network'])) {
+if(isset($_POST['add_network'])){
 
     validateTechRole();
 
@@ -5511,12 +5626,12 @@ if (isset($_POST['add_network'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Network added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_network'])) {
+if(isset($_POST['edit_network'])){
 
     validateTechRole();
 
@@ -5534,12 +5649,12 @@ if (isset($_POST['edit_network'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Modifed', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Network updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_network'])) {
+if(isset($_GET['delete_network'])){
     validateAdminRole();
 
     $network_id = intval($_GET['delete_network']);
@@ -5550,12 +5665,12 @@ if (isset($_GET['delete_network'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Delete', log_description = '$network_id',  company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Network deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_GET['export_client_networks_csv'])) {
+if(isset($_GET['export_client_networks_csv'])){
 
     validateTechRole();
 
@@ -5566,43 +5681,43 @@ if (isset($_GET['export_client_networks_csv'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $sql = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_client_id = $client_id ORDER BY network_name ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Networks-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Name', 'vLAN', 'Network', 'Gateway', 'DHCP Range');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $lineData = array($row['network_name'], $row['network_vlan'], $row['network'], $row['network_gateway'], $row['network_dhcp_range']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
-
+  
 }
 
-if (isset($_POST['add_certificate'])) {
+if(isset($_POST['add_certificate'])){
 
     validateTechRole();
-
+ 
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $domain = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['domain'])));
@@ -5612,7 +5727,7 @@ if (isset($_POST['add_certificate'])) {
     $domain_id = intval($_POST['domain_id']);
 
     // Parse public key data for a manually provided public key
-    if (!empty($public_key) && (empty($expire) && empty($issued_by))) {
+    if(!empty($public_key) && (empty($expire) && empty($issued_by))) {
         // Parse the public certificate key. If successful, set attributes from the certificate
         $public_key_obj = openssl_x509_parse($_POST['public_key']);
         if ($public_key_obj) {
@@ -5621,7 +5736,7 @@ if (isset($_POST['add_certificate'])) {
         }
     }
 
-    if (empty($expire)) {
+    if(empty($expire)){
         $expire = "0000-00-00";
     }
 
@@ -5631,12 +5746,12 @@ if (isset($_POST['add_certificate'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = '$client_id', company_id = '$session_company_id', log_user_id = '$session_user_id'");
 
     $_SESSION['alert_message'] = "Certificate added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_certificate'])) {
+if(isset($_POST['edit_certificate'])){
 
     validateTechRole();
 
@@ -5649,7 +5764,7 @@ if (isset($_POST['edit_certificate'])) {
     $domain_id = intval($_POST['domain_id']);
 
     // Parse public key data for a manually provided public key
-    if (!empty($public_key) && (empty($expire) && empty($issued_by))) {
+    if(!empty($public_key) && (empty($expire) && empty($issued_by))) {
         // Parse the public certificate key. If successful, set attributes from the certificate
         $public_key_obj = openssl_x509_parse($_POST['public_key']);
         if ($public_key_obj) {
@@ -5658,7 +5773,7 @@ if (isset($_POST['edit_certificate'])) {
         }
     }
 
-    if (empty($expire)) {
+    if(empty($expire)){
         $expire = "0000-00-00";
     }
 
@@ -5668,12 +5783,12 @@ if (isset($_POST['edit_certificate'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Certificate updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_certificate'])) {
+if(isset($_GET['delete_certificate'])){
 
     validateAdminRole();
 
@@ -5685,12 +5800,12 @@ if (isset($_GET['delete_certificate'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Delete', log_description = '$certificate_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Certificate deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_GET['export_client_certificates_csv'])) {
+if(isset($_GET['export_client_certificates_csv'])){
 
     validateTechRole();
 
@@ -5701,40 +5816,40 @@ if (isset($_GET['export_client_certificates_csv'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $sql = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_client_id = $client_id ORDER BY certificate_name ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Certificates-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Name', 'Domain', 'Issuer', 'Expiration Date');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $lineData = array($row['certificate_name'], $row['certificate_domain'], $row['certificate_issued_by'], $row['certificate_expire']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
-
+  
 }
 
-if (isset($_POST['add_domain'])) {
+if(isset($_POST['add_domain'])){
 
     validateTechRole();
 
@@ -5744,12 +5859,12 @@ if (isset($_POST['add_domain'])) {
     $webhost = intval($_POST['webhost']);
     $extended_log_description = '';
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
-    if (empty($expire)) {
+    if(empty($expire)){
         $expire = "0000-00-00";
     }
 
     // Get domain expiry date - if not specified
-    if ($expire == '0000-00-00') {
+    if($expire == '0000-00-00'){
         $expire = getDomainExpirationDate($name);
     }
 
@@ -5770,7 +5885,7 @@ if (isset($_POST['add_domain'])) {
 
     // Get SSL cert for domain (if exists)
     $certificate = getSSL($name);
-    if ($certificate['success'] == "TRUE") {
+    if($certificate['success'] == "TRUE"){
       $expire = mysqli_real_escape_string($mysqli, $certificate['expire']);
       $issued_by = mysqli_real_escape_string($mysqli, $certificate['issued_by']);
       $public_key = mysqli_real_escape_string($mysqli, $certificate['public_key']);
@@ -5783,12 +5898,12 @@ if (isset($_POST['add_domain'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Create', log_description = '$name$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Domain added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_domain'])) {
+if(isset($_POST['edit_domain'])){
 
     validateTechRole();
 
@@ -5797,7 +5912,7 @@ if (isset($_POST['edit_domain'])) {
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
-    if (empty($expire)) {
+    if(empty($expire)){
         $expire = "0000-00-00";
     }
 
@@ -5818,12 +5933,12 @@ if (isset($_POST['edit_domain'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Domain updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_domain'])) {
+if(isset($_GET['delete_domain'])){
 
     validateAdminRole();
 
@@ -5835,12 +5950,12 @@ if (isset($_GET['delete_domain'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Delete', log_description = '$domain_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Domain deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_GET['export_client_domains_csv'])) {
+if(isset($_GET['export_client_domains_csv'])){
 
     validateTechRole();
 
@@ -5851,41 +5966,41 @@ if (isset($_GET['export_client_domains_csv'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $sql = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_client_id = $client_id ORDER BY domain_name ASC");
-
-    if ($sql->num_rows > 0) {
+    
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Domains-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Domain', 'Registrar', 'Web Host', 'Expiration Date');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $lineData = array($row['domain_name'], $row['domain_registrar'], $row['domain_webhost'], $row['domain_expire']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
-
+  
 }
 
-if (isset($_POST['add_ticket'])) {
+if(isset($_POST['add_ticket'])){
 
     validateTechRole();
 
@@ -5903,11 +6018,11 @@ if (isset($_POST['add_ticket'])) {
     $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
     $asset_id = intval($_POST['asset']);
 
-    if ($client_id > 0 && $contact == 0) {
+    if($client_id > 0 && $contact == 0){
         $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
         $contact = $row['primary_contact'];
-    }
+    } 
 
     //Get the next Ticket Number and add 1 for the new ticket number
     $ticket_number = $config_ticket_next_number;
@@ -5918,10 +6033,10 @@ if (isset($_POST['add_ticket'])) {
     $id = mysqli_insert_id($mysqli);
 
     // E-mail client
-    if (!empty($config_smtp_host)) {
+    if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 
         // Get contact/ticket details
-        $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, company_phone FROM tickets 
+        $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
               LEFT JOIN clients ON ticket_client_id = client_id 
               LEFT JOIN contacts ON ticket_contact_id = contact_id
               LEFT JOIN companies ON tickets.company_id = companies.company_id
@@ -5932,13 +6047,14 @@ if (isset($_POST['add_ticket'])) {
         $contact_email = $row['contact_email'];
         $ticket_prefix = $row['ticket_prefix'];
         $ticket_number = $row['ticket_number'];
+        $ticket_subject = $row['ticket_subject'];
         $company_phone = formatPhoneNumber($row['company_phone']);
 
         // Verify contact email is valid
-        if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+        if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
 
-            $subject = "Ticket created - [$ticket_prefix$ticket_number] - $subject";
-            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+            $subject = "Ticket created - [$ticket_prefix$ticket_number] - $ticket_subject";
+            $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$ticket_subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
             $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
                 $config_ticket_from_email, $config_ticket_from_name,
@@ -5962,7 +6078,7 @@ if (isset($_POST['add_ticket'])) {
 
 }
 
-if (isset($_POST['add_scheduled_ticket'])) {
+if(isset($_POST['add_scheduled_ticket'])){
 
     validateTechRole();
 
@@ -5981,7 +6097,7 @@ if (isset($_POST['add_scheduled_ticket'])) {
     $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
     $start_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date'])));
 
-    if ($client_id > 0 && $contact == 0) {
+    if($client_id > 0 && $contact == 0){
         $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
         $contact = $row['primary_contact'];
@@ -5999,7 +6115,7 @@ if (isset($_POST['add_scheduled_ticket'])) {
 
 }
 
-if (isset($_POST['edit_scheduled_ticket'])) {
+if(isset($_POST['edit_scheduled_ticket'])){
 
     validateTechRole();
 
@@ -6030,9 +6146,9 @@ if (isset($_POST['edit_scheduled_ticket'])) {
 
 }
 
-if (isset($_GET['delete_scheduled_ticket'])) {
+if(isset($_GET['delete_scheduled_ticket'])){
 
-    if ($session_user_role != 3) {
+    if($session_user_role != 3){
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -6052,7 +6168,7 @@ if (isset($_GET['delete_scheduled_ticket'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['edit_ticket'])) {
+if(isset($_POST['edit_ticket'])){
 
     validateTechRole();
 
@@ -6076,12 +6192,12 @@ if (isset($_POST['edit_ticket'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Ticket updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['assign_ticket'])) {
+if(isset($_POST['assign_ticket'])){
 
     // Role check
     validateTechRole();
@@ -6091,17 +6207,18 @@ if (isset($_POST['assign_ticket'])) {
     $assigned_to = intval($_POST['assigned_to']);
 
     // Allow for un-assigning tickets
-    if ($assigned_to == 0) {
+    if($assigned_to == 0){
       $ticket_reply = "Ticket unassigned.";
 
     } else {
       // Get & verify assigned agent details
-      $agent_details_sql = mysqli_query($mysqli, "SELECT user_name FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = '$assigned_to' AND user_settings.user_role > 1");
+      $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = '$assigned_to' AND user_settings.user_role > 1");
       $agent_details = mysqli_fetch_array($agent_details_sql);
       $agent_name = $agent_details['user_name'];
-      $ticket_reply = "Ticket re-assigned to $agent_details[user_name].";
+      $agent_email = $agent_details['user_email'];
+      $ticket_reply = "Ticket re-assigned to $agent_name.";
 
-      if (!$agent_name) {
+      if(!$agent_name){
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Invalid agent!";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -6110,11 +6227,13 @@ if (isset($_POST['assign_ticket'])) {
     }
 
     // Get & verify ticket details
-    $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_subject FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_status != 'Closed'");
+    $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_status != 'Closed'");
     $ticket_details = mysqli_fetch_array($ticket_details_sql);
+    $ticket_prefix = $ticket_details['ticket_prefix'];
+    $ticket_number = $ticket_details['ticket_number'];
     $ticket_subject = $ticket_details['ticket_subject'];
 
-    if (!$ticket_subject) {
+    if(!$ticket_subject){
       $_SESSION['alert_type'] = "error";
       $_SESSION['alert_message'] = "Invalid ticket!";
       header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -6127,15 +6246,27 @@ if (isset($_POST['assign_ticket'])) {
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$ticket_subject reassigned to $agent_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$ticket_subject ($ticket_id) - $ticket_reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
+
+    // Email notification
+    if (intval($session_user_id) !== $assigned_to) {
+        $subject = "$config_app_name ticket $ticket_prefix$ticket_number assigned to you";
+        $body = "Hi $agent_name, <br><br>A ticket has been assigned to you!<br><br>ID: $ticket_prefix$ticket_number<br> Subject: $ticket_subject <br><br>Thanks, <br>$session_name<br>ITFlow";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_ticket_from_email, $config_ticket_from_name,
+            $agent_email, $agent_name,
+            $subject, $body);
+    }
+
 
     $_SESSION['alert_message'] = "Ticket re-assigned";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_ticket'])) {
+if(isset($_GET['delete_ticket'])){
 
     validateAdminRole();
 
@@ -6147,12 +6278,12 @@ if (isset($_GET['delete_ticket'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Delete', log_description = '$ticket_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Ticket deleted";
-
+    
     header("Location: tickets.php");
-
+  
 }
 
-if (isset($_POST['add_ticket_reply'])) {
+if(isset($_POST['add_ticket_reply'])){
 
     validateTechRole();
 
@@ -6167,7 +6298,7 @@ if (isset($_POST['add_ticket_reply'])) {
     $ticket_status = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['status'])));
     $ticket_reply_time_worked = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['time'])));
 
-    if (isset($_POST['public_reply_type'])) {
+    if(isset($_POST['public_reply_type'])){
         $ticket_reply_type = 'Public';
     }
     else{
@@ -6181,7 +6312,7 @@ if (isset($_POST['add_ticket_reply'])) {
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     // Send e-mail to client if public update & email is set up
-    if ($ticket_reply_type == 'Public' && !empty($config_smtp_host)) {
+    if($ticket_reply_type == 'Public' && !empty($config_smtp_host)){
 
         $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
             LEFT JOIN clients ON ticket_client_id = client_id 
@@ -6189,7 +6320,7 @@ if (isset($_POST['add_ticket_reply'])) {
             LEFT JOIN companies ON tickets.company_id = companies.company_id
             WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id
         ");
-
+        
         $row = mysqli_fetch_array($ticket_sql);
 
         $contact_name = $row['contact_name'];
@@ -6199,11 +6330,11 @@ if (isset($_POST['add_ticket_reply'])) {
         $ticket_subject = $row['ticket_subject'];
         $company_phone = formatPhoneNumber($row['company_phone']);
 
-        if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+        if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
 
             // Slightly different email subject/text depending on if this update closed the ticket or not
 
-            if ($ticket_status == 'Closed') {
+            if($ticket_status == 'Closed') {
               $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
               $body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
@@ -6231,12 +6362,12 @@ if (isset($_POST['add_ticket_reply'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Create', log_description = '$ticket_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Posted an update";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+    
 }
 
-if (isset($_POST['edit_ticket_reply'])) {
+if(isset($_POST['edit_ticket_reply'])){
 
     validateTechRole();
 
@@ -6256,12 +6387,12 @@ if (isset($_POST['edit_ticket_reply'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update Modify', log_action = 'Modify', log_description = '$ticket_update_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Ticket update modified";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+    
 }
 
-if (isset($_GET['archive_ticket_reply'])) {
+if(isset($_GET['archive_ticket_reply'])){
 
     validateAdminRole();
 
@@ -6273,12 +6404,12 @@ if (isset($_GET['archive_ticket_reply'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update', log_action = 'Archive', log_description = '$ticket_update_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Ticket update archived";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_POST['merge_ticket'])) {
+if(isset($_POST['merge_ticket'])){
 
     validateTechRole();
 
@@ -6289,7 +6420,7 @@ if (isset($_POST['merge_ticket'])) {
 
     //Get current ticket details
     $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_details FROM tickets WHERE ticket_id = '$ticket_id'");
-    if (mysqli_num_rows($sql) == 0) {
+    if(mysqli_num_rows($sql) == 0){
         $_SESSION['alert_message'] = "No ticket with that ID found.";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
@@ -6302,7 +6433,7 @@ if (isset($_POST['merge_ticket'])) {
 
     //Get merge into ticket id (as it may differ from the number)
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_number = '$merge_into_ticket_number'");
-    if (mysqli_num_rows($sql) == 0) {
+    if(mysqli_num_rows($sql) == 0){
         $_SESSION['alert_message'] = "Cannot merge into that ticket.";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
@@ -6310,7 +6441,7 @@ if (isset($_POST['merge_ticket'])) {
     $merge_row = mysqli_fetch_array($sql);
     $merge_into_ticket_id = trim(mysqli_real_escape_string($mysqli,$merge_row['ticket_id']));
 
-    if ($ticket_number == $merge_into_ticket_number) {
+    if($ticket_number == $merge_into_ticket_number){
         $_SESSION['alert_message'] = "Cannot merge into the same ticket.";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
@@ -6331,7 +6462,7 @@ if (isset($_POST['merge_ticket'])) {
 
 }
 
-if (isset($_GET['close_ticket'])) {
+if(isset($_GET['close_ticket'])){
 
     validateTechRole();
 
@@ -6345,7 +6476,7 @@ if (isset($_GET['close_ticket'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id Closed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     // Client notification email
-    if (!empty($config_smtp_host)) {
+    if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 
       // Get details
       $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
@@ -6364,7 +6495,7 @@ if (isset($_GET['close_ticket'])) {
       $company_phone = formatPhoneNumber($row['company_phone']);
 
       // Check email valid
-      if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+      if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
 
         $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
         $body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
@@ -6389,8 +6520,8 @@ if (isset($_GET['close_ticket'])) {
 
 }
 
-if (isset($_POST['add_invoice_from_ticket'])) {
-
+if(isset($_POST['add_invoice_from_ticket'])){
+    
     $invoice_id = intval($_POST['invoice_id']);
     $ticket_id = intval($_POST['ticket_id']);
     $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
@@ -6409,7 +6540,7 @@ if (isset($_POST['add_invoice_from_ticket'])) {
     $row = mysqli_fetch_array($sql);
     $client_id = $row['client_id'];
     $client_net_terms = $row['client_net_terms'];
-    if ($client_net_terms == 0) {
+    if($client_net_terms == 0){
         $client_net_terms = $config_default_net_terms;
     }
 
@@ -6429,7 +6560,7 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
     $location_name = $row['location_name'];
 
-    if ($invoice_id == 0) {
+    if($invoice_id == 0){
 
         //Get the last Invoice Number and add 1 for the new invoice number
         $invoice_number = $config_invoice_next_number;
@@ -6442,17 +6573,17 @@ if (isset($_POST['add_invoice_from_ticket'])) {
         mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_currency_code = '$session_company_currency', invoice_category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $session_company_id");
         $invoice_id = mysqli_insert_id($mysqli);
     }
-
+    
     //Add Item
     $item_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['item_name'])));
     $item_description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['item_description'])));
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
-
+    
     $subtotal = $price * $qty;
-
-    if ($tax_id > 0) {
+    
+    if($tax_id > 0){
         $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_array($sql);
         $tax_percent = $row['tax_percent'];
@@ -6460,7 +6591,7 @@ if (isset($_POST['add_invoice_from_ticket'])) {
     }else{
         $tax_amount = 0;
     }
-
+    
     $total = $subtotal + $tax_amount;
 
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_tax_id = $tax_id, item_invoice_id = $invoice_id, company_id = $session_company_id");
@@ -6483,11 +6614,11 @@ if (isset($_POST['add_invoice_from_ticket'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Create', log_description = '$config_invoice_prefix$invoice_number created from Ticket $ticket_prefix$ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Invoice created from ticket";
-
+    
     header("Location: invoice.php?invoice_id=$invoice_id");
 }
 
-if (isset($_GET['export_client_tickets_csv'])) {
+if(isset($_GET['export_client_tickets_csv'])){
 
     validateTechRole();
 
@@ -6498,40 +6629,40 @@ if (isset($_GET['export_client_tickets_csv'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $sql = mysqli_query($mysqli,"SELECT * FROM tickets WHERE ticket_client_id = $client_id ORDER BY ticket_number ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Tickets-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Ticket Number', 'Priority', 'Status', 'Subject', 'Date Opened', 'Date Closed');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $lineData = array($row['ticket_number'], $row['ticket_priority'], $row['ticket_status'], $row['ticket_subject'], $row['ticket_created_at'], $row['ticket_closed_at']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
-
+  
 }
 
-if (isset($_POST['add_service'])) {
+if(isset($_POST['add_service'])){
 
     validateTechRole();
 
@@ -6547,74 +6678,74 @@ if (isset($_POST['add_service'])) {
     $service_sql = mysqli_query($mysqli, "INSERT INTO services SET service_name = '$service_name', service_description = '$service_description', service_category = '$service_category', service_importance = '$service_importance', service_backup = '$service_backup', service_notes = '$service_notes', service_client_id = '$client_id', company_id = '$session_company_id'");
 
     // Create links to assets
-    if ($service_sql) {
+    if($service_sql){
         $service_id = $mysqli->insert_id;
 
-        if (!empty($_POST['contacts'])) {
+        if(!empty($_POST['contacts'])){
             $service_contact_ids = $_POST['contacts'];
-            foreach($service_contact_ids as $contact_id) {
+            foreach($service_contact_ids as $contact_id){
                 $contact_id = intval($contact_id);
-                if ($contact_id > 0) {
+                if($contact_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_contacts SET service_id = '$service_id', contact_id = '$contact_id'");
                 }
             }
         }
 
-        if (!empty($_POST['vendors'])) {
+        if(!empty($_POST['vendors'])){
             $service_vendor_ids = $_POST['vendors'];
-            foreach($service_vendor_ids as $vendor_id) {
+            foreach($service_vendor_ids as $vendor_id){
                 $vendor_id = intval($vendor_id);
-                if ($vendor_id > 0) {
+                if($vendor_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_vendors SET service_id = '$service_id', vendor_id = '$vendor_id'");
                 }
             }
         }
 
-        if (!empty($_POST['documents'])) {
+        if(!empty($_POST['documents'])){
             $service_document_ids = $_POST['documents'];
-            foreach($service_document_ids as $document_id) {
+            foreach($service_document_ids as $document_id){
                 $document_id = intval($document_id);
-                if ($document_id > 0) {
+                if($document_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_documents SET service_id = '$service_id', document_id = '$document_id'");
                 }
             }
         }
 
-        if (!empty($_POST['assets'])) {
+        if(!empty($_POST['assets'])){
             $service_asset_ids = $_POST['assets'];
-            foreach($service_asset_ids as $asset_id) {
+            foreach($service_asset_ids as $asset_id){
               $asset_id = intval($asset_id);
-              if ($asset_id > 0) {
+              if($asset_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_assets SET service_id = '$service_id', asset_id = '$asset_id'");
                 }
             }
         }
 
-        if (!empty($_POST['logins'])) {
+        if(!empty($_POST['logins'])){
             $service_login_ids = $_POST['logins'];
-            foreach($service_login_ids as $login_id) {
+            foreach($service_login_ids as $login_id){
                 $login_id = intval($login_id);
-                if ($login_id > 0) {
+                if($login_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = '$service_id', login_id = '$login_id'");
                 }
             }
         }
 
-        if (!empty($_POST['domains'])) {
+        if(!empty($_POST['domains'])){
             $service_domain_ids = $_POST['domains'];
-            foreach($service_domain_ids as $domain_id) {
+            foreach($service_domain_ids as $domain_id){
                 $domain_id = intval($domain_id);
-                if ($domain_id > 0) {
+                if($domain_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = '$service_id', domain_id = '$domain_id'");
                 }
             }
         }
 
-        if (!empty($_POST['certificates'])) {
+        if(!empty($_POST['certificates'])){
             $service_cert_ids = $_POST['certificates'];
-            foreach($service_cert_ids as $cert_id) {
+            foreach($service_cert_ids as $cert_id){
                 $cert_id = intval($cert_id);
-                if ($cert_id > 0) {
+                if($cert_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_certificates SET service_id = '$service_id', certificate_id = '$cert_id'");
                 }
             }
@@ -6633,7 +6764,7 @@ if (isset($_POST['add_service'])) {
     }
 }
 
-if (isset($_POST['edit_service'])) {
+if(isset($_POST['edit_service'])){
 
     validateTechRole();
 
@@ -6659,71 +6790,71 @@ if (isset($_POST['edit_service'])) {
     mysqli_query($mysqli, "DELETE FROM service_certificates WHERE service_id = '$service_id'");
 
     // Relink
-    if (!empty($_POST['contacts'])) {
+    if(!empty($_POST['contacts'])){
         $service_contact_ids = $_POST['contacts'];
-        foreach($service_contact_ids as $contact_id) {
+        foreach($service_contact_ids as $contact_id){
             $contact_id = intval($contact_id);
-            if ($contact_id > 0) {
+            if($contact_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_contacts SET service_id = '$service_id', contact_id = '$contact_id'");
             }
         }
     }
 
-    if (!empty($_POST['vendors'])) {
+    if(!empty($_POST['vendors'])){
         $service_vendor_ids = $_POST['vendors'];
-        foreach($service_vendor_ids as $vendor_id) {
+        foreach($service_vendor_ids as $vendor_id){
             $vendor_id = intval($vendor_id);
-            if ($vendor_id > 0) {
+            if($vendor_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_vendors SET service_id = '$service_id', vendor_id = '$vendor_id'");
             }
         }
     }
 
-    if (!empty($_POST['documents'])) {
+    if(!empty($_POST['documents'])){
         $service_document_ids = $_POST['documents'];
-        foreach($service_document_ids as $document_id) {
+        foreach($service_document_ids as $document_id){
             $document_id = intval($document_id);
-            if ($document_id > 0) {
+            if($document_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_documents SET service_id = '$service_id', document_id = '$document_id'");
             }
         }
     }
 
-    if (!empty($_POST['assets'])) {
+    if(!empty($_POST['assets'])){
         $service_asset_ids = $_POST['assets'];
-        foreach($service_asset_ids as $asset_id) {
+        foreach($service_asset_ids as $asset_id){
             $asset_id = intval($asset_id);
-            if ($asset_id > 0) {
+            if($asset_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_assets SET service_id = '$service_id', asset_id = '$asset_id'");
             }
         }
     }
 
-    if (!empty($_POST['logins'])) {
+    if(!empty($_POST['logins'])){
         $service_login_ids = $_POST['logins'];
-        foreach($service_login_ids as $login_id) {
+        foreach($service_login_ids as $login_id){
             $login_id = intval($login_id);
-            if ($login_id > 0) {
+            if($login_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = '$service_id', login_id = '$login_id'");
             }
         }
     }
 
-    if (!empty($_POST['domains'])) {
+    if(!empty($_POST['domains'])){
         $service_domain_ids = $_POST['domains'];
-        foreach($service_domain_ids as $domain_id) {
+        foreach($service_domain_ids as $domain_id){
             $domain_id = intval($domain_id);
-            if ($domain_id > 0) {
+            if($domain_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = '$service_id', domain_id = '$domain_id'");
             }
         }
     }
 
-    if (!empty($_POST['certificates'])) {
+    if(!empty($_POST['certificates'])){
         $service_cert_ids = $_POST['certificates'];
-        foreach($service_cert_ids as $cert_id) {
+        foreach($service_cert_ids as $cert_id){
             $cert_id = intval($cert_id);
-            if ($cert_id > 0) {
+            if($cert_id > 0){
                 mysqli_query($mysqli, "INSERT INTO service_certificates SET service_id = '$service_id', certificate_id = '$cert_id'");
             }
         }
@@ -6737,7 +6868,7 @@ if (isset($_POST['edit_service'])) {
 
 }
 
-if (isset($_GET['delete_service'])) {
+if(isset($_GET['delete_service'])){
 
     validateAdminRole();
 
@@ -6748,7 +6879,7 @@ if (isset($_GET['delete_service'])) {
 
     // Delete relations
     // TODO: Convert this to a join delete
-    if ($delete_sql) {
+    if($delete_sql){
         mysqli_query($mysqli, "DELETE FROM service_contacts WHERE service_id = '$service_id'");
         mysqli_query($mysqli, "DELETE FROM service_vendors WHERE service_id = '$service_id'");
         mysqli_query($mysqli, "DELETE FROM service_documents WHERE service_id = '$service_id'");
@@ -6769,21 +6900,21 @@ if (isset($_GET['delete_service'])) {
     }
 }
 
-if (isset($_POST['add_file'])) {
+if(isset($_POST['add_file'])){
     $client_id = intval($_POST['client_id']);
     $file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['new_name'])));
 
-    if (!file_exists("uploads/clients/$session_company_id/$client_id")) {
+    if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
     //Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
-
+    if($_FILES['file']['tmp_name'] != ''){
+        
         // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
-        if (empty($file_name)) {
+        if(empty($file_name)) {
             $file_name = trim(strip_tags(mysqli_real_escape_string($mysqli, $_FILES['file']['name'])));
         }
         $file_size = $_FILES['file']['size'];
@@ -6795,28 +6926,28 @@ if (isset($_POST['add_file'])) {
 
         // check if file has one of the following extensions
         $allowed_file_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
+     
+        if(in_array($file_extension,$allowed_file_extensions) === false){
             $file_error = 1;
         }
 
         //Check File Size
-        if ($file_size > 20097152) {
+        if($file_size > 20097152){
             $file_error = 1;
         }
 
-        if ($file_error == 0) {
+        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
             $dest_path = $upload_file_dir . $file_reference_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
-
+            
             mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_ext = '$file_extension', file_client_id = $client_id, company_id = $session_company_id");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         }else{
-
+            
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
@@ -6825,12 +6956,12 @@ if (isset($_POST['add_file'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Upload', log_description = '$path', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "File uploaded";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_file'])) {
+if(isset($_GET['delete_file'])){
 
     validateAdminRole();
 
@@ -6850,12 +6981,12 @@ if (isset($_GET['delete_file'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Delete', log_description = '$file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "File deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_POST['add_document'])) {
+if(isset($_POST['add_document'])){
 
     validateTechRole();
 
@@ -6870,7 +7001,7 @@ if (isset($_POST['add_document'])) {
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
     $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
-
+    
     $folder = intval($_POST['folder']);
 
     // Document add query
@@ -6881,12 +7012,12 @@ if (isset($_POST['add_document'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = 'Created $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Document added";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['add_document_template'])) {
+if(isset($_POST['add_document_template'])){
 
     validateTechRole();
 
@@ -6910,12 +7041,12 @@ if (isset($_POST['add_document_template'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document Template', log_action = 'Create', log_description = 'Created Document Template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Document Template created";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['add_document_from_template'])) {
+if(isset($_POST['add_document_from_template'])){
 
     // ROLE Check
     validateTechRole();
@@ -6931,7 +7062,7 @@ if (isset($_POST['add_document_from_template'])) {
     $document_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $document_template_id = intval($_POST['document_template_id']);
     $folder = intval($_POST['folder']);
-
+    
     //GET Document Info
     $sql_document = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_id = $document_template_id AND company_id = $session_company_id");
 
@@ -6943,19 +7074,19 @@ if (isset($_POST['add_document_from_template'])) {
 
     // Document add query
     $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$document_name', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_client_id = $client_id, company_id = $session_company_id");
-
+    
     $document_id = $mysqli->insert_id;
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = 'Document $document_name created from template $document_template_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Document created from template";
-
+    
      header("Location: client_document_details.php?client_id=$client_id&document_id=$document_id");
 
 }
 
-if (isset($_POST['edit_document'])) {
+if(isset($_POST['edit_document'])){
 
     validateTechRole();
 
@@ -6980,12 +7111,12 @@ if (isset($_POST['edit_document'])) {
 
 
     $_SESSION['alert_message'] = "Document updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['edit_document_template'])) {
+if(isset($_POST['edit_document_template'])){
 
     validateTechRole();
 
@@ -7009,12 +7140,12 @@ if (isset($_POST['edit_document_template'])) {
 
 
     $_SESSION['alert_message'] = "Document Template updated";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_document'])) {
+if(isset($_GET['delete_document'])){
 
     validateAdminRole();
 
@@ -7026,12 +7157,12 @@ if (isset($_GET['delete_document'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Delete', log_description = '$document_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Document deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_POST['add_folder'])) {
+if(isset($_POST['add_folder'])){
 
     validateTechRole();
 
@@ -7046,12 +7177,12 @@ if (isset($_POST['add_folder'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Create', log_description = 'Created $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Folder created";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['rename_folder'])) {
+if(isset($_POST['rename_folder'])){
 
     validateTechRole();
 
@@ -7065,12 +7196,12 @@ if (isset($_POST['rename_folder'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Modify', log_description = '$folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Folder renamed";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['delete_folder'])) {
+if(isset($_GET['delete_folder'])){
 
     validateAdminRole();
 
@@ -7080,7 +7211,7 @@ if (isset($_GET['delete_folder'])) {
 
     // Move files in deleted folder back to the root folder /
     $sql_documents = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_folder_id = $folder_id");
-    while ($row = mysqli_fetch_array($sql_documents)) {
+    while($row = mysqli_fetch_array($sql_documents)){
         $document_id = $row['document_id'];
 
         mysqli_query($mysqli,"UPDATE documents SET document_folder_id = 0 WHERE document_id = $document_id");
@@ -7090,13 +7221,13 @@ if (isset($_GET['delete_folder'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Delete', log_description = '$folder_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Folder deleted";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+  
 }
 
-if (isset($_GET['deactivate_shared_item'])) {
-    if ($session_user_role != 3) {
+if(isset($_GET['deactivate_shared_item'])){
+    if($session_user_role != 3){
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -7122,7 +7253,7 @@ if (isset($_GET['deactivate_shared_item'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_GET['force_recurring'])) {
+if(isset($_GET['force_recurring'])){
     $recurring_id = intval($_GET['force_recurring']);
 
     $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring, clients WHERE client_id = recurring_client_id AND recurring_id = $recurring_id AND recurring.company_id = $session_company_id");
@@ -7156,7 +7287,7 @@ if (isset($_GET['force_recurring'])) {
     //Copy Items from original invoice to new invoice
     $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id AND company_id = $session_company_id ORDER BY item_id ASC");
 
-    while ($row = mysqli_fetch_array($sql_invoice_items)) {
+    while($row = mysqli_fetch_array($sql_invoice_items)){
         $item_id = $row['item_id'];
         $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
         $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
@@ -7166,7 +7297,7 @@ if (isset($_GET['force_recurring'])) {
         $tax_id = $row['item_tax_id'];
 
         //Recalculate Item Tax since Tax percents can change.
-        if ($tax_id > 0) {
+        if($tax_id > 0){
             $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id AND company_id = $session_company_id");
             $row = mysqli_fetch_array($sql);
             $tax_percent = $row['tax_percent'];
@@ -7174,7 +7305,7 @@ if (isset($_GET['force_recurring'])) {
         }else{
             $item_tax_amount = 0;
         }
-
+        
         $item_total = $item_subtotal + $item_tax_amount;
 
         //Update Recurring Items with new tax
@@ -7195,7 +7326,7 @@ if (isset($_GET['force_recurring'])) {
     //Also update the newly created invoice with the new amounts
     mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_recurring_amount' WHERE invoice_id = $new_invoice_id");
 
-    if ($config_recurring_auto_send_invoice == 1) {
+    if($config_recurring_auto_send_invoice == 1){
         $sql = mysqli_query($mysqli,"SELECT * FROM invoices
             LEFT JOIN clients ON invoice_client_id = client_id
             LEFT JOIN contacts ON contact_id = primary_contact
@@ -7254,15 +7385,15 @@ if (isset($_GET['force_recurring'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Create', log_description = 'Recurring Forced to an Invoice', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice Forced";
-
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 } //End Force Recurring
 
-if (isset($_POST['export_trips_csv'])) {
+if(isset($_POST['export_trips_csv'])){
     $date_from = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_from'])));
     $date_to = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_to'])));
-    if (!empty($date_from) && !empty($date_to)) {
+    if(!empty($date_from) && !empty($date_to)){
         $date_query = "AND DATE(trip_date) BETWEEN '$date_from' AND '$date_to'";
         $file_name_date = "$date_from-to-$date_to";
     }else{
@@ -7278,38 +7409,38 @@ if (isset($_POST['export_trips_csv'])) {
         ORDER BY trip_date DESC"
     );
 
-    if (mysqli_num_rows($sql) > 0) {
+    if(mysqli_num_rows($sql) > 0){
         $delimiter = ",";
         $filename = "$session_company_name-Trips-$file_name_date.csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Date', 'Purpose', 'Source', 'Destination', 'Miles');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = mysqli_fetch_assoc($sql)) {
+        while($row = mysqli_fetch_assoc($sql)){
             $lineData = array($row['trip_date'], $row['trip_purpose'], $row['trip_source'], $row['trip_destination'], $row['trip_miles']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
-
+  
 }
 
-if (isset($_GET['export_client_invoices_csv'])) {
+if(isset($_GET['export_client_invoices_csv'])){
     $client_id = intval($_GET['export_client_invoices_csv']);
 
     //get records from database
@@ -7317,40 +7448,40 @@ if (isset($_GET['export_client_invoices_csv'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_client_id = $client_id ORDER BY invoice_number ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Invoices-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Invoice Number', 'Scope', 'Amount', 'Issued Date', 'Due Date', 'Status');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $lineData = array($row['invoice_prefix'] . $row['invoice_number'], $row['invoice_scope'], $row['invoice_amount'], $row['invoice_date'], $row['invoice_due'], $row['invoice_status']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
-
+  
 }
 
-if (isset($_GET['export_client_recurring_csv'])) {
+if(isset($_GET['export_client_recurring_csv'])){
     $client_id = intval($_GET['export_client_recurring_csv']);
 
     //get records from database
@@ -7358,40 +7489,40 @@ if (isset($_GET['export_client_recurring_csv'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_client_id = $client_id ORDER BY recurring_number ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Recurring Invoices-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Recurring Number', 'Scope', 'Amount', 'Frequency', 'Date Created');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $lineData = array($row['recurring_prefix'] . $row['recurring_number'], $row['recurring_scope'], $row['recurring_amount'], ucwords($row['recurring_frequency'] . "ly"), $row['recurring_created_at']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
-
+  
 }
 
-if (isset($_GET['export_client_quotes_csv'])) {
+if(isset($_GET['export_client_quotes_csv'])){
     $client_id = intval($_GET['export_client_quotes_csv']);
 
     //get records from database
@@ -7399,40 +7530,40 @@ if (isset($_GET['export_client_quotes_csv'])) {
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
-
+    
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_client_id = $client_id ORDER BY quote_number ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Quotes-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Quote Number', 'Scope', 'Amount', 'Date', 'Status');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $lineData = array($row['quote_prefix'] . $row['quote_number'], $row['quote_scope'], $row['quote_amount'], $row['quote_date'], $row['quote_status']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
-
+  
 }
 
-if (isset($_GET['export_client_payments_csv'])) {
+if(isset($_GET['export_client_payments_csv'])){
     $client_id = intval($_GET['export_client_payments_csv']);
 
     //get records from database
@@ -7442,38 +7573,38 @@ if (isset($_GET['export_client_payments_csv'])) {
     $client_name = $row['client_name'];
 
     $sql = mysqli_query($mysqli,"SELECT * FROM payments, invoices WHERE invoice_client_id = $client_id AND payment_invoice_id = invoice_id ORDER BY payment_date ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Payments-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Payment Date', 'Invoice Date', 'Invoice Number', 'Invoice Amount', 'Payment Amount', 'Payment Method', 'Referrence');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $lineData = array($row['payment_date'], $row['invoice_date'], $row['invoice_prefix'] . $row['invoice_number'], $row['invoice_amount'], $row['payment_amount'], $row['payment_method'], $row['payment_reference']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
-
+  
 }
 
-if (isset($_GET['export_client_trips_csv'])) {
+if(isset($_GET['export_client_trips_csv'])){
     $client_id = intval($_GET['export_client_trips_csv']);
 
     //get records from database
@@ -7483,38 +7614,38 @@ if (isset($_GET['export_client_trips_csv'])) {
     $client_name = $row['client_name'];
 
     $sql = mysqli_query($mysqli,"SELECT * FROM trips WHERE trip_client_id = $client_id ORDER BY trip_date ASC");
-    if ($sql->num_rows > 0) {
+    if($sql->num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Trips-" . date('Y-m-d') . ".csv";
-
+        
         //create a file pointer
         $f = fopen('php://memory', 'w');
-
+        
         //set column headers
         $fields = array('Date', 'Purpose', 'Source', 'Destination', 'Miles');
         fputcsv($f, $fields, $delimiter);
-
+        
         //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
+        while($row = $sql->fetch_assoc()){
             $lineData = array($row['trip_date'], $row['trip_purpose'], $row['trip_source'], $row['trip_destination'], $row['trip_miles']);
             fputcsv($f, $lineData, $delimiter);
         }
-
+        
         //move back to beginning of file
         fseek($f, 0);
-
+        
         //set headers to download file rather than displayed
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '";');
-
+        
         //output all remaining data on a file pointer
         fpassthru($f);
     }
     exit;
-
+  
 }
 
-if (isset($_GET['export_client_pdf'])) {
+if(isset($_GET['export_client_pdf'])){
 
     validateAdminRole();
 
@@ -7543,7 +7674,7 @@ if (isset($_GET['export_client_pdf'])) {
     $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
     $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id ORDER BY location_name ASC");
     $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
-    if (isset($_GET['passwords'])) {
+    if(isset($_GET['passwords'])){
         $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
     }
     $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id ORDER BY asset_type ASC");
@@ -7572,9 +7703,9 @@ if (isset($_GET['export_client_pdf'])) {
         pageMargins: [ 15, 15, 15, 15 ],
 
         content: [
-            {
-                text: <?php echo json_encode($client_name); ?>,
-                style: 'title'
+            { 
+                text: <?php echo json_encode($client_name); ?>, 
+                style: 'title' 
             },
 
             {
@@ -7585,54 +7716,54 @@ if (isset($_GET['export_client_pdf'])) {
                             {
                                 text: 'Address',
                                 style: 'itemHeader'
-                            },
+                            }, 
                             {
                                 text: <?php echo json_encode($location_address); ?>,
                                 style: 'item'
                             }
                         ],
-                        [
-                            {
+                        [ 
+                            { 
                                 text: 'City State Zip',
                                 style: 'itemHeader'
-                            },
+                            }, 
                             {
                                 text: <?php echo json_encode("$location_city $location_state $location_zip"); ?>,
                                 style: 'item'
                             }
                         ],
-                        [
-                            {
+                        [ 
+                            { 
                                 text: 'Phone',
                                 style: 'itemHeader'
-                            },
+                            }, 
                             {
                                 text: <?php echo json_encode($contact_phone); ?>,
                                 style: 'item'
                             }
                         ],
-                        [
+                        [ 
                             {
                                 text: 'Website',
-                                style: 'itemHeader'
-                            },
+                                style: 'itemHeader' 
+                            }, 
                             {
-                                text: <?php echo json_encode($client_website); ?>,
+                                text: <?php echo json_encode($client_website); ?>, 
                                 style: 'item'
                             }
                         ],
-                        [
+                        [ 
                             {
                                 text: 'Contact',
-                                style: 'itemHeader'
-                            },
+                                style: 'itemHeader' 
+                            }, 
                             {
-                                text: <?php echo json_encode($contact_name); ?>,
+                                text: <?php echo json_encode($contact_name); ?>, 
                                 style: 'item'
                             }
                         ],
-                        [
-                            {
+                        [ 
+                            { 
                                 text: 'Email',
                                 style: 'itemHeader'
                             },
@@ -7640,15 +7771,15 @@ if (isset($_GET['export_client_pdf'])) {
                                 text: <?php echo json_encode($contact_email); ?>,
                                 style: 'item'
                             }
-                        ]
+                        ]  
                     ]
                 }
             },
 
             //Contacts Start
-            <?php if (mysqli_num_rows($sql_contacts) > 0) { ?>
-            {
-                text: 'Contacts',
+            <?php if(mysqli_num_rows($sql_contacts) > 0){ ?>
+            { 
+                text: 'Contacts', 
                 style: 'title'
             },
 
@@ -7658,39 +7789,39 @@ if (isset($_GET['export_client_pdf'])) {
                 // you can declare how many rows should be treated as headers
                     body: [
                         [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Title', 
+                                style: 'itemHeader' 
                             },
-                            {
-                                text: 'Title',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Department', 
+                                style: 'itemHeader' 
+                            },  
+                            { 
+                                text: 'Email', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Phone', 
+                                style: 'itemHeader' 
                             },
-                            {
-                                text: 'Department',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Email',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Phone',
-                                style: 'itemHeader'
-                            },
-                            {
+                            { 
                                 text: 'Mobile',
-                                style: 'itemHeader'
+                                style: 'itemHeader' 
                             }
                         ],
-
+                        
                         <?php
-                        while ($row = mysqli_fetch_array($sql_contacts)) {
+                        while($row = mysqli_fetch_array($sql_contacts)){
                             $contact_name = $row['contact_name'];
                             $contact_title = $row['contact_title'];
                             $contact_phone = formatPhoneNumber($row['contact_phone']);
                             $contact_extension = $row['contact_extension'];
-                            if (!empty($contact_extension)) {
+                            if(!empty($contact_extension)){
                               $contact_extension = "x$contact_extension";
                             }
                             $contact_mobile = formatPhoneNumber($row['contact_mobile']);
@@ -7698,7 +7829,7 @@ if (isset($_GET['export_client_pdf'])) {
                             $contact_department = $row['contact_department'];
                         ?>
 
-                        [
+                        [ 
                             {
                                 text: <?php echo json_encode($contact_name); ?>,
                                 style: 'item'
@@ -7722,7 +7853,7 @@ if (isset($_GET['export_client_pdf'])) {
                             {
                                 text: <?php echo json_encode($contact_mobile); ?>,
                                 style: 'item'
-                            }
+                            }  
                         ],
 
                         <?php
@@ -7735,9 +7866,9 @@ if (isset($_GET['export_client_pdf'])) {
             //Contact END
 
             //Locations Start
-            <?php if (mysqli_num_rows($sql_locations) > 0) { ?>
-            {
-                text: 'Locations',
+            <?php if(mysqli_num_rows($sql_locations) > 0){ ?>
+            { 
+                text: 'Locations', 
                 style: 'title'
             },
 
@@ -7745,22 +7876,22 @@ if (isset($_GET['export_client_pdf'])) {
                 table: {
                     body: [
                         [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Address',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Phone',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Address', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Phone', 
+                                style: 'itemHeader' 
                             }
                         ],
-
+                        
                         <?php
-                        while ($row = mysqli_fetch_array($sql_locations)) {
+                        while($row = mysqli_fetch_array($sql_locations)){
                           $location_name = $row['location_name'];
                           $location_address = $row['location_address'];
                           $location_city = $row['location_city'];
@@ -7769,7 +7900,7 @@ if (isset($_GET['export_client_pdf'])) {
                           $location_phone = formatPhoneNumber($row['location_phone']);
                         ?>
 
-                        [
+                        [ 
                             {
                                 text: <?php echo json_encode($location_name); ?>,
                                 style: 'item'
@@ -7794,9 +7925,9 @@ if (isset($_GET['export_client_pdf'])) {
             //Locations END
 
             //Vendors Start
-            <?php if (mysqli_num_rows($sql_vendors) > 0) { ?>
-            {
-                text: 'Vendors',
+            <?php if(mysqli_num_rows($sql_vendors) > 0){ ?>
+            { 
+                text: 'Vendors', 
                 style: 'title'
             },
 
@@ -7804,30 +7935,30 @@ if (isset($_GET['export_client_pdf'])) {
                 table: {
                     body: [
                         [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Description', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Phone', 
+                                style: 'itemHeader' 
                             },
-                            {
-                                text: 'Description',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Website', 
+                                style: 'itemHeader' 
                             },
-                            {
-                                text: 'Phone',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Website',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Account Number',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Account Number', 
+                                style: 'itemHeader' 
                             }
                         ],
-
+                        
                         <?php
-                        while ($row = mysqli_fetch_array($sql_vendors)) {
+                        while($row = mysqli_fetch_array($sql_vendors)){
                           $vendor_name = $row['vendor_name'];
                           $vendor_description = $row['vendor_description'];
                           $vendor_account_number = $row['vendor_account_number'];
@@ -7837,7 +7968,7 @@ if (isset($_GET['export_client_pdf'])) {
                           $vendor_website = $row['vendor_website'];
                         ?>
 
-                        [
+                        [ 
                             {
                                 text: <?php echo json_encode($vendor_name); ?>,
                                 style: 'item'
@@ -7870,10 +8001,10 @@ if (isset($_GET['export_client_pdf'])) {
             //Vendors END
 
             //Logins Start
-            <?php if (isset($_GET['passwords'])) { ?>
-            <?php if (mysqli_num_rows($sql_logins) > 0) { ?>
-            {
-                text: 'Logins',
+            <?php if(isset($_GET['passwords'])){ ?>
+            <?php if(mysqli_num_rows($sql_logins) > 0){ ?>
+            { 
+                text: 'Logins', 
                 style: 'title'
             },
 
@@ -7881,30 +8012,30 @@ if (isset($_GET['export_client_pdf'])) {
                 table: {
                     body: [
                         [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Username', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Password', 
+                                style: 'itemHeader' 
                             },
-                            {
-                                text: 'Username',
-                                style: 'itemHeader'
+                            { 
+                                text: 'URL', 
+                                style: 'itemHeader' 
                             },
-                            {
-                                text: 'Password',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'URL',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Notes',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Notes', 
+                                style: 'itemHeader' 
                             }
                         ],
-
+                        
                         <?php
-                        while ($row = mysqli_fetch_array($sql_logins)) {
+                        while($row = mysqli_fetch_array($sql_logins)){
                             $login_name = $row['login_name'];
                             $login_username = $row['login_username'];
                             $login_password = decryptLoginEntry($row['login_password']);
@@ -7912,7 +8043,7 @@ if (isset($_GET['export_client_pdf'])) {
                             $login_note = $row['login_note'];
                         ?>
 
-                        [
+                        [ 
                             {
                                 text: <?php echo json_encode($login_name); ?>,
                                 style: 'item'
@@ -7941,27 +8072,27 @@ if (isset($_GET['export_client_pdf'])) {
                     ]
                 }
             },
-            <?php
-
+            <?php 
+            
             }
-            }
+            } 
 
             ?>
             //Logins END
 
             //Assets Start
-            <?php if (mysqli_num_rows($sql_assets) > 0) { ?>
-            {
-                text: 'Assets',
+            <?php if(mysqli_num_rows($sql_assets) > 0){ ?>
+            { 
+                text: 'Assets', 
                 style: 'assetTitle'
             },
             <?php } ?>
             //Assets END
 
             //Asset Workstations Start
-            <?php if (mysqli_num_rows($sql_asset_workstations) > 0) { ?>
-            {
-                text: 'Workstations',
+            <?php if(mysqli_num_rows($sql_asset_workstations) > 0){ ?>
+            { 
+                text: 'Workstations', 
                 style: 'assetSubTitle'
             },
 
@@ -7969,46 +8100,46 @@ if (isset($_GET['export_client_pdf'])) {
                 table: {
                     body: [
                         [
-                            {
-                                text: 'Name',
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Type', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Model', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Serial', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'OS', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Purchase Date', 
                                 style: 'itemHeader'
                             },
-                            {
-                                text: 'Type',
+                            { 
+                                text: 'Warranty Expire', 
                                 style: 'itemHeader'
                             },
-                            {
-                                text: 'Model',
+                            { 
+                                text: 'Install Date', 
                                 style: 'itemHeader'
                             },
-                            {
-                                text: 'Serial',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'OS',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Purchase Date',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Warranty Expire',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Install Date',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Assigned To',
+                            { 
+                                text: 'Assigned To', 
                                 style: 'itemHeader'
                             }
                         ],
-
+                        
                         <?php
-                        while ($row = mysqli_fetch_array($sql_asset_workstations)) {
+                        while($row = mysqli_fetch_array($sql_asset_workstations)){
                             $asset_type = $row['asset_type'];
                             $asset_name = $row['asset_name'];
                             $asset_make = $row['asset_make'];
@@ -8024,7 +8155,7 @@ if (isset($_GET['export_client_pdf'])) {
                             $contact_name = $row['contact_name'];
                         ?>
 
-                        [
+                        [ 
                             {
                                 text: <?php echo json_encode($asset_name); ?>,
                                 style: 'item'
@@ -8073,9 +8204,9 @@ if (isset($_GET['export_client_pdf'])) {
             //Asset Workstation END
 
             //Assets Servers Start
-            <?php if (mysqli_num_rows($sql_asset_servers) > 0) { ?>
-            {
-                text: 'Servers',
+            <?php if(mysqli_num_rows($sql_asset_servers) > 0){ ?>
+            { 
+                text: 'Servers', 
                 style: 'assetSubTitle'
             },
 
@@ -8083,42 +8214,42 @@ if (isset($_GET['export_client_pdf'])) {
                 table: {
                     body: [
                         [
-                            {
-                                text: 'Name',
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Model', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Serial', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'OS', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'IP', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Purchase Date', 
                                 style: 'itemHeader'
                             },
-                            {
-                                text: 'Model',
+                            { 
+                                text: 'Warranty Expire', 
                                 style: 'itemHeader'
                             },
-                            {
-                                text: 'Serial',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'OS',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'IP',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Purchase Date',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Warranty Expire',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Install Date',
+                            { 
+                                text: 'Install Date', 
                                 style: 'itemHeader'
                             }
                         ],
-
+                        
                         <?php
-                        while ($row = mysqli_fetch_array($sql_asset_servers)) {
+                        while($row = mysqli_fetch_array($sql_asset_servers)){
                             $asset_type = $row['asset_type'];
                             $asset_name = $row['asset_name'];
                             $asset_make = $row['asset_make'];
@@ -8133,7 +8264,7 @@ if (isset($_GET['export_client_pdf'])) {
                             $asset_notes = $row['asset_notes'];
                         ?>
 
-                        [
+                        [ 
                             {
                                 text: <?php echo json_encode($asset_name); ?>,
                                 style: 'item'
@@ -8178,9 +8309,9 @@ if (isset($_GET['export_client_pdf'])) {
             //Asset Servers END
 
             //Asset VMs Start
-            <?php if (mysqli_num_rows($sql_asset_vms) > 0) { ?>
-            {
-                text: 'Virtual Machines',
+            <?php if(mysqli_num_rows($sql_asset_vms) > 0){ ?>
+            { 
+                text: 'Virtual Machines', 
                 style: 'assetSubTitle'
             },
 
@@ -8188,26 +8319,26 @@ if (isset($_GET['export_client_pdf'])) {
                 table: {
                     body: [
                         [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'OS', 
+                                style: 'itemHeader' 
                             },
-                            {
-                                text: 'OS',
-                                style: 'itemHeader'
+                            { 
+                                text: 'IP', 
+                                style: 'itemHeader' 
                             },
-                            {
-                                text: 'IP',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Install Date',
+                            { 
+                                text: 'Install Date', 
                                 style: 'itemHeader'
                             }
                         ],
-
+                        
                         <?php
-                        while ($row = mysqli_fetch_array($sql_asset_vms)) {
+                        while($row = mysqli_fetch_array($sql_asset_vms)){
                             $asset_type = $row['asset_type'];
                             $asset_name = $row['asset_name'];
                             $asset_make = $row['asset_make'];
@@ -8222,7 +8353,7 @@ if (isset($_GET['export_client_pdf'])) {
                             $asset_notes = $row['asset_notes'];
                         ?>
 
-                        [
+                        [ 
                             {
                                 text: <?php echo json_encode($asset_name); ?>,
                                 style: 'item'
@@ -8251,9 +8382,9 @@ if (isset($_GET['export_client_pdf'])) {
             //Asset VMs END
 
             //Assets Network Devices Start
-            <?php if (mysqli_num_rows($sql_asset_network) > 0) { ?>
-            {
-                text: 'Network Devices',
+            <?php if(mysqli_num_rows($sql_asset_network) > 0){ ?>
+            { 
+                text: 'Network Devices', 
                 style: 'assetSubTitle'
             },
 
@@ -8261,42 +8392,42 @@ if (isset($_GET['export_client_pdf'])) {
                 table: {
                     body: [
                         [
-                            {
-                                text: 'Name',
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Type', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Model', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Serial', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'IP', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Purchase Date', 
                                 style: 'itemHeader'
                             },
-                            {
-                                text: 'Type',
+                            { 
+                                text: 'Warranty Expire', 
                                 style: 'itemHeader'
                             },
-                            {
-                                text: 'Model',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Serial',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'IP',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Purchase Date',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Warranty Expire',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Install Date',
+                            { 
+                                text: 'Install Date', 
                                 style: 'itemHeader'
                             }
                         ],
-
+                        
                         <?php
-                        while ($row = mysqli_fetch_array($sql_asset_network)) {
+                        while($row = mysqli_fetch_array($sql_asset_network)){
                             $asset_type = $row['asset_type'];
                             $asset_name = $row['asset_name'];
                             $asset_make = $row['asset_make'];
@@ -8311,7 +8442,7 @@ if (isset($_GET['export_client_pdf'])) {
                             $asset_notes = $row['asset_notes'];
                         ?>
 
-                        [
+                        [ 
                             {
                                 text: <?php echo json_encode($asset_name); ?>,
                                 style: 'item'
@@ -8356,9 +8487,9 @@ if (isset($_GET['export_client_pdf'])) {
             //Asset Network Devices END
 
             //Asset Other Start
-            <?php if (mysqli_num_rows($sql_asset_other) > 0) { ?>
-            {
-                text: 'Other Devices',
+            <?php if(mysqli_num_rows($sql_asset_other) > 0){ ?>
+            { 
+                text: 'Other Devices', 
                 style: 'assetSubTitle'
             },
 
@@ -8366,42 +8497,42 @@ if (isset($_GET['export_client_pdf'])) {
                 table: {
                     body: [
                         [
-                            {
-                                text: 'Name',
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Type', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Model', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Serial', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'IP', 
+                                style: 'itemHeader' 
+                            },
+                            { 
+                                text: 'Purchase Date', 
                                 style: 'itemHeader'
                             },
-                            {
-                                text: 'Type',
+                            { 
+                                text: 'Warranty Expire', 
                                 style: 'itemHeader'
                             },
-                            {
-                                text: 'Model',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Serial',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'IP',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Purchase Date',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Warranty Expire',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Install Date',
+                            { 
+                                text: 'Install Date', 
                                 style: 'itemHeader'
                             }
                         ],
-
+                        
                         <?php
-                        while ($row = mysqli_fetch_array($sql_asset_other)) {
+                        while($row = mysqli_fetch_array($sql_asset_other)){
                             $asset_type = $row['asset_type'];
                             $asset_name = $row['asset_name'];
                             $asset_make = $row['asset_make'];
@@ -8416,7 +8547,7 @@ if (isset($_GET['export_client_pdf'])) {
                             $asset_notes = $row['asset_notes'];
                         ?>
 
-                        [
+                        [ 
                             {
                                 text: <?php echo json_encode($asset_name); ?>,
                                 style: 'item'
@@ -8461,9 +8592,9 @@ if (isset($_GET['export_client_pdf'])) {
             //Asset Other END
 
             //Software Start
-            <?php if (mysqli_num_rows($sql_software) > 0) { ?>
-            {
-                text: 'Software',
+            <?php if(mysqli_num_rows($sql_software) > 0){ ?>
+            { 
+                text: 'Software', 
                 style: 'title'
             },
 
@@ -8471,33 +8602,33 @@ if (isset($_GET['export_client_pdf'])) {
                 table: {
                     body: [
                         [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Type', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'License', 
+                                style: 'itemHeader' 
                             },
-                            {
-                                text: 'Type',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'License',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Notes',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Notes', 
+                                style: 'itemHeader' 
                             }
                         ],
-
+                        
                         <?php
-                        while ($row = mysqli_fetch_array($sql_software)) {
+                        while($row = mysqli_fetch_array($sql_software)){
                             $software_name = $row['software_name'];
                             $software_type = $row['software_type'];
                             $software_license_type = $row['software_license_type'];
                             $software_notes = $row['software_notes'];
                         ?>
 
-                        [
+                        [ 
                             {
                                 text: <?php echo json_encode($software_name); ?>,
                                 style: 'item'
@@ -8526,9 +8657,9 @@ if (isset($_GET['export_client_pdf'])) {
             //Software END
 
             //Networks Start
-            <?php if (mysqli_num_rows($sql_networks) > 0) { ?>
-            {
-                text: 'Networks',
+            <?php if(mysqli_num_rows($sql_networks) > 0){ ?>
+            { 
+                text: 'Networks', 
                 style: 'title'
             },
 
@@ -8536,30 +8667,30 @@ if (isset($_GET['export_client_pdf'])) {
                 table: {
                     body: [
                         [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'vLAN', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Network Subnet', 
+                                style: 'itemHeader' 
                             },
-                            {
-                                text: 'vLAN',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Gateway', 
+                                style: 'itemHeader' 
                             },
-                            {
-                                text: 'Network Subnet',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Gateway',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'DHCP Range',
-                                style: 'itemHeader'
+                            { 
+                                text: 'DHCP Range', 
+                                style: 'itemHeader' 
                             }
                         ],
-
+                        
                         <?php
-                        while ($row = mysqli_fetch_array($sql_networks)) {
+                        while($row = mysqli_fetch_array($sql_networks)){
                             $network_name = $row['network_name'];
                             $network_vlan = $row['network_vlan'];
                             $network = $row['network'];
@@ -8567,7 +8698,7 @@ if (isset($_GET['export_client_pdf'])) {
                             $network_dhcp_range = $row['network_dhcp_range'];
                         ?>
 
-                        [
+                        [ 
                             {
                                 text: <?php echo json_encode($network_name); ?>,
                                 style: 'item'
@@ -8600,9 +8731,9 @@ if (isset($_GET['export_client_pdf'])) {
             //Networks END
 
             //Domains Start
-            <?php if (mysqli_num_rows($sql_domains) > 0) { ?>
-            {
-                text: 'Domains',
+            <?php if(mysqli_num_rows($sql_domains) > 0){ ?>
+            { 
+                text: 'Domains', 
                 style: 'title'
             },
 
@@ -8610,23 +8741,23 @@ if (isset($_GET['export_client_pdf'])) {
                 table: {
                     body: [
                         [
-                            {
-                                text: 'Domain Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Expire',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Domain Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Expire', 
+                                style: 'itemHeader' 
                             }
                         ],
-
+                        
                         <?php
-                        while ($row = mysqli_fetch_array($sql_domains)) {
+                        while($row = mysqli_fetch_array($sql_domains)){
                             $domain_name = $row['domain_name'];
                             $domain_expire = $row['domain_expire'];
                         ?>
 
-                        [
+                        [ 
                             {
                                 text: <?php echo json_encode($domain_name); ?>,
                                 style: 'item'
@@ -8647,9 +8778,9 @@ if (isset($_GET['export_client_pdf'])) {
             //Domains END
 
             //Certificates Start
-            <?php if (mysqli_num_rows($sql_certficates) > 0) { ?>
-            {
-                text: 'Certificates',
+            <?php if(mysqli_num_rows($sql_certficates) > 0){ ?>
+            { 
+                text: 'Certificates', 
                 style: 'title'
             },
 
@@ -8657,33 +8788,33 @@ if (isset($_GET['export_client_pdf'])) {
                 table: {
                     body: [
                         [
-                            {
-                                text: 'Certificate Name',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Certificate Name', 
+                                style: 'itemHeader' 
+                            }, 
+                            { 
+                                text: 'Domain Name', 
+                                style: 'itemHeader' 
                             },
-                            {
-                                text: 'Domain Name',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Issuer', 
+                                style: 'itemHeader' 
                             },
-                            {
-                                text: 'Issuer',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Expiration Date',
-                                style: 'itemHeader'
+                            { 
+                                text: 'Expiration Date', 
+                                style: 'itemHeader' 
                             }
                         ],
-
+                        
                         <?php
-                        while ($row = mysqli_fetch_array($sql_certficates)) {
+                        while($row = mysqli_fetch_array($sql_certficates)){
                             $certificate_name = $row['certificate_name'];
                             $certificate_domain = $row['certificate_domain'];
                             $certificate_issued_by = $row['certificate_issued_by'];
                             $certificate_expire = $row['certificate_expire'];
                         ?>
 
-                        [
+                        [ 
                             {
                                 text: <?php echo json_encode($certificate_name); ?>,
                                 style: 'item'
@@ -8745,7 +8876,7 @@ if (isset($_GET['export_client_pdf'])) {
             }
         }
     };
-
+    
 
     pdfMake.createPdf(docDefinition).download('<?php echo strto_AZaz09($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>.pdf');
 
@@ -8760,7 +8891,7 @@ if (isset($_GET['export_client_pdf'])) {
 
 <?php
 
-if (isset($_GET['logout'])) {
+if(isset($_GET['logout'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Logout', log_action = 'Success', log_description = '$session_name logged out', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id");
     mysqli_query($mysqli, "UPDATE users SET user_php_session = '' WHERE user_id = '$session_user_id'");
 

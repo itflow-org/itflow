@@ -16,9 +16,10 @@ if (!isset($config_enable_setup) || $config_enable_setup == 1) {
   exit;
 }
 
-if (!$_SESSION['logged']) {
+// Check user is logged in with a valid session
+if (!isset($_SESSION['logged']) || !$_SESSION['logged']) {
   header("Location: login.php");
-  die;
+  exit;
 }
 
 // SESSION FINGERPRINT
