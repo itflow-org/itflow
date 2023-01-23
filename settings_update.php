@@ -1,5 +1,5 @@
 <?php
-include("inc_all_settings.php");
+require_once("inc_all_settings.php");
 include("database_version.php");
 include("config.php");
 

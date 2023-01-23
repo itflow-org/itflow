@@ -1,4 +1,4 @@
-<?php include("inc_all_settings.php");
+<?php require_once("inc_all_settings.php");
 
 if (isset($_GET['category'])) {
     $category = strip_tags(mysqli_real_escape_string($mysqli,$_GET['category']));
