@@ -8,8 +8,8 @@
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
-       
-        <input type="hidden" name="client_id" value="<?php if (isset($_GET['client_id'])) { echo $client_id; }else{ echo 0; } ?>">
+
+        <input type="hidden" name="client_id" value="<?php if (isset($_GET['client_id'])) { echo $client_id; } else { echo 0; } ?>">
 
         <div class="modal-body bg-white">
 
@@ -26,7 +26,7 @@
           </ul>
 
           <hr>
-          
+
           <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-details">
@@ -40,7 +40,7 @@
                   <input type="text" class="form-control" name="name" placeholder="Vendor Name" required autofocus>
                 </div>
               </div>
-              
+
               <div class="form-group">
                 <label>Description</label>
                 <div class="input-group">
@@ -72,7 +72,7 @@
               </div>
 
             </div>
-            
+
             <div class="tab-pane fade" id="pills-support">
 
               <label>Support Phone</label>
@@ -83,7 +83,7 @@
                       <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                       </div>
-                      <input type="text" class="form-control" name="phone" placeholder="Phone Number"> 
+                      <input type="text" class="form-control" name="phone" placeholder="Phone Number">
                     </div>
                   </div>
                 </div>
@@ -101,7 +101,7 @@
                   <input type="text" class="form-control" name="hours" placeholder="Support Hours">
                 </div>
               </div>
-              
+
               <div class="form-group">
                 <label>Support Email</label>
                 <div class="input-group">
@@ -111,7 +111,7 @@
                   <input type="email" class="form-control" name="email" placeholder="Support Email">
                 </div>
               </div>
-              
+
               <div class="form-group">
                 <label>Support Website URL</label>
                 <div class="input-group">
@@ -131,7 +131,7 @@
                   <input type="text" class="form-control" name="code" placeholder="Access Code or Pin">
                 </div>
               </div>
-              
+
               <div class="form-group">
                 <label>SLA</label>
                 <div class="input-group">
@@ -141,11 +141,11 @@
                   <input type="text" class="form-control" name="sla" placeholder="SLA Response Time">
                 </div>
               </div>
-            
+
             </div>
 
             <div class="tab-pane fade" id="pills-notes">
-              
+
               <div class="form-group">
                 <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"></textarea>
               </div>
@@ -153,7 +153,7 @@
             </div>
 
           </div>
-          
+
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
