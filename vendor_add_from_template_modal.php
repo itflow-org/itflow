@@ -9,7 +9,7 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
 
-        <input type="hidden" name="client_id" value="<?php if(isset($_GET['client_id'])){ echo $client_id; }else{ echo 0; } ?>">
+        <input type="hidden" name="client_id" value="<?php if (isset($_GET['client_id'])) { echo $client_id; }else{ echo 0; } ?>">
         
         <div class="modal-body bg-white">
 
@@ -23,7 +23,7 @@
                 <option value="">- Select Template -</option>
                 <?php
                 $sql_vendor_templates = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_template = 1 AND company_id = $session_company_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
-                while($row = mysqli_fetch_array($sql_vendor_templates)){
+                while ($row = mysqli_fetch_array($sql_vendor_templates)) {
                   $vendor_template_id = $row['vendor_id'];
                   $vendor_template_name = htmlentities($row['vendor_name']);
 

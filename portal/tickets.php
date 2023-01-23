@@ -117,7 +117,7 @@ $total_tickets = $row['total_tickets'];
 
         <a href="?status=%" class="btn btn-secondary btn-block p-3 mb-3 text-left">All my tickets | <strong><?php echo $total_tickets ?></strong></a>
         <?php
-        if($session_contact_id == $session_client_primary_contact_id){
+        if ($session_contact_id == $session_client_primary_contact_id) {
         ?>
         
         <hr>

@@ -1,50 +1,50 @@
 <?php include("inc_all.php"); 
 
 //Column Sortby Filter
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "transfer_date";
 }
 
 // Reverse default sort
-if(!isset($_GET['o'])){
+if (!isset($_GET['o'])) {
   $o = "DESC";
   $disp = "ASC";
 }
 
-if(empty($_GET['canned_date'])){
+if (empty($_GET['canned_date'])) {
   //Prevents lots of undefined variable errors.
   // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
   $_GET['canned_date'] = 'custom';
 }
 
 //Date Filter
-if($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])){
+if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
   $dtf = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtf']));
   $dtt = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtt']));
-}elseif($_GET['canned_date'] == "today"){
+}elseif ($_GET['canned_date'] == "today") {
   $dtf = date('Y-m-d');
   $dtt = date('Y-m-d');
-}elseif($_GET['canned_date'] == "yesterday"){
+}elseif ($_GET['canned_date'] == "yesterday") {
   $dtf = date('Y-m-d',strtotime("yesterday"));
   $dtt = date('Y-m-d',strtotime("yesterday"));
-}elseif($_GET['canned_date'] == "thisweek"){
+}elseif ($_GET['canned_date'] == "thisweek") {
   $dtf = date('Y-m-d',strtotime("monday this week"));
   $dtt = date('Y-m-d');
-}elseif($_GET['canned_date'] == "lastweek"){
+}elseif ($_GET['canned_date'] == "lastweek") {
   $dtf = date('Y-m-d',strtotime("monday last week"));
   $dtt = date('Y-m-d',strtotime("sunday last week"));
-}elseif($_GET['canned_date'] == "thismonth"){
+}elseif ($_GET['canned_date'] == "thismonth") {
   $dtf = date('Y-m-01');
   $dtt = date('Y-m-d');
-}elseif($_GET['canned_date'] == "lastmonth"){
+}elseif ($_GET['canned_date'] == "lastmonth") {
   $dtf = date('Y-m-d',strtotime("first day of last month"));
   $dtt = date('Y-m-d',strtotime("last day of last month"));
-}elseif($_GET['canned_date'] == "thisyear"){
+}elseif ($_GET['canned_date'] == "thisyear") {
   $dtf = date('Y-01-01');
   $dtt = date('Y-m-d');
-}elseif($_GET['canned_date'] == "lastyear"){
+}elseif ($_GET['canned_date'] == "lastyear") {
   $dtf = date('Y-m-d',strtotime("first day of january last year"));
   $dtt = date('Y-m-d',strtotime("last day of december last year"));  
 }else{
@@ -80,7 +80,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo strip_tags(htmlentities($q));} ?>" placeholder="Search Transfers">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo strip_tags(htmlentities($q));} ?>" placeholder="Search Transfers">
             <div class="input-group-append">
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -88,21 +88,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           </div>
         </div>
       </div>
-      <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
+      <div class="collapse mt-3 <?php if (!empty($_GET['dtf'])) { echo "show"; } ?>" id="advancedFilter">
         <div class="row">
           <div class="col-md-2">
             <div class="form-group">
               <label>Canned Date</label>
               <select class="form-control select2" name="canned_date">
-                <option <?php if($_GET['canned_date'] == "custom"){ echo "selected"; } ?> value="custom">Custom</option>
-                <option <?php if($_GET['canned_date'] == "today"){ echo "selected"; } ?> value="today">Today</option>
-                <option <?php if($_GET['canned_date'] == "yesterday"){ echo "selected"; } ?> value="yesterday">Yesterday</option>
-                <option <?php if($_GET['canned_date'] == "thisweek"){ echo "selected"; } ?> value="thisweek">This Week</option>
-                <option <?php if($_GET['canned_date'] == "lastweek"){ echo "selected"; } ?> value="lastweek">Last Week</option>
-                <option <?php if($_GET['canned_date'] == "thismonth"){ echo "selected"; } ?> value="thismonth">This Month</option>
-                <option <?php if($_GET['canned_date'] == "lastmonth"){ echo "selected"; } ?> value="lastmonth">Last Month</option>
-                <option <?php if($_GET['canned_date'] == "thisyear"){ echo "selected"; } ?> value="thisyear">This Year</option>
-                <option <?php if($_GET['canned_date'] == "lastyear"){ echo "selected"; } ?> value="lastyear">Last Year</option>
+                <option <?php if ($_GET['canned_date'] == "custom") { echo "selected"; } ?> value="custom">Custom</option>
+                <option <?php if ($_GET['canned_date'] == "today") { echo "selected"; } ?> value="today">Today</option>
+                <option <?php if ($_GET['canned_date'] == "yesterday") { echo "selected"; } ?> value="yesterday">Yesterday</option>
+                <option <?php if ($_GET['canned_date'] == "thisweek") { echo "selected"; } ?> value="thisweek">This Week</option>
+                <option <?php if ($_GET['canned_date'] == "lastweek") { echo "selected"; } ?> value="lastweek">Last Week</option>
+                <option <?php if ($_GET['canned_date'] == "thismonth") { echo "selected"; } ?> value="thismonth">This Month</option>
+                <option <?php if ($_GET['canned_date'] == "lastmonth") { echo "selected"; } ?> value="lastmonth">Last Month</option>
+                <option <?php if ($_GET['canned_date'] == "thisyear") { echo "selected"; } ?> value="thisyear">This Year</option>
+                <option <?php if ($_GET['canned_date'] == "lastyear") { echo "selected"; } ?> value="lastyear">Last Year</option>
               </select>
             </div>
           </div>
@@ -124,7 +124,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=transfer_date&o=<?php echo $disp; ?>">Date</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=transfer_account_from&o=<?php echo $disp; ?>">From Account</a></th>
@@ -136,7 +136,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $transfer_id = $row['transfer_id'];
             $transfer_date = $row['transfer_date'];
             $transfer_account_from = $row['transfer_account_from'];

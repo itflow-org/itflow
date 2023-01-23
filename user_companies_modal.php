@@ -22,15 +22,15 @@
             <?php
             $sql_companies_select = mysqli_query($mysqli,"SELECT * FROM companies ORDER BY company_name ASC");
 
-            while($row = mysqli_fetch_array($sql_companies_select)){
+            while ($row = mysqli_fetch_array($sql_companies_select)) {
               $company_id_select = $row['company_id'];
               $company_name_select = htmlentities($row['company_name']);
 
             ?>
               <li class="list-group-item">
                 <div class="form-check">
-                  <input type="checkbox" class="form-check-input" name="companies[]" value="<?php echo $company_id_select; ?>" <?php if(in_array("$company_id_select",$user_company_access_array)){ echo "checked"; } ?> <?php if($user_default_company == $company_id_select){ echo "disabled"; } ?>>
-                  <label class="form-check-label ml-2"><?php echo $company_name_select; ?> <?php if($user_default_company == $company_id_select){ echo "<small>(Default Company)</small>"; } ?></label>
+                  <input type="checkbox" class="form-check-input" name="companies[]" value="<?php echo $company_id_select; ?>" <?php if (in_array("$company_id_select",$user_company_access_array)) { echo "checked"; } ?> <?php if ($user_default_company == $company_id_select) { echo "disabled"; } ?>>
+                  <label class="form-check-label ml-2"><?php echo $company_name_select; ?> <?php if ($user_default_company == $company_id_select) { echo "<small>(Default Company)</small>"; } ?></label>
                 </div>
               </li>
 

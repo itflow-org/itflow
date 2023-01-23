@@ -3,14 +3,14 @@
 <?php
 
 // Sort by
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "document_name";
 }
 
 // Search query SQL snippet
-if(!empty($q)){
+if (!empty($q)) {
   $query_snippet = "AND (MATCH(document_content_raw) AGAINST ('$q') OR document_name LIKE '%$q%')";
 }else{
   $query_snippet = ""; // empty
@@ -48,7 +48,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo intval($client_id); ?>">
       <div class="input-group">
-        <input type="search" class="form-control " name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search templates">
+        <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search templates">
         <div class="input-group-append">
           <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
         </div>
@@ -58,7 +58,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th>
               <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=document_name&o=<?php echo $disp; ?>">Template Name</a>
@@ -77,7 +77,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $document_id = $row['document_id'];
             $document_name = htmlentities($row['document_name']);
             $document_content = $row['document_content'];
@@ -100,7 +100,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editDocumentTemplateModal<?php echo $document_id; ?>">Edit</a>
-                  <?php if($session_user_role == 3) { ?>
+                  <?php if ($session_user_role == 3) { ?>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger" href="post.php?delete_document=<?php echo $document_id; ?>">Delete</a>
                   <?php } ?>

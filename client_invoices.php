@@ -2,14 +2,14 @@
 
 <?php
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "invoice_number";
 }
 
 // Reverse default sort
-if(!isset($_GET['o'])){
+if (!isset($_GET['o'])) {
   $o = "DESC";
   $disp = "ASC";
 }
@@ -41,7 +41,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Invoices">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Invoices">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -59,7 +59,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_number&o=<?php echo $disp; ?>">Number</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_scope&o=<?php echo $disp; ?>">Scope</a></th>
@@ -74,12 +74,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $invoice_id = $row['invoice_id'];
             $invoice_prefix = htmlentities($row['invoice_prefix']);
             $invoice_number = htmlentities($row['invoice_number']);
             $invoice_scope = htmlentities($row['invoice_scope']);
-            if(empty($invoice_scope)){
+            if (empty($invoice_scope)) {
               $invoice_scope_display = "-";
             }else{
               $invoice_scope_display = $invoice_scope;
@@ -93,22 +93,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $category_id = $row['category_id'];
             $category_name = htmlentities($row['category_name']);
 
-            if(($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) < time() ){
+            if (($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) < time() ) {
                 $overdue_color = "text-danger font-weight-bold";
               }else{
                 $overdue_color = "";
               }
 
             //Set Badge color based off of invoice status
-            if($invoice_status == "Sent"){
+            if ($invoice_status == "Sent") {
               $invoice_badge_color = "warning";
-            }elseif($invoice_status == "Viewed"){
+            }elseif ($invoice_status == "Viewed") {
               $invoice_badge_color = "info";
-            }elseif($invoice_status == "Partial"){
+            }elseif ($invoice_status == "Partial") {
               $invoice_badge_color = "primary";
-            }elseif($invoice_status == "Paid"){
+            }elseif ($invoice_status == "Paid") {
               $invoice_badge_color = "success";
-            }elseif($invoice_status == "Cancelled"){
+            }elseif ($invoice_status == "Cancelled") {
               $invoice_badge_color = "danger";
             }else{
               $invoice_badge_color = "secondary";
@@ -134,7 +134,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <?php if(!empty($config_smtp_host)){ ?>
+                  <?php if (!empty($config_smtp_host)) { ?>
                   <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send</a>
                   <div class="dropdown-divider"></div>
                   <?php } ?>

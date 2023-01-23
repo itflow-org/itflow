@@ -72,9 +72,9 @@
                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                   </div>
                   <select class="form-control select2" name="importance" required>
-                    <option <?php if($service_importance == 'Low'){ echo "selected"; } ?> >Low</option>
-                    <option <?php if($service_importance == 'Medium'){ echo "selected"; } ?> >Medium</option>
-                    <option <?php if($service_importance == 'High'){ echo "selected"; } ?> >High</option>
+                    <option <?php if ($service_importance == 'Low') { echo "selected"; } ?> >Low</option>
+                    <option <?php if ($service_importance == 'Medium') { echo "selected"; } ?> >Medium</option>
+                    <option <?php if ($service_importance == 'High') { echo "selected"; } ?> >High</option>
                   </select>
                 </div>
               </div>
@@ -107,11 +107,11 @@
                   // NOTE: These are called $sql_all and $row_all for a reason - anything overwriting $sql or $row will break the current while loop we are in from client_services.php
                   $sql_all = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = '$client_id'");
 
-                  while($row_all = mysqli_fetch_array($sql_all)){
+                  while ($row_all = mysqli_fetch_array($sql_all)) {
                     $contact_id = $row_all['contact_id'];
                     $contact_name = htmlentities($row_all['contact_name']);
 
-                    if(in_array($contact_id, $selected_ids)){
+                    if (in_array($contact_id, $selected_ids)) {
                       echo "<option value=\"$contact_id\" selected>$contact_name</option>";
                     }
                     else{
@@ -129,11 +129,11 @@
                   $selected_ids = array_column(mysqli_fetch_all($sql_vendors,MYSQLI_ASSOC), "vendor_id");
 
                   $sql_all = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 0 AND vendor_client_id = '$client_id'");
-                  while($row_all = mysqli_fetch_array($sql_all)){
+                  while ($row_all = mysqli_fetch_array($sql_all)) {
                     $vendor_id = $row_all['vendor_id'];
                     $vendor_name = htmlentities($row_all['vendor_name']);
 
-                    if(in_array($vendor_id, $selected_ids)){
+                    if (in_array($vendor_id, $selected_ids)) {
                       echo "<option value=\"$vendor_id\" selected>$vendor_name</option>";
                     }
                     else{
@@ -151,11 +151,11 @@
                   $selected_ids = array_column(mysqli_fetch_all($sql_docs,MYSQLI_ASSOC), "document_id");
 
                   $sql_all = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = '$client_id'");
-                  while($row_all = mysqli_fetch_array($sql_all)){
+                  while ($row_all = mysqli_fetch_array($sql_all)) {
                     $document_id = $row_all['document_id'];
                     $document_name = htmlentities($row_all['document_name']);
 
-                    if(in_array($document_id, $selected_ids)){
+                    if (in_array($document_id, $selected_ids)) {
                       echo "<option value=\"$document_id\" selected>$document_name</option>";
                     }
                     else{
@@ -184,11 +184,11 @@
                       $selected_ids = array_column(mysqli_fetch_all($sql_assets,MYSQLI_ASSOC), "asset_id");
 
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = '$client_id'");
-                      while($row_all = mysqli_fetch_array($sql_all)){
+                      while ($row_all = mysqli_fetch_array($sql_all)) {
                         $asset_id = $row_all['asset_id'];
                         $asset_name = htmlentities($row_all['asset_name']);
 
-                        if(in_array($asset_id, $selected_ids)){
+                        if (in_array($asset_id, $selected_ids)) {
                           echo "<option value=\"$asset_id\" selected>$asset_name</option>";
                         }
                         else{
@@ -208,11 +208,11 @@
                       $selected_ids = array_column(mysqli_fetch_all($sql_logins,MYSQLI_ASSOC), "login_id");
 
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id = '$client_id'");
-                      while($row_all = mysqli_fetch_array($sql_all)){
+                      while ($row_all = mysqli_fetch_array($sql_all)) {
                         $login_id = $row_all['login_id'];
                         $login_name = htmlentities($row_all['login_name']);
 
-                        if(in_array($login_id, $selected_ids)){
+                        if (in_array($login_id, $selected_ids)) {
                           echo "<option value=\"$login_id\" selected>$login_name</option>";
                         }
                         else{
@@ -237,11 +237,11 @@
                       $selected_ids = array_column(mysqli_fetch_all($sql_domains,MYSQLI_ASSOC), "domain_id");
 
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = '$client_id'");
-                      while($row_all = mysqli_fetch_array($sql_all)){
+                      while ($row_all = mysqli_fetch_array($sql_all)) {
                         $domain_id = $row_all['domain_id'];
                         $domain_name = htmlentities($row_all['domain_name']);
 
-                        if(in_array($domain_id, $selected_ids)){
+                        if (in_array($domain_id, $selected_ids)) {
                           echo "<option value=\"$domain_id\" selected>$domain_name</option>";
                         }
                         else{
@@ -261,11 +261,11 @@
                       $selected_ids = array_column(mysqli_fetch_all($sql_certificates,MYSQLI_ASSOC), "certificate_id");
 
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id = '$client_id'");
-                      while($row_all = mysqli_fetch_array($sql_all)){
+                      while ($row_all = mysqli_fetch_array($sql_all)) {
                         $cert_id = $row_all['certificate_id'];
                         $cert_name = htmlentities($row_all['certificate_name']);
 
-                        if(in_array($cert_id, $selected_ids)){
+                        if (in_array($cert_id, $selected_ids)) {
                           echo "<option value=\"$cert_id\" selected>$cert_name</option>";
                         }
                         else{

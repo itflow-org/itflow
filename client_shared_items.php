@@ -2,11 +2,11 @@
 
 <?php
 
-if(isset($_GET['q'])){
+if (isset($_GET['q'])) {
   $q = strip_tags(mysqli_real_escape_string($mysqli,$_GET['q']));
   //Phone Numbers
   $phone_query = preg_replace("/[^0-9]/", '',$q);
-  if(empty($phone_query)){
+  if (empty($phone_query)) {
     $phone_query = $q;
   }
 }else{
@@ -42,7 +42,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
           <div class="col-md-4">
             <div class="input-group mb-3 mb-md-0">
-              <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Shared Items">
+              <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Shared Items">
               <div class="input-group-append">
                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
               </div>
@@ -54,7 +54,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <hr>
       <div class="table-responsive">
         <table class="table table-striped table-borderless table-hover">
-          <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+          <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th>Item Name</th>
             <th>Item Type</th>
@@ -67,7 +67,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tbody>
           <?php
 
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $item_id = $row['item_id'];
             $item_active = htmlentities($row['item_active']);
             $item_key = htmlentities($row['item_key']);
@@ -79,17 +79,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $item_created_at = $row['item_created_at'];
             $item_expire_at = $row['item_expire_at'];
 
-            if($item_type == 'Login'){
+            if ($item_type == 'Login') {
               $share_item_sql = mysqli_query($mysqli, "SELECT login_name FROM logins WHERE login_id = '$item_related_id' AND login_client_id = '$client_id'");
               $share_item = mysqli_fetch_array($share_item_sql);
               $item_name = htmlentities($share_item['login_name']);
             }
-            elseif($item_type == 'Document'){
+            elseif ($item_type == 'Document') {
               $share_item_sql = mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = '$item_related_id' AND document_client_id = '$client_id'");
               $share_item = mysqli_fetch_array($share_item_sql);
               $item_name = htmlentities($share_item['document_name']);
             }
-            elseif($item_type == 'File'){
+            elseif ($item_type == 'File') {
               $share_item_sql = mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = '$item_related_id' AND file_client_id = '$client_id'");
               $share_item = mysqli_fetch_array($share_item_sql);
               $item_name = htmlentities($share_item['file_name']);
@@ -104,7 +104,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               <td><?php echo "$item_views / $item_view_limit" ?></td>
               <td><?php echo $item_expire_at ?></td>
               <td>
-                <?php if($session_user_role == 3) { ?>
+                <?php if ($session_user_role == 3) { ?>
                   <div class="dropdown dropleft text-center">
                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                       <i class="fas fa-ellipsis-h"></i>

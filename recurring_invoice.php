@@ -2,7 +2,7 @@
 
 <?php 
 
-if(isset($_GET['recurring_id'])){
+if (isset($_GET['recurring_id'])) {
 
   $recurring_id = intval($_GET['recurring_id']);
 
@@ -23,7 +23,7 @@ if(isset($_GET['recurring_id'])){
   $recurring_status = htmlentities($row['recurring_status']);
   $recurring_created_at = date('Y-m-d',strtotime($row['recurring_created_at']));
   $recurring_last_sent = $row['recurring_last_sent'];
-  if($recurring_last_sent == 0){
+  if ($recurring_last_sent == 0) {
     $recurring_last_sent = '-';
   }
   $recurring_next_date = $row['recurring_next_date'];
@@ -45,7 +45,7 @@ if(isset($_GET['recurring_id'])){
   $client_currency_code = htmlentities($row['client_currency_code']);
   $client_net_terms = htmlentities($row['client_net_terms']);
   
-  if($recurring_status == 1){
+  if ($recurring_status == 1) {
     $status = "Active";
     $status_badge_color = "success";
   }else{
@@ -69,8 +69,8 @@ if(isset($_GET['recurring_id'])){
   //Product autocomplete
   $products_sql = mysqli_query($mysqli,"SELECT product_name AS label, product_description AS description, product_price AS price FROM products WHERE company_id = $session_company_id");
 
-  if(mysqli_num_rows($products_sql) > 0){
-    while($row = mysqli_fetch_array($products_sql)){
+  if (mysqli_num_rows($products_sql) > 0) {
+    while ($row = mysqli_fetch_array($products_sql)) {
       $products[] = $row;
     }
     $json_products = json_encode($products);
@@ -188,7 +188,7 @@ if(isset($_GET['recurring_id'])){
                 $total_tax = 0;
                 $sub_total = 0;
           
-                while($row = mysqli_fetch_array($sql_items)){
+                while ($row = mysqli_fetch_array($sql_items)) {
                   $item_id = $row['item_id'];
                   $item_name = htmlentities($row['item_name']);
                   $item_description = htmlentities($row['item_description']);
@@ -238,7 +238,7 @@ if(isset($_GET['recurring_id'])){
                         <?php 
                         
                         $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
-                        while($row = mysqli_fetch_array($taxes_sql)){
+                        while ($row = mysqli_fetch_array($taxes_sql)) {
                           $tax_id = $row['tax_id'];
                           $tax_name = htmlentities($row['tax_name']);
                           $tax_percent = htmlentities($row['tax_percent']);
@@ -287,7 +287,7 @@ if(isset($_GET['recurring_id'])){
               <td>Subtotal</td>
               <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $recurring_currency_code); ?></td>
             </tr>
-            <?php if($total_tax > 0){ ?>
+            <?php if ($total_tax > 0) { ?>
             <tr class="border-bottom">
               <td>Tax</td>
               <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $recurring_currency_code); ?></td>        
@@ -329,7 +329,7 @@ if(isset($_GET['recurring_id'])){
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql_history)){
+            while ($row = mysqli_fetch_array($sql_history)) {
               $history_created_at = $row['history_created_at'];
               $history_status = htmlentities($row['history_status']);
               $history_description = htmlentities($row['history_description']);
@@ -366,12 +366,12 @@ include("footer.php");
 <link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
 <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
 <script>
-  $(function(){
+  $(function() {
     var availableProducts = <?php echo $json_products?>;
 
     $("#name").autocomplete({
       source: availableProducts,
-      select: function (event, ui){
+      select: function (event, ui) {
         $("#name").val(ui.item.label); // Product name field - this seemingly has to referenced as label
         $("#desc").val(ui.item.description); // Product description field
         $("#qty").val(1); // Product quantity field automatically make it a 1

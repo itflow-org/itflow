@@ -2,7 +2,7 @@
 
 <?php 
 
-if(isset($_GET['invoice_id'], $_GET['url_key'])){
+if (isset($_GET['invoice_id'], $_GET['url_key'])) {
 
   $url_key = mysqli_real_escape_string($mysqli,$_GET['url_key']);
   $invoice_id = intval($_GET['invoice_id']);
@@ -17,7 +17,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     AND invoice_url_key = '$url_key'"
   );
 
-  if(mysqli_num_rows($sql) == 1){
+  if (mysqli_num_rows($sql) == 1) {
 
     $row = mysqli_fetch_array($sql);
     $invoice_id = $row['invoice_id'];
@@ -43,7 +43,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     $client_website = htmlentities($row['client_website']);
     $client_currency_code = htmlentities($row['client_currency_code']);
     $client_net_terms = htmlentities($row['client_net_terms']);
-    if($client_net_terms == 0){
+    if ($client_net_terms == 0) {
       $client_net_terms = $config_default_net_terms;
     }
     $company_id = $row['company_id'];
@@ -55,7 +55,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     $company_phone = formatPhoneNumber($row['company_phone']);
     $company_email = htmlentities($row['company_email']);
     $company_logo = htmlentities($row['company_logo']);
-    if(!empty($company_logo)){
+    if (!empty($company_logo)) {
       $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
     }
     $company_locale = htmlentities($row['company_locale']);
@@ -74,22 +74,22 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     $browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser($session_user_agent)));
 
     //Set Badge color based off of invoice status
-    if($invoice_status == "Sent"){
+    if ($invoice_status == "Sent") {
       $invoice_badge_color = "warning text-white";
-    }elseif($invoice_status == "Viewed"){
+    }elseif ($invoice_status == "Viewed") {
       $invoice_badge_color = "info";
-    }elseif($invoice_status == "Partial"){
+    }elseif ($invoice_status == "Partial") {
       $invoice_badge_color = "primary";
-    }elseif($invoice_status == "Paid"){
+    }elseif ($invoice_status == "Paid") {
       $invoice_badge_color = "success";
-    }elseif($invoice_status == "Cancelled"){
+    }elseif ($invoice_status == "Cancelled") {
       $invoice_badge_color = "danger";
     }else{
       $invoice_badge_color = "secondary";
     }
 
     //Update status to Viewed only if invoice_status = "Sent" 
-    if($invoice_status == 'Sent'){
+    if ($invoice_status == 'Sent') {
       mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Viewed' WHERE invoice_id = $invoice_id");
     }
 
@@ -110,9 +110,9 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
     $balance = $invoice_amount - $amount_paid;
 
     //check to see if overdue
-    if($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled"){
+    if ($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled") {
       $unixtime_invoice_due = strtotime($invoice_due) + 86400;
-      if($unixtime_invoice_due < time()){
+      if ($unixtime_invoice_due < time()) {
         $invoice_color = "text-danger";
       }
     }
@@ -126,10 +126,10 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
         <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
         <a class="btn btn-primary" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$invoice_date-$company_name-Invoice-$invoice_prefix$invoice_number.pdf"; ?>');"><i class="fa fa-fw fa-download"></i> Download</a>
         <?php
-        if($invoice_status != "Paid" && $invoice_status  != "Cancelled" && $invoice_status != "Draft" && $config_stripe_enable == 1){
+        if ($invoice_status != "Paid" && $invoice_status  != "Cancelled" && $invoice_status != "Draft" && $config_stripe_enable == 1) {
         ?>
         <?php
-        if($config_stripe_enable == 1){
+        if ($config_stripe_enable == 1) {
         ?>
         <a class="btn btn-success" href="guest_pay.php?invoice_id=<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card"></i> Pay Online <small>(Coming Soon)</small></a>
         <?php } ?>
@@ -142,7 +142,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
           <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
         </div>
         <div class="col-sm-10">
-          <?php if($invoice_status == "Paid"){ ?>
+          <?php if ($invoice_status == "Paid") { ?>
           <div class="ribbon-wrapper">
             <div class="ribbon bg-success">
               <?php echo $invoice_status; ?>
@@ -216,7 +216,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
                   $total_tax = 0;
                   $sub_total = 0;
             
-                  while($row = mysqli_fetch_array($sql_invoice_items)){
+                  while ($row = mysqli_fetch_array($sql_invoice_items)) {
                     $item_id = $row['item_id'];
                     $item_name = htmlentities($row['item_name']);
                     $item_description = htmlentities($row['item_description']);
@@ -253,7 +253,7 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
 
       <div class="row mb-4">
         <div class="col-sm-7">
-          <?php if(!empty($invoice_note)){ ?>
+          <?php if (!empty($invoice_note)) { ?>
           <div class="card">
             <div class="card-body">
               <div style="white-space:pre-line"><?php echo $invoice_note; ?></div>
@@ -268,13 +268,13 @@ if(isset($_GET['invoice_id'], $_GET['url_key'])){
                 <td>Subtotal</td>
                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?></td>
               </tr>
-              <?php if($total_tax > 0){ ?>
+              <?php if ($total_tax > 0) { ?>
               <tr class="border-bottom">
                 <td>Tax</td>
                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code); ?></td>        
               </tr>
               <?php } ?>
-              <?php if($amount_paid > 0){ ?>
+              <?php if ($amount_paid > 0) { ?>
               <tr class="border-bottom">
                 <td><div class="text-success">Paid</div></td>
                 <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
@@ -311,7 +311,7 @@ var docDefinition = {
 		// Header
 		{
 			columns: [
-				<?php if(!empty($company_logo_base64)){ ?>
+				<?php if (!empty($company_logo_base64)) { ?>
 				{
 					image: <?php echo json_encode("data:image;base64,$company_logo_base64") ?>,
 					width: 120
@@ -443,7 +443,7 @@ var docDefinition = {
 
 		      $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
 		      
-		      while($row = mysqli_fetch_array($sql_invoice_items)){
+		      while ($row = mysqli_fetch_array($sql_invoice_items)) {
 		        $item_name = $row['item_name'];
 		        $item_description = $row['item_description'];
 		        $item_quantity = $row['item_quantity'];
@@ -721,7 +721,7 @@ var docDefinition = {
 
   $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_due < CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
 
-  if(mysqli_num_rows($sql) > 1){
+  if (mysqli_num_rows($sql) > 1) {
 
   ?>
 
@@ -743,7 +743,7 @@ var docDefinition = {
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
               $invoice_id = $row['invoice_id'];
               $invoice_prefix = htmlentities($row['invoice_prefix']);
               $invoice_number = htmlentities($row['invoice_number']);
@@ -758,7 +758,7 @@ var docDefinition = {
 
             ?>
 
-              <tr <?php if($_GET['invoice_id'] == $invoice_id){ echo "class='table-active'"; } ?>>
+              <tr <?php if ($_GET['invoice_id'] == $invoice_id) { echo "class='table-active'"; } ?>>
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td class="text-danger text-bold"><?php echo $invoice_due; ?> (<?php echo $days; ?> Days Late)</td>
@@ -781,7 +781,7 @@ var docDefinition = {
 
   $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_number DESC");
 
-  if(mysqli_num_rows($sql) > 1){
+  if (mysqli_num_rows($sql) > 1) {
 
   ?>
 
@@ -803,7 +803,7 @@ var docDefinition = {
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
               $invoice_id = $row['invoice_id'];
               $invoice_prefix = htmlentities($row['invoice_prefix']);
               $invoice_number = htmlentities($row['invoice_number']);
@@ -818,7 +818,7 @@ var docDefinition = {
 
             ?>
 
-              <tr <?php if($_GET['invoice_id'] == $invoice_id){ echo "class='table-active'"; } ?>>
+              <tr <?php if ($_GET['invoice_id'] == $invoice_id) { echo "class='table-active'"; } ?>>
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td><?php echo $invoice_due; ?> (Due in <?php echo $days; ?> Days)</td>
@@ -842,7 +842,7 @@ var docDefinition = {
 
   $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_status = 'Paid' ORDER BY invoice_date DESC");
 
-  if(mysqli_num_rows($sql) > 1){
+  if (mysqli_num_rows($sql) > 1) {
 
   ?>
 
@@ -864,7 +864,7 @@ var docDefinition = {
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
               $invoice_id = $row['invoice_id'];
               $invoice_prefix = htmlentities($row['invoice_prefix']);
               $invoice_number = htmlentities($row['invoice_number']);
@@ -877,7 +877,7 @@ var docDefinition = {
 
             ?>
 
-              <tr <?php if($_GET['invoice_id'] == $invoice_id){ echo "class='table-active'"; } ?>>
+              <tr <?php if ($_GET['invoice_id'] == $invoice_id) { echo "class='table-active'"; } ?>>
                 <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                 <td><?php echo $invoice_date; ?></td>
                 <td><?php echo $invoice_due; ?></td>
@@ -892,14 +892,14 @@ var docDefinition = {
               
               $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_invoice_id = $invoice_id ORDER BY payment_date DESC");
 
-              while($row = mysqli_fetch_array($sql_payments)){
+              while ($row = mysqli_fetch_array($sql_payments)) {
                 $payment_id = $row['payment_id'];
                 $payment_date = $row['payment_date'];
                 $payment_amount = floatval($row['payment_amount']);
                 $payment_currency_code = htmlentities($row['payment_currency_code']);
                 $payment_method = htmlentities($row['payment_method']);
                 $payment_reference = htmlentities($row['payment_reference']);
-                if(strtotime($payment_date) > strtotime($invoice_due)){
+                if (strtotime($payment_date) > strtotime($invoice_due)) {
                   $payment_note = "Late";
                   $difference = strtotime($payment_date) - strtotime($invoice_due);
                   $days = floor($difference / (60*60*24) ) . " Days";

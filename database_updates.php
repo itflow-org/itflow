@@ -475,6 +475,6 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
     //}
 
 
-}else{
+} else {
     // Up-to-date
 }

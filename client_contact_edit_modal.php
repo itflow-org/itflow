@@ -43,7 +43,7 @@
                   <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo $contact_name; ?>" required>
                   <div class="input-group-append">
                     <div class="input-group-text">
-                      <input type="checkbox" name="primary_contact" value="1" <?php if($contact_id == $primary_contact){ echo "checked"; } ?>>
+                      <input type="checkbox" name="primary_contact" value="1" <?php if ($contact_id == $primary_contact) { echo "checked"; } ?>>
                     </div>
                   </div>
                 </div>
@@ -58,7 +58,7 @@
                   <input type="text" class="form-control" name="title" placeholder="Title" value="<?php echo $contact_title; ?>">
                   <div class="input-group-append">
                     <div class="input-group-text">
-                      <input type="checkbox" name="contact_important" value="1" <?php if($contact_important == 1){ echo "checked"; } ?>>
+                      <input type="checkbox" name="contact_important" value="1" <?php if ($contact_important == 1) { echo "checked"; } ?>>
                     </div>
                   </div>
                 </div>
@@ -122,11 +122,11 @@
                     <?php 
                     
                     $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE (location_archived_at > '$contact_created_at' OR location_archived_at IS NULL) AND location_client_id = $client_id ORDER BY location_name ASC");
-                    while($row = mysqli_fetch_array($sql_locations)){
+                    while ($row = mysqli_fetch_array($sql_locations)) {
                       $location_id_select = $row['location_id'];
                       $location_name_select = htmlentities($row['location_name']);
                     ?>
-                    <option <?php if($contact_location_id == $location_id_select){ echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
+                    <option <?php if ($contact_location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
                     
                     <?php
                     }
@@ -147,13 +147,13 @@
                   </div>
                   <select class="form-control select2" name="auth_method">
                     <option value="">- None -</option>
-                    <option value="local" <?php if($auth_method == "local") {echo "selected";} ?>>Local</option>
-                    <option value="azure" <?php if($auth_method == "azure") {echo "selected";} ?>>Azure</option>
+                    <option value="local" <?php if ($auth_method == "local") {echo "selected";} ?>>Local</option>
+                    <option value="azure" <?php if ($auth_method == "azure") {echo "selected";} ?>>Azure</option>
                   </select>
                 </div>
               </div>
 
-              <?php if($auth_method == "local") { ?>
+              <?php if ($auth_method == "local") { ?>
 
                 <div class="form-group">
                   <label>Password</label>
@@ -180,7 +180,7 @@
             <div class="tab-pane fade" id="pills-photo<?php echo $contact_id; ?>">
 
               <div class="mb-3 text-center">
-                <?php if(!empty($contact_photo)){ ?>
+                <?php if (!empty($contact_photo)) { ?>
                 <img class="img-fluid" alt="contact_photo" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
                 <?php }else{ ?>
                 <span class="fa-stack fa-4x">

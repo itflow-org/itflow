@@ -44,7 +44,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 
   </div>
 
-<?php if(mysqli_num_rows($sql_important_contacts) > 0 ){ ?>
+<?php if (mysqli_num_rows($sql_important_contacts) > 0 ) { ?>
 
   <div class="col-md-4">
 
@@ -57,7 +57,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
         <table class="table table-borderless table-sm">
           <?php
 
-          while($row = mysqli_fetch_array($sql_important_contacts)){
+          while ($row = mysqli_fetch_array($sql_important_contacts)) {
             $contact_id = $row['contact_id'];
             $contact_name = htmlentities($row['contact_name']);
             $contact_title = htmlentities($row['contact_title']);
@@ -74,10 +74,10 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
               <small class="text-secondary"><?php echo $contact_title; ?></small>
             </td>
             <td>
-              <?php if(!empty($contact_phone)){ ?>
+              <?php if (!empty($contact_phone)) { ?>
               <?php echo "<i class='fa fa-fw fa-phone text-secondary'></i> $contact_phone $contact_extension"; ?>
               <?php } ?>
-              <?php if(!empty($contact_mobile)){ ?>
+              <?php if (!empty($contact_mobile)) { ?>
               <br>
               <div class="text-secondary"><i class='fa fa-fw fa-mobile-alt text-secondary'></i> <?php echo "$contact_mobile"; ?></div>
               <?php } ?>
@@ -94,7 +94,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 
 <?php } ?>
 
-<?php if(mysqli_num_rows($sql_contacts) > 0 || mysqli_num_rows($sql_vendors) > 0 ){ ?>
+<?php if (mysqli_num_rows($sql_contacts) > 0 || mysqli_num_rows($sql_vendors) > 0 ) { ?>
   <div class="col-md-3">
 
     <div class="card card-dark mb-3">
@@ -105,7 +105,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
         
           <?php
 
-          while($row = mysqli_fetch_array($sql_contacts)){
+          while ($row = mysqli_fetch_array($sql_contacts)) {
             $contact_id = $row['contact_id'];
             $contact_name = htmlentities($row['contact_name']);
             $contact_updated_at = $row['contact_updated_at'];
@@ -121,7 +121,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 
           <?php
 
-          while($row = mysqli_fetch_array($sql_vendors)){
+          while ($row = mysqli_fetch_array($sql_vendors)) {
             $vendor_id = $row['vendor_id'];
             $vendor_name = htmlentities($row['vendor_name']);
             $vendor_updated_at = $row['vendor_updated_at'];
@@ -140,7 +140,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
   </div>
 <?php } ?>
 
-<?php if(mysqli_num_rows($sql_contacts) > 0 || mysqli_num_rows($sql_vendors) > 0 ){ ?>
+<?php if (mysqli_num_rows($sql_contacts) > 0 || mysqli_num_rows($sql_vendors) > 0 ) { ?>
 
   <div class="col-md-3">
 
@@ -152,7 +152,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
         
           <?php
 
-          while($row = mysqli_fetch_array($sql_contacts)){
+          while ($row = mysqli_fetch_array($sql_contacts)) {
             $contact_id = $row['contact_id'];
             $contact_name = htmlentities($row['contact_name']);
             $contact_updated_at = $row['contact_updated_at'];
@@ -168,7 +168,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 
           <?php
 
-          while($row = mysqli_fetch_array($sql_vendors)){
+          while ($row = mysqli_fetch_array($sql_vendors)) {
             $vendor_id = $row['vendor_id'];
             $vendor_name = htmlentities($row['vendor_name']);
             $vendor_updated_at = $row['vendor_updated_at'];
@@ -198,7 +198,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
         
           <?php
 
-          while($row = mysqli_fetch_array($sql_domains_expiring)){
+          while ($row = mysqli_fetch_array($sql_domains_expiring)) {
             $domain_id = $row['domain_id'];
             $domain_name = htmlentities($row['domain_name']);
             $domain_expire = $row['domain_expire'];
@@ -215,7 +215,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 
           <?php
 
-          while($row = mysqli_fetch_array($sql_asset_warranties_expiring)){
+          while ($row = mysqli_fetch_array($sql_asset_warranties_expiring)) {
             $asset_id = $row['asset_id'];
             $asset_name = htmlentities($row['asset_name']);
             $asset_warranty_expire = $row['asset_warranty_expire'];
@@ -234,7 +234,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
 
           <?php
 
-          while($row = mysqli_fetch_array($sql_asset_retire)){
+          while ($row = mysqli_fetch_array($sql_asset_retire)) {
             $asset_id = $row['asset_id'];
             $asset_name = htmlentities($row['asset_name']);
             $asset_install_date = $row['asset_install_date'];
@@ -254,7 +254,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
     </div>
   </div>
 
-  <?php if(mysqli_num_rows($sql_tickets_stale) > 0){ ?>
+  <?php if (mysqli_num_rows($sql_tickets_stale) > 0) { ?>
 
   <!-- Stale Tickets -->
 
@@ -267,7 +267,7 @@ $sql_domains_expiring = mysqli_query($mysqli,"SELECT * FROM domains
           <tbody>
           <?php
 
-          while($row = mysqli_fetch_array($sql_tickets_stale)){
+          while ($row = mysqli_fetch_array($sql_tickets_stale)) {
             $ticket_id = $row['ticket_id'];
             $ticket_prefix = htmlentities($row['ticket_prefix']);
             $ticket_number = $row['ticket_number'];

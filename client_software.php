@@ -2,7 +2,7 @@
 
 <?php 
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "software_name";
@@ -48,7 +48,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Licenses">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Licenses">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -66,7 +66,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=software_name&o=<?php echo $disp; ?>">Software</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=software_type&o=<?php echo $disp; ?>">Type</a></th>
@@ -79,7 +79,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
     
-          while($row = mysqli_fetch_array($sql)){    
+          while ($row = mysqli_fetch_array($sql)) {
             $software_id = $row['software_id'];
             $software_name = htmlentities($row['software_name']);
             $software_version = htmlentities($row['software_version']);
@@ -101,7 +101,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             // Asset Licenses
             $asset_licenses_sql = mysqli_query($mysqli,"SELECT asset_id FROM software_assets WHERE software_id = $software_id");
             $asset_licenses_array = array();
-            while($row = mysqli_fetch_array($asset_licenses_sql)){
+            while ($row = mysqli_fetch_array($asset_licenses_sql)) {
               $asset_licenses_array[] = $row['asset_id'];
               $seat_count = $seat_count + 1;
             }
@@ -110,7 +110,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             // Contact Licenses
             $contact_licenses_sql = mysqli_query($mysqli,"SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
             $contact_licenses_array = array();
-            while($row = mysqli_fetch_array($contact_licenses_sql)){
+            while ($row = mysqli_fetch_array($contact_licenses_sql)) {
               $contact_licenses_array[] = $row['contact_id'];
               $seat_count = $seat_count + 1;
             }
@@ -126,7 +126,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo "$seat_count / $software_seats"; ?></td>
             <td>
               <?php
-              if($login_id > 0){
+              if ($login_id > 0) {
               ?>  
               <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $login_id; ?>"><i class="fas fa-key"></i></button>
 
@@ -173,7 +173,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>">Edit</a>
-                  <?php if($session_user_role == 3) { ?>
+                  <?php if ($session_user_role == 3) { ?>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger" href="post.php?delete_software=<?php echo $software_id; ?>">Delete</a>
                   <?php } ?>

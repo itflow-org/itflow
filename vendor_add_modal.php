@@ -9,7 +9,7 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
        
-        <input type="hidden" name="client_id" value="<?php if(isset($_GET['client_id'])){ echo $client_id; }else{ echo 0; } ?>">
+        <input type="hidden" name="client_id" value="<?php if (isset($_GET['client_id'])) { echo $client_id; }else{ echo 0; } ?>">
 
         <div class="modal-body bg-white">
 

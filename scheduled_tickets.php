@@ -1,7 +1,7 @@
 <?php
 include("inc_all.php");
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "scheduled_ticket_subject";
@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo strip_tags(htmlentities($q));} ?>" placeholder="Search Scheduled Tickets">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo strip_tags(htmlentities($q));} ?>" placeholder="Search Scheduled Tickets">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -89,7 +89,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                   <a class="dropdown-item" href="#" data-toggle="modal"
                      data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)">Edit</a>
                   <?php
-                  if($session_user_role == 3){ ?>
+                  if ($session_user_role == 3) { ?>
                     <div class="dropdown-divider"></div>
                       <a class="dropdown-item text-danger" href="post.php?delete_scheduled_ticket=<?php echo $scheduled_ticket_id; ?>">Delete</a>
                     </div>

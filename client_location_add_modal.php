@@ -38,7 +38,7 @@
                   <input type="text" class="form-control" name="name" placeholder="Name of location" required autofocus>
                   <div class="input-group-append">
                     <div class="input-group-text">
-                      <input type="checkbox" name="primary_location" value="1" <?php if($primary_location == 0){ echo "checked"; } ?>>
+                      <input type="checkbox" name="primary_location" value="1" <?php if ($primary_location == 0) { echo "checked"; } ?>>
                     </div>
                   </div>
                 </div>
@@ -93,7 +93,7 @@
                   <select class="form-control select2" name="country">
                     <option value="">- Country -</option>
                     <?php foreach($countries_array as $country_name) { ?>
-                    <option <?php if($session_company_country == $country_name){ echo "selected"; } ?> ><?php echo $country_name; ?></option>
+                    <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?> ><?php echo $country_name; ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -114,7 +114,7 @@
                     <?php 
                     
                     $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC"); 
-                    while($row = mysqli_fetch_array($sql_contacts)){
+                    while ($row = mysqli_fetch_array($sql_contacts)) {
                       $contact_id = $row['contact_id'];
                       $contact_name = htmlentities($row['contact_name']);
                     ?>

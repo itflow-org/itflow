@@ -2,11 +2,11 @@
 
 <?php 
  
-if(isset($_GET['q'])){
+if (isset($_GET['q'])) {
   $q = strip_tags(mysqli_real_escape_string($mysqli,$_GET['q']));
   //Phone Numbers
   $phone_query = preg_replace("/[^0-9]/", '',$q);
-  if(empty($phone_query)){
+  if (empty($phone_query)) {
     $phone_query = $q;
   }
 }else{
@@ -14,7 +14,7 @@ if(isset($_GET['q'])){
   $phone_query = "";
 }
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "location_name";
@@ -47,7 +47,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Locations">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Locations">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -66,7 +66,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_address&o=<?php echo $disp; ?>">Address</a></th>
@@ -78,7 +78,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $location_id = $row['location_id'];
             $location_name = htmlentities($row['location_name']);
             $location_country = htmlentities($row['location_country']);
@@ -87,13 +87,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $location_state = htmlentities($row['location_state']);
             $location_zip = htmlentities($row['location_zip']);
             $location_phone = formatPhoneNumber($row['location_phone']);
-            if(empty($location_phone)){
+            if (empty($location_phone)) {
               $location_phone_display = "-";
             }else{
               $location_phone_display = $location_phone;
             }
             $location_hours = htmlentities($row['location_hours']);
-            if(empty($location_hours)){
+            if (empty($location_hours)) {
               $location_hours_display = "-";
             }else{
               $location_hours_display = $location_hours;
@@ -102,7 +102,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $location_notes = htmlentities($row['location_notes']);
             $location_created_at = $row['location_created_at'];
             $location_contact_id = $row['location_contact_id'];
-            if($location_id == $primary_location){
+            if ($location_id == $primary_location) {
               $primary_location_display = "<p class='text-success'>Primary Location</p>";
             }else{
               $primary_location_display = "";
@@ -125,7 +125,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">Edit</a>
-                  <?php if($session_user_role == 3 && $location_id !== $primary_location) { ?>
+                  <?php if ($session_user_role == 3 && $location_id !== $primary_location) { ?>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item text-danger" href="post.php?archive_location=<?php echo $location_id; ?>">Archive</a>
                   <a class="dropdown-item text-danger" href="post.php?delete_location=<?php echo $location_id; ?>">Delete</a>

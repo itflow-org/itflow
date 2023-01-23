@@ -47,7 +47,7 @@
                   <?php 
                   
                   $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE (account_archived_at > '$expense_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id ORDER BY account_name ASC"); 
-                  while($row = mysqli_fetch_array($sql_accounts)){
+                  while ($row = mysqli_fetch_array($sql_accounts)) {
                     $account_id_select = $row['account_id'];
                     $account_name_select = htmlentities($row['account_name']);
                     $opening_balance = floatval($row['opening_balance']);
@@ -67,7 +67,7 @@
                     $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                   ?>
-                  <option <?php if($expense_account_id == $account_id_select){ ?> selected <?php } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                  <option <?php if ($expense_account_id == $account_id_select) { ?> selected <?php } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance,2); ?>]</option>
                   <?php
                   }
                   
@@ -86,11 +86,11 @@
                   <?php 
                   
                   $sql_select = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND (vendor_archived_at > '$expense_created_at' OR vendor_archived_at IS NULL) AND company_id = $session_company_id ORDER BY vendor_name ASC"); 
-                  while($row = mysqli_fetch_array($sql_select)){
+                  while ($row = mysqli_fetch_array($sql_select)) {
                     $vendor_id_select = $row['vendor_id'];
                     $vendor_name_select = htmlentities($row['vendor_name']);
                   ?>
-                  <option <?php if($expense_vendor_id == $vendor_id_select){ ?> selected <?php } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
+                  <option <?php if ($expense_vendor_id == $vendor_id_select) { ?> selected <?php } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
                   <?php
                   }
                   
@@ -121,11 +121,11 @@
                   <?php 
                   
                   $sql_select = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense' AND (category_archived_at > '$expense_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC"); 
-                  while($row = mysqli_fetch_array($sql_select)){
+                  while ($row = mysqli_fetch_array($sql_select)) {
                     $category_id_select = $row['category_id'];
                     $category_name_select = htmlentities($row['category_name']);
                   ?>
-                  <option <?php if($expense_category_id == $category_id_select){ ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
+                  <option <?php if ($expense_category_id == $category_id_select) { ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
                   <?php
                   }
                   
@@ -154,7 +154,7 @@
             <input type="file" class="form-control-file" name="file">
           </div>
 
-          <?php if(!empty($expense_receipt)){ ?>
+          <?php if (!empty($expense_receipt)) { ?>
             <hr>
             <a class="text-secondary" href="<?php echo "uploads/expenses/$session_company_id/$expense_receipt"; ?>"><i class="fa fa-fw fa-2x fa-file-pdf text-secondary"></i> <?php echo basename($expense_receipt); ?></a>
           <?php } ?>

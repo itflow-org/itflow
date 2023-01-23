@@ -1,12 +1,12 @@
 <?php include("inc_all_settings.php"); 
 
-if(isset($_GET['category'])){
+if (isset($_GET['category'])) {
   $category = strip_tags(mysqli_real_escape_string($mysqli,$_GET['category']));
 }else{
   $category = "Expense";
 }
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "category_name";
@@ -32,7 +32,7 @@ $sql_colors_used = mysqli_query($mysqli,"SELECT category_color FROM categories
   AND company_id = $session_company_id"
 );
 
-while($color_used_row = mysqli_fetch_array($sql_colors_used)){
+while ($color_used_row = mysqli_fetch_array($sql_colors_used)) {
   $colors_used_array[] = $color_used_row['category_color'];
 }
 $colors_diff = array_diff($colors_array,$colors_used_array);
@@ -53,7 +53,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
       <div class="row">
         <div class="col-sm-4 mb-2">
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Categories">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Categories">
             <div class="input-group-append">
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>
@@ -61,10 +61,10 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
         </div>
         <div class="col-sm-8">
           <div class="btn-group float-right">
-            <a href="?category=Expense" class="btn <?php if($category == 'Expense'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Expense</a>
-            <a href="?category=Income" class="btn <?php if($category == 'Income'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Income</a>
-            <a href="?category=Referral" class="btn <?php if($category == 'Referral'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Referral</a>
-            <a href="?category=Payment Method" class="btn <?php if($category == 'Payment Method'){ echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Payment Method</a>
+            <a href="?category=Expense" class="btn <?php if ($category == 'Expense') { echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Expense</a>
+            <a href="?category=Income" class="btn <?php if ($category == 'Income') { echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Income</a>
+            <a href="?category=Referral" class="btn <?php if ($category == 'Referral') { echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Referral</a>
+            <a href="?category=Payment Method" class="btn <?php if ($category == 'Payment Method') { echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">Payment Method</a>
           </div>
         </div>
       </div>
@@ -72,7 +72,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Name</a></th>
             <th>Color</th>
@@ -82,7 +82,7 @@ $colors_diff = array_diff($colors_array,$colors_used_array);
         <tbody>
           <?php
 
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $category_id = $row['category_id'];
             $category_name = htmlentities($row['category_name']);
             $category_color = htmlentities($row['category_color']);

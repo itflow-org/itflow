@@ -1,6 +1,6 @@
 <?php include("inc_all_settings.php");
 
-  if(!empty($_GET['sb'])){
+  if (!empty($_GET['sb'])) {
     $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
   }else{
     $sb = "user_name";
@@ -37,7 +37,7 @@
   <div class="card-body">
     <form autocomplete="off">
       <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){echo strip_tags(htmlentities($q));} ?>" placeholder="Search Users">
+        <input type="search" class="form-control col-md-4" name="q" value="<?php if (isset($q)) {echo strip_tags(htmlentities($q));} ?>" placeholder="Search Users">
         <div class="input-group-append">
           <button class="btn btn-primary"><i class="fa fa-search"></i></button>
         </div>
@@ -46,7 +46,7 @@
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_email&o=<?php echo $disp; ?>">Email</a></th>
@@ -59,14 +59,14 @@
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $user_id = $row['user_id'];
             $user_name = htmlentities($row['user_name']);
             $user_email = htmlentities($row['user_email']);
             $user_status = intval($row['user_status']);
-            if($user_status == 2){
+            if ($user_status == 2) {
               $user_status_display = "<span class='text-info'>Invited</span>";
-            }elseif($user_status == 1){
+            }elseif ($user_status == 1) {
               $user_status_display = "<span class='text-success'>Active</span>";
             }else{
               $user_status_display = "<span class='text-danger'>Disabled</span>";  
@@ -75,16 +75,16 @@
             $user_token = htmlentities($row['user_token']);
             $user_default_company = $row['user_default_company'];
             $user_role = $row['user_role'];
-            if($user_role == 3){
+            if ($user_role == 3) {
               $user_role_display = "Administrator";
-            }elseif($user_role == 2){
+            }elseif ($user_role == 2) {
               $user_role_display = "Technician";
             }else{
               $user_role_display = "Accountant";  
             }
             $user_company_access_sql = mysqli_query($mysqli,"SELECT company_id FROM user_companies WHERE user_id = $user_id");
             $user_company_access_array = array();
-            while($row = mysqli_fetch_array($user_company_access_sql)){
+            while ($row = mysqli_fetch_array($user_company_access_sql)) {
               $user_company_access_array[] = $row['company_id'];
             }
             $user_company_access = implode(',',$user_company_access_array);
@@ -102,7 +102,7 @@
             $log_user_os = get_os($log_user_agent);
             $log_user_browser = get_web_browser($log_user_agent);
             $last_login = "$log_user_os<br>$log_user_browser<br><i class='fa fa-fw fa-globe'></i> $log_ip";
-            if(empty($last_login)){
+            if (empty($last_login)) {
               $last_login = "Never logged in"; 
             }
   
@@ -110,7 +110,7 @@
           <tr>
             <td class="text-center">
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">
-                <?php if(!empty($user_avatar)){ ?>
+                <?php if (!empty($user_avatar)) { ?>
                 <img class="img-size-50 img-circle" src="<?php echo "uploads/users/$user_id/$user_avatar"; ?>">
                 <?php }else{ ?>
                 <span class="fa-stack fa-2x">
@@ -138,9 +138,9 @@
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">Edit</a>
-                  <?php if($user_status == 0){ ?>
+                  <?php if ($user_status == 0) { ?>
                   <a class="dropdown-item text-success" href="post.php?activate_user=<?php echo $user_id; ?>">Activate</a>
-                  <?php }elseif($user_status == 1){ ?>
+                  <?php }elseif ($user_status == 1) { ?>
                   <a class="dropdown-item text-danger" href="post.php?disable_user=<?php echo $user_id; ?>">Disable</a>
                   <?php } ?>
                   <div class="dropdown-divider"></div>
@@ -169,7 +169,7 @@
   </div>
 </div>
 <script>
-    function generatePassword(){
+    function generatePassword() {
         document.getElementById("password").value = "<?php echo keygen() ?>"
     }
 </script>

@@ -10,7 +10,7 @@
       <form action="post.php" method="post" autocomplete="off">
 
         <div class="modal-body bg-white">
-          <?php if(isset($_GET['client_id'])){ ?>
+          <?php if (isset($_GET['client_id'])) { ?>
           <input type="hidden" name="client" value="<?php echo $client_id; ?>">
           <?php }else{ ?>
 
@@ -25,7 +25,7 @@
                 <?php 
                 
                 $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC"); 
-                while($row = mysqli_fetch_array($sql)){
+                while ($row = mysqli_fetch_array($sql)) {
                   $client_id = $row['client_id'];
                   $client_name = htmlentities($row['client_name']);
                 ?>
@@ -76,7 +76,7 @@
                 <?php 
                 
                 $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC"); 
-                while($row = mysqli_fetch_array($sql)){
+                while ($row = mysqli_fetch_array($sql)) {
                   $category_id = $row['category_id'];
                   $category_name = htmlentities($row['category_name']);
                 ?>

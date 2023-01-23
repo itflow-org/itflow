@@ -2,7 +2,7 @@
 
 <?php
 
-if(isset($_GET['year'])){
+if (isset($_GET['year'])) {
   $year = intval($_GET['year']);
 }else{
   $year = date('Y');
@@ -30,10 +30,10 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
       <select onchange="this.form.submit()" class="form-control" name="year">
         <?php 
                 
-        while($row = mysqli_fetch_array($sql_all_years)){
+        while ($row = mysqli_fetch_array($sql_all_years)) {
           $all_years = $row['all_years'];
         ?>
-        <option <?php if($year == $all_years){ ?> selected <?php } ?> > <?php echo $all_years; ?></option>
+        <option <?php if ($year == $all_years) { ?> selected <?php } ?> > <?php echo $all_years; ?></option>
         
         <?php
         }
@@ -59,7 +59,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
         </thead>
         <tbody>
           <?php
-          while($row = mysqli_fetch_array($sql_categories_income)){
+          while ($row = mysqli_fetch_array($sql_categories_income)) {
             $category_id = $row['category_id'];
             $category_name = htmlentities($row['category_name']);
           ?>
@@ -266,7 +266,7 @@ $sql_categories_expense = mysqli_query($mysqli,"SELECT * FROM categories WHERE c
             <th colspan="5"></th>
           </tr>
           <?php
-          while($row = mysqli_fetch_array($sql_categories_expense)){
+          while ($row = mysqli_fetch_array($sql_categories_expense)) {
             $category_id = $row['category_id'];
             $category_name = htmlentities($row['category_name']);
           ?>

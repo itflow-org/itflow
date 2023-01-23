@@ -1,17 +1,17 @@
 <?php
 
-if(file_exists("config.php")){
+if (file_exists("config.php")) {
   include("config.php");
 }
 
 include("functions.php");
 include("database_version.php");
 
-if(!isset($config_enable_setup)){
+if (!isset($config_enable_setup)) {
   $config_enable_setup = 1;
 }
 
-if($config_enable_setup == 0){
+if ($config_enable_setup == 0) {
   header("Location: login.php");
   exit;
 }
@@ -767,10 +767,10 @@ $locales_array = [
   'zu'          => 'Zulu',
 ];
 
-if(isset($_POST['add_database'])){
+if (isset($_POST['add_database'])) {
 
-  // Check if database has been setup already. If it has, direct user to edit directly instead.
-  if(file_exists('config.php')){
+  // Check if database has been set up already. If it has, direct user to edit directly instead.
+  if (file_exists('config.php')) {
     $_SESSION['alert_message'] = "Database already configured. Any further changes should be made by editing the config.php file.";
     header("Location: setup.php?user");
     exit;
@@ -812,15 +812,15 @@ if(isset($_POST['add_database'])){
   // Read in entire file
   $lines = file($filename);
   // Loop through each line
-  foreach ($lines as $line){
+  foreach ($lines as $line) {
     // Skip it if it's a comment
-    if(substr($line, 0, 2) == '--' || $line == '')
+    if (substr($line, 0, 2) == '--' || $line == '')
       continue;
 
     // Add this line to the current segment
     $templine .= $line;
     // If it has a semicolon at the end, it's the end of the query
-    if(substr(trim($line), -1, 1) == ';'){
+    if (substr(trim($line), -1, 1) == ';') {
       // Perform the query
       mysqli_query($mysqli,$templine);
       // Reset temp variable to empty
@@ -835,9 +835,9 @@ if(isset($_POST['add_database'])){
 
 }
 
-if(isset($_POST['add_user'])){
+if (isset($_POST['add_user'])) {
   $user_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users"));
-  if($user_count < 0) {
+  if ($user_count < 0) {
     $_SESSION['alert_message'] = "Users already exist in the database. Clear them to reconfigure here.";
     header("Location: setup.php?company");
     exit;
@@ -860,7 +860,7 @@ if(isset($_POST['add_user'])){
   mkdir_missing("uploads/users/$user_id");
 
   //Check to see if a file is attached
-  if($_FILES['file']['tmp_name'] != ''){
+  if ($_FILES['file']['tmp_name'] != '') {
 
     // get details of the uploaded file
     $file_error = 0;
@@ -876,16 +876,16 @@ if(isset($_POST['add_user'])){
     // check if file has one of the following extensions
     $allowed_file_extensions = array('jpg', 'gif', 'png');
 
-    if(in_array($file_extension,$allowed_file_extensions) === false){
+    if (in_array($file_extension,$allowed_file_extensions) === false) {
       $file_error = 1;
     }
 
     //Check File Size
-    if($file_size > 2097152){
+    if ($file_size > 2097152) {
       $file_error = 1;
     }
 
-    if($file_error == 0){
+    if ($file_error == 0) {
       // directory in which the uploaded file will be moved
       $upload_file_dir = "uploads/users/$user_id/";
       $dest_path = $upload_file_dir . $new_file_name;
@@ -912,7 +912,7 @@ if(isset($_POST['add_user'])){
 
 }
 
-if(isset($_POST['add_company_settings'])){
+if (isset($_POST['add_company_settings'])) {
 
   $sql = mysqli_query($mysqli,"SELECT user_id FROM users");
   $row = mysqli_fetch_array($sql);
@@ -944,7 +944,7 @@ if(isset($_POST['add_company_settings'])){
   file_put_contents("uploads/tmp/$company_id/index.php", "");
 
   //Check to see if a file is attached
-  if($_FILES['file']['tmp_name'] != ''){
+  if ($_FILES['file']['tmp_name'] != '') {
 
     // get details of the uploaded file
     $file_error = 0;
@@ -960,16 +960,16 @@ if(isset($_POST['add_company_settings'])){
     // check if file has one of the following extensions
     $allowed_file_extensions = array('jpg', 'gif', 'png');
 
-    if(in_array($file_extension,$allowed_file_extensions) === false){
+    if (in_array($file_extension,$allowed_file_extensions) === false) {
       $file_error = 1;
     }
 
     //Check File Size
-    if($file_size > 2097152){
+    if ($file_size > 2097152) {
       $file_error = 1;
     }
 
-    if($file_error == 0){
+    if ($file_error == 0) {
       // directory in which the uploaded file will be moved
       $upload_file_dir = "uploads/settings/$company_id/";
       $dest_path = $upload_file_dir . $new_file_name;
@@ -1016,9 +1016,9 @@ if(isset($_POST['add_company_settings'])){
 
 }
 
-if(isset($_POST['add_telemetry'])){
+if (isset($_POST['add_telemetry'])) {
 
-  if($_POST['share_data'] == 1){
+  if ($_POST['share_data'] == 1) {
 
     $comments = trim(strip_tags($_POST['comments']));
 
@@ -1129,26 +1129,26 @@ if(isset($_POST['add_telemetry'])){
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                     <li class="nav-item">
-                        <a href="?database" class="nav-link <?php if(isset($_GET['database'])) { echo "active"; } ?>">
+                        <a href="?database" class="nav-link <?php if (isset($_GET['database'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-database"></i>
                             <p>Database</p>
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="?user" class="nav-link <?php if(isset($_GET['user'])) { echo "active"; } ?>">
+                        <a href="?user" class="nav-link <?php if (isset($_GET['user'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-user"></i>
                             <p>User</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="?company" class="nav-link <?php if(isset($_GET['company'])) { echo "active"; } ?>">
+                        <a href="?company" class="nav-link <?php if (isset($_GET['company'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-building"></i>
                             <p>Company</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="?telemetry" class="nav-link <?php if(isset($_GET['telemetry'])) { echo "active"; } ?>">
+                        <a href="?telemetry" class="nav-link <?php if (isset($_GET['telemetry'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-share-alt"></i>
                             <p>Telemetry</p>
                         </a>
@@ -1167,7 +1167,7 @@ if(isset($_POST['add_telemetry'])){
 
               <?php
               //Alert Feedback
-              if(!empty($_SESSION['alert_message'])){
+              if (!empty($_SESSION['alert_message'])) {
                 ?>
                   <div class="alert alert-info" id="alert">
                     <?php echo $_SESSION['alert_message']; ?>
@@ -1178,7 +1178,7 @@ if(isset($_POST['add_telemetry'])){
                 $_SESSION['alert_message'] = '';
               }
               ?>
-              <?php if(isset($_GET['setup_checks'])){ ?>
+              <?php if (isset($_GET['setup_checks'])) { ?>
 
                   <div class="card mb-3">
                       <div class="card-header">
@@ -1195,14 +1195,14 @@ if(isset($_POST['add_telemetry'])){
 
               <?php } ?>
 
-              <?php if(isset($_GET['database'])){ ?>
+              <?php if (isset($_GET['database'])) { ?>
 
                   <div class="card card-dark">
                       <div class="card-header">
                           <h3 class="card-title"><i class="fa fa-fw fa-database"></i> Connect your Database</h3>
                       </div>
                       <div class="card-body">
-                        <?php if(file_exists('config.php')){ ?>
+                        <?php if (file_exists('config.php')) { ?>
                             Database already configured. Any further changes should be made by editing the config.php file,
                             or deleting it and refreshing this page.
                         <?php }else{ ?>
@@ -1258,7 +1258,7 @@ if(isset($_POST['add_telemetry'])){
                       </div>
                   </div>
 
-              <?php }elseif(isset($_GET['user'])){ ?>
+              <?php }elseif (isset($_GET['user'])) { ?>
 
                   <div class="card card-dark">
                       <div class="card-header">
@@ -1312,14 +1312,14 @@ if(isset($_POST['add_telemetry'])){
                       </div>
                   </div>
 
-              <?php }elseif(isset($_GET['company'])){ ?>
+              <?php }elseif (isset($_GET['company'])) { ?>
 
                   <div class="card card-dark">
                       <div class="card-header">
                           <h3 class="card-title"><i class="fa fa-fw fa-building"></i> Company Details</h3>
                       </div>
                       <div class="card-body">
-                        <?php if(mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users")) < 0){ ?>
+                        <?php if (mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users")) < 0) { ?>
                             Database config invalid, or users already exist in the database.
                         <?php }else{ ?>
                             <form method="post" enctype="multipart/form-data" autocomplete="off">
@@ -1464,7 +1464,7 @@ if(isset($_POST['add_telemetry'])){
                   </div>
 
 
-              <?php }elseif(isset($_GET['telemetry'])){ ?>
+              <?php }elseif (isset($_GET['telemetry'])) { ?>
 
                   <div class="card card-dark">
                       <div class="card-header">
@@ -1518,7 +1518,7 @@ if(isset($_POST['add_telemetry'])){
                           <p class="text-muted">This program is <b>free software</b>: you can redistribute it and/or modify it under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU General Public License</a>. It is distributed in the hope that it will be useful, but <b>WITHOUT ANY WARRANTY</b>.</p>
                         <?php
                         // Check that there is access to write config.php
-                        if(!file_put_contents("config.php", "Test")){
+                        if (!file_put_contents("config.php", "Test")) {
                           echo "<div class='alert alert-danger'>Warning: config.php is not writable. Ensure the webserver process has write access. Check the <a href='https://itflow.org/docs.php?doc=installation'>docs</a> for info.</div>";
                         }else{
                           // Else, able to write. Tidy up

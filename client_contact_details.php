@@ -2,7 +2,7 @@
 
 <?php 
 
-if(isset($_GET['contact_id'])){
+if (isset($_GET['contact_id'])) {
   $contact_id = intval($_GET['contact_id']);
 
   $sql = mysqli_query($mysqli,"SELECT * FROM contacts 
@@ -24,14 +24,14 @@ if(isset($_GET['contact_id'])){
   $contact_notes = htmlentities($row['contact_notes']);
   $contact_important = intval($row['contact_important']);
   $contact_created_at = $row['contact_created_at'];
-  if($contact_id == $primary_contact){
+  if ($contact_id == $primary_contact) {
       $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
   }else{
     $primary_contact_display = FALSE;
   }
   $contact_location_id = $row['contact_location_id'];
   $location_name = htmlentities($row['location_name']);
-  if(empty($location_name)){
+  if (empty($location_name)) {
     $location_name_display = "-";
   }else{
     $location_name_display = $location_name;
@@ -65,7 +65,7 @@ if(isset($_GET['contact_id'])){
     <div class="card card-dark">
       <div class="card-body">
         <div class="text-center">
-          <?php if(!empty($contact_photo)){ ?>
+          <?php if (!empty($contact_photo)) { ?>
           <img class="img-fluid img-circle p-3" alt="contact_photo" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
           <?php }else{ ?>
           <span class="fa-stack fa-4x">
@@ -76,19 +76,19 @@ if(isset($_GET['contact_id'])){
         </div>
         <hr>
         <h3><?php echo $contact_name; ?></h3>
-        <?php if(!empty($contact_title)){ ?>
+        <?php if (!empty($contact_title)) { ?>
         <div class="mb-3 text-secondary"><?php echo $contact_title; ?></div>
         <?php } ?>
-        <?php if(!empty($contact_title)){ ?>
+        <?php if (!empty($contact_title)) { ?>
         <div class="mb-1"><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name_display; ?></div>
         <?php } ?>
-        <?php if(!empty($contact_email)){ ?>
+        <?php if (!empty($contact_email)) { ?>
         <div><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
         <?php } ?>
-        <?php if(!empty($contact_phone)){ ?>
+        <?php if (!empty($contact_phone)) { ?>
         <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone $contact_phone_extention"; ?></div>
         <?php } ?>
-        <?php if(!empty($contact_mobile)){ ?>
+        <?php if (!empty($contact_mobile)) { ?>
         <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile; ?></div>
         <?php } ?>
         <div class="mb-2"><i class="fa fa-fw fa-clock text-secondary mr-3"></i><?php echo date('Y-m-d',strtotime($contact_created_at)); ?></div>
@@ -122,7 +122,7 @@ if(isset($_GET['contact_id'])){
     </ol>
 
 
-    <div class="card card-dark <?php if($asset_count == 0){ echo "d-none"; } ?>">
+    <div class="card card-dark <?php if ($asset_count == 0) { echo "d-none"; } ?>">
       <div class="card-header">
         <h3 class="card-title"><i class="fa fa-fw fa-desktop"></i> Assets</h3>
       </div>
@@ -144,26 +144,26 @@ if(isset($_GET['contact_id'])){
             <tbody>
               <?php
           
-              while($row = mysqli_fetch_array($sql_related_assets)){
+              while ($row = mysqli_fetch_array($sql_related_assets)) {
                 $asset_id = $row['asset_id'];
                 $asset_type = htmlentities($row['asset_type']);
                 $asset_name = htmlentities($row['asset_name']);
                 $asset_make = htmlentities($row['asset_make']);
                 $asset_model = htmlentities($row['asset_model']);
                 $asset_serial = htmlentities($row['asset_serial']);
-                if(empty($asset_serial)){
+                if (empty($asset_serial)) {
                   $asset_serial_display = "-";
                 }else{
                   $asset_serial_display = $asset_serial;
                 }
                 $asset_os = htmlentities($row['asset_os']);
-                if(empty($asset_os)){
+                if (empty($asset_os)) {
                   $asset_os_display = "-";
                 }else{
                   $asset_os_display = $asset_os;
                 }
                 $asset_ip = htmlentities($row['asset_ip']);
-                if(empty($asset_ip)){
+                if (empty($asset_ip)) {
                   $asset_ip_display = "-";
                 }else{
                   $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text='$asset_ip'><i class='far fa-copy text-secondary'></i></button>";
@@ -173,7 +173,7 @@ if(isset($_GET['contact_id'])){
                 $asset_purchase_date = $row['asset_purchase_date'];
                 $asset_warranty_expire = $row['asset_warranty_expire'];
                 $asset_install_date = $row['asset_install_date'];
-                if(empty($asset_install_date)){
+                if (empty($asset_install_date)) {
                   $asset_install_date_display = "-";
                 }else{
                   $asset_install_date_display = $asset_install_date;
@@ -184,29 +184,29 @@ if(isset($_GET['contact_id'])){
                 $asset_location_id = $row['asset_location_id'];
                 $asset_network_id = $row['asset_network_id'];
 
-                if($asset_type == 'Laptop'){
+                if ($asset_type == 'Laptop') {
                   $device_icon = "laptop";
-                }elseif($asset_type == 'Desktop'){
+                }elseif ($asset_type == 'Desktop') {
                   $device_icon = "desktop";
-                }elseif($asset_type == 'Server'){
+                }elseif ($asset_type == 'Server') {
                   $device_icon = "server";
-                }elseif($asset_type == 'Printer'){
+                }elseif ($asset_type == 'Printer') {
                   $device_icon = "print";
-                }elseif($asset_type == 'Camera'){
+                }elseif ($asset_type == 'Camera') {
                   $device_icon = "video";
-                }elseif($asset_type == 'Switch' || $asset_type == 'Firewall/Router'){
+                }elseif ($asset_type == 'Switch' || $asset_type == 'Firewall/Router') {
                   $device_icon = "network-wired";
-                }elseif($asset_type == 'Access Point'){
+                }elseif ($asset_type == 'Access Point') {
                   $device_icon = "wifi";
-                }elseif($asset_type == 'Phone'){
+                }elseif ($asset_type == 'Phone') {
                   $device_icon = "phone";
-                }elseif($asset_type == 'Mobile Phone'){
+                }elseif ($asset_type == 'Mobile Phone') {
                   $device_icon = "mobile-alt";
-                }elseif($asset_type == 'Tablet'){
+                }elseif ($asset_type == 'Tablet') {
                   $device_icon = "tablet-alt";
-                }elseif($asset_type == 'TV'){
+                }elseif ($asset_type == 'TV') {
                   $device_icon = "tv";
-                }elseif($asset_type == 'Virtual Machine'){
+                }elseif ($asset_type == 'Virtual Machine') {
                   $device_icon = "cloud";
                 }else{
                   $device_icon = "tag";
@@ -230,7 +230,7 @@ if(isset($_GET['contact_id'])){
                       <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAssetInterfaceModal<?php echo $asset_id; ?>">Interfaces</a>
                       <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">Edit</a>
                       <a class="dropdown-item" href="#" data-toggle="modal" data-target="#copyAssetModal<?php echo $asset_id; ?>">Copy</a>
-                      <?php if($session_user_role == 3) { ?>
+                      <?php if ($session_user_role == 3) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="post.php?archive_asset=<?php echo $asset_id; ?>">Archive</a>
                         <a class="dropdown-item text-danger" href="post.php?delete_asset=<?php echo $asset_id; ?>">Delete</a>
@@ -260,7 +260,7 @@ if(isset($_GET['contact_id'])){
 
 
 
-    <div class="card card-dark <?php if($login_count == 0){ echo "d-none"; } ?>">
+    <div class="card card-dark <?php if ($login_count == 0) { echo "d-none"; } ?>">
       <div class="card-header">
         <h3 class="card-title"><i class="fa fa-fw fa-key"></i> Passwords</h3>
       </div>
@@ -280,17 +280,17 @@ if(isset($_GET['contact_id'])){
           <tbody>
           <?php
 
-          while($row = mysqli_fetch_array($sql_related_logins)){
+          while ($row = mysqli_fetch_array($sql_related_logins)) {
             $login_id = $row['login_id'];
             $login_name = htmlentities($row['login_name']);
             $login_uri = htmlentities($row['login_uri']);
-            if(empty($login_uri)){
+            if (empty($login_uri)) {
               $login_uri_display = "-";
             }else{
               $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='https://$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
             }
             $login_username = htmlentities($row['login_username']);
-            if(empty($login_username)){
+            if (empty($login_username)) {
               $login_username_display = "-";
             }else{
               $login_username_display = "$login_username<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_username'><i class='far fa-copy text-secondary'></i></button>";
@@ -298,7 +298,7 @@ if(isset($_GET['contact_id'])){
             $login_password = htmlentities(decryptLoginEntry($row['login_password']));
             $login_otp_secret = htmlentities($row['login_otp_secret']);
             $login_id_with_secret = '"' . $row['login_id'] . '","' . $row['login_otp_secret'] . '"';
-            if(empty($login_otp_secret)){
+            if (empty($login_otp_secret)) {
               $otp_display = "-";
             }else{
               $otp_display = "<span onmouseenter='showOTP($login_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
@@ -331,7 +331,7 @@ if(isset($_GET['contact_id'])){
                   <div class="dropdown-menu">
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">Edit</a>
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">Share</a>
-                    <?php if($session_user_role == 3) { ?>
+                    <?php if ($session_user_role == 3) { ?>
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item text-danger" href="post.php?delete_login=<?php echo $login_id; ?>">Delete</a>
                     <?php } ?>

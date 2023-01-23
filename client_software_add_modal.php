@@ -138,7 +138,7 @@
                 <?php
                 $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
 
-                while($row = mysqli_fetch_array($sql)){
+                while ($row = mysqli_fetch_array($sql)) {
                   $asset_id = $row['asset_id'];
                   $asset_name = htmlentities($row['asset_name']);
                   $asset_type = htmlentities($row['asset_type']);
@@ -171,7 +171,7 @@
                 <?php
                 $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
 
-                while($row = mysqli_fetch_array($sql)){
+                while ($row = mysqli_fetch_array($sql)) {
                   $contact_id = $row['contact_id'];
                   $contact_name = htmlentities($row['contact_name']);
                   $contact_email = htmlentities($row['contact_email']);

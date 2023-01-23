@@ -12,11 +12,11 @@
     <form action="post.php" method="post" autocomplete="off">
 
       <div class="custom-control custom-switch mb-2">
-        <input type="checkbox" class="custom-control-input" name="config_stripe_enable" <?php if($config_stripe_enable == 1){ echo "checked"; } ?> value="1" id="customSwitch1">
+        <input type="checkbox" class="custom-control-input" name="config_stripe_enable" <?php if ($config_stripe_enable == 1) { echo "checked"; } ?> value="1" id="customSwitch1">
         <label class="custom-control-label" for="customSwitch1">Enable Stripe</label>
       </div>
 
-      <?php if($config_stripe_enable == 1){ ?>
+      <?php if ($config_stripe_enable == 1) { ?>
 
       <div class="form-group">
         <label>Publishable</label>

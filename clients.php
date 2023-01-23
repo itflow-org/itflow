@@ -3,7 +3,7 @@
 include("inc_all.php");
 
 //Paging
-if(isset($_GET['p'])){
+if (isset($_GET['p'])) {
   $p = intval($_GET['p']);
   $record_from = (($p)-1)*$_SESSION['records_per_page'];
   $record_to = $_SESSION['records_per_page'];
@@ -14,11 +14,11 @@ if(isset($_GET['p'])){
 }
   
 //Custom Query Filter  
-if(isset($_GET['query'])){
+if (isset($_GET['query'])) {
   $query = strip_tags(mysqli_real_escape_string($mysqli,$_GET['query']));
   //Phone Numbers
   $phone_query = preg_replace("/[^0-9]/", '',$query);
-  if(empty($phone_query)){
+  if (empty($phone_query)) {
     $phone_query = $query;
   }
 }else{
@@ -27,15 +27,15 @@ if(isset($_GET['query'])){
 }
 
 //Column Filter
-if(!empty($_GET['sortby'])){
+if (!empty($_GET['sortby'])) {
   $sortby = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sortby']));
 }else{
   $sortby = "client_accessed_at";
 }
 
 //Column Order Filter
-if(isset($_GET['order'])){
-  if($_GET['order'] == 'ASC'){
+if (isset($_GET['order'])) {
+  if ($_GET['order'] == 'ASC') {
     $order = "ASC";
     $order_display = "DESC";
   }else{
@@ -47,38 +47,38 @@ if(isset($_GET['order'])){
   $order_display = "ASC";
 }
 
-if(empty($_GET['canned_date'])) {
+if (empty($_GET['canned_date'])) {
   //Prevents lots of undefined variable errors.
   // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
   $_GET['canned_date'] = 'custom';
 }
 
 //Date Filter
-if($_GET['canned_date'] == "custom" && !empty($_GET['date_from'])){
+if ($_GET['canned_date'] == "custom" && !empty($_GET['date_from'])) {
   $date_from = strip_tags(mysqli_real_escape_string($mysqli,$_GET['date_from']));
   $date_to = strip_tags(mysqli_real_escape_string($mysqli,$_GET['date_to']));
-}elseif($_GET['canned_date'] == "today"){
+}elseif ($_GET['canned_date'] == "today") {
   $date_from = date('Y-m-d');
   $date_to = date('Y-m-d');
-}elseif($_GET['canned_date'] == "yesterday"){
+}elseif ($_GET['canned_date'] == "yesterday") {
   $date_from = date('Y-m-d',strtotime("yesterday"));
   $date_to = date('Y-m-d',strtotime("yesterday"));
-}elseif($_GET['canned_date'] == "thisweek"){
+}elseif ($_GET['canned_date'] == "thisweek") {
   $date_from = date('Y-m-d',strtotime("monday this week"));
   $date_to = date('Y-m-d');
-}elseif($_GET['canned_date'] == "lastweek"){
+}elseif ($_GET['canned_date'] == "lastweek") {
   $date_from = date('Y-m-d',strtotime("monday last week"));
   $date_to = date('Y-m-d',strtotime("sunday last week"));
-}elseif($_GET['canned_date'] == "thismonth"){
+}elseif ($_GET['canned_date'] == "thismonth") {
   $date_from = date('Y-m-01');
   $date_to = date('Y-m-d');
-}elseif($_GET['canned_date'] == "lastmonth"){
+}elseif ($_GET['canned_date'] == "lastmonth") {
   $date_from = date('Y-m-d',strtotime("first day of last month"));
   $date_to = date('Y-m-d',strtotime("last day of last month"));
-}elseif($_GET['canned_date'] == "thisyear"){
+}elseif ($_GET['canned_date'] == "thisyear") {
   $date_from = date('Y-01-01');
   $date_to = date('Y-m-d');
-}elseif($_GET['canned_date'] == "lastyear"){
+}elseif ($_GET['canned_date'] == "lastyear") {
   $date_from = date('Y-m-d',strtotime("first day of january last year"));
   $date_to = date('Y-m-d',strtotime("last day of december last year"));  
 }else{
@@ -108,7 +108,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-users"></i> Clients</h3>
     <div class="card-tools">
-      <?php if($session_user_role == 3) { ?>
+      <?php if ($session_user_role == 3) { ?>
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-fw fa-plus"></i> New Client</button>
       <?php } ?>
     </div>
@@ -119,7 +119,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
-            <input type="search" class="form-control" name="query" value="<?php if(isset($query)){echo strip_tags(htmlentities($query));} ?>" placeholder="Search Clients" autofocus>
+            <input type="search" class="form-control" name="query" value="<?php if (isset($query)) {echo strip_tags(htmlentities($query));} ?>" placeholder="Search Clients" autofocus>
             <div class="input-group-append">
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -127,21 +127,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           </div>
         </div>
       </div>
-      <div class="collapse mt-3 <?php if(!empty($_GET['date_from'])){ echo "show"; } ?>" id="advancedFilter">
+      <div class="collapse mt-3 <?php if (!empty($_GET['date_from'])) { echo "show"; } ?>" id="advancedFilter">
         <div class="row">
           <div class="col-md-2">
             <div class="form-group">
               <label>Canned Date</label>
               <select class="form-control select2" name="canned_date">
-                <option <?php if($_GET['canned_date'] == "custom"){ echo "selected"; } ?> value="custom">Custom</option>
-                <option <?php if($_GET['canned_date'] == "today"){ echo "selected"; } ?> value="today">Today</option>
-                <option <?php if($_GET['canned_date'] == "yesterday"){ echo "selected"; } ?> value="yesterday">Yesterday</option>
-                <option <?php if($_GET['canned_date'] == "thisweek"){ echo "selected"; } ?> value="thisweek">This Week</option>
-                <option <?php if($_GET['canned_date'] == "lastweek"){ echo "selected"; } ?> value="lastweek">Last Week</option>
-                <option <?php if($_GET['canned_date'] == "thismonth"){ echo "selected"; } ?> value="thismonth">This Month</option>
-                <option <?php if($_GET['canned_date'] == "lastmonth"){ echo "selected"; } ?> value="lastmonth">Last Month</option>
-                <option <?php if($_GET['canned_date'] == "thisyear"){ echo "selected"; } ?> value="thisyear">This Year</option>
-                <option <?php if($_GET['canned_date'] == "lastyear"){ echo "selected"; } ?> value="lastyear">Last Year</option>
+                <option <?php if ($_GET['canned_date'] == "custom") { echo "selected"; } ?> value="custom">Custom</option>
+                <option <?php if ($_GET['canned_date'] == "today") { echo "selected"; } ?> value="today">Today</option>
+                <option <?php if ($_GET['canned_date'] == "yesterday") { echo "selected"; } ?> value="yesterday">Yesterday</option>
+                <option <?php if ($_GET['canned_date'] == "thisweek") { echo "selected"; } ?> value="thisweek">This Week</option>
+                <option <?php if ($_GET['canned_date'] == "lastweek") { echo "selected"; } ?> value="lastweek">Last Week</option>
+                <option <?php if ($_GET['canned_date'] == "thismonth") { echo "selected"; } ?> value="thismonth">This Month</option>
+                <option <?php if ($_GET['canned_date'] == "lastmonth") { echo "selected"; } ?> value="lastmonth">Last Month</option>
+                <option <?php if ($_GET['canned_date'] == "thisyear") { echo "selected"; } ?> value="thisyear">This Year</option>
+                <option <?php if ($_GET['canned_date'] == "lastyear") { echo "selected"; } ?> value="lastyear">Last Year</option>
               </select>
             </div>
           </div>
@@ -163,19 +163,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-hover table-borderless">
-        <thead class="<?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=client_name&order=<?php echo $order_display; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=location_city&order=<?php echo $order_display; ?>">Address </a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=contact_name&order=<?php echo $order_display; ?>">Contact</a></th>
-            <?php if($session_user_role == 3 || $session_user_role == 1 && $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
-            <?php if($session_user_role == 3) { ?> <th class="text-center">Action</th> <?php } ?>
+            <?php if ($session_user_role == 3 || $session_user_role == 1 && $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
+            <?php if ($session_user_role == 3) { ?> <th class="text-center">Action</th> <?php } ?>
           </tr>
         </thead>
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $client_id = $row['client_id'];
             $client_name = htmlentities($row['client_name']);
             $client_type = htmlentities($row['client_type']);
@@ -185,7 +185,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $location_city = htmlentities($row['location_city']);
             $location_state = htmlentities($row['location_state']);
             $location_zip = htmlentities($row['location_zip']);
-            if(empty($location_address) && empty($location_city) && empty($location_state) && empty($location_zip)){
+            if (empty($location_address) && empty($location_city) && empty($location_state) && empty($location_zip)) {
               $location_address_display = "-";
             }else{
               $location_address_display = "$location_address<br>$location_city $location_state $location_zip";
@@ -211,18 +211,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $client_tag_name_display_array = array();
             $client_tag_id_array = array();
             $sql_client_tags = mysqli_query($mysqli,"SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_tags.client_id = $client_id");
-            while($row = mysqli_fetch_array($sql_client_tags)){
+            while ($row = mysqli_fetch_array($sql_client_tags)) {
 
               $client_tag_id = $row['tag_id'];
               $client_tag_name = htmlentities($row['tag_name']);
               $client_tag_color = htmlentities($row['tag_color']);
               $client_tag_icon = htmlentities($row['tag_icon']);
-              if(empty($client_tag_icon)){
+              if (empty($client_tag_icon)) {
                 $client_tag_icon = "tag";
               }
             
               $client_tag_id_array[] = $client_tag_id;
-              if(empty($client_tag_color)){
+              if (empty($client_tag_color)) {
                 $client_tag_name_display_array[] = "<small class='text-secondary'>$client_tag_name</small> ";
               }else{  
                 $client_tag_name_display_array[] = "<span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon'></i> $client_tag_name</span> ";
@@ -243,7 +243,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
             $balance = $invoice_amounts - $amount_paid;
             //set Text color on balance
-            if($balance > 0){
+            if ($balance > 0) {
               $balance_text_color = "text-danger font-weight-bold";
             }else{
               $balance_text_color = "";
@@ -268,13 +268,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td>
               <strong><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></strong>
               <?php
-              if(!empty($client_type)){
+              if (!empty($client_type)) {
               ?>
               <br>
               <small class="text-secondary"><?php echo $client_type; ?></small>
               <?php } ?>
               <?php
-              if(!empty($client_tags_display)){
+              if (!empty($client_tags_display)) {
               ?>
               <br>
               <?php echo $client_tags_display; ?>
@@ -285,12 +285,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             <td><?php echo $location_address_display; ?></td>
             <td>
               <?php 
-              if(empty($contact_name) && empty($contact_phone) && empty($contact_mobile) && empty($client_email)){
+              if (empty($contact_name) && empty($contact_phone) && empty($contact_mobile) && empty($client_email)) {
                 echo "-";
               }
               ?>
               <?php
-              if(!empty($contact_name)){
+              if (!empty($contact_name)) {
               ?>
               <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><strong><?php echo $contact_name; ?></strong>
               <br>
@@ -300,15 +300,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               }
               ?>
               <?php
-              if(!empty($contact_phone)){
+              if (!empty($contact_phone)) {
               ?>
-              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $contact_phone; ?> <?php if(!empty($contact_extension)){ echo "x$contact_extension"; } ?>
+              <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $contact_phone; ?> <?php if (!empty($contact_extension)) { echo "x$contact_extension"; } ?>
               <br>
               <?php
               }
               ?>
               <?php
-              if(!empty($contact_mobile)){
+              if (!empty($contact_mobile)) {
               ?>
               <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><?php echo $contact_mobile; ?>
               <br>
@@ -316,7 +316,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               }
               ?>
               <?php
-              if(!empty($contact_email)){
+              if (!empty($contact_email)) {
               ?>
               <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button>
               <?php
@@ -325,7 +325,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             </td>
 
             <!-- Show Billing for Admin/Accountant roles only and if accounting module is enabled -->
-            <?php if($session_user_role == 3 || $session_user_role == 1 && $config_module_enable_accounting == 1) { ?>
+            <?php if ($session_user_role == 3 || $session_user_role == 1 && $config_module_enable_accounting == 1) { ?>
               <td class="text-right">
                 <span class="text-secondary">Balance</span> <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
                 <br>

@@ -23,7 +23,7 @@ $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $s
         </thead>
         <tbody>
           <?php
-          while($row = mysqli_fetch_array($sql_clients)){
+          while ($row = mysqli_fetch_array($sql_clients)) {
             $client_id = $row['client_id'];
             $client_name = htmlentities($row['client_name']);
 
@@ -42,7 +42,7 @@ $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $s
             $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
             $recurring_total = $recurring_total + $recurring_monthly;
 
-            if($recurring_monthly > 0){
+            if ($recurring_monthly > 0) {
 
               ?>
 

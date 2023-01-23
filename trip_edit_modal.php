@@ -32,7 +32,7 @@
                 <input type="number" step="0.1" min="0" class="form-control" name="miles" value="<?php echo $trip_miles; ?>" required>
                 <div class="input-group-append">
                   <div class="input-group-text">
-                    <input type="checkbox" name="roundtrip" value="1" <?php if($round_trip == 1){ echo "checked"; } ?>>
+                    <input type="checkbox" name="roundtrip" value="1" <?php if ($round_trip == 1) { echo "checked"; } ?>>
                   </div>
                 </div>
               </div>
@@ -76,11 +76,11 @@
                 
                 // WIP Need to only show users within the session company
                 $sql_trips = mysqli_query($mysqli,"SELECT * FROM users ORDER BY user_name ASC"); 
-                while($row = mysqli_fetch_array($sql_trips)){
+                while ($row = mysqli_fetch_array($sql_trips)) {
                   $user_id_select = $row['user_id'];
                   $user_name_select = htmlentities($row['user_name']);
                 ?>
-                  <option <?php if($trip_user_id == $user_id_select){ echo "selected"; } ?> value="<?php echo $user_id_select; ?>"><?php echo $user_name_select; ?></option>
+                  <option <?php if ($trip_user_id == $user_id_select) { echo "selected"; } ?> value="<?php echo $user_id_select; ?>"><?php echo $user_name_select; ?></option>
                 
                 <?php
                 }
@@ -89,7 +89,7 @@
             </div>
           </div>
 
-          <?php if(isset($_GET['client_id'])){ ?>
+          <?php if (isset($_GET['client_id'])) { ?>
           <input type="hidden" name="client" value="<?php echo $client_id; ?>">
           <?php }else{ ?>
 
@@ -104,11 +104,11 @@
                 <?php 
                 
                 $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
-                while($row = mysqli_fetch_array($sql_clients)){
+                while ($row = mysqli_fetch_array($sql_clients)) {
                   $client_id_select = $row['client_id'];
                   $client_name_select = htmlentities($row['client_name']);
                 ?>
-                  <option <?php if($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
+                  <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
                 
                 <?php
                 }

@@ -31,7 +31,7 @@
                 <select class="form-control select2" name="currency_code" required>
                   <option value="">- Currency -</option>
                   <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                  <option <?php if($session_company_currency == $currency_code){ echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                  <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
                   <?php } ?>
                 </select>
               </div>
@@ -62,7 +62,7 @@
                   <?php 
                   
                   $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE account_archived_at IS NULL AND company_id = $session_company_id ORDER BY account_name ASC"); 
-                    while($row = mysqli_fetch_array($sql)){
+                    while ($row = mysqli_fetch_array($sql)) {
                       $account_id = $row['account_id'];
                       $account_name = htmlentities($row['account_name']);
                       $opening_balance = floatval($row['opening_balance']);
@@ -82,7 +82,7 @@
                       $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
                     
                   ?>
-                    <option <?php if($config_default_payment_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                    <option <?php if ($config_default_payment_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
                   
                   <?php
                   }
@@ -102,7 +102,7 @@
                   <?php 
                   
                   $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC"); 
-                  while($row = mysqli_fetch_array($sql)){
+                  while ($row = mysqli_fetch_array($sql)) {
                     $category_id = $row['category_id'];
                     $category_name = htmlentities($row['category_name']);
                   ?>
@@ -138,7 +138,7 @@
                   <?php 
                   
                   $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC"); 
-                  while($row = mysqli_fetch_array($sql)){
+                  while ($row = mysqli_fetch_array($sql)) {
                     $category_name = htmlentities($row['category_name']);
                   ?>
                     <option><?php echo "$category_name"; ?></option>

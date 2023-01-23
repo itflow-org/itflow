@@ -2,7 +2,7 @@
 
 include("inc_all.php"); 
 
-if(isset($_GET['invoice_id'])){
+if (isset($_GET['invoice_id'])) {
 
   $invoice_id = intval($_GET['invoice_id']);
 
@@ -14,7 +14,7 @@ if(isset($_GET['invoice_id'])){
     WHERE invoice_id = $invoice_id"
   );
 
-  if(mysqli_num_rows($sql) == 0){
+  if (mysqli_num_rows($sql) == 0) {
     echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1></center>";
   }else{
 
@@ -45,7 +45,7 @@ if(isset($_GET['invoice_id'])){
   $client_website = htmlentities($row['client_website']);
   $client_currency_code = htmlentities($row['client_currency_code']);
   $client_net_terms = htmlentities($row['client_net_terms']);
-  if($client_net_terms == 0){
+  if ($client_net_terms == 0) {
     $client_net_terms = $config_default_net_terms;
   }
   $company_id = $row['company_id'];
@@ -59,7 +59,7 @@ if(isset($_GET['invoice_id'])){
   $company_email = htmlentities($row['company_email']);
   $company_website = htmlentities($row['company_website']);
   $company_logo = htmlentities($row['company_logo']);
-  if(!empty($company_logo)){
+  if (!empty($company_logo)) {
   	$company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
 	}
   $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE history_invoice_id = $invoice_id ORDER BY history_id DESC");
@@ -74,23 +74,23 @@ if(isset($_GET['invoice_id'])){
   $balance = $invoice_amount - $amount_paid;
 
   //check to see if overdue
-  if($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled"){
+  if ($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled") {
     $unixtime_invoice_due = strtotime($invoice_due) + 86400;
-    if($unixtime_invoice_due < time()){
+    if ($unixtime_invoice_due < time()) {
       $invoice_overdue = "Overdue";
     }
   }
   
   //Set Badge color based off of invoice status
-  if($invoice_status == "Sent"){
+  if ($invoice_status == "Sent") {
     $invoice_badge_color = "warning text-white";
-  }elseif($invoice_status == "Viewed"){
+  }elseif ($invoice_status == "Viewed") {
     $invoice_badge_color = "info";
-  }elseif($invoice_status == "Partial"){
+  }elseif ($invoice_status == "Partial") {
     $invoice_badge_color = "primary";
-  }elseif($invoice_status == "Paid"){
+  }elseif ($invoice_status == "Paid") {
     $invoice_badge_color = "success";
-  }elseif($invoice_status == "Cancelled"){
+  }elseif ($invoice_status == "Cancelled") {
     $invoice_badge_color = "danger";
   }else{
     $invoice_badge_color = "secondary";
@@ -99,8 +99,8 @@ if(isset($_GET['invoice_id'])){
   //Product autocomplete
   $products_sql = mysqli_query($mysqli,"SELECT product_name AS label, product_description AS description, product_price AS price FROM products WHERE company_id = $session_company_id");
 
-  if(mysqli_num_rows($products_sql) > 0){
-    while($row = mysqli_fetch_array($products_sql)){
+  if (mysqli_num_rows($products_sql) > 0) {
+    while ($row = mysqli_fetch_array($products_sql)) {
       $products[] = $row;
     }
     $json_products = json_encode($products);
@@ -116,7 +116,7 @@ if(isset($_GET['invoice_id'])){
     <a href="client_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
   </li>
   <li class="breadcrumb-item active"><?php echo "$invoice_prefix$invoice_number"; ?></li>
-  <?php if(isset($invoice_overdue)){ ?>
+  <?php if (isset($invoice_overdue)) { ?>
   <span class="p-2 ml-2 badge badge-danger"><?php echo $invoice_overdue; ?></span>
   <?php } ?>
 </ol>
@@ -128,12 +128,12 @@ if(isset($_GET['invoice_id'])){
     <div class="row">
       
       <div class="col-md-4">
-        <?php if($invoice_status == 'Draft'){ ?>
+        <?php if ($invoice_status == 'Draft') { ?>
         <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
           <i class="fas fa-fw fa-paper-plane"></i> Send
         </button>
         <div class="dropdown-menu">
-          <?php if(!empty($config_smtp_host) && !empty($contact_email)){ ?>
+          <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
           <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send Email</a>
           <div class="dropdown-divider"></div>
           <?php } ?>
@@ -141,7 +141,7 @@ if(isset($_GET['invoice_id'])){
         </div>
         <?php } ?>
 
-        <?php if($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft'){ ?>
+        <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft') { ?>
         <a class="btn btn-success btn-sm" href="#" data-toggle="modal" data-target="#addPaymentModal"><i class="fa fa-fw fa-credit-card"></i> Add Payment</a>
         <?php } ?>
       </div>
@@ -159,11 +159,11 @@ if(isset($_GET['invoice_id'])){
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
             <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$invoice_date-$company_name-$client_name-Invoice-$invoice_prefix$invoice_number.pdf"; ?>');">Download PDF</a>
-            <?php if(!empty($config_smtp_host) && !empty($contact_email)){ ?>
+            <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
             <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send Email</a>
             <?php } ?>
             <a class="dropdown-item" target="_blank" href="guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Guest URL</a>
-            <?php if($invoice_status !== 'Cancelled' && $invoice_status !== 'Paid'){ ?>
+            <?php if ($invoice_status !== 'Cancelled' && $invoice_status !== 'Paid') { ?>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item text-danger" href="post.php?cancel_invoice=<?php echo $invoice_id; ?>">Cancel</a>
             <?php } ?>
@@ -255,7 +255,7 @@ if(isset($_GET['invoice_id'])){
                 $total_tax = 0;
                 $sub_total = 0;
           
-                while($row = mysqli_fetch_array($sql_invoice_items)){
+                while ($row = mysqli_fetch_array($sql_invoice_items)) {
                   $item_id = $row['item_id'];
                   $item_name = htmlentities($row['item_name']);
                   $item_description = htmlentities($row['item_description']);
@@ -305,7 +305,7 @@ if(isset($_GET['invoice_id'])){
                         <?php 
                         
                         $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
-                        while($row = mysqli_fetch_array($taxes_sql)){
+                        while ($row = mysqli_fetch_array($taxes_sql)) {
                           $tax_id = $row['tax_id'];
                           $tax_name = htmlentities($row['tax_name']);
                           $tax_percent = htmlentities($row['tax_percent']);
@@ -354,13 +354,13 @@ if(isset($_GET['invoice_id'])){
               <td>Subtotal</td>
               <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?></td>
             </tr>
-            <?php if($total_tax > 0){ ?>
+            <?php if ($total_tax > 0) { ?>
             <tr class="border-bottom">
               <td>Tax</td>
               <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code); ?></td>        
             </tr>
             <?php } ?>
-            <?php if($amount_paid > 0){ ?>
+            <?php if ($amount_paid > 0) { ?>
             <tr class="border-bottom">
               <td><div class="text-success">Paid</div></td>
               <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
@@ -407,7 +407,7 @@ if(isset($_GET['invoice_id'])){
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql_history)){
+            while ($row = mysqli_fetch_array($sql_history)) {
               $history_created_at = $row['history_created_at'];
               $history_status = htmlentities($row['history_status']);
               $history_description = htmlentities($row['history_description']);
@@ -455,7 +455,7 @@ if(isset($_GET['invoice_id'])){
             <tbody>
               <?php
         
-              while($row = mysqli_fetch_array($sql_payments)){
+              while ($row = mysqli_fetch_array($sql_payments)) {
                 $payment_id = $row['payment_id'];
                 $payment_date = $row['payment_date'];
                 $payment_amount = floatval($row['payment_amount']);
@@ -501,12 +501,12 @@ include("footer.php");
 <link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
 <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
 <script>
-  $(function(){
+  $(function() {
     var availableProducts = <?php echo $json_products?>;
 
     $("#name").autocomplete({
       source: availableProducts,
-      select: function (event, ui){
+      select: function (event, ui) {
         $("#name").val(ui.item.label); // Product name field - this seemingly has to referenced as label
         $("#desc").val(ui.item.description); // Product description field
         $("#qty").val(1); // Product quantity field automatically make it a 1
@@ -533,7 +533,7 @@ var docDefinition = {
 		// Header
 		{
 			columns: [
-				<?php if(!empty($company_logo_base64)){ ?>
+				<?php if (!empty($company_logo_base64)) { ?>
 				{
 					image: <?php echo json_encode("data:image;base64,$company_logo_base64") ?>,
 					width: 120
@@ -665,7 +665,7 @@ var docDefinition = {
 
 		      $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
 		      
-		      while($row = mysqli_fetch_array($sql_invoice_items)){
+		      while ($row = mysqli_fetch_array($sql_invoice_items)) {
 		        $item_name = $row['item_name'];
 		        $item_description = $row['item_description'];
 		        $item_quantity = $row['item_quantity'];

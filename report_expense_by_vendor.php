@@ -1,13 +1,13 @@
 <?php include("inc_all_reports.php"); ?>
 <?php 
 
-if(isset($_GET['year'])){
+if (isset($_GET['year'])) {
   $year = intval($_GET['year']);
 }else{
   $year = date('Y');
 }
 
-if(isset($_GET['year'])){
+if (isset($_GET['year'])) {
   $year = intval($_GET['year']);
 }else{
   $year = date('Y');
@@ -31,10 +31,10 @@ $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE company_id = $s
       <select onchange="this.form.submit()" class="form-control" name="year">
         <?php 
                 
-        while($row = mysqli_fetch_array($sql_payment_years)){
+        while ($row = mysqli_fetch_array($sql_payment_years)) {
           $payment_year = $row['payment_year'];
         ?>
-        <option <?php if($year == $payment_year){ ?> selected <?php } ?> > <?php echo $payment_year; ?></option>
+        <option <?php if ($year == $payment_year) { ?> selected <?php } ?> > <?php echo $payment_year; ?></option>
         
         <?php
         }
@@ -53,7 +53,7 @@ $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE company_id = $s
         </thead>
         <tbody>
           <?php
-          while($row = mysqli_fetch_array($sql_vendors)){
+          while ($row = mysqli_fetch_array($sql_vendors)) {
             $vendor_id = $row['vendor_id'];
             $vendor_name = htmlentities($row['vendor_name']);
 
@@ -62,7 +62,7 @@ $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE company_id = $s
             
             $amount_paid = floatval($row['amount_paid']);
 
-            if($amount_paid > 599){
+            if ($amount_paid > 599) {
 
               ?>
 

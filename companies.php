@@ -1,6 +1,6 @@
 <?php include("inc_all_settings.php");
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "company_name";
@@ -32,7 +32,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <form autocomplete="off">
       <div class="input-group">
-        <input type="search" class="form-control col-md-4" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Companies">
+        <input type="search" class="form-control col-md-4" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Companies">
         <div class="input-group-append">
           <button class="btn btn-primary"><i class="fa fa-search"></i></button>
         </div>
@@ -41,7 +41,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=company_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=company_address&o=<?php echo $disp; ?>">Address</a></th>
@@ -54,7 +54,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $company_id = $row['company_id'];
             $company_name = htmlentities($row['company_name']);
             $company_country = htmlentities($row['company_country']);
@@ -78,7 +78,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <td class="text-center">
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editCompanyModal<?php echo $company_id; ?>">
-                <?php if(!empty($company_logo)){ ?>
+                <?php if (!empty($company_logo)) { ?>
                 <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
                 <?php }else{ ?>
                 <span class="fa-stack fa-2x">

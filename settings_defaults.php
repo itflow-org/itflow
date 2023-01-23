@@ -18,12 +18,12 @@
             <?php 
             
             $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC"); 
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
               $account_id = $row['account_id'];
               $account_name = htmlentities($row['account_name']);
 
             ?>
-              <option <?php if($config_default_transfer_from_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+              <option <?php if ($config_default_transfer_from_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
             
             <?php
             }
@@ -43,12 +43,12 @@
             <?php 
             
             $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC"); 
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
               $account_id = $row['account_id'];
               $account_name = htmlentities($row['account_name']);
 
             ?>
-              <option <?php if($config_default_transfer_to_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+              <option <?php if ($config_default_transfer_to_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
             
             <?php
             }
@@ -68,12 +68,12 @@
             <?php 
             
             $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC"); 
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
               $account_id = $row['account_id'];
               $account_name = htmlentities($row['account_name']);
 
             ?>
-              <option <?php if($config_default_payment_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+              <option <?php if ($config_default_payment_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
             
             <?php
             }
@@ -93,12 +93,12 @@
             <?php 
             
             $sql = mysqli_query($mysqli,"SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC"); 
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
               $account_id = $row['account_id'];
               $account_name = htmlentities($row['account_name']);
 
             ?>
-              <option <?php if($config_default_expense_account == $account_id){ echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+              <option <?php if ($config_default_expense_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
             
             <?php
             }
@@ -118,11 +118,11 @@
             <?php 
             
             $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method' AND company_id = $session_company_id ORDER BY category_name ASC"); 
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
               $payment_method = htmlentities($row['category_name']);
 
             ?>
-              <option <?php if($config_default_payment_method == $payment_method){ echo "selected"; } ?>><?php echo $payment_method; ?></option>
+              <option <?php if ($config_default_payment_method == $payment_method) { echo "selected"; } ?>><?php echo $payment_method; ?></option>
             
             <?php
             }
@@ -142,11 +142,11 @@
             <?php 
             
             $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method' AND company_id = $session_company_id ORDER BY category_name ASC"); 
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
               $payment_method = htmlentities($row['category_name']);
 
             ?>
-              <option <?php if($config_default_expense_payment_method == $payment_method){ echo "selected"; } ?>><?php echo $payment_method; ?></option>
+              <option <?php if ($config_default_expense_payment_method == $payment_method) { echo "selected"; } ?>><?php echo $payment_method; ?></option>
             
             <?php
             }
@@ -166,12 +166,12 @@
             <?php 
             
             $sql = mysqli_query($mysqli,"SELECT * FROM calendars WHERE company_id = $session_company_id ORDER BY calendar_name ASC"); 
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
               $calendar_id = $row['calendar_id'];
               $calendar_name = htmlentities($row['calendar_name']);
 
             ?>
-              <option <?php if($config_default_calendar == $calendar_id){ echo "selected"; } ?> value="<?php echo $calendar_id; ?>"><?php echo $calendar_name; ?></option>
+              <option <?php if ($config_default_calendar == $calendar_id) { echo "selected"; } ?> value="<?php echo $calendar_id; ?>"><?php echo $calendar_name; ?></option>
             
             <?php
             }
@@ -188,7 +188,7 @@
           </div>
           <select class="form-control select2" name="net_terms">
             <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
-            <option <?php if($config_default_net_terms == $net_term_value){ echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+            <option <?php if ($config_default_net_terms == $net_term_value) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
             <?php } ?>
           </select>
         </div>

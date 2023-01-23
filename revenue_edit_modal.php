@@ -32,7 +32,7 @@
                 <select class="form-control select2" name="currency_code" required>
                   <option value="">- Currency -</option>
                   <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                  <option <?php if($revenue_currency_code == $currency_code){ echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                  <option <?php if ($revenue_currency_code == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
                   <?php } ?>
                 </select>
               </div>
@@ -63,7 +63,7 @@
                   <?php 
                   
                   $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE (account_archived_at > '$revenue_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id  ORDER BY account_name ASC");
-                  while($row = mysqli_fetch_array($sql_accounts)){
+                  while ($row = mysqli_fetch_array($sql_accounts)) {
                     $account_id_select = $row['account_id'];
                     $account_name_select = htmlentities($row['account_name']);
                     $opening_balance = floatval($row['opening_balance']);
@@ -83,7 +83,7 @@
                     $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
                     
                   ?>
-                    <option <?php if($account_id == $account_id_select){ echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                    <option <?php if ($account_id == $account_id_select) { echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance,2); ?>]</option>
                   
                   <?php
                   }
@@ -103,11 +103,11 @@
                   <?php 
                   
                   $sql_category = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$revenue_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC"); 
-                  while($row = mysqli_fetch_array($sql_category)){
+                  while ($row = mysqli_fetch_array($sql_category)) {
                     $category_id_select = $row['category_id'];
                     $category_name = htmlentities($row['category_name']);
                   ?>
-                    <option <?php if($category_id_select == $category_id){ echo "selected"; } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name; ?></option>
+                    <option <?php if ($category_id_select == $category_id) { echo "selected"; } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name; ?></option>
                   
                   <?php
                   }
@@ -139,10 +139,10 @@
                   <?php 
                   
                   $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Payment Method' AND (category_archived_at > '$revenue_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC"); 
-                  while($row = mysqli_fetch_array($sql_categories)){
+                  while ($row = mysqli_fetch_array($sql_categories)) {
                     $category_name_select = htmlentities($row['category_name']);
                   ?>
-                    <option <?php if($revenue_payment_method == $category_name_select){ echo "selected"; } ?>><?php echo "$category_name_select"; ?></option>
+                    <option <?php if ($revenue_payment_method == $category_name_select) { echo "selected"; } ?>><?php echo "$category_name_select"; ?></option>
                   
                   <?php
                   }

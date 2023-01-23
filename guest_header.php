@@ -46,8 +46,8 @@ $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_A
 
           <?php
           //Alert Feedback
-          if(!empty($_SESSION['alert_message'])){
-              if (!isset($_SESSION['alert_type'])){
+          if (!empty($_SESSION['alert_message'])) {
+              if (!isset($_SESSION['alert_type'])) {
                   $_SESSION['alert_type'] = "info";
               }
             ?>

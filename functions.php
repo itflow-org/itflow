@@ -43,7 +43,7 @@ function key32gen()
 }
 
 function initials($str) {
-  if(!empty($str)){
+  if (!empty($str)) {
     $ret = '';
     foreach (explode(' ', $str) as $word)
       $ret .= strtoupper($word[0]);
@@ -68,14 +68,14 @@ function get_user_agent() {
 }
 
 function get_ip() {
-   
-  if(defined("CONST_GET_IP_METHOD")){
-    if(CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR"){
+
+  if (defined("CONST_GET_IP_METHOD")) {
+    if (CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
       $ip = getenv('HTTP_X_FORWARDED_FOR');
     }
-  
+
     else{
-     
+
       $ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
     }
   }
@@ -131,7 +131,7 @@ function get_os($user_os) {
   return $os_platform;
 }
 
-function get_device(){
+function get_device() {
   $tablet_browser = 0;
   $mobile_browser = 0;
   if (preg_match('/(tablet|ipad|playbook)|(android(?!.*(mobi|opera mini)))/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
@@ -159,7 +159,7 @@ function get_device(){
   }
   if (strpos(strtolower(get_user_agent()),'opera mini') > 0) {
     $mobile_browser++;
-    //Check for tablets on opera mini alternative headers
+    //Check for tablets on Opera Mini alternative headers
     $stock_ua = strtolower(isset($_SERVER['HTTP_X_OPERAMINI_PHONE_UA'])?$_SERVER['HTTP_X_OPERAMINI_PHONE_UA']:(isset($_SERVER['HTTP_DEVICE_STOCK_UA'])?$_SERVER['HTTP_DEVICE_STOCK_UA']:''));
     if (preg_match('/(tablet|ipad|playbook)|(android(?!.*mobile))/i', $stock_ua)) {
       $tablet_browser++;
@@ -186,14 +186,13 @@ function truncate($text, $chars) {
   $text = $text." ";
   $text = substr($text,0,$chars);
   $text = substr($text,0,strrpos($text,' '));
-  $text = $text."...";
-  return $text;
+  return $text."...";
 }
 
 function formatPhoneNumber($phoneNumber) {
   $phoneNumber = preg_replace('/[^0-9]/','',$phoneNumber);
 
-  if(strlen($phoneNumber) > 10) {
+  if (strlen($phoneNumber) > 10) {
     $countryCode = substr($phoneNumber, 0, strlen($phoneNumber)-10);
     $areaCode = substr($phoneNumber, -10, 3);
     $nextThree = substr($phoneNumber, -7, 3);
@@ -201,14 +200,14 @@ function formatPhoneNumber($phoneNumber) {
 
     $phoneNumber = '+'.$countryCode.' ('.$areaCode.') '.$nextThree.'-'.$lastFour;
   }
-  else if(strlen($phoneNumber) == 10) {
+  else if (strlen($phoneNumber) == 10) {
     $areaCode = substr($phoneNumber, 0, 3);
     $nextThree = substr($phoneNumber, 3, 3);
     $lastFour = substr($phoneNumber, 6, 4);
 
     $phoneNumber = '('.$areaCode.') '.$nextThree.'-'.$lastFour;
   }
-  else if(strlen($phoneNumber) == 7) {
+  else if (strlen($phoneNumber) == 7) {
     $nextThree = substr($phoneNumber, 0, 3);
     $lastFour = substr($phoneNumber, 3, 4);
 
@@ -226,7 +225,7 @@ function mkdir_missing($dir) {
 
 // Called during initial setup
 // Encrypts the master key with the user's password
-function setupFirstUserSpecificKey($user_password, $site_encryption_master_key){
+function setupFirstUserSpecificKey($user_password, $site_encryption_master_key) {
   $iv = bin2hex(random_bytes(8));
   $salt = bin2hex(random_bytes(8));
 
@@ -236,9 +235,7 @@ function setupFirstUserSpecificKey($user_password, $site_encryption_master_key){
   //Encrypt the master key with the users kdf'd hash and the IV
   $ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
 
-  $user_encryption_ciphertext = $salt . $iv . $ciphertext;
-
-  return $user_encryption_ciphertext;
+  return $salt . $iv . $ciphertext;
 }
 
 /*
@@ -246,7 +243,7 @@ function setupFirstUserSpecificKey($user_password, $site_encryption_master_key){
  * New Users: Requires the admin setting up their account have a Specific/Session key configured
  * Password Changes: Will use the current info in the session.
 */
-function encryptUserSpecificKey($user_password){
+function encryptUserSpecificKey($user_password) {
   $iv = bin2hex(random_bytes(8));
   $salt = bin2hex(random_bytes(8));
 
@@ -264,15 +261,13 @@ function encryptUserSpecificKey($user_password){
   // Encrypt the master key with the users kdf'd hash and the IV
   $ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
 
-  $user_encryption_ciphertext = $salt . $iv . $ciphertext;
-
-  return $user_encryption_ciphertext;
+  return $salt . $iv . $ciphertext;
 
 }
 
 // Given a ciphertext (incl. IV) and the user's password, returns the site master key
 // Ran at login, to facilitate generateUserSessionKey
-function decryptUserSpecificKey($user_encryption_ciphertext, $user_password){
+function decryptUserSpecificKey($user_encryption_ciphertext, $user_password) {
   //Get the IV, salt and ciphertext
   $salt = substr($user_encryption_ciphertext, 0, 16);
   $iv = substr($user_encryption_ciphertext, 16, 16);
@@ -282,18 +277,17 @@ function decryptUserSpecificKey($user_encryption_ciphertext, $user_password){
   $user_password_kdhash = hash_pbkdf2('sha256', $user_password, $salt, 100000, 16);
 
   //Use this hash to get the original/master key
-  $site_encryption_master_key = openssl_decrypt($ciphertext, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
-  return $site_encryption_master_key;
+  return openssl_decrypt($ciphertext, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
 }
 
 /*
 Generates what is probably best described as a session key (ephemeral-ish)
 - Allows us to store the master key on the server whilst the user is using the application, without prompting to type their password everytime they want to decrypt a credential
-- Ciphertext/IV is stored on the server in the users session, encryption key is controlled/provided by the user as a cookie
+- Ciphertext/IV is stored on the server in the users' session, encryption key is controlled/provided by the user as a cookie
 - Only the user can decrypt their session ciphertext to get the master key
 - Encryption key never hits the disk in cleartext
 */
-function generateUserSessionKey($site_encryption_master_key){
+function generateUserSessionKey($site_encryption_master_key) {
 
   // Generate both of these using bin2hex(random_bytes(8))
   $user_encryption_session_key = bin2hex(random_bytes(8));
@@ -306,7 +300,7 @@ function generateUserSessionKey($site_encryption_master_key){
 
   // Give the user "their" key as a cookie
   include('config.php');
-  if($config_https_only){
+  if ($config_https_only) {
     setcookie("user_encryption_session_key", "$user_encryption_session_key", ['path' => '/','secure' => true,'httponly' => true,'samesite' => 'None']);
   } else{
     setcookie("user_encryption_session_key", $user_encryption_session_key, 0, "/");
@@ -315,7 +309,7 @@ function generateUserSessionKey($site_encryption_master_key){
 }
 
 // Decrypts an encrypted password (website/asset login), returns it as a string
-function decryptLoginEntry($login_password_ciphertext){
+function decryptLoginEntry($login_password_ciphertext) {
 
   // Split the login into IV and Ciphertext
   $login_iv =  substr($login_password_ciphertext, 0, 16);
@@ -330,13 +324,12 @@ function decryptLoginEntry($login_password_ciphertext){
   $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
 
   // Decrypt the login password using the master key
-  $login_password_cleartext = openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
-  return $login_password_cleartext;
+  return openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
 
 }
 
 // Encrypts a website/asset login password
-function encryptLoginEntry($login_password_cleartext){
+function encryptLoginEntry($login_password_cleartext) {
   $iv = bin2hex(random_bytes(8));
 
   // Get the user session info.
@@ -350,15 +343,14 @@ function encryptLoginEntry($login_password_cleartext){
   //Encrypt the website/asset login using the master key
   $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
 
-  $login_password_ciphertext = $iv . $ciphertext;
-  return $login_password_ciphertext;
+  return $iv . $ciphertext;
 }
 
 // Get domain expiration date
-function getDomainExpirationDate($name){
+function getDomainExpirationDate($name) {
 
   // Only run if we think the domain is valid
-  if(!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+  if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
     return '0000-00-00';
   }
 
@@ -367,8 +359,8 @@ function getDomainExpirationDate($name){
   curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
   $response = json_decode(curl_exec($ch),1);
 
-  if($response){
-    if(is_array($response['expiration_date'])){
+  if ($response) {
+    if (is_array($response['expiration_date'])) {
       $expiry = new DateTime($response['expiration_date'][1]);
     }
     else{
@@ -383,12 +375,12 @@ function getDomainExpirationDate($name){
 }
 
 // Get domain general info (whois + NS/A/MX records)
-function getDomainRecords($name){
+function getDomainRecords($name) {
 
   $records = array();
 
   // Only run if we think the domain is valid
-  if(!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+  if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
     $records['a'] = '';
     $records['ns'] = '';
     $records['mx'] = '';
@@ -408,13 +400,13 @@ function getDomainRecords($name){
 
 // Used to automatically attempt to get SSL certificates as part of adding domains
 // The logic for the fetch (sync) button on the client_certificates page is in ajax.php, and allows ports other than 443
-function getSSL($name){
+function getSSL($name) {
 
   $certificate = array();
   $certificate['success'] = FALSE;
 
   // Only run if we think the domain is valid
-  if(!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+  if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
     $certificate['expire'] = '';
     $certificate['issued_by'] = '';
     $certificate['public_key'] = '';
@@ -427,12 +419,12 @@ function getSSL($name){
   $read = stream_socket_client($socket, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $get);
 
   // If the socket connected
-  if($read){
+  if ($read) {
     $cert = stream_context_get_params($read);
     $cert_public_key_obj = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
     openssl_x509_export($cert['options']['ssl']['peer_certificate'], $export);
 
-    if($cert_public_key_obj){
+    if ($cert_public_key_obj) {
       $certificate['success'] = TRUE;
       $certificate['expire'] = date('Y-m-d', $cert_public_key_obj['validTo_time_t']);
       $certificate['issued_by'] = strip_tags($cert_public_key_obj['issuer']['O']);
@@ -443,22 +435,20 @@ function getSSL($name){
   return $certificate;
 }
 
-function strto_AZaz09($string){
+function strto_AZaz09($string) {
   $string = ucwords(strtolower($string));
-  
+
   // Replace spaces with _
   //$string = str_replace(' ', '_', $string);
 
   // Gets rid of non-alphanumerics
-  $strto_AZaz09 = preg_replace( '/[^A-Za-z0-9_]/', '', $string );
-
-  return $strto_AZaz09;
+  return preg_replace('/[^A-Za-z0-9_]/', '', $string);
 }
 
 // Cross-Site Request Forgery check for sensitive functions
 // Validates the CSRF token provided matches the one in the users session
-function validateCSRFToken($token){
-  if(hash_equals($token, $_SESSION['csrf_token'])){
+function validateCSRFToken($token) {
+  if (hash_equals($token, $_SESSION['csrf_token'])) {
     return true;
   }
   else{
@@ -476,8 +466,8 @@ function validateCSRFToken($token){
  * Accountant - 1
  */
 
-function validateAdminRole(){
-  if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 3){
+function validateAdminRole() {
+  if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 3) {
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -485,8 +475,8 @@ function validateAdminRole(){
   }
 }
 
-function validateTechRole(){
-  if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 1){
+function validateTechRole() {
+  if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 1) {
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -494,8 +484,8 @@ function validateTechRole(){
   }
 }
 
-function validateAccountantRole(){
-  if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 2){
+function validateAccountantRole() {
+  if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 2) {
     $_SESSION['alert_type'] = "danger";
     $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -504,7 +494,7 @@ function validateAccountantRole(){
 }
 
 // Send a single email to a single recipient
-function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port, $from_email, $from_name, $to_email, $to_name, $subject, $body){
+function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port, $from_email, $from_name, $to_email, $to_name, $subject, $body) {
 
   $mail = new PHPMailer(true);
 
@@ -524,7 +514,6 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
     $mail->addAddress("$to_email", "$to_name");    // Add a recipient
 
     // Content
-    $mail->isHTML(true);                                  // Set email format to HTML
     $mail->Subject = "$subject";                                // Subject
     $mail->Body    = "$body";                                   // Content
 
@@ -539,10 +528,10 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
     return true;
   }
 
-  catch(Exception $e){
-    // If we couldn't send the message return the error so we can log it
+  catch(Exception $e) {
+    // If we couldn't send the message return the error, so we can log it
     return "Message not sent. Mailer Error: {$mail->ErrorInfo}";
   }
 }
 
-?>
+

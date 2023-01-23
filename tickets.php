@@ -268,9 +268,9 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                             <div class="form-group">
                                 <label>Ticket Status</label>
                                 <select class="form-control select2" name="status">
-                                    <option value="%" <?php if($status == "%"){echo "selected";}?> >Any</option>
-                                    <option value="Open" <?php if($status == "Open"){echo "selected";}?> >Open</option>
-                                    <option value="Closed" <?php if($status == "Closed"){echo "selected";}?> >Closed</option>
+                                    <option value="%" <?php if ($status == "%") {echo "selected";}?> >Any</option>
+                                    <option value="Open" <?php if ($status == "Open") {echo "selected";}?> >Open</option>
+                                    <option value="Closed" <?php if ($status == "Closed") {echo "selected";}?> >Closed</option>
                                 </select>
                             </div>
                         </div>
@@ -278,16 +278,16 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                             <div class="form-group">
                                 <label>Assigned to</label>
                                 <select class="form-control select2" name="assigned">
-                                    <option value="" <?php if($ticket_assigned_filter == ""){echo "selected";}?> >Any</option>
-                                    <option value="unassigned"<?php if($ticket_assigned_filter == "0"){echo "selected";}?> >Unassigned</option>
+                                    <option value="" <?php if ($ticket_assigned_filter == "") {echo "selected";}?> >Any</option>
+                                    <option value="unassigned"<?php if ($ticket_assigned_filter == "0") {echo "selected";}?> >Unassigned</option>
 
                                     <?php
                                     $sql_assign_to = mysqli_query($mysqli,"SELECT * FROM users WHERE user_archived_at IS NULL ORDER BY user_name ASC");
-                                    while($row = mysqli_fetch_array($sql_assign_to)){
+                                    while ($row = mysqli_fetch_array($sql_assign_to)) {
                                         $user_id = $row['user_id'];
                                         $user_name = htmlentities($row['user_name']);
                                         ?>
-                                        <option <?php if($ticket_assigned_filter == $user_id){ echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                        <option <?php if ($ticket_assigned_filter == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                                         <?php
                                     }
                                     ?>
@@ -346,7 +346,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                         $ticket_created_at = $row['ticket_created_at'];
                         $ticket_updated_at = $row['ticket_updated_at'];
                         if (empty($ticket_updated_at)) {
-                            if($ticket_status == "Closed"){
+                            if ($ticket_status == "Closed") {
                                 $ticket_updated_at_display = "<p>Never</p>";
                             }
                             else{
@@ -365,24 +365,24 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                         $contact_phone = formatPhoneNumber($row['contact_phone']);
                         $contact_extension = htmlentities($row['contact_extension']);
                         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-                        if($ticket_status == "Open"){
+                        if ($ticket_status == "Open") {
                             $ticket_status_color = "primary";
-                        }elseif($ticket_status == "Working") {
+                        }elseif ($ticket_status == "Working") {
                             $ticket_status_display = "success";
                         }else{
                             $ticket_status_display = "secondary";
                         }
 
-                        if($ticket_priority == "High"){
+                        if ($ticket_priority == "High") {
                             $ticket_priority_color = "danger";
-                        }elseif($ticket_priority == "Medium"){
+                        }elseif ($ticket_priority == "Medium") {
                             $ticket_priority_color = "warning";
                         }else{
                             $ticket_priority_color = "info";
                         }
                         $ticket_assigned_to = $row['ticket_assigned_to'];
                         if (empty($ticket_assigned_to)) {
-                            if($ticket_status == "Closed"){
+                            if ($ticket_status == "Closed") {
                                 $ticket_assigned_to_display = "<p>Not Assigned</p>";
                             }
                             else{
@@ -420,7 +420,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                             <td><?php echo $ticket_updated_at_display; ?></td>
                             <td><?php echo $ticket_created_at; ?></td>
                             <td>
-                                <?php if($ticket_status !== "Closed") { ?>
+                                <?php if ($ticket_status !== "Closed") { ?>
                                   <div class="dropdown dropleft text-center">
                                       <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                                           <i class="fas fa-ellipsis-h"></i>
@@ -428,7 +428,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                                       <div class="dropdown-menu">
                                           <a class="dropdown-item" href="#" data-toggle="modal"
                                              data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
-                                        <?php if($session_user_role == 3) { ?>
+                                        <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger"
                                                href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>

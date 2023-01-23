@@ -48,7 +48,7 @@
                 <?php 
                 
                 $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id ORDER BY account_name ASC"); 
-                  while($row = mysqli_fetch_array($sql_accounts)){
+                  while ($row = mysqli_fetch_array($sql_accounts)) {
                     $account_id_select = $row['account_id'];
                     $account_name_select = htmlentities($row['account_name']);
                     $opening_balance = floatval($row['opening_balance']);
@@ -68,7 +68,7 @@
                     $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
                 
                 ?>
-                <option <?php if($transfer_account_from == $account_id_select){ echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                <option <?php if ($transfer_account_from == $account_id_select) { echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance,2); ?>]</option>
                 <?php
                 }
                 
@@ -86,7 +86,7 @@
                 <?php 
                 
                 $sql2 = mysqli_query($mysqli,"SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id ORDER BY account_name ASC"); 
-                while($row = mysqli_fetch_array($sql2)){
+                while ($row = mysqli_fetch_array($sql2)) {
                   $account_id2 = $row['account_id'];
                   $account_name = htmlentities($row['account_name']);
                   $opening_balance = floatval($row['opening_balance']);
@@ -106,7 +106,7 @@
                   $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                 ?>
-                <option <?php if($transfer_account_to == $account_id2){ echo "selected"; } ?> value="<?php echo $account_id2; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                <option <?php if ($transfer_account_to == $account_id2) { echo "selected"; } ?> value="<?php echo $account_id2; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance,2); ?>]</option>
                 <?php
                 }
                 

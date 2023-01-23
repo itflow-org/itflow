@@ -2,7 +2,7 @@
 
 <?php 
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "domain_name";
@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Domains">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Domains">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -52,7 +52,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=domain_name&o=<?php echo $disp; ?>">Domain</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_name&o=<?php echo $disp; ?>">Registrar</a></th>
@@ -64,21 +64,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $domain_id = $row['domain_id'];
             $domain_name = htmlentities($row['domain_name']);
             $domain_registrar = htmlentities($row['domain_registrar']);
             $domain_webhost = htmlentities($row['domain_webhost']);
             $domain_expire = htmlentities($row['domain_expire']);
             $domain_registrar_name = htmlentities($row['vendor_name']);
-            if(empty($domain_registrar_name)){
+            if (empty($domain_registrar_name)) {
               $domain_registrar_name = "-";
             }
 
             $sql_domain_webhost = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $domain_webhost");
             $row = mysqli_fetch_array($sql_domain_webhost);
             $domain_webhost_name = htmlentities($row['vendor_name']);
-            if(empty($domain_webhost_name)){
+            if (empty($domain_webhost_name)) {
               $domain_webhost_name = "-";
             }
 
@@ -95,7 +95,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateDomainEditModal(<?php echo $client_id, ",", $domain_id ?>)" data-target="#editDomainModal">Edit</a>
-                  <?php if($session_user_role == 3) { ?>
+                  <?php if ($session_user_role == 3) { ?>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger" href="post.php?delete_domain=<?php echo $domain_id; ?>">Delete</a>
                   <?php } ?>
@@ -127,7 +127,7 @@ include("client_domain_add_modal.php");
         jQuery.get(
             "ajax.php",
             {domain_get_json_details: 'true', client_id: client_id, domain_id: domain_id},
-            function(data){
+            function(data) {
 
                 // If we get a response from post.php, parse it as JSON
                 const response = JSON.parse(data);
@@ -161,7 +161,7 @@ include("client_domain_add_modal.php");
 
                 // Populate dropdown
                 vendors.forEach(vendor => {
-                    if(parseInt(vendor.vendor_id) == parseInt(domain.domain_registrar)){
+                    if (parseInt(vendor.vendor_id) == parseInt(domain.domain_registrar)) {
                         // Selected domain
                         registrarDropdown[registrarDropdown.length] = new Option(vendor.vendor_name, vendor.vendor_id, true, true);
                     }
@@ -182,7 +182,7 @@ include("client_domain_add_modal.php");
 
                 // Populate dropdown
                 vendors.forEach(vendor => {
-                    if(parseInt(vendor.vendor_id) == parseInt(domain.domain_webhost)){
+                    if (parseInt(vendor.vendor_id) == parseInt(domain.domain_webhost)) {
                         // Selected domain
                         webhostDropdown[webhostDropdown.length] = new Option(vendor.vendor_name, vendor.vendor_id, true, true);
                     }

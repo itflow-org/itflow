@@ -6,13 +6,13 @@ function roundUpToNearestMultiple($n, $increment = 1000)
     return (int) ($increment * ceil($n / $increment));
 }
 
-if(isset($_GET['year'])){
+if (isset($_GET['year'])) {
   $year = intval($_GET['year']);
 }else{
   $year = date('Y');
 }
 
-if(isset($_GET['year'])){
+if (isset($_GET['year'])) {
   $year = intval($_GET['year']);
 }else{
   $year = date('Y');
@@ -36,10 +36,10 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
       <select onchange="this.form.submit()" class="form-control" name="year">
         <?php 
                 
-        while($row = mysqli_fetch_array($sql_expense_years)){
+        while ($row = mysqli_fetch_array($sql_expense_years)) {
           $expense_year = $row['expense_year'];
         ?>
-        <option <?php if($year == $expense_year){ ?> selected <?php } ?> > <?php echo $expense_year; ?></option>
+        <option <?php if ($year == $expense_year) { ?> selected <?php } ?> > <?php echo $expense_year; ?></option>
         
         <?php
         }
@@ -72,7 +72,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
         </thead>
         <tbody>
           <?php
-          while($row = mysqli_fetch_array($sql_categories)){
+          while ($row = mysqli_fetch_array($sql_categories)) {
             $category_id = $row['category_id'];
             $category_name = htmlentities($row['category_name']);
           ?>
@@ -170,7 +170,7 @@ var myLineChart = new Chart(ctx, {
           $row = mysqli_fetch_array($sql_expenses);
           $expenses_for_month = $row['expense_amount_for_month'];
           
-          if($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month){
+          if ($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month) {
             $largest_expense_month = $expenses_for_month;
           }
           

@@ -19,43 +19,43 @@
         <li class="nav-header">FINANCIAL</li>
         
         <li class="nav-item">
-          <a href="report_income_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
+          <a href="report_income_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
             <i class="far fa-circle nav-icon"></i>
             <p>Income</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="report_income_by_client.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_income_by_client.php") { echo "active"; } ?>">
+          <a href="report_income_by_client.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_income_by_client.php") { echo "active"; } ?>">
             <i class="far fa-user nav-icon"></i>
             <p>Income By Client</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="report_recurring_by_client.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_recurring_by_client.php") { echo "active"; } ?>">
+          <a href="report_recurring_by_client.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_recurring_by_client.php") { echo "active"; } ?>">
             <i class="fa fa-sync nav-icon"></i>
             <p>Recurring Income By Client</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="report_expense_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_expense_summary.php") { echo "active"; } ?>">
+          <a href="report_expense_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_expense_summary.php") { echo "active"; } ?>">
             <i class="far fa-credit-card nav-icon"></i>
             <p>Expense</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="report_expense_by_vendor.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_expense_by_vendor.php") { echo "active"; } ?>">
+          <a href="report_expense_by_vendor.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_expense_by_vendor.php") { echo "active"; } ?>">
             <i class="far fa-building nav-icon"></i>
             <p>Expense By Vendor</p>
           </a>
         </li>
          <li class="nav-item">
-          <a href="report_tax_summary.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_tax_summary.php") { echo "active"; } ?>">
+          <a href="report_tax_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_tax_summary.php") { echo "active"; } ?>">
             <i class="fas fa-percent nav-icon"></i>
             <p>Tax Summary</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="report_profit_loss.php" class="nav-link <?php if(basename($_SERVER["PHP_SELF"]) == "report_profit_loss.php") { echo "active"; } ?>">
+          <a href="report_profit_loss.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_profit_loss.php") { echo "active"; } ?>">
             <i class="fas fa-balance-scale nav-icon"></i>
             <p>Profit & Loss</p>
           </a>

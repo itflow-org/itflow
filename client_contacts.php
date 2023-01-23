@@ -2,11 +2,11 @@
 
 <?php 
 
-if(isset($_GET['q'])){
+if (isset($_GET['q'])) {
   $q = strip_tags(mysqli_real_escape_string($mysqli,$_GET['q']));
   //Phone Numbers
   $n = preg_replace("/[^0-9]/", '',$q);
-  if(empty($n)){
+  if (empty($n)) {
     $n = $q;
   }
 }else{
@@ -15,7 +15,7 @@ if(isset($_GET['q'])){
   $n = "";
 }
 
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "contact_name";
@@ -56,7 +56,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Contacts">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Contacts">
             <div class="input-group-append">
               <button class="btn btn-dark"><i class="fa fa-search"></i></button>
             </div>
@@ -75,7 +75,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table border">
-        <thead class="thead-light <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="thead-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th class="text-center"><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Name</a></th>
             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_department&o=<?php echo $disp; ?>">Department</a></th>
@@ -89,36 +89,36 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
 
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $contact_id = $row['contact_id'];
             $contact_name = htmlentities($row['contact_name']);
             $contact_title = htmlentities($row['contact_title']);
-            if(empty($contact_title)){
+            if (empty($contact_title)) {
               $contact_title_display = "-";
             }else{
               $contact_title_display = "<small class='text-secondary'>$contact_title</small>";
             }
             $contact_department =htmlentities($row['contact_department']);
-            if(empty($contact_department)){
+            if (empty($contact_department)) {
               $contact_department_display = "-";
             }else{
               $contact_department_display = $contact_department;
             }
             $contact_phone = formatPhoneNumber($row['contact_phone']);
-            if(empty($contact_phone)){
+            if (empty($contact_phone)) {
               $contact_phone_display = "-";
             }else{
               $contact_phone_display = "$contact_phone";
             }
             $contact_extension = htmlentities($row['contact_extension']);
             $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-            if(empty($contact_mobile)){
+            if (empty($contact_mobile)) {
               $contact_mobile_display = "-";
             }else{
               $contact_mobile_display = "$contact_mobile";
             }
             $contact_email = htmlentities($row['contact_email']);
-            if(empty($contact_email)){
+            if (empty($contact_email)) {
               $contact_email_display = "-";
             }else{
               $contact_email_display = "<a href='mailto:$contact_email'>$contact_email</a><button class='btn btn-sm clipboardjs' data-clipboard-text='$contact_email'><i class='far fa-copy text-secondary'></i></button>";
@@ -128,14 +128,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $contact_notes = htmlentities($row['contact_notes']);
             $contact_important = intval($row['contact_important']);
             $contact_created_at = $row['contact_created_at'];
-            if($contact_id == $primary_contact){
+            if ($contact_id == $primary_contact) {
                 $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
             }else{
               $primary_contact_display = FALSE;
             }
             $contact_location_id = $row['contact_location_id'];
             $location_name = htmlentities($row['location_name']);
-            if(empty($location_name)){
+            if (empty($location_name)) {
               $location_name_display = "-";
             }else{
               $location_name_display = $location_name;
@@ -162,7 +162,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <tr>
             <th class="text-center">
               <a class="text-dark" href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
-                <?php if(!empty($contact_photo)){ ?>
+                <?php if (!empty($contact_photo)) { ?>
               
                 <img class="img-size-50 img-circle" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
                 
@@ -183,7 +183,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             
             <td><?php echo $contact_department_display; ?></td>
             <td><?php echo $contact_email_display; ?></td>
-            <td><?php echo $contact_phone_display; ?> <?php if(!empty($contact_extension)){ echo "x$contact_extension"; } ?></td>
+            <td><?php echo $contact_phone_display; ?> <?php if (!empty($contact_extension)) { echo "x$contact_extension"; } ?></td>
             <td><?php echo $contact_mobile_display; ?></td>
             <td><?php echo $location_name_display; ?></td>
             <td>
@@ -194,7 +194,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">View Details</a>
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">Edit</a>
-                  <?php if($session_user_role == 3 && $contact_id !== $primary_contact) { ?>
+                  <?php if ($session_user_role == 3 && $contact_id !== $primary_contact) { ?>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger" href="post.php?archive_contact=<?php echo $contact_id; ?>">Archive</a>
                     <div class="dropdown-divider"></div>

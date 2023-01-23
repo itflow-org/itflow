@@ -20,7 +20,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
   <div class="card-body">
 
     <?php
-      if($num_of_files == 0){
+      if ($num_of_files == 0) {
         
         echo "<div style='text-align: center;'><h3 class='text-secondary'>No Records Here</h3></div>";
       }
@@ -31,7 +31,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
       
         <?php
         
-        while($row = mysqli_fetch_array($sql_files_images)){
+        while ($row = mysqli_fetch_array($sql_files_images)) {
           $file_id = $row['file_id'];
           $file_name = htmlentities($row['file_name']);
           $file_reference_name = htmlentities($row['file_reference_name']);
@@ -68,22 +68,22 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
         <table class="table">
      
         <?php
-        while($row = mysqli_fetch_array($sql_files_other)){
+        while ($row = mysqli_fetch_array($sql_files_other)) {
           $file_id = $row['file_id'];
           $file_name = htmlentities($row['file_name']);
           $file_reference_name = htmlentities($row['file_reference_name']);
           $file_ext = htmlentities($row['file_ext']);
-          if($file_ext == 'pdf'){
+          if ($file_ext == 'pdf') {
             $file_icon = "file-pdf";
-          }elseif($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar'){
+          }elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {
             $file_icon = "file-archive";
-          }elseif($file_ext == 'txt'){
+          }elseif ($file_ext == 'txt') {
             $file_icon = "file-alt";
-          }elseif($file_ext == 'doc' || $file_ext == 'docx'){
+          }elseif ($file_ext == 'doc' || $file_ext == 'docx') {
             $file_icon = "file-word";
-          }elseif($file_ext == 'xls' || $file_ext == 'xlsx' || $file_ext == 'ods'){
+          }elseif ($file_ext == 'xls' || $file_ext == 'xlsx' || $file_ext == 'ods') {
             $file_icon = "file-excel";
-          }elseif($file_ext == 'mp3' || $file_ext == 'wav' || $file_ext == 'ogg'){
+          }elseif ($file_ext == 'mp3' || $file_ext == 'wav' || $file_ext == 'ogg') {
             $file_icon = "file-audio";
           }else{
             $file_icon = "file";

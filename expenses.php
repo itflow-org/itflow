@@ -2,50 +2,50 @@
 
 //$o = "DESC";
   
-if(!empty($_GET['sb'])){
+if (!empty($_GET['sb'])) {
   $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
 }else{
   $sb = "expense_date";
 }
 
 // Reverse default sort
-if(!isset($_GET['o'])){
+if (!isset($_GET['o'])) {
   $o = "DESC";
   $disp = "ASC";
 }
 
-if(empty($_GET['canned_date'])){
+if (empty($_GET['canned_date'])) {
   //Prevents lots of undefined variable errors.
   // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
   $_GET['canned_date'] = 'custom';
 }
 
 //Date Filter
-if($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])){
+if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
   $dtf = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtf']));
   $dtt = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtt']));
-}elseif($_GET['canned_date'] == "today"){
+}elseif ($_GET['canned_date'] == "today") {
   $dtf = date('Y-m-d');
   $dtt = date('Y-m-d');
-}elseif($_GET['canned_date'] == "yesterday"){
+}elseif ($_GET['canned_date'] == "yesterday") {
   $dtf = date('Y-m-d',strtotime("yesterday"));
   $dtt = date('Y-m-d',strtotime("yesterday"));
-}elseif($_GET['canned_date'] == "thisweek"){
+}elseif ($_GET['canned_date'] == "thisweek") {
   $dtf = date('Y-m-d',strtotime("monday this week"));
   $dtt = date('Y-m-d');
-}elseif($_GET['canned_date'] == "lastweek"){
+}elseif ($_GET['canned_date'] == "lastweek") {
   $dtf = date('Y-m-d',strtotime("monday last week"));
   $dtt = date('Y-m-d',strtotime("sunday last week"));
-}elseif($_GET['canned_date'] == "thismonth"){
+}elseif ($_GET['canned_date'] == "thismonth") {
   $dtf = date('Y-m-01');
   $dtt = date('Y-m-d');
-}elseif($_GET['canned_date'] == "lastmonth"){
+}elseif ($_GET['canned_date'] == "lastmonth") {
   $dtf = date('Y-m-d',strtotime("first day of last month"));
   $dtt = date('Y-m-d',strtotime("last day of last month"));
-}elseif($_GET['canned_date'] == "thisyear"){
+}elseif ($_GET['canned_date'] == "thisyear") {
   $dtf = date('Y-01-01');
   $dtt = date('Y-m-d');
-}elseif($_GET['canned_date'] == "lastyear"){
+}elseif ($_GET['canned_date'] == "lastyear") {
   $dtf = date('Y-m-d',strtotime("first day of january last year"));
   $dtt = date('Y-m-d',strtotime("last day of december last year"));  
 }else{
@@ -83,7 +83,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
       <div class="row">
         <div class="col-sm-4">
           <div class="input-group">
-            <input type="search" class="form-control" name="q" value="<?php if(isset($q)){echo strip_tags(htmlentities($q));} ?>" placeholder="Search Expenses">
+            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo strip_tags(htmlentities($q));} ?>" placeholder="Search Expenses">
             <div class="input-group-append">
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
               <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -96,21 +96,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           </div>
         </div>
       </div>
-      <div class="collapse mt-3 <?php if(!empty($_GET['dtf'])){ echo "show"; } ?>" id="advancedFilter">
+      <div class="collapse mt-3 <?php if (!empty($_GET['dtf'])) { echo "show"; } ?>" id="advancedFilter">
         <div class="row">
           <div class="col-md-2">
             <div class="form-group">
               <label>Canned Date</label>
               <select class="form-control select2" name="canned_date">
-                <option <?php if($_GET['canned_date'] == "custom"){ echo "selected"; } ?> value="">Custom</option>
-                <option <?php if($_GET['canned_date'] == "today"){ echo "selected"; } ?> value="today">Today</option>
-                <option <?php if($_GET['canned_date'] == "yesterday"){ echo "selected"; } ?> value="yesterday">Yesterday</option>
-                <option <?php if($_GET['canned_date'] == "thisweek"){ echo "selected"; } ?> value="thisweek">This Week</option>
-                <option <?php if($_GET['canned_date'] == "lastweek"){ echo "selected"; } ?> value="lastweek">Last Week</option>
-                <option <?php if($_GET['canned_date'] == "thismonth"){ echo "selected"; } ?> value="thismonth">This Month</option>
-                <option <?php if($_GET['canned_date'] == "lastmonth"){ echo "selected"; } ?> value="lastmonth">Last Month</option>
-                <option <?php if($_GET['canned_date'] == "thisyear"){ echo "selected"; } ?> value="thisyear">This Year</option>
-                <option <?php if($_GET['canned_date'] == "lastyear"){ echo "selected"; } ?> value="lastyear">Last Year</option>
+                <option <?php if ($_GET['canned_date'] == "custom") { echo "selected"; } ?> value="">Custom</option>
+                <option <?php if ($_GET['canned_date'] == "today") { echo "selected"; } ?> value="today">Today</option>
+                <option <?php if ($_GET['canned_date'] == "yesterday") { echo "selected"; } ?> value="yesterday">Yesterday</option>
+                <option <?php if ($_GET['canned_date'] == "thisweek") { echo "selected"; } ?> value="thisweek">This Week</option>
+                <option <?php if ($_GET['canned_date'] == "lastweek") { echo "selected"; } ?> value="lastweek">Last Week</option>
+                <option <?php if ($_GET['canned_date'] == "thismonth") { echo "selected"; } ?> value="thismonth">This Month</option>
+                <option <?php if ($_GET['canned_date'] == "lastmonth") { echo "selected"; } ?> value="lastmonth">Last Month</option>
+                <option <?php if ($_GET['canned_date'] == "thisyear") { echo "selected"; } ?> value="thisyear">This Year</option>
+                <option <?php if ($_GET['canned_date'] == "lastyear") { echo "selected"; } ?> value="lastyear">Last Year</option>
               </select>
             </div>
           </div>
@@ -132,7 +132,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <hr>
     <div class="table-responsive">
       <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=expense_date&o=<?php echo $disp; ?>">Date</a></th>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=vendor_name&o=<?php echo $disp; ?>">Vendor</a></th>
@@ -146,7 +146,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <tbody>
           <?php
       
-          while($row = mysqli_fetch_array($sql)){
+          while ($row = mysqli_fetch_array($sql)) {
             $expense_id = $row['expense_id'];
             $expense_date = $row['expense_date'];
             $expense_amount = floatval($row['expense_amount']);
@@ -162,7 +162,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $account_name = htmlentities($row['account_name']);
             $expense_account_id = $row['expense_account_id'];
 
-            if(empty($expense_receipt)){
+            if (empty($expense_receipt)) {
               $receipt_attached = "";
             }else{
               $receipt_attached = "<a class='text-secondary mr-2' target='_blank' href='uploads/expenses/$session_company_id/$expense_receipt'><i class='fa fa-file-pdf'></i></a>";
@@ -184,7 +184,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 </button>
                 <div class="dropdown-menu">
                   <?php 
-                  if(!empty($expense_receipt)){
+                  if (!empty($expense_receipt)) {
                   ?>
                   <a class="dropdown-item" href="<?php echo "uploads/expenses/$session_company_id/$expense_receipt"; ?>" download="<?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf"; ?>">Download</a>
                   <div class="dropdown-divider"></div>

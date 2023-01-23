@@ -2,7 +2,7 @@
 
 <?php 
 
-if(isset($_GET['quote_id'])){
+if (isset($_GET['quote_id'])) {
 
   $quote_id = intval($_GET['quote_id']);
 
@@ -40,7 +40,7 @@ if(isset($_GET['quote_id'])){
   $client_website = htmlentities($row['client_website']);
   $client_currency_code = htmlentities($row['client_currency_code']);
   $client_net_terms = htmlentities($row['client_net_terms']);
-  if($client_net_terms == 0){
+  if ($client_net_terms == 0) {
     $client_net_terms = $config_default_net_terms;
   }
   $company_id = $row['company_id'];
@@ -54,22 +54,22 @@ if(isset($_GET['quote_id'])){
   $company_email = htmlentities($row['company_email']);
   $company_website = htmlentities($row['company_website']);
   $company_logo = htmlentities($row['company_logo']);
-  if(!empty($company_logo)){
+  if (!empty($company_logo)) {
     $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
   }
 
   $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE history_quote_id = $quote_id ORDER BY history_id DESC");
   
   //Set Badge color based off of quote status
-  if($quote_status == "Sent"){
+  if ($quote_status == "Sent") {
     $quote_badge_color = "warning text-white";
-  }elseif($quote_status == "Viewed"){
+  }elseif ($quote_status == "Viewed") {
     $quote_badge_color = "primary";
-  }elseif($quote_status == "Accepted"){
+  }elseif ($quote_status == "Accepted") {
     $quote_badge_color = "success";
-  }elseif($quote_status == "Declined"){
+  }elseif ($quote_status == "Declined") {
     $quote_badge_color = "danger";
-  }elseif($quote_status == "Invoiced"){
+  }elseif ($quote_status == "Invoiced") {
     $quote_badge_color = "info";
   }else{
     $quote_badge_color = "secondary";
@@ -78,8 +78,8 @@ if(isset($_GET['quote_id'])){
   //Product autocomplete
   $products_sql = mysqli_query($mysqli,"SELECT product_name AS label, product_description AS description, product_price AS price FROM products WHERE company_id = $session_company_id");
 
-  if(mysqli_num_rows($products_sql) > 0){
-    while($row = mysqli_fetch_array($products_sql)){
+  if (mysqli_num_rows($products_sql) > 0) {
+    while ($row = mysqli_fetch_array($products_sql)) {
       $products[] = $row;
     }
     $json_products = json_encode($products);
@@ -104,12 +104,12 @@ if(isset($_GET['quote_id'])){
     <div class="row">
 
       <div class="col-md-4">
-        <?php if($quote_status == 'Draft'){ ?>
+        <?php if ($quote_status == 'Draft') { ?>
         <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
           <i class="fas fa-fw fa-paper-plane"></i> Send
         </button>
         <div class="dropdown-menu">
-          <?php if(!empty($config_smtp_host) && !empty($contact_email)){ ?>
+          <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
           <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send Email</a>
           <div class="dropdown-divider"></div>
           <?php } ?>
@@ -117,12 +117,12 @@ if(isset($_GET['quote_id'])){
         </div>
         <?php } ?>
 
-        <?php if($quote_status == 'Sent' || $quote_status == 'Viewed'){ ?>
+        <?php if ($quote_status == 'Sent' || $quote_status == 'Viewed') { ?>
         <a class="btn btn-success" href="post.php?accept_quote=<?php echo $quote_id; ?>"><i class="fas fa-fw fa-check"></i> Accept</a>
         <a class="btn btn-danger" href="post.php?decline_quote=<?php echo $quote_id; ?>"><i class="fas fa-fw fa-times"></i> Decline</a>
         <?php } ?>
 
-        <?php if($quote_status == 'Accepted'){ ?>
+        <?php if ($quote_status == 'Accepted') { ?>
           <a class="btn btn-success btn-sm" href="#" data-toggle="modal" data-target="#addQuoteToInvoiceModal<?php echo $quote_id; ?>"><i class="fas fa-fw fa-check"></i> Invoice</a>
         <?php } ?>
 
@@ -139,7 +139,7 @@ if(isset($_GET['quote_id'])){
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
             <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$quote_date-$company_name-$client_name-Quote-$quote_prefix$quote_number.pdf"; ?>');">Download PDF</a>
-            <?php if(!empty($config_smtp_host) && !empty($contact_email)){ ?>
+            <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
             <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send Email</a>
             <?php } ?>
             <a class="dropdown-item" target="_blank" href="guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">Guest URL</a>
@@ -219,7 +219,7 @@ if(isset($_GET['quote_id'])){
                 $total_tax = 0;
                 $sub_total = 0;
           
-                while($row = mysqli_fetch_array($sql_items)){
+                while ($row = mysqli_fetch_array($sql_items)) {
                   $item_id = $row['item_id'];
                   $item_name = htmlentities($row['item_name']);
                   $item_description = htmlentities($row['item_description']);
@@ -269,7 +269,7 @@ if(isset($_GET['quote_id'])){
                         <?php 
                         
                         $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC"); 
-                        while($row = mysqli_fetch_array($taxes_sql)){
+                        while ($row = mysqli_fetch_array($taxes_sql)) {
                           $tax_id = $row['tax_id'];
                           $tax_name = htmlentities($row['tax_name']);
                           $tax_percent = htmlentities($row['tax_percent']);
@@ -319,7 +319,7 @@ if(isset($_GET['quote_id'])){
               <td>Subtotal</td>
               <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?></td>
             </tr>
-            <?php if($total_tax > 0){ ?>
+            <?php if ($total_tax > 0) { ?>
             <tr class="border-bottom">
               <td>Tax</td>
               <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?></td>        
@@ -366,7 +366,7 @@ if(isset($_GET['quote_id'])){
           <tbody>
             <?php
       
-            while($row = mysqli_fetch_array($sql_history)){
+            while ($row = mysqli_fetch_array($sql_history)) {
               $history_created_at = $row['history_created_at'];
               $history_status = htmlentities($row['history_status']);
               $history_description = htmlentities($row['history_description']);
@@ -406,12 +406,12 @@ include("footer.php");
 <link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
 <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
 <script>
-  $(function(){
+  $(function() {
     var availableProducts = <?php echo $json_products?>;
 
     $("#name").autocomplete({
       source: availableProducts,
-      select: function (event, ui){
+      select: function (event, ui) {
         $("#name").val(ui.item.label); // Product name field - this seemingly has to referenced as label
         $("#desc").val(ui.item.description); // Product description field
         $("#qty").val(1); // Product quantity field automatically make it a 1
@@ -438,7 +438,7 @@ var docDefinition = {
 		// Header
 		{
 			columns: [
-				<?php if(!empty($company_logo_base64)){ ?>
+				<?php if (!empty($company_logo_base64)) { ?>
 				{
 					image: <?php echo json_encode("data:image;base64,$company_logo_base64") ?>,
 					width: 120
@@ -559,7 +559,7 @@ var docDefinition = {
 
 		      $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_id ASC");
 		      
-		      while($row = mysqli_fetch_array($sql_invoice_items)){
+		      while ($row = mysqli_fetch_array($sql_invoice_items)) {
 		        $item_name = $row['item_name'];
 		        $item_description = $row['item_description'];
 		        $item_quantity = $row['item_quantity'];
