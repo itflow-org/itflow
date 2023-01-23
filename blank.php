@@ -1,4 +1,4 @@
-<?php include("inc_all.php"); ?>
+<?php require_once("inc_all.php"); ?>
 
 <!-- Breadcrumbs-->
 <ol class="breadcrumb">
@@ -22,4 +22,4 @@
 
 <script>toastr.success('Have Fun Wozz!!')</script>
 
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>
