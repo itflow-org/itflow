@@ -442,7 +442,7 @@ function strto_AZaz09($string) {
   //$string = str_replace(' ', '_', $string);
 
   // Gets rid of non-alphanumerics
-  return preg_replace( '/[^A-Za-z0-9_]/', '', $string );
+  return preg_replace('/[^A-Za-z0-9_]/', '', $string);
 }
 
 // Cross-Site Request Forgery check for sensitive functions
