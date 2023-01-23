@@ -722,6 +722,7 @@ CREATE TABLE `notifications` (
   `notification_dismissed_at` datetime DEFAULT NULL,
   `notification_dismissed_by` int(11) DEFAULT NULL,
   `notification_client_id` int(11) DEFAULT NULL,
+  `notification_user_id` tinyint(1) DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`notification_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1066,7 +1067,7 @@ CREATE TABLE `settings` (
   `config_ticket_from_name` varchar(200) DEFAULT NULL,
   `config_ticket_from_email` varchar(200) DEFAULT NULL,
   `config_ticket_email_parse` int(1) NOT NULL DEFAULT 0,
-  `config_ticket_client_general_notifications` int(1) NOT NULL DEFAULT 0,
+  `config_ticket_client_general_notifications` int(1) NOT NULL DEFAULT 1,
   `config_enable_cron` tinyint(1) DEFAULT NULL,
   `config_recurring_auto_send_invoice` tinyint(1) DEFAULT NULL,
   `config_enable_alert_domain_expire` tinyint(1) DEFAULT NULL,
@@ -1080,6 +1081,7 @@ CREATE TABLE `settings` (
   `config_module_enable_itdoc` tinyint(1) NOT NULL DEFAULT 1,
   `config_module_enable_accounting` tinyint(1) NOT NULL DEFAULT 1,
   `config_module_enable_ticketing` tinyint(1) NOT NULL DEFAULT 1,
+  `config_theme` varchar(200) DEFAULT 'blue',
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1517,4 +1519,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-18 20:12:49
+-- Dump completed on 2023-01-22 20:00:27

@@ -167,15 +167,14 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
 
             <div class='card-tools'>
                 <div class="float-left">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal"><i
-                                class="fas fa-fw fa-plus"></i> New Ticket
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
+                        <i class="fas fa-fw fa-plus"></i> New Ticket
                     </button>
-
                 </div>
             </div>
         </div>
         <div class="card-body">
-            <form class="mb-4" autocomplete="off">
+            <form autocomplete="off">
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
@@ -206,7 +205,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                     </div>
                 </div>
 
-                <div class="collapse mt-3 <?php if (!empty($_GET['dtf'])) {
+                <div class="collapse <?php if (!empty($_GET['dtf'])) {
                     echo "show";
                 } ?>" id="advancedFilter">
                     <div class="row">
@@ -408,7 +407,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                                 </a>
                             </td>
                             <td>
-                              <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
+                              <strong><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></strong>
                             </td>
                             <td>
                                 <strong><a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></strong>
