@@ -1,25 +1,23 @@
-<?php include("inc_all.php"); ?>
-
-<?php
+<?php include("inc_all.php");
 
 if (isset($_GET['ticket_id'])) {
     $ticket_id = intval($_GET['ticket_id']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM tickets 
-    LEFT JOIN clients ON ticket_client_id = client_id 
-    LEFT JOIN contacts ON ticket_contact_id = contact_id 
-    LEFT JOIN users ON ticket_assigned_to = user_id 
-    LEFT JOIN locations ON ticket_location_id = location_id
-    LEFT JOIN assets ON ticket_asset_id = asset_id
-    WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id"
+        LEFT JOIN clients ON ticket_client_id = client_id 
+        LEFT JOIN contacts ON ticket_contact_id = contact_id 
+        LEFT JOIN users ON ticket_assigned_to = user_id 
+        LEFT JOIN locations ON ticket_location_id = location_id
+        LEFT JOIN assets ON ticket_asset_id = asset_id
+        WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id"
     );
 
     if (mysqli_num_rows($sql) == 0) {
         echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='tickets.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
-        include("footer.php");
+        include_once("footer.php");
 
-    }else{
+    } else {
 
         $row = mysqli_fetch_array($sql);
         $client_id = $row['client_id'];
@@ -47,20 +45,20 @@ if (isset($_GET['ticket_id'])) {
 
         if ($ticket_status == "Open") {
             $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
-        }elseif ($ticket_status == "Working") {
+        } elseif ($ticket_status == "Working") {
             $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
-        }else{
+        } else {
             $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
         }
 
         //Set Ticket Bage Color based of priority
         if ($ticket_priority == "High") {
             $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
-        }elseif ($ticket_priority == "Medium") {
+        } elseif ($ticket_priority == "Medium") {
             $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
-        }elseif ($ticket_priority == "Low") {
+        } elseif ($ticket_priority == "Low") {
             $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
-        }else{
+        } else {
             $ticket_priority_display = "-";
         }
 
@@ -92,7 +90,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_assigned_to = $row['ticket_assigned_to'];
         if (empty($ticket_assigned_to)) {
             $ticket_assigned_to_display = "<span class='text-danger'>Not Assigned</span>";
-        }else{
+        } else {
             $ticket_assigned_to_display = htmlentities($row['user_name']);
         }
 
@@ -105,7 +103,7 @@ if (isset($_GET['ticket_id'])) {
         //Ticket Assigned To
         if (empty($ticket_assigned_to)) {
             $ticket_assigned_to_display = "<span class='text-danger'>Not Assigned</span>";
-        }else{
+        } else {
             $ticket_assigned_to_display = htmlentities($row['user_name']);
         }
 
@@ -155,7 +153,7 @@ if (isset($_GET['ticket_id'])) {
 
         if ($dt_value <= $date) {
             $dt_value = "Expired on $asset_warranty_expire"; $warranty_status_color ='red';
-        }else{
+        } else {
             $warranty_status_color = 'green';
         }
 
@@ -309,7 +307,7 @@ if (isset($_GET['ticket_id'])) {
 
                     ?>
 
-                    <div class="card card-outline <?php if ($ticket_reply_type == 'Internal') { echo "card-dark"; } elseif ($ticket_reply_type == 'Client') {echo "card-warning"; } else{ echo "card-info"; } ?> mb-3">
+                    <div class="card card-outline <?php if ($ticket_reply_type == 'Internal') { echo "card-dark"; } elseif ($ticket_reply_type == 'Client') {echo "card-warning"; } else { echo "card-info"; } ?> mb-3">
                         <div class="card-header">
                             <h3 class="card-title">
                                 <div class="media">
@@ -580,7 +578,7 @@ if (isset($_GET['ticket_id'])) {
 
 ?>
 
-<?php include("footer.php");
+<?php include_once("footer.php");
 
 if ($ticket_status !== "Closed") { ?>
     <!-- Ticket Time Tracking JS -->
