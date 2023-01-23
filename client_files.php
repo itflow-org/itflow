@@ -1,10 +1,8 @@
-<?php include("inc_all_client.php"); ?>
+<?php include("inc_all_client.php");
 
-<?php 
+$sql_files_images = mysqli_query($mysqli, "SELECT * FROM files WHERE file_client_id = $client_id AND (file_ext LIKE 'JPG' OR file_ext LIKE 'jpg' OR file_ext LIKE 'JPEG' OR file_ext LIKE 'jpeg' OR file_ext LIKE 'png' OR file_ext LIKE 'PNG') ORDER BY file_name ASC");
 
-$sql_files_images = mysqli_query($mysqli,"SELECT * FROM files WHERE file_client_id = $client_id AND (file_ext LIKE 'JPG' OR file_ext LIKE 'jpg' OR file_ext LIKE 'JPEG' OR file_ext LIKE 'jpeg' OR file_ext LIKE 'png' OR file_ext LIKE 'PNG') ORDER BY file_name ASC");
-
-$sql_files_other = mysqli_query($mysqli,"SELECT * FROM files WHERE file_client_id = $client_id AND file_ext NOT LIKE 'JPG' AND file_ext NOT LIKE 'jpg' AND file_ext NOT LIKE 'jpeg' AND file_ext NOT LIKE 'JPEG' AND file_ext NOT LIKE 'webp' AND file_ext NOT LIKE 'WEBP' AND file_ext NOT LIKE 'png' AND file_ext NOT LIKE 'PNG' ORDER BY file_name ASC"); 
+$sql_files_other = mysqli_query($mysqli, "SELECT * FROM files WHERE file_client_id = $client_id AND file_ext NOT LIKE 'JPG' AND file_ext NOT LIKE 'jpg' AND file_ext NOT LIKE 'jpeg' AND file_ext NOT LIKE 'JPEG' AND file_ext NOT LIKE 'webp' AND file_ext NOT LIKE 'WEBP' AND file_ext NOT LIKE 'png' AND file_ext NOT LIKE 'PNG' ORDER BY file_name ASC");
 
 $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_other);
 
@@ -21,28 +19,28 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
 
     <?php
       if ($num_of_files == 0) {
-        
+
         echo "<div style='text-align: center;'><h3 class='text-secondary'>No Records Here</h3></div>";
       }
 
     ?>
 
     <div class="row">
-      
+
         <?php
-        
+
         while ($row = mysqli_fetch_array($sql_files_images)) {
           $file_id = $row['file_id'];
           $file_name = htmlentities($row['file_name']);
           $file_reference_name = htmlentities($row['file_reference_name']);
           $file_ext = htmlentities($row['file_ext']);
-        
+
           ?>
 
-          <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">    
+          <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
             <div class="card">
-              <a href="#" data-toggle="modal" data-target="#viewFileModal<?php echo $file_id; ?>">  
-                <img class="img-fluid" src="<?php echo "uploads/clients/$session_company_id/$client_id/$file_reference_name"; ?>">       
+              <a href="#" data-toggle="modal" data-target="#viewFileModal<?php echo $file_id; ?>">
+                <img class="img-fluid" src="<?php echo "uploads/clients/$session_company_id/$client_id/$file_reference_name"; ?>">
               </a>
               <div class="card-footer bg-dark text-white p-1">
                 <center>
@@ -54,19 +52,19 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
                   <a href="post.php?delete_file=<?php echo $file_id; ?>" class="text-white float-right mr-1"><i class="fa fa-times"></i></a>
                 </center>
               </div>
-            </div>   
+            </div>
           </div>
-         
-          <?php 
+
+          <?php
           include("client_file_view_modal.php");
-          } 
+          }
           ?>
       </div>
 
       <div class="row">
-        
+
         <table class="table">
-     
+
         <?php
         while ($row = mysqli_fetch_array($sql_files_other)) {
           $file_id = $row['file_id'];
@@ -101,7 +99,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
         <?php
         }
         ?>
-   
+
     </div>
   </div>
 </div>

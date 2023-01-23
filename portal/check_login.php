@@ -7,10 +7,10 @@
 
 if (!isset($_SESSION)) {
     // HTTP Only cookies
-    ini_set("session.cookie_httponly", True);
+    ini_set("session.cookie_httponly", true);
     if ($config_https_only) {
         // Tell client to only send cookie(s) over HTTPS
-        ini_set("session.cookie_secure", True);
+        ini_set("session.cookie_secure", true);
     }
     session_start();
 }
@@ -36,10 +36,10 @@ $session_company_id = $_SESSION['company_id'];
 $contact_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_id = '$session_contact_id' AND contact_client_id = '$session_client_id'");
 $contact = mysqli_fetch_array($contact_sql);
 
-$session_contact_name = strip_tags(mysqli_real_escape_string($mysqli,$contact['contact_name']));
+$session_contact_name = strip_tags(mysqli_real_escape_string($mysqli, $contact['contact_name']));
 $session_contact_initials = initials($session_contact_name);
-$session_contact_title = strip_tags(mysqli_real_escape_string($mysqli,$contact['contact_title']));
-$session_contact_email = strip_tags(mysqli_real_escape_string($mysqli,$contact['contact_email']));
+$session_contact_title = strip_tags(mysqli_real_escape_string($mysqli, $contact['contact_title']));
+$session_contact_email = strip_tags(mysqli_real_escape_string($mysqli, $contact['contact_email']));
 $session_contact_photo = $contact['contact_photo'];
 
 // Get client info
