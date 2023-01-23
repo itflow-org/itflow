@@ -11,15 +11,15 @@ require_once ('../get_settings.php');
 
 if (!isset($_SESSION)) {
     // HTTP Only cookies
-    ini_set("session.cookie_httponly", True);
+    ini_set("session.cookie_httponly", true);
     if ($config_https_only) {
         // Tell client to only send cookie(s) over HTTPS
-        ini_set("session.cookie_secure", True);
+        ini_set("session.cookie_secure", true);
     }
     session_start();
 }
 
-$ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
+$ip = strip_tags(mysqli_real_escape_string($mysqli, get_ip()));
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
 
 $sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id FROM settings WHERE company_id = '1'");
@@ -37,8 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['login_message'] = 'Invalid e-mail';
-    }
-    else {
+    } else {
         $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' LIMIT 1");
         $row = mysqli_fetch_array($sql);
         if ($row['contact_auth_method'] == 'local') {
@@ -54,14 +53,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
                 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $row[contact_email] successfully logged in locally', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $row[contact_client_id]");
 
-            }
-            else {
+            } else {
                 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
                 $_SESSION['login_message'] = 'Incorrect username or password.';
             }
 
-        }
-        else {
+        } else {
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
             $_SESSION['login_message'] = 'Incorrect username or password.';
         }
@@ -70,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

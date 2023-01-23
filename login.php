@@ -10,12 +10,12 @@ require_once("functions.php");
 require_once("rfc6238.php");
 
 // IP & User Agent for logging
-$ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
-$user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
+$ip = strip_tags(mysqli_real_escape_string($mysqli, get_ip()));
+$user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
 
 // Block brute force password attacks - check recent failed login attempts for this IP
 //  Block access if more than 15 failed login attempts have happened in the last 10 minutes
-$row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT(log_id) AS failed_login_count FROM logs WHERE log_ip = '$ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 10 MINUTE)"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS failed_login_count FROM logs WHERE log_ip = '$ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 10 MINUTE)"));
 $failed_login_count = $row['failed_login_count'];
 
 if ($failed_login_count >= 15) {
@@ -28,7 +28,7 @@ if ($failed_login_count >= 15) {
 }
 
 // Query Settings for "default" company (as companies are being removed shortly)
-$sql_settings = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = 1");
+$sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
 $row = mysqli_fetch_array($sql_settings);
 
 // Mail
@@ -200,7 +200,7 @@ if (isset($_POST['login'])) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
