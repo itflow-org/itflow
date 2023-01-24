@@ -9,8 +9,8 @@
       </div>
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <div class="modal-body bg-white">    
-          
+        <div class="modal-body bg-white">
+
           <div class="form-group">
             <label>File name</label>
             <div class="input-group">
@@ -24,7 +24,7 @@
           <div class="form-group">
             <input type="file" class="form-control-file" name="file" accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .doc, .docx, .csv, .xls, .xlsx, .zip, .tar, .gz">
           </div>
-          
+
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>

@@ -11,7 +11,7 @@
         <input type="hidden" name="type" value="<?php echo $category; ?>">
 
         <div class="modal-body bg-white">
-          
+
           <div class="form-group">
             <label>Name <strong class="text-danger">*</strong></label>
             <input type="text" class="form-control" name="name" placeholder="Category name" required autofocus>
@@ -21,11 +21,11 @@
           <div class="form-row">
 
             <?php
-            
-            foreach($colors_diff as $color) { 
-            
+
+            foreach ($colors_diff as $color) {
+
             ?>
-            
+
             <div class="col-3 mb-3">
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="color" value="<?php echo $color; ?>">
@@ -34,10 +34,10 @@
                 </label>
               </div>
             </div>
-           
+
             <?php } ?>
           </div>
-        
+
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
