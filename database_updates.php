@@ -761,11 +761,18 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.2'");
     }
 
-    //if(CURRENT_DATABASE_VERSION == '0.3.2'){
-    // Insert queries here required to update to DB version 0.3.3
+    if(CURRENT_DATABASE_VERSION == '0.3.2'){
+        mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_billing` TINYINT(1) DEFAULT 0 AFTER `contact_important`");
+        mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_technical` TINYINT(1) DEFAULT 0 AFTER `contact_billing`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.3'");
+    }
+
+    //if(CURRENT_DATABASE_VERSION == '0.3.3'){
+    // Insert queries here required to update to DB version 0.3.4
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.3'");
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.4'");
     //}
 
 
