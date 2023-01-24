@@ -4023,7 +4023,7 @@ if(isset($_POST['add_contact'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = '$session_name created contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = '$session_name created contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] .= "Contact added";
     
@@ -4138,7 +4138,7 @@ if(isset($_POST['edit_contact'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] .= "Contact updated";
     
@@ -4161,7 +4161,7 @@ if(isset($_GET['archive_contact'])){
     mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact ".htmlentities($contact_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
