@@ -143,6 +143,26 @@
 
                         <div class="tab-pane fade" id="pills-vendors">
 
+                            <div class="form-group">
+                                <label>Vendor</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="vendor">
+                                        <option value="">- None -</option>
+                                        <?php
+                                        $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                                        while ($row = mysqli_fetch_array($sql)) {
+                                            $vendor_id = $row['vendor_id'];
+                                            $vendor_name = htmlentities($row['vendor_name']); ?>
+                                            <option value="<?php echo $vendor_id; ?>" <?php if ($primary_contact == $vendor_id) { echo "selected"; } ?>><?php echo "$vendor_name"; ?></option>
+
+                                            <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="tab-pane fade" id="pills-assets">
