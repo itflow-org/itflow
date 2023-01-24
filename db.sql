@@ -122,12 +122,12 @@ CREATE TABLE `assets` (
   `asset_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `asset_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `asset_archived_at` datetime DEFAULT NULL,
-  `asset_login_id` int(11) DEFAULT NULL,
-  `asset_vendor_id` int(11) DEFAULT NULL,
-  `asset_location_id` int(11) DEFAULT NULL,
+  `asset_login_id` int(11) NOT NULL DEFAULT 0,
+  `asset_vendor_id` int(11) NOT NULL DEFAULT 0,
+  `asset_location_id` int(11) NOT NULL DEFAULT 0,
   `asset_contact_id` int(11) NOT NULL DEFAULT 0,
-  `asset_network_id` int(11) DEFAULT NULL,
-  `asset_client_id` int(11) DEFAULT NULL,
+  `asset_network_id` int(11) NOT NULL DEFAULT 0,
+  `asset_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`asset_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -190,8 +190,8 @@ CREATE TABLE `certificates` (
   `certificate_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `certificate_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `certificate_archived_at` datetime DEFAULT NULL,
-  `certificate_domain_id` int(11) DEFAULT NULL,
-  `certificate_client_id` int(11) NOT NULL,
+  `certificate_domain_id` int(11) NOT NULL DEFAULT 0,
+  `certificate_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`certificate_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -231,8 +231,8 @@ CREATE TABLE `clients` (
   `client_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `client_archived_at` datetime DEFAULT NULL,
   `client_accessed_at` datetime DEFAULT NULL,
-  `primary_location` int(11) DEFAULT NULL,
-  `primary_contact` int(11) DEFAULT NULL,
+  `primary_location` int(11) NOT NULL DEFAULT 0,
+  `primary_contact` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -347,9 +347,9 @@ CREATE TABLE `contacts` (
   `contact_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `contact_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `contact_archived_at` datetime DEFAULT NULL,
-  `contact_location_id` int(11) DEFAULT NULL,
+  `contact_location_id` int(11) NOT NULL DEFAULT 0,
   `contact_department` varchar(200) DEFAULT NULL,
-  `contact_client_id` int(11) NOT NULL,
+  `contact_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`contact_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -370,9 +370,9 @@ CREATE TABLE `documents` (
   `document_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `document_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `document_archived_at` datetime DEFAULT NULL,
-  `document_template` tinyint(1) NOT NULL,
-  `document_folder_id` int(11) DEFAULT NULL,
-  `document_client_id` int(11) NOT NULL,
+  `document_template` tinyint(1) NOT NULL DEFAULT 0,
+  `document_folder_id` int(11) NOT NULL DEFAULT 0,
+  `document_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`document_id`),
   FULLTEXT KEY `document_content_raw` (`document_content_raw`)
@@ -398,9 +398,9 @@ CREATE TABLE `domains` (
   `domain_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `domain_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `domain_archived_at` datetime DEFAULT NULL,
-  `domain_registrar` int(11) DEFAULT NULL,
-  `domain_webhost` int(11) DEFAULT NULL,
-  `domain_client_id` int(11) NOT NULL,
+  `domain_registrar` int(11) NOT NULL DEFAULT 0,
+  `domain_webhost` int(11) NOT NULL DEFAULT 0,
+  `domain_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`domain_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -423,9 +423,9 @@ CREATE TABLE `events` (
   `event_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `event_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `event_archived_at` datetime DEFAULT NULL,
-  `event_client_id` int(11) DEFAULT NULL,
-  `event_location_id` int(11) DEFAULT NULL,
-  `event_calendar_id` int(11) NOT NULL,
+  `event_client_id` int(11) NOT NULL DEFAULT 0,
+  `event_location_id` int(11) NOT NULL DEFAULT 0,
+  `event_calendar_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`event_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -450,9 +450,9 @@ CREATE TABLE `expenses` (
   `expense_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `expense_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `expense_archived_at` datetime DEFAULT NULL,
-  `expense_vendor_id` int(11) DEFAULT NULL,
-  `expense_client_id` int(11) DEFAULT NULL,
-  `expense_category_id` int(11) DEFAULT NULL,
+  `expense_vendor_id` int(11) NOT NULL DEFAULT 0,
+  `expense_client_id` int(11) NOT NULL DEFAULT 0,
+  `expense_category_id` int(11) NOT NULL DEFAULT 0,
   `expense_account_id` int(11) DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`expense_id`)
@@ -474,7 +474,7 @@ CREATE TABLE `files` (
   `file_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `file_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `file_archived_at` datetime DEFAULT NULL,
-  `file_client_id` int(11) NOT NULL,
+  `file_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`file_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -490,8 +490,8 @@ DROP TABLE IF EXISTS `folders`;
 CREATE TABLE `folders` (
   `folder_id` int(11) NOT NULL AUTO_INCREMENT,
   `folder_name` varchar(200) NOT NULL,
-  `parent_folder` int(11) DEFAULT NULL,
-  `folder_client_id` int(11) DEFAULT NULL,
+  `parent_folder` int(11) NOT NULL DEFAULT 0,
+  `folder_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`folder_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -509,9 +509,9 @@ CREATE TABLE `history` (
   `history_status` varchar(200) NOT NULL,
   `history_description` varchar(200) NOT NULL,
   `history_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `history_invoice_id` int(11) DEFAULT NULL,
-  `history_recurring_id` int(11) DEFAULT NULL,
-  `history_quote_id` int(11) DEFAULT NULL,
+  `history_invoice_id` int(11) NOT NULL DEFAULT 0,
+  `history_recurring_id` int(11) NOT NULL DEFAULT 0,
+  `history_quote_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`history_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -552,18 +552,18 @@ CREATE TABLE `invoice_items` (
   `item_id` int(11) NOT NULL AUTO_INCREMENT,
   `item_name` varchar(200) NOT NULL,
   `item_description` text DEFAULT NULL,
-  `item_quantity` decimal(15,2) NOT NULL,
-  `item_price` decimal(15,2) NOT NULL,
-  `item_subtotal` decimal(15,2) NOT NULL,
-  `item_tax` decimal(15,2) DEFAULT NULL,
-  `item_total` decimal(15,2) NOT NULL,
+  `item_quantity` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `item_price` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `item_subtotal` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `item_tax` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `item_total` decimal(15,2) NOT NULL DEFAULT 0.00,
   `item_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `item_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `item_archived_at` datetime DEFAULT NULL,
-  `item_tax_id` int(11) DEFAULT NULL,
-  `item_quote_id` int(11) DEFAULT NULL,
-  `item_recurring_id` int(11) DEFAULT NULL,
-  `item_invoice_id` int(11) DEFAULT NULL,
+  `item_tax_id` int(11) NOT NULL DEFAULT 0,
+  `item_quote_id` int(11) NOT NULL DEFAULT 0,
+  `item_recurring_id` int(11) NOT NULL DEFAULT 0,
+  `item_invoice_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -584,7 +584,7 @@ CREATE TABLE `invoices` (
   `invoice_status` varchar(200) NOT NULL,
   `invoice_date` date NOT NULL,
   `invoice_due` date NOT NULL,
-  `invoice_amount` decimal(15,2) DEFAULT NULL,
+  `invoice_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `invoice_currency_code` varchar(200) NOT NULL,
   `invoice_note` text DEFAULT NULL,
   `invoice_url_key` varchar(200) DEFAULT NULL,
@@ -620,8 +620,8 @@ CREATE TABLE `locations` (
   `location_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `location_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `location_archived_at` datetime DEFAULT NULL,
-  `location_contact_id` int(11) DEFAULT NULL,
-  `location_client_id` int(11) DEFAULT NULL,
+  `location_contact_id` int(11) NOT NULL DEFAULT 0,
+  `location_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`location_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -647,10 +647,10 @@ CREATE TABLE `logins` (
   `login_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `login_archived_at` datetime DEFAULT NULL,
   `login_contact_id` int(11) NOT NULL DEFAULT 0,
-  `login_vendor_id` int(11) DEFAULT NULL,
-  `login_asset_id` int(11) DEFAULT NULL,
-  `login_software_id` int(11) DEFAULT NULL,
-  `login_client_id` int(11) DEFAULT NULL,
+  `login_vendor_id` int(11) NOT NULL DEFAULT 0,
+  `login_asset_id` int(11) NOT NULL DEFAULT 0,
+  `login_software_id` int(11) NOT NULL DEFAULT 0,
+  `login_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`login_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -671,12 +671,8 @@ CREATE TABLE `logs` (
   `log_ip` varchar(200) DEFAULT NULL,
   `log_user_agent` varchar(250) DEFAULT NULL,
   `log_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `log_client_id` int(11) DEFAULT NULL,
-  `log_invoice_id` int(11) DEFAULT NULL,
-  `log_quote_id` int(11) DEFAULT NULL,
-  `log_recurring_id` int(11) DEFAULT NULL,
-  `log_user_id` int(11) DEFAULT NULL,
-  `log_entity_id` int(11) NOT NULL DEFAULT 0,
+  `log_client_id` int(11) NOT NULL DEFAULT 0,
+  `log_user_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -700,8 +696,8 @@ CREATE TABLE `networks` (
   `network_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `network_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `network_archived_at` datetime DEFAULT NULL,
-  `network_location_id` int(11) DEFAULT NULL,
-  `network_client_id` int(11) NOT NULL,
+  `network_location_id` int(11) NOT NULL DEFAULT 0,
+  `network_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`network_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -721,8 +717,8 @@ CREATE TABLE `notifications` (
   `notification_timestamp` datetime NOT NULL DEFAULT current_timestamp(),
   `notification_dismissed_at` datetime DEFAULT NULL,
   `notification_dismissed_by` int(11) DEFAULT NULL,
-  `notification_client_id` int(11) DEFAULT NULL,
-  `notification_user_id` tinyint(1) DEFAULT 0,
+  `notification_client_id` int(11) NOT NULL DEFAULT 0,
+  `notification_user_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`notification_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -746,7 +742,7 @@ CREATE TABLE `payments` (
   `payment_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `payment_archived_at` datetime DEFAULT NULL,
   `payment_account_id` int(11) NOT NULL,
-  `payment_invoice_id` int(11) DEFAULT NULL,
+  `payment_invoice_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`payment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -768,7 +764,7 @@ CREATE TABLE `products` (
   `product_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `product_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `product_archived_at` datetime DEFAULT NULL,
-  `product_tax_id` int(11) DEFAULT NULL,
+  `product_tax_id` int(11) NOT NULL DEFAULT 0,
   `product_category_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`product_id`)
@@ -789,7 +785,7 @@ CREATE TABLE `quotes` (
   `quote_scope` varchar(255) DEFAULT NULL,
   `quote_status` varchar(200) NOT NULL,
   `quote_date` date NOT NULL,
-  `quote_amount` decimal(15,2) DEFAULT NULL,
+  `quote_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `quote_currency_code` varchar(200) NOT NULL,
   `quote_note` text DEFAULT NULL,
   `quote_url_key` varchar(200) DEFAULT NULL,
@@ -841,7 +837,7 @@ CREATE TABLE `recurring` (
   `recurring_last_sent` date DEFAULT NULL,
   `recurring_next_date` date NOT NULL,
   `recurring_status` int(1) NOT NULL,
-  `recurring_amount` decimal(15,2) DEFAULT NULL,
+  `recurring_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `recurring_currency_code` varchar(200) NOT NULL,
   `recurring_note` text DEFAULT NULL,
   `recurring_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -864,7 +860,7 @@ DROP TABLE IF EXISTS `revenues`;
 CREATE TABLE `revenues` (
   `revenue_id` int(11) NOT NULL AUTO_INCREMENT,
   `revenue_date` date NOT NULL,
-  `revenue_amount` decimal(15,2) NOT NULL,
+  `revenue_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `revenue_currency_code` varchar(200) NOT NULL,
   `revenue_payment_method` varchar(200) DEFAULT NULL,
   `revenue_reference` varchar(200) DEFAULT NULL,
@@ -872,9 +868,9 @@ CREATE TABLE `revenues` (
   `revenue_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `revenue_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `revenue_archived_at` datetime DEFAULT NULL,
-  `revenue_category_id` int(11) NOT NULL,
+  `revenue_category_id` int(11) NOT NULL DEFAULT 0,
   `revenue_account_id` int(11) NOT NULL,
-  `revenue_client_id` int(11) DEFAULT NULL,
+  `revenue_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`revenue_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -898,10 +894,10 @@ CREATE TABLE `scheduled_tickets` (
   `scheduled_ticket_next_run` date NOT NULL,
   `scheduled_ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `scheduled_ticket_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `scheduled_ticket_created_by` int(11) NOT NULL,
-  `scheduled_ticket_client_id` int(11) DEFAULT NULL,
-  `scheduled_ticket_contact_id` int(11) DEFAULT NULL,
-  `scheduled_ticket_asset_id` int(11) DEFAULT NULL,
+  `scheduled_ticket_created_by` int(11) NOT NULL DEFAULT 0,
+  `scheduled_ticket_client_id` int(11) NOT NULL DEFAULT 0,
+  `scheduled_ticket_contact_id` int(11) NOT NULL DEFAULT 0,
+  `scheduled_ticket_asset_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`scheduled_ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -1066,14 +1062,14 @@ CREATE TABLE `settings` (
   `config_ticket_next_number` int(11) DEFAULT NULL,
   `config_ticket_from_name` varchar(200) DEFAULT NULL,
   `config_ticket_from_email` varchar(200) DEFAULT NULL,
-  `config_ticket_email_parse` int(1) NOT NULL DEFAULT 0,
-  `config_ticket_client_general_notifications` int(1) NOT NULL DEFAULT 1,
-  `config_enable_cron` tinyint(1) DEFAULT NULL,
-  `config_recurring_auto_send_invoice` tinyint(1) DEFAULT NULL,
-  `config_enable_alert_domain_expire` tinyint(1) DEFAULT NULL,
-  `config_send_invoice_reminders` tinyint(1) DEFAULT NULL,
+  `config_ticket_email_parse` tinyint(1) NOT NULL DEFAULT 0,
+  `config_ticket_client_general_notifications` tinyint(1) NOT NULL DEFAULT 1,
+  `config_enable_cron` tinyint(1) NOT NULL DEFAULT 0,
+  `config_recurring_auto_send_invoice` tinyint(1) NOT NULL DEFAULT 1,
+  `config_enable_alert_domain_expire` tinyint(1) NOT NULL DEFAULT 1,
+  `config_send_invoice_reminders` tinyint(1) NOT NULL DEFAULT 1,
   `config_invoice_overdue_reminders` varchar(200) DEFAULT NULL,
-  `config_stripe_enable` tinyint(1) DEFAULT NULL,
+  `config_stripe_enable` tinyint(1) NOT NULL DEFAULT 0,
   `config_stripe_publishable` varchar(255) DEFAULT NULL,
   `config_stripe_secret` varchar(255) DEFAULT NULL,
   `config_azure_client_id` varchar(200) DEFAULT NULL,
@@ -1128,11 +1124,11 @@ CREATE TABLE `software` (
   `software_purchase` date DEFAULT NULL,
   `software_expire` date DEFAULT NULL,
   `software_notes` text DEFAULT NULL,
-  `software_template` tinyint(1) DEFAULT 0,
+  `software_template` tinyint(1) NOT NULL DEFAULT 0,
   `software_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `software_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `software_archived_at` datetime DEFAULT NULL,
-  `software_login_id` int(11) DEFAULT NULL,
+  `software_login_id` int(11) NOT NULL DEFAULT 0,
   `software_client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`software_id`)
@@ -1224,6 +1220,7 @@ CREATE TABLE `tags` (
   `tag_icon` varchar(200) DEFAULT NULL,
   `tag_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `tag_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `tag_archived_at` datetime DEFAULT NULL,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`tag_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -1309,12 +1306,12 @@ CREATE TABLE `tickets` (
   `ticket_closed_at` datetime DEFAULT NULL,
   `ticket_created_by` int(11) NOT NULL,
   `ticket_assigned_to` int(11) NOT NULL DEFAULT 0,
-  `ticket_closed_by` int(11) DEFAULT NULL,
-  `ticket_vendor_id` int(11) DEFAULT NULL,
-  `ticket_client_id` int(11) DEFAULT NULL,
-  `ticket_contact_id` int(11) DEFAULT NULL,
-  `ticket_location_id` int(11) DEFAULT NULL,
-  `ticket_asset_id` int(11) DEFAULT NULL,
+  `ticket_closed_by` int(11) NOT NULL DEFAULT 0,
+  `ticket_vendor_id` int(11) NOT NULL DEFAULT 0,
+  `ticket_client_id` int(11) NOT NULL DEFAULT 0,
+  `ticket_contact_id` int(11) NOT NULL DEFAULT 0,
+  `ticket_location_id` int(11) NOT NULL DEFAULT 0,
+  `ticket_asset_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1361,7 +1358,7 @@ CREATE TABLE `trips` (
   `trip_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `trip_archived_at` datetime DEFAULT NULL,
   `trip_user_id` int(11) NOT NULL DEFAULT 0,
-  `trip_client_id` int(11) DEFAULT NULL,
+  `trip_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`trip_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1424,7 +1421,7 @@ CREATE TABLE `users` (
   `user_name` varchar(200) NOT NULL,
   `user_email` varchar(200) NOT NULL,
   `user_password` varchar(200) NOT NULL,
-  `user_status` tinyint(1) DEFAULT 1,
+  `user_status` tinyint(1) NOT NULL DEFAULT 1,
   `user_token` varchar(200) DEFAULT NULL,
   `user_avatar` varchar(200) DEFAULT NULL,
   `user_specific_encryption_ciphertext` varchar(200) DEFAULT NULL,
@@ -1500,11 +1497,11 @@ CREATE TABLE `vendors` (
   `vendor_code` varchar(200) DEFAULT NULL,
   `vendor_account_number` varchar(200) DEFAULT NULL,
   `vendor_notes` text DEFAULT NULL,
-  `vendor_template` tinyint(1) DEFAULT 0,
+  `vendor_template` tinyint(1) NOT NULL DEFAULT 0,
   `vendor_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `vendor_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `vendor_archived_at` datetime DEFAULT NULL,
-  `vendor_client_id` int(11) DEFAULT NULL,
+  `vendor_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`vendor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1519,4 +1516,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-22 20:00:27
+-- Dump completed on 2023-01-23 21:43:07
