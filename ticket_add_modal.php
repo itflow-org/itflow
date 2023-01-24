@@ -155,7 +155,7 @@
                                         $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
                                         while ($row = mysqli_fetch_array($sql_assets)) {
                                             $asset_id_select = $row['asset_id'];
-                                            $asset_name_select = htmlentities($row['asset_name']); ?>
+                                            $asset_name_select = htmlentities($row['asset_name']); ?>    
                                             <option <?php if (!empty($asset_id) && $asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
 
                                         <?php } ?>
@@ -164,31 +164,7 @@
                             </div>
                             
                         </div>
-
-                        <div class="tab-pane fade" id="pills-vendors">
-
-                            <div class="form-group">
-                                <label>Vendor</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="vendor">
-                                        <option value="">- None -</option>
-                                        <?php
-                                        $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
-                                        while ($row = mysqli_fetch_array($sql)) {
-                                            $vendor_id = $row['vendor_id'];
-                                            $vendor_name = htmlentities($row['vendor_name']); ?>
-                                            <option value="<?php echo $vendor_id; ?>" <?php if ($primary_contact == $vendor_id) { echo "selected"; } ?>><?php echo "$vendor_name"; ?></option>
-
-                                            <?php } ?>
-                                    </select>
-                                </div>
-                            </div>
-
-                        </div>
-
+                        
                         <?php } ?>
 
                     </div>
