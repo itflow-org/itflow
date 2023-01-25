@@ -4,9 +4,9 @@ if (isset($_GET['contact_id'])) {
     $contact_id = intval($_GET['contact_id']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM contacts 
-    LEFT JOIN locations ON location_id = contact_location_id
-    WHERE contact_id = $contact_id
-  ");
+        LEFT JOIN locations ON location_id = contact_location_id
+        WHERE contact_id = $contact_id
+    ");
 
     $row = mysqli_fetch_array($sql);
     $contact_id = $row['contact_id'];
@@ -53,7 +53,6 @@ if (isset($_GET['contact_id'])) {
     $sql_related_tickets = mysqli_query($mysqli,"SELECT * FROM tickets WHERE ticket_contact_id = $contact_id AND company_id = $session_company_id ORDER BY ticket_id DESC");
     $ticket_count = mysqli_num_rows($sql_related_tickets);
 
-
     ?>
 
     <div class="row">
@@ -62,7 +61,12 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark">
                 <div class="card-body">
-                    <div class="text-center">
+                    <h3 class="text-bold"><?php echo $contact_name; ?></h3>
+                    <?php if (!empty($contact_title)) { ?>
+                        <div class="text-secondary"><?php echo $contact_title; ?></div>
+                    <?php } ?>
+
+                    <div class="text-center">     
                         <?php if (!empty($contact_photo)) { ?>
                             <img class="img-fluid img-circle p-3" alt="contact_photo" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
                         <?php } else { ?>
@@ -73,11 +77,7 @@ if (isset($_GET['contact_id'])) {
                         <?php } ?>
                     </div>
                     <hr>
-                    <h3><?php echo $contact_name; ?></h3>
-                    <?php if (!empty($contact_title)) { ?>
-                        <div class="mb-3 text-secondary"><?php echo $contact_title; ?></div>
-                    <?php } ?>
-                    <?php if (!empty($contact_title)) { ?>
+                    <?php if (!empty($location_name)) { ?>
                         <div class="mb-1"><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name_display; ?></div>
                     <?php } ?>
                     <?php if (!empty($contact_email)) { ?>
@@ -267,8 +267,6 @@ if (isset($_GET['contact_id'])) {
                 </div>
             </div>
 
-
-
             <div class="card card-dark <?php if ($login_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa fa-fw fa-key"></i> Passwords</h3>
@@ -363,7 +361,6 @@ if (isset($_GET['contact_id'])) {
                 </div>
             </div>
 
-
             <div class="card card-dark <?php if ($software_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa fa-fw fa-cube"></i> Licenses</h3>
@@ -449,9 +446,6 @@ if (isset($_GET['contact_id'])) {
                     </div>
                 </div>
             </div>
-
-
-
 
             <div class="card card-dark <?php if ($ticket_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">

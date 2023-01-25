@@ -166,8 +166,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>
             <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=client_name&order=<?php echo $order_display; ?>">Name</a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=location_city&order=<?php echo $order_display; ?>">Address </a></th>
-            <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=contact_name&order=<?php echo $order_display; ?>">Contact</a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=location_city&order=<?php echo $order_display; ?>">Primary Address </a></th>
+            <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=contact_name&order=<?php echo $order_display; ?>">Primary Contact</a></th>
             <?php if ($session_user_role == 3 || $session_user_role == 1 && $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
             <?php if ($session_user_role == 3) { ?> <th class="text-center">Action</th> <?php } ?>
           </tr>
