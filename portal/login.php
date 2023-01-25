@@ -26,9 +26,10 @@ $sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id FROM settin
 $settings = mysqli_fetch_array($sql_settings);
 $azure_client_id = $settings['config_azure_client_id'];
 
-$company_sql = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = '1'");
+$company_sql = mysqli_query($mysqli, "SELECT company_name, company_logo FROM companies WHERE company_id = '1'");
 $company_results = mysqli_fetch_array($company_sql);
 $company_name = $company_results['company_name'];
+$company_logo = $company_results['company_logo'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
@@ -89,7 +90,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
 <body class="hold-transition login-page">
 <div class="login-box">
-    <div class="login-logo"><b><?=$company_name?></b> <br>Client Portal Login</h2></div>
+    <div class="login-logo">
+        <?php if(!empty($company_logo)) { ?>
+            <img height="110" width="380" class="img-fluid" src="<?php echo "../uploads/settings/1/$company_logo"; ?>">
+        <?php } else { ?>
+        <b><?=$company_name?></b> <br>Client Portal Login</h2>
+        <?php } ?>
+    </div>
     <div class="card">
         <div class="card-body login-card-body">
             <p class="login-box-msg text-danger">
@@ -102,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             </p>
             <form method="post">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Client Email" name="email" required autofocus>
+                    <input type="text" class="form-control" placeholder="Registered Client Email" name="email" required autofocus>
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-envelope"></span>

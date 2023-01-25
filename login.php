@@ -32,7 +32,6 @@ $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings LEFT JOIN companie
 $row = mysqli_fetch_array($sql_settings);
 
 // Company info
-$company_name = $row['company_name'];
 $company_logo = $row['company_logo'];
 
 // Mail
