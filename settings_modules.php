@@ -7,19 +7,25 @@
   <div class="card-body">
     <form action="post.php" method="post" autocomplete="off">
 
-      <div class="custom-control custom-switch mb-3">
-        <input type="checkbox" class="custom-control-input" name="config_module_enable_itdoc" <?php if ($config_module_enable_itdoc == 1) { echo "checked"; } ?> value="1" id="customSwitch1">
-        <label class="custom-control-label" for="customSwitch1">Show IT Documentation</label>
+      <div class="form-group">
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" name="config_module_enable_itdoc" <?php if ($config_module_enable_itdoc == 1) { echo "checked"; } ?> value="1" id="customSwitch1">
+          <label class="custom-control-label" for="customSwitch1">Show IT Documentation</label>
+        </div>
       </div>
 
-      <div class="custom-control custom-switch mb-3">
-        <input type="checkbox" class="custom-control-input" name="config_module_enable_ticketing" <?php if ($config_module_enable_ticketing == 1) { echo "checked"; } ?> value="1" id="customSwitch2">
-        <label class="custom-control-label" for="customSwitch2">Show Ticketing</label>
+      <div class="form-group">
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" name="config_module_enable_ticketing" <?php if ($config_module_enable_ticketing == 1) { echo "checked"; } ?> value="1" id="customSwitch2">
+          <label class="custom-control-label" for="customSwitch2">Show Ticketing</label>
+        </div>
       </div>
 
-      <div class="custom-control custom-switch mb-3">
-        <input type="checkbox" class="custom-control-input" name="config_module_enable_accounting" <?php if ($config_module_enable_accounting == 1) { echo "checked"; } ?> value="1" id="customSwitch3">
-        <label class="custom-control-label" for="customSwitch3">Show Invoicing / Accounting</label>
+      <div class="form-group">
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" name="config_module_enable_accounting" <?php if ($config_module_enable_accounting == 1) { echo "checked"; } ?> value="1" id="customSwitch3">
+          <label class="custom-control-label" for="customSwitch3">Show Invoicing / Accounting</label>
+        </div>
       </div>
 
       <hr>

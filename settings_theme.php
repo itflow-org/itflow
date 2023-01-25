@@ -17,13 +17,15 @@
                         ?>
 
                         <div class="col-3 text-center mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="theme" value="<?php echo $color; ?>" <?php if ($config_theme == $color) { echo "checked"; } ?>>
-                                <label class="form-check-label">
-                                    <i class="fa fa-fw fa-6x fa-circle text-<?php echo $color; ?>"></i>
-                                    <br>
-                                    <?php echo $color; ?>
-                                </label>
+                            <div class="form-group">
+                                <div class="custom-control custom-radio">
+                                    <input class="custom-control-input" type="radio" id="customRadio<?php echo $color; ?>" name="theme" value="<?php echo $color; ?>" <?php if ($config_theme == $color) { echo "checked"; } ?>>
+                                    <label for="customRadio<?php echo $color; ?>" class="custom-control-label">
+                                        <i class="fa fa-fw fa-6x fa-circle text-<?php echo $color; ?>"></i>
+                                        <br>
+                                        <?php echo $color; ?>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 

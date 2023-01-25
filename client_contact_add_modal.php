@@ -48,17 +48,12 @@
               </div>
               
               <div class="form-group">
-                <label>Title / <span class="text-secondary">Important Contact</span></label>
+                <label>Title</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                   </div>
                   <input type="text" class="form-control" name="title" placeholder="Title">
-                  <div class="input-group-append">
-                    <div class="input-group-text">
-                      <input type="checkbox" name="contact_important" value="1">
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -131,6 +126,35 @@
                     ?>
                   </select>
                 </div>
+              </div>
+
+              <div class="form-row">
+                
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="contactImportantCheckbox" name="contact_important" value="1" >
+                      <label class="custom-control-label" for="contactImportantCheckbox">Important</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="contactBillingCheckbox" name="contact_billing" value="1" >
+                      <label class="custom-control-label" for="contactBillingCheckbox">Billing</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="contactTechnicalCheckbox" name="contact_technical" value="1" >
+                      <label class="custom-control-label" for="contactTechnicalCheckbox">Technical</label>
+                    </div>
+                  </div>
+                </div>
+              
               </div>
 
             </div>

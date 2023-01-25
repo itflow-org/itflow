@@ -7,19 +7,25 @@
   <div class="card-body">
     <form action="post.php" method="post" autocomplete="off">
 
-      <div class="custom-control custom-switch mb-2">
-        <input type="checkbox" class="custom-control-input" name="config_enable_cron" <?php if ($config_enable_cron == 1) { echo "checked"; } ?> value="1" id="customSwitch1">
-        <label class="custom-control-label" for="customSwitch1">Enable Cron <small>(cron.php must also be added to cron and run daily at 1:00AM for alerts to work)</small></label>
+      <div class="form-group">
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" name="config_enable_cron" <?php if ($config_enable_cron == 1) { echo "checked"; } ?> value="1" id="enableCronSwitch">
+          <label class="custom-control-label" for="enableCronSwitch">Enable Cron <small>(cron.php must also be added to cron and run daily at 1:00AM for alerts to work)</small></label>
+        </div>
       </div>
 
-      <div class="custom-control custom-switch mb-2">
-        <input type="checkbox" class="custom-control-input" name="config_enable_alert_domain_expire" <?php if ($config_enable_alert_domain_expire == 1) { echo "checked"; } ?> value="1" id="customSwitch3">
-        <label class="custom-control-label" for="customSwitch3">Enable Domain Expiration Alerts</label>
+      <div class="form-group">
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" name="config_enable_alert_domain_expire" <?php if ($config_enable_alert_domain_expire == 1) { echo "checked"; } ?> value="1" id="alertDomainExpireSwitch">
+          <label class="custom-control-label" for="alertDomainExpireSwitch">Enable Domain Expiration Alerts</label>
+        </div>
       </div>
 
-      <div class="custom-control custom-switch mb-2">
-        <input type="checkbox" class="custom-control-input" name="config_send_invoice_reminders" <?php if ($config_send_invoice_reminders == 1) { echo "checked"; } ?> value="1" id="customSwitch4">
-        <label class="custom-control-label" for="customSwitch4">Send Invoice Reminders</label>
+      <div class="form-group">
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" name="config_send_invoice_reminders" <?php if ($config_send_invoice_reminders == 1) { echo "checked"; } ?> value="1" id="sendInvoiceRemindersSwitch">
+          <label class="custom-control-label" for="sendInvoiceRemindersSwitch">Send Invoice Reminders</label>
+        </div>
       </div>
 
       <?php if ($config_send_invoice_reminders == 1) { ?>

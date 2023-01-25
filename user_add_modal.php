@@ -91,9 +91,13 @@
             <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
           </div>
 
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" name="send_email" value="" checked/>
-            <label class="form-check-label">Send user e-mail with login details?</label>
+          <div class="form-group">
+            <div class="custom-control custom-checkbox">
+              <input class="custom-control-input" type="checkbox" id="sendEmailCheckBox" name="send_email" value="" checked>
+              <label for="sendEmailCheckBox" class="custom-control-label">
+                Send user e-mail with login details?
+              </label>
+            </div>
           </div>
 
         </div>
