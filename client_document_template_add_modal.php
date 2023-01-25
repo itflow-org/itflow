@@ -9,17 +9,17 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <div class="modal-body bg-white">  
-          
+        <div class="modal-body bg-white">
+
           <div class="form-group">
             <input type="text" class="form-control" name="name" placeholder="Template name" required autofocus>
           </div>
-          
+
           <div class="form-group">
             <textarea class="form-control summernote" name="content"></textarea>
           </div>
         </div>
-        
+
         <div class="modal-footer bg-white">
 
           <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
