@@ -32,6 +32,7 @@ $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings LEFT JOIN companie
 $row = mysqli_fetch_array($sql_settings);
 
 // Company info
+$company_name = $row['company_name'];
 $company_logo = $row['company_logo'];
 
 // Mail
@@ -223,7 +224,7 @@ if (isset($_POST['login'])) {
 <div class="login-box">
     <div class="login-logo">
         <?php if(!empty($company_logo)) { ?>
-            <img height="110" width="380" class="img-fluid" src="<?php echo "uploads/settings/1/$company_logo"; ?>">
+            <img alt="<?=$company_name?> logo" height="110" width="380" class="img-fluid" src="<?php echo "uploads/settings/1/$company_logo"; ?>">
         <?php } else { ?>
             <b>IT</b>Flow
         <?php } ?>
