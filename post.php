@@ -1147,6 +1147,10 @@ if(isset($_POST['send_telemetry_data'])){
     // Basic Telemetry
     if($config_telemetry == 1){
         
+        // Company Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('company_id') AS num FROM companies"));
+        $company_count = $row['num'];
+
         // User Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('user_id') AS num FROM users"));
         $user_count = $row['num'];
@@ -1167,9 +1171,45 @@ if(isset($_POST['send_telemetry_data'])){
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM recurring"));
         $recurring_count = $row['num'];
 
-        // Tickets
+        // Account Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('account_id') AS num FROM accounts"));
+        $account_count = $row['num'];
+
+        // Tax Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('tax_id') AS num FROM taxes"));
+        $tax_count = $row['num'];
+
+        // Product Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('product_id') AS num FROM products"));
+        $product_count = $row['num'];
+
+        // Ticket Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM tickets"));
         $ticket_count = $row['num'];
+
+        // Contact Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('contact_id') AS num FROM contacts"));
+        $contact_count = $row['num'];
+
+        // Company Vendor Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_template = 0 AND vendor_client_id = 0"));
+        $company_vendor_count = $row['num'];
+
+        // Client Vendor Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_template = 0 AND vendor_client_id > 0"));
+        $client_vendor_count = $row['num'];
+
+        // Vendor Template Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_template = 1"));
+        $vendor_template_count = $row['num'];
+
+        // Asset Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('asset_id') AS num FROM assets"));
+        $asset_count = $row['num'];
+
+        // Log Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('log_id') AS num FROM logs"));
+        $log_count = $row['num'];
 
     }
 
@@ -1182,12 +1222,28 @@ if(isset($_POST['send_telemetry_data'])){
         'country' => "$country",
         'currency' => "$currency",
         'comments' => "$comments",
+        'company_count' => $company_count,
         'user_count' => $user_count,
         'client_count' => $client_count,
         'invoice_count' => $invoice_count,
         'quote_count' => $quote_count,
         'recurring_count' => $recurring_count,
-        'ticket_count' => $ticket_count
+        'account_count' => $account_count,
+        'tax_count' => $tax_count,
+        'product_count' => $product_count,
+        'ticket_count' => $ticket_count,
+        'contact_count' => $contact_count,
+        'company_vendor_count' => $company_vendor_count,
+        'client_vendor_count' => $client_vendor_count,
+        'vendor_template_count' => $vendor_template_count,
+        'asset_count' => $asset_count,
+        'log_count' => $log_count,
+        'config_theme' => "$config_theme",
+        'config_enable_cron' => $config_enable_cron,
+        'config_ticket_email_parse' => $config_ticket_email_parse,
+        'config_module_enable_itdoc' => $config_module_enable_itdoc,
+        'config_module_enable_ticketing' => $config_module_enable_ticketing,
+        'config_module_enable_accounting' => $config_module_enable_accounting
       )
     );
 
