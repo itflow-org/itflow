@@ -29,7 +29,14 @@ $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM notifications 
   LEFT JOIN users ON notification_dismissed_by = user_id 
   LEFT JOIN clients ON notification_client_id = client_id
-  WHERE (notification_type LIKE '%$q%' OR notification LIKE '%$q%' OR user_name LIKE '%$q%' OR client_name LIKE '%$q%') AND DATE(notification_timestamp) BETWEEN '$dtf' AND '$dtt' AND (notification_user_id = $session_user_id OR notification_user_id = 0) AND notifications.company_id = $session_company_id AND notification_dismissed_at IS NOT NULL ORDER BY $sb $o LIMIT $record_from, $record_to"); 
+  WHERE (notification_type LIKE '%$q%' OR notification LIKE '%$q%' OR user_name LIKE '%$q%' OR client_name LIKE '%$q%') 
+  AND DATE(notification_timestamp) BETWEEN '$dtf' AND '$dtt' 
+  AND (notification_user_id = $session_user_id OR notification_user_id = 0) 
+  AND notifications.company_id = $session_company_id 
+  AND notification_dismissed_at IS NOT NULL 
+  ORDER BY $sb $o 
+  LIMIT $record_from, $record_to
+"); 
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
