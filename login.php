@@ -223,7 +223,7 @@ if (isset($_POST['login'])) {
 <body class="hold-transition login-page">
 <div class="login-box">
     <div class="login-logo">
-        <?php if(!empty($company_logo)) { ?>
+        <?php if (!empty($company_logo)) { ?>
             <img alt="<?=$company_name?> logo" height="110" width="380" class="img-fluid" src="<?php echo "uploads/settings/1/$company_logo"; ?>">
         <?php } else { ?>
             <b>IT</b>Flow
@@ -233,7 +233,7 @@ if (isset($_POST['login'])) {
     <!-- /.login-logo -->
     <div class="card">
         <div class="card-body login-card-body">
-            <p class="login-box-msg"><?php if(isset($response)) { echo $response; } ?></p>
+            <p class="login-box-msg"><?php if (isset($response)) { echo $response; } ?></p>
             <form method="post">
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" placeholder="Agent Email" name="email" value="<?php if(!empty($token_field)){ echo $email; }?>" required <?php if(empty($token_field)){ echo "autofocus"; } ?> >

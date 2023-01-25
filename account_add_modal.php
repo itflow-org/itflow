@@ -9,7 +9,7 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <div class="modal-body bg-white">
-          
+
           <div class="form-group">
             <label>Account Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -19,7 +19,7 @@
               <input type="text" class="form-control" name="name" placeholder="Account name" required autofocus>
             </div>
           </div>
-          
+
           <div class="form-group">
             <label>Opening Balance</label>
             <div class="input-group">
@@ -38,7 +38,7 @@
               </div>
               <select class="form-control select2" name="currency_code" required>
                 <option value="">- Currency -</option>
-                <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
+                <?php foreach ($currencies_array as $currency_code => $currency_name) { ?>
                 <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
                 <?php } ?>
               </select>
@@ -49,7 +49,7 @@
             <label>Notes</label>
             <textarea class="form-control" rows="5" placeholder="Enter some notes" name="notes"></textarea>
           </div>
-        
+
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>

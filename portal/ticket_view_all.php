@@ -4,7 +4,7 @@
  * Primary contact view: all tickets
  */
 
-require('inc_portal.php');
+require_once('inc_portal.php');
 
 if ($session_contact_id !== $session_client_primary_contact_id) {
     header("Location: portal_post.php?logout");
@@ -62,7 +62,7 @@ $all_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts O
             $ticket_subject = htmlentities($row['ticket_subject']);
             $ticket_status = htmlentities($row['ticket_status']);
             $ticket_contact_name = htmlentities($row['contact_name']);
-            
+
             echo "<tr>";
             echo "<td> <a href='ticket.php?id=$ticket_id'> $ticket_prefix$ticket_id</a></td>";
             echo "<td> <a href='ticket.php?id=$ticket_id'> $ticket_subject</a></td>";

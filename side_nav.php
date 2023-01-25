@@ -131,7 +131,7 @@
 
                 <?php } ?>
 
-                <?php if ($session_user_role == 1 OR $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
+                <?php if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
 
                     <li class="nav-header mt-3">ACCOUNTING</li>
                     <li class="nav-item">

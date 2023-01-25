@@ -22,22 +22,22 @@ $location_phone = formatPhoneNumber($location_phone);
         ?>
           <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <a href="tel:<?php echo $location_phone?>"><?php echo $location_phone; ?></a>
         <br>
-        <?php 
-        } 
+        <?php
+        }
         ?>
         <?php
         if (!empty($client_website)) {
         ?>
           <i class="fa fa-fw fa-globe text-secondary ml-1 mr-2 mb-2"></i> <a target="_blank" href="//<?php echo $client_website; ?>"><?php echo $client_website; ?></a>
         <br>
-        <?php 
+        <?php
         }
         ?>
         <?php
         if (!empty($client_tag_name_display_array)) {
         ?>
         <?php echo $client_tags_display; ?>
-        <?php 
+        <?php
         }
         ?>
       </div>
@@ -63,7 +63,7 @@ $location_phone = formatPhoneNumber($location_phone);
         if (!empty($contact_phone)) {
         ?>
           <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?> </a>
-        <?php 
+        <?php
         if (!empty($contact_extension)) {
         ?>
         x<?php echo $contact_extension; ?>
@@ -71,18 +71,18 @@ $location_phone = formatPhoneNumber($location_phone);
         }
         ?>
         <br>
-        <?php 
-        } 
+        <?php
+        }
         ?>
         <?php
         if (!empty($contact_mobile)) {
         ?>
           <i class="fa fa-fw fa-mobile-alt text-secondary ml-1 mr-2 mb-2"></i> <a href="tel:<?php echo $contact_mobile; ?>"> <?php echo $contact_mobile; ?> </a>
-        <?php 
-        } 
+        <?php
+        }
         ?>
       </div>
-      <?php if ($session_user_role == 1 || $session_user_role == 3 AND $config_module_enable_accounting == 1) { ?>
+      <?php if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
       <div class="col-md border-left">
         <h4 class="text-secondary">Billing</h4>
         <h6 class="ml-1 text-secondary">Paid <div class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $amount_paid, $client_currency_code); ?></div></h6>
@@ -120,8 +120,8 @@ $location_phone = formatPhoneNumber($location_phone);
   </div>
 </div>
 
-<?php 
-  
+<?php
+
   include("client_edit_modal.php");
   include("client_delete_modal.php");
   include("category_quick_add_modal.php");

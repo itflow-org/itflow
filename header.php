@@ -1,4 +1,4 @@
-<?php 
+<?php
 
   // Calculate Execution time start
   // uncomment for test
@@ -22,8 +22,6 @@ header("X-Frame-Options: DENY");
 
   <!-- Theme style -->
   <link rel="stylesheet" href="dist/css/adminlte.min.css">
-  <!-- Google Font: Source Sans Pro -->
-  <!-- <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet"> -->
 
   <!-- Custom Style Sheet -->
   <link href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
@@ -32,7 +30,7 @@ header("X-Frame-Options: DENY");
   <link href='plugins/daterangepicker/daterangepicker.css' rel='stylesheet' />
   <link href="plugins/summernote/summernote-bs4.min.css" rel="stylesheet">
   <link href="plugins/toastr/toastr.min.css" rel="stylesheet">
-  <!-- <link href="plugins/dropzone/min/dropzone.min.css" rel="stylesheet"> -->
+
   <!-- jQuery -->
   <script src="plugins/jquery/jquery.min.js"></script>
   <script src="plugins/toastr/toastr.min.js"></script>
