@@ -153,6 +153,14 @@
         </li>
 
         <li class="nav-item">
+          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_telemetry.php") { echo "active"; } ?>" 
+            href="settings_telemetry.php">
+            <i class="nav-icon fas fa-broadcast-tower"></i>
+            <p>Telemetry</p>
+          </a> 
+        </li>
+
+        <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_backup.php") { echo "active"; } ?>" 
             href="settings_backup.php">
             <i class="nav-icon fas fa-database"></i>

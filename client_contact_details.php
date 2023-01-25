@@ -67,9 +67,9 @@ if (isset($_GET['contact_id'])) {
                             <img class="img-fluid img-circle p-3" alt="contact_photo" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
                         <?php } else { ?>
                             <span class="fa-stack fa-4x">
-            <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-            <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
-          </span>
+                                <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                                <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+                            </span>
                         <?php } ?>
                     </div>
                     <hr>
@@ -181,7 +181,7 @@ if (isset($_GET['contact_id'])) {
                                 $asset_vendor_id = $row['asset_vendor_id'];
                                 $asset_location_id = $row['asset_location_id'];
                                 $asset_network_id = $row['asset_network_id'];
-
+                                $asset_contact_id = $row['asset_contact_id'];
                                 if ($asset_type == 'Laptop') {
                                     $device_icon = "laptop";
                                 } elseif ($asset_type == 'Desktop') {
@@ -213,7 +213,8 @@ if (isset($_GET['contact_id'])) {
                                 ?>
                                 <tr>
                                     <th>
-                                        <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_name; ?>
+                                        <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
+                                        <a class="text-secondary" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
                                     </th>
                                     <td><?php echo $asset_type; ?></td>
                                     <td><?php echo "$asset_make $asset_model"; ?></td>
@@ -360,6 +361,7 @@ if (isset($_GET['contact_id'])) {
     <?php
 
     include("client_contact_edit_modal.php");
+    include("share_modal.php");
 
     ?>
 

@@ -79,12 +79,14 @@ $config_module_enable_ticketing = $row['config_module_enable_ticketing'];
 $config_module_enable_accounting = $row['config_module_enable_accounting'];
 
 // Currency
-
 $config_currency_format = "US_en";
 
 // Theme
 $config_theme = $row['config_theme'];
 $config_theme_mode = "dark_mode";
+
+// Telemetry
+$config_telemetry = intval($row['config_telemetry']);
 
 $colors_array = array(
     'blue',
