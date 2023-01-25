@@ -95,6 +95,17 @@ if (isset($_GET['contact_id'])) {
                         <i class="fas fa-fw fa-user-edit"></i> Edit
                     </button>
 
+                    <?php include("client_contact_edit_modal.php"); ?>
+
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fa fa-fw fa-edit mr-2"></i>Notes</h5>
+                </div>
+                <div class="card-body p-1">
+                    <textarea class="form-control" rows=6 id="contactNotes" placeholder="Enter quick notes here" onblur="updateContactNotes(<?php echo $contact_id ?>)"><?php echo $contact_notes ?></textarea>
                 </div>
             </div>
 
@@ -118,7 +129,6 @@ if (isset($_GET['contact_id'])) {
                 </li>
                 <li class="breadcrumb-item active"><?php echo "$contact_name"; ?></li>
             </ol>
-
 
             <div class="card card-dark <?php if ($asset_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
@@ -354,17 +364,248 @@ if (isset($_GET['contact_id'])) {
             </div>
 
 
+            <div class="card card-dark <?php if ($software_count == 0) { echo "d-none"; } ?>">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-fw fa-cube"></i> Licenses</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-borderless table-hover">
+                            <thead class="text-dark">
+                                <tr>
+                                <th>Software</th>
+                                <th>Type</th>
+                                <th>License Type</th>
+                                <th>Seats</th>
+                                <th class="text-center">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+                        
+                            while ($row = mysqli_fetch_array($sql_related_software)) {
+                                $software_id = $row['software_id'];
+                                $software_name = htmlentities($row['software_name']);
+                                $software_version = htmlentities($row['software_version']);
+                                $software_type = htmlentities($row['software_type']);
+                                $software_license_type = htmlentities($row['software_license_type']);
+                                $software_key = htmlentities($row['software_key']);
+                                $software_seats = htmlentities($row['software_seats']);
+                                $software_purchase = $row['software_purchase'];
+                                $software_expire = $row['software_expire'];
+                                $software_notes = htmlentities($row['software_notes']);
+
+                                $seat_count = 0;
+
+                                // Asset Licenses
+                                $asset_licenses_sql = mysqli_query($mysqli,"SELECT asset_id FROM software_assets WHERE software_id = $software_id");
+                                $asset_licenses_array = array();
+                                while ($row = mysqli_fetch_array($asset_licenses_sql)) {
+                                  $asset_licenses_array[] = $row['asset_id'];
+                                  $seat_count = $seat_count + 1;
+                                }
+                                $asset_licenses = implode(',',$asset_licenses_array);
+
+                                // Contact Licenses
+                                $contact_licenses_sql = mysqli_query($mysqli,"SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
+                                $contact_licenses_array = array();
+                                while ($row = mysqli_fetch_array($contact_licenses_sql)) {
+                                  $contact_licenses_array[] = $row['contact_id'];
+                                  $seat_count = $seat_count + 1;
+                                }
+                                $contact_licenses = implode(',',$contact_licenses_array);
+
+                            ?>
+                                <tr>
+                                    <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>"><?php echo "$software_name<br><span class='text-secondary'>$software_version</span>"; ?></a></td>
+                                    <td><?php echo $software_type; ?></td>
+                                    <td><?php echo $software_license_type; ?></td>
+                                    <td><?php echo "$seat_count / $software_seats"; ?></td>
+                                    <td>
+                                        <div class="dropdown dropleft text-center">
+                                            <button class="btn btn-secondary btn-sm" data-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>">Edit</a>
+                                                <?php if ($session_user_role == 3) { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="post.php?delete_software=<?php echo $software_id; ?>">Delete</a>
+                                                <?php } ?>
+                                            </div>
+                                        </div> 
+                                    </td>
+                                </tr>
+
+                              <?php
+
+                              include("client_software_edit_modal.php");
+                              }
+                              
+                              ?>
+
+                            </tbody>
+                        </table>      
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div class="card card-dark <?php if ($ticket_count == 0) { echo "d-none"; } ?>">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-fw fa-life-ring"></i> Tickets</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-borderless table-hover">
+                            <thead class="text-dark">
+                                <tr>
+                                    <th>Number</th>
+                                    <th>Subject</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Assigned</th>
+                                    <th>Last Response</th>
+                                    <th>Created</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_related_tickets)) {
+                                $ticket_id = $row['ticket_id'];
+                                $ticket_prefix = htmlentities($row['ticket_prefix']);
+                                $ticket_number = htmlentities($row['ticket_number']);
+                                $ticket_subject = htmlentities($row['ticket_subject']);
+                                $ticket_details = $row['ticket_details'];
+                                $ticket_priority = htmlentities($row['ticket_priority']);
+                                $ticket_status = htmlentities($row['ticket_status']);
+                                $ticket_created_at = $row['ticket_created_at'];
+                                $ticket_updated_at = $row['ticket_updated_at'];
+                                if (empty($ticket_updated_at)) {
+                                    if ($ticket_status == "Closed") {
+                                        $ticket_updated_at_display = "<p>Never</p>";
+                                    } else {
+                                        $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
+                                    }
+                                } else {
+                                    $ticket_updated_at_display = $ticket_updated_at;
+                                }
+                                $ticket_closed_at = $row['ticket_closed_at'];
+
+                                if ($ticket_status == "Open") {
+                                    $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
+                                } elseif ($ticket_status == "Working") {
+                                    $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
+                                } else {
+                                    $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
+                                }
+
+                                if ($ticket_priority == "High") {
+                                    $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
+                                } elseif ($ticket_priority == "Medium") {
+                                    $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
+                                } elseif ($ticket_priority == "Low") {
+                                    $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
+                                } else {
+                                    $ticket_priority_display = "-";
+                                }
+                                $ticket_assigned_to = $row['ticket_assigned_to'];
+                                if (empty($ticket_assigned_to)) {
+                                    if ($ticket_status == "Closed") {
+                                        $ticket_assigned_to_display = "<p>Not Assigned</p>";
+                                    } else {
+                                        $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
+                                    }
+                                } else {
+                                    $ticket_assigned_to_display = htmlentities($row['user_name']);
+                                }
+                                $contact_id = $row['contact_id'];
+                                $contact_name = htmlentities($row['contact_name']);
+                                if (empty($contact_name)) {
+                                    $contact_display = "-";
+                                } else {
+                                    $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
+                                }
+                                $contact_title = htmlentities($row['contact_title']);
+                                $contact_email = htmlentities($row['contact_email']);
+                                $contact_phone = formatPhoneNumber($row['contact_phone']);
+                                $contact_extension = htmlentities($row['contact_extension']);
+                                $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+
+                              ?>
+
+                                <tr>
+                                    <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
+                                    <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
+                                    <td><?php echo $contact_display; ?></td>
+                                    <td><?php echo $ticket_priority_display; ?></td>
+                                    <td><?php echo $ticket_status_display; ?></td>
+                                    <td><?php echo $ticket_assigned_to_display; ?></td>
+                                    <td><?php echo $ticket_updated_at_display; ?></td>
+                                    <td><?php echo $ticket_created_at; ?></td>
+                                    <td>
+                                        <?php if ($ticket_status !== "Closed") { ?>
+                                        <div class="dropdown dropleft text-center">
+                                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
+                                                <?php if ($session_user_role == 3) { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
+                                                <?php } ?>
+                                            </div>
+                                        </div>
+                                        <?php } ?>
+                                    </td>
+                                </tr>
+
+                            <?php
+
+                            include("ticket_edit_modal.php");
+                            }
+
+                            ?>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
 
     <?php
 
-    include("client_contact_edit_modal.php");
     include("share_modal.php");
 
     ?>
 
 <?php } ?>
+
+<script>
+function updateContactNotes(contact_id) {
+    var notes = document.getElementById("contactNotes").value;
+
+    // Send a POST request to ajax.php as ajax.php with data client_set_notes=true, client_id=NUM, notes=NOTES
+    jQuery.post(
+        "ajax.php",
+        {
+            contact_set_notes: 'TRUE',
+            contact_id: contact_id,
+            notes: notes
+        }
+    )
+
+
+}
+</script>
 
 <?php include("footer.php"); ?>
