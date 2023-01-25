@@ -42,7 +42,7 @@ $location_phone = formatPhoneNumber($location_phone);
         ?>
       </div>
       <div class="col-md border-left">
-        <h4 class="text-secondary">Contact</h4>
+        <h4 class="text-secondary">Primary Contact</h4>
         <?php
         if (!empty($contact_name)) {
         ?>
