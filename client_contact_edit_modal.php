@@ -50,17 +50,12 @@
               </div>
               
               <div class="form-group">
-                <label>Title / <span class="text-secondary">Important Contact</span></label>
+                <label>Title</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                   </div>
                   <input type="text" class="form-control" name="title" placeholder="Title" value="<?php echo $contact_title; ?>">
-                  <div class="input-group-append">
-                    <div class="input-group-text">
-                      <input type="checkbox" name="contact_important" value="1" <?php if ($contact_important == 1) { echo "checked"; } ?>>
-                    </div>
-                  </div>
                 </div>
               </div>
 
