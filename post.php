@@ -1125,6 +1125,91 @@ if(isset($_POST['edit_telemetry_settings'])){
 
 }
 
+if(isset($_POST['send_telemetry_data'])){
+
+    validateAdminRole();
+
+    $config_telemetry = intval($_POST['config_telemetry']);
+
+    mysqli_query($mysqli,"UPDATE settings SET config_telemetry = $config_telemetry WHERE company_id = $session_company_id");
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM companies LIMIT 1");
+    $row = mysqli_fetch_array($sql);
+
+    $company_name = $row['company_name'];
+    $city = $row['company_city'];
+    $state = $row['company_state'];
+    $country = $row['company_country'];
+    $currency = $row['company_currency'];
+
+    // Basic Telemetry
+    if($config_telemetry == 1){
+        
+        // User Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('user_id') AS num FROM users"));
+        $user_count = $row['num'];
+
+        // Client Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('client_id') AS num FROM clients"));
+        $client_count = $row['num'];
+
+        // Invoice Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices"));
+        $invoice_count = $row['num'];
+
+        // Quote Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('quote_id') AS num FROM quotes"));
+        $quote_count = $row['num'];
+
+        // Recurring Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM recurring"));
+        $recurring_count = $row['num'];
+
+        // Tickets
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM tickets"));
+        $ticket_count = $row['num'];
+
+    }
+
+    $postdata = http_build_query(
+      array(
+        'company_name' => "$company_name",
+        'city' => "$city",
+        'state' => "$state",
+        'country' => "$country",
+        'currency' => "$currency",
+        'user_count' => $user_count,
+        'client_count' => $client_count,
+        'invoice_count' => $invoice_count,
+        'quote_count' => $quote_count,
+        'recurring_count' => $recurring_count,
+        'ticket_count' => $ticket_count
+      )
+    );
+
+    $opts = array('http' =>
+      array(
+        'method' => 'POST',
+        'header' => 'Content-type: application/x-www-form-urlencoded',
+        'content' => $postdata
+      )
+    );
+
+    $context = stream_context_create($opts);
+
+    $result = file_get_contents('https://telemetry.itflow.org', false, $context);
+
+    echo $result;
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name sent telemetry results to ITFlow Developers', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Telemetry data sent to the ITFlow developers";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_POST['enable_2fa'])){
 
     // CSRF Check
