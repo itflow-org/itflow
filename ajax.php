@@ -34,7 +34,7 @@ if (isset($_GET['certificate_fetch_parse_json_details'])) {
 
     // Get certificate (using verify peer false to allow for self-signed certs)
     $socket = "ssl://$url:$port";
-    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => TRUE, "verify_peer" => FALSE,)));
+    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => false,)));
     $read = stream_socket_client($socket, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $get);
     $cert = stream_context_get_params($read);
     $cert_public_key_obj = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
@@ -121,7 +121,7 @@ if (isset($_GET['merge_ticket_get_json_details'])) {
         //Return ticket, client and contact details for the given ticket number
         $response = mysqli_fetch_array($sql);
         $response = array_map('htmlentities', $response);
-        echo json_encode( $response);
+        echo json_encode($response);
     }
 }
 

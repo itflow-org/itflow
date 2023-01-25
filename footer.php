@@ -7,11 +7,11 @@
 	<!-- ./wrapper -->
 
 	<!-- REQUIRED SCRIPTS -->
-	
+
 	<!-- Bootstrap 4 -->
 	<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 	<!-- Custom js-->
-	
+
 	<script src="plugins/moment/moment.min.js"></script>
 	<script src="plugins/chart.js/Chart.min.js"></script>
 	<script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
@@ -29,12 +29,10 @@
 	</body>
 </html>
 
-<?php 
+<?php
 
 // Calculate Execution time Uncomment for test
 
 //$time_end = microtime(true);
 //$execution_time = ($time_end - $time_start);
 //echo 'Total Execution Time: '.number_format((float) $execution_time, 10) .' seconds';
-
-?>
