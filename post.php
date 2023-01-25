@@ -1130,6 +1130,7 @@ if(isset($_POST['send_telemetry_data'])){
     validateAdminRole();
 
     $config_telemetry = intval($_POST['config_telemetry']);
+    $comments = $_POST['comments'];
 
     mysqli_query($mysqli,"UPDATE settings SET config_telemetry = $config_telemetry WHERE company_id = $session_company_id");
 
@@ -1141,6 +1142,7 @@ if(isset($_POST['send_telemetry_data'])){
     $state = $row['company_state'];
     $country = $row['company_country'];
     $currency = $row['company_currency'];
+    $current_version = exec("git rev-parse HEAD");
 
     // Basic Telemetry
     if($config_telemetry == 1){
@@ -1173,11 +1175,13 @@ if(isset($_POST['send_telemetry_data'])){
 
     $postdata = http_build_query(
       array(
+        'version' => "$current_version",
         'company_name' => "$company_name",
         'city' => "$city",
         'state' => "$state",
         'country' => "$country",
         'currency' => "$currency",
+        'comments' => "$comments",
         'user_count' => $user_count,
         'client_count' => $client_count,
         'invoice_count' => $invoice_count,

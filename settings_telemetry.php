@@ -21,6 +21,11 @@
         </div>
       </div>
 
+      <div class="form-group">
+          <label>Comments</label>
+          <textarea class="form-control" rows="4" name="comments" placeholder="Any Comments to send before hitting Send Telemetry Data?"></textarea>
+      </div>
+
       <hr>
       
       <?php if ($config_telemetry > 0) { ?>
