@@ -91,10 +91,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 <body class="hold-transition login-page">
 <div class="login-box">
     <div class="login-logo">
-        <?php if(!empty($company_logo)) { ?>
+        <?php if (!empty($company_logo)) { ?>
             <img alt="<?=$company_name?> logo" height="110" width="380" class="img-fluid" src="<?php echo "../uploads/settings/1/$company_logo"; ?>">
         <?php } else { ?>
-        <b><?=$company_name?></b> <br>Client Portal Login</h2>
+            <b><?=$company_name?></b> <br>Client Portal Login</h2>
         <?php } ?>
     </div>
     <div class="card">
