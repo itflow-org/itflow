@@ -28,8 +28,12 @@ if ($failed_login_count >= 15) {
 }
 
 // Query Settings for "default" company (as companies are being removed shortly)
-$sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
+$sql_settings = mysqli_query($mysqli, "SELECT * FROM settings LEFT JOIN companies ON settings.company_id = companies.company_id WHERE settings.company_id = 1");
 $row = mysqli_fetch_array($sql_settings);
+
+// Company info
+$company_name = $row['company_name'];
+$company_logo = $row['company_logo'];
 
 // Mail
 $config_smtp_host = $row['config_smtp_host'];
@@ -219,7 +223,11 @@ if (isset($_POST['login'])) {
 <body class="hold-transition login-page">
 <div class="login-box">
     <div class="login-logo">
-        <b>IT</b>Flow
+        <?php if(!empty($company_logo)) { ?>
+            <img alt="<?=$company_name?> logo" height="110" width="380" class="img-fluid" src="<?php echo "uploads/settings/1/$company_logo"; ?>">
+        <?php } else { ?>
+            <b>IT</b>Flow
+        <?php } ?>
     </div>
 
     <!-- /.login-logo -->
