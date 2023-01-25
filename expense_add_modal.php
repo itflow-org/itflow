@@ -153,8 +153,6 @@
             <label>Receipt</label>
             <input type="file" class="form-control-file" name="file">
           </div>
-
-          
           
         </div>
         <div class="modal-footer bg-white">

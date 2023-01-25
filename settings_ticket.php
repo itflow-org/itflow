@@ -47,15 +47,18 @@
                     </div>
                 </div>
 
-
-                <div class="custom-control custom-switch mb-2">
-                    <input type="checkbox" class="custom-control-input" name="config_ticket_email_parse" <?php if($config_ticket_email_parse == 1){ echo "checked"; } ?> value="1" id="customSwitch1">
-                    <label class="custom-control-label" for="customSwitch1">Email-to-ticket parsing (Beta) <small>(cron_ticket_email_parser.php must also be added to cron and run every few mins)</small></label>
+                <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="config_ticket_email_parse" <?php if($config_ticket_email_parse == 1){ echo "checked"; } ?> value="1" id="emailToTicketParseSwitch">
+                        <label class="custom-control-label" for="emailToTicketParseSwitch">Email-to-ticket parsing (Beta) <small>(cron_ticket_email_parser.php must also be added to cron and run every few mins)</small></label>
+                    </div>
                 </div>
 
-                <div class="custom-control custom-switch mb-2">
-                    <input type="checkbox" class="custom-control-input" name="config_ticket_client_general_notifications" <?php if($config_ticket_client_general_notifications == 1){ echo "checked"; } ?> value="1" id="customSwitch2">
-                    <label class="custom-control-label" for="customSwitch2">Send clients general notification emails <small>(Should clients receive automatic emails when tickets are raised/closed?)</small></label>
+                <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="config_ticket_client_general_notifications" <?php if($config_ticket_client_general_notifications == 1){ echo "checked"; } ?> value="1" id="ticketNotificationSwitch">
+                        <label class="custom-control-label" for="ticketNotificationSwitch">Send clients general notification emails <small>(Should clients receive automatic emails when tickets are raised/closed?)</small></label>
+                    </div>
                 </div>
 
                 <hr>

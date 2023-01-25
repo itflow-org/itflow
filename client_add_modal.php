@@ -285,9 +285,13 @@
 
                 ?>
                   <li class="list-group-item">
-                    <div class="form-check">
-                      <input type="checkbox" class="form-check-input" name="tags[]" value="<?php echo $tag_id_select; ?>">
-                      <label class="form-check-label ml-2 badge bg-<?php echo $tag_color_select; ?>"><?php echo "<i class='fa fw fa-$tag_icon_select'></i>"; ?> <?php echo $tag_name_select; ?></label>
+                    <div class="custom-control custom-checkbox">
+                      <input class="custom-control-input" type="checkbox" id="tagCheckbox<?php echo $tag_id_select; ?>" name="tags[]" value="<?php echo $tag_id_select; ?>">
+                      <label for="tagCheckbox<?php echo $tag_id_select; ?>" class="custom-control-label">
+                        <span class="badge bg-<?php echo $tag_color_select; ?>">
+                          <?php echo "<i class='fa fw fa-$tag_icon_select'></i>"; ?> <?php echo $tag_name_select; ?>    
+                        </span>
+                      </label>
                     </div>
                   </li>
 

@@ -127,6 +127,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $contact_initials = initials($contact_name);
             $contact_notes = htmlentities($row['contact_notes']);
             $contact_important = intval($row['contact_important']);
+            $contact_billing = intval($row['contact_billing']);
+            $contact_technical = intval($row['contact_technical']);
             $contact_created_at = $row['contact_created_at'];
             if ($contact_id == $primary_contact) {
                 $primary_contact_display = "<small class='text-success'>Primary Contact</small>";

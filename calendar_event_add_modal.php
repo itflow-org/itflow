@@ -139,9 +139,11 @@
               <?php } ?>
 
               <?php if (!empty($config_smtp_host)) { ?>
-              <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_event" value="1" >
-                <label class="custom-control-label" for="customControlAutosizing">Email Event</label>
+              <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="emailEventCheckbox" name="email_event" value="1" >
+                  <label class="custom-control-label" for="emailEventCheckbox">Email Event</label>
+                </div>
               </div>
               <?php } ?>
 
