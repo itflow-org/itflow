@@ -68,7 +68,7 @@ if (isset($_GET['contact_id'])) {
                         <div class="text-secondary"><?php echo $contact_title; ?></div>
                     <?php } ?>
 
-                    <div class="text-center">     
+                    <div class="text-center">
                         <?php if (!empty($contact_photo)) { ?>
                             <img class="img-fluid img-circle p-3" alt="contact_photo" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
                         <?php } else { ?>
@@ -86,7 +86,7 @@ if (isset($_GET['contact_id'])) {
                         <div><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
                     <?php } ?>
                     <?php if (!empty($contact_phone)) { ?>
-                        <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone $contact_phone_extention"; ?></div>
+                        <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone $contact_extension"; ?></div>
                     <?php } ?>
                     <?php if (!empty($contact_mobile)) { ?>
                         <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile; ?></div>
@@ -381,7 +381,7 @@ if (isset($_GET['contact_id'])) {
                             </thead>
                             <tbody>
                             <?php
-                        
+
                             while ($row = mysqli_fetch_array($sql_related_software)) {
                                 $software_id = $row['software_id'];
                                 $software_name = htmlentities($row['software_name']);
@@ -432,7 +432,7 @@ if (isset($_GET['contact_id'])) {
                                                 <a class="dropdown-item text-danger" href="post.php?delete_software=<?php echo $software_id; ?>">Delete</a>
                                                 <?php } ?>
                                             </div>
-                                        </div> 
+                                        </div>
                                     </td>
                                 </tr>
 
@@ -440,11 +440,11 @@ if (isset($_GET['contact_id'])) {
 
                               include("client_software_edit_modal.php");
                               }
-                              
+
                               ?>
 
                             </tbody>
-                        </table>      
+                        </table>
                     </div>
                 </div>
             </div>
