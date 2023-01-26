@@ -66,12 +66,11 @@ function removeDirectory($path) {
     rmdir($path);
 }
 
-function get_user_agent() {
+function getUserAgent() {
     return $_SERVER['HTTP_USER_AGENT'];
 }
 
-function get_ip() {
-
+function getIP() {
     if (defined("CONST_GET_IP_METHOD")) {
         if (CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
             $ip = getenv('HTTP_X_FORWARDED_FOR');
@@ -85,7 +84,7 @@ function get_ip() {
     return $ip;
 }
 
-function get_web_browser($user_browser) {
+function getWebBrowser($user_browser) {
     $browser        =   "Unknown Browser";
     $browser_array  =   array(
         '/msie/i'       =>  "<i class='fab fa-fw fa-internet-explorer text-secondary'></i> Internet Explorer",
@@ -103,7 +102,7 @@ function get_web_browser($user_browser) {
     return $browser;
 }
 
-function get_os($user_os) {
+function getOS($user_os) {
     $os_platform    =   "Unknown OS";
     $os_array       =   array(
         '/windows nt 10/i'      =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 10",
@@ -130,7 +129,7 @@ function get_os($user_os) {
     return $os_platform;
 }
 
-function get_device() {
+function getDevice() {
     $tablet_browser = 0;
     $mobile_browser = 0;
     if (preg_match('/(tablet|ipad|playbook)|(android(?!.*(mobi|opera mini)))/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
@@ -142,7 +141,7 @@ function get_device() {
     if ((strpos(strtolower($_SERVER['HTTP_ACCEPT']),'application/vnd.wap.xhtml+xml') > 0) || ((isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])))) {
         $mobile_browser++;
     }
-    $mobile_ua = strtolower(substr(get_user_agent(), 0, 4));
+    $mobile_ua = strtolower(substr(getUserAgent(), 0, 4));
     $mobile_agents = array(
         'w3c ','acs-','alav','alca','amoi','audi','avan','benq','bird','blac',
         'blaz','brew','cell','cldc','cmd-','dang','doco','eric','hipt','inno',
@@ -156,7 +155,7 @@ function get_device() {
     if (in_array($mobile_ua,$mobile_agents)) {
         $mobile_browser++;
     }
-    if (strpos(strtolower(get_user_agent()),'opera mini') > 0) {
+    if (strpos(strtolower(getUserAgent()),'opera mini') > 0) {
         $mobile_browser++;
         //Check for tablets on Opera Mini alternative headers
         $stock_ua = strtolower(isset($_SERVER['HTTP_X_OPERAMINI_PHONE_UA'])?$_SERVER['HTTP_X_OPERAMINI_PHONE_UA']:(isset($_SERVER['HTTP_DEVICE_STOCK_UA'])?$_SERVER['HTTP_DEVICE_STOCK_UA']:''));
@@ -216,7 +215,7 @@ function formatPhoneNumber($phoneNumber) {
     return $phoneNumber;
 }
 
-function mkdir_missing($dir) {
+function mkdirMissing($dir) {
     if (!is_dir($dir)) {
         mkdir($dir);
     }
@@ -437,11 +436,8 @@ function getSSL($name) {
     return $certificate;
 }
 
-function strto_AZaz09($string) {
+function strtoAZaz09($string) {
     $string = ucwords(strtolower($string));
-
-    // Replace spaces with _
-    //$string = str_replace(' ', '_', $string);
 
     // Gets rid of non-alphanumerics
     return preg_replace('/[^A-Za-z0-9_]/', '', $string);

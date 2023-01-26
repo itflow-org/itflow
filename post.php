@@ -4371,7 +4371,7 @@ if(isset($_GET['export_client_contacts_csv'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN locations ON location_id = contact_location_id WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
-        $filename = strto_AZaz09($client_name) . "-Contacts-" . date('Y-m-d') . ".csv";
+        $filename = strtoAZaz09($client_name) . "-Contacts-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -4509,7 +4509,7 @@ if(isset($_GET['download_client_contacts_csv_template'])){
     $client_name = $row['client_name'];
 
     $delimiter = ",";
-    $filename = strto_AZaz09($client_name) . "-Contacts-Template.csv";
+    $filename = strtoAZaz09($client_name) . "-Contacts-Template.csv";
 
     //create a file pointer
     $f = fopen('php://memory', 'w');
@@ -4789,7 +4789,7 @@ if(isset($_GET['export_client_locations_csv'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL AND company_id = $session_company_id ORDER BY location_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
-        $filename = strto_AZaz09($client_name) . "-Locations-" . date('Y-m-d') . ".csv";
+        $filename = strtoAZaz09($client_name) . "-Locations-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -4915,7 +4915,7 @@ if(isset($_GET['download_client_locations_csv_template'])){
     $client_name = $row['client_name'];
 
     $delimiter = ",";
-    $filename = strto_AZaz09($client_name) . "-Locations-Template.csv";
+    $filename = strtoAZaz09($client_name) . "-Locations-Template.csv";
 
     //create a file pointer
     $f = fopen('php://memory', 'w');
@@ -5189,7 +5189,7 @@ if(isset($_GET['download_client_assets_csv_template'])){
     $client_name = $row['client_name'];
 
     $delimiter = ",";
-    $filename = strto_AZaz09($client_name) . "-Assets-Template.csv";
+    $filename = strtoAZaz09($client_name) . "-Assets-Template.csv";
 
     //create a file pointer
     $f = fopen('php://memory', 'w');
@@ -5226,7 +5226,7 @@ if(isset($_GET['export_client_assets_csv'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
-        $filename = strto_AZaz09($client_name) . "-Assets-" . date('Y-m-d') . ".csv";
+        $filename = strtoAZaz09($client_name) . "-Assets-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -5632,7 +5632,7 @@ if(isset($_GET['export_client_logins_csv'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
     if($sql->num_rows > 0){
         $delimiter = ",";
-        $filename = strto_AZaz09($client_name) . "-Logins-" . date('Y-m-d') . ".csv";
+        $filename = strtoAZaz09($client_name) . "-Logins-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -5751,7 +5751,7 @@ if(isset($_GET['download_client_logins_csv_template'])){
     $client_name = $row['client_name'];
 
     $delimiter = ",";
-    $filename = strto_AZaz09($client_name) . "-Logins-Template.csv";
+    $filename = strtoAZaz09($client_name) . "-Logins-Template.csv";
 
     //create a file pointer
     $f = fopen('php://memory', 'w');
@@ -7864,7 +7864,7 @@ if(isset($_GET['export_client_pdf'])){
 
     var docDefinition = {
         info: {
-            title: '<?php echo strto_AZaz09($client_name); ?>- IT Documentation',
+            title: '<?php echo strtoAZaz09($client_name); ?>- IT Documentation',
             author: <?php echo json_encode($session_company_name); ?>
         },
 
@@ -9046,7 +9046,7 @@ if(isset($_GET['export_client_pdf'])){
     };
 
 
-    pdfMake.createPdf(docDefinition).download('<?php echo strto_AZaz09($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>.pdf');
+    pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>.pdf');
 
     </script>
 

@@ -5,7 +5,7 @@ include("functions.php");
 
 session_start();
 
-$ip = trim(strip_tags(mysqli_real_escape_string($mysqli,get_ip())));
+$ip = trim(strip_tags(mysqli_real_escape_string($mysqli,getIP())));
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
 
 ?>

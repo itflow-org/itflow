@@ -2,7 +2,7 @@
 // Not including the guest header as we don't want any HTML output
 include("config.php");
 include("functions.php");
-$ip = trim(strip_tags(mysqli_real_escape_string($mysqli,get_ip())));
+$ip = trim(strip_tags(mysqli_real_escape_string($mysqli,getIP())));
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
 
 if (isset($_GET['id']) && isset($_GET['key'])) {

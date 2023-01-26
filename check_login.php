@@ -23,7 +23,7 @@ if (!isset($_SESSION['logged']) || !$_SESSION['logged']) {
 }
 
 // SESSION FINGERPRINT
-$session_ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
+$session_ip = strip_tags(mysqli_real_escape_string($mysqli,getIP()));
 
 // User agent
 $session_user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
