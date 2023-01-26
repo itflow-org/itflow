@@ -157,7 +157,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
                     $log_ip = htmlentities($row['log_ip']);
                     $log_user_agent = htmlentities($row['log_user_agent']);
                     $log_user_os = get_os($log_user_agent);
-                    $log_user_browser = get_web_browser($log_user_agent);
+                    $log_user_browser = getWebBrowser($log_user_agent);
                     $log_created_at = $row['log_created_at'];
 
                     ?>

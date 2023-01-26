@@ -10,7 +10,7 @@ require_once("functions.php");
 require_once("rfc6238.php");
 
 // IP & User Agent for logging
-$ip = strip_tags(mysqli_real_escape_string($mysqli, get_ip()));
+$ip = strip_tags(mysqli_real_escape_string($mysqli, getIp()));
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
 
 // Block brute force password attacks - check recent failed login attempts for this IP

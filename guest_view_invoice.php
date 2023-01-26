@@ -65,11 +65,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key'])) {
         //Set Currency Format
         $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
-        $ip = strip_tags(mysqli_real_escape_string($mysqli,get_ip()));
+        $ip = strip_tags(mysqli_real_escape_string($mysqli,getIp()));
 
         $session_user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
         $os = strip_tags(mysqli_real_escape_string($mysqli,get_os($session_user_agent)));
-        $browser = strip_tags(mysqli_real_escape_string($mysqli,get_web_browser($session_user_agent)));
+        $browser = strip_tags(mysqli_real_escape_string($mysqli,getWebBrowser($session_user_agent)));
 
         //Set Badge color based off of invoice status
         if ($invoice_status == "Sent") {

@@ -100,7 +100,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $log_ip = htmlentities($row['log_ip']);
                         $log_user_agent = htmlentities($row['log_user_agent']);
                         $log_user_os = get_os($log_user_agent);
-                        $log_user_browser = get_web_browser($log_user_agent);
+                        $log_user_browser = getWebBrowser($log_user_agent);
                         $last_login = "$log_user_os<br>$log_user_browser<br><i class='fa fa-fw fa-globe'></i> $log_ip";
                         if (empty($last_login)) {
                             $last_login = "Never logged in";
