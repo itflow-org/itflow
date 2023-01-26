@@ -67,7 +67,7 @@ function getUserAgent() {
     return $_SERVER['HTTP_USER_AGENT'];
 }
 
-function getIp() {
+function getIP() {
     if (defined("CONST_GET_IP_METHOD")) {
         if (CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
             $ip = getenv('HTTP_X_FORWARDED_FOR');
@@ -103,7 +103,7 @@ function getWebBrowser($user_browser) {
     return $browser;
 }
 
-function get_os($user_os) {
+function getOS($user_os) {
     $os_platform    =   "Unknown OS";
     $os_array       =   array(
         '/windows nt 10/i'      =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 10",
@@ -130,7 +130,7 @@ function get_os($user_os) {
     return $os_platform;
 }
 
-function GetDevice() {
+function getDevice() {
     $tablet_browser = 0;
     $mobile_browser = 0;
     if (preg_match('/(tablet|ipad|playbook)|(android(?!.*(mobi|opera mini)))/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
@@ -436,9 +436,6 @@ function getSSL($name) {
 
 function strtoAZaz09($string) {
     $string = ucwords(strtolower($string));
-
-    // Replace spaces with _
-    //$string = str_replace(' ', '_', $string);
 
     // Gets rid of non-alphanumerics
     return preg_replace('/[^A-Za-z0-9_]/', '', $string);

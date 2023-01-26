@@ -17,7 +17,7 @@ header('Content-Type: application/json');
 $_POST = json_decode(file_get_contents('php://input'), true);
 
 // Get user IP
-$ip = strip_tags(mysqli_real_escape_string($mysqli, getIp()));
+$ip = strip_tags(mysqli_real_escape_string($mysqli, getIP()));
 // Get user agent
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
 

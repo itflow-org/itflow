@@ -24,7 +24,7 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
-$ip = strip_tags(mysqli_real_escape_string($mysqli,getIp()));
+$ip = strip_tags(mysqli_real_escape_string($mysqli,getIP()));
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
 
 $company_sql = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = '1'");
