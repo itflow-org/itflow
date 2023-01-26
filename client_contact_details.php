@@ -3,7 +3,7 @@
 if (isset($_GET['contact_id'])) {
     $contact_id = intval($_GET['contact_id']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM contacts 
+    $sql = mysqli_query($mysqli, "SELECT * FROM contacts 
         LEFT JOIN locations ON location_id = contact_location_id
         WHERE contact_id = $contact_id
     ");
@@ -44,20 +44,20 @@ if (isset($_GET['contact_id'])) {
     $auth_method = htmlentities($row['contact_auth_method']);
 
     // Related Assets Query
-    $sql_related_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_contact_id = $contact_id AND company_id = $session_company_id ORDER BY asset_name DESC");
+    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id AND company_id = $session_company_id ORDER BY asset_name DESC");
 
     $asset_count = mysqli_num_rows($sql_related_assets);
 
     // Related Logins Query
-    $sql_related_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_contact_id = $contact_id AND company_id = $session_company_id ORDER BY login_name DESC");
+    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_contact_id = $contact_id AND company_id = $session_company_id ORDER BY login_name DESC");
     $login_count = mysqli_num_rows($sql_related_logins);
 
     // Related Software Query
-    $sql_related_software = mysqli_query($mysqli,"SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
+    $sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
     $software_count = mysqli_num_rows($sql_related_software);
 
     // Related Tickets Query
-    $sql_related_tickets = mysqli_query($mysqli,"SELECT * FROM tickets LEFT JOIN users on ticket_assigned_to = user_id WHERE ticket_contact_id = $contact_id AND company_id = $session_company_id ORDER BY ticket_id DESC");
+    $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN users on ticket_assigned_to = user_id WHERE ticket_contact_id = $contact_id AND company_id = $session_company_id ORDER BY ticket_id DESC");
     $ticket_count = mysqli_num_rows($sql_related_tickets);
 
     ?>
@@ -402,7 +402,7 @@ if (isset($_GET['contact_id'])) {
                                 $seat_count = 0;
 
                                 // Asset Licenses
-                                $asset_licenses_sql = mysqli_query($mysqli,"SELECT asset_id FROM software_assets WHERE software_id = $software_id");
+                                $asset_licenses_sql = mysqli_query($mysqli, "SELECT asset_id FROM software_assets WHERE software_id = $software_id");
                                 $asset_licenses_array = array();
                                 while ($row = mysqli_fetch_array($asset_licenses_sql)) {
                                   $asset_licenses_array[] = $row['asset_id'];
@@ -411,7 +411,7 @@ if (isset($_GET['contact_id'])) {
                                 $asset_licenses = implode(',',$asset_licenses_array);
 
                                 // Contact Licenses
-                                $contact_licenses_sql = mysqli_query($mysqli,"SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
+                                $contact_licenses_sql = mysqli_query($mysqli, "SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
                                 $contact_licenses_array = array();
                                 while ($row = mysqli_fetch_array($contact_licenses_sql)) {
                                   $contact_licenses_array[] = $row['contact_id'];

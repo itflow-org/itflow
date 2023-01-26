@@ -21,7 +21,7 @@ if (!empty($name) && !empty($email)) {
         //Logging
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Updated', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id");
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Updated contact $name via API ($api_key_name)', log_ip = '$ip', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id");
-    } else {var_dump( $update_sql);}
+    }
 }
 
 // Output
