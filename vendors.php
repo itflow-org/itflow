@@ -120,7 +120,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $vendor_sla = htmlentities($row['vendor_sla']);
             $vendor_code = htmlentities($row['vendor_code']);
             $vendor_notes = htmlentities($row['vendor_notes']);
-            $vendor_template_id = $row['vendor_template_id'];
             
           ?>
 
