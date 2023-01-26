@@ -5553,7 +5553,7 @@ if(isset($_POST['add_login'])){
     $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['uri'])));
-    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
+    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['username']))));
     $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
     $otp_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['otp_secret'])));
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
@@ -5580,7 +5580,7 @@ if(isset($_POST['edit_login'])){
     $login_id = intval($_POST['login_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['uri'])));
-    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
+    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['username']))));
     $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
     $otp_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['otp_secret'])));
     $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
@@ -5643,8 +5643,9 @@ if(isset($_GET['export_client_logins_csv'])){
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
+            $login_username = decryptLoginEntry($row['login_username']);
             $login_password = decryptLoginEntry($row['login_password']);
-            $lineData = array($row['login_name'], $row['login_username'], $login_password, $row['login_uri']);
+            $lineData = array($row['login_name'], $login_username, $login_password, $row['login_uri']);
             fputcsv($f, $lineData, $delimiter);
         }
 
@@ -5707,7 +5708,7 @@ if(isset($_POST["import_client_logins_csv"])){
                 }
             }
             if(isset($column[1])){
-                $username = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[1])));
+                $username = trim(strip_tags(mysqli_real_escape_string($mysqli, encryptLoginEntry($column[1]))));
             }
             if(isset($column[2])){
                 $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($column[2])));
@@ -8201,7 +8202,7 @@ if(isset($_GET['export_client_pdf'])){
                         <?php
                         while($row = mysqli_fetch_array($sql_logins)){
                             $login_name = $row['login_name'];
-                            $login_username = $row['login_username'];
+                            $login_username = decryptLoginEntry($row['login_username']);
                             $login_password = decryptLoginEntry($row['login_password']);
                             $login_uri = $row['login_uri'];
                             $login_note = $row['login_note'];

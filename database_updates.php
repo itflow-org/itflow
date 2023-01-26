@@ -466,9 +466,9 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.1'");
     }
 
-    
+
     if (CURRENT_DATABASE_VERSION == '0.3.1') {
-        
+
         // Assets
 
         mysqli_query($mysqli, "UPDATE `assets` SET `asset_login_id` = 0 WHERE `asset_login_id` IS NULL");
@@ -702,10 +702,10 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
 
         mysqli_query($mysqli, "UPDATE `settings` SET `config_enable_alert_domain_expire` = 1 WHERE `config_enable_alert_domain_expire` IS NULL");
         mysqli_query($mysqli, "ALTER TABLE `settings` CHANGE `config_enable_alert_domain_expire` `config_enable_alert_domain_expire` TINYINT(1) NOT NULL DEFAULT 1");
-        
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_send_invoice_reminders` = 1 WHERE `config_send_invoice_reminders` IS NULL");
         mysqli_query($mysqli, "ALTER TABLE `settings` CHANGE `config_send_invoice_reminders` `config_send_invoice_reminders` TINYINT(1) NOT NULL DEFAULT 1");
-        
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_stripe_enable` = 0 WHERE `config_stripe_enable` IS NULL");
         mysqli_query($mysqli, "ALTER TABLE `settings` CHANGE `config_stripe_enable` `config_stripe_enable` TINYINT(1) NOT NULL DEFAULT 0");
 
@@ -770,15 +770,31 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
 
     if(CURRENT_DATABASE_VERSION == '0.3.3'){
         mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_telemetry` TINYINT(1) DEFAULT 0 AFTER `config_theme`");
-        
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.4'");
     }
 
-    //if(CURRENT_DATABASE_VERSION == '0.3.4'){
+    if(CURRENT_DATABASE_VERSION == '0.3.4'){
     // Insert queries here required to update to DB version 0.3.5
 
+        //Get & upgrade user login encryption
+        $sql_logins = mysqli_query($mysqli, "SELECT login_id, login_username FROM logins WHERE login_username IS NOT NULL");
+        foreach ($sql_logins as $row) {
+            $login_id = $row['login_id'];
+            $login_username = $row['login_username'];
+            $login_encrypted_username = encryptLoginEntry($row['login_username']);
+            mysqli_query($mysqli, "UPDATE logins SET login_username = '$login_encrypted_username' WHERE login_id = '$login_id'");
+        }
+
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.5'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.5'");
+    }
+
+    //if(CURRENT_DATABASE_VERSION == '0.3.5'){
+    // Insert queries here required to update to DB version 0.3.6
+
+    // Then, update the database to the next sequential version
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.6'");
     //}
 
 

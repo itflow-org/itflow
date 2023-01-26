@@ -12,8 +12,8 @@ if (!empty($_GET['sb'])) {
 $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM logins 
-  WHERE login_client_id = $client_id 
-  AND (login_name LIKE '%$q%' OR login_username LIKE '%$q%' OR login_uri LIKE '%$q%') 
+  WHERE login_client_id = $client_id
+  AND (login_name LIKE '%$q%' OR login_uri LIKE '%$q%')
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
@@ -75,7 +75,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             }else{
               $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='https://$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
             }
-            $login_username = htmlentities($row['login_username']);
+            $login_username = htmlentities(decryptLoginEntry($row['login_username']));
             if (empty($login_username)) {
               $login_username_display = "-";
             }else{
