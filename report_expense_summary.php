@@ -1,10 +1,4 @@
-<?php include("inc_all_reports.php"); ?>
-<?php 
-
-function roundUpToNearestMultiple($n, $increment = 1000)
-{
-    return (int) ($increment * ceil($n / $increment));
-}
+<?php include("inc_all_reports.php");
 
 if (isset($_GET['year'])) {
   $year = intval($_GET['year']);
@@ -34,13 +28,13 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
   <div class="card-body">
     <form class="mb-3">
       <select onchange="this.form.submit()" class="form-control" name="year">
-        <?php 
-                
+        <?php
+
         while ($row = mysqli_fetch_array($sql_expense_years)) {
           $expense_year = $row['expense_year'];
         ?>
         <option <?php if ($year == $expense_year) { ?> selected <?php } ?> > <?php echo $expense_year; ?></option>
-        
+
         <?php
         }
         ?>
@@ -79,7 +73,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
 
             <tr>
               <td><?php echo $category_name; ?></td>
-              
+
               <?php
 
               $total_expense_for_all_months = 0;
@@ -89,36 +83,36 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
                 $expense_amount_for_month = $row['expense_amount_for_month'];
                 $total_expense_for_all_months = $expense_amount_for_month + $total_expense_for_all_months;
 
-              
+
               ?>
                 <td class="text-right"><a class="text-dark" href="expenses.php?q=<?php echo $category_name; ?>&dtf=<?php echo "$year-$month"; ?>-01&dtt=<?php echo "$year-$month"; ?>-31"><?php echo numfmt_format_currency($currency_format, $expense_amount_for_month, $session_company_currency); ?></a></td>
-              
+
               <?php
-              
+
               }
-              
+
               ?>
-              
+
               <th class="text-right"><a class="text-dark" href="expenses.php?q=<?php echo $category_name; ?>&dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31"><?php echo numfmt_format_currency($currency_format, $total_expense_for_all_months, $session_company_currency); ?></a></th>
             </tr>
-          
-          <?php 
 
-          } 
-          
+          <?php
+
+          }
+
           ?>
-          
+
           <tr>
             <th>Total</th>
             <?php
-              
+
             for($month = 1; $month<=12; $month++) {
               $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND company_id = $session_company_id");
               $row = mysqli_fetch_array($sql_expenses);
               $expense_total_amount_for_month = $row['expense_total_amount_for_month'];
               $total_expense_for_all_months = $expense_total_amount_for_month + $total_expense_for_all_months;
-              
-            
+
+
             ?>
 
               <th class="text-right"><a class="text-dark" href="expenses.php?dtf=<?php echo "$year-$month"; ?>-01&dtt=<?php echo "$year-$month"; ?>-31"><?php echo numfmt_format_currency($currency_format, $expense_total_amount_for_month, $session_company_currency); ?></a></th>
@@ -162,24 +156,24 @@ var myLineChart = new Chart(ctx, {
       pointBorderWidth: 2,
       data: [
       <?php
-      
+
       $largest_expense_month = 0;
-      
+
       for($month = 1; $month<=12; $month++) {
           $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND expenses.company_id = $session_company_id");
           $row = mysqli_fetch_array($sql_expenses);
           $expenses_for_month = $row['expense_amount_for_month'];
-          
+
           if ($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month) {
             $largest_expense_month = $expenses_for_month;
           }
-          
+
 
         ?>
           <?php echo "$expenses_for_month,"; ?>
-        
+
         <?php
-        
+
         }
 
         ?>

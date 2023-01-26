@@ -10,12 +10,6 @@ if ($_SESSION['user_role'] != 3) { ?>
   exit();
 }
 
-
-function roundUpToNearestMultiple($n, $increment = 1000)
-{
-    return (int) ($increment * ceil($n / $increment));
-}
-
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
 } else {

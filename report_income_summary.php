@@ -1,20 +1,15 @@
 <?php include("inc_all_reports.php"); ?>
 <?php
 
-function roundUpToNearestMultiple($n, $increment = 1000)
-{
-    return (int) ($increment * ceil($n / $increment));
-}
-
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
-}else{
+} else {
     $year = date('Y');
 }
 
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
-}else{
+} else {
     $year = date('Y');
 }
 
