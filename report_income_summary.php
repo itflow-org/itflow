@@ -17,10 +17,6 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
 
 $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND company_id = $session_company_id ORDER BY category_name ASC");
 
-// Default values
-$largest_income_month = 0;
-$largest_invoice_month = 0;
-
 ?>
 
 <div class="card card-dark">
