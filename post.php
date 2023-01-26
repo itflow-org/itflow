@@ -6181,8 +6181,10 @@ if(isset($_POST['add_ticket'])){
     $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
     $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
     $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
+    $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
 
+    // If no contact is selected automatically choose the primary contact for the client
     if($client_id > 0 && $contact == 0){
         $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
@@ -6194,7 +6196,7 @@ if(isset($_POST['add_ticket'])){
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = $session_company_id");
 
-    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id, company_id = $session_company_id");
     $id = mysqli_insert_id($mysqli);
 
     // E-mail client
@@ -6349,9 +6351,10 @@ if(isset($_POST['edit_ticket'])){
     $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
     $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
     $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
+    $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
 
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");

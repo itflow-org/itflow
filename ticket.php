@@ -9,6 +9,7 @@ if (isset($_GET['ticket_id'])) {
         LEFT JOIN users ON ticket_assigned_to = user_id 
         LEFT JOIN locations ON ticket_location_id = location_id
         LEFT JOIN assets ON ticket_asset_id = asset_id
+        LEFT JOIN vendors ON ticket_vendor_id = vendor_id
         WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id"
     );
 
@@ -79,6 +80,20 @@ if (isset($_GET['ticket_id'])) {
         $asset_serial = htmlentities($row['asset_serial']);
         $asset_os = htmlentities($row['asset_os']);
         $asset_warranty_expire = $row['asset_warranty_expire'];
+
+        $vendor_id = $row['ticket_vendor_id'];
+        $vendor_name = htmlentities($row['vendor_name']);
+        $vendor_description = htmlentities($row['vendor_description']);
+        $vendor_account_number = htmlentities($row['vendor_account_number']);
+        $vendor_contact_name = htmlentities($row['vendor_contact_name']);
+        $vendor_phone = formatPhoneNumber($row['vendor_phone']);
+        $vendor_extension = htmlentities($row['vendor_extension']);
+        $vendor_email = htmlentities($row['vendor_email']);
+        $vendor_website = htmlentities($row['vendor_website']);
+        $vendor_hours = htmlentities($row['vendor_hours']);
+        $vendor_sla = htmlentities($row['vendor_sla']);
+        $vendor_code = htmlentities($row['vendor_code']);
+        $vendor_notes = htmlentities($row['vendor_notes']);
 
         $location_name = htmlentities($row['location_name']);
         $location_address = htmlentities($row['location_address']);
@@ -525,6 +540,39 @@ if (isset($_GET['ticket_id'])) {
 
                         </div>
                     </div>
+                <?php } ?>
+
+                <!-- Vendor card -->
+                <?php if (!empty($vendor_id)) { ?>
+                    <div class="card card-body card-outline card-dark mb-3">
+                        <div>
+                            <h4 class="text-secondary">Vendor</h4>
+                            <i class="fa fa-fw fa-building text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $vendor_name; ?></strong>
+                            <?php
+
+                            if (!empty($vendor_contact_name)) { ?>
+                                <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><?php echo $vendor_contact_name; ?>
+                                <br>
+                            <?php }
+
+                            if (!empty($vendor_email)) { ?>
+                                <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i><a href="mailto:<?php echo $vendor_email; ?>"><?php echo $vendor_email; ?></a>
+                                <br>
+                            <?php }
+
+                            if (!empty($vendor_phone)) { ?>
+                                <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i><?php echo $vendor_phone; ?>
+                                <br>
+                            <?php }
+
+                            if (!empty($vendor_website)) { ?>
+                                <i class="fa fa-fw fa-globe text-secondary ml-1 mr-2 mb-2"></i><?php echo $vendor_website; ?>
+                                <br>
+                            <?php } ?>
+
+                        </div>
+                    </div>
+
                 <?php } ?>
 
                 <form action="post.php" method="post">

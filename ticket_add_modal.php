@@ -128,7 +128,7 @@
                                     <select class="form-control select2" name="contact" required>
                                         <option value="">- Contact -</option>
                                         <?php
-                                        $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+                                        $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $contact_id = $row['contact_id'];
                                             $contact_name = htmlentities($row['contact_name']); ?>
@@ -152,11 +152,36 @@
                                         <option value="0">- None -</option>
                                         <?php
 
-                                        $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+                                        $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                                         while ($row = mysqli_fetch_array($sql_assets)) {
                                             $asset_id_select = $row['asset_id'];
                                             $asset_name_select = htmlentities($row['asset_name']); ?>    
-                                            <option <?php if (!empty($asset_id) && $asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
+                                            <option value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
+
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                        </div>
+
+                        <div class="tab-pane fade" id="pills-vendors">
+
+                            <div class="form-group">
+                                <label>Vendor</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="vendor">
+                                        <option value="0">- None -</option>
+                                        <?php
+
+                                        $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                                        while ($row = mysqli_fetch_array($sql_vendors)) {
+                                            $vendor_id_select = $row['vendor_id'];
+                                            $vendor_name_select = htmlentities($row['vendor_name']); ?>    
+                                            <option value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
 
                                         <?php } ?>
                                     </select>
