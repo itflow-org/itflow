@@ -24,15 +24,55 @@
       </div>
     </form>
 
-    <!-- Notifications -->
+    <!-- New Notifications Dropdown -->
+    <?php
+    $sql_notifications = mysqli_query($mysqli,"SELECT * FROM notifications LEFT JOIN clients ON notification_client_id = client_id WHERE notification_dismissed_at IS NULL AND (notification_user_id = $session_user_id OR notification_user_id = 0) AND notifications.company_id = $session_company_id ORDER BY notification_id DESC LIMIT 5");
+    ?>
+
+    <?php if ($num_notifications > 0) { ?>
+    <li class="nav-item dropdown">
+      <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+        <i class="far fa-bell"></i>
+        <span class="badge badge-danger navbar-badge"><?php echo $num_notifications; ?></span>
+        
+      </a>
+      <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right" style="left: inherit; right: 0px;">
+        <span class="dropdown-item dropdown-header"><?php echo $num_notifications; ?> Notifications</span>
+        <div class="dropdown-divider"></div>
+        <?php
+        while ($row = mysqli_fetch_array($sql_notifications)) {
+            $notification_id = $row['notification_id'];
+            $notification_type = htmlentities($row['notification_type']);
+            $notification = htmlentities($row['notification']);
+            $notification_timestamp = $row['notification_timestamp'];
+        ?>
+
+        <a href="post.php?dismiss_notification=<?php echo $notification_id; ?>" class="dropdown-item">
+          <i class="fas fa-bullhorn mr-2"></i> <?php echo $notification; ?>
+          <span class="float-right text-muted text-sm"><?php echo $notification_timestamp; ?></span>
+        </a>
+        
+        <?php
+        }
+        ?>
+
+        <div class="dropdown-divider"></div>
+        <a href="notifications.php" class="dropdown-item dropdown-footer text-primary">See All Notifications</a>
+        <div class="dropdown-divider"></div>
+        <a href="post.php?dismiss_all_notifications" class="dropdown-item dropdown-footer text-success"><i class="fa fa-fw fa-check"></i> Dismiss All Notifications</a>
+      </div>
+    </li>
+    <?php } else { ?>
+
     <li class="nav-item">
       <a class="nav-link" href="notifications.php">
-        <i class="fa fa-fw fa-bell mx-1"></i>
-        <?php if ($num_notifications > 0) { ?>
-        <span class="badge badge-danger navbar-badge"><?php echo $num_notifications; ?></span>
-        <?php } ?>
+        <i class="far fa-bell"></i>
       </a>
     </li>
+
+    <?php } ?>
+
+    <!-- End New Notifications Dropdown -->
     
     <li class="nav-item dropdown user-menu">
       <a href="#" class="nav-link" data-toggle="dropdown">
