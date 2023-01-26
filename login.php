@@ -117,7 +117,7 @@ if (isset($_POST['login'])) {
             $_SESSION['user_id'] = $user_id;
             $_SESSION['user_name'] = $user_name;
             $_SESSION['user_role'] = $row['user_role'];
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(78));
+            $_SESSION['csrf_token'] = randomString(156);
             $_SESSION['logged'] = TRUE;
 
             // Setup encryption session key

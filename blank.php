@@ -16,9 +16,8 @@
 <?php echo CURRENT_DATABASE_VERSION; ?>
 <br>
 
-<?php echo bin2hex(random_bytes(8)); ?>
+<?php echo randomString(); ?>
 <br>
-<?php echo keygen(); ?>
 
 <script>toastr.success('Have Fun Wozz!!')</script>
 

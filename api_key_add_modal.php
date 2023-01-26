@@ -1,5 +1,5 @@
 <?php
-$key = bin2hex(random_bytes(78));
+$key = randomString(156);
 ?>
 <div class="modal" id="addApiKeyModal" tabindex="-1">
   <div class="modal-dialog">
