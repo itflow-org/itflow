@@ -28,13 +28,13 @@
                 ?>
                 <option value="<?php echo $document_template_id ?>"><?php echo $document_template_name; ?></option>
                 <?php
-                } 
+                }
                 ?>
-                
+
               </select>
             </div>
           </div>
-          
+
           <label>Document name</label>
           <div class="form-group">
             <div class="input-group">
@@ -60,17 +60,17 @@
                   $folder_name = htmlentities($row['folder_name']);
 
                 ?>
-                <option <?php if ($_GET['folder_id'] == $folder_id) echo "selected"; ?> value="<?php echo $folder_id ?>"><?php echo $folder_name; ?></option>
+                <option <?php if (isset($_GET['folder_id']) && $_GET['folder_id'] == $folder_id) echo "selected"; ?> value="<?php echo $folder_id ?>"><?php echo $folder_name; ?></option>
                 <?php
-                } 
+                }
                 ?>
-                
+
               </select>
             </div>
           </div>
-        
+
         </div>
-        
+
         <div class="modal-footer bg-white">
 
           <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
