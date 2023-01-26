@@ -11,22 +11,25 @@ require_once("plugins/PHPMailer/src/SMTP.php");
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-function keygen()
+// Function to generate both crypto & URL safe random strings
+function randomString($length = 16)
 {
-    $chars = "abcdefghijklmnopqrstuvwxyz";
-    $chars .= "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    $chars .= "0123456789";
-    while (1) {
-        $key = '';
-        srand((double) microtime() * 1000000);
-        for ($i = 0; $i < 16; $i++) {
-            $key .= substr($chars, (rand() % (strlen($chars))), 1);
-        }
-        break;
-    }
-    return $key;
+    // Generate some cryptographically safe random bytes
+    //  Generate a little more than requested as we'll lose some later converting
+    $random_bytes = random_bytes($length + 5);
+
+    // Convert the bytes to something somewhat human-readable
+    $random_base_64 = base64_encode($random_bytes);
+
+    // Replace the nasty characters that come with base64
+    $bad_chars = array("/", "+", "=");
+    $random_string = str_replace($bad_chars, random_int(0, 9), $random_base_64);
+
+    // Truncate the string to the requested $length and return
+    return substr($random_string, 0, $length);
 }
 
+// Older keygen function - only used for TOTP currently
 function key32gen()
 {
     $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -72,14 +75,10 @@ function get_ip() {
     if (defined("CONST_GET_IP_METHOD")) {
         if (CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
             $ip = getenv('HTTP_X_FORWARDED_FOR');
-        }
-
-        else{
-
+        } else {
             $ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
         }
-    }
-    else{
+    } else {
         $ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
     }
 
@@ -226,8 +225,8 @@ function mkdir_missing($dir) {
 // Called during initial setup
 // Encrypts the master key with the user's password
 function setupFirstUserSpecificKey($user_password, $site_encryption_master_key) {
-    $iv = bin2hex(random_bytes(8));
-    $salt = bin2hex(random_bytes(8));
+    $iv = randomString();
+    $salt = randomString();
 
     //Generate 128-bit (16 byte/char) kdhash of the users password
     $user_password_kdhash = hash_pbkdf2('sha256', $user_password, $salt, 100000, 16);
@@ -243,9 +242,10 @@ function setupFirstUserSpecificKey($user_password, $site_encryption_master_key) 
  * New Users: Requires the admin setting up their account have a Specific/Session key configured
  * Password Changes: Will use the current info in the session.
 */
-function encryptUserSpecificKey($user_password) {
-    $iv = bin2hex(random_bytes(8));
-    $salt = bin2hex(random_bytes(8));
+function encryptUserSpecificKey($user_password)
+{
+    $iv = randomString();
+    $salt = randomString();
 
     // Get the session info.
     $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
@@ -267,7 +267,8 @@ function encryptUserSpecificKey($user_password) {
 
 // Given a ciphertext (incl. IV) and the user's password, returns the site master key
 // Ran at login, to facilitate generateUserSessionKey
-function decryptUserSpecificKey($user_encryption_ciphertext, $user_password) {
+function decryptUserSpecificKey($user_encryption_ciphertext, $user_password)
+{
     //Get the IV, salt and ciphertext
     $salt = substr($user_encryption_ciphertext, 0, 16);
     $iv = substr($user_encryption_ciphertext, 16, 16);
@@ -287,11 +288,10 @@ Generates what is probably best described as a session key (ephemeral-ish)
 - Only the user can decrypt their session ciphertext to get the master key
 - Encryption key never hits the disk in cleartext
 */
-function generateUserSessionKey($site_encryption_master_key) {
-
-    // Generate both of these using bin2hex(random_bytes(8))
-    $user_encryption_session_key = bin2hex(random_bytes(8));
-    $user_encryption_session_iv = bin2hex(random_bytes(8));
+function generateUserSessionKey($site_encryption_master_key)
+{
+    $user_encryption_session_key = randomString();
+    $user_encryption_session_iv = randomString();
     $user_encryption_session_ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
 
     // Store ciphertext in the user's session
@@ -309,7 +309,8 @@ function generateUserSessionKey($site_encryption_master_key) {
 }
 
 // Decrypts an encrypted password (website/asset login), returns it as a string
-function decryptLoginEntry($login_password_ciphertext) {
+function decryptLoginEntry($login_password_ciphertext)
+{
 
     // Split the login into IV and Ciphertext
     $login_iv =  substr($login_password_ciphertext, 0, 16);
@@ -329,8 +330,9 @@ function decryptLoginEntry($login_password_ciphertext) {
 }
 
 // Encrypts a website/asset login password
-function encryptLoginEntry($login_password_cleartext) {
-    $iv = bin2hex(random_bytes(8));
+function encryptLoginEntry($login_password_cleartext)
+{
+    $iv = randomString();
 
     // Get the user session info.
     $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];

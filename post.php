@@ -373,7 +373,7 @@ if(isset($_POST['edit_profile'])){
     // Enable extension access, only if it isn't already setup (user doesn't have cookie)
     if(isset($_POST['extension']) && $_POST['extension'] == 'Yes'){
         if(!isset($_COOKIE['user_extension_key'])){
-            $extension_key = bin2hex(random_bytes(78));
+            $extension_key = randomString(156);
             mysqli_query($mysqli, "UPDATE users SET user_extension_key = '$extension_key' WHERE user_id = $user_id");
 
             $extended_log_description .= ", extension access enabled";
@@ -437,7 +437,7 @@ if(isset($_GET['archive_user'])){
 
     // Variables from GET
     $user_id = intval($_GET['archive_user']);
-    $password = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
+    $password = password_hash(randomString(), PASSWORD_DEFAULT);
 
     // Get user details
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
@@ -2878,7 +2878,7 @@ if(isset($_POST['add_invoice'])){
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
 
     //Generate a unique URL key for clients to access
-    $url_key = bin2hex(random_bytes(78));
+    $url_key = randomString(156);
 
     mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_currency_code = '$session_company_currency', invoice_category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_client_id = $client, company_id = $session_company_id");
     $invoice_id = mysqli_insert_id($mysqli);
@@ -2936,7 +2936,7 @@ if(isset($_POST['add_invoice_copy'])){
     $category_id = $row['invoice_category_id'];
 
     //Generate a unique URL key for clients to access
-    $url_key = bin2hex(random_bytes(78));
+    $url_key = randomString(156);
 
     mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$invoice_scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_currency_code = '$invoice_currency_code', invoice_note = '$invoice_note', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $session_company_id") or die(mysql_error());
 
@@ -3031,7 +3031,7 @@ if(isset($_POST['add_quote'])){
     mysqli_query($mysqli,"UPDATE settings SET config_quote_next_number = $new_config_quote_next_number WHERE company_id = $session_company_id");
 
     //Generate a unique URL key for clients to access
-    $quote_url_key = bin2hex(random_bytes(78));
+    $quote_url_key = randomString(156);
 
     mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$scope', quote_date = '$date', quote_currency_code = '$session_company_currency', quote_category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_client_id = $client, company_id = $session_company_id");
 
@@ -3068,7 +3068,7 @@ if(isset($_POST['add_quote_copy'])){
     $category_id = $row['quote_category_id'];
 
     //Generate a unique URL key for clients to access
-    $quote_url_key = bin2hex(random_bytes(78));
+    $quote_url_key = randomString(156);
 
     mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$quote_scope', quote_date = '$date', quote_category_id = $category_id, quote_status = 'Draft', quote_amount = '$quote_amount', quote_currency_code = '$quote_currency_code', quote_note = '$quote_note', quote_url_key = '$quote_url_key', quote_client_id = $client_id, company_id = $session_company_id");
 
@@ -3121,7 +3121,7 @@ if(isset($_POST['add_quote_to_invoice'])){
     $category_id = $row['quote_category_id'];
 
     //Generate a unique URL key for clients to access
-    $url_key = bin2hex(random_bytes(78));
+    $url_key = randomString(156);
 
     mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$quote_scope', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_currency_code = '$quote_currency_code', invoice_note = '$quote_note', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $session_company_id");
 
@@ -4126,7 +4126,7 @@ if(isset($_POST['add_contact'])){
     $contact_technical = intval($_POST['contact_technical']);
     $location_id = intval($_POST['location']);
     $auth_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['auth_method'])));
-    $password = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
+    $password = password_hash(randomString(), PASSWORD_DEFAULT);
 
 
   if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
@@ -6736,7 +6736,7 @@ if(isset($_POST['add_invoice_from_ticket'])){
         mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
 
         //Generate a unique URL key for clients to access
-        $url_key = bin2hex(random_bytes(78));
+        $url_key = randomString(156);
 
         mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_currency_code = '$session_company_currency', invoice_category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $session_company_id");
         $invoice_id = mysqli_insert_id($mysqli);
@@ -7446,7 +7446,7 @@ if(isset($_GET['force_recurring'])){
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = $session_company_id");
 
     //Generate a unique URL key for clients to access
-    $url_key = bin2hex(random_bytes(78));
+    $url_key = randomString(156);
 
     mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = '$new_invoice_number', invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_currency_code = '$recurring_currency_code', invoice_note = '$recurring_note', invoice_category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $session_company_id");
 

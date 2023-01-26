@@ -230,7 +230,7 @@ if (isset($_GET['share_generate_link'])) {
     $item_note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['note'])));
     $item_view_limit = intval($_GET['views']);
     $item_expires = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['expires'])));
-    $item_key = bin2hex(random_bytes(78));
+    $item_key = randomString(156);
 
     if ($item_type == "Document") {
         $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = '$item_id' AND document_client_id = '$client_id' LIMIT 1"));
@@ -250,8 +250,8 @@ if (isset($_GET['share_generate_link'])) {
 
         // Decrypt & re-encrypt password for sharing
         $login_password_cleartext = decryptLoginEntry($row['login_password']);
-        $login_encryption_key = bin2hex(random_bytes(8));
-        $iv = bin2hex(random_bytes(8));
+        $login_encryption_key = randomString();
+        $iv = randomString();
         $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $login_encryption_key, 0, $iv);
 
         $item_encrypted_credential = $iv . $ciphertext;
