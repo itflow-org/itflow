@@ -33,7 +33,7 @@
                                     $folder_name = htmlentities($row['folder_name']);
 
                                     ?>
-                                    <option <?php if ($_GET['folder_id'] == $folder_id) echo "selected"; ?> value="<?php echo $folder_id ?>"><?php echo $folder_name; ?></option>
+                                    <option <?php if (isset($_GET['folder_id']) && $_GET['folder_id'] == $folder_id) echo "selected"; ?> value="<?php echo $folder_id ?>"><?php echo $folder_name; ?></option>
                                     <?php
                                 }
                                 ?>

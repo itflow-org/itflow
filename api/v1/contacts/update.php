@@ -12,7 +12,7 @@ $update_count = FALSE;
 
 if (!empty($name) && !empty($email)) {
 
-    $update_sql = mysqli_query($mysqli, "UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_auth_method = '$auth_method', contact_updated_at = NOW(), contact_department_id = $department, contact_location_id = $location_id, contact_client_id = $client_id, company_id = $company_id WHERE contact_id = $contact_id LIMIT 1");
+    $update_sql = mysqli_query($mysqli, "UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_department = '$department', contact_email = '$email', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile',  contact_notes = '$notes', contact_auth_method = '$auth_method', contact_important = '$important', contact_billing = '$billing', contact_technical = '$technical', contact_updated_at = NOW(), contact_location_id = $location_id, contact_client_id = $client_id, company_id = $company_id WHERE contact_id = $contact_id LIMIT 1");
 
     // Check insert & get insert ID
     if ($update_sql) {

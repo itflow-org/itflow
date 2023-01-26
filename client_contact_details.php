@@ -3,7 +3,7 @@
 if (isset($_GET['contact_id'])) {
     $contact_id = intval($_GET['contact_id']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM contacts 
+    $sql = mysqli_query($mysqli, "SELECT * FROM contacts 
         LEFT JOIN locations ON location_id = contact_location_id
         WHERE contact_id = $contact_id
     ");
@@ -29,6 +29,11 @@ if (isset($_GET['contact_id'])) {
     } else {
         $primary_contact_display = FALSE;
     }
+    if (empty($contact_name)) {
+        $contact_ticket_display = "-";
+    } else {
+        $contact_ticket_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
+    }
     $contact_location_id = $row['contact_location_id'];
     $location_name = htmlentities($row['location_name']);
     if (empty($location_name)) {
@@ -39,20 +44,20 @@ if (isset($_GET['contact_id'])) {
     $auth_method = htmlentities($row['contact_auth_method']);
 
     // Related Assets Query
-    $sql_related_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_contact_id = $contact_id AND company_id = $session_company_id ORDER BY asset_name DESC");
+    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id AND company_id = $session_company_id ORDER BY asset_name DESC");
 
     $asset_count = mysqli_num_rows($sql_related_assets);
 
     // Related Logins Query
-    $sql_related_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_contact_id = $contact_id AND company_id = $session_company_id ORDER BY login_name DESC");
+    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_contact_id = $contact_id AND company_id = $session_company_id ORDER BY login_name DESC");
     $login_count = mysqli_num_rows($sql_related_logins);
 
     // Related Software Query
-    $sql_related_software = mysqli_query($mysqli,"SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
+    $sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
     $software_count = mysqli_num_rows($sql_related_software);
 
     // Related Tickets Query
-    $sql_related_tickets = mysqli_query($mysqli,"SELECT * FROM tickets WHERE ticket_contact_id = $contact_id AND company_id = $session_company_id ORDER BY ticket_id DESC");
+    $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN users on ticket_assigned_to = user_id WHERE ticket_contact_id = $contact_id AND company_id = $session_company_id ORDER BY ticket_id DESC");
     $ticket_count = mysqli_num_rows($sql_related_tickets);
 
     ?>
@@ -68,7 +73,7 @@ if (isset($_GET['contact_id'])) {
                         <div class="text-secondary"><?php echo $contact_title; ?></div>
                     <?php } ?>
 
-                    <div class="text-center">     
+                    <div class="text-center">
                         <?php if (!empty($contact_photo)) { ?>
                             <img class="img-fluid img-circle p-3" alt="contact_photo" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
                         <?php } else { ?>
@@ -86,7 +91,7 @@ if (isset($_GET['contact_id'])) {
                         <div><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
                     <?php } ?>
                     <?php if (!empty($contact_phone)) { ?>
-                        <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone $contact_phone_extention"; ?></div>
+                        <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone $contact_extension"; ?></div>
                     <?php } ?>
                     <?php if (!empty($contact_mobile)) { ?>
                         <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile; ?></div>
@@ -381,7 +386,7 @@ if (isset($_GET['contact_id'])) {
                             </thead>
                             <tbody>
                             <?php
-                        
+
                             while ($row = mysqli_fetch_array($sql_related_software)) {
                                 $software_id = $row['software_id'];
                                 $software_name = htmlentities($row['software_name']);
@@ -397,7 +402,7 @@ if (isset($_GET['contact_id'])) {
                                 $seat_count = 0;
 
                                 // Asset Licenses
-                                $asset_licenses_sql = mysqli_query($mysqli,"SELECT asset_id FROM software_assets WHERE software_id = $software_id");
+                                $asset_licenses_sql = mysqli_query($mysqli, "SELECT asset_id FROM software_assets WHERE software_id = $software_id");
                                 $asset_licenses_array = array();
                                 while ($row = mysqli_fetch_array($asset_licenses_sql)) {
                                   $asset_licenses_array[] = $row['asset_id'];
@@ -406,7 +411,7 @@ if (isset($_GET['contact_id'])) {
                                 $asset_licenses = implode(',',$asset_licenses_array);
 
                                 // Contact Licenses
-                                $contact_licenses_sql = mysqli_query($mysqli,"SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
+                                $contact_licenses_sql = mysqli_query($mysqli, "SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
                                 $contact_licenses_array = array();
                                 while ($row = mysqli_fetch_array($contact_licenses_sql)) {
                                   $contact_licenses_array[] = $row['contact_id'];
@@ -432,7 +437,7 @@ if (isset($_GET['contact_id'])) {
                                                 <a class="dropdown-item text-danger" href="post.php?delete_software=<?php echo $software_id; ?>">Delete</a>
                                                 <?php } ?>
                                             </div>
-                                        </div> 
+                                        </div>
                                     </td>
                                 </tr>
 
@@ -440,11 +445,11 @@ if (isset($_GET['contact_id'])) {
 
                               include("client_software_edit_modal.php");
                               }
-                              
+
                               ?>
 
                             </tbody>
-                        </table>      
+                        </table>
                     </div>
                 </div>
             </div>
@@ -519,25 +524,13 @@ if (isset($_GET['contact_id'])) {
                                 } else {
                                     $ticket_assigned_to_display = htmlentities($row['user_name']);
                                 }
-                                $contact_id = $row['contact_id'];
-                                $contact_name = htmlentities($row['contact_name']);
-                                if (empty($contact_name)) {
-                                    $contact_display = "-";
-                                } else {
-                                    $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
-                                }
-                                $contact_title = htmlentities($row['contact_title']);
-                                $contact_email = htmlentities($row['contact_email']);
-                                $contact_phone = formatPhoneNumber($row['contact_phone']);
-                                $contact_extension = htmlentities($row['contact_extension']);
-                                $contact_mobile = formatPhoneNumber($row['contact_mobile']);
 
                               ?>
 
                                 <tr>
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
-                                    <td><?php echo $contact_display; ?></td>
+                                    <td><?php echo $contact_ticket_display; ?></td>
                                     <td><?php echo $ticket_priority_display; ?></td>
                                     <td><?php echo $ticket_status_display; ?></td>
                                     <td><?php echo $ticket_assigned_to_display; ?></td>

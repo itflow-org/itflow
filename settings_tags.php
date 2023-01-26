@@ -17,8 +17,8 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM tags
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
-if ($num_row > 0) {
-//Colors Used
+if ($num_rows > 0) {
+    //Colors Used
     $sql_colors_used = mysqli_query($mysqli, "SELECT tag_color FROM tags 
       WHERE tag_archived_at IS NULL
       AND company_id = $session_company_id"
@@ -29,7 +29,7 @@ if ($num_row > 0) {
     }
     $colors_diff = array_diff($colors_array, $colors_used_array);
 
-}else{
+} else {
     $colors_diff = $colors_array;
 }
 

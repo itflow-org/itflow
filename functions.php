@@ -535,4 +535,7 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
     }
 }
 
-
+function roundUpToNearestMultiple($n, $increment = 1000)
+{
+    return (int) ($increment * ceil($n / $increment));
+}
