@@ -63,11 +63,19 @@
       </div>
     </li>
     <?php } else { ?>
-
-    <li class="nav-item">
-      <a class="nav-link" href="notifications.php">
+    <li class="nav-item dropdown">
+      <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
         <i class="far fa-bell"></i>
       </a>
+      <div class="dropdown-menu dropdown-menu dropdown-menu-right" style="left: inherit; right: 0px;">
+        <span class="dropdown-item dropdown-header">No Notifications</span>
+        <div class="dropdown-divider"></div>
+        <div class="text-center text-secondary p-3">
+          <i class='far fa-fw fa-4x fa-bell-slash'></i>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="notifications_dismissed.php" class="dropdown-item dropdown-footer">See Dismissed Notifications</a>
+      </div>
     </li>
 
     <?php } ?>
