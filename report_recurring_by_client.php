@@ -22,7 +22,7 @@ $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $s
         </thead>
         <tbody>
           <?php
-          $recurring_total = 0; // Default value
+          $recurring_total = 0; // Default value: 0
           while ($row = mysqli_fetch_array($sql_clients)) {
             $client_id = $row['client_id'];
             $client_name = htmlentities($row['client_name']);
