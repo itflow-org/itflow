@@ -29,6 +29,11 @@ if (isset($_GET['contact_id'])) {
     } else {
         $primary_contact_display = FALSE;
     }
+    if (empty($contact_name)) {
+        $contact_ticket_display = "-";
+    } else {
+        $contact_ticket_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
+    }
     $contact_location_id = $row['contact_location_id'];
     $location_name = htmlentities($row['location_name']);
     if (empty($location_name)) {
@@ -52,7 +57,7 @@ if (isset($_GET['contact_id'])) {
     $software_count = mysqli_num_rows($sql_related_software);
 
     // Related Tickets Query
-    $sql_related_tickets = mysqli_query($mysqli,"SELECT * FROM tickets WHERE ticket_contact_id = $contact_id AND company_id = $session_company_id ORDER BY ticket_id DESC");
+    $sql_related_tickets = mysqli_query($mysqli,"SELECT * FROM tickets LEFT JOIN users on ticket_assigned_to = user_id WHERE ticket_contact_id = $contact_id AND company_id = $session_company_id ORDER BY ticket_id DESC");
     $ticket_count = mysqli_num_rows($sql_related_tickets);
 
     ?>
@@ -519,25 +524,13 @@ if (isset($_GET['contact_id'])) {
                                 } else {
                                     $ticket_assigned_to_display = htmlentities($row['user_name']);
                                 }
-                                $contact_id = $row['contact_id'];
-                                $contact_name = htmlentities($row['contact_name']);
-                                if (empty($contact_name)) {
-                                    $contact_display = "-";
-                                } else {
-                                    $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
-                                }
-                                $contact_title = htmlentities($row['contact_title']);
-                                $contact_email = htmlentities($row['contact_email']);
-                                $contact_phone = formatPhoneNumber($row['contact_phone']);
-                                $contact_extension = htmlentities($row['contact_extension']);
-                                $contact_mobile = formatPhoneNumber($row['contact_mobile']);
 
                               ?>
 
                                 <tr>
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
-                                    <td><?php echo $contact_display; ?></td>
+                                    <td><?php echo $contact_ticket_display; ?></td>
                                     <td><?php echo $ticket_priority_display; ?></td>
                                     <td><?php echo $ticket_status_display; ?></td>
                                     <td><?php echo $ticket_assigned_to_display; ?></td>
