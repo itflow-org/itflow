@@ -303,7 +303,7 @@ if (isset($_GET['contact_id'])) {
                                 } else {
                                     $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='https://$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                                 }
-                                $login_username = htmlentities($row['login_username']);
+                                $login_username = htmlentities(decryptLoginEntry($row['login_username']));
                                 if (empty($login_username)) {
                                     $login_username_display = "-";
                                 } else {
