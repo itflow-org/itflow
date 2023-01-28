@@ -5,6 +5,9 @@
     <h3 class="card-title"><i class="fa fa-fw fa-broadcast-tower"></i> Telemetry</h3>
   </div>
   <div class="card-body">
+    
+    <p class="text-center">Installation ID: <strong><?php echo $installation_id; ?></strong></p>
+
     <form action="post.php" method="post" autocomplete="off">
 
       <div class="form-group">

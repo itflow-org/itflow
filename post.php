@@ -1215,6 +1215,7 @@ if(isset($_POST['send_telemetry_data'])){
 
     $postdata = http_build_query(
       array(
+        'installation_id' => "$installation_id",
         'version' => "$current_version",
         'company_name' => "$company_name",
         'city' => "$city",

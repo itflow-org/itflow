@@ -782,6 +782,8 @@ if (isset($_POST['add_database'])) {
   $password = $_POST['password'];
   $config_base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
 
+  $installation_id = randomString(32);
+
   // Test database connection before writing it to config.php
   try {
     mysqli_connect($host, $username, $password, $database);
@@ -800,6 +802,7 @@ if (isset($_POST['add_database'])) {
   $new_config[] = sprintf("\$config_base_url = '%s';\n", addslashes($config_base_url));
   $new_config[] = "\$config_https_only = TRUE;\n";
   $new_config[] = "\$repo_branch = 'master';\n";
+  $new_config[] = "\$installation_id = '$installation_id';\n";
 
   file_put_contents("config.php", $new_config);
 
@@ -1033,6 +1036,7 @@ if (isset($_POST['add_telemetry'])) {
 
     $postdata = http_build_query(
       array(
+        'installation_id' => "$installation_id",
         'company_name' => "$company_name",
         'city' => "$city",
         'state' => "$state",
