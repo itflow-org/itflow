@@ -1042,7 +1042,8 @@ if (isset($_POST['add_telemetry'])) {
         'state' => "$state",
         'country' => "$country",
         'currency' => "$currency",
-        'comments' => "$comments"
+        'comments' => "$comments",
+        'collection_method' => 1
       )
     );
 
