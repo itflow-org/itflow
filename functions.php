@@ -50,6 +50,7 @@ function initials($str) {
         $ret = '';
         foreach (explode(' ', $str) as $word)
             $ret .= strtoupper($word[0]);
+            $ret = substr($ret,0, 2);
         return $ret;
     }
 }
