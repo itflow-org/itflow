@@ -111,10 +111,15 @@ if ($item_type == "Document") {
 
     $login_name = htmlentities($login_row['login_name']);
     $login_uri = htmlentities($login_row['login_uri']);
-    $login_username = htmlentities($login_row['login_username']);
-    $login_iv = substr($row['item_encrypted_credential'], 0, 16);
-    $login_ciphertext = substr($row['item_encrypted_credential'], 16);
-    $login_password = openssl_decrypt($login_ciphertext, 'aes-128-cbc', $encryption_key,0, $login_iv);
+
+    $username_iv = substr($row['item_encrypted_username'], 0, 16);
+    $username_ciphertext = substr($row['item_encrypted_username'], 16);
+    $login_username = openssl_decrypt($username_ciphertext, 'aes-128-cbc', $encryption_key,0, $username_iv);
+
+    $password_iv = substr($row['item_encrypted_credential'], 0, 16);
+    $password_ciphertext = substr($row['item_encrypted_credential'], 16);
+    $login_password = openssl_decrypt($password_ciphertext, 'aes-128-cbc', $encryption_key,0, $password_iv);
+
     $login_otp = $login_row['login_otp_secret'];
     $login_notes = htmlentities($login_row['login_note']);
 

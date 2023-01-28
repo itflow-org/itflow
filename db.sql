@@ -1098,6 +1098,7 @@ CREATE TABLE `shared_items` (
   `item_key` varchar(255) NOT NULL,
   `item_type` varchar(255) NOT NULL,
   `item_related_id` int(11) NOT NULL,
+  `item_encrypted_username` varchar(255) DEFAULT NULL,
   `item_encrypted_credential` varchar(255) DEFAULT NULL,
   `item_note` varchar(255) DEFAULT NULL,
   `item_views` int(11) NOT NULL,

@@ -52,7 +52,7 @@ function generateShareLink() {
         <input type="hidden" name="item_type" id="share_item_type"  value="">
         <input type="hidden" name="item_ref_id" id="share_item_ref_id"  value="">
 	      <div class="modal-body bg-white">
-	        
+
           <label>Views / Expire <strong class="text-danger">*</strong></label>
           <div class="form-row">
             <div class="col-4">
@@ -72,12 +72,12 @@ function generateShareLink() {
               </div>
             </div>
           </div>
-          
+
           <div class="form-group">
-            <textarea class="form-control" rows="4" name="note" id="share_note" placeholder="Client visible note" required></textarea>
+            <textarea class="form-control" rows="4" name="note" id="share_note" placeholder="Client visible note (required)" required></textarea>
           </div>
-	   
-	        <p><i>Note: Login passwords are shared "as is" and will not update</i></p>
+
+	        <p><i>Note: Logins are shared "as is" and will not update</i></p>
 
 	        <hr>
 
