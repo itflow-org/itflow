@@ -86,6 +86,7 @@ if (isset($_GET['query'])) {
                             <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Client</th>
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Cell</th>
@@ -111,6 +112,7 @@ if (isset($_GET['query'])) {
                                     <td><a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"><?php echo $contact_name; ?></a>
                                         <br><small class="text-secondary"><?php echo $contact_title; ?></small>
                                     </td>
+                                    <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                     <td><?php echo $contact_email; ?></td>
                                     <td><?php echo "$contact_phone $contact_extension"; ?></td>
                                     <td><?php echo $contact_mobile; ?></td>
