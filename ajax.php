@@ -222,6 +222,7 @@ if (isset($_GET['ticket_query_views'])) {
 if (isset($_GET['share_generate_link'])) {
     validateTechRole();
 
+    $item_encrypted_username = '';  // Default empty
     $item_encrypted_credential = '';  // Default empty
 
     $client_id = intval($_GET['client_id']);
@@ -243,22 +244,27 @@ if (isset($_GET['share_generate_link'])) {
     }
 
     if ($item_type == "Login") {
-        $login = mysqli_query($mysqli, "SELECT login_name, login_password FROM logins WHERE login_id = '$item_id' AND login_client_id = '$client_id' LIMIT 1");
+        $login = mysqli_query($mysqli, "SELECT login_name, login_username, login_password FROM logins WHERE login_id = '$item_id' AND login_client_id = '$client_id' LIMIT 1");
         $row = mysqli_fetch_array($login);
 
         $item_name = strip_tags(mysqli_real_escape_string($mysqli, $row['login_name']));
 
-        // Decrypt & re-encrypt password for sharing
-        $login_password_cleartext = decryptLoginEntry($row['login_password']);
+        // Decrypt & re-encrypt username/password for sharing
         $login_encryption_key = randomString();
-        $iv = randomString();
-        $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $login_encryption_key, 0, $iv);
 
-        $item_encrypted_credential = $iv . $ciphertext;
+        $login_username_cleartext = decryptLoginEntry($row['login_username']);
+        $iv = randomString();
+        $username_ciphertext = openssl_encrypt($login_username_cleartext, 'aes-128-cbc', $login_encryption_key, 0, $iv);
+        $item_encrypted_username = $iv . $username_ciphertext;
+
+        $login_password_cleartext = decryptLoginEntry($row['login_password']);
+        $iv = randomString();
+        $password_ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $login_encryption_key, 0, $iv);
+        $item_encrypted_credential = $iv . $password_ciphertext;
     }
 
     // Insert entry into DB
-    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = '1', item_key = '$item_key', item_type = '$item_type', item_related_id = '$item_id', item_encrypted_credential = '$item_encrypted_credential', item_note = '$item_note', item_views = 0, item_view_limit = '$item_view_limit', item_created_at = NOW(), item_expire_at = '$item_expires', item_client_id = '$client_id'");
+    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = '1', item_key = '$item_key', item_type = '$item_type', item_related_id = '$item_id', item_encrypted_username = '$item_encrypted_username', item_encrypted_credential = '$item_encrypted_credential', item_note = '$item_note', item_views = 0, item_view_limit = '$item_view_limit', item_created_at = NOW(), item_expire_at = '$item_expires', item_client_id = '$client_id'");
     $share_id = $mysqli->insert_id;
 
     // Return URL

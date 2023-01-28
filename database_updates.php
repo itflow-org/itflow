@@ -796,20 +796,28 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
         // Update config.php var with new version var for use with docker
         file_put_contents("config.php", "\n\$installation_id = '$installation_id';" . PHP_EOL, FILE_APPEND);
 
-        
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.6'");
     }
 
-    //if(CURRENT_DATABASE_VERSION == '0.3.6'){
-    // Insert queries here required to update to DB version 0.3.7
+    if(CURRENT_DATABASE_VERSION == '0.3.6'){
+        // Insert queries here required to update to DB version 0.3.7
+        mysqli_query($mysqli, "ALTER TABLE `shared_items` ADD `item_encrypted_username` VARCHAR(255) NULL DEFAULT NULL AFTER `item_related_id`");
+
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.7'");
+    }
+
+    //if(CURRENT_DATABASE_VERSION == '0.3.7'){
+    // Insert queries here required to update to DB version 0.3.8
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.7'");
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.8'");
     //}
 
 
 
-        
+
 
 } else {
     // Up-to-date
