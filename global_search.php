@@ -329,7 +329,7 @@ if (isset($_GET['query'])) {
                             while ($row = mysqli_fetch_array($sql_logins)) {
                                 $login_name = htmlentities($row['login_name']);
                                 $login_client_id = $row['login_client_id'];
-                                $login_username = htmlentities($row['login_username']);
+                                $login_username = htmlentities(decryptLoginEntry($row['login_username']));
                                 $login_password = htmlentities(decryptLoginEntry($row['login_password']));
 
                                 ?>
