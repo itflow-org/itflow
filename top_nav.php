@@ -8,7 +8,7 @@
     </li>
   </ul>
 
-  <!-- Right navbar links -->
+   <!-- Center navbar links -->
 
   <ul class="navbar-nav ml-auto">
 
@@ -23,6 +23,11 @@
         </div>
       </div>
     </form>
+  </ul>
+
+  <!-- Right navbar links -->
+
+  <ul class="navbar-nav ml-auto">
 
     <!-- New Notifications Dropdown -->
     <?php
