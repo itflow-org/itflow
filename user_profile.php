@@ -59,7 +59,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                             </div>
-                            <input type="password" class="form-control" data-toggle="password" name="new_password" placeholder="Leave blank for no change" autocomplete="new-password">
+                            <input type="password" class="form-control" data-toggle="password" name="new_password" placeholder="Leave blank for no change" autocomplete="new-password" minlength="8">
                             <div class="input-group-append">
                                 <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                             </div>
