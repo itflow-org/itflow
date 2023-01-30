@@ -93,7 +93,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
             // Get Login
             $login_id = $row['login_id'];
-            $login_username = htmlentities($row['login_username']);
+            $login_username = htmlentities(decryptLoginEntry($row['login_username']));
             $login_password = htmlentities(decryptLoginEntry($row['login_password']));
 
             $seat_count = 0;

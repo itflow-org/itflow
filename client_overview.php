@@ -2,7 +2,7 @@
 
 $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contacts.company_id = $session_company_id ORDER BY contact_updated_at, contact_created_at DESC LIMIT 5");
 
-$sql_important_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_important = 1 AND contact_archived_at IS NULL AND contacts.company_id = $session_company_id ORDER BY contact_updated_at, contact_name DESC");
+$sql_important_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND (contact_important = 1 OR contact_billing = 1 OR contact_technical = 1 OR contact_id = $primary_contact) AND contact_archived_at IS NULL AND contacts.company_id = $session_company_id ORDER BY contact_name DESC");
 
 $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL AND company_id = $session_company_id ORDER BY vendor_updated_at DESC LIMIT 5");
 
@@ -137,55 +137,6 @@ $sql_domains_expiring = mysqli_query($mysqli, "SELECT * FROM domains
         </div>
     </div>
     <?php } ?>
-
-    <?php if (mysqli_num_rows($sql_contacts) > 0 || mysqli_num_rows($sql_vendors) > 0) { ?>
-
-    <div class="col-md-3">
-
-        <div class="card card-dark mb-3">
-            <div class="card-header">
-                <h5 class="card-title"><i class="fa fa-fw fa-eye mr-2"></i>Recently Viewed</h5>
-            </div>
-            <div class="card-body">
-
-                <?php
-
-                while ($row = mysqli_fetch_array($sql_contacts)) {
-                    $contact_id = $row['contact_id'];
-                    $contact_name = htmlentities($row['contact_name']);
-                    $contact_updated_at = $row['contact_updated_at'];
-
-                    ?>
-                    <p class="mb-1">
-                        <i class="fa fa-fw fa-user text-secondary mr-1"></i>
-                        <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"><?php echo $contact_name; ?></a>
-                    </p>
-                    <?php
-                }
-                ?>
-
-                <?php
-
-                while ($row = mysqli_fetch_array($sql_vendors)) {
-                    $vendor_id = $row['vendor_id'];
-                    $vendor_name = htmlentities($row['vendor_name']);
-                    $vendor_updated_at = $row['vendor_updated_at'];
-
-                    ?>
-                    <p class="mb-1">
-                        <i class="fas fa-fw fa-building text-secondary mr-1"></i>
-                        <a href="client_vendors.php?client_id=<?php echo $client_id; ?>&q=<?php echo $vendor_name; ?>"><?php echo $vendor_name; ?></a></td>
-                    </p>
-                    <?php
-                }
-                ?>
-
-            </div>
-        </div>
-    </div>
-
-    <?php } ?>
-
 
     <?php 
     if (mysqli_num_rows($sql_domains_expiring) > 0 

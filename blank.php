@@ -16,7 +16,7 @@
 <?php echo CURRENT_DATABASE_VERSION; ?>
 <br>
 
-<?php echo randomString(); ?>
+<?php echo randomString(100); ?>
 <br>
 
 <script>toastr.success('Have Fun Wozz!!')</script>

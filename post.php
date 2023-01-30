@@ -4299,17 +4299,17 @@ if(isset($_POST['add_contact'])){
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '$new_file_name' WHERE contact_id = $contact_id");
 
-            $_SESSION['alert_message'] = 'File successfully uploaded.';
+            $_SESSION['alert_message'] = 'Photo successfully uploaded. ';
         }else{
 
-            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+            $_SESSION['alert_message'] = 'There was an error moving the photo to the upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = '$session_name created contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] .= "Contact added";
+    $_SESSION['alert_message'] .= "Contact <strong>$name</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -4416,17 +4416,17 @@ if(isset($_POST['edit_contact'])){
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '$new_file_name' WHERE contact_id = $contact_id");
 
-            $_SESSION['alert_message'] = 'File successfully uploaded.';
+            $_SESSION['alert_message'] = 'Photo successfully uploaded. ';
         }else{
 
-            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+            $_SESSION['alert_message'] = 'There was an error moving the photo to the upload directory. Please make sure the upload directory is writable by web server. ';
         }
     }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] .= "Contact updated";
+    $_SESSION['alert_message'] .= "Contact <strong>$name</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -4450,7 +4450,7 @@ if(isset($_GET['archive_contact'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Contact ".htmlentities($contact_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> archived.<br><a class='text-white text-bold' href='post.php?undo_archive_contact=$contact_id'>Undo</a>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -4466,7 +4466,7 @@ if(isset($_GET['delete_contact'])){
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $contact_name = strip_tags(mysqli_real_escape_string($mysqli, $row['contact_name']));
-    $client_id = $row['contact_client_id'];
+    $client_id = intval($row['contact_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
@@ -4474,7 +4474,7 @@ if(isset($_GET['delete_contact'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$session_name deleted contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Contact deleted";
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> deleted.";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
