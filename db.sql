@@ -645,6 +645,7 @@ CREATE TABLE `logins` (
   `login_password` varbinary(200) DEFAULT NULL,
   `login_otp_secret` varchar(200) DEFAULT NULL,
   `login_note` text DEFAULT NULL,
+  `login_important` tinyint(1) NOT NULL DEFAULT 0,
   `login_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `login_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `login_archived_at` datetime DEFAULT NULL,
@@ -1520,4 +1521,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-24 19:27:29
+-- Dump completed on 2023-01-30 14:19:40
