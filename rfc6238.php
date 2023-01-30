@@ -58,10 +58,10 @@
       return $result;
     }
 
-    public static function getBarCodeUrl($username, $domain, $secretkey, $issuer) {
+    public static function getBarCodeUrl($app_name, $email, $secretkey, $issuer) {
       $url = "http://chart.apis.google.com/chart";
       $url = $url."?chs=200x200&chld=M|0&cht=qr&chl=otpauth://totp/";
-      $url = $url.$username . "@" . $domain . "%3Fsecret%3D" . $secretkey . '%26issuer%3D' . rawurlencode($issuer);
+      $url = $url.$app_name . ": " . $email . "%3Fsecret%3D" . $secretkey . '%26issuer%3D' . rawurlencode($issuer);
 
       return $url;
     }
