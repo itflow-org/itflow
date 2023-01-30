@@ -122,6 +122,7 @@ CREATE TABLE `assets` (
   `asset_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `asset_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `asset_archived_at` datetime DEFAULT NULL,
+  `asset_accessed_at` datetime DEFAULT NULL,
   `asset_login_id` int(11) NOT NULL DEFAULT 0,
   `asset_vendor_id` int(11) NOT NULL DEFAULT 0,
   `asset_location_id` int(11) NOT NULL DEFAULT 0,
@@ -190,6 +191,7 @@ CREATE TABLE `certificates` (
   `certificate_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `certificate_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `certificate_archived_at` datetime DEFAULT NULL,
+  `certificate_accessed_at` datetime DEFAULT NULL,
   `certificate_domain_id` int(11) NOT NULL DEFAULT 0,
   `certificate_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
@@ -349,6 +351,7 @@ CREATE TABLE `contacts` (
   `contact_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `contact_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `contact_archived_at` datetime DEFAULT NULL,
+  `contact_accessed_at` datetime DEFAULT NULL,
   `contact_location_id` int(11) NOT NULL DEFAULT 0,
   `contact_department` varchar(200) DEFAULT NULL,
   `contact_client_id` int(11) NOT NULL DEFAULT 0,
@@ -372,6 +375,7 @@ CREATE TABLE `documents` (
   `document_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `document_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `document_archived_at` datetime DEFAULT NULL,
+  `document_accessed_at` datetime DEFAULT NULL,
   `document_template` tinyint(1) NOT NULL DEFAULT 0,
   `document_folder_id` int(11) NOT NULL DEFAULT 0,
   `document_client_id` int(11) NOT NULL DEFAULT 0,
@@ -400,6 +404,7 @@ CREATE TABLE `domains` (
   `domain_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `domain_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `domain_archived_at` datetime DEFAULT NULL,
+  `domain_accessed_at` datetime DEFAULT NULL,
   `domain_registrar` int(11) NOT NULL DEFAULT 0,
   `domain_webhost` int(11) NOT NULL DEFAULT 0,
   `domain_client_id` int(11) NOT NULL DEFAULT 0,
@@ -476,6 +481,7 @@ CREATE TABLE `files` (
   `file_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `file_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `file_archived_at` datetime DEFAULT NULL,
+  `file_accessed_at` datetime DEFAULT NULL,
   `file_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`file_id`)
@@ -622,6 +628,7 @@ CREATE TABLE `locations` (
   `location_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `location_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `location_archived_at` datetime DEFAULT NULL,
+  `location_accessed_at` datetime DEFAULT NULL,
   `location_contact_id` int(11) NOT NULL DEFAULT 0,
   `location_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
@@ -649,6 +656,7 @@ CREATE TABLE `logins` (
   `login_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `login_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `login_archived_at` datetime DEFAULT NULL,
+  `login_accessed_at` datetime DEFAULT NULL,
   `login_contact_id` int(11) NOT NULL DEFAULT 0,
   `login_vendor_id` int(11) NOT NULL DEFAULT 0,
   `login_asset_id` int(11) NOT NULL DEFAULT 0,
@@ -699,6 +707,7 @@ CREATE TABLE `networks` (
   `network_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `network_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `network_archived_at` datetime DEFAULT NULL,
+  `network_accessed_at` datetime DEFAULT NULL,
   `network_location_id` int(11) NOT NULL DEFAULT 0,
   `network_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
@@ -1014,6 +1023,7 @@ CREATE TABLE `services` (
   `service_notes` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `service_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `service_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `service_accessed_at` datetime DEFAULT NULL,
   `service_review_due` date DEFAULT NULL,
   `service_client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -1133,6 +1143,7 @@ CREATE TABLE `software` (
   `software_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `software_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `software_archived_at` datetime DEFAULT NULL,
+  `software_accessed_at` datetime DEFAULT NULL,
   `software_login_id` int(11) NOT NULL DEFAULT 0,
   `software_client_id` int(11) NOT NULL,
   `company_id` int(11) NOT NULL,
@@ -1506,6 +1517,7 @@ CREATE TABLE `vendors` (
   `vendor_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `vendor_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `vendor_archived_at` datetime DEFAULT NULL,
+  `vendor_accessed_at` datetime DEFAULT NULL,
   `vendor_client_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`vendor_id`)
@@ -1521,4 +1533,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-30 14:19:40
+-- Dump completed on 2023-01-30 15:02:15

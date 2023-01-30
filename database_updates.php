@@ -815,16 +815,29 @@ if(LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION){
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.8'");
     }
 
-    //if(CURRENT_DATABASE_VERSION == '0.3.8'){
-    // Insert queries here required to update to DB version 0.3.9
+    if(CURRENT_DATABASE_VERSION == '0.3.8'){
+        mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_accessed_at` DATETIME NULL DEFAULT NULL AFTER `contact_archived_at`");
+        mysqli_query($mysqli, "ALTER TABLE `locations` ADD `location_accessed_at` DATETIME NULL DEFAULT NULL AFTER `location_archived_at`");
+        mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_accessed_at` DATETIME NULL DEFAULT NULL AFTER `asset_archived_at`");
+        mysqli_query($mysqli, "ALTER TABLE `software` ADD `software_accessed_at` DATETIME NULL DEFAULT NULL AFTER `software_archived_at`");
+        mysqli_query($mysqli, "ALTER TABLE `logins` ADD `login_accessed_at` DATETIME NULL DEFAULT NULL AFTER `login_archived_at`");
+        mysqli_query($mysqli, "ALTER TABLE `networks` ADD `network_accessed_at` DATETIME NULL DEFAULT NULL AFTER `network_archived_at`");
+        mysqli_query($mysqli, "ALTER TABLE `certificates` ADD `certificate_accessed_at` DATETIME NULL DEFAULT NULL AFTER `certificate_archived_at`");
+        mysqli_query($mysqli, "ALTER TABLE `domains` ADD `domain_accessed_at` DATETIME NULL DEFAULT NULL AFTER `domain_archived_at`");
+        mysqli_query($mysqli, "ALTER TABLE `services` ADD `service_accessed_at` DATETIME NULL DEFAULT NULL AFTER `service_updated_at`");
+        mysqli_query($mysqli, "ALTER TABLE `vendors` ADD `vendor_accessed_at` DATETIME NULL DEFAULT NULL AFTER `vendor_archived_at`");
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_accessed_at` DATETIME NULL DEFAULT NULL AFTER `file_archived_at`");
+        mysqli_query($mysqli, "ALTER TABLE `documents` ADD `document_accessed_at` DATETIME NULL DEFAULT NULL AFTER `document_archived_at`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.9'");
+    }
+
+    //if(CURRENT_DATABASE_VERSION == '0.3.9'){
+    // Insert queries here required to update to DB version 0.4.0
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.9'");
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.0'");
     //}
-
-
-
-
 
 } else {
     // Up-to-date
