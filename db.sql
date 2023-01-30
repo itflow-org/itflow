@@ -1146,6 +1146,7 @@ CREATE TABLE `software` (
   `software_accessed_at` datetime DEFAULT NULL,
   `software_login_id` int(11) NOT NULL DEFAULT 0,
   `software_client_id` int(11) NOT NULL,
+  `software_template_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`software_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1519,6 +1520,7 @@ CREATE TABLE `vendors` (
   `vendor_archived_at` datetime DEFAULT NULL,
   `vendor_accessed_at` datetime DEFAULT NULL,
   `vendor_client_id` int(11) NOT NULL DEFAULT 0,
+  `vendor_template_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) NOT NULL,
   PRIMARY KEY (`vendor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1533,4 +1535,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-30 15:02:15
+-- Dump completed on 2023-01-30 17:53:50

@@ -2088,7 +2088,6 @@ if(isset($_POST['edit_vendor_template'])){
     $vendor_id = intval($_POST['vendor_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $account_number = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number'])));
     $contact_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $extension = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension'])));
@@ -2096,10 +2095,17 @@ if(isset($_POST['edit_vendor_template'])){
     $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
     $hours = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours'])));
     $sla = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['sla'])));
-    $code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['code'])));
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $vendor_template_id = intval($_POST['vendor_template_id']);
 
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code',vendor_account_number = '$account_number', vendor_notes = '$notes' WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
+    if($_POST['update_base_vendors'] == 1) {
+        $sql_update_vendors = "OR vendor_template_id = $vendor_id";
+    } else{
+        $sql_update_vendors = "";
+    }
+
+    //Update the exisiting template and all templates bassed of this vendor template 
+    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code',vendor_account_number = '$account_number', vendor_notes = '$notes' WHERE (vendor_id = $vendor_id $sql_update_vendors) AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor Template', log_action = 'Modify', log_description = '$session_name modified vendor template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
@@ -2134,7 +2140,7 @@ if(isset($_POST['add_vendor_from_template'])){
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['vendor_notes'])));
 
     // Vendor add query
-    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_client_id = $client_id, vendor_template_id = $vendor_template_id, company_id = $session_company_id");
 
     $vendor_id = mysqli_insert_id($mysqli);
 
@@ -2192,8 +2198,9 @@ if(isset($_POST['edit_vendor'])){
     $sla = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['sla'])));
     $code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['code'])));
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $vendor_template_id = intval($_POST['vendor_template_id']);
 
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code',vendor_account_number = '$account_number', vendor_notes = '$notes' WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code',vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_template_id = $vendor_template_id WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Modify', log_description = '$session_name modified vendor $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
@@ -2228,8 +2235,14 @@ if(isset($_GET['delete_vendor'])){
     //Get Vendor Name
     $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $vendor_name = $row['vendor_name'];
+    $vendor_name = strip_tags(mysqli_real_escape_string($mysqli, $row['vendor_name']));
     $client_id = intval($row['vendor_client_id']);
+    $vendor_template_id = intval($row['vendor_template_id']);
+    
+    // If its a template reset all vendors based off this template to no template base
+    if ($vendor_template_id > 0){
+        mysqli_query($mysqli,"UPDATE vendors SET vendor_template_id = 0 WHERE vendor_template_id = $vendor_template_id");
+    }
 
     mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
 

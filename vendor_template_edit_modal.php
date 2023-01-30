@@ -69,6 +69,13 @@
                 </div>
               </div>
 
+              <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="updateVendorsCheckbox<?php echo $vendor_id; ?>" name="update_base_vendors" value="1" >
+                  <label class="custom-control-label" for="updateVendorsCheckbox<?php echo $vendor_id; ?>">Update All Base Vendors</label>
+                </div>
+              </div>
+
             </div>
             
             <div class="tab-pane fade" id="pills-support<?php echo $vendor_id; ?>">
@@ -155,7 +162,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="edit_vendor_template" class="btn btn-primary text-bold"><i class="fa fa-fw fa-check"></i> Update Template</button>
+          <button type="submit" class="btn btn-primary text-bold" name="edit_vendor_template"><i class="fa fa-fw fa-check"></i>Update Template</button>
         </div>
       </form>
     </div>

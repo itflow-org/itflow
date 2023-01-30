@@ -69,6 +69,27 @@
                 </div>
               </div>
 
+              <div class="form-group">
+                  <label>Template Base</label>
+                  <div class="input-group">
+                      <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fa fa-fw fa-puzzle-piece"></i></span>
+                      </div>
+                      <select class="form-control select2" name="vendor_template_id">
+                          <option value="0">- None -</option>
+                          <?php
+
+                          $sql_vendor_templates = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_template = 1 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                          while ($row = mysqli_fetch_array($sql_vendor_templates)) {
+                              $vendor_template_id_select = $row['vendor_id'];
+                              $vendor_template_name_select = htmlentities($row['vendor_name']); ?>
+                              <option <?php if ($vendor_template_id == $vendor_template_id_select) { echo "selected"; } ?> value="<?php echo $vendor_template_id_select; ?>"><?php echo $vendor_template_name_select; ?></option>
+
+                          <?php } ?>
+                      </select>
+                  </div>
+              </div>
+
             </div>
             
             <div class="tab-pane fade" id="pills-support<?php echo $vendor_id; ?>">
