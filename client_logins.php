@@ -90,6 +90,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
               $otp_display = "<span onmouseenter='showOTP($login_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
             }
             $login_note = htmlentities($row['login_note']);
+            $login_important = $row['login_important'];
             $login_contact_id = $row['login_contact_id'];
             $login_vendor_id = $row['login_vendor_id'];
             $login_asset_id = $row['login_asset_id'];

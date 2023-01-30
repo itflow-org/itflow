@@ -30,12 +30,17 @@
             <div class="tab-pane fade show active" id="pills-details<?php echo $login_id; ?>">
 
               <div class="form-group">
-                <label>Name <strong class="text-danger">*</strong></label>
+                <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Important?</span></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                   </div>
                   <input type="text" class="form-control" name="name" placeholder="Name of Login" value="<?php echo $login_name; ?>" required>
+                  <div class="input-group-append">
+                    <div class="input-group-text">
+                      <input type="checkbox" name="important" value="1" <?php if ($login_important == 1) { echo "checked"; } ?>>
+                    </div>
+                  </div>
                 </div>
               </div>
             
@@ -82,11 +87,12 @@
                 <label>URL/Host</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
-                    <a href="<?php echo $login_uri; ?>" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
+                    <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                   </div>
                   <input type="text" class="form-control" name="uri" placeholder="ex. google.com" value="<?php echo $login_uri; ?>">
                   <div class="input-group-append">
-                    <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                    
+                    <a href="<?php echo $login_uri; ?>" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
                   </div>
                   <div class="input-group-append">
                     <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?php echo $login_uri; ?>"><i class="fa fa-fw fa-copy"></i></button>

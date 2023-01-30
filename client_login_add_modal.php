@@ -30,12 +30,17 @@
             <div class="tab-pane fade show active" id="pills-details">
 
               <div class="form-group">
-                <label>Name <strong class="text-danger">*</strong></label>
+                <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Important?</span></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                   </div>
                   <input type="text" class="form-control" name="name" placeholder="Name of Login" required autofocus>
+                  <div class="input-group-append">
+                    <div class="input-group-text">
+                      <input type="checkbox" name="important" value="1">
+                    </div>
+                  </div>
                 </div>
               </div>
             
