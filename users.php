@@ -29,7 +29,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#userInviteModal"><i class="fas fa-paper-plane mr-2"></i>Invite User</a>
+                        <!--<a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#userInviteModal"><i class="fas fa-paper-plane mr-2"></i>Invite User</a>-->
                     </div>
                 </div>
             </div>

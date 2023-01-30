@@ -37,7 +37,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
               </div>
-              <input type="password" class="form-control" data-toggle="password" name="password" id="password" placeholder="Enter a Password" autocomplete="new-password" required>
+              <input type="password" class="form-control" data-toggle="password" name="password" id="password" placeholder="Enter a Password" autocomplete="new-password" required minlength="8">
               <div class="input-group-append">
                 <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
               </div>
@@ -55,15 +55,15 @@
               </div>
               <select class="form-control select2" name="default_company" required>
                 <option value="">- Company -</option>
-                <?php 
-                
-                $sql_companies_select = mysqli_query($mysqli,"SELECT * FROM companies ORDER BY company_name ASC"); 
+                <?php
+
+                $sql_companies_select = mysqli_query($mysqli,"SELECT * FROM companies ORDER BY company_name ASC");
                 while ($row = mysqli_fetch_array($sql_companies_select)) {
                   $company_id = $row['company_id'];
                   $company_name = htmlentities($row['company_name']);
                 ?>
                   <option value="<?php echo $company_id; ?>"><?php echo $company_name; ?></option>
-                
+
                 <?php
                 }
                 ?>
