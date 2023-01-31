@@ -10,6 +10,10 @@
       <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
         <div class="modal-body bg-white">
 
+            <div class="alert alert-danger" role="alert">
+                <b>This feature is deprecated and should not be used</b>.
+            </div>
+
           <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
               <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
@@ -26,7 +30,7 @@
           </ul>
 
           <hr>
-          
+
           <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-details">
@@ -115,7 +119,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="phone" placeholder="Phone Number"> 
+                  <input type="text" class="form-control" name="phone" placeholder="Phone Number">
                 </div>
               </div>
 
@@ -125,7 +129,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                   </div>
-                  <input type="email" class="form-control" name="email" placeholder="Email address"> 
+                  <input type="email" class="form-control" name="email" placeholder="Email address">
                 </div>
               </div>
 

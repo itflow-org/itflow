@@ -27,7 +27,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
   </div>
   <div class="card-body">
     <div class="alert alert-danger" role="alert">
-      <b>The multi-company feature should be considered deprecated.</b> It may be removed in the near future - please see the <a href="https://forum.itflow.org/d/74-removing-the-multi-company-feature">forum post</a>.
+      <b>The multi-company feature is deprecated and should not be used. </b> It will be removed in the near future - please see the <a href="https://forum.itflow.org/d/74-removing-the-multi-company-feature">forum post</a>.
     </div>
     <hr>
     <form autocomplete="off">
@@ -53,7 +53,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </thead>
         <tbody>
           <?php
-      
+
           while ($row = mysqli_fetch_array($sql)) {
             $company_id = $row['company_id'];
             $company_name = htmlentities($row['company_name']);
@@ -68,13 +68,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $company_logo = htmlentities($row['company_logo']);
             $company_locale = htmlentities($row['company_locale']);
             $company_currency = htmlentities($row['company_currency']);
-            
+
             $company_initials = htmlentities(initials($company_name));
 
-            
-      
+
+
           ?>
-          
+
           <tr>
             <td class="text-center">
               <a class="text-dark" href="#" data-toggle="modal" data-target="#editCompanyModal<?php echo $company_id; ?>">
@@ -112,14 +112,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           </tr>
 
           <?php
-          
+
           include("company_edit_modal.php");
           }
-          
+
           ?>
 
         </tbody>
-      </table>      
+      </table>
     </div>
     <?php include("pagination.php"); ?>
   </div>
