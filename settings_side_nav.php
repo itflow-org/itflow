@@ -82,7 +82,7 @@
         <li class="nav-item">
           <a href="settings_software_templates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_software_templates.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-rocket"></i>
-            <p>Licenese Templates</p>
+            <p>License Templates</p>
           </a>
         </li>
 

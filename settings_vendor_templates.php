@@ -36,13 +36,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <h3 class="card-title mt-2">
       <i class="fa fa-fw fa-building"></i> Vendor Templates
     </h3>
-    <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
-    <div class="dropdown-menu">
-      <a class="dropdown-item text-dark" href="client_vendors.php?client_id=<?php echo $client_id; ?>">Vendors</a>
-    </div>
     <div class="card-tools">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addVendorTemplateModal">
-          <i class="fas fa-fw fa-plus"></i> New Template
+          <i class="fas fa-fw fa-plus"></i> New Vendor Template
         </button>
     </div>
   </div>

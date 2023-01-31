@@ -23,13 +23,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
   <div class="card-header py-2">
-    <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube"></i> Licenses Templates</h3>
-    <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
-    <div class="dropdown-menu">
-      <a class="dropdown-item text-dark" href="client_software.php?client_id=<?php echo $client_id; ?>">Licenses</a>
-    </div>
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube"></i> License Templates</h3>
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSoftwareTemplateModal"><i class="fas fa-fw fa-plus"></i> New Template</button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSoftwareTemplateModal"><i class="fas fa-fw fa-plus"></i> New License Template</button>
     </div>
   </div>
   <div class="card-body">
