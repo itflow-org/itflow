@@ -16,6 +16,8 @@
           </a>
         </li>
 
+        <li class="nav-header mt-3">ACCESS</li>
+
         <li class="nav-item">
           <a href="users.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "users.php") { echo "active"; } ?>">
             <i class="nav-icon far fa-user"></i>
@@ -29,6 +31,16 @@
             <p>Companies</p>
           </a>
         </li>
+
+        <li class="nav-item">
+          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_api.php") { echo "active"; } ?>"
+             href="settings_api.php">
+              <i class="nav-icon fas fa-key"></i>
+              <p>API Keys</p>
+          </a>
+        </li>
+
+        <li class="nav-header mt-3">TAGS & CATEGORIES</li>
 
         <li class="nav-item">
           <a href="accounts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "accounts.php") { echo "active"; } ?>">
@@ -58,11 +70,19 @@
           </a>
         </li>
 
+        <li class="nav-header mt-3">TEMPLATES</li>
+
         <li class="nav-item">
-          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_api.php") { echo "active"; } ?>"
-             href="settings_api.php">
-              <i class="nav-icon fas fa-key"></i>
-              <p>API Keys</p>
+          <a href="settings_vendor_templates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_vendor_templates.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-building"></i>
+            <p>Vendor Templates</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="settings_software_templates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_software_templates.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-rocket"></i>
+            <p>Licenese Templates</p>
           </a>
         </li>
 
