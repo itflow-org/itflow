@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [8.0, 8.1, 8.2]
+        dependency-version: [prefer-lowest, prefer-stable]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mailparse
+          coverage: none
+
+      - name: Install dependencies
+        run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest --no-progress
+
+      - name: Execute tests
+        run: vendor/bin/phpunit
+
+  php-cs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: composer update --no-progress --ignore-platform-reqs
+
+      - name: Execute phpcs
+        run: vendor/bin/phpcs src tests --standard=psr2
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.0
+          extensions: mailparse
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction --no-suggest --no-progress
+
+      - name: Execute code coverage
+        run: |
+          vendor/bin/phpunit --coverage-clover=coverage.xml --whitelist src
+          bash <(curl -s https://codecov.io/bash) -t ${{ secrets.COVERALLS_REPO_TOKEN }}
