@@ -413,7 +413,7 @@ while($row = mysqli_fetch_array($sql_companies)){
             } //End if Autosend is on
         } //End Recurring Invoices Loop
     
-        if($config_telemetry = 1){
+        if($config_telemetry == 1){
 
             $current_version = exec("git rev-parse HEAD");
 
