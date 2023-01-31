@@ -2,10 +2,10 @@
 
 ## In Beta
 
-ITFlow is currently in early beta and is a work in progress. 
-We currently advise against storing confidential data in ITFlow for this reason.
+ITFlow is currently in beta and is a work in progress. 
 
-That said, in order to eventually be useful, ITFlow **must** be secure and take security seriously.
+**We take security seriously.** Whilst we are confident the code is safe, nothing in life is 100% safe or risk-free. You should use your best judgment before entering confidential information into the app.
+
 We attempt to follow security best practices where possible, including [automated code scanning](https://sonarcloud.io/component_measures?id=itflow-org_itflow&metric=security_rating&view=list).
 
 ## Supported Versions
@@ -18,10 +18,10 @@ ITFlow is in Beta.
 
 ## Reporting a Vulnerability
 
-**Please do not report security vulnerabilities through public GitHub issues.**
+**<ins>Please do not report security vulnerabilities through public GitHub issues.</ins>**
 
 If you have discovered a security issue, please report it to us in as much detail as possible, so we can fix it. 
-You should expect to receive an initial acknowledgement within 72 hours. If you do not, please get in touch discretely via GitHub issues/Forum/Discord to ensure we received your e-mail.
+You should expect to receive an initial acknowledgement within 72 hours. If you do not, please get in touch discretely via GitHub issues/Forum to ensure we received your e-mail.
 
 Security contact:
 ![image](https://user-images.githubusercontent.com/32306651/160704188-763e6763-429e-41b9-9007-6a09bcfdba2b.png)
