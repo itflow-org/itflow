@@ -632,6 +632,7 @@ while($row = mysqli_fetch_array($sql_companies)){
                     'config_module_enable_itdoc' => $config_module_enable_itdoc,
                     'config_module_enable_ticketing' => $config_module_enable_ticketing,
                     'config_module_enable_accounting' => $config_module_enable_accounting,
+                    'config_telemetry' => $config_telemetry,
                     'collection_method' => 3
                 )
             );

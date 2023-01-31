@@ -1556,7 +1556,7 @@ if(isset($_GET['update'])){
 
 
     // Send Telemetry if enabled during update
-    if($config_telemetry = 1){
+    if($config_telemetry == 1){
 
         $sql = mysqli_query($mysqli,"SELECT * FROM companies LIMIT 1");
         $row = mysqli_fetch_array($sql);
@@ -1784,6 +1784,7 @@ if(isset($_GET['update'])){
             'config_module_enable_itdoc' => $config_module_enable_itdoc,
             'config_module_enable_ticketing' => $config_module_enable_ticketing,
             'config_module_enable_accounting' => $config_module_enable_accounting,
+            'config_telemetry' => $config_telemetry,
             'collection_method' => 4
           )
         );
