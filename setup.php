@@ -1495,7 +1495,7 @@ if (isset($_POST['add_telemetry'])) {
 
                               <hr>
 
-                              <p>Post installation, <a href="https://wiki.itflow.org/doku.php?id=wiki:installation#essential_housekeeping">a few additional steps</a> are required:</p>
+                              <p>Housekeeping: <b>Post installation, <a href="https://wiki.itflow.org/doku.php?id=wiki:installation#essential_housekeeping">a few additional steps</a> are required</b></p>
 
                               <hr>
 
