@@ -1,14 +1,17 @@
-<?php include("inc_all_reports.php");
+<?php
+
+require_once("inc_all_reports.php");
+validateAccountantRole();
 
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
-}else{
+} else {
     $year = date('Y');
 }
 
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
-}else{
+} else {
     $year = date('Y');
 }
 
@@ -130,7 +133,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
     </div>
 </div>
 
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>
 
 <script>
     // Set new default font family and font color to mimic Bootstrap's default styling
