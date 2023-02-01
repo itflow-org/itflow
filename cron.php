@@ -55,6 +55,27 @@ while($row = mysqli_fetch_array($sql_companies)){
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Cron', log_action = 'Started', log_description = 'Cron started for $company_name', company_id = $company_id");
 
+
+        // REFRESH DOMAIN WHOIS DATA (1 a day)
+        // Get the oldest updated domain (MariaDB shows NULLs first when ordering by default)
+        $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT domain_id, domain_name FROM `domains` WHERE company_id = $company_id ORDER BY domain_updated_at LIMIT 1"));
+
+        if ($row) {
+            $domain_id = $row['domain_id'];
+            $domain_name = $row['domain_name'];
+
+            $expire = getDomainExpirationDate($domain_name);
+            $records = getDomainRecords($domain_name);
+            $a = mysqli_real_escape_string($mysqli, $records['a']);
+            $ns = mysqli_real_escape_string($mysqli, $records['ns']);
+            $mx = mysqli_real_escape_string($mysqli, $records['mx']);
+            $txt = mysqli_real_escape_string($mysqli, $records['txt']);
+            $whois = mysqli_real_escape_string($mysqli, $records['whois']);
+
+            // Update the domain
+            mysqli_query($mysqli,"UPDATE domains SET domain_name = '$domain_name',  domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
+        }
+
         // GET NOTIFICATIONS
 
         // DOMAINS EXPIRING
