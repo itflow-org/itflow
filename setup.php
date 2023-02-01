@@ -1495,11 +1495,7 @@ if (isset($_POST['add_telemetry'])) {
 
                               <hr>
 
-                              <p>Post installation, a few additional steps are required:</p>
-                              <ul>
-                                  <li>Backup your <a href="https://itflow.org/docs.php?doc=logins" target="_blank">master encryption key</a></li>
-                                  <li><a href="https://itflow.org/docs.php?doc=alerts" target="_blank">Configure cron</a> for alerts</li>
-                              </ul>
+                              <p>Housekeeping: <b>Post installation, <a href="https://wiki.itflow.org/doku.php?id=wiki:installation#essential_housekeeping">a few additional steps</a> are required</b></p>
 
                               <hr>
 
@@ -1517,14 +1513,14 @@ if (isset($_POST['add_telemetry'])) {
                           <h3 class="card-title"><i class="fa fa-fw fa-cube"></i> Welcome to ITFlow Setup</h3>
                       </div>
                       <div class="card-body">
-                          <p><b>Thank you for choosing to try ITFlow!</b> Feel free to reach out on the <a href="https://forum.itflow.org/" target="_blank">forums</a> if you have any questions.</p>
+                          <p><b>Thank you for choosing to try ITFlow!</b> Feel free to reach out on the <a href="https://forum.itflow.org/t/support" target="_blank">forums</a> if you have any questions.</p>
                           <p>A database must be created before proceeding - click on the button below to get started! </p>
                           <hr>
-                          <p class="text-muted">This program is <b>free software</b>: you can redistribute it and/or modify it under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU General Public License</a>. It is distributed in the hope that it will be useful, but <b>WITHOUT ANY WARRANTY</b>.</p>
+                          <p class="text-muted">ITFlow is <b>free software</b>: you can redistribute and/or modify it under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU General Public License</a>. <br> It is distributed in the hope that it will be useful, but <b>without any warranty</b>; without even the implied warranty of merchantability or fitness for a particular purpose.</p>
                         <?php
                         // Check that there is access to write config.php
                         if (!file_put_contents("config.php", "Test")) {
-                          echo "<div class='alert alert-danger'>Warning: config.php is not writable. Ensure the webserver process has write access. Check the <a href='https://itflow.org/docs.php?doc=installation'>docs</a> for info.</div>";
+                          echo "<div class='alert alert-danger'>Warning: config.php is not writable. Ensure the webserver process has write access (chmod/chown). Check the <a href='https://wiki.itflow.org/doku.php?id=wiki:installation#ubuntu_setup_guide'>docs</a> for info.</div>";
                         }else{
                           // Else, able to write. Tidy up
                           unlink("config.php");
