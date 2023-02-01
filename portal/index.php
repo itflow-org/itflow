@@ -26,6 +26,11 @@ require_once("inc_portal.php");
         <h4>Welcome, <strong><?php echo $session_contact_name ?></strong>!</h4>
         <hr>
     </div>
+    <br>
+
+    <div class="col-md-2 offset-1">
+        <a href="ticket_add.php" class="btn btn-primary btn-block">New ticket</a>
+    </div>
 
 </div>
 
