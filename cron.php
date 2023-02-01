@@ -412,7 +412,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
             } //End if Autosend is on
         } //End Recurring Invoices Loop
-    
+
         if($config_telemetry == 1){
 
             $current_version = exec("git rev-parse HEAD");
@@ -435,11 +435,11 @@ while($row = mysqli_fetch_array($sql_companies)){
 
             // Invoice Count
             $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices"));
-            $invoice_count = $row['num'];  
+            $invoice_count = $row['num'];
 
             // Revenue Count
             $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('revenue_id') AS num FROM revenues"));
-            $revenue_count = $row['num'];  
+            $revenue_count = $row['num'];
 
             // Recurring Count
             $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM recurring"));
@@ -460,7 +460,7 @@ while($row = mysqli_fetch_array($sql_companies)){
             // Payment Count
             $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('payment_id') AS num FROM payments WHERE payment_invoice_id > 0"));
             $payment_count = $row['num'];
-            
+
             // Company Vendor Count
             $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_template = 0 AND vendor_client_id = 0"));
             $company_vendor_count = $row['num'];
@@ -535,7 +535,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
             // Document Template Count
             $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_id') AS num FROM documents WHERE document_template = 1"));
-            $document_template_count = $row['num'];       
+            $document_template_count = $row['num'];
 
             // Shared Item Count
             $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('item_id') AS num FROM shared_items"));
