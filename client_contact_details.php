@@ -29,11 +29,6 @@ if (isset($_GET['contact_id'])) {
     } else {
         $primary_contact_display = FALSE;
     }
-    if (empty($contact_name)) {
-        $contact_ticket_display = "-";
-    } else {
-        $contact_ticket_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
-    }
     $contact_location_id = $row['contact_location_id'];
     $location_name = htmlentities($row['location_name']);
     if (empty($location_name)) {
@@ -476,7 +471,6 @@ if (isset($_GET['contact_id'])) {
                                     <th>Assigned</th>
                                     <th>Last Response</th>
                                     <th>Created</th>
-                                    <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -487,7 +481,6 @@ if (isset($_GET['contact_id'])) {
                                 $ticket_prefix = htmlentities($row['ticket_prefix']);
                                 $ticket_number = htmlentities($row['ticket_number']);
                                 $ticket_subject = htmlentities($row['ticket_subject']);
-                                $ticket_details = $row['ticket_details'];
                                 $ticket_priority = htmlentities($row['ticket_priority']);
                                 $ticket_status = htmlentities($row['ticket_status']);
                                 $ticket_created_at = $row['ticket_created_at'];
@@ -536,33 +529,15 @@ if (isset($_GET['contact_id'])) {
                                 <tr>
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
-                                    <td><?php echo $contact_ticket_display; ?></td>
                                     <td><?php echo $ticket_priority_display; ?></td>
                                     <td><?php echo $ticket_status_display; ?></td>
                                     <td><?php echo $ticket_assigned_to_display; ?></td>
                                     <td><?php echo $ticket_updated_at_display; ?></td>
                                     <td><?php echo $ticket_created_at; ?></td>
-                                    <td>
-                                        <?php if ($ticket_status !== "Closed") { ?>
-                                        <div class="dropdown dropleft text-center">
-                                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                                <i class="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
-                                                <?php if ($session_user_role == 3) { ?>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
-                                                <?php } ?>
-                                            </div>
-                                        </div>
-                                        <?php } ?>
-                                    </td>
                                 </tr>
 
                             <?php
 
-                            include("ticket_edit_modal.php");
                             }
 
                             ?>
@@ -598,8 +573,6 @@ function updateContactNotes(contact_id) {
             notes: notes
         }
     )
-
-
 }
 </script>
 
