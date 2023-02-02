@@ -50,7 +50,7 @@ function initials($str) {
         $ret = '';
         foreach (explode(' ', $str) as $word)
             $ret .= strtoupper($word[0]);
-            $ret = substr($ret,0, 2);
+        $ret = substr($ret,0, 2);
         return $ret;
     }
 }
@@ -474,6 +474,7 @@ function validateAdminRole() {
     }
 }
 
+// Validates a user is a tech (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is an accountant)
 function validateTechRole() {
     if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 1) {
         $_SESSION['alert_type'] = "danger";
@@ -483,6 +484,7 @@ function validateTechRole() {
     }
 }
 
+// Validates a user is an accountant (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is a tech)
 function validateAccountantRole() {
     if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 2) {
         $_SESSION['alert_type'] = "danger";
