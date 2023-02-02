@@ -45,7 +45,6 @@ if (isset($_GET['contact_id'])) {
 
     // Related Assets Query
     $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id AND company_id = $session_company_id ORDER BY asset_name DESC");
-
     $asset_count = mysqli_num_rows($sql_related_assets);
 
     // Related Logins Query
@@ -53,7 +52,9 @@ if (isset($_GET['contact_id'])) {
     $login_count = mysqli_num_rows($sql_related_logins);
 
     // Related Software Query
-    $sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
+    //$sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
+    $sql_related_software = mysqli_query($mysqli, "SELECT * FROM software_contacts LEFT JOIN software ON software_contacts.software_id = software.software_id LEFT JOIN logins on software.software_id = logins.login_id WHERE software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
+
     $software_count = mysqli_num_rows($sql_related_software);
 
     // Related Tickets Query
@@ -400,6 +401,11 @@ if (isset($_GET['contact_id'])) {
                                 $software_notes = htmlentities($row['software_notes']);
 
                                 $seat_count = 0;
+
+                                // Get Login
+                                $login_id = $row['login_id'];
+                                $login_username = htmlentities(decryptLoginEntry($row['login_username']));
+                                $login_password = htmlentities(decryptLoginEntry($row['login_password']));
 
                                 // Asset Licenses
                                 $asset_licenses_sql = mysqli_query($mysqli, "SELECT asset_id FROM software_assets WHERE software_id = $software_id");
