@@ -1,4 +1,4 @@
-<?php include("inc_all_client.php");
+<?php require_once("inc_all_client.php");
 
 //Get Asset Counts
 //All Asset Count
@@ -73,7 +73,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop"></i> Assets</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-fw fa-plus"></i> New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(htmlentities($_GET['type']))); }else{ echo "Asset"; } ?></button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-fw fa-plus"></i> New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(htmlentities($_GET['type']))); } else { echo "Asset"; } ?></button>
             </div>
         </div>
         <div class="card-body">
@@ -84,7 +84,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(htmlentities($_GET['type']))); }else{ echo "Asset"; } ?>s">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(htmlentities($_GET['type']))); } else { echo "Asset"; } ?>s">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -92,30 +92,30 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                     <div class="col-sm-6">
                         <div class="btn-group btn-group-lg">
-                            <a href="?<?php echo $url_query_strings_sb; ?>&type=" class="btn <?php if ($_GET['type'] == 'all' || empty($_GET['type'])) { echo 'btn-primary'; }else{ echo 'btn-default'; } ?>">All Assets <span class="right badge badge-light"><?php echo $all_count; ?></span></a>
+                            <a href="?<?php echo $url_query_strings_sb; ?>&type=" class="btn <?php if ($_GET['type'] == 'all' || empty($_GET['type'])) { echo 'btn-primary'; } else { echo 'btn-default'; } ?>">All Assets <span class="right badge badge-light"><?php echo $all_count; ?></span></a>
                             <?php
                             if ($workstation_count > 0) { ?>
-                                <a href="?<?php echo $url_query_strings_sb; ?>&type=workstation" class="btn <?php if ($_GET['type'] == 'workstation') { echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop"></i> Workstations <span class="right badge badge-light"><?php echo $workstation_count; ?></span></a>
+                                <a href="?<?php echo $url_query_strings_sb; ?>&type=workstation" class="btn <?php if ($_GET['type'] == 'workstation') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop"></i> Workstations <span class="right badge badge-light"><?php echo $workstation_count; ?></span></a>
                                 <?php
                             } ?>
                             <?php
                             if ($server_count > 0) { ?>
-                                <a href="?<?php echo $url_query_strings_sb; ?>&type=server" class="btn <?php if ($_GET['type'] == 'server') { echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-server"></i> Servers <span class="right badge badge-light"><?php echo $server_count; ?></span></a>
+                                <a href="?<?php echo $url_query_strings_sb; ?>&type=server" class="btn <?php if ($_GET['type'] == 'server') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-server"></i> Servers <span class="right badge badge-light"><?php echo $server_count; ?></span></a>
                                 <?php
                             } ?>
                             <?php
                             if ($virtual_count > 0) { ?>
-                                <a href="?<?php echo $url_query_strings_sb; ?>&type=virtual" class="btn <?php if ($_GET['type'] == 'virtual') { echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-cloud"></i> Virtual <span class="right badge badge-light"><?php echo $virtual_count; ?></span></a>
+                                <a href="?<?php echo $url_query_strings_sb; ?>&type=virtual" class="btn <?php if ($_GET['type'] == 'virtual') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-cloud"></i> Virtual <span class="right badge badge-light"><?php echo $virtual_count; ?></span></a>
                                 <?php
                             } ?>
                             <?php
                             if ($network_count > 0) { ?>
-                                <a href="?<?php echo $url_query_strings_sb; ?>&type=network" class="btn <?php if ($_GET['type'] == 'network') { echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-network-wired"></i> Network <span class="right badge badge-light"><?php echo $network_count; ?></span></a>
+                                <a href="?<?php echo $url_query_strings_sb; ?>&type=network" class="btn <?php if ($_GET['type'] == 'network') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-network-wired"></i> Network <span class="right badge badge-light"><?php echo $network_count; ?></span></a>
                                 <?php
                             } ?>
                             <?php
                             if ($network_count > 0) { ?>
-                                <a href="?<?php echo $url_query_strings_sb; ?>&type=other" class="btn <?php if ($_GET['type'] == 'other') { echo 'btn-primary'; }else{ echo 'btn-default'; } ?>"><i class="fa fa-fw fa-tag"></i> Other <span class="right badge badge-light"><?php echo $other_count; ?></span></a>
+                                <a href="?<?php echo $url_query_strings_sb; ?>&type=other" class="btn <?php if ($_GET['type'] == 'other') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-tag"></i> Other <span class="right badge badge-light"><?php echo $other_count; ?></span></a>
                                 <?php
                             } ?>
                         </div>
@@ -169,19 +169,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $asset_serial = htmlentities($row['asset_serial']);
                         if (empty($asset_serial)) {
                             $asset_serial_display = "-";
-                        }else{
+                        } else {
                             $asset_serial_display = $asset_serial;
                         }
                         $asset_os = htmlentities($row['asset_os']);
                         if (empty($asset_os)) {
                             $asset_os_display = "-";
-                        }else{
+                        } else {
                             $asset_os_display = $asset_os;
                         }
                         $asset_ip = htmlentities($row['asset_ip']);
                         if (empty($asset_ip)) {
                             $asset_ip_display = "-";
-                        }else{
+                        } else {
                             $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text='$asset_ip'><i class='far fa-copy text-secondary'></i></button>";
                         }
                         $asset_mac = htmlentities($row['asset_mac']);
@@ -191,7 +191,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $asset_install_date = $row['asset_install_date'];
                         if (empty($asset_install_date)) {
                             $asset_install_date_display = "-";
-                        }else{
+                        } else {
                             $asset_install_date_display = $asset_install_date;
                         }
                         $asset_notes = htmlentities($row['asset_notes']);
@@ -203,29 +203,29 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         if ($asset_type == 'Laptop') {
                             $device_icon = "laptop";
-                        }elseif ($asset_type == 'Desktop') {
+                        } elseif ($asset_type == 'Desktop') {
                             $device_icon = "desktop";
-                        }elseif ($asset_type == 'Server') {
+                        } elseif ($asset_type == 'Server') {
                             $device_icon = "server";
-                        }elseif ($asset_type == 'Printer') {
+                        } elseif ($asset_type == 'Printer') {
                             $device_icon = "print";
-                        }elseif ($asset_type == 'Camera') {
+                        } elseif ($asset_type == 'Camera') {
                             $device_icon = "video";
-                        }elseif ($asset_type == 'Switch' || $asset_type == 'Firewall/Router') {
+                        } elseif ($asset_type == 'Switch' || $asset_type == 'Firewall/Router') {
                             $device_icon = "network-wired";
-                        }elseif ($asset_type == 'Access Point') {
+                        } elseif ($asset_type == 'Access Point') {
                             $device_icon = "wifi";
-                        }elseif ($asset_type == 'Phone') {
+                        } elseif ($asset_type == 'Phone') {
                             $device_icon = "phone";
-                        }elseif ($asset_type == 'Mobile Phone') {
+                        } elseif ($asset_type == 'Mobile Phone') {
                             $device_icon = "mobile-alt";
-                        }elseif ($asset_type == 'Tablet') {
+                        } elseif ($asset_type == 'Tablet') {
                             $device_icon = "tablet-alt";
-                        }elseif ($asset_type == 'TV') {
+                        } elseif ($asset_type == 'TV') {
                             $device_icon = "tv";
-                        }elseif ($asset_type == 'Virtual Machine') {
+                        } elseif ($asset_type == 'Virtual Machine') {
                             $device_icon = "cloud";
-                        }else{
+                        } else {
                             $device_icon = "tag";
                         }
 
@@ -345,10 +345,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <?php
 
-                        include("client_asset_edit_modal.php");
-                        include("client_asset_copy_modal.php");
-                        include("client_asset_tickets_modal.php");
-                        include("client_asset_interface_add_modal.php");
+                        require("client_asset_edit_modal.php");
+                        require("client_asset_copy_modal.php");
+                        require("client_asset_tickets_modal.php");
+                        require("client_asset_interface_add_modal.php");
                     }
 
                     ?>
@@ -356,13 +356,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php include("pagination.php"); ?>
+            <?php require_once("pagination.php"); ?>
         </div>
     </div>
 
 <?php
-include("client_asset_add_modal.php");
-include("client_asset_import_modal.php");
-?>
-
-<?php include("footer.php"); ?>
+require_once("client_asset_add_modal.php");
+require_once("client_asset_import_modal.php");
+require_once include("footer.php");

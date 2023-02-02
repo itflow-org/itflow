@@ -1,4 +1,4 @@
-<?php include("inc_all.php");
+<?php require_once("inc_all.php");
 
 if (isset($_GET['recurring_id'])) {
 
@@ -19,7 +19,7 @@ if (isset($_GET['recurring_id'])) {
     $recurring_scope = htmlentities($row['recurring_scope']);
     $recurring_frequency = htmlentities($row['recurring_frequency']);
     $recurring_status = htmlentities($row['recurring_status']);
-    $recurring_created_at = date('Y-m-d',strtotime($row['recurring_created_at']));
+    $recurring_created_at = date('Y-m-d', strtotime($row['recurring_created_at']));
     $recurring_last_sent = $row['recurring_last_sent'];
     if ($recurring_last_sent == 0) {
         $recurring_last_sent = '-';
@@ -350,13 +350,13 @@ if (isset($_GET['recurring_id'])) {
 
     <?php
 
-    include("recurring_invoice_edit_modal.php");
-    include("recurring_invoice_note_modal.php");
-    include("category_quick_add_modal.php");
+    require_once("recurring_invoice_edit_modal.php");
+    require_once("recurring_invoice_note_modal.php");
+    require_once("category_quick_add_modal.php");
 
 }
 
-include("footer.php");
+require_once("footer.php");
 
 ?>
 

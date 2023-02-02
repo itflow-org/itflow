@@ -1,7 +1,7 @@
 <?php
 require_once("inc_all_settings.php");
-include("database_version.php");
-include("config.php");
+require_once("database_version.php");
+require_once("config.php");
 
 // Fetch the latest code changes but don't apply them
 exec("git fetch", $output, $result);
@@ -22,43 +22,37 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
         <div class="card-header py-3">
             <h3 class="card-title"><i class="fas fa-fw fa-arrow-alt-circle-up"></i> Update</h3>
         </div>
-        <div class="card-body">
-            <center>
+        <div class="card-body" style="text-align: center;">
 
-                <!-- Check if git fetch result is zero (success) -->
-                <?php if ($result !== 0) { ?>
-                    <div class="alert alert-danger" role="alert">
-                        <strong>Warning: Could not find execute 'git fetch'. Do you have git installed?</strong>
+            <!-- Check if git fetch result is zero (success) -->
+            <?php if ($result !== 0) { ?>
+                <div class="alert alert-danger" role="alert">
+                    <strong>Warning: Could not find execute 'git fetch'. Do you have git installed?</strong>
+                </div>
+            <?php } ?>
+
+            <?php if (!empty($git_log)) { ?>
+                <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fas fa-fw fa-4x fa-arrow-alt-circle-up mb-1"></i><h5>Update App</h5></a>
+                <hr>
+
+            <?php } else {
+                if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) { ?>
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Ensure you have a current app & database backup before updating!</strong>
                     </div>
-                <?php } ?>
+                    <br>
+                    <a class="btn btn-dark btn-lg my-4" href="post.php?update_db"><i class="fas fa-fw fa-4x fa-arrow-alt-circle-up mb-1"></i><h5>Update Database</h5></a>
+                    <br>
+                    <small class="text-secondary">Current DB Version: <?php echo CURRENT_DATABASE_VERSION; ?></small>
+                    <br>
+                    <small class="text-secondary">Latest DB Version: <?php echo LATEST_DATABASE_VERSION; ?></small>
+                <?php } else { ?>
+                    <h3 class="text-success"><i class="fas fa-check-square"></i> Latest version!</h3>
+                    <small class="text-secondary">Current DB Version: <?php echo CURRENT_DATABASE_VERSION; ?></small>
+                <?php }
+            }
 
-                <?php if (!empty($git_log)) { ?>
-                    <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fas fa-fw fa-4x fa-arrow-alt-circle-up mb-1"></i><h5>Update App</h5></a>
-                    <?php
-                } else {
-                    if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) { ?>
-                        <div class="alert alert-warning" role="alert">
-                            <strong>Ensure you have a current app & database backup before updating!</strong>
-                        </div>
-                        <br>
-                        <a class="btn btn-dark btn-lg my-4" href="post.php?update_db"><i class="fas fa-fw fa-4x fa-arrow-alt-circle-up mb-1"></i><h5>Update Database</h5></a>
-                        <br>
-                        <small class="text-secondary">Current DB Version: <?php echo CURRENT_DATABASE_VERSION; ?></small>
-                        <br>
-                        <small class="text-secondary">Latest DB Version: <?php echo LATEST_DATABASE_VERSION; ?></small>
-                    <?php }
-                    else { ?>
-                        <h3 class="text-success"><i class="fas fa-check-square"></i> Latest version!</h3>
-                        <small class="text-secondary">Current DB Version: <?php echo CURRENT_DATABASE_VERSION; ?></small>
-                    <?php } ?>
-                    <?php
-                }
-                ?>
-            </center>
-
-            <?php
-            if (!empty($git_log)) {
-                ?>
+            if (!empty($git_log)) { ?>
                 <table class="table ">
                     <thead>
                     <tr>
@@ -83,4 +77,4 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
 
 <?php
 
-include("footer.php");
+require_once("footer.php");

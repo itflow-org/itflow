@@ -1,6 +1,6 @@
 <?php
 
-include("inc_all.php");
+require_once("inc_all.php");
 
 if (isset($_GET['invoice_id'])) {
 
@@ -180,7 +180,7 @@ if (isset($_GET['invoice_id'])) {
 
                 <div class="row mb-4">
                     <div class="col-sm-2">
-                        <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
+                        <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>" alt="Company logo">
                     </div>
                     <div class="col-sm-10">
                         <div class="ribbon-wrapper">
@@ -483,12 +483,12 @@ if (isset($_GET['invoice_id'])) {
         </div>
 
         <?php
-        include("invoice_payment_add_modal.php");
-        include("invoice_copy_modal.php");
-        include("invoice_recurring_add_modal.php");
-        include("invoice_edit_modal.php");
-        include("invoice_note_modal.php");
-        include("category_quick_add_modal.php");
+        include_once("invoice_payment_add_modal.php");
+        include_once("invoice_copy_modal.php");
+        include_once("invoice_recurring_add_modal.php");
+        include_once("invoice_edit_modal.php");
+        include_once("invoice_note_modal.php");
+        include_once("category_quick_add_modal.php");
 
     }
 }

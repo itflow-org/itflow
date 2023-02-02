@@ -1,4 +1,4 @@
-<?php include("inc_all_client.php");
+<?php require_once("inc_all_client.php");
 
 $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contacts.company_id = $session_company_id ORDER BY contact_updated_at, contact_created_at DESC LIMIT 5");
 
@@ -44,213 +44,213 @@ $sql_domains_expiring = mysqli_query($mysqli, "SELECT * FROM domains
 
     <?php if (mysqli_num_rows($sql_important_contacts) > 0) { ?>
 
-    <div class="col-md-4">
+        <div class="col-md-4">
 
 
-        <div class="card card-dark mb-3">
-            <div class="card-header">
-                <h5 class="card-title"><i class="fa fa-fw fa-users mr-2"></i>Important Contacts</h5>
-            </div>
-            <div class="card-body p-1">
-                <table class="table table-borderless table-sm">
-                    <?php
-
-                    while ($row = mysqli_fetch_array($sql_important_contacts)) {
-                        $contact_id = $row['contact_id'];
-                        $contact_name = htmlentities($row['contact_name']);
-                        $contact_title = htmlentities($row['contact_title']);
-                        $contact_email = htmlentities($row['contact_email']);
-                        $contact_phone = formatPhoneNumber($row['contact_phone']);
-                        $contact_extension = htmlentities($row['contact_extension']);
-                        $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-
-                        ?>
-                        <tr>
-                            <td>
-                                <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="text-bold"><?php echo $contact_name; ?></a>
-                                <br>
-                                <small class="text-secondary"><?php echo $contact_title; ?></small>
-                            </td>
-                            <td>
-                                <?php if (!empty($contact_phone)) { ?>
-                                    <?php echo "<i class='fa fa-fw fa-phone text-secondary'></i> $contact_phone $contact_extension"; ?>
-                                <?php } ?>
-                                <?php if (!empty($contact_mobile)) { ?>
-                                    <br>
-                                    <div class="text-secondary"><i class='fa fa-fw fa-mobile-alt text-secondary'></i> <?php echo "$contact_mobile"; ?></div>
-                                <?php } ?>
-                            </td>
-                        </tr>
+            <div class="card card-dark mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fa fa-fw fa-users mr-2"></i>Important Contacts</h5>
+                </div>
+                <div class="card-body p-1">
+                    <table class="table table-borderless table-sm">
                         <?php
-                    }
-                    ?>
 
-                </table>
+                        while ($row = mysqli_fetch_array($sql_important_contacts)) {
+                            $contact_id = $row['contact_id'];
+                            $contact_name = htmlentities($row['contact_name']);
+                            $contact_title = htmlentities($row['contact_title']);
+                            $contact_email = htmlentities($row['contact_email']);
+                            $contact_phone = formatPhoneNumber($row['contact_phone']);
+                            $contact_extension = htmlentities($row['contact_extension']);
+                            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+
+                            ?>
+                            <tr>
+                                <td>
+                                    <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="text-bold"><?php echo $contact_name; ?></a>
+                                    <br>
+                                    <small class="text-secondary"><?php echo $contact_title; ?></small>
+                                </td>
+                                <td>
+                                    <?php if (!empty($contact_phone)) { ?>
+                                        <?php echo "<i class='fa fa-fw fa-phone text-secondary'></i> $contact_phone $contact_extension"; ?>
+                                    <?php } ?>
+                                    <?php if (!empty($contact_mobile)) { ?>
+                                        <br>
+                                        <div class="text-secondary"><i class='fa fa-fw fa-mobile-alt text-secondary'></i> <?php echo "$contact_mobile"; ?></div>
+                                    <?php } ?>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
 
     <?php } ?>
 
     <?php if (mysqli_num_rows($sql_contacts) > 0 || mysqli_num_rows($sql_vendors) > 0) { ?>
-    <div class="col-md-3">
+        <div class="col-md-3">
 
-        <div class="card card-dark mb-3">
-            <div class="card-header">
-                <h5 class="card-title"><i class="fa fa-history mr-2"></i>Recently Updated</h5>
-            </div>
-            <div class="card-body">
+            <div class="card card-dark mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fa fa-history mr-2"></i>Recently Updated</h5>
+                </div>
+                <div class="card-body">
 
-                <?php
-
-                while ($row = mysqli_fetch_array($sql_contacts)) {
-                    $contact_id = $row['contact_id'];
-                    $contact_name = htmlentities($row['contact_name']);
-                    $contact_updated_at = $row['contact_updated_at'];
-
-                    ?>
-                    <p class="mb-1">
-                        <i class="fa fa-fw fa-user text-secondary mr-1"></i>
-                        <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"><?php echo $contact_name; ?></a>
-                    </p>
                     <?php
-                }
-                ?>
 
-                <?php
+                    while ($row = mysqli_fetch_array($sql_contacts)) {
+                        $contact_id = $row['contact_id'];
+                        $contact_name = htmlentities($row['contact_name']);
+                        $contact_updated_at = $row['contact_updated_at'];
 
-                while ($row = mysqli_fetch_array($sql_vendors)) {
-                    $vendor_id = $row['vendor_id'];
-                    $vendor_name = htmlentities($row['vendor_name']);
-                    $vendor_updated_at = $row['vendor_updated_at'];
-
+                        ?>
+                        <p class="mb-1">
+                            <i class="fa fa-fw fa-user text-secondary mr-1"></i>
+                            <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"><?php echo $contact_name; ?></a>
+                        </p>
+                        <?php
+                    }
                     ?>
-                    <p class="mb-1">
-                        <i class="fas fa-fw fa-building text-secondary mr-1"></i>
-                        <a href="client_vendors.php?client_id=<?php echo $client_id; ?>&q=<?php echo $vendor_name; ?>"><?php echo $vendor_name; ?></a></td>
-                    </p>
-                    <?php
-                }
-                ?>
 
+                    <?php
+
+                    while ($row = mysqli_fetch_array($sql_vendors)) {
+                        $vendor_id = $row['vendor_id'];
+                        $vendor_name = htmlentities($row['vendor_name']);
+                        $vendor_updated_at = $row['vendor_updated_at'];
+
+                        ?>
+                        <p class="mb-1">
+                            <i class="fas fa-fw fa-building text-secondary mr-1"></i>
+                            <a href="client_vendors.php?client_id=<?php echo $client_id; ?>&q=<?php echo $vendor_name; ?>"><?php echo $vendor_name; ?></a></td>
+                        </p>
+                        <?php
+                    }
+                    ?>
+
+                </div>
             </div>
         </div>
-    </div>
     <?php } ?>
 
-    <?php 
-    if (mysqli_num_rows($sql_domains_expiring) > 0 
-        || mysqli_num_rows($sql_asset_warranties_expiring) > 0 
-        || mysqli_num_rows($sql_asset_retire) > 0  
+    <?php
+    if (mysqli_num_rows($sql_domains_expiring) > 0
+        || mysqli_num_rows($sql_asset_warranties_expiring) > 0
+        || mysqli_num_rows($sql_asset_retire) > 0
     ) { ?>
-    
-    <div class="col-md-4">
 
-        <div class="card card-dark mb-3">
-            <div class="card-header">
-                <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning mr-2"></i>Upcoming Expirations</h5>
-            </div>
-            <div class="card-body">
+        <div class="col-md-4">
 
-                <?php
-
-                while ($row = mysqli_fetch_array($sql_domains_expiring)) {
-                    $domain_id = $row['domain_id'];
-                    $domain_name = htmlentities($row['domain_name']);
-                    $domain_expire = $row['domain_expire'];
-
-                    ?>
-                    <p class="mb-1">
-                        <i class="fa fa-fw fa-globe text-secondary mr-1"></i>
-                        <a href="client_domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>"><?php echo $domain_name; ?></a>
-                        <span class="text-warning">-- <?php echo $domain_expire; ?></span>
-                    </p>
-                    <?php
-                }
-                ?>
-
-                <?php
-
-                while ($row = mysqli_fetch_array($sql_asset_warranties_expiring)) {
-                    $asset_id = $row['asset_id'];
-                    $asset_name = htmlentities($row['asset_name']);
-                    $asset_warranty_expire = $row['asset_warranty_expire'];
-
-                    ?>
-                    <p class="mb-1">
-                        <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
-                        <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
-                        <span class="text-warning">-- <?php echo $asset_warranty_expire; ?></span>
-                    </p>
-
+            <div class="card card-dark mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning mr-2"></i>Upcoming Expirations</h5>
+                </div>
+                <div class="card-body">
 
                     <?php
-                }
-                ?>
 
-                <?php
+                    while ($row = mysqli_fetch_array($sql_domains_expiring)) {
+                        $domain_id = $row['domain_id'];
+                        $domain_name = htmlentities($row['domain_name']);
+                        $domain_expire = $row['domain_expire'];
 
-                while ($row = mysqli_fetch_array($sql_asset_retire)) {
-                    $asset_id = $row['asset_id'];
-                    $asset_name = htmlentities($row['asset_name']);
-                    $asset_install_date = $row['asset_install_date'];
-
+                        ?>
+                        <p class="mb-1">
+                            <i class="fa fa-fw fa-globe text-secondary mr-1"></i>
+                            <a href="client_domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>"><?php echo $domain_name; ?></a>
+                            <span class="text-warning">-- <?php echo $domain_expire; ?></span>
+                        </p>
+                        <?php
+                    }
                     ?>
-                    <p class="mb-1">
-                        <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
-                        <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
-                        <span class="text-warning">-- <?php echo $asset_install_date; ?></span>
-                    </p>
 
                     <?php
-                }
-                ?>
 
+                    while ($row = mysqli_fetch_array($sql_asset_warranties_expiring)) {
+                        $asset_id = $row['asset_id'];
+                        $asset_name = htmlentities($row['asset_name']);
+                        $asset_warranty_expire = $row['asset_warranty_expire'];
+
+                        ?>
+                        <p class="mb-1">
+                            <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
+                            <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
+                            <span class="text-warning">-- <?php echo $asset_warranty_expire; ?></span>
+                        </p>
+
+
+                        <?php
+                    }
+                    ?>
+
+                    <?php
+
+                    while ($row = mysqli_fetch_array($sql_asset_retire)) {
+                        $asset_id = $row['asset_id'];
+                        $asset_name = htmlentities($row['asset_name']);
+                        $asset_install_date = $row['asset_install_date'];
+
+                        ?>
+                        <p class="mb-1">
+                            <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
+                            <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
+                            <span class="text-warning">-- <?php echo $asset_install_date; ?></span>
+                        </p>
+
+                        <?php
+                    }
+                    ?>
+
+                </div>
             </div>
         </div>
-    </div>
 
     <?php } ?>
 
     <?php if (mysqli_num_rows($sql_tickets_stale) > 0) { ?>
 
-    <!-- Stale Tickets -->
+        <!-- Stale Tickets -->
 
-    <div class="col-md-5">
+        <div class="col-md-5">
 
-        <div class="card card-dark mb-3">
-            <div class="card-header">
-                <h5 class="card-title"><i class="fa fa-life-ring"></i> Stale Tickets <small>(14d)</small></h5>
-            </div>
-            <div class="card-body">
-                
-                <table class="table table-borderless table-sm">
-                    <tbody>
-                    <?php
+            <div class="card card-dark mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fa fa-life-ring"></i> Stale Tickets <small>(14d)</small></h5>
+                </div>
+                <div class="card-body">
 
-                    while ($row = mysqli_fetch_array($sql_tickets_stale)) {
-                        $ticket_id = $row['ticket_id'];
-                        $ticket_prefix = htmlentities($row['ticket_prefix']);
-                        $ticket_number = $row['ticket_number'];
-                        $ticket_subject = htmlentities($row['ticket_subject']);
-                        $ticket_created_at = $row['ticket_created_at'];
-
-                        ?>
-                        <tr>
-                            <td><a href="ticket.php?ticket_id=<?php echo $ticket_id?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
-                            <td><?php echo $ticket_subject; ?></td>
-                            <td class="text-danger"><?php echo $ticket_created_at; ?></td>
-                        </tr>
-
+                    <table class="table table-borderless table-sm">
+                        <tbody>
                         <?php
-                    }
-                    ?>
 
-                    </tbody>
-                </table>
+                        while ($row = mysqli_fetch_array($sql_tickets_stale)) {
+                            $ticket_id = $row['ticket_id'];
+                            $ticket_prefix = htmlentities($row['ticket_prefix']);
+                            $ticket_number = $row['ticket_number'];
+                            $ticket_subject = htmlentities($row['ticket_subject']);
+                            $ticket_created_at = $row['ticket_created_at'];
+
+                            ?>
+                            <tr>
+                                <td><a href="ticket.php?ticket_id=<?php echo $ticket_id?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
+                                <td><?php echo $ticket_subject; ?></td>
+                                <td class="text-danger"><?php echo $ticket_created_at; ?></td>
+                            </tr>
+
+                            <?php
+                        }
+                        ?>
+
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
 
     <?php } ?>
 
@@ -276,6 +276,4 @@ $sql_domains_expiring = mysqli_query($mysqli, "SELECT * FROM domains
 
 <?php
 
-include("footer.php");
-
-?>
+require_once("footer.php");
