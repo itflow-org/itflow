@@ -1,7 +1,8 @@
 <?php
 // Not including the guest header as we don't want any HTML output
-include("config.php");
-include("functions.php");
+require_once("config.php");
+require_once("functions.php");
+
 $ip = trim(strip_tags(mysqli_real_escape_string($mysqli,getIP())));
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
 
@@ -32,8 +33,7 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
 
     if (empty($row['item_views'])) {
         $item_views = 0;
-    }
-    else {
+    } else {
         $item_views = intval($row['item_views']);
     }
 
@@ -63,6 +63,5 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Downloaded shared file $file_name via link', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
-
 
 }

@@ -1,7 +1,7 @@
-<?php 
-  
+<?php
+
   include("inc_all.php");
-  
+
   $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Sent' AND company_id = $session_company_id"));
   $sent_count = $row['num'];
 
@@ -35,7 +35,7 @@
   $sql_total_cancelled = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS total_cancelled FROM invoices WHERE invoice_status = 'Cancelled' AND company_id = $session_company_id");
   $row = mysqli_fetch_array($sql_total_cancelled);
   $total_cancelled = $row['total_cancelled'];
-  
+
   $sql_total_partial = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS total_partial FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoices.company_id = $session_company_id");
   $row = mysqli_fetch_array($sql_total_partial);
   $total_partial = $row['total_partial'];
@@ -82,7 +82,7 @@
   }else{
     $status_query = '%';
   }
-  
+
   //Date Filter
   if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
     $dtf = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtf']));
@@ -110,12 +110,12 @@
     $dtt = date('Y-m-d');
   }elseif ($_GET['canned_date'] == "lastyear") {
     $dtf = date('Y-m-d',strtotime("first day of january last year"));
-    $dtt = date('Y-m-d',strtotime("last day of december last year"));  
+    $dtt = date('Y-m-d',strtotime("last day of december last year"));
   }else{
     $dtf = "0000-00-00";
     $dtt = "9999-00-00";
   }
-  
+
   //Rebuild URL
   $url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
 
@@ -243,7 +243,7 @@
               <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo $dtt; ?>">
             </div>
           </div>
-        </div>    
+        </div>
       </div>
     </form>
     <hr>
@@ -264,7 +264,7 @@
         </thead>
         <tbody>
           <?php
-      
+
           while ($row = mysqli_fetch_array($sql)) {
             $invoice_id = $row['invoice_id'];
             $invoice_prefix = htmlentities($row['invoice_prefix']);
@@ -295,23 +295,11 @@
 
             if (($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) + 86400 < $now ) {
               $overdue_color = "text-danger font-weight-bold";
-            }else{
+            } else {
               $overdue_color = "";
             }
 
-            if ($invoice_status == "Sent") {
-              $invoice_badge_color = "warning text-white";
-            }elseif ($invoice_status == "Viewed") {
-              $invoice_badge_color = "info";
-            }elseif ($invoice_status == "Partial") {
-              $invoice_badge_color = "primary";
-            }elseif ($invoice_status == "Paid") {
-              $invoice_badge_color = "success";
-            }elseif ($invoice_status == "Cancelled") {
-              $invoice_badge_color = "danger";
-            }else{
-              $invoice_badge_color = "secondary";
-            }
+          $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
           ?>
 
@@ -349,10 +337,10 @@
 
           <?php
 
-            
+
             include("invoice_edit_modal.php");
             include("invoice_copy_modal.php");
-          
+
           }
 
           ?>
@@ -364,8 +352,8 @@
   </div>
 </div>
 
-<?php 
-  
+<?php
+
   include("invoice_add_modal.php");
   include("category_quick_add_modal.php");
 

@@ -82,19 +82,7 @@ if (isset($_GET['invoice_id'])) {
         }
 
         //Set Badge color based off of invoice status
-        if ($invoice_status == "Sent") {
-            $invoice_badge_color = "warning text-white";
-        } elseif ($invoice_status == "Viewed") {
-            $invoice_badge_color = "info";
-        } elseif ($invoice_status == "Partial") {
-            $invoice_badge_color = "primary";
-        } elseif ($invoice_status == "Paid") {
-            $invoice_badge_color = "success";
-        } elseif ($invoice_status == "Cancelled") {
-            $invoice_badge_color = "danger";
-        } else {
-            $invoice_badge_color = "secondary";
-        }
+        $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
         //Product autocomplete
         $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price FROM products WHERE company_id = $session_company_id");

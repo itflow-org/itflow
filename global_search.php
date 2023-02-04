@@ -1,6 +1,6 @@
-<?php include("inc_all.php"); ?>
-
 <?php
+
+require_once("inc_all.php");
 
 if (isset($_GET['query'])) {
 
@@ -60,9 +60,7 @@ if (isset($_GET['query'])) {
                                     <td><?php echo $location_phone; ?></td>
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
 
                             </tbody>
                         </table>
@@ -118,9 +116,8 @@ if (isset($_GET['query'])) {
                                     <td><?php echo $contact_mobile; ?></td>
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
+
 
                             </tbody>
                         </table>
@@ -161,9 +158,8 @@ if (isset($_GET['query'])) {
                                     <td><?php echo $vendor_phone; ?></td>
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
+
 
                             </tbody>
                         </table>
@@ -201,9 +197,8 @@ if (isset($_GET['query'])) {
                                     <td><?php echo $product_description; ?></td>
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
+
 
                             </tbody>
                         </table>
@@ -246,9 +241,8 @@ if (isset($_GET['query'])) {
                                     <td><?php echo $document_updated ?></td>
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
+
 
                             </tbody>
                         </table>
@@ -296,9 +290,8 @@ if (isset($_GET['query'])) {
 
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
+
 
                             </tbody>
                         </table>
@@ -343,9 +336,8 @@ if (isset($_GET['query'])) {
 
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
+
 
                             </tbody>
                         </table>
@@ -360,4 +352,5 @@ if (isset($_GET['query'])) {
 
 <?php } ?>
 
-<?php include("footer.php");
+<?php
+require_once("footer.php");

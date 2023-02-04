@@ -1,4 +1,6 @@
-<?php require_once("inc_all_settings.php");
+<?php
+
+require_once("inc_all_settings.php");
 
 if (!empty($_GET['sb'])) {
     $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
@@ -148,14 +150,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $user_name = htmlentities($row['user_name']);
                         if (empty($user_name)) {
                             $user_name_display = "-";
-                        }else{
+                        } else {
                             $user_name_display = $user_name;
                         }
                         $client_name = htmlentities($row['client_name']);
                         $client_id = $row['client_id'];
                         if (empty($client_name)) {
                             $client_name_display = "-";
-                        }else{
+                        } else {
                             $client_name_display = "<a href='client_logs.php?client_id=$client_id&tab=logs'>$client_name</a>";
                         }
 
@@ -179,8 +181,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php include("pagination.php"); ?>
+            <?php require_once("pagination.php"); ?>
         </div>
     </div>
 
-<?php include("footer.php");
+<?php
+require_once("footer.php");

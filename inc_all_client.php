@@ -1,14 +1,10 @@
-<?php 
+<?php
 
-include("config.php");
-include_once("functions.php");
-include("check_login.php");
-include("header.php");
-include("top_nav.php");
-
-?>
-
-<?php 
+require_once("config.php");
+require_once("functions.php");
+require_once("check_login.php");
+require_once("header.php");
+require_once("top_nav.php");
 
 if (isset($_GET['client_id'])) {
   $client_id = intval($_GET['client_id']);
@@ -24,7 +20,7 @@ if (isset($_GET['client_id'])) {
   if (mysqli_num_rows($sql) == 0) {
     include("header.php");
     echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1></center>";
-  }else{
+  } else {
 
     $row = mysqli_fetch_array($sql);
     $client_name = htmlentities($row['client_name']);
@@ -70,7 +66,7 @@ if (isset($_GET['client_id'])) {
       if (empty($client_tag_icon)) {
         $client_tag_icon = "tag";
       }
-    
+
       $client_tag_id_array[] = $client_tag_id;
       $client_tag_name_display_array[] = "$client_tag_name ";
     }
@@ -84,7 +80,7 @@ if (isset($_GET['client_id'])) {
 
     $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
     $row = mysqli_fetch_array($sql_amount_paid);
-    
+
     $amount_paid = $row['amount_paid'];
 
     $balance = $invoice_amounts - $amount_paid;
@@ -92,13 +88,13 @@ if (isset($_GET['client_id'])) {
     //Get Monthly Recurring Total
     $sql_recurring_monthly_total = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND recurring_client_id = $client_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql_recurring_monthly_total);
-    
+
     $recurring_monthly_total = $row['recurring_monthly_total'];
 
     //Get Yearly Recurring Total
     $sql_recurring_yearly_total = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND recurring_client_id = $client_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql_recurring_yearly_total);
-    
+
     $recurring_yearly_total = $row['recurring_yearly_total'] / 12;
 
     $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
@@ -107,10 +103,10 @@ if (isset($_GET['client_id'])) {
 
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('contact_id') AS num FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id"));
     $num_contacts = $row['num'];
-    
+
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('location_id') AS num FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id"));
     $num_locations = $row['num'];
-    
+
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('asset_id') AS num FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id"));
     $num_assets = $row['num'];
 
@@ -122,25 +118,25 @@ if (isset($_GET['client_id'])) {
 
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('service_id') AS num FROM services WHERE service_client_id = $client_id"));
     $num_services = $row['num'];
-    
+
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id AND vendor_template = 0"));
     $num_vendors = $row['num'];
-    
+
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('login_id') AS num FROM logins WHERE login_archived_at IS NULL AND login_client_id = $client_id"));
     $num_logins = $row['num'];
-    
+
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('network_id') AS num FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id"));
     $num_networks = $row['num'];
-    
+
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('domain_id') AS num FROM domains WHERE domain_archived_at IS NULL AND domain_client_id = $client_id"));
     $num_domains = $row['num'];
 
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('certificate_id') AS num FROM certificates WHERE certificate_archived_at IS NULL AND certificate_client_id = $client_id"));
     $num_certificates = $row['num'];
-    
+
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('software_id') AS num FROM software WHERE software_archived_at IS NULL AND software_client_id = $client_id"));
     $num_software = $row['num'];
-    
+
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices WHERE (invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') AND invoice_archived_at IS NULL AND invoice_client_id = $client_id"));
     $num_invoices_open = $row['num'];
 
@@ -170,10 +166,10 @@ if (isset($_GET['client_id'])) {
 
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('payment_id') AS num FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id"));
     $num_payments = $row['num'];
-    
+
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('file_id') AS num FROM files WHERE file_archived_at IS NULL AND file_client_id = $client_id"));
     $num_files = $row['num'];
-    
+
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_id') AS num FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id"));
     $num_documents = $row['num'];
 
@@ -237,14 +233,8 @@ if (isset($_GET['client_id'])) {
   }
 }
 
-?>
-
-<?php
-
-include("client_side_nav.php");
-include("inc_wrapper.php");
-include("inc_alert_feedback.php");
-include("inc_client_top_head.php");
-include("pagination_head.php");
-
-?>
+require_once("client_side_nav.php");
+require_once("inc_wrapper.php");
+require_once("inc_alert_feedback.php");
+require_once("inc_client_top_head.php");
+require_once("pagination_head.php");

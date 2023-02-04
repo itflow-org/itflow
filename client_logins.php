@@ -1,4 +1,4 @@
-<?php include("inc_all_client.php"); ?>
+<?php require_once("inc_all_client.php"); ?>
 
 <?php
 

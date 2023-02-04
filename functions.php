@@ -540,3 +540,55 @@ function roundUpToNearestMultiple($n, $increment = 1000)
 {
     return (int) ($increment * ceil($n / $increment));
 }
+
+function getAssetIcon($asset_type)
+{
+    if ($asset_type == 'Laptop') {
+        $device_icon = "laptop";
+    } elseif ($asset_type == 'Desktop') {
+        $device_icon = "desktop";
+    } elseif ($asset_type == 'Server') {
+        $device_icon = "server";
+    } elseif ($asset_type == 'Printer') {
+        $device_icon = "print";
+    } elseif ($asset_type == 'Camera') {
+        $device_icon = "video";
+    } elseif ($asset_type == 'Switch' || $asset_type == 'Firewall/Router') {
+        $device_icon = "network-wired";
+    } elseif ($asset_type == 'Access Point') {
+        $device_icon = "wifi";
+    } elseif ($asset_type == 'Phone') {
+        $device_icon = "phone";
+    } elseif ($asset_type == 'Mobile Phone') {
+        $device_icon = "mobile-alt";
+    } elseif ($asset_type == 'Tablet') {
+        $device_icon = "tablet-alt";
+    } elseif ($asset_type == 'TV') {
+        $device_icon = "tv";
+    } elseif ($asset_type == 'Virtual Machine') {
+        $device_icon = "cloud";
+    } else {
+        $device_icon = "tag";
+    }
+
+    return $device_icon;
+}
+
+function getInvoiceBadgeColor($invoice_status)
+{
+    if ($invoice_status == "Sent") {
+        $invoice_badge_color = "warning text-white";
+    } elseif ($invoice_status == "Viewed") {
+        $invoice_badge_color = "info";
+    } elseif ($invoice_status == "Partial") {
+        $invoice_badge_color = "primary";
+    } elseif ($invoice_status == "Paid") {
+        $invoice_badge_color = "success";
+    } elseif ($invoice_status == "Cancelled") {
+        $invoice_badge_color = "danger";
+    } else{
+        $invoice_badge_color = "secondary";
+    }
+
+    return $invoice_badge_color;
+}

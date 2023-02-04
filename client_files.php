@@ -1,4 +1,6 @@
-<?php require_once("inc_all_client.php");
+<?php
+
+require_once("inc_all_client.php");
 
 $sql_files_images = mysqli_query($mysqli, "SELECT * FROM files WHERE file_client_id = $client_id AND (file_ext LIKE 'JPG' OR file_ext LIKE 'jpg' OR file_ext LIKE 'JPEG' OR file_ext LIKE 'jpeg' OR file_ext LIKE 'png' OR file_ext LIKE 'PNG') ORDER BY file_name ASC");
 
@@ -19,11 +21,8 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
 
             <?php
             if ($num_of_files == 0) {
-
                 echo "<div style='text-align: center;'><h3 class='text-secondary'>No Records Here</h3></div>";
-            }
-
-            ?>
+            } ?>
 
             <div class="row">
 
@@ -54,7 +53,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
                     </div>
 
                     <?php
-                    include("client_file_view_modal.php");
+                    require("client_file_view_modal.php");
                 }
                 ?>
             </div>

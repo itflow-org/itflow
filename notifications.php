@@ -1,4 +1,6 @@
-<?php require_once("inc_all.php");
+<?php
+
+require_once("inc_all.php");
 
 $sql = mysqli_query($mysqli, "SELECT * FROM notifications LEFT JOIN clients ON notification_client_id = client_id WHERE notification_dismissed_at IS NULL AND (notification_user_id = $session_user_id OR notification_user_id = 0) AND notifications.company_id = $session_company_id ORDER BY notification_id DESC");
 
@@ -52,9 +54,8 @@ $sql = mysqli_query($mysqli, "SELECT * FROM notifications LEFT JOIN clients ON n
                             <td class="text-center"><a class="btn btn-info btn-sm" href="post.php?dismiss_notification=<?php echo $notification_id; ?>"><i class="fa fa-check"></a></td>
                         </tr>
 
-                        <?php
-                    }
-                    ?>
+                    <?php } ?>
+
 
                     </tbody>
                 </table>
@@ -69,4 +70,5 @@ $sql = mysqli_query($mysqli, "SELECT * FROM notifications LEFT JOIN clients ON n
 
     </div>
 
-<?php require_once("footer.php");
+<?php
+require_once("footer.php");

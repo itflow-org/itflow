@@ -1159,11 +1159,11 @@ if(isset($_POST['send_telemetry_data'])){
 
     // Invoice Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices"));
-    $invoice_count = $row['num'];  
+    $invoice_count = $row['num'];
 
     // Revenue Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('revenue_id') AS num FROM revenues"));
-    $revenue_count = $row['num'];  
+    $revenue_count = $row['num'];
 
     // Recurring Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM recurring"));
@@ -1184,7 +1184,7 @@ if(isset($_POST['send_telemetry_data'])){
     // Payment Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('payment_id') AS num FROM payments WHERE payment_invoice_id > 0"));
     $payment_count = $row['num'];
-    
+
     // Company Vendor Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_template = 0 AND vendor_client_id = 0"));
     $company_vendor_count = $row['num'];
@@ -1259,7 +1259,7 @@ if(isset($_POST['send_telemetry_data'])){
 
     // Document Template Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_id') AS num FROM documents WHERE document_template = 1"));
-    $document_template_count = $row['num'];       
+    $document_template_count = $row['num'];
 
     // Shared Item Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('item_id') AS num FROM shared_items"));
@@ -1586,11 +1586,11 @@ if(isset($_GET['update'])){
 
         // Invoice Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('invoice_id') AS num FROM invoices"));
-        $invoice_count = $row['num'];  
+        $invoice_count = $row['num'];
 
         // Revenue Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('revenue_id') AS num FROM revenues"));
-        $revenue_count = $row['num'];  
+        $revenue_count = $row['num'];
 
         // Recurring Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM recurring"));
@@ -1611,7 +1611,7 @@ if(isset($_GET['update'])){
         // Payment Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('payment_id') AS num FROM payments WHERE payment_invoice_id > 0"));
         $payment_count = $row['num'];
-        
+
         // Company Vendor Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_template = 0 AND vendor_client_id = 0"));
         $company_vendor_count = $row['num'];
@@ -1686,7 +1686,7 @@ if(isset($_GET['update'])){
 
         // Document Template Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_id') AS num FROM documents WHERE document_template = 1"));
-        $document_template_count = $row['num'];       
+        $document_template_count = $row['num'];
 
         // Shared Item Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('item_id') AS num FROM shared_items"));
@@ -2343,7 +2343,7 @@ if(isset($_POST['edit_vendor_template'])){
         $sql_update_vendors = "";
     }
 
-    //Update the exisiting template and all templates bassed of this vendor template 
+    //Update the exisiting template and all templates bassed of this vendor template
     mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code',vendor_account_number = '$account_number', vendor_notes = '$notes' WHERE (vendor_id = $vendor_id $sql_update_vendors) AND company_id = $session_company_id");
 
     //Logging
@@ -2477,7 +2477,7 @@ if(isset($_GET['delete_vendor'])){
     $vendor_name = strip_tags(mysqli_real_escape_string($mysqli, $row['vendor_name']));
     $client_id = intval($row['vendor_client_id']);
     $vendor_template_id = intval($row['vendor_template_id']);
-    
+
     // If its a template reset all vendors based off this template to no template base
     if ($vendor_template_id > 0){
         mysqli_query($mysqli,"UPDATE vendors SET vendor_template_id = 0 WHERE vendor_template_id = $vendor_template_id");
@@ -5396,8 +5396,8 @@ if(isset($_POST['edit_asset'])){
         $install_date = "0000-00-00";
     }
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
-    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
-    $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
+    $username = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['username'])));
+    $password = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['password'])));
 
     mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
 

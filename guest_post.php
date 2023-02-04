@@ -1,7 +1,7 @@
 <?php
 
-include("config.php");
-include("functions.php");
+require_once("config.php");
+require_once("functions.php");
 
 session_start();
 
@@ -22,8 +22,8 @@ if (isset($_GET['accept_quote'], $_GET['company_id'], $_GET['url_key'])) {
         $_SESSION['alert_message'] = "Quote Accepted";
 
         header("Location: " . $_SERVER["HTTP_REFERER"]);
-    }else{
-        echo "GTFO!!";
+    } else {
+        echo "Invalid!!";
     }
 
 }
@@ -46,8 +46,8 @@ if (isset($_GET['decline_quote'], $_GET['company_id'], $_GET['url_key'])) {
         $_SESSION['alert_message'] = "Quote Declined";
 
         header("Location: " . $_SERVER["HTTP_REFERER"]);
-    }else{
-        echo "GTFO!!";
+    } else {
+        echo "Invalid!!";
     }
 
 }

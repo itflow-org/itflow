@@ -4,11 +4,11 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 header('Cache-Control: post-check=0, pre-check=0', FALSE);
 header('Pragma: no-cache');
 
-include("guest_header.php"); ?>
+require_once("guest_header.php"); ?>
 
-<br>
-<h1> <?php echo $config_app_name ?> Guest sharing </h1>
-<hr>
+    <br>
+    <h1> <?php echo $config_app_name ?> Guest sharing </h1>
+    <hr>
 
 <?php
 if (!isset($_GET['id']) || !isset($_GET['key'])) {
@@ -56,7 +56,7 @@ if ($item_type == "Document") {
 
     if (mysqli_num_rows($doc_sql) !== 1 || !$doc_row) {
         echo "<div class=\"alert alert-danger\" role=\"alert\">Error retrieving document to view.</div>";
-        include("guest_footer.php");
+        require_once("guest_footer.php");
         exit();
     }
 
@@ -79,7 +79,7 @@ if ($item_type == "Document") {
     $name = mysqli_real_escape_string($mysqli, $doc_title);
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Viewed shared $item_type $name via link', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
 
-}elseif ($item_type == "File") {
+} elseif ($item_type == "File") {
     $file_sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = '$item_related_id' AND file_client_id = '$client_id' LIMIT 1");
     $file_row = mysqli_fetch_array($file_sql);
 
@@ -93,12 +93,12 @@ if ($item_type == "Document") {
 
     echo "<h3>A file has been shared with you</h3>";
     if (!empty($item_note)) {
-      echo "<p class=\"lead\">Note: <i>$item_note</i></p>";
+        echo "<p class=\"lead\">Note: <i>$item_note</i></p>";
     }
     echo "<a href=\"guest_download_file.php?id=$item_id&key=$item_key\" download=\"$file_name;\">Download $file_name</a>";
 
 
-}elseif ($item_type == "Login") {
+} elseif ($item_type == "Login") {
     $encryption_key = $_GET['ek'];
 
     $login_sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_id = '$item_related_id' AND login_client_id = '$client_id' LIMIT 1");
@@ -125,7 +125,7 @@ if ($item_type == "Document") {
 
     echo "<h3>A login entry has been shared with you</h3>";
     if (!empty($item_note)) {
-      echo "<p class=\"lead\">Note: <i>$item_note</i></p>";
+        echo "<p class=\"lead\">Note: <i>$item_note</i></p>";
     }
     echo "<br>";
 
@@ -148,4 +148,4 @@ if ($item_type == "Document") {
 
 echo "<br><hr>";
 echo $config_app_name;
-include("guest_footer.php");
+require_once("guest_footer.php");
