@@ -7,17 +7,17 @@
 /*
  * Verifies a contact has access to a particular ticket ID, and that the ticket is in the correct state (open/closed) to perform an action
  */
-function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state) {
+function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
+{
 
     // Access the global variables
-    global $mysqli, $session_contact_id, $session_client_primary_contact_id, $session_client_id;
+    global $mysqli, $session_contact_id, $session_client_primary_contact_id, $session_contact_is_technical_contact, $session_client_id;
 
     // Setup
     if ($expected_ticket_state == "Closed") {
         // Closed tickets
         $ticket_state_snippet = "ticket_status = 'Closed'";
-    }
-    else {
+    } else {
         // Open (working/hold) tickets
         $ticket_state_snippet = "ticket_status != 'Closed'";
     }
@@ -27,12 +27,12 @@ function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
     $row = mysqli_fetch_array($sql);
     $ticket_id = $row['ticket_id'];
 
-    if (intval($ticket_id) && ($session_contact_id == $row['ticket_contact_id'] || $session_contact_id == $session_client_primary_contact_id)) {
-        // Client is ticket owner, or primary contact
-        return TRUE;
+    if (intval($ticket_id) && ($session_contact_id == $row['ticket_contact_id'] || $session_contact_id == $session_client_primary_contact_id || $session_contact_is_technical_contact)) {
+        // Client is ticket owner, primary contact, or a technical contact
+        return true;
     }
 
-    // Client is NOT ticket owner or primary contact
-    return FALSE;
+    // Client is NOT ticket owner or primary/tech contact
+    return false;
 
 }

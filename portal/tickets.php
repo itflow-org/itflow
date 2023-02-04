@@ -34,7 +34,7 @@ $sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS tota
 $row = mysqli_fetch_array($sql_total_tickets_open);
 $total_tickets_open = $row['total_tickets_open'];
 
-//Get Total tickets 
+//Get Total tickets
 $sql_total_tickets = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets FROM tickets WHERE  ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id");
 $row = mysqli_fetch_array($sql_total_tickets);
 $total_tickets = $row['total_tickets'];
@@ -68,7 +68,7 @@ $total_tickets = $row['total_tickets'];
 <div class="row">
 
     <div class="col-md-10">
-        
+
         <table class="table tabled-bordered border border-dark">
             <thead class="thead-dark">
                 <tr>
@@ -92,17 +92,17 @@ $total_tickets = $row['total_tickets'];
                     <td>
                         <a href="ticket.php?id=<?php echo $ticket_id; ?>"><?php echo "$ticket_prefix$ticket_number"; ?></a>
                     </td>
-                    <td> 
+                    <td>
                         <a href="ticket.php?id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
                     </td>
-                    <td><?php echo $ticket_status; ?></td> 
+                    <td><?php echo $ticket_status; ?></td>
                 </tr>
             <?php
             }
             ?>
             </tbody>
         </table>
-        
+
     </div>
 
     <div class="col-md-2">
@@ -117,11 +117,11 @@ $total_tickets = $row['total_tickets'];
 
         <a href="?status=%" class="btn btn-secondary btn-block p-3 mb-3 text-left">All my tickets | <strong><?php echo $total_tickets ?></strong></a>
         <?php
-        if ($session_contact_id == $session_client_primary_contact_id) {
+        if ($session_contact_id == $session_client_primary_contact_id || $session_contact_is_technical_contact) {
         ?>
-        
+
         <hr>
-        
+
         <a href="ticket_view_all.php" class="btn btn-dark btn-block p-2 mb-3">All Tickets</a>
 
         <?php
