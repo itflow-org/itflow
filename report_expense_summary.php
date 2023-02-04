@@ -9,12 +9,6 @@ if (isset($_GET['year'])) {
     $year = date('Y');
 }
 
-if (isset($_GET['year'])) {
-    $year = intval($_GET['year']);
-} else {
-    $year = date('Y');
-}
-
 $sql_expense_years = mysqli_query($mysqli,"SELECT DISTINCT YEAR(expense_date) AS expense_year FROM expenses WHERE expense_category_id > 0 AND company_id = $session_company_id ORDER BY expense_year DESC");
 
 $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense' AND company_id = $session_company_id ORDER BY category_name ASC");
@@ -140,7 +134,6 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
     Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
     Chart.defaults.global.defaultFontColor = '#292b2c';
 
-    // Area Chart Example
     var ctx = document.getElementById("cashFlow");
     var myLineChart = new Chart(ctx, {
         type: 'line',
