@@ -9,7 +9,7 @@ require_once("inc_portal.php");
 if (isset($_GET['id']) && intval($_GET['id'])) {
     $ticket_id = intval($_GET['id']);
 
-    if ($session_contact_id == $session_client_primary_contact_id) {
+    if ($session_contact_id == $session_client_primary_contact_id || $session_contact_is_technical_contact) {
         $ticket_sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_client_id = '$session_client_id'");
     } else {
         $ticket_sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_client_id = '$session_client_id' AND ticket_contact_id = '$session_contact_id'");
@@ -42,14 +42,11 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         <div class="card">
             <div class="card-header bg-dark text-center">
                 <h4 class="mt-1">
-                    Ticket <?php echo $ticket_prefix, $ticket_number ?> 
+                    Ticket <?php echo $ticket_prefix, $ticket_number ?>
                     <?php
-                    if ($ticket_status !== "Closed") {
-                    ?>
-                    <a href="portal_post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-sm btn-outline-success float-right text-white"><i class="fas fa-fw fa-check text-success"></i> Close ticket</a>
-                    <?php
-                    }
-                    ?>
+                    if ($ticket_status !== "Closed") { ?>
+                        <a href="portal_post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-sm btn-outline-success float-right text-white"><i class="fas fa-fw fa-check text-success"></i> Close ticket</a>
+                    <?php } ?>
                 </h4>
             </div>
 
@@ -61,7 +58,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                     <br>
                     <strong>Priority:</strong> <?php echo $ticket_priority ?>
                 </p>
-                <strong>Issue:</strong> <?php echo $ticket_details ?>
+                <?php echo $ticket_details ?>
             </div>
         </div>
 
@@ -69,7 +66,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         <!-- Either show the reply comments box, ticket smiley feedback, or thanks for feedback -->
 
         <?php if ($ticket_status !== "Closed") { ?>
-           
+
             <form action="portal_post.php" method="post">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id ?>">
                 <div class="form-group">
@@ -77,7 +74,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 </div>
                 <button type="submit" class="btn btn-primary" name="add_ticket_comment">Save reply</button>
             </form>
-           
+
         <?php }
 
         elseif (empty($ticket_feedback)) { ?>
@@ -138,18 +135,18 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 <div class="card-header">
                     <h3 class="card-title">
                         <div class="media">
-                            <?php 
-                            if (!empty($user_avatar)) { 
-                            ?>
+                            <?php
+                            if (!empty($user_avatar)) {
+                                ?>
                                 <img src="<?php echo $avatar_link ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
-                            <?php 
-                            } else { 
-                            ?>
+                                <?php
+                            } else {
+                                ?>
                                 <span class="fa-stack fa-2x">
                                     <i class="fa fa-circle fa-stack-2x text-secondary"></i>
                                     <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
                                 </span>
-                            <?php
+                                <?php
                             }
                             ?>
 

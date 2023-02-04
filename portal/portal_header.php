@@ -43,7 +43,7 @@
                     <li class="nav-item">
                         <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "tickets.php" || basename($_SERVER['PHP_SELF']) == "ticket_add.php" || basename($_SERVER['PHP_SELF']) == "ticket.php") {echo "active";} ?>" href="tickets.php">Tickets</a>
                     </li>
-                <?php if ($session_contact_id == $session_client_primary_contact_id) { ?>
+                <?php if ($session_contact_id == $session_client_primary_contact_id || $session_contact_is_billing_contact) { ?>
                     <li class="nav-item">
                         <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "invoices.php") {echo "active";} ?>" href="invoices.php">Invoices</a>
                     </li>
