@@ -10,9 +10,9 @@ if (isset($_GET['year'])) {
 }
 
 //GET unique years from expenses, payments and revenues
-$sql_all_years = mysqli_query($mysqli,"SELECT DISTINCT(YEAR(item_created_at)) AS all_years FROM invoice_items WHERE company_id = $session_company_id ORDER BY all_years DESC");
+$sql_all_years = mysqli_query($mysqli, "SELECT DISTINCT(YEAR(item_created_at)) AS all_years FROM invoice_items WHERE company_id = $session_company_id ORDER BY all_years DESC");
 
-$sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC");
+$sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC");
 
 ?>
 
@@ -67,7 +67,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
 
                             for($month = 1; $month<=3; $month++) {
 
-                                $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month 
+                                $sql_tax_collected = mysqli_query($mysqli, "SELECT SUM(item_tax) AS tax_collected_for_month 
                   FROM invoices, invoice_items 
                   WHERE item_invoice_id = invoice_id
                   AND invoice_status LIKE 'Paid' 
@@ -91,7 +91,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
 
                             for($month = 4; $month <= 6; $month ++) {
 
-                                $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month 
+                                $sql_tax_collected = mysqli_query($mysqli, "SELECT SUM(item_tax) AS tax_collected_for_month 
                   FROM invoices, invoice_items 
                   WHERE item_invoice_id = invoice_id
                   AND invoice_status LIKE 'Paid' 
@@ -115,7 +115,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
 
                             for($month = 7; $month <= 9; $month ++) {
 
-                                $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month 
+                                $sql_tax_collected = mysqli_query($mysqli, "SELECT SUM(item_tax) AS tax_collected_for_month 
                   FROM invoices, invoice_items 
                   WHERE item_invoice_id = invoice_id
                   AND invoice_status LIKE 'Paid' 
@@ -139,7 +139,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
 
                             for($month = 10; $month <= 12; $month ++) {
 
-                                $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month 
+                                $sql_tax_collected = mysqli_query($mysqli, "SELECT SUM(item_tax) AS tax_collected_for_month 
                   FROM invoices, invoice_items 
                   WHERE item_invoice_id = invoice_id
                   AND invoice_status LIKE 'Paid' 
@@ -176,7 +176,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
 
                         for($month = 1; $month <= 3; $month ++) {
 
-                            $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month 
+                            $sql_tax_collected = mysqli_query($mysqli, "SELECT SUM(item_tax) AS tax_collected_for_month 
                 FROM invoices, invoice_items 
                 WHERE item_invoice_id = invoice_id
                 AND invoice_status LIKE 'Paid'  
@@ -199,7 +199,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
 
                         for($month = 4; $month <= 6; $month ++) {
 
-                            $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month 
+                            $sql_tax_collected = mysqli_query($mysqli, "SELECT SUM(item_tax) AS tax_collected_for_month 
                 FROM invoices, invoice_items 
                 WHERE item_invoice_id = invoice_id
                 AND invoice_status LIKE 'Paid'  
@@ -222,7 +222,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
 
                         for($month = 7; $month <= 9; $month ++) {
 
-                            $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month 
+                            $sql_tax_collected = mysqli_query($mysqli, "SELECT SUM(item_tax) AS tax_collected_for_month 
                 FROM invoices, invoice_items 
                 WHERE item_invoice_id = invoice_id
                 AND invoice_status LIKE 'Paid'  
@@ -245,7 +245,7 @@ $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session
 
                         for($month = 10; $month <= 12; $month ++) {
 
-                            $sql_tax_collected = mysqli_query($mysqli,"SELECT SUM(item_tax) AS tax_collected_for_month
+                            $sql_tax_collected = mysqli_query($mysqli, "SELECT SUM(item_tax) AS tax_collected_for_month
                 FROM invoices, invoice_items 
                 WHERE item_invoice_id = invoice_id
                 AND invoice_status LIKE 'Paid'  
