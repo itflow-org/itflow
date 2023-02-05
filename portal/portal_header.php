@@ -3,6 +3,8 @@
  * Client Portal
  * HTML Header
  */
+
+header("X-Frame-Options: DENY");
 ?>
 
 <!DOCTYPE html>

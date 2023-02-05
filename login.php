@@ -1,5 +1,7 @@
 <?php
 
+header("X-Frame-Options: DENY");
+
 if (!file_exists('config.php')) {
     header("Location: setup.php");
     exit;
