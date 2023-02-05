@@ -4597,14 +4597,14 @@ if(isset($_POST['edit_contact'])){
     mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     // Update Primary contact in clients if primary contact is checked
-    if($primary_contact > 0){
+    if ($primary_contact > 0){
         mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");
     }
 
     // Set password
     if(!empty($_POST['contact_password'])){
       $password_hash = mysqli_real_escape_string($mysqli,password_hash($_POST['contact_password'], PASSWORD_DEFAULT));
-      mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_client_id = '$client_id'");
+      mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_id = '$contact_id' AND contact_client_id = '$client_id'");
     }
 
     // Send contact a welcome e-mail, if specified

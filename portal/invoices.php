@@ -4,21 +4,14 @@
  * Invoices for PTC
  */
 
-/*
-TODO:
-    - Allow accounting contacts to see this page
-    - Tidy styling and add currency codes
-    - Add links to see the invoice in full (similar to invoice guest view)
-*/
-
 require_once("inc_portal.php");
 
-if ($session_contact_id !== $session_client_primary_contact_id) {
+if ($session_contact_id !== $session_client_primary_contact_id && !$session_contact_is_billing_contact) {
     header("Location: portal_post.php?logout");
     exit();
 }
 
-$invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $session_client_id AND invoice_status = 'Paid' ORDER BY invoice_date DESC");
+$invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $session_client_id AND (invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Paid') ORDER BY invoice_date DESC");
 ?>
 
     <div class="row">
@@ -53,8 +46,10 @@ $invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_clie
                 <tr>
                     <th>#</th>
                     <th>Scope</th>
-                    <th>Date</th>
                     <th>Amount</th>
+                    <th>Date</th>
+                    <th>Due</th>
+                    <th>Status</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -65,15 +60,52 @@ $invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_clie
                     $invoice_prefix = htmlentities($row['invoice_prefix']);
                     $invoice_number = htmlentities($row['invoice_number']);
                     $invoice_scope = htmlentities($row['invoice_scope']);
+                    $invoice_status = htmlentities($row['invoice_status']);
                     $invoice_date = $row['invoice_date'];
+                    $invoice_due = $row['invoice_due'];
                     $invoice_amount = floatval($row['invoice_amount']);
+                    $invoice_url_key = htmlentities($row['invoice_url_key']);
+
+                    if (empty($invoice_scope)) {
+                        $invoice_scope_display = "-";
+                    } else {
+                        $invoice_scope_display = $invoice_scope;
+                    }
+
+                    $now = time();
+                    if (($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) + 86400 < $now ) {
+                        $overdue_color = "text-danger font-weight-bold";
+                    } else {
+                        $overdue_color = "";
+                    }
+
+                    if ($invoice_status == "Sent") {
+                        $invoice_badge_color = "warning text-white";
+                    } elseif ($invoice_status == "Viewed") {
+                        $invoice_badge_color = "info";
+                    } elseif ($invoice_status == "Partial") {
+                        $invoice_badge_color = "primary";
+                    } elseif ($invoice_status == "Paid") {
+                        $invoice_badge_color = "success";
+                    } elseif ($invoice_status == "Cancelled") {
+                        $invoice_badge_color = "danger";
+                    } else{
+                        $invoice_badge_color = "secondary";
+                    }
                     ?>
 
                     <tr>
-                        <td><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
-                        <td><?php echo $invoice_scope; ?></td>
+                        <td><a target="_blank" href="\\<?php echo $config_base_url ?>/guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"?>"> <?php echo "$invoice_prefix$invoice_number"; ?></a></td>
+                        <td><?php echo $invoice_scope_display; ?></td>
+                        <td><?php echo numfmt_format_currency($currency_format, $invoice_amount, $session_company_currency); ?></td>
                         <td><?php echo $invoice_date; ?></td>
-                        <td><?php echo $invoice_amount; ?></td>
+                        <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>
+                        <td>
+                            <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
+                                <?php echo $invoice_status; ?>
+                            </span>
+                        </td>
+
                     </tr>
                     <?php
                 }

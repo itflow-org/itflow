@@ -6,7 +6,7 @@
 
 require_once('inc_portal.php');
 
-if ($session_contact_id !== $session_client_primary_contact_id) {
+if ($session_contact_id !== $session_client_primary_contact_id && !$session_contact_is_technical_contact) {
     header("Location: portal_post.php?logout");
     exit();
 }

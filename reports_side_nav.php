@@ -63,6 +63,23 @@
                     </li>
                 <?php } // End financial reports IF statement ?>
 
+                <?php  if ($session_user_role == 2 || $session_user_role == 3) { ?>
+                <li class="nav-header">TECHNICAL</li>
+                    <li class="nav-item">
+                        <a href="report_ticket_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_ticket_summary.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-life-ring"></i>
+                            <p>Tickets</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="report_ticket_by_client.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_ticket_by_client.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-life-ring"></i>
+                            <p>Tickets by Client</p>
+                        </a>
+                    </li>
+
+                <?php } // End technical reports IF statement ?>
+
             </ul>
 
         </nav>

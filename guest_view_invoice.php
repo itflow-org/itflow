@@ -1,4 +1,6 @@
-<?php include("guest_header.php");
+<?php
+
+require_once("guest_header.php");
 
 if (isset($_GET['invoice_id'], $_GET['url_key'])) {
 
@@ -71,6 +73,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key'])) {
         $os = strip_tags(mysqli_real_escape_string($mysqli,getOS($session_user_agent)));
         $browser = strip_tags(mysqli_real_escape_string($mysqli,getWebBrowser($session_user_agent)));
 
+        $invoice_tally_total = 0; // Default
+
         //Set Badge color based off of invoice status
         $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
@@ -96,6 +100,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key'])) {
         $balance = $invoice_amount - $amount_paid;
 
         //check to see if overdue
+        $invoice_color = $invoice_badge_color; // Default
         if ($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled") {
             $unixtime_invoice_due = strtotime($invoice_due) + 86400;
             if ($unixtime_invoice_due < time()) {

@@ -9,12 +9,6 @@ if (isset($_GET['year'])) {
     $year = date('Y');
 }
 
-if (isset($_GET['year'])) {
-    $year = intval($_GET['year']);
-} else {
-    $year = date('Y');
-}
-
 $sql_payment_years = mysqli_query($mysqli,"SELECT DISTINCT YEAR(payment_date) AS payment_year FROM payments WHERE company_id = $session_company_id UNION SELECT DISTINCT YEAR(revenue_date) AS payment_year FROM revenues WHERE company_id = $session_company_id ORDER BY payment_year DESC");
 
 $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id");
@@ -59,7 +53,7 @@ $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $s
                     $client_id = $row['client_id'];
                     $client_name = htmlentities($row['client_name']);
 
-                    $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND invoice_client_id = $client_id");
+                    $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND invoice_client_id = $client_id");
                     $row = mysqli_fetch_array($sql_amount_paid);
 
                     $amount_paid = floatval($row['amount_paid']);

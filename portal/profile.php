@@ -4,16 +4,21 @@
  * User profile
  */
 
-require('inc_portal.php');
+require_once('inc_portal.php');
 ?>
 
-<h2>Profile</h2>
+    <h2>Profile</h2>
 
-<p>Name: <?php echo $session_contact_name ?></p>
-<p>Email: <?php echo $session_contact_email ?></p>
-<p>Client: <?php echo $session_client_name ?></p>
-<p>Client Primary Contact: <?php if ($session_client_primary_contact_id == $session_contact_id) {echo "Yes"; } else {echo "No";} ?></p>
-<p>Login via: <?php echo $_SESSION['login_method'] ?> </p>
+    <p>Name: <?php echo $session_contact_name ?></p>
+    <p>Email: <?php echo $session_contact_email ?></p>
+    <p>Client: <?php echo $session_client_name ?></p>
+    <br>
+    <p>Client Primary Contact: <?php if ($session_client_primary_contact_id == $session_contact_id) {echo "Yes"; } else {echo "No";} ?></p>
+    <p>Client Technical Contact: <?php if ($session_contact_is_technical_contact) {echo "Yes"; } else {echo "No";} ?></p>
+    <p>Client Billing Contact: <?php if ($session_contact_is_billing_contact == $session_contact_id) {echo "Yes"; } else {echo "No";} ?></p>
+
+
+    <p>Login via: <?php echo $_SESSION['login_method'] ?> </p>
 
 
     <!--  // Show option to change password if auth provider is local -->
@@ -34,7 +39,6 @@ require('inc_portal.php');
             <button type="submit" name="edit_profile" class="btn btn-primary mt-3"><i class="fa fa-fw fa-check"></i> Save password</button>
         </form>
     </div>
-
 <?php endif ?>
 
 <?php
