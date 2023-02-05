@@ -20,8 +20,7 @@ ITFlow is in Beta.
 
 **<ins>Please do not report security vulnerabilities through public GitHub issues.</ins>**
 
-If you have discovered a security issue, please report it to us in as much detail as possible, so we can fix it. 
+If you have discovered a security issue, please [report it](https://github.com/itflow-org/itflow/security/advisories/new) to us in as much detail as possible, so we can fix it. 
 You should expect to receive an initial acknowledgement within 72 hours. If you do not, please get in touch discretely via GitHub issues/Forum to ensure we received your e-mail.
 
-Security contact:
-![image](https://user-images.githubusercontent.com/32306651/160704188-763e6763-429e-41b9-9007-6a09bcfdba2b.png)
+Security contact: [GitHub Security Advisories](https://github.com/itflow-org/itflow/security/advisories/new)
