@@ -1,4 +1,5 @@
-<?php require_once("inc_all_client.php");
+<?php
+require_once("inc_all_client.php");
 
 //Get Asset Counts
 //All Asset Count
@@ -333,4 +334,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <?php
 require_once("client_asset_add_modal.php");
 require_once("client_asset_import_modal.php");
-require_once include("footer.php");
+require_once("footer.php");
