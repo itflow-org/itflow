@@ -24,7 +24,7 @@
     Username: <b>demo@demo</b> | Password: <b>demo</b>
     <br />
     <br />
-    <a href="https://itflow.org/docs.php?doc=about">About</a>
+    <a href="https://itflow.org/index.php?page=About">About</a>
     ·
     <a href="https://itflow.org/docs.php">Docs</a>
     ·
@@ -85,7 +85,7 @@
 <!-- GETTING STARTED -->
 ## Getting Started / Installation
 
-ITFlow is self-hosted. There is a full installation guide in the [docs](https://itflow.org/docs.php?doc_id=1), but the main steps are:
+ITFlow is self-hosted. There is a full installation guide in the [docs](https://wiki.itflow.org/doku.php?id=wiki:installation), but the main steps are:
 
 1. Install a LAMP stack (Linux, Apache, MariaDB, PHP)
    ```sh
@@ -126,7 +126,7 @@ For help using ITFlow, feature requests, and general ideas / discussions please 
 For bugs, please raise an [issue](https://github.com/itflow-org/itflow/issues).
 
 ### Contributing
-If you are able to make a contribution that would make ITFlow better, please fork the repo and create a pull request. Please make sure you're following our [code standards](https://itflow.org/docs.php?doc=coding-standards). 
+If you are able to make a contribution that would make ITFlow better, please fork the repo and create a pull request. Please make sure you're following our [code standards](https://wiki.itflow.org/doku.php?id=wiki:code_standards). 
 For large changes / new features, please discuss the issue with other contributors first.
 
 #### Contributors
@@ -137,7 +137,7 @@ For large changes / new features, please discuss the issue with other contributo
 <!-- LICENSE -->
 ## License
 
-ITFlow is distributed "as is" under the GPL License, WITHOUT WARRANTY OF ANY KIND. See `LICENSE` for details.
+ITFlow is distributed "as is" under the GPL License, WITHOUT WARRANTY OF ANY KIND. See [`LICENSE`](https://github.com/itflow-org/itflow/blob/master/LICENSE) for details.
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
