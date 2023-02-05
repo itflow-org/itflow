@@ -5345,10 +5345,10 @@ if(isset($_POST['add_asset'])){
 
     mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id, company_id = $session_company_id");
 
-    if(!empty($_POST['username'])) {
+    if (!empty($_POST['username'])) {
         $asset_id = mysqli_insert_id($mysqli);
-        $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
-        $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
+        $username = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['username'])));
+        $password = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['password'])));
 
         mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_asset_id = $asset_id, login_client_id = $client_id, company_id = $session_company_id");
 
