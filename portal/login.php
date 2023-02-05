@@ -4,6 +4,8 @@
  * Landing / Home page for the client portal
  */
 
+header("X-Frame-Options: DENY");
+
 $session_company_id = 1;
 require_once('../config.php');
 require_once('../functions.php');

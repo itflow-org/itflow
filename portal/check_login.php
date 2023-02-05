@@ -15,7 +15,7 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
-if (!$_SESSION['client_logged_in']) {
+if (!isset($_SESSION['client_logged_in']) || !$_SESSION['client_logged_in']) {
     header("Location: login.php");
     die;
 }
