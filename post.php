@@ -5776,11 +5776,13 @@ if(isset($_POST['add_software'])){
 
     $software_id = mysqli_insert_id($mysqli);
 
+    $alert_extended = "";
+
     // Add Asset Licenses
     if(!empty($_POST['assets'])){
         foreach($_POST['assets'] as $asset){
-            $asset = intval($asset);
-            mysqli_query($mysqli,"INSERT INTO software_assets SET software_id = $software_id, asset_id = $asset");
+            $asset_id = intval($asset);
+            mysqli_query($mysqli,"INSERT INTO software_assets SET software_id = $software_id, asset_id = $asset_id");
         }
     }
 
@@ -5793,8 +5795,7 @@ if(isset($_POST['add_software'])){
     }
 
     if(!empty($_POST['username'])) {
-        $software_id = mysqli_insert_id($mysqli);
-        $username = strip_tags(mysqli_real_escape_string($mysqli,$_POST['username']));
+        $username = strip_tags(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['username'])));
         $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
 
         mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_software_id = $software_id, login_client_id = $client_id, company_id = $session_company_id");
@@ -5802,9 +5803,9 @@ if(isset($_POST['add_software'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Create', log_description = '$session_name created software $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $software_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Software added";
+    $_SESSION['alert_message'] = "Software <strong>$name</strong> created $alert_extended";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
