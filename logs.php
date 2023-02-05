@@ -131,6 +131,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_description&o=<?php echo $disp; ?>">Description</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_ip&o=<?php echo $disp; ?>">IP Address</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_user_agent&o=<?php echo $disp; ?>">User Agent</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=log_entity_id&o=<?php echo $disp; ?>">Entity ID</a></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -160,6 +161,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $client_name_display = "<a href='client_logs.php?client_id=$client_id&tab=logs'>$client_name</a>";
                         }
+                        $log_entity_id = $row['log_entity_id'];
 
                         ?>
 
@@ -172,6 +174,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $log_description; ?></td>
                             <td><?php echo $log_ip; ?></td>
                             <td><?php echo "$log_user_os<br>$log_user_browser"; ?></td>
+                            <td><?php echo $log_entity_id; ?></td> 
                         </tr>
 
                         <?php

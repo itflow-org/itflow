@@ -4559,7 +4559,7 @@ if(isset($_POST['add_contact'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = '$session_name created contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = '$session_name created contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] .= "Contact <strong>$name</strong> created";
 
@@ -4676,7 +4676,7 @@ if(isset($_POST['edit_contact'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] .= "Contact <strong>$name</strong> updated";
 
@@ -4699,7 +4699,7 @@ if(isset($_GET['archive_contact'])){
     mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> archived.<br><a class='text-white text-bold' href='post.php?undo_archive_contact=$contact_id'>Undo</a>";
@@ -4723,7 +4723,7 @@ if(isset($_GET['delete_contact'])){
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$session_name deleted contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$session_name deleted contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> deleted.";
@@ -4774,6 +4774,7 @@ if(isset($_GET['export_client_contacts_csv'])){
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Export', log_description = '$session_name exported contacts', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     }
+
     exit;
 
 }
@@ -4989,9 +4990,9 @@ if(isset($_POST['add_location'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Create', log_description = '$session_name created location $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] .= "Location added";
+    $_SESSION['alert_message'] .= "Location <strong>$name</strong> created.";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -5074,9 +5075,9 @@ if(isset($_POST['edit_location'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Modify', log_description = '$session_name modified location $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] .= "Location updated";
+    $_SESSION['alert_message'] .= "Location <strong>$name</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -5097,10 +5098,10 @@ if(isset($_GET['archive_location'])){
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id AND company_id = $session_company_id");
 
     //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Archive', log_description = '$session_name archived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Archive', log_description = '$session_name archived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Location ".htmlentities($location_name)." archived. <a href='post.php?undo_archive_location=$location_id'>Undo</a>";
+    $_SESSION['alert_message'] = "Location <strong>$location_name</strong> archived";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -5119,9 +5120,9 @@ if(isset($_GET['undo_archive_location'])){
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Undo Archive', log_description = '$session_name unarchived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Undo Archive', log_description = '$session_name restored location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Location ".htmlentities($location_name)." unarchived.";
+    $_SESSION['alert_message'] = "Location <strong>$location_name</strong> restored";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -5141,10 +5142,10 @@ if(isset($_GET['delete_location'])){
     mysqli_query($mysqli,"DELETE FROM locations WHERE location_id = $location_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Delete', log_description = '$session_name deleted location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Delete', log_description = '$session_name deleted location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Location deleted";
+    $_SESSION['alert_message'] = "Location <strong>$location_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -5345,19 +5346,27 @@ if(isset($_POST['add_asset'])){
 
     mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id, company_id = $session_company_id");
 
+    $asset_id = mysqli_insert_id($mysqli);
+
     if (!empty($_POST['username'])) {
-        $asset_id = mysqli_insert_id($mysqli);
         $username = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['username'])));
         $password = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['password'])));
 
         mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_asset_id = $asset_id, login_client_id = $client_id, company_id = $session_company_id");
 
+        $login_id = mysqli_insert_id($mysqli);
+
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Create', log_description = '$session_name created login credentials for asset $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id, company_id = $session_company_id");
+
+        $alert_extended = " along with login credentials";
+
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Create', log_description = '$session_name created asset $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Asset added";
+    $_SESSION['alert_message'] = "Asset <strong>$name</strong> created $alert_extended";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -5414,9 +5423,9 @@ if(isset($_POST['edit_asset'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modify', log_description = '$session_name modified asset $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Asset updated";
+    $_SESSION['alert_message'] = "Asset <strong>$name</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
