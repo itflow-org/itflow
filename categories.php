@@ -1,4 +1,6 @@
-<?php require_once("inc_all_settings.php");
+<?php
+
+require_once("inc_all_settings.php");
 
 if (isset($_GET['category'])) {
     $category = strip_tags(mysqli_real_escape_string($mysqli,$_GET['category']));
@@ -119,14 +121,10 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
                     </tbody>
                 </table>
             </div>
-            <?php include("pagination.php"); ?>
+            <?php require_once("pagination.php"); ?>
         </div>
     </div>
 
 <?php
-
-include("category_add_modal.php");
-
-include("footer.php");
-
-?>
+require_once("category_add_modal.php");
+require_once("footer.php");

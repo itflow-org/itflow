@@ -20,7 +20,7 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM scheduled_tickets
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 ?>
 
-<script src="js/scheduledTickets.js"></script>
+<script src="js/scheduled_tickets_edit_modal.js"></script>
 
 <div class="card card-dark">
   <div class="card-header">

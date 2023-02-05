@@ -1,4 +1,5 @@
-<?php include("inc_all.php");
+<?php
+require_once("inc_all.php");
 
 $sql_recent_logins = mysqli_query($mysqli, "SELECT * FROM logs
     WHERE log_type = 'Login' OR log_type = 'Login 2FA' AND log_action = 'Success' AND log_user_id = $session_user_id
@@ -167,9 +168,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
                         <td><?php echo "<strong>$log_user_os</strong><br>$log_user_browser<br><i class='fa fa-fw fa-globe text-secondary'></i> $log_ip"; ?></td>
 
                     </tr>
-                    <?php
-                }
-                ?>
+                <?php } ?>
                 </tbody>
             </table>
             <div class="card-footer">
@@ -229,4 +228,5 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
 
 </div>
 
-<?php include("footer.php"); ?>
+<?php
+require_once("footer.php");

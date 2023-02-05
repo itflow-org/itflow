@@ -97,23 +97,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             if ($workstation_count > 0) { ?>
                                 <a href="?<?php echo $url_query_strings_sb; ?>&type=workstation" class="btn <?php if ($_GET['type'] == 'workstation') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop"></i> Workstations <span class="right badge badge-light"><?php echo $workstation_count; ?></span></a>
                                 <?php
-                            } ?>
-                            <?php
+                            }
                             if ($server_count > 0) { ?>
                                 <a href="?<?php echo $url_query_strings_sb; ?>&type=server" class="btn <?php if ($_GET['type'] == 'server') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-server"></i> Servers <span class="right badge badge-light"><?php echo $server_count; ?></span></a>
                                 <?php
-                            } ?>
-                            <?php
+                            }
                             if ($virtual_count > 0) { ?>
                                 <a href="?<?php echo $url_query_strings_sb; ?>&type=virtual" class="btn <?php if ($_GET['type'] == 'virtual') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-cloud"></i> Virtual <span class="right badge badge-light"><?php echo $virtual_count; ?></span></a>
                                 <?php
-                            } ?>
-                            <?php
+                            }
                             if ($network_count > 0) { ?>
                                 <a href="?<?php echo $url_query_strings_sb; ?>&type=network" class="btn <?php if ($_GET['type'] == 'network') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-network-wired"></i> Network <span class="right badge badge-light"><?php echo $network_count; ?></span></a>
                                 <?php
-                            } ?>
-                            <?php
+                            }
                             if ($network_count > 0) { ?>
                                 <a href="?<?php echo $url_query_strings_sb; ?>&type=other" class="btn <?php if ($_GET['type'] == 'other') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-tag"></i> Other <span class="right badge badge-light"><?php echo $other_count; ?></span></a>
                                 <?php
@@ -138,14 +134,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_name&o=<?php echo $disp; ?>">Name</a></th>
                         <?php if ($_GET['type'] !== 'virtual' && $_GET['type'] !== 'servers') { ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_type&o=<?php echo $disp; ?>">Type</a></th>
-                        <?php } ?>
-                        <?php if ($_GET['type'] !== 'virtual') { ?>
+                        <?php }
+                        if ($_GET['type'] !== 'virtual') { ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_make&o=<?php echo $disp; ?>">Make/Model</a></th>
-                        <?php } ?>
-                        <?php if ($_GET['type'] !== 'virtual') { ?>
+                        <?php }
+                        if ($_GET['type'] !== 'virtual') { ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_serial&o=<?php echo $disp; ?>">Serial Number</a></th>
-                        <?php } ?>
-                        <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
+                        <?php }
+                        if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_os&o=<?php echo $disp; ?>">Operating System</a></th>
                         <?php } ?>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_install_date&o=<?php echo $disp; ?>">Install Date</a></th>
@@ -201,33 +197,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $asset_contact_id = $row['asset_contact_id'];
                         $asset_network_id = $row['asset_network_id'];
 
-                        if ($asset_type == 'Laptop') {
-                            $device_icon = "laptop";
-                        } elseif ($asset_type == 'Desktop') {
-                            $device_icon = "desktop";
-                        } elseif ($asset_type == 'Server') {
-                            $device_icon = "server";
-                        } elseif ($asset_type == 'Printer') {
-                            $device_icon = "print";
-                        } elseif ($asset_type == 'Camera') {
-                            $device_icon = "video";
-                        } elseif ($asset_type == 'Switch' || $asset_type == 'Firewall/Router') {
-                            $device_icon = "network-wired";
-                        } elseif ($asset_type == 'Access Point') {
-                            $device_icon = "wifi";
-                        } elseif ($asset_type == 'Phone') {
-                            $device_icon = "phone";
-                        } elseif ($asset_type == 'Mobile Phone') {
-                            $device_icon = "mobile-alt";
-                        } elseif ($asset_type == 'Tablet') {
-                            $device_icon = "tablet-alt";
-                        } elseif ($asset_type == 'TV') {
-                            $device_icon = "tv";
-                        } elseif ($asset_type == 'Virtual Machine') {
-                            $device_icon = "cloud";
-                        } else {
-                            $device_icon = "tag";
-                        }
+                        $device_icon = getAssetIcon($asset_type);
 
                         $contact_name = $row['contact_name'];
                         if (empty($contact_name)) {

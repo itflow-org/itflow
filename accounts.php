@@ -1,4 +1,6 @@
-<?php require_once("inc_all_settings.php");
+<?php
+
+require_once("inc_all_settings.php");
 
 if (!empty($_GET['sb'])) {
     $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
@@ -97,14 +99,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php include("pagination.php"); ?>
+            <?php require_once("pagination.php"); ?>
         </div>
     </div>
 
 <?php
 
-include("account_add_modal.php");
-
-include("footer.php");
-
-?>
+require_once("account_add_modal.php");
+require_once("footer.php");

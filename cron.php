@@ -1,10 +1,7 @@
-<?php require_once("config.php"); ?>
-<?php require_once("functions.php"); ?>
 <?php
 
-?>
-
-<?php
+require_once("config.php");
+require_once("functions.php");
 
 $sql_companies = mysqli_query($mysqli,"SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id");
 
@@ -50,7 +47,7 @@ while($row = mysqli_fetch_array($sql_companies)){
     // Set Currency Format
     $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
-    if($config_enable_cron == 1){
+    if ($config_enable_cron == 1) {
 
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Cron', log_action = 'Started', log_description = 'Cron started for $company_name', company_id = $company_id");
@@ -112,9 +109,9 @@ while($row = mysqli_fetch_array($sql_companies)){
 
             //Get Certs Expiring
             $sql = mysqli_query($mysqli,"SELECT * FROM certificates
-        LEFT JOIN clients ON certificate_client_id = client_id 
-        WHERE certificate_expire = CURDATE() + INTERVAL $day DAY
-        AND certificates.company_id = $company_id"
+                LEFT JOIN clients ON certificate_client_id = client_id 
+                WHERE certificate_expire = CURDATE() + INTERVAL $day DAY
+                AND certificates.company_id = $company_id"
             );
 
             while($row = mysqli_fetch_array($sql)){
@@ -139,9 +136,9 @@ while($row = mysqli_fetch_array($sql_companies)){
 
             //Get Asset Warranty Expiring
             $sql = mysqli_query($mysqli,"SELECT * FROM assets 
-        LEFT JOIN clients ON asset_client_id = client_id
-        WHERE asset_warranty_expire = CURDATE() + INTERVAL $day DAY
-        AND assets.company_id = $company_id"
+                LEFT JOIN clients ON asset_client_id = client_id
+                WHERE asset_warranty_expire = CURDATE() + INTERVAL $day DAY
+                AND assets.company_id = $company_id"
             );
 
             while($row = mysqli_fetch_array($sql)){
@@ -277,14 +274,14 @@ while($row = mysqli_fetch_array($sql_companies)){
         foreach($invoiceAlertArray as $day){
 
             $sql = mysqli_query($mysqli,"SELECT * FROM invoices
-        LEFT JOIN clients ON invoice_client_id = client_id
-        LEFT JOIN contacts ON contact_id = primary_contact
-        WHERE invoice_status NOT LIKE 'Draft'
-        AND invoice_status NOT LIKE 'Paid'
-        AND invoice_status NOT LIKE 'Cancelled'
-        AND DATE_ADD(invoice_due, INTERVAL $day DAY) = CURDATE()
-        AND invoices.company_id = $company_id
-        ORDER BY invoice_number DESC"
+                LEFT JOIN clients ON invoice_client_id = client_id
+                LEFT JOIN contacts ON contact_id = primary_contact
+                WHERE invoice_status NOT LIKE 'Draft'
+                AND invoice_status NOT LIKE 'Paid'
+                AND invoice_status NOT LIKE 'Cancelled'
+                AND DATE_ADD(invoice_due, INTERVAL $day DAY) = CURDATE()
+                AND invoices.company_id = $company_id
+                ORDER BY invoice_number DESC"
             );
 
             while($row = mysqli_fetch_array($sql)){
@@ -393,10 +390,10 @@ while($row = mysqli_fetch_array($sql_companies)){
 
             if($config_recurring_auto_send_invoice == 1){
                 $sql = mysqli_query($mysqli,"SELECT * FROM invoices
-          LEFT JOIN clients ON invoice_client_id = client_id
-          LEFT JOIN contacts ON contact_id = primary_contact
-          WHERE invoice_id = $new_invoice_id
-          AND invoices.company_id = $company_id"
+                  LEFT JOIN clients ON invoice_client_id = client_id
+                  LEFT JOIN contacts ON contact_id = primary_contact
+                  WHERE invoice_id = $new_invoice_id
+                  AND invoices.company_id = $company_id"
                 );
 
                 $row = mysqli_fetch_array($sql);
@@ -683,4 +680,4 @@ while($row = mysqli_fetch_array($sql_companies)){
 
 } //End Company Loop through
 
-?>
+

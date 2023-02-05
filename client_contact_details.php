@@ -1,4 +1,6 @@
-<?php include("inc_all_client.php");
+<?php
+
+require_once("inc_all_client.php");
 
 if (isset($_GET['contact_id'])) {
     $contact_id = intval($_GET['contact_id']);
@@ -39,7 +41,7 @@ if (isset($_GET['contact_id'])) {
     $auth_method = htmlentities($row['contact_auth_method']);
 
     // Related Assets Query
-    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id AND company_id = $session_company_id ORDER BY asset_name DESC");
+    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN logins ON logins.login_asset_id = assets.asset_id WHERE asset_contact_id = $contact_id AND assets.company_id = $session_company_id ORDER BY asset_name DESC");
     $asset_count = mysqli_num_rows($sql_related_assets);
 
     // Related Logins Query
@@ -82,14 +84,14 @@ if (isset($_GET['contact_id'])) {
                     <hr>
                     <?php if (!empty($location_name)) { ?>
                         <div class="mb-1"><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name_display; ?></div>
-                    <?php } ?>
-                    <?php if (!empty($contact_email)) { ?>
+                    <?php }
+                    if (!empty($contact_email)) { ?>
                         <div><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
-                    <?php } ?>
-                    <?php if (!empty($contact_phone)) { ?>
+                    <?php }
+                    if (!empty($contact_phone)) { ?>
                         <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone $contact_extension"; ?></div>
-                    <?php } ?>
-                    <?php if (!empty($contact_mobile)) { ?>
+                    <?php }
+                    if (!empty($contact_mobile)) { ?>
                         <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile; ?></div>
                     <?php } ?>
                     <div class="mb-2"><i class="fa fa-fw fa-clock text-secondary mr-3"></i><?php echo date('Y-m-d',strtotime($contact_created_at)); ?></div>
@@ -98,7 +100,7 @@ if (isset($_GET['contact_id'])) {
                         <i class="fas fa-fw fa-user-edit"></i> Edit
                     </button>
 
-                    <?php include("client_contact_edit_modal.php"); ?>
+                    <?php require_once("client_contact_edit_modal.php"); ?>
 
                 </div>
             </div>
@@ -195,33 +197,12 @@ if (isset($_GET['contact_id'])) {
                                 $asset_location_id = $row['asset_location_id'];
                                 $asset_network_id = $row['asset_network_id'];
                                 $asset_contact_id = $row['asset_contact_id'];
-                                if ($asset_type == 'Laptop') {
-                                    $device_icon = "laptop";
-                                } elseif ($asset_type == 'Desktop') {
-                                    $device_icon = "desktop";
-                                } elseif ($asset_type == 'Server') {
-                                    $device_icon = "server";
-                                } elseif ($asset_type == 'Printer') {
-                                    $device_icon = "print";
-                                } elseif ($asset_type == 'Camera') {
-                                    $device_icon = "video";
-                                } elseif ($asset_type == 'Switch' || $asset_type == 'Firewall/Router') {
-                                    $device_icon = "network-wired";
-                                } elseif ($asset_type == 'Access Point') {
-                                    $device_icon = "wifi";
-                                } elseif ($asset_type == 'Phone') {
-                                    $device_icon = "phone";
-                                } elseif ($asset_type == 'Mobile Phone') {
-                                    $device_icon = "mobile-alt";
-                                } elseif ($asset_type == 'Tablet') {
-                                    $device_icon = "tablet-alt";
-                                } elseif ($asset_type == 'TV') {
-                                    $device_icon = "tv";
-                                } elseif ($asset_type == 'Virtual Machine') {
-                                    $device_icon = "cloud";
-                                } else {
-                                    $device_icon = "tag";
-                                }
+
+                                $login_id = $row['login_id'];
+                                $login_username = htmlentities(decryptLoginEntry($row['login_username']));
+                                $login_password = htmlentities(decryptLoginEntry($row['login_password']));
+
+                                $device_icon = getAssetIcon($asset_type);
 
                                 ?>
                                 <tr>
@@ -254,10 +235,9 @@ if (isset($_GET['contact_id'])) {
 
                                 <?php
 
-                                include("client_asset_edit_modal.php");
-                                include("client_asset_copy_modal.php");
-                                //include("client_asset_tickets_modal.php");
-                                include("client_asset_interface_add_modal.php");
+                                require("client_asset_edit_modal.php");
+                                require("client_asset_copy_modal.php");
+                                require("client_asset_interface_add_modal.php");
 
                             }
 
@@ -352,7 +332,7 @@ if (isset($_GET['contact_id'])) {
 
                                 <?php
 
-                                include("client_login_edit_modal.php");
+                                require("client_login_edit_modal.php");
                             }
 
                             ?>
@@ -372,13 +352,13 @@ if (isset($_GET['contact_id'])) {
                     <div class="table-responsive">
                         <table class="table table-striped table-borderless table-hover">
                             <thead class="text-dark">
-                                <tr>
+                            <tr>
                                 <th>Software</th>
                                 <th>Type</th>
                                 <th>License Type</th>
                                 <th>Seats</th>
                                 <th class="text-center">Action</th>
-                              </tr>
+                            </tr>
                             </thead>
                             <tbody>
                             <?php
@@ -406,8 +386,8 @@ if (isset($_GET['contact_id'])) {
                                 $asset_licenses_sql = mysqli_query($mysqli, "SELECT asset_id FROM software_assets WHERE software_id = $software_id");
                                 $asset_licenses_array = array();
                                 while ($row = mysqli_fetch_array($asset_licenses_sql)) {
-                                  $asset_licenses_array[] = $row['asset_id'];
-                                  $seat_count = $seat_count + 1;
+                                    $asset_licenses_array[] = $row['asset_id'];
+                                    $seat_count = $seat_count + 1;
                                 }
                                 $asset_licenses = implode(',',$asset_licenses_array);
 
@@ -415,12 +395,12 @@ if (isset($_GET['contact_id'])) {
                                 $contact_licenses_sql = mysqli_query($mysqli, "SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
                                 $contact_licenses_array = array();
                                 while ($row = mysqli_fetch_array($contact_licenses_sql)) {
-                                  $contact_licenses_array[] = $row['contact_id'];
-                                  $seat_count = $seat_count + 1;
+                                    $contact_licenses_array[] = $row['contact_id'];
+                                    $seat_count = $seat_count + 1;
                                 }
                                 $contact_licenses = implode(',',$contact_licenses_array);
 
-                            ?>
+                                ?>
                                 <tr>
                                     <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>"><?php echo "$software_name<br><span class='text-secondary'>$software_version</span>"; ?></a></td>
                                     <td><?php echo $software_type; ?></td>
@@ -434,20 +414,20 @@ if (isset($_GET['contact_id'])) {
                                             <div class="dropdown-menu">
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>">Edit</a>
                                                 <?php if ($session_user_role == 3) { ?>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="post.php?delete_software=<?php echo $software_id; ?>">Delete</a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item text-danger" href="post.php?delete_software=<?php echo $software_id; ?>">Delete</a>
                                                 <?php } ?>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
 
-                              <?php
+                                <?php
 
-                              include("client_software_edit_modal.php");
-                              }
+                                require("client_software_edit_modal.php");
+                            }
 
-                              ?>
+                            ?>
 
                             </tbody>
                         </table>
@@ -463,15 +443,15 @@ if (isset($_GET['contact_id'])) {
                     <div class="table-responsive">
                         <table class="table table-striped table-borderless table-hover">
                             <thead class="text-dark">
-                                <tr>
-                                    <th>Number</th>
-                                    <th>Subject</th>
-                                    <th>Priority</th>
-                                    <th>Status</th>
-                                    <th>Assigned</th>
-                                    <th>Last Response</th>
-                                    <th>Created</th>
-                                </tr>
+                            <tr>
+                                <th>Number</th>
+                                <th>Subject</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Assigned</th>
+                                <th>Last Response</th>
+                                <th>Created</th>
+                            </tr>
                             </thead>
                             <tbody>
                             <?php
@@ -524,7 +504,7 @@ if (isset($_GET['contact_id'])) {
                                     $ticket_assigned_to_display = htmlentities($row['user_name']);
                                 }
 
-                              ?>
+                                ?>
 
                                 <tr>
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
@@ -536,7 +516,7 @@ if (isset($_GET['contact_id'])) {
                                     <td><?php echo $ticket_created_at; ?></td>
                                 </tr>
 
-                            <?php
+                                <?php
 
                             }
 
@@ -554,26 +534,27 @@ if (isset($_GET['contact_id'])) {
 
     <?php
 
-    include("share_modal.php");
+    require_once("share_modal.php");
 
     ?>
 
 <?php } ?>
 
 <script>
-function updateContactNotes(contact_id) {
-    var notes = document.getElementById("contactNotes").value;
+    function updateContactNotes(contact_id) {
+        var notes = document.getElementById("contactNotes").value;
 
-    // Send a POST request to ajax.php as ajax.php with data client_set_notes=true, client_id=NUM, notes=NOTES
-    jQuery.post(
-        "ajax.php",
-        {
-            contact_set_notes: 'TRUE',
-            contact_id: contact_id,
-            notes: notes
-        }
-    )
-}
+        // Send a POST request to ajax.php as ajax.php with data contact_set_notes=true, contact_id=NUM, notes=NOTES
+        jQuery.post(
+            "ajax.php",
+            {
+                contact_set_notes: 'TRUE',
+                contact_id: contact_id,
+                notes: notes
+            }
+        )
+    }
 </script>
 
-<?php include("footer.php"); ?>
+<?php
+require_once("footer.php");

@@ -26,8 +26,8 @@ if (isset($_SERVER['HTTP_ORIGIN'])) {
     }
 }
 
-include_once("config.php");
-include_once("functions.php");
+require_once("config.php");
+require_once("functions.php");
 
 // IP & User Agent for logging
 $ip = strip_tags(mysqli_real_escape_string($mysqli,getIP()));

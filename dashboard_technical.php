@@ -1,6 +1,6 @@
-<?php include_once("inc_all.php"); ?>
-
 <?php
+
+require_once("inc_all.php");
 
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
@@ -107,13 +107,13 @@ $expiring_certificates = $sql_certs_expiring['expiring_certs'];
 
     <div class="col-lg-4 col-6">
         <a class="small-box bg-success"">
-            <div class="inner">
-                <h3><?php echo $contacts_added; ?></h3>
-                <p>New Contacts</p>
-            </div>
-            <div class="icon">
-                <i class="fa fa-user"></i>
-            </div>
+        <div class="inner">
+            <h3><?php echo $contacts_added; ?></h3>
+            <p>New Contacts</p>
+        </div>
+        <div class="icon">
+            <i class="fa fa-user"></i>
+        </div>
         </a>
     </div>
     <!-- ./col -->
@@ -172,5 +172,6 @@ $expiring_certificates = $sql_certs_expiring['expiring_certs'];
 
 </div> <!-- rows -->
 
-<?php include_once("footer.php"); ?>
+<?php
+require_once("footer.php");
 

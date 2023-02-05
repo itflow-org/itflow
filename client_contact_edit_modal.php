@@ -128,10 +128,8 @@
                                             $location_name_select = htmlentities($row['location_name']);
                                             ?>
                                             <option <?php if ($contact_location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
+                                        <?php } ?>
 
-                                            <?php
-                                        }
-                                        ?>
                                     </select>
                                 </div>
                             </div>
@@ -212,11 +210,11 @@
                             <div class="mb-3 text-center">
                                 <?php if (!empty($contact_photo)) { ?>
                                     <img class="img-fluid" alt="contact_photo" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
-                                <?php }else{ ?>
+                                <?php } else { ?>
                                     <span class="fa-stack fa-4x">
-                  <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                  <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
-                </span>
+                                        <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                                        <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+                                    </span>
                                 <?php } ?>
                             </div>
 
