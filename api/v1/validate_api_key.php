@@ -16,9 +16,8 @@ header('Content-Type: application/json');
 // POST data
 $_POST = json_decode(file_get_contents('php://input'), true);
 
-// Get user IP
+// Get IP & UA
 $ip = strip_tags(mysqli_real_escape_string($mysqli, getIP()));
-// Get user agent
 $user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
 
 // Setup return array
@@ -81,10 +80,10 @@ if (isset($api_key)) {
         header(WORDING_UNAUTHORIZED);
         echo json_encode($return_arr);
         exit();
-    }
 
-    // Success
-    else {
+    } else {
+
+        // SUCCESS
 
         // Set client ID, company ID & key name
         $row = mysqli_fetch_array($sql);
@@ -95,21 +94,17 @@ if (isset($api_key)) {
         // Set limit & offset for queries
         if (isset($_GET['limit'])) {
             $limit = intval($_GET['limit']);
-        }
-        elseif (isset($_POST['limit'])) {
+        } elseif (isset($_POST['limit'])) {
             $limit = intval($_POST['limit']);
-        }
-        else {
+        } else {
             $limit = 50;
         }
 
         if (isset($_GET['offset'])) {
             $offset = intval($_GET['offset']);
-        }
-        elseif (isset($_POST['offset'])) {
+        } elseif (isset($_POST['offset'])) {
             $offset = intval($_POST['offset']);
-        }
-        else {
+        } else {
             $offset = 0;
         }
 
