@@ -10,8 +10,6 @@ We attempt to follow security best practices where possible, including [automate
 
 ## Supported Versions
 
-ITFlow is in Beta. 
-
 | Version | Supported          |
 | ------- | ------------------ |
 | Beta    | :white_check_mark: |
@@ -20,7 +18,6 @@ ITFlow is in Beta.
 
 **<ins>Please do not report security vulnerabilities through public GitHub issues.</ins>**
 
-If you have discovered a security issue, please [report it](https://github.com/itflow-org/itflow/security/advisories/new) to us in as much detail as possible, so we can fix it. 
-You should expect to receive an initial acknowledgement within 72 hours. If you do not, please get in touch discretely via GitHub issues/Forum to ensure we received your e-mail.
+If you have discovered a security issue, please [report it](https://github.com/itflow-org/itflow/security/advisories/new) to us in as much detail as possible, so we can fix it. You should expect to receive an initial acknowledgement within 72 hours.
 
-Security contact: [GitHub Security Advisories](https://github.com/itflow-org/itflow/security/advisories/new)
+**Security contact: [GitHub Security Advisories](https://github.com/itflow-org/itflow/security/advisories/new)**
