@@ -8,6 +8,12 @@
                 </button>
             </div>
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+                <!-- Prevent undefined checkbox errors on submit -->
+                <input type="hidden" name="primary_contact" value="0">
+                <input type="hidden" name="contact_important" value="0">
+                <input type="hidden" name="contact_billing" value="0">
+                <input type="hidden" name="contact_technical" value="0">
+                <!-- End prevent undefined errors -->
                 <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <input type="hidden" name="existing_file_name" value="<?php echo $contact_photo; ?>">
@@ -122,8 +128,8 @@
                                             $location_name_select = htmlentities($row['location_name']);
                                             ?>
                                             <option <?php if ($contact_location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
-
                                         <?php } ?>
+
                                     </select>
                                 </div>
                             </div>
