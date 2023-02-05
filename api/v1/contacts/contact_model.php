@@ -1,16 +1,107 @@
 <?php
 define('number_regex', '/[^0-9]/');
 
-$name = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_name'])));
-$title = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_title'])));
-$department = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_department'])));
-$email = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_email'])));
-$phone = preg_replace(number_regex, '', $_POST['contact_phone']);
-$extension = preg_replace(number_regex, '', $_POST['contact_extension']);
-$mobile = preg_replace(number_regex, '', $_POST['contact_mobile']);
-$notes = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_notes'])));
-$auth_method = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_auth_method'])));
-$important = intval($_POST['contact_important']);
-$billing = intval($_POST['contact_billing']);
-$technical = intval($_POST['contact_technical']);
-$location_id = intval($_POST['contact_location_id']);
+// Variable assignment from POST (or: blank/from DB is updating)
+if (isset($_POST['contact_name'])) {
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_name'])));
+} elseif ($contact_row) {
+    $name = $contact_row['contact_name'];
+} else {
+    $name = '';
+}
+
+if (isset($_POST['contact_title'])) {
+    $title = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_title'])));
+} elseif ($contact_row) {
+    $title = $contact_row['contact_title'];
+} else {
+    $title = '';
+}
+
+if (isset($_POST['contact_department'])) {
+    $department = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_department'])));
+} elseif ($contact_row) {
+    $department = $contact_row['contact_department'];
+} else {
+    $department = '';
+}
+
+if (isset($_POST['contact_email'])) {
+    $email = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_email'])));
+} elseif ($contact_row) {
+    $email = $contact_row['contact_email'];
+} else {
+    $email = '';
+}
+
+if (isset($_POST['contact_phone'])) {
+    $phone = preg_replace(number_regex, '', $_POST['contact_phone']);
+} elseif ($contact_row) {
+    $phone = $contact_row['contact_phone'];
+} else {
+    $phone = '';
+}
+
+if (isset($_POST['contact_extension'])) {
+    $extension = preg_replace(number_regex, '', $_POST['contact_extension']);
+} elseif ($contact_row) {
+    $extension = $contact_row['contact_extension'];
+} else {
+    $extension = '';
+}
+
+if (isset($_POST['contact_mobile'])) {
+    $mobile = preg_replace(number_regex, '', $_POST['contact_mobile']);
+} elseif ($contact_row) {
+    $mobile = $contact_row['contact_mobile'];
+} else {
+    $mobile = '';
+}
+
+if (isset($_POST['contact_notes'])) {
+    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_notes'])));
+} elseif ($contact_row) {
+    $notes = $contact_row['contact_notes'];
+} else {
+    $notes = '';
+}
+
+if (isset($_POST['contact_auth_method'])) {
+    $auth_method = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_auth_method'])));
+} elseif ($contact_row) {
+    $auth_method = $contact_row['contact_auth_method'];
+} else {
+    $auth_method = '';
+}
+
+if (isset($_POST['contact_important'])) {
+    $important = intval($_POST['contact_important']);
+} elseif ($contact_row) {
+    $important = $contact_row['contact_important'];
+} else {
+    $important = '0';
+}
+
+if (isset($_POST['contact_billing'])) {
+    $billing = intval($_POST['contact_billing']);
+} elseif ($contact_row) {
+    $billing = $contact_row['contact_billing'];
+} else {
+    $billing = '0';
+}
+
+if (isset($_POST['contact_technical'])) {
+    $technical = intval($_POST['contact_technical']);
+} elseif ($contact_row) {
+    $technical = $contact_row['contact_technical'];
+} else {
+    $technical = '0';
+}
+
+if (isset($_POST['contact_location_id'])) {
+    $location_id = intval($_POST['contact_location_id']);
+} elseif ($contact_row) {
+    $location_id = $contact_row['contact_location_id'];
+} else {
+    $location_id = '';
+}

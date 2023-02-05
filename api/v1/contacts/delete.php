@@ -20,7 +20,7 @@ if (!empty($contact_id)) {
         $delete_count = mysqli_affected_rows($mysqli);
 
         //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Deleted', log_description = '$contact_name via API ($api_key_name)', log_ip = '$ip', log_client_id = $client_id, company_id = $company_id");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Deleted', log_description = '$contact_name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id, company_id = $company_id");
     }
 }
 
