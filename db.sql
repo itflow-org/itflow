@@ -684,6 +684,7 @@ CREATE TABLE `logs` (
   `log_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `log_client_id` int(11) NOT NULL DEFAULT 0,
   `log_user_id` int(11) NOT NULL DEFAULT 0,
+  `log_entity_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1535,4 +1536,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-30 17:53:50
+-- Dump completed on 2023-02-05 13:31:22
