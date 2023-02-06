@@ -169,9 +169,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                 </button>
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>">Edit</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item text-danger" href="post.php?archive_software=<?php echo $software_id; ?>">Archive and<br><small>Remove Licenses</small></a>
                   <?php if ($session_user_role == 3) { ?>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item text-danger" href="post.php?delete_software=<?php echo $software_id; ?>">Delete</a>
+                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_software=<?php echo $software_id; ?>">Delete and<br><small>Remove Licenses</small></a>
                   <?php } ?>
                 </div>
               </div> 

@@ -4686,7 +4686,7 @@ if(isset($_POST['edit_contact'])){
 
 if(isset($_GET['archive_contact'])){
 
-    validateAdminRole();
+    validateTechRole();
 
     $contact_id = intval($_GET['archive_contact']);
 
@@ -4742,8 +4742,10 @@ if(isset($_GET['export_client_contacts_csv'])){
     $client_name = $row['client_name'];
 
     //Contacts
-    $sql = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN locations ON location_id = contact_location_id WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
-    if($sql->num_rows > 0){
+    $sql = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN locations ON location_id = contact_location_id WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC");
+    $num_rows = mysqli_num_rows($sql); 
+
+    if($num_rows > 0){
         $delimiter = ",";
         $filename = strtoAZaz09($client_name) . "-Contacts-" . date('Y-m-d') . ".csv";
 
@@ -4770,10 +4772,10 @@ if(isset($_GET['export_client_contacts_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
 
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Export', log_description = '$session_name exported contacts', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
-
     }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Export', log_description = '$session_name exported $num_rows contact(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     exit;
 
@@ -5189,6 +5191,10 @@ if(isset($_GET['export_client_locations_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
     }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Export', log_description = '$session_name exported locations', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
     exit;
 
 }
@@ -5457,7 +5463,7 @@ if(isset($_POST['edit_asset'])){
 
 if(isset($_GET['archive_asset'])){
 
-    validateAdminRole();
+    validateTechRole();
 
     $asset_id = intval($_GET['archive_asset']);
 
@@ -5671,6 +5677,10 @@ if(isset($_GET['export_client_assets_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
     }
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Export', log_description = '$session_name exported assets', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
     exit;
 
 }
@@ -5714,7 +5724,7 @@ if(isset($_POST['edit_software_template'])){
     mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes' WHERE software_id = $software_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software Teplate', log_action = 'Modify', log_description = '$session_name updated software template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software Teplate', log_action = 'Modify', log_description = '$session_name modified software template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Software template updated";
 
@@ -5869,9 +5879,37 @@ if(isset($_POST['edit_software'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Modify', log_description = '$session_name modified software $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $software_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Software updated";
+    $_SESSION['alert_message'] = "Software <strong>$name</strong> updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['archive_software'])){
+
+    validateTechRole();
+
+    $software_id = intval($_GET['archive_software']);
+
+    // Get Software Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $software_name = strip_tags(mysqli_real_escape_string($mysqli, $row['software_name']));
+    $client_id = $row['software_client_id'];
+
+    mysqli_query($mysqli,"UPDATE software SET software_archived_at = NOW() WHERE software_id = $software_id AND company_id = $session_company_id");
+
+    // Remove Software Relations
+    mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
+    mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Archive', log_description = '$session_name archived software $software_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $software_id, company_id = $session_company_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Software <strong>$software_name</strong> archived";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -5883,6 +5921,12 @@ if(isset($_GET['delete_software'])){
 
     $software_id = intval($_GET['delete_software']);
 
+    // Get Software Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $software_name = strip_tags(mysqli_real_escape_string($mysqli, $row['software_name']));
+    $client_id = $row['software_client_id'];
+
     mysqli_query($mysqli,"DELETE FROM software WHERE software_id = $software_id AND company_id = $session_company_id");
 
     // Remove Software Relations
@@ -5890,9 +5934,10 @@ if(isset($_GET['delete_software'])){
     mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Delete', log_description = '$software_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Delete', log_description = '$session_name deleted software $software_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $software_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Software deleted";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Software <strong>$software_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -5963,6 +6008,10 @@ if(isset($_GET['export_client_software_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
     }
+    
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Export', log_description = '$session_name exported software', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
     exit;
 
 }
