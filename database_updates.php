@@ -846,8 +846,6 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.1'");
     }
 
-    // TODO: ALTER TABLE `settings` ADD `config_stripe_account` TINYINT(1) NOT NULL DEFAULT '0' AFTER `config_stripe_secret`;
-
     if (CURRENT_DATABASE_VERSION == '0.4.1') {
         mysqli_query($mysqli, "ALTER TABLE settings ADD `config_stripe_account` TINYINT(1) NOT NULL DEFAULT '0' AFTER config_stripe_secret");
         //Insert queries here required to update to DB version 0.4.2
