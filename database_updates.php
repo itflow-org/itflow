@@ -842,15 +842,23 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
     if (CURRENT_DATABASE_VERSION == '0.4.0') {
         mysqli_query($mysqli, "ALTER TABLE `logs` ADD `log_entity_id` INT NOT NULL DEFAULT '0' AFTER `log_user_id`");
-    
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.1'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.4.1') {
-    // Insert queries here required to update to DB version 0.4.2
+    if (CURRENT_DATABASE_VERSION == '0.4.1') {
+        mysqli_query($mysqli, "ALTER TABLE settings ADD `config_stripe_account` TINYINT(1) NOT NULL DEFAULT '0' AFTER config_stripe_secret");
+        //Insert queries here required to update to DB version 0.4.2
+
+        //Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.2'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.4.2') {
+    // Insert queries here required to update to DB version 0.4.3
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.2'");
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.3'");
     //}
 
 } else {

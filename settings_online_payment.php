@@ -1,6 +1,10 @@
 <?php
 
-require_once("inc_all_settings.php"); ?>
+require_once("inc_all_settings.php");
+
+$sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id = '$session_company_id'");
+
+?>
 
     <div class="alert alert-warning">
         Work in Progress - Not yet functioning
@@ -28,7 +32,7 @@ require_once("inc_all_settings.php"); ?>
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="config_stripe_publishable" placeholder="Stripe Publishable API Key" value="<?php echo htmlentities($config_stripe_publishable); ?>">
+                            <input type="text" class="form-control" name="config_stripe_publishable" placeholder="Stripe Publishable API Key (pk_...)" value="<?php echo htmlentities($config_stripe_publishable); ?>">
                         </div>
                     </div>
 
@@ -38,7 +42,25 @@ require_once("inc_all_settings.php"); ?>
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="config_stripe_secret" placeholder="Stripe Secret API Key" value="<?php echo htmlentities($config_stripe_secret); ?>">
+                            <input type="text" class="form-control" name="config_stripe_secret" placeholder="Stripe Secret API Key (sk_...)" value="<?php echo htmlentities($config_stripe_secret); ?>">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Account</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                            </div>
+                            <select class="form-control" name="config_stripe_account">
+                                <option value="">- Account -</option>
+                                <?php
+                                    while ($row = mysqli_fetch_array($sql_accounts)) { ?>
+                                        <option value="<?php echo $row['account_id'] ?>" <?php if ($row['account_id'] == $config_stripe_account) { echo "selected"; } ?>><?php echo $row['account_name'] ?></option>
+                                    <?php }
+                                ?>
+                            </select>
+
                         </div>
                     </div>
 

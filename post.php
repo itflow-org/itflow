@@ -1060,8 +1060,9 @@ if(isset($_POST['edit_online_payment_settings'])){
     $config_stripe_enable = intval($_POST['config_stripe_enable']);
     $config_stripe_publishable = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_stripe_publishable'])));
     $config_stripe_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_stripe_secret'])));
+    $config_stripe_account = intval($_POST['config_stripe_account']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_stripe_enable = $config_stripe_enable, config_stripe_publishable = '$config_stripe_publishable', config_stripe_secret = '$config_stripe_secret' WHERE company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE settings SET config_stripe_enable = $config_stripe_enable, config_stripe_publishable = '$config_stripe_publishable', config_stripe_secret = '$config_stripe_secret', config_stripe_account = $config_stripe_account WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified online payment settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
@@ -4218,8 +4219,8 @@ if(isset($_POST['add_payment'])){
             if($email_receipt == 1){
 
 
-                $subject = "Payment Recieved - Invoice $invoice_prefix$invoice_number";
-                $body    = "Hello $contact_name,<br><br>We have recieved your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+                $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
+                $body    = "Hello $contact_name,<br><br>We have received your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
                 $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
                       $config_invoice_from_email, $config_invoice_from_name,
@@ -4743,7 +4744,7 @@ if(isset($_GET['export_client_contacts_csv'])){
 
     //Contacts
     $sql = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN locations ON location_id = contact_location_id WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC");
-    $num_rows = mysqli_num_rows($sql); 
+    $num_rows = mysqli_num_rows($sql);
 
     if($num_rows > 0){
         $delimiter = ",";
@@ -6015,7 +6016,7 @@ if(isset($_GET['export_client_software_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
     }
-    
+
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Export', log_description = '$session_name exported $num_rows software license(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 

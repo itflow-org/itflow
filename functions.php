@@ -501,6 +501,7 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
 
     try{
         // Mail Server Settings
+        $mail->CharSet = "UTF-8";                                   // Specify UTF-8 charset to ensure symbols ($/£) load correctly
         $mail->SMTPDebug = 0;                                       // No Debugging
         $mail->isSMTP();                                            // Set mailer to use SMTP
         $mail->Host       = $config_smtp_host;                      // Specify SMTP server
@@ -531,8 +532,9 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
     }
 
     catch(Exception $e) {
-        // If we couldn't send the message return the error, so we can log it
-        return "Message not sent. Mailer Error: {$mail->ErrorInfo}";
+        // If we couldn't send the message return the error, so we can log it in the database (truncated)
+        error_log("ITFlow - Failed to send email: " . $mail->ErrorInfo);
+        return substr("Mailer Error: $mail->ErrorInfo", 0, 150)."...";
     }
 }
 

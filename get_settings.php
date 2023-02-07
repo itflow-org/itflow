@@ -72,6 +72,7 @@ $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
 $config_stripe_enable = $row['config_stripe_enable'];
 $config_stripe_publishable = $row['config_stripe_publishable'];
 $config_stripe_secret = $row['config_stripe_secret'];
+$config_stripe_account = $row['config_stripe_account'];
 
 // Modules
 $config_module_enable_itdoc = $row['config_module_enable_itdoc'];
