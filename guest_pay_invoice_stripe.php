@@ -190,7 +190,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_invoice_id = intval($pi_obj->metadata->itflow_invoice_id);
     $pi_client_id = intval($pi_obj->metadata->itflow_client_id);
     $pi_amount_paid = floatval(($pi_obj->amount_received / 100));
-    $pi_currency = mysqli_real_escape_string($mysqli, $pi_obj->currency);
+    $pi_currency = strtoupper(mysqli_real_escape_string($mysqli, $pi_obj->currency));
     $pi_livemode = $pi_obj->livemode;
 
     // Get/Check invoice (& client/primary contact)
