@@ -9,6 +9,7 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="certificate_id" value="" id="editCertificateId">
+                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <div class="modal-body bg-white">
 
                     <div class="form-group">

@@ -5164,7 +5164,10 @@ if(isset($_GET['export_client_locations_csv'])){
 
     //Locations
     $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL AND company_id = $session_company_id ORDER BY location_name ASC");
-    if($sql->num_rows > 0){
+    
+    $num_rows = mysqli_num_rows($sql);
+
+    if($num_rows > 0) {
         $delimiter = ",";
         $filename = strtoAZaz09($client_name) . "-Locations-" . date('Y-m-d') . ".csv";
 
@@ -5193,7 +5196,7 @@ if(isset($_GET['export_client_locations_csv'])){
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Export', log_description = '$session_name exported locations', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Export', log_description = '$session_name exported $num_rows location(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     exit;
 
@@ -5644,13 +5647,14 @@ if(isset($_GET['export_client_assets_csv'])){
     $client_id = intval($_GET['export_client_assets_csv']);
 
     //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN clients ON asset_client_id = client_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
-    if($sql->num_rows > 0){
+    $num_rows = mysqli_num_rows($sql);
+
+    if($num_rows > 0){
         $delimiter = ",";
         $filename = strtoAZaz09($client_name) . "-Assets-" . date('Y-m-d') . ".csv";
 
@@ -5662,7 +5666,7 @@ if(isset($_GET['export_client_assets_csv'])){
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()){
+        while($row = mysqli_fetch_array($sql)){
             $lineData = array($row['asset_name'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_install_date'], $row['contact_name'], $row['location_name'], $row['asset_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
@@ -5679,7 +5683,7 @@ if(isset($_GET['export_client_assets_csv'])){
     }
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Export', log_description = '$session_name exported assets', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Export', log_description = '$session_name exported $num_rows asset(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     exit;
 
@@ -5906,10 +5910,10 @@ if(isset($_GET['archive_software'])){
     mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Archive', log_description = '$session_name archived software $software_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $software_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Archive', log_description = '$session_name archived software $software_name and removed all device/user license associations', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $software_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Software <strong>$software_name</strong> archived";
+    $_SESSION['alert_message'] = "Software <strong>$software_name</strong> archived and removed all device/user license associations";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -5934,10 +5938,10 @@ if(isset($_GET['delete_software'])){
     mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Delete', log_description = '$session_name deleted software $software_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $software_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Delete', log_description = '$session_name deleted software $software_name and removed all device/user license associations', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $software_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Software <strong>$software_name</strong> deleted";
+    $_SESSION['alert_message'] = "Software <strong>$software_name</strong> deleted and removed all device/user license associations";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -5956,7 +5960,10 @@ if(isset($_GET['export_client_software_csv'])){
     $client_name = $row['client_name'];
 
     $sql = mysqli_query($mysqli,"SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
-    if($sql->num_rows > 0){
+    
+    $num_rows = mysqli_num_rows($sql);
+
+    if($num_rows > 0) {
         $delimiter = ",";
         $filename = $client_name . "-Software-" . date('Y-m-d') . ".csv";
 
@@ -6010,7 +6017,7 @@ if(isset($_GET['export_client_software_csv'])){
     }
     
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Export', log_description = '$session_name exported software', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Export', log_description = '$session_name exported $num_rows software license(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
     exit;
 
@@ -6035,10 +6042,12 @@ if(isset($_POST['add_login'])){
 
     mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_uri = '$uri', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_important = $important, login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id, login_client_id = $client_id, company_id = $session_company_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    $login_id = mysqli_insert_id($mysqli);
 
-    $_SESSION['alert_message'] = "Login added";
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Create', log_description = '$session_name created login $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Login <strong>$name</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6060,13 +6069,14 @@ if(isset($_POST['edit_login'])){
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
     $software_id = intval($_POST['software']);
+    $client_id = intval($_POST['client_id']);
 
     mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_uri = '$uri', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_important = $important, login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id WHERE login_id = $login_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Modify', log_description = '$session_name modified login $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Login updated";
+    $_SESSION['alert_message'] = "Login <strong>$name</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6078,12 +6088,18 @@ if(isset($_GET['delete_login'])){
 
     $login_id = intval($_GET['delete_login']);
 
+    // Get Login Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $login_name = strip_tags(mysqli_real_escape_string($mysqli, $row['login_name']));
+    $client_id = $row['login_client_id'];
+
     mysqli_query($mysqli,"DELETE FROM logins WHERE login_id = $login_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Delete', log_description = '$login_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Delete', log_description = '$session_name deleted login $login_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Login deleted";
+    $_SESSION['alert_message'] = "Login <strong>$login_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6096,13 +6112,14 @@ if(isset($_GET['export_client_logins_csv'])){
     $client_id = intval($_GET['export_client_logins_csv']);
 
     //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM logins LEFT JOIN clients ON client_id = login_client_id WHERE login_client_id = $client_id ORDER BY login_name ASC");
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
-    if($sql->num_rows > 0){
+    $num_rows = mysqli_num_rows($sql);
+
+    if($num_rows > 0) {
         $delimiter = ",";
         $filename = strtoAZaz09($client_name) . "-Logins-" . date('Y-m-d') . ".csv";
 
@@ -6131,6 +6148,10 @@ if(isset($_GET['export_client_logins_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
     }
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Export', log_description = '$session_name exported $num_rows login(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
     exit;
 
 }
@@ -6201,7 +6222,7 @@ if(isset($_POST["import_client_logins_csv"])){
         fclose($file);
 
         //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Logins', log_action = 'Import', log_description = '$session_name imported $row_count login(s) via csv file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', company_id = $session_company_id, log_client_id = $client_id, log_user_id = $session_user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Import', log_description = '$session_name imported $row_count login(s) via csv file. $duplicate_count duplicate(s) detected and not imported', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
 
         $_SESSION['alert_message'] = "$row_count Login(s) imported, $duplicate_count duplicate(s) detected and not imported";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -6249,7 +6270,7 @@ if(isset($_POST['add_network'])){
 
     validateTechRole();
 
-  $client_id = intval($_POST['client_id']);
+    $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $vlan = intval($_POST['vlan']);
     $network = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['network'])));
@@ -6259,10 +6280,12 @@ if(isset($_POST['add_network'])){
 
     mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_location_id = $location_id, network_client_id = $client_id, company_id = $session_company_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    $network_id = mysqli_insert_id($mysqli);
 
-    $_SESSION['alert_message'] = "Network added";
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Create', log_description = '$session name created network $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $network_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Network <strong>$name</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6279,13 +6302,14 @@ if(isset($_POST['edit_network'])){
     $gateway = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['gateway'])));
     $dhcp_range = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range'])));
     $location_id = intval($_POST['location']);
+    $client_id = intval($_POST['client_id']);
 
     mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_location_id = $location_id WHERE network_id = $network_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Modifed', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Modify', log_description = '$session_name modified network $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $network_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Network updated";
+    $_SESSION['alert_message'] = "Network <strong>$name</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6296,12 +6320,19 @@ if(isset($_GET['delete_network'])){
 
     $network_id = intval($_GET['delete_network']);
 
+    // Get Network Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT network_name, network_client_id FROM networks WHERE network_id = $network_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $network_name = strip_tags(mysqli_real_escape_string($mysqli, $row['network_name']));
+    $client_id = $row['network_client_id'];
+
     mysqli_query($mysqli,"DELETE FROM networks WHERE network_id = $network_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Delete', log_description = '$network_id',  company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Delete', log_description = '$session_name deleted network $network_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $network_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Network deleted";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Network <strong>$network_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6320,7 +6351,10 @@ if(isset($_GET['export_client_networks_csv'])){
     $client_name = $row['client_name'];
 
     $sql = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_client_id = $client_id ORDER BY network_name ASC");
-    if($sql->num_rows > 0){
+    
+    $num_rows = mysqli_num_rows($sql);
+
+    if($num_rows > 0) {
         $delimiter = ",";
         $filename = $client_name . "-Networks-" . date('Y-m-d') . ".csv";
 
@@ -6347,6 +6381,10 @@ if(isset($_GET['export_client_networks_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
     }
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Export', log_description = '$session_name exported $num_rows network(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
     exit;
 
 }
@@ -6379,10 +6417,12 @@ if(isset($_POST['add_certificate'])){
 
     mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = '$client_id', company_id = '$session_company_id', log_user_id = '$session_user_id'");
+    $certificate_id = mysqli_insert_id($mysqli); 
 
-    $_SESSION['alert_message'] = "Certificate added";
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Create', log_description = '$session_name created certificate $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $certificate_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Certificate <strong>$name</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6399,6 +6439,7 @@ if(isset($_POST['edit_certificate'])){
     $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
     $public_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['public_key'])));
     $domain_id = intval($_POST['domain_id']);
+    $client_id = intval($_POST['client_id']);
 
     // Parse public key data for a manually provided public key
     if(!empty($public_key) && (empty($expire) && empty($issued_by))) {
@@ -6417,9 +6458,9 @@ if(isset($_POST['edit_certificate'])){
     mysqli_query($mysqli,"UPDATE certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = '$domain_id' WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Modify', log_description = '$session_name modified certificate $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $certificate_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Certificate updated";
+    $_SESSION['alert_message'] = "Certificate <strong>$name</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6431,12 +6472,19 @@ if(isset($_GET['delete_certificate'])){
 
     $certificate_id = intval($_GET['delete_certificate']);
 
+    // Get Certificate Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $certificate_name = strip_tags(mysqli_real_escape_string($mysqli, $row['certificate_name']));
+    $client_id = $row['certificate_client_id'];
+
     mysqli_query($mysqli,"DELETE FROM certificates WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Delete', log_description = '$certificate_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Delete', log_description = '$session_name deleted certificate $certificate_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $certificate_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Certificate deleted";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Certificate <strong>$certificate_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6455,7 +6503,10 @@ if(isset($_GET['export_client_certificates_csv'])){
     $client_name = $row['client_name'];
 
     $sql = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_client_id = $client_id ORDER BY certificate_name ASC");
-    if($sql->num_rows > 0){
+    
+    $num_rows = mysqli_num_rows($sql);
+
+    if($num_rows > 0) {
         $delimiter = ",";
         $filename = $client_name . "-Certificates-" . date('Y-m-d') . ".csv";
 
@@ -6482,6 +6533,10 @@ if(isset($_GET['export_client_certificates_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
     }
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Export', log_description = '$session_name exported $num_rows certificate(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
     exit;
 
 }
@@ -6532,9 +6587,9 @@ if(isset($_POST['add_domain'])){
     }
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Create', log_description = '$name$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Create', log_description = '$session_name created domain $name$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Domain added";
+    $_SESSION['alert_message'] = "Domain <strong>$name</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6552,6 +6607,7 @@ if(isset($_POST['edit_domain'])){
     if(empty($expire)){
         $expire = "0000-00-00";
     }
+    $client_id = intval($_POST['client_id']);
 
     // Update domain expiry date
     $expire = getDomainExpirationDate($name);
@@ -6567,9 +6623,9 @@ if(isset($_POST['edit_domain'])){
     mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modify', log_description = '$session_name modified domain $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Domain updated";
+    $_SESSION['alert_message'] = "Domain <strong>$name</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6581,12 +6637,19 @@ if(isset($_GET['delete_domain'])){
 
     $domain_id = intval($_GET['delete_domain']);
 
+    // Get Domain Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $domain_name = strip_tags(mysqli_real_escape_string($mysqli, $row['domain_name']));
+    $client_id = $row['domain_client_id'];
+
     mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Delete', log_description = '$domain_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Delete', log_description = '$session_name deleted domain $domain_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Domain deleted";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Domain <strong>$domain_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6606,7 +6669,9 @@ if(isset($_GET['export_client_domains_csv'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_client_id = $client_id ORDER BY domain_name ASC");
 
-    if($sql->num_rows > 0){
+    $num_rows = mysqli_num_rows($sql);
+
+    if($num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Domains-" . date('Y-m-d') . ".csv";
 
@@ -6633,6 +6698,10 @@ if(isset($_GET['export_client_domains_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
     }
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Export', log_description = '$session_name exported $num_rows domain(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, company_id = $session_company_id");
+
     exit;
 
 }
@@ -6669,7 +6738,8 @@ if(isset($_POST['add_ticket'])){
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id, company_id = $session_company_id");
-    $id = mysqli_insert_id($mysqli);
+    
+    $ticket_id = mysqli_insert_id($mysqli);
 
     // E-mail client
     if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
@@ -6679,7 +6749,7 @@ if(isset($_POST['add_ticket'])){
               LEFT JOIN clients ON ticket_client_id = client_id 
               LEFT JOIN contacts ON ticket_contact_id = contact_id
               LEFT JOIN companies ON tickets.company_id = companies.company_id
-              WHERE ticket_id = $id AND tickets.company_id = $session_company_id");
+              WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
 
         $contact_name = $row['contact_name'];
@@ -6701,110 +6771,20 @@ if(isset($_POST['add_ticket'])){
                 $subject, $body);
 
             if ($mail !== true) {
-                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
-                mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email rearding ticket $config_ticket_prefix$ticket_number - $ticket_subject', notification_client_id = $client_id, notification_user_id = $session_user_id, company_id = $session_company_id");
+                mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject relating to ticket $config_ticket_prefix$ticket_number. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id, company_id = $session_company_id");
             }
 
         }
     }
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$session_name created ticket $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$session_name created ticket $config_ticket_prefix$ticket_number - $ticket_subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_number, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Ticket created";
+    $_SESSION['alert_message'] = "Ticket <strong>$config_ticket_prefix$ticket_number</strong> created";
 
-    header("Location: ticket.php?ticket_id=" . $id);
+    header("Location: ticket.php?ticket_id=" . $ticket_id);
 
-}
-
-if(isset($_POST['add_scheduled_ticket'])){
-
-    validateTechRole();
-
-    // HTML Purifier
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
-
-    $client_id = intval($_POST['client']);
-    $contact = intval($_POST['contact']);
-    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
-    $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
-    $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
-    $asset_id = intval($_POST['asset']);
-    $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
-    $start_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date'])));
-
-    if($client_id > 0 && $contact == 0){
-        $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
-        $row = mysqli_fetch_array($sql);
-        $contact = $row['primary_contact'];
-    }
-
-    // Add scheduled ticket
-    mysqli_query($mysqli, "INSERT INTO scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_start_date = '$start_date', scheduled_ticket_next_run = '$start_date', scheduled_ticket_created_by = '$session_user_id', scheduled_ticket_client_id = '$client_id', scheduled_ticket_contact_id = '$contact', scheduled_ticket_asset_id = '$asset_id', company_id = '$session_company_id'");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Created scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
-
-    $_SESSION['alert_message'] = "Scheduled ticket created.";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_POST['edit_scheduled_ticket'])){
-
-    validateTechRole();
-
-    // HTML Purifier
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
-
-    $client_id = intval($_POST['client_id']);
-    $ticket_id = intval($_POST['ticket_id']);
-    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
-    $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
-    $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
-    $asset_id = intval($_POST['asset']);
-    $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
-    $next_run_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['next_date'])));
-
-    // Edit scheduled ticket
-    mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_next_run = '$next_run_date', scheduled_ticket_asset_id = '$asset_id', company_id = '$session_company_id' WHERE scheduled_ticket_id = '$ticket_id'");
-
-    // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Updated scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, company_id = $session_company_id, log_user_id = $session_user_id");
-
-    $_SESSION['alert_message'] = "Scheduled ticket updated.";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if(isset($_GET['delete_scheduled_ticket'])){
-
-    if($session_user_role != 3){
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-        exit();
-    }
-
-    $scheduled_ticket_id = intval($_GET['delete_scheduled_ticket']);
-
-    // Delete
-    mysqli_query($mysqli, "DELETE FROM scheduled_tickets WHERE scheduled_ticket_id = '$scheduled_ticket_id'");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Delete', log_description = 'Deleted scheduled ticket $scheduled_ticket_id',  company_id = $session_company_id, log_user_id = $session_user_id");
-
-    $_SESSION['alert_message'] = "Scheduled ticket deleted.";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if(isset($_POST['edit_ticket'])){
@@ -7300,6 +7280,101 @@ if(isset($_GET['export_client_tickets_csv'])){
     }
     exit;
 
+}
+
+if(isset($_POST['add_scheduled_ticket'])){
+
+    validateTechRole();
+
+    // HTML Purifier
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+    $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+    $purifier = new HTMLPurifier($purifier_config);
+
+    $client_id = intval($_POST['client']);
+    $contact = intval($_POST['contact']);
+    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
+    $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
+    $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
+    $asset_id = intval($_POST['asset']);
+    $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
+    $start_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date'])));
+
+    if($client_id > 0 && $contact == 0){
+        $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+        $row = mysqli_fetch_array($sql);
+        $contact = $row['primary_contact'];
+    }
+
+    // Add scheduled ticket
+    mysqli_query($mysqli, "INSERT INTO scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_start_date = '$start_date', scheduled_ticket_next_run = '$start_date', scheduled_ticket_created_by = '$session_user_id', scheduled_ticket_client_id = '$client_id', scheduled_ticket_contact_id = '$contact', scheduled_ticket_asset_id = '$asset_id', company_id = '$session_company_id'");
+
+    $scheduled_ticket_id = mysqli_insert_id($mysqli);
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Create', log_description = '$session_name created scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Scheduled ticket <strong>$subject - $frequency</strong> created";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['edit_scheduled_ticket'])){
+
+    validateTechRole();
+
+    // HTML Purifier
+    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+    $purifier_config = HTMLPurifier_Config::createDefault();
+    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+    $purifier = new HTMLPurifier($purifier_config);
+
+    $client_id = intval($_POST['client_id']);
+    $scheduled_ticket_id = intval($_POST['scheduled_ticket_id']);
+    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
+    $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
+    $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
+    $asset_id = intval($_POST['asset']);
+    $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
+    $next_run_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['next_date'])));
+
+    // Edit scheduled ticket
+    mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_next_run = '$next_run_date', scheduled_ticket_asset_id = $asset_id, company_id = $session_company_id WHERE scheduled_ticket_id = $scheduled_ticket_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Modify', log_description = '$session_name modified scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Scheduled ticket <strong>$subject - $frequency</strong> updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['delete_scheduled_ticket'])){
+
+    validateAdminRole();
+
+    $scheduled_ticket_id = intval($_GET['delete_scheduled_ticket']);
+
+    // Get Scheduled Ticket Subject Ticket Prefix, Number and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT * FROM scheduled_tickets WHERE scheduled_ticket_id = $scheduled_ticket_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $scheduled_ticket_subject = strip_tags(mysqli_real_escape_string($mysqli, $row['scheduled_ticket_subject']));
+    $scheduled_ticket_frequency = strip_tags(mysqli_real_escape_string($mysqli, $row['scheduled_ticket_frequency']));
+    
+    $client_id = $row['scheduled_ticket_client_id'];
+
+    // Delete
+    mysqli_query($mysqli, "DELETE FROM scheduled_tickets WHERE scheduled_ticket_id = $scheduled_ticket_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Delete', log_description = '$session_name deleted scheduled ticket for $subject - $frequency', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Scheduled ticket <strong>$subject - $frequency</strong> deleted";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if(isset($_POST['add_service'])){
