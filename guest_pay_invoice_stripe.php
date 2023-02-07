@@ -31,7 +31,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $invoice_id = intval($_GET['invoice_id']);
 
     // Query invoice details
-    $sql = mysqli_query($mysqli, "SELECT * FROM invoices 
+    $sql = mysqli_query($mysqli, "SELECT * FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
         LEFT JOIN companies ON invoices.company_id = companies.company_id
         LEFT JOIN settings ON settings.company_id = companies.company_id
@@ -192,7 +192,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_livemode = $pi_obj->livemode;
 
     // Get/Check invoice (& client/primary contact)
-    $invoice_sql = mysqli_query($mysqli, "SELECT * FROM invoices 
+    $invoice_sql = mysqli_query($mysqli, "SELECT * FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
         LEFT JOIN contacts ON contact_id = primary_contact
         LEFT JOIN companies ON invoices.company_id = companies.company_id
@@ -240,21 +240,21 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Apply payment
 
     // Update Invoice Status
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id AND company_id = $invoice_company_id");
+    mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id AND company_id = $invoice_company_id");
 
     // Add Payment to History
-    mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$pi_date', payment_amount = '$pi_amount_paid', payment_currency_code = '$pi_currency', payment_account_id = $config_stripe_account, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id, company_id = $invoice_company_id");
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Paid', history_description = 'Payment added - $ip - $os - $browser', history_invoice_id = $invoice_id, company_id = $invoice_company_id");
+    mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = '$pi_amount_paid', payment_currency_code = '$pi_currency', payment_account_id = $config_stripe_account, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id, company_id = $invoice_company_id");
+    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Payment added - $ip - $os - $browser', history_invoice_id = $invoice_id, company_id = $invoice_company_id");
 
     // Logging
     $extended_log_desc = '';
     if (!$pi_livemode) {
         $extended_log_desc = '(DEV MODE)';
     }
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = 'Stripe payment of $pi_currency $pi_amount_paid against invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $pi_client_id, company_id = $invoice_company_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = 'Stripe payment of $pi_currency $pi_amount_paid against invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $pi_client_id, company_id = $invoice_company_id");
 
     // Send email receipt
-    $sql_settings = mysqli_query($mysqli,"SELECT * FROM settings WHERE company_id = $invoice_company_id");
+    $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = $invoice_company_id");
     $row = mysqli_fetch_array($sql_settings);
 
     $config_smtp_host = $row['config_smtp_host'];
@@ -267,14 +267,15 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $config_invoice_from_name = $row['config_invoice_from_name'];
     $config_invoice_from_email = $row['config_invoice_from_email'];
 
-    if(!empty($config_smtp_host)) {
+    if (!empty($config_smtp_host)) {
         $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
         $body    = "Hello $contact_name,<br><br>We have received your payment in the amount of " . $pi_currency . $pi_amount_paid . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, '0', $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
         $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
             $config_invoice_from_email, $config_invoice_from_name,
             $contact_email, $contact_name,
-            $subject, $body);
+            $subject, $body
+        );
 
         // Email Logging
         if ($mail === true) {

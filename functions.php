@@ -532,9 +532,9 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
     }
 
     catch(Exception $e) {
-        // If we couldn't send the message return the error, so we can log it
+        // If we couldn't send the message return the error, so we can log it in the database (truncated)
         error_log("ITFlow - Failed to send email: " . $mail->ErrorInfo);
-        return substr("Mailer Error: $mail->ErrorInfo",0,150)."...";
+        return substr("Mailer Error: $mail->ErrorInfo", 0, 150)."...";
     }
 }
 
