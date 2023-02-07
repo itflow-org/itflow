@@ -31,7 +31,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $invoice_id = intval($_GET['invoice_id']);
 
     // Query invoice details
-    $sql = mysqli_query($mysqli, "SELECT * FROM invoices
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
         LEFT JOIN companies ON invoices.company_id = companies.company_id
         LEFT JOIN settings ON settings.company_id = companies.company_id
@@ -192,7 +194,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_livemode = $pi_obj->livemode;
 
     // Get/Check invoice (& client/primary contact)
-    $invoice_sql = mysqli_query($mysqli, "SELECT * FROM invoices
+    $invoice_sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
         LEFT JOIN contacts ON contact_id = primary_contact
         LEFT JOIN companies ON invoices.company_id = companies.company_id
