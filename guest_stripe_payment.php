@@ -184,7 +184,6 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     }
 
     // Get details from PI
-
     $pi_date = date('Y-m-d', $pi_obj->created);
     $pi_invoice_id = intval($pi_obj->metadata->itflow_invoice_id);
     $pi_client_id = intval($pi_obj->metadata->itflow_client_id);
