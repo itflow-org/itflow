@@ -122,7 +122,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key'])) {
                         <?php
                         if ($config_stripe_enable == 1) {
                             ?>
-                            <a class="btn btn-success" href="guest_stripe_payment.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card"></i> Pay Online <small>(Coming Soon)</small></a>
+                            <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card"></i> Pay Online <small>(Coming Soon)</small></a>
                         <?php } ?>
                     <?php } ?>
                 </div>
