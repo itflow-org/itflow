@@ -25,7 +25,8 @@ if (isset($_GET['stripe_create_pi'])) {
     $url_key = mysqli_real_escape_string($mysqli, $jsonObj['url_key']);
 
     // Query invoice details
-    $invoice_sql = mysqli_query($mysqli, "SELECT * FROM invoices
+    $invoice_sql = mysqli_query($mysqli,
+        "SELECT * FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
         WHERE invoice_id = $invoice_id
         AND invoice_url_key = '$url_key'
