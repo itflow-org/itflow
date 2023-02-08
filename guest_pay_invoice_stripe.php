@@ -13,9 +13,6 @@ $config_stripe_publishable = htmlentities($stripe_vars['config_stripe_publishabl
 $config_stripe_secret = htmlentities($stripe_vars['config_stripe_secret']);
 $config_stripe_account = intval($stripe_vars['config_stripe_account']);
 
-$os = trim(strip_tags(mysqli_real_escape_string($mysqli, getOS($user_agent))));
-$browser = trim(strip_tags(mysqli_real_escape_string($mysqli, getWebBrowser($user_agent))));
-
 // Check Stripe is configured
 if ($config_stripe_enable == 0 || $config_stripe_account == 0 || empty($config_stripe_publishable) || empty($config_stripe_secret)) {
     echo "<br><h2>Stripe payments not enabled/configured</h2>";
