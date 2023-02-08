@@ -5,13 +5,21 @@ if (isset($_GET['quote_id'])) {
 
     $quote_id = intval($_GET['quote_id']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes 
-    LEFT JOIN clients ON quote_client_id = client_id
-    LEFT JOIN locations ON primary_location = location_id
-    LEFT JOIN contacts ON primary_contact = contact_id
-    LEFT JOIN companies ON quotes.company_id = companies.company_id
-    WHERE quote_id = $quote_id"
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM quotes
+        LEFT JOIN clients ON quote_client_id = client_id
+        LEFT JOIN locations ON primary_location = location_id
+        LEFT JOIN contacts ON primary_contact = contact_id
+        LEFT JOIN companies ON quotes.company_id = companies.company_id
+        WHERE quote_id = $quote_id"
     );
+
+    if (mysqli_num_rows($sql) == 0) {
+        echo '<h1 class="text-secondary mt-5" style="text-align: center">Nothing to see here</h1>';
+        require_once("footer.php");
+        exit();
+    }
 
     $row = mysqli_fetch_array($sql);
     $quote_id = $row['quote_id'];
@@ -57,25 +65,25 @@ if (isset($_GET['quote_id'])) {
         $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
     }
 
-    $sql_history = mysqli_query($mysqli,"SELECT * FROM history WHERE history_quote_id = $quote_id ORDER BY history_id DESC");
+    $sql_history = mysqli_query($mysqli, "SELECT * FROM history WHERE history_quote_id = $quote_id ORDER BY history_id DESC");
 
     //Set Badge color based off of quote status
     if ($quote_status == "Sent") {
         $quote_badge_color = "warning text-white";
-    }elseif ($quote_status == "Viewed") {
+    } elseif ($quote_status == "Viewed") {
         $quote_badge_color = "primary";
-    }elseif ($quote_status == "Accepted") {
+    } elseif ($quote_status == "Accepted") {
         $quote_badge_color = "success";
-    }elseif ($quote_status == "Declined") {
+    } elseif ($quote_status == "Declined") {
         $quote_badge_color = "danger";
-    }elseif ($quote_status == "Invoiced") {
+    } elseif ($quote_status == "Invoiced") {
         $quote_badge_color = "info";
-    }else{
+    } else {
         $quote_badge_color = "secondary";
     }
 
     //Product autocomplete
-    $products_sql = mysqli_query($mysqli,"SELECT product_name AS label, product_description AS description, product_price AS price FROM products WHERE company_id = $session_company_id");
+    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price FROM products WHERE company_id = $session_company_id");
 
     if (mysqli_num_rows($products_sql) > 0) {
         while ($row = mysqli_fetch_array($products_sql)) {
@@ -194,7 +202,7 @@ if (isset($_GET['quote_id'])) {
                 </div>
             </div>
 
-            <?php $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_id ASC"); ?>
+            <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_id ASC"); ?>
 
             <div class="row mb-4">
                 <div class="col-md-12">
@@ -235,8 +243,10 @@ if (isset($_GET['quote_id'])) {
 
                                     <tr>
                                         <td class="text-center d-print-none">
-                                            <a class="text-secondary" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit"></i></a>
-                                            <a class="text-danger" href="post.php?delete_quote_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash-alt"></i></a>
+                                            <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") { ?>
+                                                <a class="text-secondary" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit"></i></a>
+                                                <a class="text-danger" href="post.php?delete_quote_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash-alt"></i></a>
+                                            <?php } ?>
                                         </td>
                                         <td><?php echo $item_name; ?></td>
                                         <td><div style="white-space:pre-line"><?php echo $item_description; ?></div></td>
@@ -248,13 +258,15 @@ if (isset($_GET['quote_id'])) {
 
                                     <?php
 
-                                    include("item_edit_modal.php");
+                                    if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") {
+                                        require("item_edit_modal.php");
+                                    }
 
                                 }
 
                                 ?>
 
-                                <tr class="d-print-none">
+                                <tr class="d-print-none" <?php if ($quote_status == "Invoiced" || $quote_status == "Accepted" || $quote_status == "Declined") { echo "hidden"; } ?>>
                                     <form action="post.php" method="post" autocomplete="off">
                                         <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
                                         <td></td>
@@ -267,7 +279,7 @@ if (isset($_GET['quote_id'])) {
                                                 <option value="0">None</option>
                                                 <?php
 
-                                                $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC");
+                                                $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC");
                                                 while ($row = mysqli_fetch_array($taxes_sql)) {
                                                     $tax_id = $row['tax_id'];
                                                     $tax_name = htmlentities($row['tax_name']);
@@ -556,7 +568,7 @@ require_once("footer.php");
                         $total_tax = 0;
                         $sub_total = 0;
 
-                        $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_id ASC");
+                        $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_id ASC");
 
                         while ($row = mysqli_fetch_array($sql_invoice_items)) {
                         $item_name = $row['item_name'];

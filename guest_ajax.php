@@ -68,7 +68,7 @@ if (isset($_GET['stripe_create_pi'])) {
     }
 
     $config_stripe_secret = $row['config_stripe_secret'];
-    $pi_description = "ITFlow: $client_name payment of $invoice_currency_code $balance_to_pay for $client_name";
+    $pi_description = "ITFlow: $client_name payment of $invoice_currency_code $balance_to_pay for $invoice_prefix$invoice_number";
 
     // Create a PaymentIntent with amount, currency and client details
     try {
