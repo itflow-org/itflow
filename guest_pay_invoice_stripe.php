@@ -223,7 +223,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $client_name = htmlentities($row['client_name']);
     $contact_name = $row['contact_name'];
     $contact_email = $row['contact_email'];
-    $company_name = htmlentities($row['company_name']);
+    $company_name = mysqli_real_escape_string($mysqli, htmlentities($row['company_name']));
     $company_phone = htmlentities($row['company_phone']);
     $company_locale = htmlentities($row['company_locale']);
 
@@ -249,6 +249,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Add Payment to History
     mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = '$pi_amount_paid', payment_currency_code = '$pi_currency', payment_account_id = $config_stripe_account, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id, company_id = $invoice_company_id");
     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Payment added - $ip - $os - $browser', history_invoice_id = $invoice_id, company_id = $invoice_company_id");
+
+    // Notify
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Paid', notification = 'Invoice $invoice_prefix$invoice_number has been paid - $ip - $os - $browser', notification_timestamp = NOW(), notification_client_id = $pi_client_id, company_id = $invoice_company_id");
 
     // Logging
     $extended_log_desc = '';
