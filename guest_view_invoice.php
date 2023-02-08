@@ -13,7 +13,7 @@ $invoice_id = intval($_GET['invoice_id']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT * FROM invoices 
+    "SELECT * FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN locations ON primary_location = location_id
     LEFT JOIN contacts ON primary_contact = contact_id

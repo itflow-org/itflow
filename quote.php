@@ -7,7 +7,7 @@ if (isset($_GET['quote_id'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM quotes 
+        "SELECT * FROM quotes
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN locations ON primary_location = location_id
         LEFT JOIN contacts ON primary_contact = contact_id
@@ -258,7 +258,7 @@ if (isset($_GET['quote_id'])) {
 
                                     <?php
 
-                                    if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined" ) {
+                                    if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") {
                                         require("item_edit_modal.php");
                                     }
 
@@ -266,7 +266,7 @@ if (isset($_GET['quote_id'])) {
 
                                 ?>
 
-                                <tr class="d-print-none" <?php if ($quote_status == "Invoiced" || $quote_status == "Accepted" || $quote_status == "Declined" ) { echo "hidden"; } ?>>
+                                <tr class="d-print-none" <?php if ($quote_status == "Invoiced" || $quote_status == "Accepted" || $quote_status == "Declined") { echo "hidden"; } ?>>
                                     <form action="post.php" method="post" autocomplete="off">
                                         <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
                                         <td></td>
