@@ -390,7 +390,7 @@ function getDomainRecords($name) {
         return $records;
     }
 
-    $domain = escapeshellarg($name);
+    $domain = escapeshellarg(str_replace('www.', '', $name));
     $records['a'] = substr(trim(strip_tags(shell_exec("dig +short $domain"))), 0, 254);
     $records['ns'] = substr(trim(strip_tags(shell_exec("dig +short NS $domain"))), 0, 254);
     $records['mx'] = substr(trim(strip_tags(shell_exec("dig +short MX $domain"))), 0, 254);
