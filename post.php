@@ -2948,7 +2948,7 @@ if(isset($_GET['dismiss_all_notifications'])){
 
     $_SESSION['alert_message'] = "$num_notifications Notifications Dismissed";
 
-    header("Location: notifications.php");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -5165,7 +5165,7 @@ if(isset($_GET['export_client_locations_csv'])){
 
     //Locations
     $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL AND company_id = $session_company_id ORDER BY location_name ASC");
-    
+
     $num_rows = mysqli_num_rows($sql);
 
     if($num_rows > 0) {
@@ -5961,7 +5961,7 @@ if(isset($_GET['export_client_software_csv'])){
     $client_name = $row['client_name'];
 
     $sql = mysqli_query($mysqli,"SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
-    
+
     $num_rows = mysqli_num_rows($sql);
 
     if($num_rows > 0) {
@@ -6352,7 +6352,7 @@ if(isset($_GET['export_client_networks_csv'])){
     $client_name = $row['client_name'];
 
     $sql = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_client_id = $client_id ORDER BY network_name ASC");
-    
+
     $num_rows = mysqli_num_rows($sql);
 
     if($num_rows > 0) {
@@ -6418,7 +6418,7 @@ if(isset($_POST['add_certificate'])){
 
     mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
 
-    $certificate_id = mysqli_insert_id($mysqli); 
+    $certificate_id = mysqli_insert_id($mysqli);
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Create', log_description = '$session_name created certificate $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $certificate_id, company_id = $session_company_id");
@@ -6504,7 +6504,7 @@ if(isset($_GET['export_client_certificates_csv'])){
     $client_name = $row['client_name'];
 
     $sql = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_client_id = $client_id ORDER BY certificate_name ASC");
-    
+
     $num_rows = mysqli_num_rows($sql);
 
     if($num_rows > 0) {
@@ -6739,7 +6739,7 @@ if(isset($_POST['add_ticket'])){
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id, company_id = $session_company_id");
-    
+
     $ticket_id = mysqli_insert_id($mysqli);
 
     // E-mail client
@@ -7364,7 +7364,7 @@ if(isset($_GET['delete_scheduled_ticket'])){
     $row = mysqli_fetch_array($sql);
     $scheduled_ticket_subject = strip_tags(mysqli_real_escape_string($mysqli, $row['scheduled_ticket_subject']));
     $scheduled_ticket_frequency = strip_tags(mysqli_real_escape_string($mysqli, $row['scheduled_ticket_frequency']));
-    
+
     $client_id = $row['scheduled_ticket_client_id'];
 
     // Delete
