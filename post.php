@@ -1809,6 +1809,8 @@ if(isset($_GET['update'])){
 
     $_SESSION['alert_message'] = "Updates successful";
 
+    sleep(3);
+
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
@@ -1827,6 +1829,8 @@ if(isset($_GET['update_db'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Update', log_description = '$session_name updated the database structure', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Database structure update successful";
+
+    sleep(3);
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
