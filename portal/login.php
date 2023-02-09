@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
         if ($row['contact_auth_method'] == 'local') {
             if (password_verify($password, $row['contact_password_hash'])) {
 
-                $_SESSION['client_logged_in'] = TRUE;
+                $_SESSION['client_logged_in'] = true;
                 $_SESSION['client_id'] = $row['contact_client_id'];
                 $_SESSION['contact_id'] = $row['contact_id'];
                 $_SESSION['company_id'] = $row['company_id'];

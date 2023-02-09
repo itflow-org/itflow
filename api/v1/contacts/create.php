@@ -7,7 +7,7 @@ require_once('../require_post_method.php');
 require_once('contact_model.php');
 
 // Default
-$insert_id = FALSE;
+$insert_id = false;
 
 if (!empty($name) && !empty($email) && !empty($client_id)) {
 

@@ -47,11 +47,11 @@ $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
 
 // HTTP-Only cookies
-ini_set("session.cookie_httponly", True);
+ini_set("session.cookie_httponly", true);
 
 // Tell client to only send cookie(s) over HTTPS
 if ($config_https_only) {
-    ini_set("session.cookie_secure", True);
+    ini_set("session.cookie_secure", true);
 }
 
 // Handle POST login request
@@ -108,7 +108,7 @@ if (isset($_POST['login'])) {
 
             // Determine whether 2FA was used (for logs)
             $extended_log = ''; // Default value
-            if ($current_code !== 0 ) {
+            if ($current_code !== 0) {
                 $extended_log = 'with 2FA';
             }
 
@@ -120,7 +120,7 @@ if (isset($_POST['login'])) {
             $_SESSION['user_name'] = $user_name;
             $_SESSION['user_role'] = $row['user_role'];
             $_SESSION['csrf_token'] = randomString(156);
-            $_SESSION['logged'] = TRUE;
+            $_SESSION['logged'] = true;
 
             // Setup encryption session key
             if (isset($row['user_specific_encryption_ciphertext']) && $row['user_role'] > 1) {

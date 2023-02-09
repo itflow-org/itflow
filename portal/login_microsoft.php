@@ -95,7 +95,7 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
             $row = mysqli_fetch_array($sql);
             if ($row['contact_auth_method'] == 'azure') {
 
-                $_SESSION['client_logged_in'] = TRUE;
+                $_SESSION['client_logged_in'] = true;
                 $_SESSION['client_id'] = $row['contact_client_id'];
                 $_SESSION['contact_id'] = $row['contact_id'];
                 $_SESSION['company_id'] = $row['company_id'];

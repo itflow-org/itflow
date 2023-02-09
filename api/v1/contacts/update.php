@@ -7,7 +7,7 @@ require_once('../require_post_method.php');
 $contact_id = intval($_POST['contact_id']);
 
 // Default
-$update_count = FALSE;
+$update_count = false;
 
 if (!empty($contact_id)) {
 

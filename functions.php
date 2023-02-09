@@ -405,7 +405,7 @@ function getDomainRecords($name) {
 function getSSL($name) {
 
     $certificate = array();
-    $certificate['success'] = FALSE;
+    $certificate['success'] = false;
 
     // Only run if we think the domain is valid
     if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
@@ -417,7 +417,7 @@ function getSSL($name) {
 
     // Get SSL/TSL certificate (using verify peer false to allow for self-signed certs) for domain on default port
     $socket = "ssl://$name:443";
-    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => TRUE, "verify_peer" => FALSE,)));
+    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => false,)));
     $read = stream_socket_client($socket, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $get);
 
     // If the socket connected
@@ -427,7 +427,7 @@ function getSSL($name) {
         openssl_x509_export($cert['options']['ssl']['peer_certificate'], $export);
 
         if ($cert_public_key_obj) {
-            $certificate['success'] = TRUE;
+            $certificate['success'] = true;
             $certificate['expire'] = date('Y-m-d', $cert_public_key_obj['validTo_time_t']);
             $certificate['issued_by'] = strip_tags($cert_public_key_obj['issuer']['O']);
             $certificate['public_key'] = $export;

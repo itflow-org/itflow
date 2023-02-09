@@ -1,4 +1,5 @@
-<?php include("inc_all.php");
+<?php
+require_once("inc_all.php");
 
 if (isset($_GET['ticket_id'])) {
     $ticket_id = intval($_GET['ticket_id']);
@@ -374,7 +375,7 @@ if (isset($_GET['ticket_id'])) {
 
                     <?php
 
-                    include("ticket_reply_edit_modal.php");
+                    require("ticket_reply_edit_modal.php");
 
                 }
 
@@ -490,7 +491,7 @@ if (isset($_GET['ticket_id'])) {
                                 <br>
                             <?php }
 
-                            if ($ticket_asset_count > 0 ) { ?>
+                            if ($ticket_asset_count > 0) { ?>
 
                                 <button class="btn btn-block btn-secondary" data-toggle="modal" data-target="#assetTicketsModal">Service History (<?php echo $ticket_asset_count; ?>)</button>
 
@@ -617,17 +618,15 @@ if (isset($_GET['ticket_id'])) {
         </div>
 
         <?php
-        include("ticket_edit_modal.php");
-        include("ticket_merge_modal.php");
-        include("ticket_invoice_add_modal.php");
+        require("ticket_edit_modal.php");
+        require("ticket_merge_modal.php");
+        require("ticket_invoice_add_modal.php");
 
     }
 
 }
 
-?>
-
-<?php include_once("footer.php");
+require_once("footer.php");
 
 if ($ticket_status !== "Closed") { ?>
     <!-- Ticket Time Tracking JS -->
