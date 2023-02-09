@@ -60,9 +60,12 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
     // Send request via CURL (server side) so user cannot see the client secret
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $token_grant_url);
-    curl_setopt($ch, CURLOPT_POST,  1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS,
-        http_build_query($params));
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt(
+        $ch,
+        CURLOPT_POSTFIELDS,
+        http_build_query($params)
+    );
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     #curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // DEBUG ONLY - WAMP
 
