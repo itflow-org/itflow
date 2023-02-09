@@ -5,14 +5,14 @@
     <div class="sidebar">
 
         <!-- Sidebar Menu -->
-        <nav class="mt-3">
+        <nav class="mt-2">
 
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
 
-                <li class="nav-item mb-3">
+                <li class="nav-item mb-2">
                     <a href="dashboard_financial.php" class="nav-link">
                         <i class="nav-icon fas fa-arrow-left"></i>
-                        <p class="h4">Back | <strong>Reports</strong></p>
+                        <p class="h5">Back | <strong>Reports</strong></p>
                     </a>
                 </li>
 

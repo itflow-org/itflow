@@ -1,5 +1,5 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-<?php echo $config_theme; ?> elevation-3 d-print-none">
+<aside class="main-sidebar sidebar-dark-<?php echo $config_theme; ?> d-print-none">
 
     <!-- Sidebar -->
     <div class="sidebar">
@@ -42,7 +42,7 @@
 
             <?php }else{ ?>
 
-                <h2 class="brand-text text-light my-3"><i class="fas fa-cloud"></i> <?php echo htmlentities($session_company_name); ?></h2>
+                <h5 class="brand-text text-light my-3"><?php echo htmlentities($session_company_name); ?></h5>
 
             <?php } ?>
 
