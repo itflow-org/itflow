@@ -6,10 +6,6 @@ $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id =
 
 ?>
 
-    <div class="alert alert-warning">
-        Work in Progress - Not yet functioning
-    </div>
-
     <div class="card card-dark">
         <div class="card-header py-3">
             <h3 class="card-title"><i class="fa fa-fw fa-credit-card"></i> Online Payment</h3>
@@ -74,4 +70,5 @@ $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id =
         </div>
     </div>
 
-<?php require_once("footer.php");
+<?php
+require_once("footer.php");
