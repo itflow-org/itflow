@@ -3,9 +3,9 @@
 require_once("inc_all_client.php");
 
 if (isset($_GET['q'])) {
-    $q = strip_tags(mysqli_real_escape_string($mysqli,$_GET['q']));
+    $q = strip_tags(mysqli_real_escape_string($mysqli, $_GET['q']));
     //Phone Numbers
-    $n = preg_replace("/[^0-9]/", '',$q);
+    $n = preg_replace("/[^0-9]/", '', $q);
     if (empty($n)) {
         $n = $q;
     }
@@ -16,21 +16,21 @@ if (isset($_GET['q'])) {
 }
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
+    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
 } else {
     $sb = "contact_name";
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM contacts 
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM contacts 
   LEFT JOIN locations ON location_id = contact_location_id
   WHERE contact_archived_at IS NULL 
   AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%'  OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$n%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$n%')
   AND contact_client_id = $client_id ORDER BY $sb $o LIMIT $record_from, $record_to");
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
@@ -133,7 +133,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                     if ($contact_id == $primary_contact) {
                         $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
                     } else {
-                        $primary_contact_display = FALSE;
+                        $primary_contact_display = false;
                     }
                     $contact_location_id = $row['contact_location_id'];
                     $location_name = htmlentities($row['location_name']);
@@ -145,19 +145,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                     $auth_method = htmlentities($row['contact_auth_method']);
 
                     // Related Assets Query
-                    $sql_related_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_contact_id = $contact_id AND company_id = $session_company_id ORDER BY asset_id DESC");
+                    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id AND company_id = $session_company_id ORDER BY asset_id DESC");
                     $asset_count = mysqli_num_rows($sql_related_assets);
 
                     // Related Logins Query
-                    $sql_related_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_contact_id = $contact_id AND company_id = $session_company_id ORDER BY login_id DESC");
+                    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_contact_id = $contact_id AND company_id = $session_company_id ORDER BY login_id DESC");
                     $login_count = mysqli_num_rows($sql_related_logins);
 
                     // Related Software Query
-                    $sql_related_software = mysqli_query($mysqli,"SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
+                    $sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
                     $software_count = mysqli_num_rows($sql_related_software);
 
                     // Related Tickets Query
-                    $sql_related_tickets = mysqli_query($mysqli,"SELECT * FROM tickets WHERE ticket_contact_id = $contact_id AND company_id = $session_company_id ORDER BY ticket_id DESC");
+                    $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_contact_id = $contact_id AND company_id = $session_company_id ORDER BY ticket_id DESC");
                     $ticket_count = mysqli_num_rows($sql_related_tickets);
 
                     ?>

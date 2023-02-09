@@ -3,7 +3,7 @@ require_once("inc_all.php");
 
 //Column Filter
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
+    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
 } else {
     $sb = "notification_timestamp";
 }
@@ -16,8 +16,8 @@ if (!isset($_GET['o'])) {
 
 //Date From and Date To Filter
 if (!empty($_GET['dtf'])) {
-    $dtf = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtf']));
-    $dtt = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtt']));
+    $dtf = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtf']));
+    $dtt = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtt']));
 } else {
     $dtf = "0000-00-00";
     $dtt = "9999-00-00";
@@ -25,9 +25,9 @@ if (!empty($_GET['dtf'])) {
 
 //Rebuild URL
 
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM notifications 
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM notifications 
   LEFT JOIN users ON notification_dismissed_by = user_id 
   LEFT JOIN clients ON notification_client_id = client_id
   WHERE (notification_type LIKE '%$q%' OR notification LIKE '%$q%' OR user_name LIKE '%$q%' OR client_name LIKE '%$q%') 
@@ -39,7 +39,7 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM notifications
   LIMIT $record_from, $record_to
 ");
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 

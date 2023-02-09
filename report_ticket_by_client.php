@@ -9,9 +9,9 @@ if (isset($_GET['year'])) {
     $year = date('Y');
 }
 
-$sql_ticket_years = mysqli_query($mysqli,"SELECT DISTINCT YEAR(ticket_created_at) AS ticket_year FROM tickets WHERE company_id = $session_company_id ORDER BY ticket_year DESC");
+$sql_ticket_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(ticket_created_at) AS ticket_year FROM tickets WHERE company_id = $session_company_id ORDER BY ticket_year DESC");
 
-$sql_clients = mysqli_query($mysqli,"SELECT client_id, client_name FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
+$sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
 
 ?>
 

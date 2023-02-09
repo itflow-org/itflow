@@ -18,9 +18,7 @@ $invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_clie
         <div class="col-md-1 text-center">
             <?php if (!empty($session_contact_photo)) { ?>
                 <img src="<?php echo "../uploads/clients/$session_company_id/$session_client_id/$session_contact_photo"; ?>" alt="..." height="50" width="50" class="img-circle img-responsive">
-
             <?php } else { ?>
-
                 <span class="fa-stack fa-2x rounded-left">
                 <i class="fa fa-circle fa-stack-2x text-secondary"></i>
                 <span class="fa fa-stack-1x text-white"><?php echo $session_contact_initials; ?></span>
@@ -73,7 +71,7 @@ $invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_clie
                     }
 
                     $now = time();
-                    if (($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) + 86400 < $now ) {
+                    if (($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) + 86400 < $now) {
                         $overdue_color = "text-danger font-weight-bold";
                     } else {
                         $overdue_color = "";
@@ -107,9 +105,8 @@ $invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_clie
                         </td>
 
                     </tr>
-                    <?php
-                }
-                ?>
+                <?php } ?>
+
                 </tbody>
             </table>
 

@@ -20,7 +20,7 @@
               <select class="form-control" name="document_template_id" required>
                 <option value="">- Select Template -</option>
                 <?php
-                $sql_document_templates = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_template = 1 AND company_id = $session_company_id AND document_archived_at IS NULL ORDER BY document_name ASC");
+                $sql_document_templates = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_template = 1 AND company_id = $session_company_id AND document_archived_at IS NULL ORDER BY document_name ASC");
                 while ($row = mysqli_fetch_array($sql_document_templates)) {
                   $document_template_id = $row['document_id'];
                   $document_template_name = htmlentities($row['document_name']);
@@ -54,7 +54,7 @@
               <select class="form-control" name="folder">
                 <option value="0">/</option>
                 <?php
-                $sql_folders = mysqli_query($mysqli,"SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
+                $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
                 while ($row = mysqli_fetch_array($sql_folders)) {
                   $folder_id = $row['folder_id'];
                   $folder_name = htmlentities($row['folder_name']);

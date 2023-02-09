@@ -1,23 +1,22 @@
-<?php require_once("inc_all_client.php"); ?>
-
 <?php
+require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-  $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
-}else{
+  $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+} else {
   $sb = "network_name";
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM networks
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM networks
   LEFT JOIN locations ON location_id = network_location_id
   WHERE network_client_id = $client_id 
   AND (network_name LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_dhcp_range LIKE '%$q%' OR location_name LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
@@ -32,7 +31,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
       <div class="row">
-        
+
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Networks">
@@ -66,7 +65,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </thead>
         <tbody>
           <?php
-      
+
           while ($row = mysqli_fetch_array($sql)) {
             $network_id = $row['network_id'];
             $network_name = htmlentities($row['network_name']);
@@ -88,14 +87,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $location_name = htmlentities($row['location_name']);
             if (empty($location_name)) {
               $location_name_display = "-";
-            }else{
+            } else {
               $location_name_display = $location_name;
             }
-      
+
           ?>
           <tr>
             <th>
-              <i class="fa fa-fw fa-network-wired text-secondary"></i> 
+              <i class="fa fa-fw fa-network-wired text-secondary"></i>
               <a class="text-dark" href="#" data-toggle="modal" onclick="populateNetworkEditModal(<?php echo $client_id, ",", $network_id ?>)" data-target="#editNetworkModal"><?php echo $network_name; ?></a></th>
             <td><?php echo $network_vlan_display; ?></td>
             <td><?php echo $network; ?></td>
@@ -121,7 +120,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           <?php
 
           }
-          
+
           ?>
 
         </tbody>
@@ -140,7 +139,7 @@ include("client_network_add_modal.php");
 
 <script>
 function populateNetworkEditModal(client_id, network_id) {
-  
+
   // Send a GET request to post.php as post.php?network_get_json_details=true&client_id=NUM&network_id=NUM
   jQuery.get(
     "ajax.php",

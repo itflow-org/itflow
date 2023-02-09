@@ -3,8 +3,8 @@
 <?php
 
 if (!empty($_GET['sb'])) {
-  $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
-}else{
+  $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+} else {
   $sb = "payment_date";
 }
 
@@ -15,16 +15,16 @@ if (!isset($_GET['o'])) {
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM payments
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM payments
   LEFT JOIN invoices ON payment_invoice_id = invoice_id
   LEFT JOIN accounts ON payment_account_id = account_id
   WHERE invoice_client_id = $client_id
   AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR account_name LIKE '%$q%' OR payment_method LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
@@ -36,7 +36,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
       <div class="row">
-        
+
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Payments">
@@ -71,7 +71,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </thead>
         <tbody>
           <?php
-      
+
           while ($row = mysqli_fetch_array($sql)) {
             $invoice_id = $row['invoice_id'];
             $invoice_prefix = htmlentities($row['invoice_prefix']);
@@ -92,7 +92,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $payment_currency_code = htmlentities($row['payment_currency_code']);
             $account_name = htmlentities($row['account_name']);
 
-      
+
           ?>
           <tr>
             <td><?php echo $payment_date; ?></td>
@@ -106,9 +106,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           </tr>
 
           <?php
-        
+
           }
-          
+
           ?>
 
         </tbody>

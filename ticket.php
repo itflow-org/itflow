@@ -1,9 +1,12 @@
-<?php include("inc_all.php");
+<?php
+require_once("inc_all.php");
 
 if (isset($_GET['ticket_id'])) {
     $ticket_id = intval($_GET['ticket_id']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM tickets 
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM tickets 
         LEFT JOIN clients ON ticket_client_id = client_id 
         LEFT JOIN contacts ON ticket_contact_id = contact_id 
         LEFT JOIN users ON ticket_assigned_to = user_id 
@@ -39,7 +42,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_feedback = htmlentities($row['ticket_feedback']);
         $ticket_status = htmlentities($row['ticket_status']);
         $ticket_created_at = $row['ticket_created_at'];
-        $ticket_date = date('Y-m-d',strtotime($ticket_created_at));
+        $ticket_date = date('Y-m-d', strtotime($ticket_created_at));
         $ticket_updated_at = $row['ticket_updated_at'];
         $ticket_closed_at = $row['ticket_closed_at'];
         $ticket_created_by = $row['ticket_created_by'];
@@ -111,7 +114,7 @@ if (isset($_GET['ticket_id'])) {
 
         //Ticket Created By
         $ticket_created_by = $row['ticket_created_by'];
-        $ticket_created_by_sql = mysqli_query($mysqli,"SELECT user_name FROM users WHERE user_id = $ticket_created_by");
+        $ticket_created_by_sql = mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $ticket_created_by");
         $row = mysqli_fetch_array($ticket_created_by_sql);
         $ticket_created_by_display = htmlentities($row['user_name']);
 
@@ -124,28 +127,28 @@ if (isset($_GET['ticket_id'])) {
 
         if ($contact_id) {
             //Get Contact Ticket Stats
-            $ticket_related_open = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");
+            $ticket_related_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");
             $row = mysqli_fetch_array($ticket_related_open);
             $ticket_related_open = $row['ticket_related_open'];
 
-            $ticket_related_closed = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'Closed' AND ticket_contact_id = $contact_id ");
+            $ticket_related_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'Closed' AND ticket_contact_id = $contact_id ");
             $row = mysqli_fetch_array($ticket_related_closed);
             $ticket_related_closed = $row['ticket_related_closed'];
 
-            $ticket_related_total = mysqli_query($mysqli,"SELECT COUNT(ticket_id) AS ticket_related_total FROM tickets WHERE ticket_contact_id = $contact_id ");
+            $ticket_related_total = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_total FROM tickets WHERE ticket_contact_id = $contact_id ");
             $row = mysqli_fetch_array($ticket_related_total);
             $ticket_related_total = $row['ticket_related_total'];
         }
 
         //Get Total Ticket Time
-        $ticket_total_reply_time = mysqli_query($mysqli,"SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
+        $ticket_total_reply_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
         $row = mysqli_fetch_array($ticket_total_reply_time);
         $ticket_total_reply_time = $row['ticket_total_reply_time'];
 
         //Client Tags
         $client_tag_name_display_array = array();
         $client_tag_id_array = array();
-        $sql_client_tags = mysqli_query($mysqli,"SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_tags.client_id = $client_id");
+        $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_tags.client_id = $client_id");
         while ($row = mysqli_fetch_array($sql_client_tags)) {
 
             $client_tag_id = $row['tag_id'];
@@ -164,7 +167,7 @@ if (isset($_GET['ticket_id'])) {
         // Get & format asset warranty expiry
         $date = date('Y-m-d H:i:s');
         $dt_value = $asset_warranty_expire; //sample date
-        $warranty_check = date('m/d/Y',strtotime('-8 hours'));
+        $warranty_check = date('m/d/Y', strtotime('-8 hours'));
 
         if ($dt_value <= $date) {
             $dt_value = "Expired on $asset_warranty_expire"; $warranty_status_color ='red';
@@ -177,16 +180,16 @@ if (isset($_GET['ticket_id'])) {
         }
 
         // Get all ticket replies
-        $sql_ticket_replies = mysqli_query($mysqli,"SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id LEFT JOIN contacts ON ticket_reply_by = contact_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL ORDER BY ticket_reply_id DESC");
+        $sql_ticket_replies = mysqli_query($mysqli, "SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id LEFT JOIN contacts ON ticket_reply_by = contact_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL ORDER BY ticket_reply_id DESC");
 
         // Get other tickets for this asset
         if (!empty($asset_id)) {
-            $sql_asset_tickets = mysqli_query($mysqli,"SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");
+            $sql_asset_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");
             $ticket_asset_count = mysqli_num_rows($sql_asset_tickets);
         }
 
         // Get technicians to assign the ticket to
-        $sql_assign_to_select = mysqli_query($mysqli,"SELECT users.user_id, user_name FROM users
+        $sql_assign_to_select = mysqli_query($mysqli, "SELECT users.user_id, user_name FROM users
                                   LEFT JOIN user_companies ON users.user_id = user_companies.user_id
                                   LEFT JOIN user_settings on users.user_id = user_settings.user_id
                                   WHERE user_companies.company_id = $session_company_id 
@@ -374,7 +377,7 @@ if (isset($_GET['ticket_id'])) {
 
                     <?php
 
-                    include("ticket_reply_edit_modal.php");
+                    require("ticket_reply_edit_modal.php");
 
                 }
 
@@ -446,7 +449,7 @@ if (isset($_GET['ticket_id'])) {
                     <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Created by: <?php echo $ticket_created_by_display; ?></div>
                     <?php
                     if ($ticket_status == "Closed") {
-                        $sql_closed_by = mysqli_query($mysqli,"SELECT * FROM tickets, users WHERE ticket_closed_by = user_id");
+                        $sql_closed_by = mysqli_query($mysqli, "SELECT * FROM tickets, users WHERE ticket_closed_by = user_id");
                         $row = mysqli_fetch_array($sql_closed_by);
                         $ticket_closed_by_display = htmlentities($row['user_name']); ?>
                         <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Closed by: <?php echo ucwords($ticket_closed_by_display); ?></a></div>
@@ -490,7 +493,7 @@ if (isset($_GET['ticket_id'])) {
                                 <br>
                             <?php }
 
-                            if ($ticket_asset_count > 0 ) { ?>
+                            if ($ticket_asset_count > 0) { ?>
 
                                 <button class="btn btn-block btn-secondary" data-toggle="modal" data-target="#assetTicketsModal">Service History (<?php echo $ticket_asset_count; ?>)</button>
 
@@ -617,17 +620,15 @@ if (isset($_GET['ticket_id'])) {
         </div>
 
         <?php
-        include("ticket_edit_modal.php");
-        include("ticket_merge_modal.php");
-        include("ticket_invoice_add_modal.php");
+        require("ticket_edit_modal.php");
+        require("ticket_merge_modal.php");
+        require("ticket_invoice_add_modal.php");
 
     }
 
 }
 
-?>
-
-<?php include_once("footer.php");
+require_once("footer.php");
 
 if ($ticket_status !== "Closed") { ?>
     <!-- Ticket Time Tracking JS -->

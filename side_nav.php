@@ -7,7 +7,7 @@
         <!-- Sidebar Menu -->
         <nav class="">
             <?php
-            $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id IN ($session_user_company_access)");
+            $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id IN ($session_user_company_access)");
 
             if (mysqli_num_rows($sql) > 1) {
 

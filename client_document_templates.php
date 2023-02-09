@@ -4,8 +4,8 @@
 
 // Sort by
 if (!empty($_GET['sb'])) {
-  $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
-}else{
+  $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+} else {
   $sb = "document_name";
 }
 
@@ -17,16 +17,18 @@ if (!empty($q)) {
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM documents
-  WHERE document_template = 1
-  AND documents.company_id = $session_company_id
-  $query_snippet
-  ORDER BY $sb $o LIMIT $record_from, $record_to"
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT SQL_CALC_FOUND_ROWS * FROM documents
+    WHERE document_template = 1
+    AND documents.company_id = $session_company_id
+    $query_snippet
+    ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
@@ -44,7 +46,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     </div>
   </div>
   <div class="card-body">
-    
+
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo intval($client_id); ?>">
       <div class="input-group">
@@ -76,7 +78,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </thead>
         <tbody>
           <?php
-      
+
           while ($row = mysqli_fetch_array($sql)) {
             $document_id = $row['document_id'];
             $document_name = htmlentities($row['document_name']);
@@ -110,7 +112,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
           </tr>
 
           <?php
-          
+
           include("client_document_template_edit_modal.php");
           }
 

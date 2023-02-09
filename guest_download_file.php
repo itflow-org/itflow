@@ -3,12 +3,12 @@
 require_once("config.php");
 require_once("functions.php");
 
-$ip = trim(strip_tags(mysqli_real_escape_string($mysqli,getIP())));
-$user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
+$ip = trim(strip_tags(mysqli_real_escape_string($mysqli, getIP())));
+$user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
 
 if (isset($_GET['id']) && isset($_GET['key'])) {
     $item_id = intval($_GET['id']);
-    $item_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['key'])));
+    $item_key = trim(strip_tags(mysqli_real_escape_string($mysqli, $_GET['key'])));
 
     $sql = mysqli_query($mysqli, "SELECT * FROM shared_items WHERE item_id = '$item_id' AND item_key = '$item_key' AND item_expire_at > NOW() LIMIT 1");
     $row = mysqli_fetch_array($sql);
@@ -62,6 +62,6 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
     mysqli_query($mysqli, "UPDATE shared_items SET item_views = '$new_item_views' WHERE item_id = '$item_id'");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Downloaded shared file $file_name via link', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Downloaded shared file $file_name via link', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
 
 }

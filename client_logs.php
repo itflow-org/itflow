@@ -1,10 +1,9 @@
-<?php require_once("inc_all_client.php"); ?>
-
-<?php 
+<?php
+require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-  $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
-}else{
+  $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+} else {
   $sb = "log_id";
 }
 
@@ -15,16 +14,18 @@ if (!isset($_GET['o'])) {
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM logs
-  LEFT JOIN users ON log_user_id = user_id
-  WHERE (log_type LIKE '%$q%' OR log_action LIKE '%$q%' OR log_description LIKE '%$q%' OR log_ip LIKE '%$q%' OR log_user_agent LIKE '%$q%' OR user_name LIKE '%$q%')
-  AND log_client_id = $client_id
-  ORDER BY $sb $o LIMIT $record_from, $record_to"
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT SQL_CALC_FOUND_ROWS * FROM logs
+    LEFT JOIN users ON log_user_id = user_id
+    WHERE (log_type LIKE '%$q%' OR log_action LIKE '%$q%' OR log_description LIKE '%$q%' OR log_ip LIKE '%$q%' OR log_user_agent LIKE '%$q%' OR user_name LIKE '%$q%')
+    AND log_client_id = $client_id
+    ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
@@ -37,7 +38,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
       <div class="row">
-        
+
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Logs">
@@ -69,7 +70,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </thead>
         <tbody>
           <?php
-      
+
           while ($row = mysqli_fetch_array($sql)) {
             $log_id = $row['log_id'];
             $log_type = htmlentities($row['log_type']);
@@ -84,13 +85,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
             $user_name = htmlentities($row['user_name']);
             if (empty($user_name)) {
               $user_name_display = "-";
-            }else{
+            } else {
               $user_name_display = $user_name;
             }
             $log_entity_id = $row['log_entity_id'];
-          
+
           ?>
-          
+
           <tr>
             <td><?php echo $log_created_at; ?></td>
             <td><?php echo $user_name_display; ?></td>
@@ -109,8 +110,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </tbody>
       </table>
     </div>
-    <?php include("pagination.php"); ?>
+    <?php require_once("pagination.php"); ?>
   </div>
 </div>
 
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>

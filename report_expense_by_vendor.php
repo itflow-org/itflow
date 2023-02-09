@@ -1,6 +1,6 @@
 <?php
 
-include("inc_all_reports.php");
+require_once("inc_all_reports.php");
 validateAccountantRole();
 
 if (isset($_GET['year'])) {
@@ -9,9 +9,9 @@ if (isset($_GET['year'])) {
     $year = date('Y');
 }
 
-$sql_payment_years = mysqli_query($mysqli,"SELECT DISTINCT YEAR(payment_date) AS payment_year FROM payments WHERE company_id = $session_company_id UNION SELECT DISTINCT YEAR(revenue_date) AS payment_year FROM revenues WHERE company_id = $session_company_id ORDER BY payment_year DESC");
+$sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) AS payment_year FROM payments WHERE company_id = $session_company_id UNION SELECT DISTINCT YEAR(revenue_date) AS payment_year FROM revenues WHERE company_id = $session_company_id ORDER BY payment_year DESC");
 
-$sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE company_id = $session_company_id");
+$sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE company_id = $session_company_id");
 
 ?>
 
@@ -53,14 +53,12 @@ $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE company_id = $s
                         $vendor_id = $row['vendor_id'];
                         $vendor_name = htmlentities($row['vendor_name']);
 
-                        $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS amount_paid FROM expenses WHERE YEAR(expense_date) = $year AND expense_vendor_id = $vendor_id");
+                        $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS amount_paid FROM expenses WHERE YEAR(expense_date) = $year AND expense_vendor_id = $vendor_id");
                         $row = mysqli_fetch_array($sql_amount_paid);
 
                         $amount_paid = floatval($row['amount_paid']);
 
-                        if ($amount_paid > 599) {
-
-                            ?>
+                        if ($amount_paid > 599) { ?>
 
                             <tr>
                                 <td><?php echo $vendor_name; ?></td>

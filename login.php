@@ -47,11 +47,11 @@ $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
 
 // HTTP-Only cookies
-ini_set("session.cookie_httponly", True);
+ini_set("session.cookie_httponly", true);
 
 // Tell client to only send cookie(s) over HTTPS
 if ($config_https_only) {
-    ini_set("session.cookie_secure", True);
+    ini_set("session.cookie_secure", true);
 }
 
 // Handle POST login request
@@ -99,16 +99,25 @@ if (isset($_POST['login'])) {
                 $subject = "$config_app_name new login for $user_name";
                 $body = "Hi $user_name, <br><br>A recent successful login to your $config_app_name account was considered a little unusual. If this was you, you can safely ignore this email!<br><br>IP Address: $ip<br> User Agent: $user_agent <br><br>If you did not perform this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
 
-                $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-                    $config_mail_from_email, $config_mail_from_name,
-                    $user_email, $user_name,
-                    $subject, $body);
+                $mail = sendSingleEmail(
+                    $config_smtp_host,
+                    $config_smtp_username,
+                    $config_smtp_password,
+                    $config_smtp_encryption,
+                    $config_smtp_port,
+                    $config_mail_from_email,
+                    $config_mail_from_name,
+                    $user_email,
+                    $user_name,
+                    $subject,
+                    $body
+                );
             }
 
 
             // Determine whether 2FA was used (for logs)
             $extended_log = ''; // Default value
-            if ($current_code !== 0 ) {
+            if ($current_code !== 0) {
                 $extended_log = 'with 2FA';
             }
 
@@ -120,7 +129,7 @@ if (isset($_POST['login'])) {
             $_SESSION['user_name'] = $user_name;
             $_SESSION['user_role'] = $row['user_role'];
             $_SESSION['csrf_token'] = randomString(156);
-            $_SESSION['logged'] = TRUE;
+            $_SESSION['logged'] = true;
 
             // Setup encryption session key
             if (isset($row['user_specific_encryption_ciphertext']) && $row['user_role'] > 1) {
@@ -174,10 +183,19 @@ if (isset($_POST['login'])) {
                     $subject = "Important: $config_app_name failed 2FA login attempt for $user_name";
                     $body = "Hi $user_name, <br><br>A recent login to your $config_app_name account was unsuccessful due to an incorrect 2FA code. If you did not attempt this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
 
-                    $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-                        $config_mail_from_email, $config_mail_from_name,
-                        $user_email, $user_name,
-                        $subject, $body);
+                    $mail = sendSingleEmail(
+                        $config_smtp_host,
+                        $config_smtp_username,
+                        $config_smtp_password,
+                        $config_smtp_encryption,
+                        $config_smtp_port,
+                        $config_mail_from_email,
+                        $config_mail_from_name,
+                        $user_email,
+                        $user_name,
+                        $subject,
+                        $body
+                    );
                 }
 
                 // HTML feedback for incorrect 2FA code

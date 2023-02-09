@@ -79,15 +79,15 @@ $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
 //Update status to Viewed only if invoice_status = "Sent"
 if ($quote_status == 'Sent') {
-    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Viewed' WHERE quote_id = $quote_id");
+    mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Viewed' WHERE quote_id = $quote_id");
 }
 
 //Mark viewed in history
-mysqli_query($mysqli,"INSERT INTO history SET history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser', history_created_at = NOW(), history_quote_id = $quote_id, company_id = $company_id");
+mysqli_query($mysqli, "INSERT INTO history SET history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser', history_created_at = NOW(), history_quote_id = $quote_id, company_id = $company_id");
 
 if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Viewed") {
     $client_name_escaped = mysqli_escape_string($mysqli, $row['client_name']);
-    mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Quote Viewed', notification = 'Quote $quote_prefix$quote_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Quote Viewed', notification = 'Quote $quote_prefix$quote_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
 }
 
 ?>
@@ -159,7 +159,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                 </div>
             </div>
 
-            <?php $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_id ASC"); ?>
+            <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_id ASC"); ?>
 
             <div class="row mb-4">
                 <div class="col-md-12">
@@ -390,7 +390,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                             $total_tax = 0;
                             $sub_total = 0;
 
-                            $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_id ASC");
+                            $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_id ASC");
 
                             while ($row = mysqli_fetch_array($sql_invoice_items)) {
                             $item_name = $row['item_name'];

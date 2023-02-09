@@ -7,7 +7,7 @@ require_once('../require_post_method.php');
 $contact_id = intval($_POST['contact_id']);
 
 // Default
-$delete_count = FALSE;
+$delete_count = false;
 
 if (!empty($contact_id)) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $client_id AND company_id = '$company_id' LIMIT 1"));

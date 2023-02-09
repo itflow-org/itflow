@@ -1,27 +1,32 @@
-<?php require_once("inc_all_settings.php");
+<?php
+require_once("inc_all_settings.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
+    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
 } else {
     $sb = "tag_name";
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM tags 
-  WHERE tag_name LIKE '%$q%'
-  AND company_id = $session_company_id 
-  ORDER BY $sb $o LIMIT $record_from, $record_to"
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT SQL_CALC_FOUND_ROWS * FROM tags 
+    WHERE tag_name LIKE '%$q%'
+    AND company_id = $session_company_id 
+    ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 if ($num_rows > 0) {
     //Colors Used
-    $sql_colors_used = mysqli_query($mysqli, "SELECT tag_color FROM tags 
-      WHERE tag_archived_at IS NULL
-      AND company_id = $session_company_id"
+    $sql_colors_used = mysqli_query(
+        $mysqli,
+        "SELECT tag_color FROM tags 
+        WHERE tag_archived_at IS NULL
+        AND company_id = $session_company_id"
     );
 
     while ($color_used_row = mysqli_fetch_array($sql_colors_used)) {
@@ -102,7 +107,7 @@ if ($num_rows > 0) {
 
                     <?php
 
-                    include("settings_tag_edit_modal.php");
+                    require("settings_tag_edit_modal.php");
 
                 }
 
@@ -111,14 +116,10 @@ if ($num_rows > 0) {
                 </tbody>
             </table>
         </div>
-        <?php include("pagination.php"); ?>
+        <?php require_once("pagination.php"); ?>
     </div>
 </div>
 
 <?php
-
-include("settings_tag_add_modal.php");
-
-include("footer.php");
-
-?>
+require_once("settings_tag_add_modal.php");
+require_once("footer.php");

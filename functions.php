@@ -50,7 +50,7 @@ function initials($str) {
         $ret = '';
         foreach (explode(' ', $str) as $word)
             $ret .= strtoupper($word[0]);
-        $ret = substr($ret,0, 2);
+        $ret = substr($ret, 0, 2);
         return $ret;
     }
 }
@@ -139,7 +139,7 @@ function getDevice() {
     if (preg_match('/(up.browser|up.link|mmp|symbian|smartphone|midp|wap|phone|android|iemobile)/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
         $mobile_browser++;
     }
-    if ((strpos(strtolower($_SERVER['HTTP_ACCEPT']),'application/vnd.wap.xhtml+xml') > 0) || ((isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])))) {
+    if ((strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/vnd.wap.xhtml+xml') > 0) || ((isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])))) {
         $mobile_browser++;
     }
     $mobile_ua = strtolower(substr(getUserAgent(), 0, 4));
@@ -153,10 +153,10 @@ function getDevice() {
         'sie-','siem','smal','smar','sony','sph-','symb','t-mo','teli','tim-',
         'tosh','tsm-','upg1','upsi','vk-v','voda','wap-','wapa','wapi','wapp',
         'wapr','webc','winw','winw','xda ','xda-');
-    if (in_array($mobile_ua,$mobile_agents)) {
+    if (in_array($mobile_ua, $mobile_agents)) {
         $mobile_browser++;
     }
-    if (strpos(strtolower(getUserAgent()),'opera mini') > 0) {
+    if (strpos(strtolower(getUserAgent()), 'opera mini') > 0) {
         $mobile_browser++;
         //Check for tablets on Opera Mini alternative headers
         $stock_ua = strtolower(isset($_SERVER['HTTP_X_OPERAMINI_PHONE_UA'])?$_SERVER['HTTP_X_OPERAMINI_PHONE_UA']:(isset($_SERVER['HTTP_DEVICE_STOCK_UA'])?$_SERVER['HTTP_DEVICE_STOCK_UA']:''));
@@ -183,13 +183,13 @@ function truncate($text, $chars) {
         return $text;
     }
     $text = $text." ";
-    $text = substr($text,0,$chars);
-    $text = substr($text,0,strrpos($text,' '));
+    $text = substr($text, 0, $chars);
+    $text = substr($text, 0, strrpos($text, ' '));
     return $text."...";
 }
 
 function formatPhoneNumber($phoneNumber) {
-    $phoneNumber = preg_replace('/[^0-9]/','',$phoneNumber);
+    $phoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
 
     if (strlen($phoneNumber) > 10) {
         $countryCode = substr($phoneNumber, 0, strlen($phoneNumber)-10);
@@ -358,8 +358,8 @@ function getDomainExpirationDate($name) {
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "http://lookup.itflow.org:8080/$name");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-    $response = json_decode(curl_exec($ch),1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $response = json_decode(curl_exec($ch), 1);
 
     if ($response) {
         if (is_array($response['expiration_date'])) {
@@ -405,7 +405,7 @@ function getDomainRecords($name) {
 function getSSL($name) {
 
     $certificate = array();
-    $certificate['success'] = FALSE;
+    $certificate['success'] = false;
 
     // Only run if we think the domain is valid
     if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
@@ -417,7 +417,7 @@ function getSSL($name) {
 
     // Get SSL/TSL certificate (using verify peer false to allow for self-signed certs) for domain on default port
     $socket = "ssl://$name:443";
-    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => TRUE, "verify_peer" => FALSE,)));
+    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => false,)));
     $read = stream_socket_client($socket, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $get);
 
     // If the socket connected
@@ -427,7 +427,7 @@ function getSSL($name) {
         openssl_x509_export($cert['options']['ssl']['peer_certificate'], $export);
 
         if ($cert_public_key_obj) {
-            $certificate['success'] = TRUE;
+            $certificate['success'] = true;
             $certificate['expire'] = date('Y-m-d', $cert_public_key_obj['validTo_time_t']);
             $certificate['issued_by'] = strip_tags($cert_public_key_obj['issuer']['O']);
             $certificate['public_key'] = $export;

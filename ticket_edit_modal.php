@@ -70,7 +70,9 @@
                                         <option value="0">Not Assigned</option>
                                         <?php
 
-                                        $sql_assign_to_select = mysqli_query($mysqli,"SELECT users.user_id, user_name FROM users
+                                        $sql_assign_to_select = mysqli_query(
+                                            $mysqli,
+                                            "SELECT users.user_id, user_name FROM users
                                             LEFT JOIN user_companies ON users.user_id = user_companies.user_id
                                             LEFT JOIN user_settings on users.user_id = user_settings.user_id
                                             WHERE user_companies.company_id = $session_company_id 
@@ -103,7 +105,7 @@
                                         <option value="">No One</option>
                                         <?php
 
-                                        $sql_client_contacts_select = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+                                        $sql_client_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                                         while ($row = mysqli_fetch_array($sql_client_contacts_select)) {
                                             $contact_id_select = $row['contact_id'];
                                             $contact_name_select = htmlentities($row['contact_name']);
@@ -131,7 +133,7 @@
                                         <option value="0">- None -</option>
                                         <?php
 
-                                        $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+                                        $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
                                         while ($row = mysqli_fetch_array($sql_assets)) {
                                             $asset_id_select = $row['asset_id'];
                                             $asset_name_select = htmlentities($row['asset_name']);
@@ -159,7 +161,7 @@
                                         <option value="0">- None -</option>
                                         <?php
 
-                                        $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 ORDER BY vendor_name ASC");
+                                        $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 ORDER BY vendor_name ASC");
                                         while ($row = mysqli_fetch_array($sql_vendors)) {
                                             $vendor_id_select = $row['vendor_id'];
                                             $vendor_name_select = htmlentities($row['vendor_name']);

@@ -3,23 +3,25 @@
 require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
+    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
 } else {
     $sb = "scheduled_ticket_subject";
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
 // SQL
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM scheduled_tickets
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT SQL_CALC_FOUND_ROWS * FROM scheduled_tickets
   LEFT JOIN clients on scheduled_ticket_client_id = client_id
   WHERE scheduled_ticket_client_id = $client_id 
   AND scheduled_tickets.scheduled_ticket_subject LIKE '%$q%'
   ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 
 ?>

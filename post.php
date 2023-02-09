@@ -284,7 +284,7 @@ if(isset($_POST['edit_profile'])){
     $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $new_password = trim($_POST['new_password']);
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
-    $logout = FALSE;
+    $logout = false;
     $extended_log_description = '';
 
     // Email notification when password or email is changed
@@ -367,7 +367,7 @@ if(isset($_POST['edit_profile'])){
         mysqli_query($mysqli,"UPDATE users SET user_password = '$new_password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' WHERE user_id = $user_id");
 
         $extended_log_description .= ", password changed";
-        $logout = TRUE;
+        $logout = true;
     }
 
     // Enable extension access, only if it isn't already setup (user doesn't have cookie)
@@ -377,7 +377,7 @@ if(isset($_POST['edit_profile'])){
             mysqli_query($mysqli, "UPDATE users SET user_extension_key = '$extension_key' WHERE user_id = $user_id");
 
             $extended_log_description .= ", extension access enabled";
-            $logout = TRUE;
+            $logout = true;
         }
     }
 
@@ -4788,19 +4788,19 @@ if(isset($_POST["import_client_contacts_csv"])){
 
     $client_id = intval($_POST['client_id']);
     $file_name = $_FILES["file"]["tmp_name"];
-    $error = FALSE;
+    $error = false;
 
     //Check file is CSV
     $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
     $allowed_file_extensions = array('csv');
     if(in_array($file_extension,$allowed_file_extensions) === false){
-        $error = TRUE;
+        $error = true;
         $_SESSION['alert_message'] = "Bad file extension";
     }
 
     //Check file isn't empty
     elseif($_FILES["file"]["size"] < 1){
-        $error = TRUE;
+        $error = true;
         $_SESSION['alert_message'] = "Bad file size (empty?)";
     }
 
@@ -4808,7 +4808,7 @@ if(isset($_POST["import_client_contacts_csv"])){
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
     if(!$error & count($f_columns) != 8) {
-        $error = TRUE;
+        $error = true;
         $_SESSION['alert_message'] = "Bad column count.";
     }
 
@@ -4818,7 +4818,7 @@ if(isset($_POST["import_client_contacts_csv"])){
         fgetcsv($file, 1000, ","); // Skip first line
         $row_count = 0;
         $duplicate_count = 0;
-        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
+        while(($column = fgetcsv($file, 1000, ",")) !== false){
             $duplicate_detect = 0;
             if(isset($column[0])){
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
@@ -5209,19 +5209,19 @@ if(isset($_POST["import_client_locations_csv"])){
 
     $client_id = intval($_POST['client_id']);
     $file_name = $_FILES["file"]["tmp_name"];
-    $error = FALSE;
+    $error = false;
 
     //Check file is CSV
     $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
     $allowed_file_extensions = array('csv');
     if(in_array($file_extension,$allowed_file_extensions) === false){
-        $error = TRUE;
+        $error = true;
         $_SESSION['alert_message'] = "Bad file extension";
     }
 
     //Check file isn't empty
     elseif($_FILES["file"]["size"] < 1){
-        $error = TRUE;
+        $error = true;
         $_SESSION['alert_message'] = "Bad file size (empty?)";
     }
 
@@ -5229,7 +5229,7 @@ if(isset($_POST["import_client_locations_csv"])){
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
     if(!$error & count($f_columns) != 7) {
-        $error = TRUE;
+        $error = true;
         $_SESSION['alert_message'] = "Bad column count.";
     }
 
@@ -5239,7 +5239,7 @@ if(isset($_POST["import_client_locations_csv"])){
         fgetcsv($file, 1000, ","); // Skip first line
         $row_count = 0;
         $duplicate_count = 0;
-        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
+        while(($column = fgetcsv($file, 1000, ",")) !== false){
             $duplicate_detect = 0;
             if(isset($column[0])){
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
@@ -5519,19 +5519,19 @@ if(isset($_POST["import_client_assets_csv"])){
 
     $client_id = intval($_POST['client_id']);
     $file_name = $_FILES["file"]["tmp_name"];
-    $error = FALSE;
+    $error = false;
 
     //Check file is CSV
     $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
     $allowed_file_extensions = array('csv');
     if(in_array($file_extension,$allowed_file_extensions) === false){
-        $error = TRUE;
+        $error = true;
         $_SESSION['alert_message'] = "Bad file extension";
     }
 
     //Check file isn't empty
     elseif($_FILES["file"]["size"] < 1){
-        $error = TRUE;
+        $error = true;
         $_SESSION['alert_message'] = "Bad file size (empty?)";
     }
 
@@ -5539,7 +5539,7 @@ if(isset($_POST["import_client_assets_csv"])){
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
     if(!$error & count($f_columns) != 8) {
-        $error = TRUE;
+        $error = true;
         $_SESSION['alert_message'] = "Bad column count.";
     }
 
@@ -5549,7 +5549,7 @@ if(isset($_POST["import_client_assets_csv"])){
         fgetcsv($file, 1000, ","); // Skip first line
         $row_count = 0;
         $duplicate_count = 0;
-        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
+        while(($column = fgetcsv($file, 1000, ",")) !== false){
             $duplicate_detect = 0;
             if(isset($column[0])){
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
@@ -6163,19 +6163,19 @@ if(isset($_POST["import_client_logins_csv"])){
 
     $client_id = intval($_POST['client_id']);
     $file_name = $_FILES["file"]["tmp_name"];
-    $error = FALSE;
+    $error = false;
 
     //Check file is CSV
     $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
     $allowed_file_extensions = array('csv');
     if(in_array($file_extension,$allowed_file_extensions) === false){
-        $error = TRUE;
+        $error = true;
         $_SESSION['alert_message'] = "Bad file extension";
     }
 
     //Check file isn't empty
     elseif($_FILES["file"]["size"] < 1){
-        $error = TRUE;
+        $error = true;
         $_SESSION['alert_message'] = "Bad file size (empty?)";
     }
 
@@ -6183,7 +6183,7 @@ if(isset($_POST["import_client_logins_csv"])){
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
     if(!$error & count($f_columns) != 4) {
-        $error = TRUE;
+        $error = true;
         $_SESSION['alert_message'] = "Bad column count.";
     }
 
@@ -6193,7 +6193,7 @@ if(isset($_POST["import_client_logins_csv"])){
         fgetcsv($file, 1000, ","); // Skip first line
         $row_count = 0;
         $duplicate_count = 0;
-        while(($column = fgetcsv($file, 1000, ",")) !== FALSE){
+        while(($column = fgetcsv($file, 1000, ",")) !== false){
             $duplicate_detect = 0;
             if(isset($column[0])){
                 $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));

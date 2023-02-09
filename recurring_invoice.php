@@ -1,10 +1,13 @@
-<?php require_once("inc_all.php");
+<?php
+require_once("inc_all.php");
 
 if (isset($_GET['recurring_id'])) {
 
     $recurring_id = intval($_GET['recurring_id']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM recurring 
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM recurring 
         LEFT JOIN clients ON recurring_client_id = client_id
         LEFT JOIN locations ON primary_location = location_id
         LEFT JOIN contacts ON primary_contact = contact_id

@@ -1,13 +1,13 @@
 <?php require_once("inc_all_settings.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
+    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
 } else {
     $sb = "user_name";
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM users, user_settings
     WHERE users.user_id = user_settings.user_id
@@ -87,11 +87,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         while ($row = mysqli_fetch_array($user_company_access_sql)) {
                             $user_company_access_array[] = $row['company_id'];
                         }
-                        $user_company_access = implode(',',$user_company_access_array);
+                        $user_company_access = implode(',', $user_company_access_array);
 
                         $user_initials = htmlentities(initials($user_name));
 
-                        $sql_last_login = mysqli_query($mysqli, "SELECT * FROM logs 
+                        $sql_last_login = mysqli_query(
+                            $mysqli,
+                            "SELECT * FROM logs 
               WHERE log_user_id = $user_id AND log_type = 'Login'
               ORDER BY log_id DESC LIMIT 1"
                         );

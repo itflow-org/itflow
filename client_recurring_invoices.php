@@ -3,21 +3,21 @@
 <?php
 
 if (!empty($_GET['sb'])) {
-  $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
-}else{
+  $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+} else {
   $sb = "recurring_id";
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
- 
-$sql = mysqli_query($mysqli,"SELECT * FROM recurring
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
+
+$sql = mysqli_query($mysqli, "SELECT * FROM recurring
   LEFT JOIN categories ON recurring_category_id = category_id
   WHERE recurring_client_id = $client_id
   AND (CONCAT(recurring_prefix,recurring_number) LIKE '%$q%' OR recurring_frequency LIKE '%$q%' OR recurring_scope LIKE '%$q%' OR category_name LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
@@ -32,7 +32,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
       <div class="row">
-        
+
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Recurring Invoices">
@@ -68,7 +68,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </thead>
         <tbody>
           <?php
-      
+
            while ($row = mysqli_fetch_array($sql)) {
                 $recurring_id = $row['recurring_id'];
                 $recurring_prefix = htmlentities($row['recurring_prefix']);
@@ -119,7 +119,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item text-danger" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">Delete</a>
                     </div>
-                  </div>      
+                  </div>
                 </td>
               </tr>
 
