@@ -282,7 +282,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                                     <option value="unassigned"<?php if ($ticket_assigned_filter == "0") {echo "selected";}?> >Unassigned</option>
 
                                     <?php
-                                    $sql_assign_to = mysqli_query($mysqli,"SELECT * FROM users WHERE user_archived_at IS NULL ORDER BY user_name ASC");
+                                    $sql_assign_to = mysqli_query($mysqli, "SELECT * FROM users WHERE user_archived_at IS NULL ORDER BY user_name ASC");
                                     while ($row = mysqli_fetch_array($sql_assign_to)) {
                                         $user_id = $row['user_id'];
                                         $user_name = htmlentities($row['user_name']);

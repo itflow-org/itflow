@@ -115,7 +115,7 @@
                                         <option value="">- Contact -</option>
                                         <?php
 
-                                        $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+                                        $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                                         while ($row = mysqli_fetch_array($sql_contacts)) {
                                             $contact_id_select = $row['contact_id'];
                                             $contact_name_select = htmlentities($row['contact_name']);
@@ -136,7 +136,7 @@
                                         <option value="0">- None -</option>
                                         <?php
 
-                                        $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                                        $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
                                         while ($row = mysqli_fetch_array($sql_vendors)) {
                                             $vendor_id_select = $row['vendor_id'];
                                             $vendor_name_select = htmlentities($row['vendor_name']);
@@ -158,7 +158,7 @@
                                         <option value="0">- None -</option>
                                         <?php
 
-                                        $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+                                        $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
                                         while ($row = mysqli_fetch_array($sql_assets)) {
                                             $asset_id_select = $row['asset_id'];
                                             $asset_name_select = htmlentities($row['asset_name']);
@@ -180,7 +180,7 @@
                                         <option value="0">- None -</option>
                                         <?php
 
-                                        $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
+                                        $sql_software = mysqli_query($mysqli, "SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
                                         while ($row = mysqli_fetch_array($sql_software)) {
                                             $software_id_select = $row['software_id'];
                                             $software_name_select = htmlentities($row['software_name']);

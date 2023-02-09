@@ -5,7 +5,7 @@ require_once("inc_all.php");
 //$o = "DESC";
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
+    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
 } else {
     $sb = "expense_date";
 }
@@ -24,41 +24,41 @@ if (empty($_GET['canned_date'])) {
 
 //Date Filter
 if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
-    $dtf = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtf']));
-    $dtt = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtt']));
+    $dtf = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtf']));
+    $dtt = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtt']));
 } elseif ($_GET['canned_date'] == "today") {
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');
 } elseif ($_GET['canned_date'] == "yesterday") {
-    $dtf = date('Y-m-d',strtotime("yesterday"));
-    $dtt = date('Y-m-d',strtotime("yesterday"));
+    $dtf = date('Y-m-d', strtotime("yesterday"));
+    $dtt = date('Y-m-d', strtotime("yesterday"));
 } elseif ($_GET['canned_date'] == "thisweek") {
-    $dtf = date('Y-m-d',strtotime("monday this week"));
+    $dtf = date('Y-m-d', strtotime("monday this week"));
     $dtt = date('Y-m-d');
 } elseif ($_GET['canned_date'] == "lastweek") {
-    $dtf = date('Y-m-d',strtotime("monday last week"));
-    $dtt = date('Y-m-d',strtotime("sunday last week"));
+    $dtf = date('Y-m-d', strtotime("monday last week"));
+    $dtt = date('Y-m-d', strtotime("sunday last week"));
 } elseif ($_GET['canned_date'] == "thismonth") {
     $dtf = date('Y-m-01');
     $dtt = date('Y-m-d');
 } elseif ($_GET['canned_date'] == "lastmonth") {
-    $dtf = date('Y-m-d',strtotime("first day of last month"));
-    $dtt = date('Y-m-d',strtotime("last day of last month"));
+    $dtf = date('Y-m-d', strtotime("first day of last month"));
+    $dtt = date('Y-m-d', strtotime("last day of last month"));
 } elseif ($_GET['canned_date'] == "thisyear") {
     $dtf = date('Y-01-01');
     $dtt = date('Y-m-d');
 } elseif ($_GET['canned_date'] == "lastyear") {
-    $dtf = date('Y-m-d',strtotime("first day of january last year"));
-    $dtt = date('Y-m-d',strtotime("last day of december last year"));
+    $dtf = date('Y-m-d', strtotime("first day of january last year"));
+    $dtt = date('Y-m-d', strtotime("last day of december last year"));
 } else {
     $dtf = "0000-00-00";
     $dtt = "9999-00-00";
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM expenses
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM expenses
   LEFT JOIN categories ON expense_category_id = category_id
   LEFT JOIN vendors ON expense_vendor_id = vendor_id
   LEFT JOIN accounts ON expense_account_id = account_id
@@ -68,7 +68,7 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM expenses
   AND (vendor_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
@@ -176,7 +176,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                             <td><?php echo $receipt_attached; ?> <a class="text-dark" href="#" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>"><?php echo $expense_date; ?></a></td>
                             <td><?php echo $vendor_name; ?></td>
                             <td><?php echo $category_name; ?></td>
-                            <td><?php echo truncate($expense_description,50); ?></td>
+                            <td><?php echo truncate($expense_description, 50); ?></td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code); ?></td>
                             <td><?php echo $account_name; ?></td>
                             <td>

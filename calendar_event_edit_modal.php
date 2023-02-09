@@ -50,7 +50,7 @@
                                     <select class="form-control select2" name="calendar" required>
                                         <?php
 
-                                        $sql_calendars_select = mysqli_query($mysqli,"SELECT * FROM calendars WHERE company_id = $session_company_id ORDER BY calendar_name ASC");
+                                        $sql_calendars_select = mysqli_query($mysqli, "SELECT * FROM calendars WHERE company_id = $session_company_id ORDER BY calendar_name ASC");
                                         while ($row = mysqli_fetch_array($sql_calendars_select)) {
                                             $calendar_id_select = $row['calendar_id'];
                                             $calendar_name_select = htmlentities($row['calendar_name']);
@@ -116,7 +116,7 @@
                                             <option value="">- Client -</option>
                                             <?php
 
-                                            $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN contacts ON primary_contact = contact_id WHERE clients.company_id = $session_company_id ORDER BY client_name ASC");
+                                            $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN contacts ON primary_contact = contact_id WHERE clients.company_id = $session_company_id ORDER BY client_name ASC");
                                             while ($row = mysqli_fetch_array($sql_clients)) {
                                                 $client_id_select = $row['client_id'];
                                                 $client_name_select = htmlentities($row['client_name']);

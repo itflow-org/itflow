@@ -44,7 +44,7 @@ class Base32Static {
         $i=0;
 
         while($i < count($fiveBitBinaryArray)) {
-            $base32 .= self::$map[base_convert(str_pad($fiveBitBinaryArray[$i], 5,'0'), 2, 10)];
+            $base32 .= self::$map[base_convert(str_pad($fiveBitBinaryArray[$i], 5, '0'), 2, 10)];
             $i++;
         }
 
@@ -71,7 +71,7 @@ class Base32Static {
                 substr($input, -($allowedValues[$i])) != str_repeat(self::$map[32], $allowedValues[$i])) return false;
         }
 
-        $input = str_replace('=','', $input);
+        $input = str_replace('=', '', $input);
         $input = str_split($input);
         $binaryString = "";
 

@@ -2,7 +2,7 @@
 require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
+    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
 } else {
     $sb = "invoice_number";
 }
@@ -14,7 +14,7 @@ if (!isset($_GET['o'])) {
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query(
     $mysqli,
@@ -22,9 +22,10 @@ $sql = mysqli_query(
     LEFT JOIN categories ON invoice_category_id = category_id
     WHERE invoice_client_id = $client_id 
     AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%') 
-    ORDER BY $sb $o LIMIT $record_from, $record_to");
+    ORDER BY $sb $o LIMIT $record_from, $record_to"
+);
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 

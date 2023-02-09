@@ -31,7 +31,7 @@
                                 <option value="">- Vendor -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $vendor_id = $row['vendor_id'];
                                     $vendor_name = htmlentities($row['vendor_name']);
@@ -52,7 +52,7 @@
                                 <option value="">- Vendor -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $vendor_id = $row['vendor_id'];
                                     $vendor_name = htmlentities($row['vendor_name']);

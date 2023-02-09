@@ -58,7 +58,7 @@ if ($total_found_rows > 10) {
                 } else {
                     $next_class = "disabled";
                 }
-                $url_query_strings = http_build_query(array_merge($_GET,array('p' => $i)));
+                $url_query_strings = http_build_query(array_merge($_GET, array('p' => $i)));
                 $prev_page = $p - 1;
                 $next_page  = $p + 1;
 

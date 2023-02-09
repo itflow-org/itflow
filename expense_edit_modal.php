@@ -46,28 +46,28 @@
                                 <select class="form-control select2" name="account" required>
                                     <?php
 
-                                    $sql_accounts = mysqli_query($mysqli,"SELECT * FROM accounts WHERE (account_archived_at > '$expense_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id ORDER BY account_name ASC");
+                                    $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$expense_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_array($sql_accounts)) {
                                         $account_id_select = $row['account_id'];
                                         $account_name_select = htmlentities($row['account_name']);
                                         $opening_balance = floatval($row['opening_balance']);
 
-                                        $sql_payments = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id_select");
+                                        $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id_select");
                                         $row = mysqli_fetch_array($sql_payments);
                                         $total_payments = $row['total_payments'];
 
-                                        $sql_revenues = mysqli_query($mysqli,"SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id_select");
+                                        $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id_select");
                                         $row = mysqli_fetch_array($sql_revenues);
                                         $total_revenues = $row['total_revenues'];
 
-                                        $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id_select");
+                                        $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id_select");
                                         $row = mysqli_fetch_array($sql_expenses);
                                         $total_expenses = $row['total_expenses'];
 
                                         $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                                         ?>
-                                        <option <?php if ($expense_account_id == $account_id_select) { ?> selected <?php } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance,2); ?>]</option>
+                                        <option <?php if ($expense_account_id == $account_id_select) { ?> selected <?php } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance, 2); ?>]</option>
                                         <?php
                                     }
 
@@ -85,7 +85,7 @@
                                 <select class="form-control select2" name="vendor" required>
                                     <?php
 
-                                    $sql_select = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND (vendor_archived_at > '$expense_created_at' OR vendor_archived_at IS NULL) AND company_id = $session_company_id ORDER BY vendor_name ASC");
+                                    $sql_select = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND (vendor_archived_at > '$expense_created_at' OR vendor_archived_at IS NULL) AND company_id = $session_company_id ORDER BY vendor_name ASC");
                                     while ($row = mysqli_fetch_array($sql_select)) {
                                         $vendor_id_select = $row['vendor_id'];
                                         $vendor_name_select = htmlentities($row['vendor_name']);
@@ -120,7 +120,7 @@
                                 <select class="form-control select2" name="category" required>
                                     <?php
 
-                                    $sql_select = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense' AND (category_archived_at > '$expense_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC");
+                                    $sql_select = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Expense' AND (category_archived_at > '$expense_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_array($sql_select)) {
                                         $category_id_select = $row['category_id'];
                                         $category_name_select = htmlentities($row['category_name']);

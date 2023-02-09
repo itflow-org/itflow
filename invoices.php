@@ -85,39 +85,39 @@ if (isset($_GET['status']) && ($_GET['status']) == 'Draft') {
 
 //Date Filter
 if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
-    $dtf = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtf']));
-    $dtt = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtt']));
+    $dtf = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtf']));
+    $dtt = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtt']));
 } elseif ($_GET['canned_date'] == "today") {
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');
 } elseif ($_GET['canned_date'] == "yesterday") {
-    $dtf = date('Y-m-d',strtotime("yesterday"));
-    $dtt = date('Y-m-d',strtotime("yesterday"));
+    $dtf = date('Y-m-d', strtotime("yesterday"));
+    $dtt = date('Y-m-d', strtotime("yesterday"));
 } elseif ($_GET['canned_date'] == "thisweek") {
-    $dtf = date('Y-m-d',strtotime("monday this week"));
+    $dtf = date('Y-m-d', strtotime("monday this week"));
     $dtt = date('Y-m-d');
 } elseif ($_GET['canned_date'] == "lastweek") {
-    $dtf = date('Y-m-d',strtotime("monday last week"));
-    $dtt = date('Y-m-d',strtotime("sunday last week"));
+    $dtf = date('Y-m-d', strtotime("monday last week"));
+    $dtt = date('Y-m-d', strtotime("sunday last week"));
 } elseif ($_GET['canned_date'] == "thismonth") {
     $dtf = date('Y-m-01');
     $dtt = date('Y-m-d');
 } elseif ($_GET['canned_date'] == "lastmonth") {
-    $dtf = date('Y-m-d',strtotime("first day of last month"));
-    $dtt = date('Y-m-d',strtotime("last day of last month"));
+    $dtf = date('Y-m-d', strtotime("first day of last month"));
+    $dtt = date('Y-m-d', strtotime("last day of last month"));
 } elseif ($_GET['canned_date'] == "thisyear") {
     $dtf = date('Y-01-01');
     $dtt = date('Y-m-d');
 } elseif ($_GET['canned_date'] == "lastyear") {
-    $dtf = date('Y-m-d',strtotime("first day of january last year"));
-    $dtt = date('Y-m-d',strtotime("last day of december last year"));
+    $dtf = date('Y-m-d', strtotime("first day of january last year"));
+    $dtt = date('Y-m-d', strtotime("last day of december last year"));
 } else {
     $dtf = "0000-00-00";
     $dtt = "9999-00-00";
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id

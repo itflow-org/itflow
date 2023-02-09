@@ -1,18 +1,21 @@
-<?php require_once("inc_all_settings.php");
+<?php
+require_once("inc_all_settings.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
+    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
 } else {
     $sb = "tax_name";
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT * FROM taxes 
-  WHERE tax_archived_at IS NULL 
-  AND company_id = $session_company_id 
-  ORDER BY $sb $o"
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT * FROM taxes 
+    WHERE tax_archived_at IS NULL 
+    AND company_id = $session_company_id 
+    ORDER BY $sb $o"
 );
 
 $num_rows = mysqli_num_rows($sql);
@@ -64,11 +67,11 @@ $num_rows = mysqli_num_rows($sql);
 
                     <?php
 
-                    include("settings_tax_edit_modal.php");
+                    require("settings_tax_edit_modal.php");
                 }
 
                 if ($num_rows == 0) {
-                    echo "<center><h3 class='text-secondary mt-3'>No Records Here</h3></center>";
+                    echo "<h3 class='text-secondary mt-3' style='text-align: center'>No Records Here</h3>";
                 }
 
                 ?>
@@ -81,9 +84,5 @@ $num_rows = mysqli_num_rows($sql);
 </div>
 
 <?php
-
-include("settings_tax_add_modal.php");
-
-include("footer.php");
-
-?>
+require_once("settings_tax_add_modal.php");
+require_once("footer.php");

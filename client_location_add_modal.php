@@ -113,7 +113,7 @@
                                         <option value="">- Contact -</option>
                                         <?php
 
-                                        $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
+                                        $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
                                         while ($row = mysqli_fetch_array($sql_contacts)) {
                                             $contact_id = $row['contact_id'];
                                             $contact_name = htmlentities($row['contact_name']);

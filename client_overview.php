@@ -15,7 +15,9 @@ $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id 
 // Expiring Items
 
 // Get Domains Expiring
-$sql_domains_expiring = mysqli_query($mysqli, "SELECT * FROM domains
+$sql_domains_expiring = mysqli_query(
+    $mysqli,
+    "SELECT * FROM domains
     WHERE domain_client_id = $client_id
     AND domain_expire != '0000-00-00'
     AND domain_archived_at IS NULL

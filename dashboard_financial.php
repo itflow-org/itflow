@@ -58,17 +58,21 @@ $profit = $total_income - $total_expenses;
 
 $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id = $session_company_id");
 
-$sql_latest_invoice_payments = mysqli_query($mysqli, "SELECT * FROM payments, invoices, clients 
+$sql_latest_invoice_payments = mysqli_query(
+    $mysqli,
+    "SELECT * FROM payments, invoices, clients 
     WHERE payment_invoice_id = invoice_id 
     AND invoice_client_id = client_id
-  AND clients.company_id = $session_company_id
+    AND clients.company_id = $session_company_id
     ORDER BY payment_id DESC LIMIT 5"
 );
 
-$sql_latest_expenses = mysqli_query($mysqli, "SELECT * FROM expenses, vendors, categories 
+$sql_latest_expenses = mysqli_query(
+    $mysqli,
+    "SELECT * FROM expenses, vendors, categories 
     WHERE expense_vendor_id = vendor_id 
     AND expense_category_id = category_id
-  AND expenses.company_id = $session_company_id
+    AND expenses.company_id = $session_company_id
     ORDER BY expense_id DESC LIMIT 5"
 );
 
@@ -194,7 +198,7 @@ $vendors_added = $row['vendors_added'];
         <!-- small box -->
         <a class="small-box bg-secondary" href="trips.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
             <div class="inner">
-                <h3><?php echo number_format($total_miles,2); ?></h3>
+                <h3><?php echo number_format($total_miles, 2); ?></h3>
                 <p>Miles Traveled</p>
             </div>
             <div class="icon">

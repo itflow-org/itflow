@@ -15,9 +15,9 @@ if (isset($_GET['p'])) {
 
 //Custom Query Filter
 if (isset($_GET['query'])) {
-    $query = strip_tags(mysqli_real_escape_string($mysqli,$_GET['query']));
+    $query = strip_tags(mysqli_real_escape_string($mysqli, $_GET['query']));
     //Phone Numbers
-    $phone_query = preg_replace("/[^0-9]/", '',$query);
+    $phone_query = preg_replace("/[^0-9]/", '', $query);
     if (empty($phone_query)) {
         $phone_query = $query;
     }
@@ -28,7 +28,7 @@ if (isset($_GET['query'])) {
 
 //Column Filter
 if (!empty($_GET['sortby'])) {
-    $sortby = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sortby']));
+    $sortby = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sortby']));
 } else {
     $sortby = "client_accessed_at";
 }
@@ -55,41 +55,41 @@ if (empty($_GET['canned_date'])) {
 
 //Date Filter
 if ($_GET['canned_date'] == "custom" && !empty($_GET['date_from'])) {
-    $date_from = strip_tags(mysqli_real_escape_string($mysqli,$_GET['date_from']));
-    $date_to = strip_tags(mysqli_real_escape_string($mysqli,$_GET['date_to']));
+    $date_from = strip_tags(mysqli_real_escape_string($mysqli, $_GET['date_from']));
+    $date_to = strip_tags(mysqli_real_escape_string($mysqli, $_GET['date_to']));
 } elseif ($_GET['canned_date'] == "today") {
     $date_from = date('Y-m-d');
     $date_to = date('Y-m-d');
 } elseif ($_GET['canned_date'] == "yesterday") {
-    $date_from = date('Y-m-d',strtotime("yesterday"));
-    $date_to = date('Y-m-d',strtotime("yesterday"));
+    $date_from = date('Y-m-d', strtotime("yesterday"));
+    $date_to = date('Y-m-d', strtotime("yesterday"));
 } elseif ($_GET['canned_date'] == "thisweek") {
-    $date_from = date('Y-m-d',strtotime("monday this week"));
+    $date_from = date('Y-m-d', strtotime("monday this week"));
     $date_to = date('Y-m-d');
 } elseif ($_GET['canned_date'] == "lastweek") {
-    $date_from = date('Y-m-d',strtotime("monday last week"));
-    $date_to = date('Y-m-d',strtotime("sunday last week"));
+    $date_from = date('Y-m-d', strtotime("monday last week"));
+    $date_to = date('Y-m-d', strtotime("sunday last week"));
 } elseif ($_GET['canned_date'] == "thismonth") {
     $date_from = date('Y-m-01');
     $date_to = date('Y-m-d');
 } elseif ($_GET['canned_date'] == "lastmonth") {
-    $date_from = date('Y-m-d',strtotime("first day of last month"));
-    $date_to = date('Y-m-d',strtotime("last day of last month"));
+    $date_from = date('Y-m-d', strtotime("first day of last month"));
+    $date_to = date('Y-m-d', strtotime("last day of last month"));
 } elseif ($_GET['canned_date'] == "thisyear") {
     $date_from = date('Y-01-01');
     $date_to = date('Y-m-d');
 } elseif ($_GET['canned_date'] == "lastyear") {
-    $date_from = date('Y-m-d',strtotime("first day of january last year"));
-    $date_to = date('Y-m-d',strtotime("last day of december last year"));
+    $date_from = date('Y-m-d', strtotime("first day of january last year"));
+    $date_to = date('Y-m-d', strtotime("last day of december last year"));
 } else {
     $date_from = "0000-00-00";
     $date_to = "9999-00-00";
 }
 
 //Rebuild URL
-$url_query_strings_sortby = http_build_query(array_merge($_GET,array('sortby' => $sortby, 'order' => $order)));
+$url_query_strings_sortby = http_build_query(array_merge($_GET, array('sortby' => $sortby, 'order' => $order)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients 
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM clients 
   LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contact_archived_at IS NULL
   LEFT JOIN locations ON clients.primary_location = locations.location_id AND location_archived_at IS NULL
   WHERE (client_name LIKE '%$query%' OR client_type LIKE '%$query%' OR client_referral LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_name LIKE '%$query%' OR contact_phone LIKE '%$phone_query%' 
@@ -100,7 +100,7 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM clients
   ORDER BY $sortby $order LIMIT $record_from, $record_to
 ");
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
@@ -202,7 +202,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                     $client_net_terms = htmlentities($row['client_net_terms']);
                     $client_referral = htmlentities($row['client_referral']);
                     $client_notes = htmlentities($row['client_notes']);
-                    $client_created_at = date('Y-m-d',strtotime($row['client_created_at']));
+                    $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));
                     $client_updated_at = $row['client_updated_at'];
                     $client_archive_at = $row['client_archived_at'];
 
@@ -210,7 +210,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
 
                     $client_tag_name_display_array = array();
                     $client_tag_id_array = array();
-                    $sql_client_tags = mysqli_query($mysqli,"SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_tags.client_id = $client_id");
+                    $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_tags.client_id = $client_id");
                     while ($row = mysqli_fetch_array($sql_client_tags)) {
 
                         $client_tag_id = $row['tag_id'];
@@ -231,12 +231,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                     $client_tags_display = implode('', $client_tag_name_display_array);
 
                     //Add up all the payments for the invoice and get the total amount paid to the invoice
-                    $sql_invoice_amounts = mysqli_query($mysqli,"SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' ");
+                    $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' ");
                     $row = mysqli_fetch_array($sql_invoice_amounts);
 
                     $invoice_amounts = $row['invoice_amounts'];
 
-                    $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
+                    $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
                     $row = mysqli_fetch_array($sql_amount_paid);
 
                     $amount_paid = $row['amount_paid'];
@@ -250,13 +250,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                     }
 
                     //Get Monthly Recurring Total
-                    $sql_recurring_monthly_total = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND recurring_client_id = $client_id AND company_id = $session_company_id");
+                    $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND recurring_client_id = $client_id AND company_id = $session_company_id");
                     $row = mysqli_fetch_array($sql_recurring_monthly_total);
 
                     $recurring_monthly_total = $row['recurring_monthly_total'];
 
                     //Get Yearly Recurring Total
-                    $sql_recurring_yearly_total = mysqli_query($mysqli,"SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND recurring_client_id = $client_id AND company_id = $session_company_id");
+                    $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND recurring_client_id = $client_id AND company_id = $session_company_id");
                     $row = mysqli_fetch_array($sql_recurring_yearly_total);
 
                     $recurring_yearly_total = $row['recurring_yearly_total'] / 12;

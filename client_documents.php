@@ -11,7 +11,7 @@ if (!empty($_GET['folder_id'])) {
 
 // Sort by
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
+    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
 } else {
     $sb = "document_name";
 }
@@ -24,7 +24,7 @@ if (!empty($q)) {
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
 // Folder ID
 $get_folder_id = 0;
@@ -32,16 +32,18 @@ if (!empty($_GET['folder_id'])) {
     $get_folder_id = intval($_GET['folder_id']);
 }
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM documents
-  WHERE document_client_id = $client_id
-  AND documents.company_id = $session_company_id
-  AND document_template = 0
-  AND document_folder_id = $folder
-  $query_snippet
-  ORDER BY $sb $o LIMIT $record_from, $record_to"
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT SQL_CALC_FOUND_ROWS * FROM documents
+    WHERE document_client_id = $client_id
+    AND documents.company_id = $session_company_id
+    AND document_template = 0
+    AND document_folder_id = $folder
+    $query_snippet
+    ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
@@ -82,12 +84,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                             <a class="nav-link <?php if ($get_folder_id == 0) { echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&folder_id=0">/</a>
                         </li>
                         <?php
-                        $sql_folders = mysqli_query($mysqli,"SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
+                        $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
                         while ($row = mysqli_fetch_array($sql_folders)) {
                             $folder_id = $row['folder_id'];
                             $folder_name = htmlentities($row['folder_name']);
 
-                            $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_id') AS num FROM documents WHERE document_folder_id = $folder_id"));
+                            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_id') AS num FROM documents WHERE document_folder_id = $folder_id"));
                             $num_documents = $row['num'];
 
                             ?>

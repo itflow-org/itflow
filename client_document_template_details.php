@@ -8,7 +8,7 @@ if (isset($_GET['document_id'])) {
 }
 
 
-$sql_document = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_template = 1 AND document_id = $document_id AND documents.company_id = $session_company_id");
+$sql_document = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_template = 1 AND document_id = $document_id AND documents.company_id = $session_company_id");
 
 $row = mysqli_fetch_array($sql_document);
 

@@ -101,7 +101,7 @@
                 <select multiple class="form-control" id="contacts" name="contacts[]">
                   <?php
                   // Get just the currently selected contact IDs
-                  $selected_ids = array_column(mysqli_fetch_all($sql_contacts,MYSQLI_ASSOC), "contact_id");
+                  $selected_ids = array_column(mysqli_fetch_all($sql_contacts, MYSQLI_ASSOC), "contact_id");
 
                   // Get all contacts
                   // NOTE: These are called $sql_all and $row_all for a reason - anything overwriting $sql or $row will break the current while loop we are in from client_services.php
@@ -126,7 +126,7 @@
                 <label for="vendors">Vendors</label>
                 <select multiple class="form-control" id="vendors" name="vendors[]">
                   <?php
-                  $selected_ids = array_column(mysqli_fetch_all($sql_vendors,MYSQLI_ASSOC), "vendor_id");
+                  $selected_ids = array_column(mysqli_fetch_all($sql_vendors, MYSQLI_ASSOC), "vendor_id");
 
                   $sql_all = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 0 AND vendor_client_id = '$client_id'");
                   while ($row_all = mysqli_fetch_array($sql_all)) {
@@ -148,7 +148,7 @@
                 <label for="documents">Documents</label>
                 <select multiple class="form-control" id="documents" name="documents[]">
                   <?php
-                  $selected_ids = array_column(mysqli_fetch_all($sql_docs,MYSQLI_ASSOC), "document_id");
+                  $selected_ids = array_column(mysqli_fetch_all($sql_docs, MYSQLI_ASSOC), "document_id");
 
                   $sql_all = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = '$client_id'");
                   while ($row_all = mysqli_fetch_array($sql_all)) {
@@ -181,7 +181,7 @@
                     <label for="assets">Assets</label>
                     <select multiple class="form-control" id="assets" name="assets[]">
                       <?php
-                      $selected_ids = array_column(mysqli_fetch_all($sql_assets,MYSQLI_ASSOC), "asset_id");
+                      $selected_ids = array_column(mysqli_fetch_all($sql_assets, MYSQLI_ASSOC), "asset_id");
 
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = '$client_id'");
                       while ($row_all = mysqli_fetch_array($sql_all)) {
@@ -205,7 +205,7 @@
                     <label for="logins">Logins</label>
                     <select multiple class="form-control" id="logins" name="logins[]">
                       <?php
-                      $selected_ids = array_column(mysqli_fetch_all($sql_logins,MYSQLI_ASSOC), "login_id");
+                      $selected_ids = array_column(mysqli_fetch_all($sql_logins, MYSQLI_ASSOC), "login_id");
 
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id = '$client_id'");
                       while ($row_all = mysqli_fetch_array($sql_all)) {
@@ -234,7 +234,7 @@
                     <label for="domains">Domains</label>
                     <select multiple class="form-control" id="domains" name="domains[]">
                       <?php
-                      $selected_ids = array_column(mysqli_fetch_all($sql_domains,MYSQLI_ASSOC), "domain_id");
+                      $selected_ids = array_column(mysqli_fetch_all($sql_domains, MYSQLI_ASSOC), "domain_id");
 
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = '$client_id'");
                       while ($row_all = mysqli_fetch_array($sql_all)) {
@@ -258,7 +258,7 @@
                     <label for="certificates">Certificates</label>
                     <select multiple class="form-control" id="certificates" name="certificates[]">
                       <?php
-                      $selected_ids = array_column(mysqli_fetch_all($sql_certificates,MYSQLI_ASSOC), "certificate_id");
+                      $selected_ids = array_column(mysqli_fetch_all($sql_certificates, MYSQLI_ASSOC), "certificate_id");
 
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id = '$client_id'");
                       while ($row_all = mysqli_fetch_array($sql_all)) {

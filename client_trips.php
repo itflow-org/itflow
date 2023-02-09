@@ -3,7 +3,7 @@
 require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
+    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
 } else {
     $sb = "trip_date";
 }
@@ -16,17 +16,17 @@ if (!isset($_GET['o'])) {
 
 //Date From and Date To Filter
 if (isset($_GET['dtf'])) {
-    $dtf = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtf']));
-    $dtt = strip_tags(mysqli_real_escape_string($mysqli,$_GET['dtt']));
+    $dtf = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtf']));
+    $dtt = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtt']));
 } else {
     $dtf = "0000-00-00";
     $dtt = "9999-00-00";
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM trips
   LEFT JOIN users ON trip_user_id = user_id
   WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR user_name LIKE '%$q%')
   AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
@@ -34,7 +34,7 @@ $sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM trips
   AND trip_client_id = $client_id
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 

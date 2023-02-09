@@ -30,8 +30,8 @@ require_once("config.php");
 require_once("functions.php");
 
 // IP & User Agent for logging
-$ip = strip_tags(mysqli_real_escape_string($mysqli,getIP()));
-$user_agent = strip_tags(mysqli_real_escape_string($mysqli,$_SERVER['HTTP_USER_AGENT']));
+$ip = strip_tags(mysqli_real_escape_string($mysqli, getIP()));
+$user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
 
 // Define wording for the user
 DEFINE("WORDING_ROLECHECK_FAILED", "ITFlow - You are not permitted to use this application!");

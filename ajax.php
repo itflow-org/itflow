@@ -141,7 +141,9 @@ if (isset($_GET['network_get_json_details'])) {
     }
 
     // Lookup all client locations, as networks can be associated with any client location
-    $locations_sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations 
+    $locations_sql = mysqli_query(
+        $mysqli,
+        "SELECT location_id, location_name FROM locations 
         WHERE location_client_id = '$client_id' AND company_id = '$session_company_id'"
     );
     while ($row = mysqli_fetch_array($locations_sql)) {
@@ -226,11 +228,11 @@ if (isset($_GET['share_generate_link'])) {
     $item_encrypted_credential = '';  // Default empty
 
     $client_id = intval($_GET['client_id']);
-    $item_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['type'])));
+    $item_type = trim(strip_tags(mysqli_real_escape_string($mysqli, $_GET['type'])));
     $item_id = intval($_GET['id']);
-    $item_note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['note'])));
+    $item_note = trim(strip_tags(mysqli_real_escape_string($mysqli, $_GET['note'])));
     $item_view_limit = intval($_GET['views']);
-    $item_expires = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['expires'])));
+    $item_expires = trim(strip_tags(mysqli_real_escape_string($mysqli, $_GET['expires'])));
     $item_key = randomString(156);
 
     if ($item_type == "Document") {

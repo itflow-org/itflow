@@ -21,7 +21,7 @@
                                     <option value="">- Contact -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $contact_id = $row['contact_id'];
                                         $contact_name = htmlentities($row['contact_name']);
@@ -45,7 +45,7 @@
                                     <option value="">- Client -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $client_id = $row['client_id'];
                                         $client_name = htmlentities($row['client_name']);
@@ -120,7 +120,7 @@
                                 <option value="0">- None -</option>
                                 <?php
 
-                                $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+                                $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
                                 while ($row = mysqli_fetch_array($sql_assets)) {
                                     $asset_id_select = $row['asset_id'];
                                     $asset_name_select = htmlentities($row['asset_name']);

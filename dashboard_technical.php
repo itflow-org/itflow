@@ -9,7 +9,9 @@ if (isset($_GET['year'])) {
 }
 
 // GET unique years from expenses, payments and revenues
-$sql_payment_years = mysqli_query($mysqli, "SELECT YEAR(expense_date) AS all_years FROM expenses
+$sql_payment_years = mysqli_query(
+    $mysqli,
+    "SELECT YEAR(expense_date) AS all_years FROM expenses
     WHERE company_id = $session_company_id
     UNION DISTINCT SELECT YEAR(payment_date) FROM payments WHERE company_id = $session_company_id
     UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues WHERE company_id = $session_company_id
@@ -17,28 +19,36 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT YEAR(expense_date) AS all_yea
 );
 
 // Get Total Clients added
-$sql_clients = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS clients_added FROM clients
+$sql_clients = mysqli_fetch_assoc(mysqli_query(
+    $mysqli,
+    "SELECT COUNT('client_id') AS clients_added FROM clients
     WHERE YEAR(client_created_at) = $year
     AND company_id = $session_company_id"
 ));
 $clients_added = $sql_clients['clients_added'];
 
 // Get Total contacts added
-$sql_contacts = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('contact_id') AS contacts_added FROM contacts
+$sql_contacts = mysqli_fetch_assoc(mysqli_query(
+    $mysqli,
+    "SELECT COUNT('contact_id') AS contacts_added FROM contacts
     WHERE YEAR(contact_created_at) = $year
     AND company_id = $session_company_id"
 ));
 $contacts_added = $sql_contacts['contacts_added'];
 
 // Get Total assets added
-$sql_assets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS assets_added FROM assets
+$sql_assets = mysqli_fetch_assoc(mysqli_query(
+    $mysqli,
+    "SELECT COUNT('asset_id') AS assets_added FROM assets
     WHERE YEAR(asset_created_at) = $year
     AND company_id = $session_company_id"
 ));
 $assets_added = $sql_assets['assets_added'];
 
 // Ticket count
-$sql_tickets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS active_tickets
+$sql_tickets = mysqli_fetch_assoc(mysqli_query(
+    $mysqli,
+    "SELECT COUNT('ticket_id') AS active_tickets
     FROM tickets
     WHERE ticket_status != 'Closed'
     AND company_id = $session_company_id"
@@ -46,7 +56,9 @@ $sql_tickets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id
 $active_tickets = $sql_tickets['active_tickets'];
 
 // Expiring domains (but not ones that have already expired)
-$sql_domains_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('domain_id') as expiring_domains
+$sql_domains_expiring = mysqli_fetch_assoc(mysqli_query(
+    $mysqli,
+    "SELECT COUNT('domain_id') as expiring_domains
     FROM domains
     WHERE domain_expire != '0000-00-00'
     AND domain_expire > CURRENT_DATE
@@ -57,7 +69,9 @@ $sql_domains_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('
 $expiring_domains = $sql_domains_expiring['expiring_domains'];
 
 // Expiring Certificates (but not ones that have already expired)
-$sql_certs_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('certificate_id') as expiring_certs
+$sql_certs_expiring = mysqli_fetch_assoc(mysqli_query(
+    $mysqli,
+    "SELECT COUNT('certificate_id') as expiring_certs
     FROM certificates
     WHERE certificate_expire != '0000-00-00'
     AND certificate_expire > CURRENT_DATE

@@ -17,7 +17,7 @@ class TokenAuth6238 {
             $checktime = (int)($unixtimestamp+$i);
             $thiskey = self::oath_hotp($key, $checktime);
 
-            if ((int)$code == self::oath_truncate($thiskey,6)) {
+            if ((int)$code == self::oath_truncate($thiskey, 6)) {
                 return true;
             }
 
@@ -31,12 +31,12 @@ class TokenAuth6238 {
 
         $checktime = (int)($unixtimestamp);
         $thiskey = self::oath_hotp($key, $checktime);
-        $result = $result . self::oath_truncate($thiskey,6);
+        $result = $result . self::oath_truncate($thiskey, 6);
 
         $result = "000000" . $result;
         return substr($result, -6);
     }
-    public static function getTokenCodeDebug($secretkey,$rangein30s = 3) {
+    public static function getTokenCodeDebug($secretkey, $rangein30s = 3) {
         $result = "";
         print "<br/>SecretKey: $secretkey <br/>";
 
@@ -52,7 +52,7 @@ class TokenAuth6238 {
             $thiskey = self::oath_hotp($key, $checktime, true);
             print "======================================================<br/>";
             print "CheckTime: $checktime oath_hotp:".$thiskey."<br/>";
-            $result = $result." # ".self::oath_truncate($thiskey,6,true);
+            $result = $result." # ".self::oath_truncate($thiskey, 6, true);
         }
 
         return $result;
@@ -117,7 +117,7 @@ class TokenAuth6238 {
             print "converting hex hash into characters<br/>";
         }
 
-        $hashcharacters = str_split($hash,2);
+        $hashcharacters = str_split($hash, 2);
 
         if ($debug) {
             print_r($hashcharacters);
@@ -144,7 +144,7 @@ class TokenAuth6238 {
                 (($hmac_result[$offset+1] & 0xff) << 16) |
                 (($hmac_result[$offset+2] & 0xff) << 8) |
                 ($hmac_result[$offset+3] & 0xff)
-            ) % pow(10,$length);
+            ) % pow(10, $length);
         return $result;
     }
 

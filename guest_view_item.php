@@ -18,7 +18,7 @@ if (!isset($_GET['id']) || !isset($_GET['key'])) {
 }
 
 $item_id = intval($_GET['id']);
-$item_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['key'])));
+$item_key = trim(strip_tags(mysqli_real_escape_string($mysqli, $_GET['key'])));
 
 $sql = mysqli_query($mysqli, "SELECT * FROM shared_items WHERE item_id = '$item_id' AND item_key = '$item_key' AND item_expire_at > NOW() LIMIT 1");
 $row = mysqli_fetch_array($sql);
@@ -77,7 +77,7 @@ if ($item_type == "Document") {
 
     // Logging
     $name = mysqli_real_escape_string($mysqli, $doc_title);
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Viewed shared $item_type $name via link', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Viewed shared $item_type $name via link', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
 
 } elseif ($item_type == "File") {
     $file_sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = '$item_related_id' AND file_client_id = '$client_id' LIMIT 1");
@@ -142,7 +142,7 @@ if ($item_type == "Document") {
 
     // Logging
     $name = mysqli_real_escape_string($mysqli, $login_name);
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Viewed shared $item_type $name via link', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Viewed shared $item_type $name via link', log_client_id = '$client_id', log_created_at = NOW(), log_ip = '$ip', log_user_agent = '$user_agent', company_id = '1'");
 
 }
 

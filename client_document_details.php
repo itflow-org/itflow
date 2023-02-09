@@ -7,7 +7,7 @@ if (isset($_GET['document_id'])) {
 }
 
 
-$sql_document = mysqli_query($mysqli,"SELECT * FROM documents LEFT JOIN folders ON document_folder_id = folder_id WHERE document_client_id = $client_id AND document_id = $document_id AND documents.company_id = $session_company_id");
+$sql_document = mysqli_query($mysqli, "SELECT * FROM documents LEFT JOIN folders ON document_folder_id = folder_id WHERE document_client_id = $client_id AND document_id = $document_id AND documents.company_id = $session_company_id");
 
 $row = mysqli_fetch_array($sql_document);
 

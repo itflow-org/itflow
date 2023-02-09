@@ -88,10 +88,19 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $comp
         $email_subject = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
         $email_body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_ticket_from_email, $config_ticket_from_name,
-            $contact_email, $contact_name,
-            $email_subject, $email_body);
+        $mail = sendSingleEmail(
+            $config_smtp_host,
+            $config_smtp_username,
+            $config_smtp_password,
+            $config_smtp_encryption,
+            $config_smtp_port,
+            $config_ticket_from_email,
+            $config_ticket_from_name,
+            $contact_email,
+            $contact_name,
+            $email_subject,
+            $email_body
+        );
 
         if ($mail !== true) {
             mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $company_id");
@@ -203,7 +212,7 @@ if (array_search("{{$imap_mailbox}}$imap_folder", $list) === false) {
 }
 
 // Search for unread ("UNSEEN") emails
-$emails = imap_search($imap,'UNSEEN');
+$emails = imap_search($imap, 'UNSEEN');
 
 if ($emails) {
 

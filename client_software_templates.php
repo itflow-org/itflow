@@ -1,23 +1,22 @@
-<?php require_once("inc_all_client.php"); ?>
-
-<?php 
+<?php
+require_once("inc_all_client.php");
 
 if(!empty($_GET['sb'])){
-  $sb = strip_tags(mysqli_real_escape_string($mysqli,$_GET['sb']));
-}else{
+  $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+} else {
   $sb = "software_name";
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET,array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli,"SELECT SQL_CALC_FOUND_ROWS * FROM software 
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM software 
   LEFT JOIN logins ON login_software_id = software_id
   WHERE software_template = 1 
   AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%') 
   ORDER BY $sb $o LIMIT $record_from, $record_to");
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
@@ -36,7 +35,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
       <div class="row">
-        
+
         <div class="col-md-4">
           <div class="input-group mb-3 mb-md-0">
             <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Licenses">
@@ -65,8 +64,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
         </thead>
         <tbody>
           <?php
-    
-          while($row = mysqli_fetch_array($sql)){    
+
+          while($row = mysqli_fetch_array($sql)){
             $software_id = $row['software_id'];
             $software_name = htmlentities($row['software_name']);
             $software_version = htmlentities($row['software_version']);
@@ -96,24 +95,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli,"SELECT FOUND_ROWS()"));
                     <a class="dropdown-item text-danger" href="post.php?delete_software=<?php echo $software_id; ?>">Delete</a>
                   <?php } ?>
                 </div>
-              </div> 
+              </div>
             </td>
           </tr>
 
           <?php
 
-          include("client_software_template_edit_modal.php");
+          require("client_software_template_edit_modal.php");
           }
-          
+
           ?>
 
         </tbody>
-      </table>      
+      </table>
     </div>
-    <?php include("pagination.php"); ?>
+    <?php require_once("pagination.php"); ?>
   </div>
 </div>
 
-<?php include("client_software_template_add_modal.php"); ?>
-
-<?php include("footer.php"); ?>
+<?php
+require_once("client_software_template_add_modal.php");
+require_once("footer.php");

@@ -94,7 +94,7 @@ if (isset($_GET['contact_id'])) {
                     if (!empty($contact_mobile)) { ?>
                         <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile; ?></div>
                     <?php } ?>
-                    <div class="mb-2"><i class="fa fa-fw fa-clock text-secondary mr-3"></i><?php echo date('Y-m-d',strtotime($contact_created_at)); ?></div>
+                    <div class="mb-2"><i class="fa fa-fw fa-clock text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($contact_created_at)); ?></div>
                     <hr>
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
                         <i class="fas fa-fw fa-user-edit"></i> Edit
@@ -389,7 +389,7 @@ if (isset($_GET['contact_id'])) {
                                     $asset_licenses_array[] = $row['asset_id'];
                                     $seat_count = $seat_count + 1;
                                 }
-                                $asset_licenses = implode(',',$asset_licenses_array);
+                                $asset_licenses = implode(',', $asset_licenses_array);
 
                                 // Contact Licenses
                                 $contact_licenses_sql = mysqli_query($mysqli, "SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
@@ -398,7 +398,7 @@ if (isset($_GET['contact_id'])) {
                                     $contact_licenses_array[] = $row['contact_id'];
                                     $seat_count = $seat_count + 1;
                                 }
-                                $contact_licenses = implode(',',$contact_licenses_array);
+                                $contact_licenses = implode(',', $contact_licenses_array);
 
                                 ?>
                                 <tr>

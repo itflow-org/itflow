@@ -79,7 +79,7 @@
                           <option value="0">- None -</option>
                           <?php
 
-                          $sql_vendor_templates = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_template = 1 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                          $sql_vendor_templates = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 1 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
                           while ($row = mysqli_fetch_array($sql_vendor_templates)) {
                               $vendor_template_id_select = $row['vendor_id'];
                               $vendor_template_name_select = htmlentities($row['vendor_name']); ?>
