@@ -111,7 +111,6 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
 * MeshCentral (Export common software applications to Software)
 * CalDAV to integrate with 3rd party calendars
 * CardDAV to integrate with 3rd party Address books
-* Stripe Integration for online payments
 * Recent caller toast alerts to click and bring up the clients account right away
 * FIDO2 WebAuthn Support for passwordless auth (TPM Fingerprint), (USB Hardware keys such as Yubikey)
 
