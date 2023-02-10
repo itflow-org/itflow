@@ -47,14 +47,48 @@ while($row = mysqli_fetch_array($sql_companies)){
     // Set Currency Format
     $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
+    // Check cron is enabled
     if ($config_enable_cron == 1) {
+
+        /*
+         * ###############################################################################################################
+         *  STARTUP ACTIONS
+         * ###############################################################################################################
+         */
 
         //Logging
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Started', log_description = 'Cron started for $company_name', company_id = $company_id");
 
 
+
+        /*
+         * ###############################################################################################################
+         *  CLEAN UP (OLD) DATA
+         * ###############################################################################################################
+         */
+
+        // Clean-up ticket views table used for collision detection
+        mysqli_query($mysqli, "TRUNCATE TABLE ticket_views");
+
+        // Clean-up shared items that have been used
+        mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_views = item_view_limit");
+
+        // Clean-up shared items that have expired
+        mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_expire_at < NOW()");
+
+        // Invalidate any password reset links
+        mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = NULL WHERE contact_archived_at IS NULL");
+
+
+
+        /*
+         * ###############################################################################################################
+         *  REFRESH DATA
+         * ###############################################################################################################
+         */
+
         // REFRESH DOMAIN WHOIS DATA (1 a day)
-        // Get the oldest updated domain (MariaDB shows NULLs first when ordering by default)
+        //  Get the oldest updated domain (MariaDB shows NULLs first when ordering by default)
         $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT domain_id, domain_name FROM `domains` WHERE company_id = $company_id ORDER BY domain_updated_at LIMIT 1"));
 
         if ($row) {
@@ -72,6 +106,17 @@ while($row = mysqli_fetch_array($sql_companies)){
             // Update the domain
             mysqli_query($mysqli, "UPDATE domains SET domain_name = '$domain_name',  domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
         }
+
+
+        // TODO: Re-add the cert refresher
+
+
+
+        /*
+         * ###############################################################################################################
+         *  ACTION DATA
+         * ###############################################################################################################
+         */
 
         // GET NOTIFICATIONS
 
@@ -270,17 +315,6 @@ while($row = mysqli_fetch_array($sql_companies)){
             }
         }
 
-        // Clean-up ticket views table used for collision detection
-        mysqli_query($mysqli, "TRUNCATE TABLE ticket_views");
-
-        // Clean-up shared items that have been used
-        mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_views = item_view_limit");
-
-        // Clean-up shared items that have expired
-        mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_expire_at < NOW()");
-
-        // Invalidate any password reset links
-        mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = NULL WHERE contact_archived_at IS NULL");
 
         // PAST DUE INVOICE Notifications
         //$invoiceAlertArray = [$config_invoice_overdue_reminders];
@@ -468,7 +502,10 @@ while($row = mysqli_fetch_array($sql_companies)){
             } //End if Autosend is on
         } //End Recurring Invoices Loop
 
-        if($config_telemetry == 1){
+
+        // TELEMETRY
+
+        if ($config_telemetry == 1) {
 
             $current_version = exec("git rev-parse HEAD");
 
@@ -706,15 +743,26 @@ while($row = mysqli_fetch_array($sql_companies)){
 
             // Logging
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Telemetry', log_description = 'Cron sent telemetry results to ITFlow Developers', company_id = $company_id");
-
         }
 
-        //Send Alert to inform Cron was run
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron.php successfully executed', notification_timestamp = NOW(), company_id = $company_id");
-        //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Ended', log_description = 'Cron executed successfully for $company_name', company_id = $company_id");
-    } //End Cron Check
 
-} //End Company Loop through
+
+        /*
+         * ###############################################################################################################
+         *  FINISH UP
+         * ###############################################################################################################
+         */
+
+        // Send Alert to inform Cron was run
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron.php successfully executed', notification_timestamp = NOW(), company_id = $company_id");
+
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Ended', log_description = 'Cron executed successfully for $company_name', company_id = $company_id");
+
+
+    }
+    // End Cron enabled check
+
+} // End Company Loop through
 
 
