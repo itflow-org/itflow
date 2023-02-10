@@ -6784,7 +6784,7 @@ if(isset($_POST['add_ticket'])){
     }
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$session_name created ticket $config_ticket_prefix$ticket_number - $ticket_subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_number, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$session_name created ticket $config_ticket_prefix$ticket_number - $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_number, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Ticket <strong>$config_ticket_prefix$ticket_number</strong> created";
 
@@ -6801,7 +6801,6 @@ if(isset($_POST['edit_ticket'])){
     $purifier_config = HTMLPurifier_Config::createDefault();
     $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
     $purifier = new HTMLPurifier($purifier_config);
-
     $ticket_id = intval($_POST['ticket_id']);
     $assigned_to = intval($_POST['assigned_to']);
     $contact_id = intval($_POST['contact']);
@@ -6810,13 +6809,15 @@ if(isset($_POST['edit_ticket'])){
     $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
+    $client_id = intval($_POST['client_id']);
+    $ticket_number = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['ticket_number'])));
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name modified ticket $ticket_number - $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Ticket updated";
+    $_SESSION['alert_message'] = "Ticket <strong>$ticket_number</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6834,6 +6835,7 @@ if(isset($_POST['assign_ticket'])){
     // Allow for un-assigning tickets
     if($assigned_to == 0){
       $ticket_reply = "Ticket unassigned.";
+      $agent_name = "No One";
 
     } else {
       // Get & verify assigned agent details
@@ -6852,11 +6854,12 @@ if(isset($_POST['assign_ticket'])){
     }
 
     // Get & verify ticket details
-    $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_status != 'Closed'");
+    $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_client_id FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_status != 'Closed'");
     $ticket_details = mysqli_fetch_array($ticket_details_sql);
     $ticket_prefix = $ticket_details['ticket_prefix'];
     $ticket_number = $ticket_details['ticket_number'];
     $ticket_subject = $ticket_details['ticket_subject'];
+    $client_id = intval($ticket_details['ticket_client_id']);
 
     if(!$ticket_subject){
       $_SESSION['alert_type'] = "error";
@@ -6871,12 +6874,18 @@ if(isset($_POST['assign_ticket'])){
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$ticket_subject ($ticket_id) - $ticket_reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name reassigned ticket $ticket_prefix$ticket_number - $ticket_subject to $agent_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id, company_id = $session_company_id");
+
+    
 
     // Email notification
-    if (intval($session_user_id) !== $assigned_to) {
+    if (intval($session_user_id) !== $assigned_to || $assigned_to !== 0) {
+
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject has been assigned to you by $session_name', notification_client_id = $client_id, notification_user_id = $assigned_to, company_id = $session_company_id");
+
+
         $subject = "$config_app_name ticket $ticket_prefix$ticket_number assigned to you";
-        $body = "Hi $agent_name, <br><br>A ticket has been assigned to you!<br><br>ID: $ticket_prefix$ticket_number<br> Subject: $ticket_subject <br><br>Thanks, <br>$session_name<br>ITFlow";
+        $body = "Hi $agent_name, <br><br>A ticket has been assigned to you!<br><br>Ticket Number: $ticket_prefix$ticket_number<br> Subject: $ticket_subject <br><br>Thanks, <br>$session_name<br>$session_company_name";
 
         $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
             $config_ticket_from_email, $config_ticket_from_name,
@@ -6885,7 +6894,7 @@ if(isset($_POST['assign_ticket'])){
     }
 
 
-    $_SESSION['alert_message'] = "Ticket re-assigned";
+    $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> assigned to <strong>$agent_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
