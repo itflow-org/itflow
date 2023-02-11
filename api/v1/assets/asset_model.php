@@ -64,6 +64,14 @@ if (isset($_POST['asset_mac'])) {
     $mac = '';
 }
 
+if (isset($_POST['asset_status'])) {
+    $status = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_status'])));
+} elseif ($asset_row) {
+    $status = $asset_row['asset_status'];
+} else {
+    $status = '';
+}
+
 if (isset($_POST['asset_purchase_date']) && !empty($_POST['asset_purchase_date'])) {
     $purchase_date = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_purchase_date'])));
 } elseif ($asset_row) {
