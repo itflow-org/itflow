@@ -79,6 +79,9 @@ while($row = mysqli_fetch_array($sql_companies)){
         // Invalidate any password reset links
         mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = NULL WHERE contact_archived_at IS NULL");
 
+        // Clean-up old dismissed notifications
+        mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_dismissed_at < CURDATE() - INTERVAL 90 DAY");
+
 
 
         /*
@@ -130,9 +133,9 @@ while($row = mysqli_fetch_array($sql_companies)){
             $sql = mysqli_query(
                 $mysqli,
                 "SELECT * FROM domains
-        LEFT JOIN clients ON domain_client_id = client_id 
-        WHERE domain_expire = CURDATE() + INTERVAL $day DAY
-        AND domains.company_id = $company_id"
+                LEFT JOIN clients ON domain_client_id = client_id 
+                WHERE domain_expire = CURDATE() + INTERVAL $day DAY
+                AND domains.company_id = $company_id"
             );
 
             while($row = mysqli_fetch_array($sql)){
