@@ -45,17 +45,13 @@ if(isset($_GET['switch_company'])){
 
 if(isset($_POST['add_user'])){
 
-    validateAdminRole();
+    require_once('models/user.php');
 
-    // CSRF Check
+    validateAdminRole();
     validateCSRFToken($_POST['csrf_token']);
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $user_specific_encryption_ciphertext = encryptUserSpecificKey($_POST['password']);
-    $default_company = intval($_POST['default_company']);
-    $role = intval($_POST['role']);
 
     mysqli_query($mysqli,"INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext'");
 
@@ -143,17 +139,15 @@ if(isset($_POST['add_user'])){
 
 if(isset($_POST['edit_user'])){
 
+    require_once('models/user.php');
+
     validateAdminRole();
 
-    // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
 
     $user_id = intval($_POST['user_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
     $new_password = trim($_POST['new_password']);
-    $default_company = intval($_POST['default_company']);
-    $role = intval($_POST['role']);
+
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
     $extended_log_description = '';
     if(!empty($_POST['2fa'])) {
@@ -510,19 +504,9 @@ if(isset($_GET['delete_api_key'])){
 
 if(isset($_POST['add_company'])){
 
-    validateAdminRole();
+    require_once('models/company.php');
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
-    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
-    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
-    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
-    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
-    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
-    $locale = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['locale'])));
-    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
+    validateAdminRole();
 
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code'");
 
@@ -610,20 +594,11 @@ if(isset($_POST['add_company'])){
 
 if(isset($_POST['edit_company'])){
 
-    validateAdminRole();
-    $company_id = intval($_POST['company_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
-    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
-    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
-    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
-    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
-    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
-    $locale = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['locale'])));
-    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
+    require_once('models/company.php');
 
+    validateAdminRole();
+
+    $company_id = intval($_POST['company_id']);
     $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
 
     if(!file_exists("uploads/settings/$company_id/")) {
@@ -1837,10 +1812,10 @@ if(isset($_GET['update_db'])){
 
 if(isset($_POST['add_client'])){
 
+    require_once('models/client.php');
+
     validateAdminRole();
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
     $location_phone = preg_replace("/[^0-9]/", '',$_POST['location_phone']);
     $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
     $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
@@ -1853,11 +1828,7 @@ if(isset($_POST['add_client'])){
     $contact_extension = preg_replace("/[^0-9]/", '',$_POST['contact_extension']);
     $contact_mobile = preg_replace("/[^0-9]/", '',$_POST['contact_mobile']);
     $contact_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_email'])));
-    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
-    $referral = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['referral'])));
-    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
-    $net_terms = intval($_POST['net_terms']);
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+
     $extended_log_description = '';
 
     mysqli_query($mysqli,"INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes', client_accessed_at = NOW(), company_id = $session_company_id");
@@ -1950,16 +1921,11 @@ if(isset($_POST['add_client'])){
 
 if(isset($_POST['edit_client'])){
 
+    require_once('models/client.php');
+
     validateAdminRole();
 
     $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
-    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
-    $referral = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['referral'])));
-    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
-    $net_terms = intval($_POST['net_terms']);
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     mysqli_query($mysqli,"UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_net_terms = $net_terms, client_notes = '$notes' WHERE client_id = $client_id AND company_id = $session_company_id");
 
@@ -6876,7 +6842,7 @@ if(isset($_POST['assign_ticket'])){
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name reassigned ticket $ticket_prefix$ticket_number - $ticket_subject to $agent_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id, company_id = $session_company_id");
 
-    
+
 
     // Email notification
     if (intval($session_user_id) !== $assigned_to || $assigned_to !== 0) {
