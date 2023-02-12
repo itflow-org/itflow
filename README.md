@@ -154,6 +154,6 @@ ITFlow is distributed "as is" under the GPL License, WITHOUT WARRANTY OF ANY KIN
 [license-url]: https://github.com/itflow-org/itflow/blob/master/LICENSE
 [commit-shield]: https://img.shields.io/github/last-commit/itflow-org/itflow?style=for-the-badge
 [commit-url]: https://github.com/itflow-org/itflow/commits/master
-[product-screenshot]: .github/dash.png
+[product-screenshot]: .github/readme.gif
 
 <!-- https://github.com/othneildrew/Best-README-Template -->
