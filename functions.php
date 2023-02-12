@@ -594,3 +594,34 @@ function getInvoiceBadgeColor($invoice_status)
 
     return $invoice_badge_color;
 }
+
+// Pass $_FILE['file'] to check an uploaded file before saving it
+function checkFileUpload($file, $allowed_extensions)
+{
+    // Variables
+    $name = $file['name'];
+    $tmp = $file['tmp_name'];
+    $size = $file['size'];
+
+    $extarr = explode('.', $name);
+    $extension = strtolower(end($extarr));
+
+    // Check a file is actually attached/uploaded
+    if ($tmp == '') {
+        return false;
+    }
+
+    // Check the size is under 2 MB
+    if ($size > 2097152) {
+        return false;
+    }
+
+    // Check the extension is allowed
+    if (in_array($extension, $allowed_extensions) === false){
+        return false;
+    }
+
+    // Sanitize & return name
+    return md5(time() . $name) . '.' . $extension;
+
+}
