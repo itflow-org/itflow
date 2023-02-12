@@ -32,9 +32,7 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
                     ?>
                     <option <?php if ($year == $expense_year) { ?> selected <?php } ?> > <?php echo $expense_year; ?></option>
 
-                    <?php
-                }
-                ?>
+                <?php } ?>
 
             </select>
         </form>
@@ -74,7 +72,7 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
                         <?php
 
                         $total_expense_for_all_months = 0;
-                        for($month = 1; $month<=12; $month++) {
+                        for ($month = 1; $month<=12; $month++) {
                             $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE expense_category_id = $category_id AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month");
                             $row = mysqli_fetch_array($sql_expenses);
                             $expense_amount_for_month = $row['expense_amount_for_month'];
@@ -84,26 +82,18 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
                             ?>
                             <td class="text-right"><a class="text-dark" href="expenses.php?q=<?php echo $category_name; ?>&dtf=<?php echo "$year-$month"; ?>-01&dtt=<?php echo "$year-$month"; ?>-31"><?php echo numfmt_format_currency($currency_format, $expense_amount_for_month, $session_company_currency); ?></a></td>
 
-                            <?php
-
-                        }
-
-                        ?>
+                        <?php } ?>
 
                         <th class="text-right"><a class="text-dark" href="expenses.php?q=<?php echo $category_name; ?>&dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31"><?php echo numfmt_format_currency($currency_format, $total_expense_for_all_months, $session_company_currency); ?></a></th>
                     </tr>
 
-                    <?php
-
-                }
-
-                ?>
+                <?php } ?>
 
                 <tr>
                     <th>Total</th>
                     <?php
 
-                    for($month = 1; $month<=12; $month++) {
+                    for ($month = 1; $month<=12; $month++) {
                         $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND company_id = $session_company_id");
                         $row = mysqli_fetch_array($sql_expenses);
                         $expense_total_amount_for_month = $row['expense_total_amount_for_month'];
@@ -113,11 +103,8 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
                         ?>
 
                         <th class="text-right"><a class="text-dark" href="expenses.php?dtf=<?php echo "$year-$month"; ?>-01&dtt=<?php echo "$year-$month"; ?>-31"><?php echo numfmt_format_currency($currency_format, $expense_total_amount_for_month, $session_company_currency); ?></a></th>
-                        <?php
 
-                    }
-
-                    ?>
+                    <?php } ?>
 
                     <th class="text-right"><a class="text-dark" href="expenses.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31"><?php echo numfmt_format_currency($currency_format, $total_expense_for_all_months, $session_company_currency); ?></th>
                 </tr>
@@ -155,7 +142,7 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
 
                     $largest_expense_month = 0;
 
-                    for($month = 1; $month<=12; $month++) {
+                    for ($month = 1; $month<=12; $month++) {
                     $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND expenses.company_id = $session_company_id");
                     $row = mysqli_fetch_array($sql_expenses);
                     $expenses_for_month = $row['expense_amount_for_month'];
@@ -164,15 +151,9 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
                         $largest_expense_month = $expenses_for_month;
                     }
 
+                    echo "$expenses_for_month,";
 
-                    ?>
-                    <?php echo "$expenses_for_month,"; ?>
-
-                    <?php
-
-                    }
-
-                    ?>
+                    } ?>
 
                 ],
             }],

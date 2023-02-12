@@ -14,8 +14,8 @@ $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, '
 // Overview SQL query
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM services 
-    WHERE service_client_id = '$client_id' 
+    "SELECT SQL_CALC_FOUND_ROWS * FROM services
+    WHERE service_client_id = '$client_id'
     AND (service_name LIKE '%$q%' OR service_description LIKE '%$q%' OR service_category LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
@@ -112,12 +112,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         // Associated Assets (and their logins/networks/locations)
                         $sql_assets = mysqli_query(
                             $mysqli,
-                            "SELECT * FROM service_assets 
-                        LEFT JOIN assets ON service_assets.asset_id = assets.asset_id
-                        LEFT JOIN logins ON service_assets.asset_id = logins.login_asset_id
-                        LEFT JOIN networks ON assets.asset_network_id = networks.network_id
-                        LEFT JOIN locations ON assets.asset_location_id = locations.location_id
-                        WHERE service_id = '$service_id'"
+                            "SELECT * FROM service_assets
+                            LEFT JOIN assets ON service_assets.asset_id = assets.asset_id
+                            LEFT JOIN logins ON service_assets.asset_id = logins.login_asset_id
+                            LEFT JOIN networks ON assets.asset_network_id = networks.network_id
+                            LEFT JOIN locations ON assets.asset_location_id = locations.location_id
+                            WHERE service_id = '$service_id'"
                         );
 
                         // Associated logins

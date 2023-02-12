@@ -1,4 +1,5 @@
-<?php include("inc_all.php");
+<?php
+require_once("inc_all.php");
 
 // Enforce accountant / admin role for the financial dashboard
 if ($_SESSION['user_role'] != 3 && $_SESSION['user_role'] != 1) {
@@ -12,8 +13,10 @@ if (isset($_GET['year'])) {
 }
 
 //GET unique years from expenses, payments invoices and revenues
-$sql_years_select = mysqli_query($mysqli, "SELECT YEAR(expense_date) AS all_years FROM expenses WHERE company_id = $session_company_id 
-    UNION DISTINCT SELECT YEAR(payment_date) FROM payments WHERE company_id = $session_company_id 
+$sql_years_select = mysqli_query(
+    $mysqli,
+    "SELECT YEAR(expense_date) AS all_years FROM expenses WHERE company_id = $session_company_id
+    UNION DISTINCT SELECT YEAR(payment_date) FROM payments WHERE company_id = $session_company_id
     UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues WHERE company_id = $session_company_id
     UNION DISTINCT SELECT YEAR(invoice_date) FROM invoices WHERE company_id = $session_company_id
     ORDER BY all_years DESC
@@ -60,8 +63,8 @@ $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id =
 
 $sql_latest_invoice_payments = mysqli_query(
     $mysqli,
-    "SELECT * FROM payments, invoices, clients 
-    WHERE payment_invoice_id = invoice_id 
+    "SELECT * FROM payments, invoices, clients
+    WHERE payment_invoice_id = invoice_id
     AND invoice_client_id = client_id
     AND clients.company_id = $session_company_id
     ORDER BY payment_id DESC LIMIT 5"
@@ -69,8 +72,8 @@ $sql_latest_invoice_payments = mysqli_query(
 
 $sql_latest_expenses = mysqli_query(
     $mysqli,
-    "SELECT * FROM expenses, vendors, categories 
-    WHERE expense_vendor_id = vendor_id 
+    "SELECT * FROM expenses, vendors, categories
+    WHERE expense_vendor_id = vendor_id
     AND expense_category_id = category_id
     AND expenses.company_id = $session_company_id
     ORDER BY expense_id DESC LIMIT 5"
@@ -461,7 +464,8 @@ $vendors_added = $row['vendors_added'];
     </div>
 </div> <!-- row -->
 
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>
+
 <script>
     // Set new default font family and font color to mimic Bootstrap's default styling
     Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';

@@ -109,18 +109,21 @@ if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o, 'status' => $status, 'assigned' => $ticket_assigned_filter)));
 
 // Main ticket query:
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM tickets 
-LEFT JOIN clients ON ticket_client_id = client_id
-LEFT JOIN contacts ON ticket_contact_id = contact_id 
-LEFT JOIN users ON ticket_assigned_to = user_id
-LEFT JOIN assets ON ticket_asset_id = asset_id
-LEFT JOIN locations ON ticket_location_id = location_id
-WHERE tickets.company_id = $session_company_id
-AND ticket_assigned_to LIKE '%$ticket_assigned_filter%'
-AND $ticket_status_snippet
-AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
-AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR user_name LIKE '%$q%')
-ORDER BY $sb $o LIMIT $record_from, $record_to");
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT SQL_CALC_FOUND_ROWS * FROM tickets
+    LEFT JOIN clients ON ticket_client_id = client_id
+    LEFT JOIN contacts ON ticket_contact_id = contact_id
+    LEFT JOIN users ON ticket_assigned_to = user_id
+    LEFT JOIN assets ON ticket_asset_id = asset_id
+    LEFT JOIN locations ON ticket_location_id = location_id
+    WHERE tickets.company_id = $session_company_id
+    AND ticket_assigned_to LIKE '%$ticket_assigned_filter%'
+    AND $ticket_status_snippet
+    AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
+    AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR user_name LIKE '%$q%')
+    ORDER BY $sb $o LIMIT $record_from, $record_to"
+);
 
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -147,11 +150,11 @@ $row = mysqli_fetch_array($sql_total_tickets_assigned);
 $user_active_assigned_tickets = $row['total_tickets_assigned'];
 
 ?>
-<style>
-.popover {
-    max-width: 600px;
-}
-</style>
+    <style>
+        .popover {
+            max-width: 600px;
+        }
+    </style>
     <div class="card card-dark elevation-3">
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring"></i> Tickets
@@ -200,7 +203,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                             </div>
                             <a href="?assigned=unassigned" class="btn btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i>
                                 Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong></a>
-<!--                            <a href="#" class="btn  btn-outline-info"><i class="fa fa-fw fa-cogs"></i> Tasks</a>-->
+                            <!--                            <a href="#" class="btn  btn-outline-info"><i class="fa fa-fw fa-cogs"></i> Tasks</a>-->
                         </div>
                     </div>
                 </div>
@@ -306,27 +309,27 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                     } ?>">
                     <tr>
                         <th><a class="text-dark"
-                            href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_number&o=<?php echo $disp; ?>">Number</a>
+                               href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_number&o=<?php echo $disp; ?>">Number</a>
                         </th>
                         <th><a class="text-dark"
-                            href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_subject&o=<?php echo $disp; ?>">Subject</a>
+                               href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_subject&o=<?php echo $disp; ?>">Subject</a>
                         </th>
                         <th><a class="text-dark"
-                            href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client / Contact</a>
+                               href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client / Contact</a>
                         </th>
                         <th><a class="text-dark"
-                            href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_priority&o=<?php echo $disp; ?>">Priority</a>
+                               href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_priority&o=<?php echo $disp; ?>">Priority</a>
                         </th>
                         <th><a class="text-dark"
-                            href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_status&o=<?php echo $disp; ?>">Status</a>
+                               href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_status&o=<?php echo $disp; ?>">Status</a>
                         <th><a class="text-dark"
-                            href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">Assigned</a>
+                               href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">Assigned</a>
                         </th>
                         <th><a class="text-dark"
-                            href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_updated_at&o=<?php echo $disp; ?>">Last Response</a>
+                               href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_updated_at&o=<?php echo $disp; ?>">Last Response</a>
                         </th>
                         <th><a class="text-dark"
-                            href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_created_at&o=<?php echo $disp; ?>">Created</a>
+                               href="?<?php echo $url_query_strings_sb; ?>&sb=ticket_created_at&o=<?php echo $disp; ?>">Created</a>
                         </th>
 
                         <th class="text-center">Action</th>
@@ -384,8 +387,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                         if (empty($ticket_assigned_to)) {
                             if ($ticket_status == "Closed") {
                                 $ticket_assigned_to_display = "<p>Not Assigned</p>";
-                            }
-                            else{
+                            } else {
                                 $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
                             }
                         } else {
@@ -407,7 +409,7 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                                 </a>
                             </td>
                             <td>
-                              <strong><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></strong>
+                                <strong><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></strong>
                             </td>
                             <td>
                                 <strong><a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></strong>
@@ -421,24 +423,23 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                             <td><?php echo $ticket_created_at; ?></td>
                             <td>
                                 <?php if ($ticket_status !== "Closed") { ?>
-                                  <div class="dropdown dropleft text-center">
-                                      <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                          <i class="fas fa-ellipsis-h"></i>
-                                      </button>
-                                      <div class="dropdown-menu">
-                                          <a class="dropdown-item" href="#" data-toggle="modal"
-                                             data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
-                                        <?php if ($session_user_role == 3) { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger"
-                                               href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
-                                        <?php } ?>
-                                      </div>
-                                  </div>
-                                <?php } ?>
-                                <?php
+                                    <div class="dropdown dropleft text-center">
+                                        <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                               data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
+                                            <?php if ($session_user_role == 3) { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger"
+                                                   href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
+                                            <?php } ?>
+                                        </div>
+                                    </div>
+                                <?php }
 
-                                include("ticket_edit_modal.php");
+                                require("ticket_edit_modal.php");
 
                                 ?>
                             </td>
@@ -453,10 +454,10 @@ $user_active_assigned_tickets = $row['total_tickets_assigned'];
                     </tbody>
                 </table>
             </div>
-            <?php include("pagination.php"); ?>
+            <?php require_once("pagination.php"); ?>
         </div>
     </div>
 
-<?php include("ticket_add_modal.php"); ?>
-
-<?php include("footer.php");
+<?php
+require_once("ticket_add_modal.php");
+require_once("footer.php");

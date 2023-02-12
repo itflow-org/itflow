@@ -825,7 +825,7 @@ if (isset($_POST['add_database'])) {
         // If it has a semicolon at the end, it's the end of the query
         if (substr(trim($line), -1, 1) == ';') {
             // Perform the query
-            mysqli_query($mysqli,$templine);
+            mysqli_query($mysqli, $templine);
             // Reset temp variable to empty
             $templine = '';
         }
@@ -846,8 +846,8 @@ if (isset($_POST['add_user'])) {
         exit;
     }
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['name'])));
+    $email = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['email'])));
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
     //Generate master encryption key
@@ -921,17 +921,17 @@ if (isset($_POST['add_company_settings'])) {
     $row = mysqli_fetch_array($sql);
     $user_id = $row['user_id'];
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
-    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
-    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
-    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
-    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
+    $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['name'])));
+    $country = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['country'])));
+    $address = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['address'])));
+    $city = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['city'])));
+    $state = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['state'])));
+    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['zip'])));
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
-    $locale = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['locale'])));
-    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
+    $email = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['email'])));
+    $website = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['website'])));
+    $locale = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['locale'])));
+    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['currency_code'])));
 
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code', company_created_at = NOW()");
 
@@ -1021,7 +1021,7 @@ if (isset($_POST['add_company_settings'])) {
 
 if (isset($_POST['add_telemetry'])) {
 
-    if ($_POST['share_data'] == 1) {
+    if (isset($_POST['share_data']) && $_POST['share_data'] == 1) {
 
         $comments = trim(strip_tags($_POST['comments']));
 

@@ -26,13 +26,15 @@ if (isset($_GET['dtf'])) {
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM trips
-  LEFT JOIN users ON trip_user_id = user_id
-  WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR user_name LIKE '%$q%')
-  AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
-  AND company_id = $session_company_id
-  AND trip_client_id = $client_id
-  ORDER BY $sb $o LIMIT $record_from, $record_to");
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT SQL_CALC_FOUND_ROWS * FROM trips
+    LEFT JOIN users ON trip_user_id = user_id
+    WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR user_name LIKE '%$q%')
+    AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
+    AND company_id = $session_company_id
+    AND trip_client_id = $client_id
+    ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 

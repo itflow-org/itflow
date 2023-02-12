@@ -51,9 +51,9 @@ $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id =
                             <select class="form-control" name="config_stripe_account">
                                 <option value="">- Account -</option>
                                 <?php
-                                    while ($row = mysqli_fetch_array($sql_accounts)) { ?>
-                                        <option value="<?php echo $row['account_id'] ?>" <?php if ($row['account_id'] == $config_stripe_account) { echo "selected"; } ?>><?php echo $row['account_name'] ?></option>
-                                    <?php }
+                                while ($row = mysqli_fetch_array($sql_accounts)) { ?>
+                                    <option value="<?php echo $row['account_id'] ?>" <?php if ($row['account_id'] == $config_stripe_account) { echo "selected"; } ?>><?php echo $row['account_name'] ?></option>
+                                <?php }
                                 ?>
                             </select>
 

@@ -7,7 +7,7 @@ if (isset($_GET['recurring_id'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM recurring 
+        "SELECT * FROM recurring
         LEFT JOIN clients ON recurring_client_id = client_id
         LEFT JOIN locations ON primary_location = location_id
         LEFT JOIN contacts ON primary_contact = contact_id
@@ -219,7 +219,7 @@ if (isset($_GET['recurring_id'])) {
 
                                     <?php
 
-                                    include("item_edit_modal.php");
+                                    require("item_edit_modal.php");
 
                                 }
 

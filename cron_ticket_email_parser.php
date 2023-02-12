@@ -12,7 +12,6 @@ TODO:
   - Support for authenticating with OAuth
   - Separate Mailbox Account for tickets 2022-12-14 - JQ
 
-Relate PRs to https://github.com/itflow-org/itflow/issues/225 & https://forum.itflow.org/d/11-road-map & https://forum.itflow.org/d/31-tickets-from-email
 */
 
 // Get ITFlow config & helper functions
@@ -130,7 +129,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message)
     $message = "<i>Email from: $from_email at $date:-</i> <br><br>$message";
 
     // Lookup the ticket ID
-    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT ticket_id, ticket_subject, ticket_status, ticket_contact_id, ticket_client_id, tickets.company_id, contact_email 
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT ticket_id, ticket_subject, ticket_status, ticket_contact_id, ticket_client_id, tickets.company_id, contact_email
                                             FROM tickets
                                             LEFT JOIN contacts on tickets.ticket_contact_id = contacts.contact_id
                                             WHERE ticket_number = '$ticket_number' LIMIT 1"));
@@ -220,7 +219,7 @@ if ($emails) {
     rsort($emails);
 
     // Loop through each email
-    foreach($emails as $email) {
+    foreach ($emails as $email) {
 
         // Default false
         $email_processed = false;

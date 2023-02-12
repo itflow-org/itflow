@@ -15,14 +15,13 @@ $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, '
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM scheduled_tickets
-  LEFT JOIN clients on scheduled_ticket_client_id = client_id
-  WHERE scheduled_ticket_client_id = $client_id 
-  AND scheduled_tickets.scheduled_ticket_subject LIKE '%$q%'
-  ORDER BY $sb $o LIMIT $record_from, $record_to"
+    LEFT JOIN clients on scheduled_ticket_client_id = client_id
+    WHERE scheduled_ticket_client_id = $client_id
+    AND scheduled_tickets.scheduled_ticket_subject LIKE '%$q%'
+    ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
-
 
 ?>
     <script src="js/scheduled_tickets_edit_modal.js"></script>
@@ -95,10 +94,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                            data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)">Edit</a>
                                         <?php
                                         if ($session_user_role == 3) { ?>
-                                            <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="post.php?delete_scheduled_ticket=<?php echo $scheduled_ticket_id; ?>">Delete</a>
-                                            </div>
-                                        <?php } ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger" href="post.php?delete_scheduled_ticket=<?php echo $scheduled_ticket_id; ?>">Delete</a>
+                                    </div>
+                                    <?php } ?>
                                 </div>
                             </td>
                         </tr>

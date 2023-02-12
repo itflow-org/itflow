@@ -59,7 +59,7 @@ $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, '
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM trips 
+    "SELECT SQL_CALC_FOUND_ROWS * FROM trips
     LEFT JOIN clients ON trip_client_id = client_id
     LEFT JOIN users ON trip_user_id = user_id
     WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR trip_miles LIKE '%$q%' OR client_name LIKE '%$q%' OR user_name LIKE '%$q%')
