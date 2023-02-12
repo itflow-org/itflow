@@ -61,53 +61,31 @@ if(isset($_POST['add_user'])){
         mkdir("uploads/users/$user_id");
     }
 
-    //Check to see if a file is attached
-    if($_FILES['file']['tmp_name'] != ''){
+    // Check for and process image/photo
+    $extended_alert_description = '';
+    if ($_FILES['file']['tmp_name'] != '') {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
-        // get details of the uploaded file
-        $file_error = 0;
-        $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = $_FILES['file']['name'];
-        $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+            $file_tmp_path = $_FILES['file']['tmp_name'];
 
-        // sanitize file-name
-        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
-
-        // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if(in_array($file_extension,$allowed_file_extensions) === false){
-            $file_error = 1;
-        }
-
-        //Check File Size
-        if($file_size > 2097152){
-            $file_error = 1;
-        }
-
-        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/users/$user_id/";
             $dest_path = $upload_file_dir . $new_file_name;
-
             move_uploaded_file($file_tmp_path, $dest_path);
 
-            //Set Avatar
+            // Set Avatar
             mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
-
-            $_SESSION['alert_message'] = 'File successfully uploaded.';
-        }else{
+            $extended_alert_description = '. File successfully uploaded.';
+        } else {
             $_SESSION['alert_type'] = "error";
-            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+            $extended_alert_description = '. Error uploading photo. Check upload directory is writable/correct file type/size';
         }
     }
 
-    //Create Settings
+    // Create Settings
     mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id, user_role = $role, user_default_company = $default_company");
 
-    //Create Company Access Permissions
+    // Create Company Access Permissions
     mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $default_company");
 
     // Send user e-mail, if specified
@@ -131,7 +109,7 @@ if(isset($_POST['add_user'])){
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Create', log_description = '$session_name created user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "User <strong>$name</strong> created";
+    $_SESSION['alert_message'] = "User <strong>$name</strong> created" . $extended_alert_description;
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -158,51 +136,27 @@ if(isset($_POST['edit_user'])){
         mkdir("uploads/users/$user_id");
     }
 
-    //Check to see if a file is attached
-    if($_FILES['file']['tmp_name'] != ''){
+    // Check for and process image/photo
+    $extended_alert_description = '';
+    if ($_FILES['file']['tmp_name'] != '') {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
-        // get details of the uploaded file
-        $file_error = 0;
-        $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = $_FILES['file']['name'];
-        $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+            $file_tmp_path = $_FILES['file']['tmp_name'];
 
-        // sanitize file-name
-        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
-
-        // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if(in_array($file_extension,$allowed_file_extensions) === false){
-            $file_error = 1;
-        }
-
-        //Check File Size
-        if($file_size > 2097152){
-            $file_error = 1;
-        }
-
-        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/users/$user_id/";
             $dest_path = $upload_file_dir . $new_file_name;
-
             move_uploaded_file($file_tmp_path, $dest_path);
 
-            //Delete old file
+            // Delete old file
             unlink("uploads/users/$user_id/$existing_file_name");
 
+            // Set Avatar
             mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
-
-            //Extended Logging
-            $extended_log_description .= ", profile picture updated";
-
-            $_SESSION['alert_message'] = 'File successfully uploaded.';
-        }else{
+            $extended_alert_description = '. File successfully uploaded.';
+        } else {
             $_SESSION['alert_type'] = "error";
-            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+            $extended_alert_description = '. Error uploading photo. Check upload directory is writable/correct file type/size';
         }
     }
 
@@ -227,7 +181,7 @@ if(isset($_POST['edit_user'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name modified user $name $extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "User <strong>$name</strong> updated";
+    $_SESSION['alert_message'] = "User <strong>$name</strong> updated" . $extended_alert_description;
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
