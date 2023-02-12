@@ -6842,13 +6842,10 @@ if(isset($_POST['assign_ticket'])){
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name reassigned ticket $ticket_prefix$ticket_number - $ticket_subject to $agent_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id, company_id = $session_company_id");
 
-
-
     // Email notification
     if (intval($session_user_id) !== $assigned_to || $assigned_to !== 0) {
 
         mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject has been assigned to you by $session_name', notification_client_id = $client_id, notification_user_id = $assigned_to, company_id = $session_company_id");
-
 
         $subject = "$config_app_name ticket $ticket_prefix$ticket_number assigned to you";
         $body = "Hi $agent_name, <br><br>A ticket has been assigned to you!<br><br>Ticket Number: $ticket_prefix$ticket_number<br> Subject: $ticket_subject <br><br>Thanks, <br>$session_name<br>$session_company_name";
@@ -6858,7 +6855,6 @@ if(isset($_POST['assign_ticket'])){
             $agent_email, $agent_name,
             $subject, $body);
     }
-
 
     $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> assigned to <strong>$agent_name</strong>";
 
@@ -6872,14 +6868,29 @@ if(isset($_GET['delete_ticket'])){
 
     $ticket_id = intval($_GET['delete_ticket']);
 
+    // Get Ticket and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT ticket_prefix, ticket_number, ticket_subject, ticket_client_id FROM tickets WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
+    $row = mysqli_fetch_array($sql);
+    $ticket_prefix = strip_tags(mysqli_real_escape_string($mysqli,$row['ticket_prefix']));
+    $ticket_number = strip_tags(mysqli_real_escape_string($mysqli,$row['ticket_number']));
+    $ticket_subject = strip_tags(mysqli_real_escape_string($mysqli,$row['ticket_subject']));
+    $client_id = intval($row['ticket_client_id']);
+
     mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Delete', log_description = '$ticket_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    // Delete all ticket replies
+    mysqli_query($mysqli,"DELETE FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id AND company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Ticket deleted";
+    // Delete all ticket views
+    mysqli_query($mysqli,"DELETE FROM ticket_views WHERE view_ticket_id = $ticket_id");
 
-    header("Location: tickets.php");
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Delete', log_description = '$session_name deleted ticket $ticket_prefix$ticket_number - $ticket_subject along with all replies', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id, company_id = $session_company_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> along with all replies deleted";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -6908,27 +6919,33 @@ if(isset($_POST['add_ticket_reply'])){
     // Add reply
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_time_worked = '$ticket_reply_time_worked', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
 
+    $ticket_reply_id = mysqli_insert_id($mysqli);
+
     // Update Ticket Last Response Field
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
+    // Get Ticket Details
+    $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone, ticket_client_id, ticket_created_by, ticket_assigned_to FROM tickets 
+        LEFT JOIN clients ON ticket_client_id = client_id 
+        LEFT JOIN contacts ON ticket_contact_id = contact_id
+        LEFT JOIN companies ON tickets.company_id = companies.company_id
+        WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id
+    ");
+
+    $row = mysqli_fetch_array($ticket_sql);
+
+    $contact_name = $row['contact_name'];
+    $contact_email = $row['contact_email'];
+    $ticket_prefix = $row['ticket_prefix'];
+    $ticket_number = $row['ticket_number'];
+    $ticket_subject = $row['ticket_subject'];
+    $client_id = intval($row['ticket_client_id']);
+    $ticket_created_by = intval($row['ticket_created_by']);
+    $ticket_assigned_to = intval($row['ticket_assigned_to']);
+    $company_phone = formatPhoneNumber($row['company_phone']);
+
     // Send e-mail to client if public update & email is set up
     if($ticket_reply_type == 'Public' && !empty($config_smtp_host)){
-
-        $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
-            LEFT JOIN clients ON ticket_client_id = client_id 
-            LEFT JOIN contacts ON ticket_contact_id = contact_id
-            LEFT JOIN companies ON tickets.company_id = companies.company_id
-            WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id
-        ");
-
-        $row = mysqli_fetch_array($ticket_sql);
-
-        $contact_name = $row['contact_name'];
-        $contact_email = $row['contact_email'];
-        $ticket_prefix = $row['ticket_prefix'];
-        $ticket_number = $row['ticket_number'];
-        $ticket_subject = $row['ticket_subject'];
-        $company_phone = formatPhoneNumber($row['company_phone']);
 
         if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
 
@@ -6944,7 +6961,6 @@ if(isset($_POST['add_ticket_reply'])){
 
             }
 
-
             $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
                 $config_ticket_from_email, $config_ticket_from_name,
                 $contact_email, $contact_name,
@@ -6958,10 +6974,22 @@ if(isset($_POST['add_ticket_reply'])){
     }
     //End Mail IF
 
-    // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Create', log_description = '$ticket_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    // Notification for assigned ticket user
+    if (intval($session_user_id) !== $ticket_assigned_to || $ticket_assigned_to !== 0) {
 
-    $_SESSION['alert_message'] = "Posted an update";
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name updated Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject that is assigned to you', notification_client_id = $client_id, notification_user_id = $ticket_assigned_to, company_id = $session_company_id");
+    }
+
+    // Notification for user that opened the ticket
+    if (intval($session_user_id) !== $ticket_created_by || $ticket_created_by !== 0) {
+
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name updated Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject that you opened', notification_client_id = $client_id, notification_user_id = $ticket_created_by, company_id = $session_company_id");
+    }
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Create', log_description = '$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_reply_id, company_id = $session_company_id");
+
+    $_SESSION['alert_message'] = "Ticket <strong>$prefix$ticket_number</strong> has been updated with your reply and was <strong>$ticket_reply_type</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
