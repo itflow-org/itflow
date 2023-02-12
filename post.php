@@ -4602,54 +4602,33 @@ if(isset($_POST['edit_contact'])){
 
     }
 
-    // Check to see if a file is attached
-    if($_FILES['file']['tmp_name'] != ''){
+    // Check for and process image/photo
+    $extended_alert_description = '';
+    if ($_FILES['file']['tmp_name'] != '') {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'gif', 'png'))) {
 
-        // get details of the uploaded file
-        $file_error = 0;
-        $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = $_FILES['file']['name'];
-        $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
-
-        // sanitize file-name
-        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
-
-        // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if(in_array($file_extension,$allowed_file_extensions) === false){
-            $file_error = 1;
-        }
-
-        //Check File Size
-        if($file_size > 2097152){
-            $file_error = 1;
-        }
-
-        if($file_error == 0){
-            // directory in which the uploaded file will be moved
+            // Set directory in which the uploaded file will be moved
+            $file_tmp_path = $_FILES['file']['tmp_name'];
             $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
+
             //Delete old file
             unlink("uploads/clients/$session_company_id/$client_id/$existing_file_name");
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '$new_file_name' WHERE contact_id = $contact_id");
 
-            $_SESSION['alert_message'] = 'Photo successfully uploaded. ';
-        }else{
-
-            $_SESSION['alert_message'] = 'There was an error moving the photo to the upload directory. Please make sure the upload directory is writable by web server. ';
+            $extended_alert_description = '. Photo successfully uploaded. ';
+        } else {
+            $extended_alert_description = '. Error uploading photo.';
         }
     }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] .= "Contact <strong>$name</strong> updated";
+    $_SESSION['alert_message'] = "Contact <strong>$name</strong> updated" . $extended_alert_description;
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
