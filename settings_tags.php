@@ -12,9 +12,9 @@ $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, '
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM tags 
+    "SELECT SQL_CALC_FOUND_ROWS * FROM tags
     WHERE tag_name LIKE '%$q%'
-    AND company_id = $session_company_id 
+    AND company_id = $session_company_id
     ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
@@ -24,7 +24,7 @@ if ($num_rows > 0) {
     //Colors Used
     $sql_colors_used = mysqli_query(
         $mysqli,
-        "SELECT tag_color FROM tags 
+        "SELECT tag_color FROM tags
         WHERE tag_archived_at IS NULL
         AND company_id = $session_company_id"
     );
@@ -41,84 +41,84 @@ if ($num_rows > 0) {
 ?>
 
 
-<div class="card card-dark">
-    <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> Tags</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTagModal"><i class="fas fa-fw fa-plus"></i> New</button>
-        </div>
-    </div>
-
-    <div class="card-body">
-        <div class="row">
-            <div class="col-sm-4 mb-2">
-                <form autocomplete="off">
-                    <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Tags">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="col-sm-8">
+    <div class="card card-dark">
+        <div class="card-header py-2">
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> Tags</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTagModal"><i class="fas fa-fw fa-plus"></i> New</button>
             </div>
         </div>
 
-        <hr>
-        <div class="table-responsive">
-            <table class="table table-striped table-borderless table-hover">
-                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                <tr>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tag_name&o=<?php echo $disp; ?>">Name</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tag_type&o=<?php echo $disp; ?>">Type</a></th>
-                    <th>Color</th>
-                    <th class="text-center">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-
-                while ($row = mysqli_fetch_array($sql)) {
-                    $tag_id = $row['tag_id'];
-                    $tag_name = htmlentities($row['tag_name']);
-                    $tag_type = htmlentities($row['tag_type']);
-                    $tag_color = htmlentities($row['tag_color']);
-                    $tag_icon = htmlentities($row['tag_icon']);
-
-                    ?>
-                    <tr>
-                        <td><?php echo "<i class='fa fa-fw fa-$tag_icon'></i>"; ?> <a class="text-dark" href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>"><?php echo "$tag_name"; ?></a></td>
-                        <td><?php echo $tag_type; ?></td>
-                        <td><i class="fa fa-3x fa-circle" style="color:<?php echo $tag_color; ?>;"></i></td>
-                        <td>
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>">Edit</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger" href="post.php?delete_tag=<?php echo $tag_id; ?>">Delete</a>
-                                </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-4 mb-2">
+                    <form autocomplete="off">
+                        <div class="input-group">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Tags">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
-                        </td>
-                    </tr>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-sm-8">
+                </div>
+            </div>
 
+            <hr>
+            <div class="table-responsive">
+                <table class="table table-striped table-borderless table-hover">
+                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                    <tr>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tag_name&o=<?php echo $disp; ?>">Name</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tag_type&o=<?php echo $disp; ?>">Type</a></th>
+                        <th>Color</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
                     <?php
 
-                    require("settings_tag_edit_modal.php");
+                    while ($row = mysqli_fetch_array($sql)) {
+                        $tag_id = $row['tag_id'];
+                        $tag_name = htmlentities($row['tag_name']);
+                        $tag_type = htmlentities($row['tag_type']);
+                        $tag_color = htmlentities($row['tag_color']);
+                        $tag_icon = htmlentities($row['tag_icon']);
 
-                }
+                        ?>
+                        <tr>
+                            <td><?php echo "<i class='fa fa-fw fa-$tag_icon'></i>"; ?> <a class="text-dark" href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>"><?php echo "$tag_name"; ?></a></td>
+                            <td><?php echo $tag_type; ?></td>
+                            <td><i class="fa fa-3x fa-circle" style="color:<?php echo $tag_color; ?>;"></i></td>
+                            <td>
+                                <div class="dropdown dropleft text-center">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>">Edit</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger" href="post.php?delete_tag=<?php echo $tag_id; ?>">Delete</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
 
-                ?>
+                        <?php
 
-                </tbody>
-            </table>
+                        require("settings_tag_edit_modal.php");
+
+                    }
+
+                    ?>
+
+                    </tbody>
+                </table>
+            </div>
+            <?php require_once("pagination.php"); ?>
         </div>
-        <?php require_once("pagination.php"); ?>
     </div>
-</div>
 
 <?php
 require_once("settings_tag_add_modal.php");

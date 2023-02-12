@@ -6,10 +6,10 @@ if (isset($_GET['ticket_id'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM tickets 
-        LEFT JOIN clients ON ticket_client_id = client_id 
-        LEFT JOIN contacts ON ticket_contact_id = contact_id 
-        LEFT JOIN users ON ticket_assigned_to = user_id 
+        "SELECT * FROM tickets
+        LEFT JOIN clients ON ticket_client_id = client_id
+        LEFT JOIN contacts ON ticket_contact_id = contact_id
+        LEFT JOIN users ON ticket_assigned_to = user_id
         LEFT JOIN locations ON ticket_location_id = location_id
         LEFT JOIN assets ON ticket_asset_id = asset_id
         LEFT JOIN vendors ON ticket_vendor_id = vendor_id
@@ -637,3 +637,4 @@ if ($ticket_status !== "Closed") { ?>
     <!-- Ticket collision detect JS (jQuery is called in footer, so collision detection script MUST be below it) -->
     <script src="js/ticket_collision_detection.js"></script>
 <?php } ?>
+

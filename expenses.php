@@ -2,8 +2,6 @@
 
 require_once("inc_all.php");
 
-//$o = "DESC";
-
 if (!empty($_GET['sb'])) {
     $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
 } else {
@@ -58,15 +56,17 @@ if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM expenses
-  LEFT JOIN categories ON expense_category_id = category_id
-  LEFT JOIN vendors ON expense_vendor_id = vendor_id
-  LEFT JOIN accounts ON expense_account_id = account_id
-  WHERE expenses.company_id = $session_company_id
-  AND expense_vendor_id > 0
-  AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
-  AND (vendor_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
-  ORDER BY $sb $o LIMIT $record_from, $record_to");
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT SQL_CALC_FOUND_ROWS * FROM expenses
+    LEFT JOIN categories ON expense_category_id = category_id
+    LEFT JOIN vendors ON expense_vendor_id = vendor_id
+    LEFT JOIN accounts ON expense_account_id = account_id
+    WHERE expenses.company_id = $session_company_id
+    AND expense_vendor_id > 0
+    AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
+    AND (vendor_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
+    ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 

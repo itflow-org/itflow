@@ -1,8 +1,8 @@
 <?php
 
-include("config.php");
-include("functions.php");
-include("check_login.php");
+require_once("config.php");
+require_once("functions.php");
+require_once("check_login.php");
 
 if(isset($_POST['change_records_per_page'])){
 
@@ -117,9 +117,9 @@ if(isset($_POST['add_user'])){
         $body = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: https://$config_base_url<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
 
         $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-          $config_ticket_from_email, $config_ticket_from_name,
-          $email, $name,
-          $subject, $body);
+            $config_ticket_from_email, $config_ticket_from_name,
+            $email, $name,
+            $subject, $body);
 
         if ($mail !== true) {
             mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', notification_timestamp = NOW(), company_id = $session_company_id");
@@ -161,7 +161,7 @@ if(isset($_POST['edit_user'])){
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
 
-    // get details of the uploaded file
+        // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
         $file_name = $_FILES['file']['name'];
@@ -217,8 +217,8 @@ if(isset($_POST['edit_user'])){
     }
 
     if(!empty($two_fa) && $two_fa == 'disable'){
-      mysqli_query($mysqli, "UPDATE users SET user_token = '' WHERE user_id = '$user_id'");
-      mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name disabled 2FA for $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+        mysqli_query($mysqli, "UPDATE users SET user_token = '' WHERE user_id = '$user_id'");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name disabled 2FA for $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
     }
 
     //Update User Settings
@@ -310,7 +310,7 @@ if(isset($_POST['edit_profile'])){
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
 
-    // get details of the uploaded file
+        // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
         $file_name = $_FILES['file']['name'];
@@ -608,7 +608,7 @@ if(isset($_POST['edit_company'])){
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
 
-    // get details of the uploaded file
+        // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
         $file_name = $_FILES['file']['name'];
@@ -891,11 +891,11 @@ if(isset($_POST['test_email_imap'])){
     $imap = imap_open("{{$imap_mailbox}}INBOX", $config_smtp_username, $config_smtp_password);
 
     if ($imap) {
-          $_SESSION['alert_message'] = "Connected successfully";
-      } else {
-          $_SESSION['alert_type'] = "error";
-          $_SESSION['alert_message'] = "Test IMAP connection failed";
-      }
+        $_SESSION['alert_message'] = "Connected successfully";
+    } else {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Test IMAP connection failed";
+    }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -1278,71 +1278,71 @@ if(isset($_POST['send_telemetry_data'])){
     $log_count = $row['num'];
 
     $postdata = http_build_query(
-      array(
-        'installation_id' => "$installation_id",
-        'version' => "$current_version",
-        'company_name' => "$company_name",
-        'city' => "$city",
-        'state' => "$state",
-        'country' => "$country",
-        'currency' => "$currency",
-        'comments' => "$comments",
-        'client_count' => $client_count,
-        'ticket_count' => $ticket_count,
-        'calendar_event_count' => $calendar_event_count,
-        'quote_count' => $quote_count,
-        'invoice_count' => $invoice_count,
-        'revenue_count' => $revenue_count,
-        'recurring_count' => $recurring_count,
-        'account_count' => $account_count,
-        'tax_count' => $tax_count,
-        'product_count' => $product_count,
-        'payment_count' => $payment_count,
-        'company_vendor_count' => $company_vendor_count,
-        'expense_count' => $expense_count,
-        'trip_count' => $trip_count,
-        'transfer_count' => $transfer_count,
-        'contact_count' => $contact_count,
-        'location_count' => $location_count,
-        'asset_count' => $asset_count,
-        'software_count' => $software_count,
-        'software_template_count' => $software_template_count,
-        'password_count' => $password_count,
-        'network_count' => $network_count,
-        'certificate_count' => $certificate_count,
-        'domain_count' => $domain_count,
-        'service_count' => $service_count,
-        'client_vendor_count' => $client_vendor_count,
-        'vendor_template_count' => $vendor_template_count,
-        'file_count' => $file_count,
-        'document_count' => $document_count,
-        'document_template_count' => $document_template_count,
-        'shared_item_count' => $shared_item_count,
-        'company_count' => $company_count,
-        'user_count' => $user_count,
-        'category_expense_count' => $category_expense_count,
-        'category_income_count' => $category_income_count,
-        'category_referral_count' => $category_referral_count,
-        'category_payment_method_count' => $category_payment_method_count,
-        'tag_count' => $tag_count,
-        'api_key_count' => $api_key_count,
-        'log_count' => $log_count,
-        'config_theme' => "$config_theme",
-        'config_enable_cron' => $config_enable_cron,
-        'config_ticket_email_parse' => $config_ticket_email_parse,
-        'config_module_enable_itdoc' => $config_module_enable_itdoc,
-        'config_module_enable_ticketing' => $config_module_enable_ticketing,
-        'config_module_enable_accounting' => $config_module_enable_accounting,
-        'collection_method' => 2
-      )
+        array(
+            'installation_id' => "$installation_id",
+            'version' => "$current_version",
+            'company_name' => "$company_name",
+            'city' => "$city",
+            'state' => "$state",
+            'country' => "$country",
+            'currency' => "$currency",
+            'comments' => "$comments",
+            'client_count' => $client_count,
+            'ticket_count' => $ticket_count,
+            'calendar_event_count' => $calendar_event_count,
+            'quote_count' => $quote_count,
+            'invoice_count' => $invoice_count,
+            'revenue_count' => $revenue_count,
+            'recurring_count' => $recurring_count,
+            'account_count' => $account_count,
+            'tax_count' => $tax_count,
+            'product_count' => $product_count,
+            'payment_count' => $payment_count,
+            'company_vendor_count' => $company_vendor_count,
+            'expense_count' => $expense_count,
+            'trip_count' => $trip_count,
+            'transfer_count' => $transfer_count,
+            'contact_count' => $contact_count,
+            'location_count' => $location_count,
+            'asset_count' => $asset_count,
+            'software_count' => $software_count,
+            'software_template_count' => $software_template_count,
+            'password_count' => $password_count,
+            'network_count' => $network_count,
+            'certificate_count' => $certificate_count,
+            'domain_count' => $domain_count,
+            'service_count' => $service_count,
+            'client_vendor_count' => $client_vendor_count,
+            'vendor_template_count' => $vendor_template_count,
+            'file_count' => $file_count,
+            'document_count' => $document_count,
+            'document_template_count' => $document_template_count,
+            'shared_item_count' => $shared_item_count,
+            'company_count' => $company_count,
+            'user_count' => $user_count,
+            'category_expense_count' => $category_expense_count,
+            'category_income_count' => $category_income_count,
+            'category_referral_count' => $category_referral_count,
+            'category_payment_method_count' => $category_payment_method_count,
+            'tag_count' => $tag_count,
+            'api_key_count' => $api_key_count,
+            'log_count' => $log_count,
+            'config_theme' => "$config_theme",
+            'config_enable_cron' => $config_enable_cron,
+            'config_ticket_email_parse' => $config_ticket_email_parse,
+            'config_module_enable_itdoc' => $config_module_enable_itdoc,
+            'config_module_enable_ticketing' => $config_module_enable_ticketing,
+            'config_module_enable_accounting' => $config_module_enable_accounting,
+            'collection_method' => 2
+        )
     );
 
     $opts = array('http' =>
-      array(
-        'method' => 'POST',
-        'header' => 'Content-type: application/x-www-form-urlencoded',
-        'content' => $postdata
-      )
+        array(
+            'method' => 'POST',
+            'header' => 'Content-type: application/x-www-form-urlencoded',
+            'content' => $postdata
+        )
     );
 
     $context = stream_context_create($opts);
@@ -1705,72 +1705,72 @@ if(isset($_GET['update'])){
         $log_count = $row['num'];
 
         $postdata = http_build_query(
-          array(
-            'installation_id' => "$installation_id",
-            'version' => "$current_version",
-            'company_name' => "$company_name",
-            'city' => "$city",
-            'state' => "$state",
-            'country' => "$country",
-            'currency' => "$currency",
-            'comments' => "$comments",
-            'client_count' => $client_count,
-            'ticket_count' => $ticket_count,
-            'calendar_event_count' => $calendar_event_count,
-            'quote_count' => $quote_count,
-            'invoice_count' => $invoice_count,
-            'revenue_count' => $revenue_count,
-            'recurring_count' => $recurring_count,
-            'account_count' => $account_count,
-            'tax_count' => $tax_count,
-            'product_count' => $product_count,
-            'payment_count' => $payment_count,
-            'company_vendor_count' => $company_vendor_count,
-            'expense_count' => $expense_count,
-            'trip_count' => $trip_count,
-            'transfer_count' => $transfer_count,
-            'contact_count' => $contact_count,
-            'location_count' => $location_count,
-            'asset_count' => $asset_count,
-            'software_count' => $software_count,
-            'software_template_count' => $software_template_count,
-            'password_count' => $password_count,
-            'network_count' => $network_count,
-            'certificate_count' => $certificate_count,
-            'domain_count' => $domain_count,
-            'service_count' => $service_count,
-            'client_vendor_count' => $client_vendor_count,
-            'vendor_template_count' => $vendor_template_count,
-            'file_count' => $file_count,
-            'document_count' => $document_count,
-            'document_template_count' => $document_template_count,
-            'shared_item_count' => $shared_item_count,
-            'company_count' => $company_count,
-            'user_count' => $user_count,
-            'category_expense_count' => $category_expense_count,
-            'category_income_count' => $category_income_count,
-            'category_referral_count' => $category_referral_count,
-            'category_payment_method_count' => $category_payment_method_count,
-            'tag_count' => $tag_count,
-            'api_key_count' => $api_key_count,
-            'log_count' => $log_count,
-            'config_theme' => "$config_theme",
-            'config_enable_cron' => $config_enable_cron,
-            'config_ticket_email_parse' => $config_ticket_email_parse,
-            'config_module_enable_itdoc' => $config_module_enable_itdoc,
-            'config_module_enable_ticketing' => $config_module_enable_ticketing,
-            'config_module_enable_accounting' => $config_module_enable_accounting,
-            'config_telemetry' => $config_telemetry,
-            'collection_method' => 4
-          )
+            array(
+                'installation_id' => "$installation_id",
+                'version' => "$current_version",
+                'company_name' => "$company_name",
+                'city' => "$city",
+                'state' => "$state",
+                'country' => "$country",
+                'currency' => "$currency",
+                'comments' => "$comments",
+                'client_count' => $client_count,
+                'ticket_count' => $ticket_count,
+                'calendar_event_count' => $calendar_event_count,
+                'quote_count' => $quote_count,
+                'invoice_count' => $invoice_count,
+                'revenue_count' => $revenue_count,
+                'recurring_count' => $recurring_count,
+                'account_count' => $account_count,
+                'tax_count' => $tax_count,
+                'product_count' => $product_count,
+                'payment_count' => $payment_count,
+                'company_vendor_count' => $company_vendor_count,
+                'expense_count' => $expense_count,
+                'trip_count' => $trip_count,
+                'transfer_count' => $transfer_count,
+                'contact_count' => $contact_count,
+                'location_count' => $location_count,
+                'asset_count' => $asset_count,
+                'software_count' => $software_count,
+                'software_template_count' => $software_template_count,
+                'password_count' => $password_count,
+                'network_count' => $network_count,
+                'certificate_count' => $certificate_count,
+                'domain_count' => $domain_count,
+                'service_count' => $service_count,
+                'client_vendor_count' => $client_vendor_count,
+                'vendor_template_count' => $vendor_template_count,
+                'file_count' => $file_count,
+                'document_count' => $document_count,
+                'document_template_count' => $document_template_count,
+                'shared_item_count' => $shared_item_count,
+                'company_count' => $company_count,
+                'user_count' => $user_count,
+                'category_expense_count' => $category_expense_count,
+                'category_income_count' => $category_income_count,
+                'category_referral_count' => $category_referral_count,
+                'category_payment_method_count' => $category_payment_method_count,
+                'tag_count' => $tag_count,
+                'api_key_count' => $api_key_count,
+                'log_count' => $log_count,
+                'config_theme' => "$config_theme",
+                'config_enable_cron' => $config_enable_cron,
+                'config_ticket_email_parse' => $config_ticket_email_parse,
+                'config_module_enable_itdoc' => $config_module_enable_itdoc,
+                'config_module_enable_ticketing' => $config_module_enable_ticketing,
+                'config_module_enable_accounting' => $config_module_enable_accounting,
+                'config_telemetry' => $config_telemetry,
+                'collection_method' => 4
+            )
         );
 
         $opts = array('http' =>
-          array(
-            'method' => 'POST',
-            'header' => 'Content-type: application/x-www-form-urlencoded',
-            'content' => $postdata
-          )
+            array(
+                'method' => 'POST',
+                'header' => 'Content-type: application/x-www-form-urlencoded',
+                'content' => $postdata
+            )
         );
 
         $context = stream_context_create($opts);
@@ -2359,7 +2359,7 @@ if(isset($_POST['add_vendor_from_template'])){
 
     $_SESSION['alert_message'] = "Vendor created from template";
 
-     header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -3560,9 +3560,9 @@ if(isset($_POST['edit_quote'])){
     $category = intval($_POST['category']);
     $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
 
-     mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_category_id = $category WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_category_id = $category WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
-     //Logging
+    //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = '$quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Quote modified";
@@ -3729,17 +3729,17 @@ if(isset($_GET['email_quote'])){
 
     // Logging
     if ($mail === true) {
-          mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote!', history_quote_id = $quote_id, company_id = $session_company_id");
-          mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Email', log_description = '$quote_id emailed to $contact_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote!', history_quote_id = $quote_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Email', log_description = '$quote_id emailed to $contact_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-          $_SESSION['alert_message'] = "Quote has been sent";
-      } else {
-          mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
-          mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+        $_SESSION['alert_message'] = "Quote has been sent";
+    } else {
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
-          $_SESSION['alert_type'] = "error";
-          $_SESSION['alert_message'] = "Error sending quote";
-      }
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Error sending quote";
+    }
 
     //Don't change the status to sent if the status is anything but draft
     if($quote_status == 'Draft'){
@@ -4193,9 +4193,9 @@ if(isset($_POST['add_payment'])){
                 $body    = "Hello $contact_name,<br><br>We have received your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
                 $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-                      $config_invoice_from_email, $config_invoice_from_name,
-                      $contact_email, $contact_name,
-                      $subject, $body);
+                    $config_invoice_from_email, $config_invoice_from_name,
+                    $contact_email, $contact_name,
+                    $subject, $body);
 
                 // Email Logging
                 if ($mail === true) {
@@ -4220,22 +4220,22 @@ if(isset($_POST['add_payment'])){
                 $body    = "Hello $contact_name,<br><br>We have recieved partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
                 $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-                  $config_invoice_from_email, $config_invoice_from_name,
-                  $contact_email, $contact_name,
-                  $subject, $body);
+                    $config_invoice_from_email, $config_invoice_from_name,
+                    $contact_email, $contact_name,
+                    $subject, $body);
 
-              // Email Logging
-              if ($mail === true) {
-                  $_SESSION['alert_message'] .= "Email receipt sent ";
+                // Email Logging
+                if ($mail === true) {
+                    $_SESSION['alert_message'] .= "Email receipt sent ";
 
-                  mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id, company_id = $session_company_id");
-              } else {
-                  mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Failed!', history_invoice_id = $invoice_id, company_id = $session_company_id");
-                  $_SESSION['alert_message'] .= "Mailer Error ";
+                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id, company_id = $session_company_id");
+                } else {
+                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Failed!', history_invoice_id = $invoice_id, company_id = $session_company_id");
+                    $_SESSION['alert_message'] .= "Mailer Error ";
 
-                  mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
-                  mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
-              }
+                    mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+                    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+                }
 
             }
 
@@ -4352,19 +4352,19 @@ if(isset($_GET['email_invoice'])){
     $balance = $invoice_amount - $amount_paid;
 
     if($invoice_status == 'Paid') {
-      $subject = "Invoice $invoice_prefix$invoice_number Copy";
-      $body    = "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+        $subject = "Invoice $invoice_prefix$invoice_number Copy";
+        $body    = "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
     } else {
 
-      $subject = "Invoice $invoice_prefix$invoice_number";
-      $body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+        $subject = "Invoice $invoice_prefix$invoice_number";
+        $body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
     }
 
     $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-      $config_invoice_from_email, $config_invoice_from_name,
-      $contact_email, $contact_name,
-      $subject, $body);
+        $config_invoice_from_email, $config_invoice_from_name,
+        $contact_email, $contact_name,
+        $subject, $body);
 
     if ($mail === true) {
         $_SESSION['alert_message'] = "Invoice has been sent";
@@ -4372,7 +4372,7 @@ if(isset($_GET['email_invoice'])){
 
         //Don't chnage the status to sent if the status is anything but draft
         if($invoice_status == 'Draft'){
-          mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
         }
 
         //Logging
@@ -4474,7 +4474,7 @@ if(isset($_POST['add_contact'])){
     $password = password_hash(randomString(), PASSWORD_DEFAULT);
 
 
-  if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
+    if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
     }
 
@@ -4574,38 +4574,38 @@ if(isset($_POST['edit_contact'])){
 
     // Set password
     if(!empty($_POST['contact_password'])){
-      $password_hash = mysqli_real_escape_string($mysqli,password_hash($_POST['contact_password'], PASSWORD_DEFAULT));
-      mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_id = '$contact_id' AND contact_client_id = '$client_id'");
+        $password_hash = mysqli_real_escape_string($mysqli,password_hash($_POST['contact_password'], PASSWORD_DEFAULT));
+        mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_id = '$contact_id' AND contact_client_id = '$client_id'");
     }
 
     // Send contact a welcome e-mail, if specified
     if(isset($_POST['send_email']) && !empty($auth_method) && !empty($config_smtp_host)){
 
-      if($auth_method == 'azure') {
-        $password_info = "Login with your Microsoft (Azure AD) account.";
-      } else {
-        $password_info = $_POST['contact_password'];
-      }
+        if($auth_method == 'azure') {
+            $password_info = "Login with your Microsoft (Azure AD) account.";
+        } else {
+            $password_info = $_POST['contact_password'];
+        }
 
-      $subject = "Your new $session_company_name ITFlow account";
-      $body = "Hello, $name<br><br>An ITFlow account has been set up for you. <br><br>Username: $email <br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+        $subject = "Your new $session_company_name ITFlow account";
+        $body = "Hello, $name<br><br>An ITFlow account has been set up for you. <br><br>Username: $email <br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
 
-      $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-        $config_ticket_from_email, $config_ticket_from_name,
-        $email, $name,
-        $subject, $body);
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_ticket_from_email, $config_ticket_from_name,
+            $email, $name,
+            $subject, $body);
 
-      if ($mail !== true) {
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', notification_timestamp = NOW(), company_id = $session_company_id");
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
-      }
+        if ($mail !== true) {
+            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', notification_timestamp = NOW(), company_id = $session_company_id");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+        }
 
     }
 
     // Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
 
-    // get details of the uploaded file
+        // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
         $file_name = $_FILES['file']['name'];
@@ -5005,7 +5005,7 @@ if(isset($_POST['edit_location'])){
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
 
-    // get details of the uploaded file
+        // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
         $file_name = $_FILES['file']['name'];
@@ -5403,7 +5403,7 @@ if(isset($_POST['edit_asset'])){
 
         $alert_extended = " along with updating login credentials";
     }else{
-    //If Username is filled in then add a login
+        //If Username is filled in then add a login
         if(!empty($_POST['username'])) {
 
             mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_asset_id = $asset_id, login_client_id = $client_id, company_id = $session_company_id");
@@ -5732,7 +5732,7 @@ if(isset($_POST['add_software_from_template'])){
 
     $_SESSION['alert_message'] = "Software created from template";
 
-     header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -5845,7 +5845,7 @@ if(isset($_POST['edit_software'])){
     if($login_id > 0){
         mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password' WHERE login_id = $login_id AND company_id = $session_company_id");
     }else{
-    //If Username is filled in then add a login
+        //If Username is filled in then add a login
         if(!empty($username)) {
 
             mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_software_id = $software_id, login_client_id = $client_id, company_id = $session_company_id");
@@ -5958,7 +5958,7 @@ if(isset($_GET['export_client_software_csv'])){
                                                         ON software_assets.asset_id = assets.asset_id
                                                     WHERE software_id = $row[software_id]");
             while($asset_row = mysqli_fetch_array($asset_licenses_sql)){
-              $assigned_to_assets .= $asset_row['asset_name'] . ", ";
+                $assigned_to_assets .= $asset_row['asset_name'] . ", ";
             }
 
             // Contact Licenses
@@ -5969,7 +5969,7 @@ if(isset($_GET['export_client_software_csv'])){
                                                           ON software_contacts.contact_id = contacts.contact_id
                                                       WHERE software_id = $row[software_id]");
             while($contact_row = mysqli_fetch_array($contact_licenses_sql)){
-              $assigned_to_contacts .= $contact_row['contact_name'] . ", ";
+                $assigned_to_contacts .= $contact_row['contact_name'] . ", ";
             }
 
             $lineData = array($row['software_name'], $row['software_version'], $row['software_type'], $row['software_license_type'], $row['software_seats'], $row['software_key'], $assigned_to_assets, $assigned_to_contacts, $row['software_purchase'], $row['software_expire'], $row['software_notes']);
@@ -6549,12 +6549,12 @@ if(isset($_POST['add_domain'])){
     // Get SSL cert for domain (if exists)
     $certificate = getSSL($name);
     if($certificate['success'] == "TRUE"){
-      $expire = mysqli_real_escape_string($mysqli, $certificate['expire']);
-      $issued_by = mysqli_real_escape_string($mysqli, $certificate['issued_by']);
-      $public_key = mysqli_real_escape_string($mysqli, $certificate['public_key']);
+        $expire = mysqli_real_escape_string($mysqli, $certificate['expire']);
+        $issued_by = mysqli_real_escape_string($mysqli, $certificate['issued_by']);
+        $public_key = mysqli_real_escape_string($mysqli, $certificate['public_key']);
 
-      mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$name', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
-      $extended_log_description = ', with associated SSL cert';
+        mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$name', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
+        $extended_log_description = ', with associated SSL cert';
     }
 
     // Logging
@@ -6800,23 +6800,23 @@ if(isset($_POST['assign_ticket'])){
 
     // Allow for un-assigning tickets
     if($assigned_to == 0){
-      $ticket_reply = "Ticket unassigned.";
-      $agent_name = "No One";
+        $ticket_reply = "Ticket unassigned.";
+        $agent_name = "No One";
 
     } else {
-      // Get & verify assigned agent details
-      $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = '$assigned_to' AND user_settings.user_role > 1");
-      $agent_details = mysqli_fetch_array($agent_details_sql);
-      $agent_name = $agent_details['user_name'];
-      $agent_email = $agent_details['user_email'];
-      $ticket_reply = "Ticket re-assigned to $agent_name.";
+        // Get & verify assigned agent details
+        $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = '$assigned_to' AND user_settings.user_role > 1");
+        $agent_details = mysqli_fetch_array($agent_details_sql);
+        $agent_name = $agent_details['user_name'];
+        $agent_email = $agent_details['user_email'];
+        $ticket_reply = "Ticket re-assigned to $agent_name.";
 
-      if(!$agent_name){
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Invalid agent!";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-        exit();
-      }
+        if(!$agent_name){
+            $_SESSION['alert_type'] = "error";
+            $_SESSION['alert_message'] = "Invalid agent!";
+            header("Location: " . $_SERVER["HTTP_REFERER"]);
+            exit();
+        }
     }
 
     // Get & verify ticket details
@@ -6828,10 +6828,10 @@ if(isset($_POST['assign_ticket'])){
     $client_id = intval($ticket_details['ticket_client_id']);
 
     if(!$ticket_subject){
-      $_SESSION['alert_type'] = "error";
-      $_SESSION['alert_message'] = "Invalid ticket!";
-      header("Location: " . $_SERVER["HTTP_REFERER"]);
-      exit();
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Invalid ticket!";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
     }
 
     // Update ticket & insert reply
@@ -6952,12 +6952,12 @@ if(isset($_POST['add_ticket_reply'])){
             // Slightly different email subject/text depending on if this update closed the ticket or not
 
             if($ticket_status == 'Closed') {
-              $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
-              $body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+                $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
+                $body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
             } else {
-              $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
-              $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+                $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
+                $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been updated.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
             }
 
@@ -6967,8 +6967,8 @@ if(isset($_POST['add_ticket_reply'])){
                 $subject, $body);
 
             if ($mail !== true) {
-              mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
-              mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+                mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
             }
         }
     }
@@ -7106,39 +7106,39 @@ if(isset($_GET['close_ticket'])){
     // Client notification email
     if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 
-      // Get details
-      $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
+        // Get details
+        $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
             LEFT JOIN clients ON ticket_client_id = client_id 
             LEFT JOIN contacts ON ticket_contact_id = contact_id
             LEFT JOIN companies ON tickets.company_id = companies.company_id
             WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id
         ");
-      $row = mysqli_fetch_array($ticket_sql);
+        $row = mysqli_fetch_array($ticket_sql);
 
-      $contact_name = $row['contact_name'];
-      $contact_email = $row['contact_email'];
-      $ticket_prefix = $row['ticket_prefix'];
-      $ticket_number = $row['ticket_number'];
-      $ticket_subject = $row['ticket_subject'];
-      $company_phone = formatPhoneNumber($row['company_phone']);
+        $contact_name = $row['contact_name'];
+        $contact_email = $row['contact_email'];
+        $ticket_prefix = $row['ticket_prefix'];
+        $ticket_number = $row['ticket_number'];
+        $ticket_subject = $row['ticket_subject'];
+        $company_phone = formatPhoneNumber($row['company_phone']);
 
-      // Check email valid
-      if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
+        // Check email valid
+        if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
 
-        $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
-        $body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+            $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
+            $body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-          $config_ticket_from_email, $config_ticket_from_name,
-          $contact_email, $contact_name,
-          $subject, $body);
+            $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+                $config_ticket_from_email, $config_ticket_from_name,
+                $contact_email, $contact_name,
+                $subject, $body);
 
-        if ($mail !== true) {
-            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+            if ($mail !== true) {
+                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $session_company_id");
+                mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
+            }
+
         }
-
-      }
 
     }
     //End Mail IF
@@ -7437,8 +7437,8 @@ if(isset($_POST['add_service'])){
         if(!empty($_POST['assets'])){
             $service_asset_ids = $_POST['assets'];
             foreach($service_asset_ids as $asset_id){
-              $asset_id = intval($asset_id);
-              if($asset_id > 0){
+                $asset_id = intval($asset_id);
+                if($asset_id > 0){
                     mysqli_query($mysqli, "INSERT INTO service_assets SET service_id = '$service_id', asset_id = '$asset_id'");
                 }
             }
@@ -7713,7 +7713,7 @@ if(isset($_POST['add_document'])){
 
     validateTechRole();
 
-  // HTML Purifier
+    // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
     $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
@@ -7744,7 +7744,7 @@ if(isset($_POST['add_document_template'])){
 
     validateTechRole();
 
-  // HTML Purifier
+    // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
     $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
@@ -7805,7 +7805,7 @@ if(isset($_POST['add_document_from_template'])){
 
     $_SESSION['alert_message'] = "Document created from template";
 
-     header("Location: client_document_details.php?client_id=$client_id&document_id=$document_id");
+    header("Location: client_document_details.php?client_id=$client_id&document_id=$document_id");
 
 }
 
@@ -7813,7 +7813,7 @@ if(isset($_POST['edit_document'])){
 
     validateTechRole();
 
-  // HTML Purifier
+    // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
     $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
@@ -7843,7 +7843,7 @@ if(isset($_POST['edit_document_template'])){
 
     validateTechRole();
 
-  // HTML Purifier
+    // HTML Purifier
     require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
     $purifier_config = HTMLPurifier_Config::createDefault();
     $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
@@ -8086,8 +8086,8 @@ if(isset($_GET['force_recurring'])){
 
         $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
             $config_invoice_from_email, $config_invoice_from_name,
-              $contact_email, $contact_name,
-              $subject, $body);
+            $contact_email, $contact_name,
+            $subject, $body);
 
         if ($mail === true) {
             // Add send history
@@ -8411,458 +8411,458 @@ if(isset($_GET['export_client_pdf'])){
     $sql_certficates = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_client_id = $client_id ORDER BY certificate_name ASC");
     $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
 
-?>
+    ?>
 
     <script src='plugins/pdfmake/pdfmake.min.js'></script>
     <script src='plugins/pdfmake/vfs_fonts.js'></script>
     <script>
 
-    var docDefinition = {
-        info: {
-            title: '<?php echo strtoAZaz09($client_name); ?>- IT Documentation',
-            author: <?php echo json_encode($session_company_name); ?>
-        },
-
-        pageMargins: [ 15, 15, 15, 15 ],
-
-        content: [
-            {
-                text: <?php echo json_encode($client_name); ?>,
-                style: 'title'
+        var docDefinition = {
+            info: {
+                title: '<?php echo strtoAZaz09($client_name); ?>- IT Documentation',
+                author: <?php echo json_encode($session_company_name); ?>
             },
 
-            {
-                layout: 'lightHorizontalLines',
-                table: {
-                    body: [
-                        [
-                            {
-                                text: 'Address',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: <?php echo json_encode($location_address); ?>,
-                                style: 'item'
-                            }
-                        ],
-                        [
-                            {
-                                text: 'City State Zip',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: <?php echo json_encode("$location_city $location_state $location_zip"); ?>,
-                                style: 'item'
-                            }
-                        ],
-                        [
-                            {
-                                text: 'Phone',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: <?php echo json_encode($contact_phone); ?>,
-                                style: 'item'
-                            }
-                        ],
-                        [
-                            {
-                                text: 'Website',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: <?php echo json_encode($client_website); ?>,
-                                style: 'item'
-                            }
-                        ],
-                        [
-                            {
-                                text: 'Contact',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: <?php echo json_encode($contact_name); ?>,
-                                style: 'item'
-                            }
-                        ],
-                        [
-                            {
-                                text: 'Email',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: <?php echo json_encode($contact_email); ?>,
-                                style: 'item'
-                            }
+            pageMargins: [ 15, 15, 15, 15 ],
+
+            content: [
+                {
+                    text: <?php echo json_encode($client_name); ?>,
+                    style: 'title'
+                },
+
+                {
+                    layout: 'lightHorizontalLines',
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Address',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: <?php echo json_encode($location_address); ?>,
+                                    style: 'item'
+                                }
+                            ],
+                            [
+                                {
+                                    text: 'City State Zip',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: <?php echo json_encode("$location_city $location_state $location_zip"); ?>,
+                                    style: 'item'
+                                }
+                            ],
+                            [
+                                {
+                                    text: 'Phone',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: <?php echo json_encode($contact_phone); ?>,
+                                    style: 'item'
+                                }
+                            ],
+                            [
+                                {
+                                    text: 'Website',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: <?php echo json_encode($client_website); ?>,
+                                    style: 'item'
+                                }
+                            ],
+                            [
+                                {
+                                    text: 'Contact',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: <?php echo json_encode($contact_name); ?>,
+                                    style: 'item'
+                                }
+                            ],
+                            [
+                                {
+                                    text: 'Email',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: <?php echo json_encode($contact_email); ?>,
+                                    style: 'item'
+                                }
+                            ]
                         ]
-                    ]
-                }
-            },
+                    }
+                },
 
-            //Contacts Start
-            <?php if(mysqli_num_rows($sql_contacts) > 0){ ?>
-            {
-                text: 'Contacts',
-                style: 'title'
-            },
+                //Contacts Start
+                <?php if(mysqli_num_rows($sql_contacts) > 0){ ?>
+                {
+                    text: 'Contacts',
+                    style: 'title'
+                },
 
-            {
-                table: {
-                // headers are automatically repeated if the table spans over multiple pages
-                // you can declare how many rows should be treated as headers
-                    body: [
-                        [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Title',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Department',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Email',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Phone',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Mobile',
-                                style: 'itemHeader'
-                            }
-                        ],
+                {
+                    table: {
+                        // headers are automatically repeated if the table spans over multiple pages
+                        // you can declare how many rows should be treated as headers
+                        body: [
+                            [
+                                {
+                                    text: 'Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Title',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Department',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Email',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Phone',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Mobile',
+                                    style: 'itemHeader'
+                                }
+                            ],
 
-                        <?php
-                        while($row = mysqli_fetch_array($sql_contacts)){
+                            <?php
+                            while($row = mysqli_fetch_array($sql_contacts)){
                             $contact_name = $row['contact_name'];
                             $contact_title = $row['contact_title'];
                             $contact_phone = formatPhoneNumber($row['contact_phone']);
                             $contact_extension = $row['contact_extension'];
                             if(!empty($contact_extension)){
-                              $contact_extension = "x$contact_extension";
+                                $contact_extension = "x$contact_extension";
                             }
                             $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                             $contact_email = $row['contact_email'];
                             $contact_department = $row['contact_department'];
-                        ?>
+                            ?>
 
-                        [
-                            {
-                                text: <?php echo json_encode($contact_name); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($contact_title); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($contact_department); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($contact_email); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode("$contact_phone $contact_extension"); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($contact_mobile); ?>,
-                                style: 'item'
+                            [
+                                {
+                                    text: <?php echo json_encode($contact_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($contact_title); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($contact_department); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($contact_email); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode("$contact_phone $contact_extension"); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($contact_mobile); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
                             }
-                        ],
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Contact END
 
-                        <?php
-                        }
-                        ?>
-                    ]
-                }
-            },
-            <?php } ?>
-            //Contact END
+                //Locations Start
+                <?php if(mysqli_num_rows($sql_locations) > 0){ ?>
+                {
+                    text: 'Locations',
+                    style: 'title'
+                },
 
-            //Locations Start
-            <?php if(mysqli_num_rows($sql_locations) > 0){ ?>
-            {
-                text: 'Locations',
-                style: 'title'
-            },
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Address',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Phone',
+                                    style: 'itemHeader'
+                                }
+                            ],
 
-            {
-                table: {
-                    body: [
-                        [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Address',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Phone',
-                                style: 'itemHeader'
+                            <?php
+                            while($row = mysqli_fetch_array($sql_locations)){
+                            $location_name = $row['location_name'];
+                            $location_address = $row['location_address'];
+                            $location_city = $row['location_city'];
+                            $location_state = $row['location_state'];
+                            $location_zip = $row['location_zip'];
+                            $location_phone = formatPhoneNumber($row['location_phone']);
+                            ?>
+
+                            [
+                                {
+                                    text: <?php echo json_encode($location_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode("$location_address $location_city $location_state $location_zip"); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($location_phone); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
                             }
-                        ],
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Locations END
 
-                        <?php
-                        while($row = mysqli_fetch_array($sql_locations)){
-                          $location_name = $row['location_name'];
-                          $location_address = $row['location_address'];
-                          $location_city = $row['location_city'];
-                          $location_state = $row['location_state'];
-                          $location_zip = $row['location_zip'];
-                          $location_phone = formatPhoneNumber($row['location_phone']);
-                        ?>
+                //Vendors Start
+                <?php if(mysqli_num_rows($sql_vendors) > 0){ ?>
+                {
+                    text: 'Vendors',
+                    style: 'title'
+                },
 
-                        [
-                            {
-                                text: <?php echo json_encode($location_name); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode("$location_address $location_city $location_state $location_zip"); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($location_phone); ?>,
-                                style: 'item'
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Description',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Phone',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Website',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Account Number',
+                                    style: 'itemHeader'
+                                }
+                            ],
+
+                            <?php
+                            while($row = mysqli_fetch_array($sql_vendors)){
+                            $vendor_name = $row['vendor_name'];
+                            $vendor_description = $row['vendor_description'];
+                            $vendor_account_number = $row['vendor_account_number'];
+                            $vendor_contact_name = $row['vendor_contact_name'];
+                            $vendor_phone = formatPhoneNumber($row['vendor_phone']);
+                            $vendor_email = $row['vendor_email'];
+                            $vendor_website = $row['vendor_website'];
+                            ?>
+
+                            [
+                                {
+                                    text: <?php echo json_encode($vendor_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($vendor_description); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($vendor_phone); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($vendor_website); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($vendor_account_number); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
                             }
-                        ],
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Vendors END
 
-                        <?php
-                        }
-                        ?>
-                    ]
-                }
-            },
-            <?php } ?>
-            //Locations END
+                //Logins Start
+                <?php if(isset($_GET['passwords'])){ ?>
+                <?php if(mysqli_num_rows($sql_logins) > 0){ ?>
+                {
+                    text: 'Logins',
+                    style: 'title'
+                },
 
-            //Vendors Start
-            <?php if(mysqli_num_rows($sql_vendors) > 0){ ?>
-            {
-                text: 'Vendors',
-                style: 'title'
-            },
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Username',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Password',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'URL',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Notes',
+                                    style: 'itemHeader'
+                                }
+                            ],
 
-            {
-                table: {
-                    body: [
-                        [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Description',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Phone',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Website',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Account Number',
-                                style: 'itemHeader'
-                            }
-                        ],
-
-                        <?php
-                        while($row = mysqli_fetch_array($sql_vendors)){
-                          $vendor_name = $row['vendor_name'];
-                          $vendor_description = $row['vendor_description'];
-                          $vendor_account_number = $row['vendor_account_number'];
-                          $vendor_contact_name = $row['vendor_contact_name'];
-                          $vendor_phone = formatPhoneNumber($row['vendor_phone']);
-                          $vendor_email = $row['vendor_email'];
-                          $vendor_website = $row['vendor_website'];
-                        ?>
-
-                        [
-                            {
-                                text: <?php echo json_encode($vendor_name); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($vendor_description); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($vendor_phone); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($vendor_website); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($vendor_account_number); ?>,
-                                style: 'item'
-                            }
-                        ],
-
-                        <?php
-                        }
-                        ?>
-                    ]
-                }
-            },
-            <?php } ?>
-            //Vendors END
-
-            //Logins Start
-            <?php if(isset($_GET['passwords'])){ ?>
-            <?php if(mysqli_num_rows($sql_logins) > 0){ ?>
-            {
-                text: 'Logins',
-                style: 'title'
-            },
-
-            {
-                table: {
-                    body: [
-                        [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Username',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Password',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'URL',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Notes',
-                                style: 'itemHeader'
-                            }
-                        ],
-
-                        <?php
-                        while($row = mysqli_fetch_array($sql_logins)){
+                            <?php
+                            while($row = mysqli_fetch_array($sql_logins)){
                             $login_name = $row['login_name'];
                             $login_username = decryptLoginEntry($row['login_username']);
                             $login_password = decryptLoginEntry($row['login_password']);
                             $login_uri = $row['login_uri'];
                             $login_note = $row['login_note'];
-                        ?>
+                            ?>
 
-                        [
-                            {
-                                text: <?php echo json_encode($login_name); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($login_username); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($login_password); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($login_uri); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($login_note); ?>,
-                                style: 'item'
+                            [
+                                {
+                                    text: <?php echo json_encode($login_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($login_username); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($login_password); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($login_uri); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($login_note); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
                             }
-                        ],
+                            ?>
+                        ]
+                    }
+                },
+                <?php
 
-                        <?php
-                        }
-                        ?>
-                    ]
                 }
-            },
-            <?php
+                }
 
-            }
-            }
+                ?>
+                //Logins END
 
-            ?>
-            //Logins END
+                //Assets Start
+                <?php if(mysqli_num_rows($sql_assets) > 0){ ?>
+                {
+                    text: 'Assets',
+                    style: 'assetTitle'
+                },
+                <?php } ?>
+                //Assets END
 
-            //Assets Start
-            <?php if(mysqli_num_rows($sql_assets) > 0){ ?>
-            {
-                text: 'Assets',
-                style: 'assetTitle'
-            },
-            <?php } ?>
-            //Assets END
+                //Asset Workstations Start
+                <?php if(mysqli_num_rows($sql_asset_workstations) > 0){ ?>
+                {
+                    text: 'Workstations',
+                    style: 'assetSubTitle'
+                },
 
-            //Asset Workstations Start
-            <?php if(mysqli_num_rows($sql_asset_workstations) > 0){ ?>
-            {
-                text: 'Workstations',
-                style: 'assetSubTitle'
-            },
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Type',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Model',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Serial',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'OS',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Purchase Date',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Warranty Expire',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Install Date',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Assigned To',
+                                    style: 'itemHeader'
+                                }
+                            ],
 
-            {
-                table: {
-                    body: [
-                        [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Type',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Model',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Serial',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'OS',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Purchase Date',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Warranty Expire',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Install Date',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Assigned To',
-                                style: 'itemHeader'
-                            }
-                        ],
-
-                        <?php
-                        while($row = mysqli_fetch_array($sql_asset_workstations)){
+                            <?php
+                            while($row = mysqli_fetch_array($sql_asset_workstations)){
                             $asset_type = $row['asset_type'];
                             $asset_name = $row['asset_name'];
                             $asset_make = $row['asset_make'];
@@ -8876,103 +8876,103 @@ if(isset($_GET['export_client_pdf'])){
                             $asset_install_date = $row['asset_install_date'];
                             $asset_notes = $row['asset_notes'];
                             $contact_name = $row['contact_name'];
-                        ?>
+                            ?>
 
-                        [
-                            {
-                                text: <?php echo json_encode($asset_name); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_type); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode("$asset_make $asset_model"); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_serial); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_os); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_purchase_date); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_warranty_expire); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_install_date); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($contact_name); ?>,
-                                style: 'item'
+                            [
+                                {
+                                    text: <?php echo json_encode($asset_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_type); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode("$asset_make $asset_model"); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_serial); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_os); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_purchase_date); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_warranty_expire); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_install_date); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($contact_name); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
                             }
-                        ],
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Asset Workstation END
 
-                        <?php
-                        }
-                        ?>
-                    ]
-                }
-            },
-            <?php } ?>
-            //Asset Workstation END
+                //Assets Servers Start
+                <?php if(mysqli_num_rows($sql_asset_servers) > 0){ ?>
+                {
+                    text: 'Servers',
+                    style: 'assetSubTitle'
+                },
 
-            //Assets Servers Start
-            <?php if(mysqli_num_rows($sql_asset_servers) > 0){ ?>
-            {
-                text: 'Servers',
-                style: 'assetSubTitle'
-            },
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Model',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Serial',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'OS',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'IP',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Purchase Date',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Warranty Expire',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Install Date',
+                                    style: 'itemHeader'
+                                }
+                            ],
 
-            {
-                table: {
-                    body: [
-                        [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Model',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Serial',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'OS',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'IP',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Purchase Date',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Warranty Expire',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Install Date',
-                                style: 'itemHeader'
-                            }
-                        ],
-
-                        <?php
-                        while($row = mysqli_fetch_array($sql_asset_servers)){
+                            <?php
+                            while($row = mysqli_fetch_array($sql_asset_servers)){
                             $asset_type = $row['asset_type'];
                             $asset_name = $row['asset_name'];
                             $asset_make = $row['asset_make'];
@@ -8985,83 +8985,83 @@ if(isset($_GET['export_client_pdf'])){
                             $asset_warranty_expire = $row['asset_warranty_expire'];
                             $asset_install_date = $row['asset_install_date'];
                             $asset_notes = $row['asset_notes'];
-                        ?>
+                            ?>
 
-                        [
-                            {
-                                text: <?php echo json_encode($asset_name); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode("$asset_make $asset_model"); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_serial); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_os); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_ip); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_purchase_date); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_warranty_expire); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_install_date); ?>,
-                                style: 'item'
+                            [
+                                {
+                                    text: <?php echo json_encode($asset_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode("$asset_make $asset_model"); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_serial); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_os); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_ip); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_purchase_date); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_warranty_expire); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_install_date); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
                             }
-                        ],
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Asset Servers END
 
-                        <?php
-                        }
-                        ?>
-                    ]
-                }
-            },
-            <?php } ?>
-            //Asset Servers END
+                //Asset VMs Start
+                <?php if(mysqli_num_rows($sql_asset_vms) > 0){ ?>
+                {
+                    text: 'Virtual Machines',
+                    style: 'assetSubTitle'
+                },
 
-            //Asset VMs Start
-            <?php if(mysqli_num_rows($sql_asset_vms) > 0){ ?>
-            {
-                text: 'Virtual Machines',
-                style: 'assetSubTitle'
-            },
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'OS',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'IP',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Install Date',
+                                    style: 'itemHeader'
+                                }
+                            ],
 
-            {
-                table: {
-                    body: [
-                        [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'OS',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'IP',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Install Date',
-                                style: 'itemHeader'
-                            }
-                        ],
-
-                        <?php
-                        while($row = mysqli_fetch_array($sql_asset_vms)){
+                            <?php
+                            while($row = mysqli_fetch_array($sql_asset_vms)){
                             $asset_type = $row['asset_type'];
                             $asset_name = $row['asset_name'];
                             $asset_make = $row['asset_make'];
@@ -9074,83 +9074,83 @@ if(isset($_GET['export_client_pdf'])){
                             $asset_warranty_expire = $row['asset_warranty_expire'];
                             $asset_install_date = $row['asset_install_date'];
                             $asset_notes = $row['asset_notes'];
-                        ?>
+                            ?>
 
-                        [
-                            {
-                                text: <?php echo json_encode($asset_name); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_os); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_ip); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_install_date); ?>,
-                                style: 'item'
+                            [
+                                {
+                                    text: <?php echo json_encode($asset_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_os); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_ip); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_install_date); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
                             }
-                        ],
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Asset VMs END
 
-                        <?php
-                        }
-                        ?>
-                    ]
-                }
-            },
-            <?php } ?>
-            //Asset VMs END
+                //Assets Network Devices Start
+                <?php if(mysqli_num_rows($sql_asset_network) > 0){ ?>
+                {
+                    text: 'Network Devices',
+                    style: 'assetSubTitle'
+                },
 
-            //Assets Network Devices Start
-            <?php if(mysqli_num_rows($sql_asset_network) > 0){ ?>
-            {
-                text: 'Network Devices',
-                style: 'assetSubTitle'
-            },
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Type',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Model',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Serial',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'IP',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Purchase Date',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Warranty Expire',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Install Date',
+                                    style: 'itemHeader'
+                                }
+                            ],
 
-            {
-                table: {
-                    body: [
-                        [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Type',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Model',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Serial',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'IP',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Purchase Date',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Warranty Expire',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Install Date',
-                                style: 'itemHeader'
-                            }
-                        ],
-
-                        <?php
-                        while($row = mysqli_fetch_array($sql_asset_network)){
+                            <?php
+                            while($row = mysqli_fetch_array($sql_asset_network)){
                             $asset_type = $row['asset_type'];
                             $asset_name = $row['asset_name'];
                             $asset_make = $row['asset_make'];
@@ -9163,99 +9163,99 @@ if(isset($_GET['export_client_pdf'])){
                             $asset_warranty_expire = $row['asset_warranty_expire'];
                             $asset_install_date = $row['asset_install_date'];
                             $asset_notes = $row['asset_notes'];
-                        ?>
+                            ?>
 
-                        [
-                            {
-                                text: <?php echo json_encode($asset_name); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_type); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode("$asset_make $asset_model"); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_serial); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_ip); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_purchase_date); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_warranty_expire); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_install_date); ?>,
-                                style: 'item'
+                            [
+                                {
+                                    text: <?php echo json_encode($asset_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_type); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode("$asset_make $asset_model"); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_serial); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_ip); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_purchase_date); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_warranty_expire); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_install_date); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
                             }
-                        ],
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Asset Network Devices END
 
-                        <?php
-                        }
-                        ?>
-                    ]
-                }
-            },
-            <?php } ?>
-            //Asset Network Devices END
+                //Asset Other Start
+                <?php if(mysqli_num_rows($sql_asset_other) > 0){ ?>
+                {
+                    text: 'Other Devices',
+                    style: 'assetSubTitle'
+                },
 
-            //Asset Other Start
-            <?php if(mysqli_num_rows($sql_asset_other) > 0){ ?>
-            {
-                text: 'Other Devices',
-                style: 'assetSubTitle'
-            },
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Type',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Model',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Serial',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'IP',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Purchase Date',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Warranty Expire',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Install Date',
+                                    style: 'itemHeader'
+                                }
+                            ],
 
-            {
-                table: {
-                    body: [
-                        [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Type',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Model',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Serial',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'IP',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Purchase Date',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Warranty Expire',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Install Date',
-                                style: 'itemHeader'
-                            }
-                        ],
-
-                        <?php
-                        while($row = mysqli_fetch_array($sql_asset_other)){
+                            <?php
+                            while($row = mysqli_fetch_array($sql_asset_other)){
                             $asset_type = $row['asset_type'];
                             $asset_name = $row['asset_name'];
                             $asset_make = $row['asset_make'];
@@ -9268,345 +9268,345 @@ if(isset($_GET['export_client_pdf'])){
                             $asset_warranty_expire = $row['asset_warranty_expire'];
                             $asset_install_date = $row['asset_install_date'];
                             $asset_notes = $row['asset_notes'];
-                        ?>
+                            ?>
 
-                        [
-                            {
-                                text: <?php echo json_encode($asset_name); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_type); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode("$asset_make $asset_model"); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_serial); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_ip); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_purchase_date); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_warranty_expire); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($asset_install_date); ?>,
-                                style: 'item'
+                            [
+                                {
+                                    text: <?php echo json_encode($asset_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_type); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode("$asset_make $asset_model"); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_serial); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_ip); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_purchase_date); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_warranty_expire); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($asset_install_date); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
                             }
-                        ],
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Asset Other END
 
-                        <?php
-                        }
-                        ?>
-                    ]
-                }
-            },
-            <?php } ?>
-            //Asset Other END
+                //Software Start
+                <?php if(mysqli_num_rows($sql_software) > 0){ ?>
+                {
+                    text: 'Software',
+                    style: 'title'
+                },
 
-            //Software Start
-            <?php if(mysqli_num_rows($sql_software) > 0){ ?>
-            {
-                text: 'Software',
-                style: 'title'
-            },
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Type',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'License',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Notes',
+                                    style: 'itemHeader'
+                                }
+                            ],
 
-            {
-                table: {
-                    body: [
-                        [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Type',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'License',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Notes',
-                                style: 'itemHeader'
-                            }
-                        ],
-
-                        <?php
-                        while($row = mysqli_fetch_array($sql_software)){
+                            <?php
+                            while($row = mysqli_fetch_array($sql_software)){
                             $software_name = $row['software_name'];
                             $software_type = $row['software_type'];
                             $software_license_type = $row['software_license_type'];
                             $software_notes = $row['software_notes'];
-                        ?>
+                            ?>
 
-                        [
-                            {
-                                text: <?php echo json_encode($software_name); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($software_type); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($software_license_type); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($software_notes); ?>,
-                                style: 'item'
+                            [
+                                {
+                                    text: <?php echo json_encode($software_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($software_type); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($software_license_type); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($software_notes); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
                             }
-                        ],
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Software END
 
-                        <?php
-                        }
-                        ?>
-                    ]
-                }
-            },
-            <?php } ?>
-            //Software END
+                //Networks Start
+                <?php if(mysqli_num_rows($sql_networks) > 0){ ?>
+                {
+                    text: 'Networks',
+                    style: 'title'
+                },
 
-            //Networks Start
-            <?php if(mysqli_num_rows($sql_networks) > 0){ ?>
-            {
-                text: 'Networks',
-                style: 'title'
-            },
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'vLAN',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Network Subnet',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Gateway',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'DHCP Range',
+                                    style: 'itemHeader'
+                                }
+                            ],
 
-            {
-                table: {
-                    body: [
-                        [
-                            {
-                                text: 'Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'vLAN',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Network Subnet',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Gateway',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'DHCP Range',
-                                style: 'itemHeader'
-                            }
-                        ],
-
-                        <?php
-                        while($row = mysqli_fetch_array($sql_networks)){
+                            <?php
+                            while($row = mysqli_fetch_array($sql_networks)){
                             $network_name = $row['network_name'];
                             $network_vlan = $row['network_vlan'];
                             $network = $row['network'];
                             $network_gateway = $row['network_gateway'];
                             $network_dhcp_range = $row['network_dhcp_range'];
-                        ?>
+                            ?>
 
-                        [
-                            {
-                                text: <?php echo json_encode($network_name); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($network_vlan); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($network); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($network_gateway); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($network_dhcp_range); ?>,
-                                style: 'item'
+                            [
+                                {
+                                    text: <?php echo json_encode($network_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($network_vlan); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($network); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($network_gateway); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($network_dhcp_range); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
                             }
-                        ],
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Networks END
 
-                        <?php
-                        }
-                        ?>
-                    ]
-                }
-            },
-            <?php } ?>
-            //Networks END
+                //Domains Start
+                <?php if(mysqli_num_rows($sql_domains) > 0){ ?>
+                {
+                    text: 'Domains',
+                    style: 'title'
+                },
 
-            //Domains Start
-            <?php if(mysqli_num_rows($sql_domains) > 0){ ?>
-            {
-                text: 'Domains',
-                style: 'title'
-            },
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Domain Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Expire',
+                                    style: 'itemHeader'
+                                }
+                            ],
 
-            {
-                table: {
-                    body: [
-                        [
-                            {
-                                text: 'Domain Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Expire',
-                                style: 'itemHeader'
-                            }
-                        ],
-
-                        <?php
-                        while($row = mysqli_fetch_array($sql_domains)){
+                            <?php
+                            while($row = mysqli_fetch_array($sql_domains)){
                             $domain_name = $row['domain_name'];
                             $domain_expire = $row['domain_expire'];
-                        ?>
+                            ?>
 
-                        [
-                            {
-                                text: <?php echo json_encode($domain_name); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($domain_expire); ?>,
-                                style: 'item'
+                            [
+                                {
+                                    text: <?php echo json_encode($domain_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($domain_expire); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
                             }
-                        ],
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Domains END
 
-                        <?php
-                        }
-                        ?>
-                    ]
-                }
-            },
-            <?php } ?>
-            //Domains END
+                //Certificates Start
+                <?php if(mysqli_num_rows($sql_certficates) > 0){ ?>
+                {
+                    text: 'Certificates',
+                    style: 'title'
+                },
 
-            //Certificates Start
-            <?php if(mysqli_num_rows($sql_certficates) > 0){ ?>
-            {
-                text: 'Certificates',
-                style: 'title'
-            },
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Certificate Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Domain Name',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Issuer',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Expiration Date',
+                                    style: 'itemHeader'
+                                }
+                            ],
 
-            {
-                table: {
-                    body: [
-                        [
-                            {
-                                text: 'Certificate Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Domain Name',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Issuer',
-                                style: 'itemHeader'
-                            },
-                            {
-                                text: 'Expiration Date',
-                                style: 'itemHeader'
-                            }
-                        ],
-
-                        <?php
-                        while($row = mysqli_fetch_array($sql_certficates)){
+                            <?php
+                            while($row = mysqli_fetch_array($sql_certficates)){
                             $certificate_name = $row['certificate_name'];
                             $certificate_domain = $row['certificate_domain'];
                             $certificate_issued_by = $row['certificate_issued_by'];
                             $certificate_expire = $row['certificate_expire'];
-                        ?>
+                            ?>
 
-                        [
-                            {
-                                text: <?php echo json_encode($certificate_name); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($certificate_domain); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($certificate_issued_by); ?>,
-                                style: 'item'
-                            },
-                            {
-                                text: <?php echo json_encode($certificate_expire); ?>,
-                                style: 'item'
+                            [
+                                {
+                                    text: <?php echo json_encode($certificate_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($certificate_domain); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($certificate_issued_by); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($certificate_expire); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
                             }
-                        ],
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Certificates END
 
-                        <?php
-                        }
-                        ?>
-                    ]
+
+
+            ], //End Content,
+            styles: {
+                //Title
+                title: {
+                    fontSize: 15,
+                    margin: [0,20,0,5],
+                    bold: true
+                },
+                assetTitle: {
+                    fontSize: 15,
+                    margin: [0,20,0,0],
+                    bold: true
+                },
+                //Asset Subtitle
+                assetSubTitle: {
+                    fontSize: 10,
+                    margin: [0,10,0,5],
+                    bold: true
+                },
+                //Item Header
+                itemHeader: {
+                    fontSize: 9,
+                    margin: [0,1,0,1],
+                    bold: true
+                },
+                //item
+                item: {
+                    fontSize: 9,
+                    margin: [0,1,0,1]
                 }
-            },
-            <?php } ?>
-            //Certificates END
-
-
-
-        ], //End Content,
-        styles: {
-            //Title
-            title: {
-                fontSize: 15,
-                margin: [0,20,0,5],
-                bold: true
-            },
-            assetTitle: {
-                fontSize: 15,
-                margin: [0,20,0,0],
-                bold: true
-            },
-            //Asset Subtitle
-            assetSubTitle: {
-                fontSize: 10,
-                margin: [0,10,0,5],
-                bold: true
-            },
-            //Item Header
-            itemHeader: {
-                fontSize: 9,
-                margin: [0,1,0,1],
-                bold: true
-            },
-            //item
-            item: {
-                fontSize: 9,
-                margin: [0,1,0,1]
             }
-        }
-    };
+        };
 
 
-    pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>.pdf');
+        pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>.pdf');
 
     </script>
 
 
-<?php
+    <?php
 
 }
 

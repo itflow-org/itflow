@@ -32,9 +32,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $
                     ?>
                     <option <?php if ($year == $payment_year) { ?> selected <?php } ?> > <?php echo $payment_year; ?></option>
 
-                    <?php
-                }
-                ?>
+                <?php } ?>
 
             </select>
         </form>
@@ -76,4 +74,5 @@ $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $
     </div>
 </div>
 
-<?php require_once("footer.php"); ?>
+<?php
+require_once("footer.php");

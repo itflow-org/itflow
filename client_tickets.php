@@ -18,7 +18,7 @@ $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, '
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM tickets 
+    "SELECT SQL_CALC_FOUND_ROWS * FROM tickets
     LEFT JOIN contacts ON ticket_contact_id = contact_id
     LEFT JOIN users ON ticket_assigned_to = user_id
     LEFT JOIN assets ON ticket_asset_id = asset_id
@@ -104,8 +104,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     if (empty($ticket_updated_at)) {
                         if ($ticket_status == "Closed") {
                             $ticket_updated_at_display = "<p>Never</p>";
-                        }
-                        else{
+                        } else{
                             $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
                         }
                     } else {
@@ -117,7 +116,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
                     } elseif ($ticket_status == "Working") {
                         $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
-                    } else{
+                    } else {
                         $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
                     }
 
@@ -134,8 +133,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     if (empty($ticket_assigned_to)) {
                         if ($ticket_status == "Closed") {
                             $ticket_assigned_to_display = "<p>Not Assigned</p>";
-                        }
-                        else {
+                        } else {
                             $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
                         }
                     } else {

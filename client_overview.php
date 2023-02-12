@@ -1,4 +1,6 @@
-<?php require_once("inc_all_client.php");
+<?php
+
+require_once("inc_all_client.php");
 
 $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contacts.company_id = $session_company_id ORDER BY contact_updated_at, contact_created_at DESC LIMIT 5");
 

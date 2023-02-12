@@ -1,11 +1,10 @@
-<?php require_once("inc_all_client.php"); ?>
-
 <?php
+require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-  $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
 } else {
-  $sb = "certificate_name";
+    $sb = "certificate_name";
 }
 
 //Rebuild URL
@@ -20,92 +19,92 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 ?>
 
 <div class="card card-dark">
-  <div class="card-header py-2">
-    <h3 class="card-title mt-2"><i class="fa fa-fw fa-lock"></i> Certificates</h3>
-    <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCertificateModal"><i class="fas fa-fw fa-plus"></i> New Certificate</button>
+    <div class="card-header py-2">
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-lock"></i> Certificates</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCertificateModal"><i class="fas fa-fw fa-plus"></i> New Certificate</button>
+        </div>
     </div>
-  </div>
-  <div class="card-body">
-    <form autocomplete="off">
-      <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-      <div class="row">
+    <div class="card-body">
+        <form autocomplete="off">
+            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <div class="row">
 
-        <div class="col-md-4">
-          <div class="input-group mb-3 mb-md-0">
-            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Certificates">
-            <div class="input-group-append">
-              <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-8">
-          <div class="float-right">
-            <a href="post.php?export_client_certificates_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
-          </div>
-        </div>
-
-      </div>
-    </form>
-    <hr>
-    <div class="table-responsive">
-      <table class="table table-striped table-borderless table-hover">
-        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-          <tr>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_name&o=<?php echo $disp; ?>">Name</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_domain&o=<?php echo $disp; ?>">Domain</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_issued_by&o=<?php echo $disp; ?>">Issued By</a></th>
-            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_expire&o=<?php echo $disp; ?>">Expire</a></th>
-            <th class="text-center">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php
-
-          while ($row = mysqli_fetch_array($sql)) {
-            $certificate_id = $row['certificate_id'];
-            $certificate_name = htmlentities($row['certificate_name']);
-            $certificate_domain = htmlentities($row['certificate_domain']);
-            $certificate_issued_by = htmlentities($row['certificate_issued_by']);
-            $certificate_expire = htmlentities($row['certificate_expire']);
-
-          ?>
-          <tr>
-            <td><a class="text-dark" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal"><?php echo $certificate_name; ?></a></td>
-            <td><?php echo $certificate_domain; ?></td>
-            <td><?php echo $certificate_issued_by; ?></td>
-            <td><?php echo $certificate_expire; ?></td>
-            <td>
-              <div class="dropdown dropleft text-center">
-                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                  <i class="fas fa-ellipsis-h"></i>
-                </button>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal">Edit</a>
-                  <?php if ($session_user_role == 3) { ?>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item text-danger" href="post.php?delete_certificate=<?php echo $certificate_id; ?>">Delete</a>
-                  <?php } ?>
+                <div class="col-md-4">
+                    <div class="input-group mb-3 mb-md-0">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Certificates">
+                        <div class="input-group-append">
+                            <button class="btn btn-dark"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </td>
-          </tr>
 
-          <?php
-          }
-          ?>
+                <div class="col-md-8">
+                    <div class="float-right">
+                        <a href="post.php?export_client_certificates_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
+                    </div>
+                </div>
 
-        </tbody>
-      </table>
+            </div>
+        </form>
+        <hr>
+        <div class="table-responsive">
+            <table class="table table-striped table-borderless table-hover">
+                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                <tr>
+                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_name&o=<?php echo $disp; ?>">Name</a></th>
+                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_domain&o=<?php echo $disp; ?>">Domain</a></th>
+                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_issued_by&o=<?php echo $disp; ?>">Issued By</a></th>
+                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_expire&o=<?php echo $disp; ?>">Expire</a></th>
+                    <th class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+
+                while ($row = mysqli_fetch_array($sql)) {
+                    $certificate_id = $row['certificate_id'];
+                    $certificate_name = htmlentities($row['certificate_name']);
+                    $certificate_domain = htmlentities($row['certificate_domain']);
+                    $certificate_issued_by = htmlentities($row['certificate_issued_by']);
+                    $certificate_expire = htmlentities($row['certificate_expire']);
+
+                    ?>
+                    <tr>
+                        <td><a class="text-dark" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal"><?php echo $certificate_name; ?></a></td>
+                        <td><?php echo $certificate_domain; ?></td>
+                        <td><?php echo $certificate_issued_by; ?></td>
+                        <td><?php echo $certificate_expire; ?></td>
+                        <td>
+                            <div class="dropdown dropleft text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal">Edit</a>
+                                    <?php if ($session_user_role == 3) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger" href="post.php?delete_certificate=<?php echo $certificate_id; ?>">Delete</a>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <?php
+                }
+                ?>
+
+                </tbody>
+            </table>
+        </div>
+        <?php require_once("pagination.php"); ?>
     </div>
-    <?php include("pagination.php"); ?>
-  </div>
 </div>
 
 <?php
-include("client_certificate_edit_modal.php");
-include("client_certificate_add_modal.php");
+require_once("client_certificate_edit_modal.php");
+require_once("client_certificate_add_modal.php");
 ?>
 
 <script>

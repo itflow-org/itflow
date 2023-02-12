@@ -59,12 +59,12 @@ $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, '
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS transfer_created_at, expense_date AS transfer_date, expense_amount AS transfer_amount, expense_account_id AS transfer_account_from, revenue_account_id AS transfer_account_to, transfer_expense_id, transfer_revenue_id , transfer_id, transfer_notes FROM transfers, expenses, revenues 
-  WHERE transfer_expense_id = expense_id 
-  AND transfer_revenue_id = revenue_id 
-  AND transfers.company_id = $session_company_id
-  AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
-  ORDER BY $sb $o LIMIT $record_from, $record_to"
+    "SELECT SQL_CALC_FOUND_ROWS transfer_created_at, expense_date AS transfer_date, expense_amount AS transfer_amount, expense_account_id AS transfer_account_from, revenue_account_id AS transfer_account_to, transfer_expense_id, transfer_revenue_id , transfer_id, transfer_notes FROM transfers, expenses, revenues
+    WHERE transfer_expense_id = expense_id 
+    AND transfer_revenue_id = revenue_id
+    AND transfers.company_id = $session_company_id
+    AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
+    ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));

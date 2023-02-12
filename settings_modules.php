@@ -1,5 +1,4 @@
 <?php
-
 require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">

@@ -40,7 +40,7 @@
                     </ul>
                 </div>
 
-            <?php }else{ ?>
+            <?php } else { ?>
 
                 <h5 class="brand-text text-light my-3"><?php echo htmlentities($session_company_name); ?></h5>
 
@@ -93,9 +93,9 @@
                         </a>
                     </li>
 
-                <?php } ?>
+                <?php }
 
-                <?php if ($config_module_enable_accounting == 1) { ?>
+                if ($config_module_enable_accounting == 1) { ?>
 
                     <li class="nav-header mt-3">SALES</li>
                     <li class="nav-item">
@@ -129,9 +129,9 @@
                         </a>
                     </li>
 
-                <?php } ?>
+                <?php }
 
-                <?php if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
+                if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
 
                     <li class="nav-header mt-3">ACCOUNTING</li>
                     <li class="nav-item">
@@ -173,9 +173,9 @@
                         </a>
                     </li>
 
-                <?php } ?>
+                <?php }
 
-                <?php if ($session_user_role == 3) { ?>
+                if ($session_user_role == 3) { ?>
 
                     <li class="nav-item mt-3">
                         <a href="users.php" class="nav-link">

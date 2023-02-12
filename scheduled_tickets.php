@@ -14,9 +14,9 @@ $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, '
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM scheduled_tickets
-  LEFT JOIN clients on scheduled_ticket_client_id = client_id
-  WHERE scheduled_tickets.scheduled_ticket_subject LIKE '%$q%'
-  ORDER BY $sb $o LIMIT $record_from, $record_to"
+    LEFT JOIN clients on scheduled_ticket_client_id = client_id
+    WHERE scheduled_tickets.scheduled_ticket_subject LIKE '%$q%'
+    ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -66,43 +66,42 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                    $scheduled_ticket_id = $row['scheduled_ticket_id'];
-                    $scheduled_ticket_client_id = $row['client_id'];
-                    $scheduled_ticket_subject = htmlentities($row['scheduled_ticket_subject']);
-                    $scheduled_ticket_priority = htmlentities($row['scheduled_ticket_priority']);
-                    $scheduled_ticket_frequency = htmlentities($row['scheduled_ticket_frequency']);
-                    $scheduled_ticket_next_run = $row['scheduled_ticket_next_run'];
-                    $scheduled_ticket_client_name = htmlentities($row['client_name']);
-                    ?>
+                        $scheduled_ticket_id = $row['scheduled_ticket_id'];
+                        $scheduled_ticket_client_id = $row['client_id'];
+                        $scheduled_ticket_subject = htmlentities($row['scheduled_ticket_subject']);
+                        $scheduled_ticket_priority = htmlentities($row['scheduled_ticket_priority']);
+                        $scheduled_ticket_frequency = htmlentities($row['scheduled_ticket_frequency']);
+                        $scheduled_ticket_next_run = $row['scheduled_ticket_next_run'];
+                        $scheduled_ticket_client_name = htmlentities($row['client_name']);
+                        ?>
 
-                    <tr>
-                        <td><a> <?php echo $scheduled_ticket_client_name ?></a></td>
-                        <td><a href="#" data-toggle="modal" data-target="#editScheduledTicketModal"
-                               onclick="populateScheduledTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?> </a></td>                            <td><a> <?php echo $scheduled_ticket_priority ?></a></td>
-                        <td><a> <?php echo $scheduled_ticket_frequency ?></a></td>
-                        <td><a> <?php echo $scheduled_ticket_next_run ?></a></td>
+                        <tr>
+                            <td><a> <?php echo $scheduled_ticket_client_name ?></a></td>
+                            <td><a href="#" data-toggle="modal" data-target="#editScheduledTicketModal"
+                                   onclick="populateScheduledTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?> </a></td>                            <td><a> <?php echo $scheduled_ticket_priority ?></a></td>
+                            <td><a> <?php echo $scheduled_ticket_frequency ?></a></td>
+                            <td><a> <?php echo $scheduled_ticket_next_run ?></a></td>
 
-                        <td>
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal"
-                                       data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)">Edit</a>
-                                    <?php
-                                    if ($session_user_role == 3) { ?>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger" href="post.php?delete_scheduled_ticket=<?php echo $scheduled_ticket_id; ?>">Delete</a>
+                            <td>
+                                <div class="dropdown dropleft text-center">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                           data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)">Edit</a>
+                                        <?php
+                                        if ($session_user_role == 3) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger" href="post.php?delete_scheduled_ticket=<?php echo $scheduled_ticket_id; ?>">Delete</a>
+                                        <?php } ?>
+                                    </div>
                                 </div>
-                                <?php
-                                } ?>
-                            </div>
-                            <?php
-                            }
-                            ?>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+
+                    <?php } ?>
+
                     </tbody>
                 </table>
             </div>

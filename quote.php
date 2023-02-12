@@ -413,7 +413,7 @@ require_once("footer.php");
 ?>
 
 <!-- JSON Autocomplete / type ahead -->
-<!-- //TODO: Not sure quite how to make this more modular to include elsewhere, I'll leave that design decision down to you.. -->
+<!-- //TODO: Move to js/ -->
 <link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
 <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
 <script>

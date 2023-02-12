@@ -25,8 +25,8 @@ $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, '
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM vendors 
-    WHERE vendor_template = 1 
+    "SELECT SQL_CALC_FOUND_ROWS * FROM vendors
+    WHERE vendor_template = 1
     AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' OR vendor_website LIKE '%$q%' OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_phone LIKE '%$phone_query%') ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 

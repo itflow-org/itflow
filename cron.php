@@ -5,7 +5,7 @@ require_once("functions.php");
 
 $sql_companies = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id");
 
-while($row = mysqli_fetch_array($sql_companies)){
+while ($row = mysqli_fetch_array($sql_companies)) {
     $company_id = $row['company_id'];
     $company_name = $row['company_name'];
     $company_phone = formatPhoneNumber($row['company_phone']);
@@ -127,7 +127,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
         $domainAlertArray = [1,7,14,30,90,120];
 
-        foreach($domainAlertArray as $day){
+        foreach ($domainAlertArray as $day) {
 
             //Get Domains Expiring
             $sql = mysqli_query(
@@ -138,7 +138,7 @@ while($row = mysqli_fetch_array($sql_companies)){
                 AND domains.company_id = $company_id"
             );
 
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
                 $domain_id = $row['domain_id'];
                 $domain_name = mysqli_real_escape_string($mysqli, $row['domain_name']);
                 $domain_expire = $row['domain_expire'];
@@ -155,7 +155,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
         $certificateAlertArray = [1,7,14,30,90,120];
 
-        foreach($certificateAlertArray as $day){
+        foreach ($certificateAlertArray as $day) {
 
             //Get Certs Expiring
             $sql = mysqli_query(
@@ -166,7 +166,7 @@ while($row = mysqli_fetch_array($sql_companies)){
                 AND certificates.company_id = $company_id"
             );
 
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
                 $certificate_id = $row['certificate_id'];
                 $certificate_name = mysqli_real_escape_string($mysqli, $row['certificate_name']);
                 $certificate_domain = $row['certificate_domain'];
@@ -184,18 +184,18 @@ while($row = mysqli_fetch_array($sql_companies)){
 
         $warranty_alert_array = [1,7,14,30,90,120];
 
-        foreach($warranty_alert_array as $day){
+        foreach ($warranty_alert_array as $day) {
 
             //Get Asset Warranty Expiring
             $sql = mysqli_query(
                 $mysqli,
-                "SELECT * FROM assets 
+                "SELECT * FROM assets
                 LEFT JOIN clients ON asset_client_id = client_id
                 WHERE asset_warranty_expire = CURDATE() + INTERVAL $day DAY
                 AND assets.company_id = $company_id"
             );
 
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
                 $asset_id = $row['asset_id'];
                 $asset_name = mysqli_real_escape_string($mysqli, $row['asset_name']);
                 $asset_warranty_expire = $row['asset_warranty_expire'];
@@ -217,8 +217,8 @@ while($row = mysqli_fetch_array($sql_companies)){
         // Get scheduled tickets for today
         $sql_scheduled_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_next_run = '$today_text'");
 
-        if(mysqli_num_rows($sql_scheduled_tickets) > 0){
-            while($row = mysqli_fetch_array($sql_scheduled_tickets)){
+        if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
+            while ($row = mysqli_fetch_array($sql_scheduled_tickets)) {
                 $schedule_id = $row['scheduled_ticket_id'];
                 $subject = mysqli_real_escape_string($mysqli, $row['scheduled_ticket_subject']);
                 $details = mysqli_real_escape_string($mysqli, $row['scheduled_ticket_details']);
@@ -246,11 +246,14 @@ while($row = mysqli_fetch_array($sql_companies)){
                 if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 
                     // Get contact/ticket/company details
-                    $sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets 
-                      LEFT JOIN clients ON ticket_client_id = client_id 
-                      LEFT JOIN contacts ON ticket_contact_id = contact_id
-                      LEFT JOIN companies ON tickets.company_id = companies.company_id
-                      WHERE ticket_id = $id AND tickets.company_id = $company_id");
+                    $sql = mysqli_query(
+                        $mysqli,
+                        "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets
+                        LEFT JOIN clients ON ticket_client_id = client_id
+                        LEFT JOIN contacts ON ticket_contact_id = contact_id
+                        LEFT JOIN companies ON tickets.company_id = companies.company_id
+                        WHERE ticket_id = $id AND tickets.company_id = $company_id"
+                    );
                     $row = mysqli_fetch_array($sql);
 
                     $contact_name = $row['contact_name'];
@@ -261,7 +264,7 @@ while($row = mysqli_fetch_array($sql_companies)){
                     $company_phone = formatPhoneNumber($row['company_phone']);
 
                     // Verify contact email is valid
-                    if(filter_var($contact_email, FILTER_VALIDATE_EMAIL)){
+                    if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
                         $subject = "Ticket created - [$ticket_prefix$ticket_number] - $ticket_subject (scheduled)";
                         $body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$ticket_subject\" has been automatically created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
@@ -289,24 +292,24 @@ while($row = mysqli_fetch_array($sql_companies)){
                 }
 
                 // Set the next run date
-                if($frequency == "weekly"){
+                if ($frequency == "weekly") {
                     // Note: We seemingly have to initialize a new datetime for each loop to avoid stacking the dates
                     $now = new DateTime();
                     $next_run = date_add($now, date_interval_create_from_date_string('1 week'));
                 }
-                elseif($frequency == "monthly"){
+                elseif ($frequency == "monthly") {
                     $now = new DateTime();
                     $next_run = date_add($now, date_interval_create_from_date_string('1 month'));
                 }
-                elseif($frequency == "quarterly"){
+                elseif ($frequency == "quarterly") {
                     $now = new DateTime();
                     $next_run = date_add($now, date_interval_create_from_date_string('3 months'));
                 }
-                elseif($frequency == "biannually"){
+                elseif ($frequency == "biannually") {
                     $now = new DateTime();
                     $next_run = date_add($now, date_interval_create_from_date_string('6 months'));
                 }
-                elseif($frequency == "annually"){
+                elseif ($frequency == "annually") {
                     $now = new DateTime();
                     $next_run = date_add($now, date_interval_create_from_date_string('12 months'));
                 }
@@ -323,7 +326,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         //$invoiceAlertArray = [$config_invoice_overdue_reminders];
         $invoiceAlertArray = [30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620];
 
-        foreach($invoiceAlertArray as $day){
+        foreach ($invoiceAlertArray as $day) {
 
             $sql = mysqli_query(
                 $mysqli,
@@ -338,7 +341,7 @@ while($row = mysqli_fetch_array($sql_companies)){
                 ORDER BY invoice_number DESC"
             );
 
-            while($row = mysqli_fetch_array($sql)){
+            while ($row = mysqli_fetch_array($sql)) {
                 $invoice_id = $row['invoice_id'];
                 $invoice_prefix = $row['invoice_prefix'];
                 $invoice_number = $row['invoice_number'];
@@ -392,7 +395,7 @@ while($row = mysqli_fetch_array($sql_companies)){
         //Loop through all recurring that match today's date and is active
         $sql_recurring = mysqli_query($mysqli, "SELECT * FROM recurring LEFT JOIN clients ON client_id = recurring_client_id WHERE recurring_next_date = CURDATE() AND recurring_status = 1 AND recurring.company_id = $company_id");
 
-        while($row = mysqli_fetch_array($sql_recurring)){
+        while ($row = mysqli_fetch_array($sql_recurring)) {
             $recurring_id = $row['recurring_id'];
             $recurring_scope = $row['recurring_scope'];
             $recurring_frequency = $row['recurring_frequency'];
@@ -427,7 +430,7 @@ while($row = mysqli_fetch_array($sql_companies)){
             //Copy Items from original recurring invoice to new invoice
             $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id ORDER BY item_id ASC");
 
-            while($row = mysqli_fetch_array($sql_invoice_items)){
+            while ($row = mysqli_fetch_array($sql_invoice_items)) {
                 $item_id = $row['item_id'];
                 $item_name = mysqli_real_escape_string($mysqli, $row['item_name']); //SQL Escape incase of ,
                 $item_description = mysqli_real_escape_string($mysqli, $row['item_description']); //SQL Escape incase of ,
@@ -451,7 +454,7 @@ while($row = mysqli_fetch_array($sql_companies)){
 
             mysqli_query($mysqli, "UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
 
-            if($config_recurring_auto_send_invoice == 1){
+            if ($config_recurring_auto_send_invoice == 1) {
                 $sql = mysqli_query(
                     $mysqli,
                     "SELECT * FROM invoices

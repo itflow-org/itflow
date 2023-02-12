@@ -10,10 +10,12 @@ if (!empty($_GET['sb'])) {
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM companies, settings
-  WHERE companies.company_id = settings.company_id
-  AND (company_name LIKE '%$q%')
-  ORDER BY $sb $o LIMIT $record_from, $record_to");
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT SQL_CALC_FOUND_ROWS * FROM companies, settings
+    WHERE companies.company_id = settings.company_id
+    AND (company_name LIKE '%$q%')
+    ORDER BY $sb $o LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
@@ -73,7 +75,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $company_initials = htmlentities(initials($company_name));
 
 
-
                         ?>
 
                         <tr>
@@ -81,11 +82,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <a class="text-dark" href="#" data-toggle="modal" data-target="#editCompanyModal<?php echo $company_id; ?>">
                                     <?php if (!empty($company_logo)) { ?>
                                         <img height="48" width="48" class="img-fluid rounded-circle" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
-                                    <?php }else{ ?>
+                                    <?php } else { ?>
                                         <span class="fa-stack fa-2x">
-                  <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                  <span class="fa fa-stack-1x text-white"><?php echo $company_initials; ?></span>
-                </span>
+                                            <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                                            <span class="fa fa-stack-1x text-white"><?php echo $company_initials; ?></span>
+                                        </span>
                                         <br>
                                     <?php } ?>
 

@@ -176,7 +176,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $log_description; ?></td>
                             <td><?php echo $log_ip; ?></td>
                             <td><?php echo "$log_user_os<br>$log_user_browser"; ?></td>
-                            <td><?php echo $log_entity_id; ?></td> 
+                            <td><?php echo $log_entity_id; ?></td>
                         </tr>
 
                         <?php
