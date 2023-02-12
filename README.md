@@ -39,7 +39,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About
 
-<b>A free ITGlue alternative, with additional ticketing / accounting features.</b>
+<b>A comprehensive, free & open-source documentation, ticket management, and accounting platform.</b>
 
 [![ITFlow][product-screenshot]](https://itflow.org)
 
@@ -104,6 +104,7 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
 * Accounting / Billing - finance dashboard, quotes, invoices, accounting, expenses, etc
 * Client Portal - self service quote/invoice/ticket management for clients
 * Alerting - account balance, invoices, domain/SSL renewals
+* Completely free & open-source alternative to ITGlue and Hudu
   
 <!-- ROADMAP -->
 ## Roadmap / Future to-do
