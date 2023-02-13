@@ -6607,28 +6607,31 @@ if(isset($_GET['delete_ticket'])){
     $ticket_id = intval($_GET['delete_ticket']);
 
     // Get Ticket and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT ticket_prefix, ticket_number, ticket_subject, ticket_client_id FROM tickets WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
+    $sql = mysqli_query($mysqli,"SELECT ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_client_id FROM tickets WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $ticket_prefix = strip_tags(mysqli_real_escape_string($mysqli,$row['ticket_prefix']));
     $ticket_number = strip_tags(mysqli_real_escape_string($mysqli,$row['ticket_number']));
     $ticket_subject = strip_tags(mysqli_real_escape_string($mysqli,$row['ticket_subject']));
+    $ticket_status = strip_tags(mysqli_real_escape_string($mysqli,$row['ticket_status']));
     $client_id = intval($row['ticket_client_id']);
 
-    mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
+    if ($ticket_status !== 'Closed') {
+        mysqli_query($mysqli,"DELETE FROM tickets WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
-    // Delete all ticket replies
-    mysqli_query($mysqli,"DELETE FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id AND company_id = $session_company_id");
+        // Delete all ticket replies
+        mysqli_query($mysqli,"DELETE FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id AND company_id = $session_company_id");
 
-    // Delete all ticket views
-    mysqli_query($mysqli,"DELETE FROM ticket_views WHERE view_ticket_id = $ticket_id");
+        // Delete all ticket views
+        mysqli_query($mysqli,"DELETE FROM ticket_views WHERE view_ticket_id = $ticket_id");
 
-    // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Delete', log_description = '$session_name deleted ticket $ticket_prefix$ticket_number - $ticket_subject along with all replies', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id, company_id = $session_company_id");
+        // Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Delete', log_description = '$session_name deleted ticket $ticket_prefix$ticket_number - $ticket_subject along with all replies', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id, company_id = $session_company_id");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> along with all replies deleted";
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> along with all replies deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
 
 }
 
@@ -6649,8 +6652,7 @@ if(isset($_POST['add_ticket_reply'])){
 
     if(isset($_POST['public_reply_type'])){
         $ticket_reply_type = 'Public';
-    }
-    else{
+    } else {
         $ticket_reply_type = 'Internal';
     }
 
@@ -6661,6 +6663,10 @@ if(isset($_POST['add_ticket_reply'])){
 
     // Update Ticket Last Response Field
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
+
+    if ($ticket_status == 'Closed') {
+        mysqli_query($mysqli,"UPDATE tickets SET ticket_closed_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
+    }
 
     // Get Ticket Details
     $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone, ticket_client_id, ticket_created_by, ticket_assigned_to FROM tickets 
@@ -6815,7 +6821,7 @@ if(isset($_POST['merge_ticket'])){
 
     //Update current ticket
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number merged into $ticket_prefix$merge_into_ticket_number. Comment: $merge_comment', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed' WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed', ticket_closed_at = NOW() WHERE ticket_id = $ticket_id AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     //Update new ticket
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number was merged into this ticket with comment: $merge_comment.<br><b>$ticket_subject</b><br>$ticket_details', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $merge_into_ticket_id, company_id = $session_company_id") or die(mysqli_error($mysqli));
