@@ -2080,14 +2080,7 @@ if(isset($_POST['add_calendar'])){
 
 if(isset($_POST['add_event'])){
 
-    $calendar_id = intval($_POST['calendar']);
-    $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $start = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start'])));
-    $end = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['end'])));
-    $repeat = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['repeat'])));
-    $client = intval($_POST['client']);
-    $email_event = intval($_POST['email_event']);
+    require_once('models/event.php');
 
     mysqli_query($mysqli,"INSERT INTO events SET event_title = '$title', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client, company_id = $session_company_id");
 
@@ -2139,15 +2132,9 @@ if(isset($_POST['add_event'])){
 
 if(isset($_POST['edit_event'])){
 
+    require_once('models/event.php');
+
     $event_id = intval($_POST['event_id']);
-    $calendar_id = intval($_POST['calendar']);
-    $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $start = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start'])));
-    $end = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['end'])));
-    $repeat = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['repeat'])));
-    $client = intval($_POST['client']);
-    $email_event = intval($_POST['email_event']);
 
     mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client WHERE event_id = $event_id AND company_id = $session_company_id");
 
@@ -2222,18 +2209,7 @@ if(isset($_GET['delete_event'])){
 
 if(isset($_POST['add_vendor_template'])){
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $account_number = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number'])));
-    $contact_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name'])));
-    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $extension = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension'])));
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
-    $hours = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours'])));
-    $sla = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['sla'])));
-    $code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['code'])));
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    require_once('models/vendor.php');
 
     mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_template = 1, vendor_client_id = 0, company_id = $session_company_id");
 
@@ -2249,17 +2225,9 @@ if(isset($_POST['add_vendor_template'])){
 
 if(isset($_POST['edit_vendor_template'])){
 
+    require_once('models/vendor.php');
+
     $vendor_id = intval($_POST['vendor_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $contact_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name'])));
-    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $extension = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension'])));
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
-    $hours = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours'])));
-    $sla = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['sla'])));
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
     $vendor_template_id = intval($_POST['vendor_template_id']);
 
     if($_POST['update_base_vendors'] == 1) {
@@ -2321,19 +2289,9 @@ if(isset($_POST['add_vendor_from_template'])){
 
 if(isset($_POST['add_vendor'])){
 
-    $client_id = intval($_POST['client_id']); //Used if this vendor is under a contact otherwise its 0 for under company
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $account_number = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number'])));
-    $contact_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name'])));
-    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $extension = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension'])));
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
-    $hours = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours'])));
-    $sla = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['sla'])));
-    $code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['code'])));
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    require_once('models/vendor.php');
+
+    $client_id = intval($_POST['client_id']); // Used if this vendor is under a contact otherwise its 0 for under company
 
     mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_client_id = $client_id, company_id = $session_company_id");
 
@@ -2349,19 +2307,9 @@ if(isset($_POST['add_vendor'])){
 
 if(isset($_POST['edit_vendor'])){
 
+    require_once('models/vendor.php');
+
     $vendor_id = intval($_POST['vendor_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $account_number = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['account_number'])));
-    $contact_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_name'])));
-    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $extension = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['extension'])));
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['website'])));
-    $hours = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours'])));
-    $sla = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['sla'])));
-    $code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['code'])));
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
     $vendor_template_id = intval($_POST['vendor_template_id']);
 
     mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code',vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_template_id = $vendor_template_id WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
@@ -2466,11 +2414,7 @@ if(isset($_GET['export_client_vendors_csv'])){
 // Products
 if(isset($_POST['add_product'])){
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $price = floatval($_POST['price']);
-    $category = intval($_POST['category']);
-    $tax = intval($_POST['tax']);
+    require_once('models/product.php');
 
     mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_price = '$price', product_currency_code = '$session_company_currency', product_tax_id = $tax, product_category_id = $category, company_id = $session_company_id");
 
@@ -2485,12 +2429,9 @@ if(isset($_POST['add_product'])){
 
 if(isset($_POST['edit_product'])){
 
+    require_once('models/product.php');
+
     $product_id = intval($_POST['product_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $price = floatval($_POST['price']);
-    $category = intval($_POST['category']);
-    $tax = intval($_POST['tax']);
 
     mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_price = '$price', product_tax_id = $tax, product_category_id = $category WHERE product_id = $product_id AND company_id = $session_company_id");
 
@@ -2528,14 +2469,7 @@ if(isset($_GET['delete_product'])){
 
 if(isset($_POST['add_trip'])){
 
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
-    $source = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['source'])));
-    $destination = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination'])));
-    $miles = floatval($_POST['miles']);
-    $roundtrip = intval($_POST['roundtrip']);
-    $purpose = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose'])));
-    $user_id = intval($_POST['user']);
-    $client_id = intval($_POST['client']);
+    require_once('models/trip.php');
 
     mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_user_id = $user_id, trip_client_id = $client_id, company_id = $session_company_id");
 
@@ -2550,15 +2484,9 @@ if(isset($_POST['add_trip'])){
 
 if(isset($_POST['edit_trip'])){
 
+    require_once('models/trip.php');
+
     $trip_id = intval($_POST['trip_id']);
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
-    $source = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['source'])));
-    $destination = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['destination'])));
-    $miles = floatval($_POST['miles']);
-    $roundtrip = intval($_POST['roundtrip']);
-    $purpose = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purpose'])));
-    $user_id = intval($_POST['user']);
-    $client_id = intval($_POST['client']);
 
     mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_user_id = $user_id, trip_client_id = $client_id WHERE trip_id = $trip_id AND company_id = $session_company_id");
 
@@ -2654,9 +2582,7 @@ if(isset($_GET['delete_account'])){
 
 if(isset($_POST['add_category'])){
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
-    $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
+    require_once('models/category.php');
 
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = '$name', category_type = '$type', category_color = '$color', company_id = $session_company_id");
 
@@ -2671,10 +2597,9 @@ if(isset($_POST['add_category'])){
 
 if(isset($_POST['edit_category'])){
 
+    require_once('models/category.php');
+
     $category_id = intval($_POST['category_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
-    $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
 
     mysqli_query($mysqli,"UPDATE categories SET category_name = '$name', category_type = '$type', category_color = '$color' WHERE category_id = $category_id AND company_id = $session_company_id");
 
@@ -2721,10 +2646,7 @@ if(isset($_GET['delete_category'])){
 
 if(isset($_POST['add_tag'])){
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $type = intval($_POST['type']);
-    $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
-    $icon = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['icon'])));
+    require_once('models/tag.php');
 
     mysqli_query($mysqli,"INSERT INTO tags SET tag_name = '$name', tag_type = $type, tag_color = '$color', tag_icon = '$icon', company_id = $session_company_id");
 
@@ -2739,11 +2661,9 @@ if(isset($_POST['add_tag'])){
 
 if(isset($_POST['edit_tag'])){
 
+    require_once('models/tag.php');
+
     $tag_id = intval($_POST['tag_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $type = intval($_POST['type']);
-    $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
-    $icon = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['icon'])));
 
     mysqli_query($mysqli,"UPDATE tags SET tag_name = '$name', tag_type = $type, tag_color = '$color', tag_icon = '$icon' WHERE tag_id = $tag_id AND company_id = $session_company_id");
 
@@ -2878,64 +2798,36 @@ if(isset($_GET['dismiss_all_notifications'])){
 
 if(isset($_POST['add_expense'])){
 
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
-    $amount = floatval($_POST['amount']);
-    $account = intval($_POST['account']);
-    $vendor = intval($_POST['vendor']);
-    $category = intval($_POST['category']);
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
+    require_once('models/expense.php');
 
     mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', expense_currency_code = '$session_company_currency', expense_account_id = $account, expense_vendor_id = $vendor, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference', company_id = $session_company_id");
 
     $expense_id = mysqli_insert_id($mysqli);
 
-    //Check to see if a file is attached
-    if($_FILES['file']['tmp_name'] != ''){
+    // Check for and process attachment
+    $extended_alert_description = '';
+    if ($_FILES['file']['tmp_name'] != '') {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'pdf'))) {
 
-        // get details of the uploaded file
-        $file_error = 0;
-        $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = $_FILES['file']['name'];
-        $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+            $file_tmp_path = $_FILES['file']['tmp_name'];
 
-        // sanitize file-name
-        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
-
-        // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png', 'pdf');
-
-        if(in_array($file_extension,$allowed_file_extensions) === false){
-            $file_error = 1;
-        }
-
-        //Check File Size
-        if($file_size > 9097152){
-            $file_error = 1;
-        }
-
-        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/expenses/$session_company_id/";
             $dest_path = $upload_file_dir . $new_file_name;
-
             move_uploaded_file($file_tmp_path, $dest_path);
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
-
-            $_SESSION['alert_message'] = 'File successfully uploaded.';
-        }else{
-
-            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+            $extended_alert_description = '. File successfully uploaded.';
+        } else {
+            $_SESSION['alert_type'] = "error";
+            $extended_alert_description = '. Error uploading file. Check upload directory is writable/correct file type/size';
         }
     }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Create', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Expense added";
+    $_SESSION['alert_message'] = "Expense added" . $extended_alert_description;
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -2943,64 +2835,38 @@ if(isset($_POST['add_expense'])){
 
 if(isset($_POST['edit_expense'])){
 
+    require_once('models/expense.php');
+
     $expense_id = intval($_POST['expense_id']);
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
-    $amount = floatval($_POST['amount']);
-    $account = intval($_POST['account']);
-    $vendor = intval($_POST['vendor']);
-    $category = intval($_POST['category']);
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
 
-    //Check to see if a file is attached
-    if($_FILES['file']['tmp_name'] != ''){
 
-        // get details of the uploaded file
-        $file_error = 0;
-        $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = $_FILES['file']['name'];
-        $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+    // Check for and process attachment
+    $extended_alert_description = '';
+    if ($_FILES['file']['tmp_name'] != '') {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'pdf'))) {
 
-        // sanitize file-name
-        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
+            $file_tmp_path = $_FILES['file']['tmp_name'];
 
-        // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png', 'pdf');
-
-        if(in_array($file_extension,$allowed_file_extensions) === false){
-            $file_error = 1;
-        }
-
-        //Check File Size
-        if($file_size > 9097152){
-            $file_error = 1;
-        }
-
-        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/expenses/$session_company_id/";
             $dest_path = $upload_file_dir . $new_file_name;
-
             move_uploaded_file($file_tmp_path, $dest_path);
 
             //Delete old file
             unlink("uploads/expenses/$session_company_id/$existing_file_name");
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
-
-            $_SESSION['alert_message'] = 'File successfully uploaded.';
-        }else{
-
-            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+            $extended_alert_description = '. File successfully uploaded.';
+        } else {
+            $_SESSION['alert_type'] = "error";
+            $extended_alert_description = '. Error uploading file. Check upload directory is writable/correct file type/size';
         }
     }
 
     mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', expense_account_id = $account, expense_vendor_id = $vendor, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference' WHERE expense_id = $expense_id AND company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Expense modified";
+    $_SESSION['alert_message'] = "Expense modified" . $extended_alert_description;
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Modify', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -3087,11 +2953,7 @@ if(isset($_POST['export_expenses_csv'])){
 
 if(isset($_POST['add_transfer'])){
 
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
-    $amount = floatval($_POST['amount']);
-    $account_from = intval($_POST['account_from']);
-    $account_to = intval($_POST['account_to']);
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    require_once('models/transfer.php');
 
     mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = '$amount', expense_currency_code = '$session_company_currency', expense_vendor_id = 0, expense_category_id = 0, expense_account_id = $account_from, company_id = $session_company_id");
     $expense_id = mysqli_insert_id($mysqli);
@@ -3112,14 +2974,11 @@ if(isset($_POST['add_transfer'])){
 
 if(isset($_POST['edit_transfer'])){
 
+    require_once('models/transfer.php');
+
     $transfer_id = intval($_POST['transfer_id']);
     $expense_id = intval($_POST['expense_id']);
     $revenue_id = intval($_POST['revenue_id']);
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
-    $amount = floatval($_POST['amount']);
-    $account_from = intval($_POST['account_from']);
-    $account_to = intval($_POST['account_to']);
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
 
     mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = '$amount', expense_account_id = $account_from WHERE expense_id = $expense_id AND company_id = $session_company_id");
 
@@ -3139,9 +2998,8 @@ if(isset($_POST['edit_transfer'])){
 if(isset($_GET['delete_transfer'])){
     $transfer_id = intval($_GET['delete_transfer']);
 
-    //Query the transfer ID to get the Payment and Expense IDs so we can delete those as well
-    $sql = mysqli_query($mysqli,"SELECT * FROM transfers WHERE transfer_id = $transfer_id AND company_id = $session_company_id");
-    $row = mysqli_fetch_array($sql);
+    //Query the transfer ID to get the Payment and Expense IDs, so we can delete those as well
+    $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT * FROM transfers WHERE transfer_id = $transfer_id AND company_id = $session_company_id"));
     $expense_id = $row['transfer_expense_id'];
     $revenue_id = $row['transfer_revenue_id'];
 
@@ -3161,10 +3019,10 @@ if(isset($_GET['delete_transfer'])){
 }
 
 if(isset($_POST['add_invoice'])){
+
+    require_once('models/invoice.php');
+
     $client = intval($_POST['client']);
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
-    $category = intval($_POST['category']);
-    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
 
     //Get Net Terms
     $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients WHERE client_id = $client AND company_id = $session_company_id");
@@ -3194,11 +3052,10 @@ if(isset($_POST['add_invoice'])){
 
 if(isset($_POST['edit_invoice'])){
 
+    require_once('models/invoice.php');
+
     $invoice_id = intval($_POST['invoice_id']);
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
     $due = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['due'])));
-    $category = intval($_POST['category']);
-    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_scope = '$scope', invoice_date = '$date', invoice_due = '$due', invoice_category_id = $category WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
@@ -3319,10 +3176,9 @@ if(isset($_POST['add_invoice_recurring'])){
 
 if(isset($_POST['add_quote'])){
 
+    require_once('models/quote.php');
+
     $client = intval($_POST['client']);
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
-    $category = intval($_POST['category']);
-    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
 
     //Get the last Quote Number and add 1 for the new Quote number
     $quote_number = $config_quote_next_number;
@@ -3509,10 +3365,9 @@ if(isset($_POST['quote_note'])){
 
 if(isset($_POST['edit_quote'])){
 
+    require_once('models/quote.php');
+
     $quote_id = intval($_POST['quote_id']);
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
-    $category = intval($_POST['category']);
-    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_category_id = $category WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
@@ -4410,23 +4265,9 @@ if(isset($_POST['add_contact'])){
 
     validateTechRole();
 
-    $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
-    $department = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department'])));
-    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
-    $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $primary_contact = intval($_POST['primary_contact']);
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
-    $contact_important = intval($_POST['contact_important']);
-    $contact_billing = intval($_POST['contact_billing']);
-    $contact_technical = intval($_POST['contact_technical']);
-    $location_id = intval($_POST['location']);
-    $auth_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['auth_method'])));
-    $password = password_hash(randomString(), PASSWORD_DEFAULT);
+    require_once('models/contact.php');
 
+    $password = password_hash(randomString(), PASSWORD_DEFAULT);
 
     if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
@@ -4441,52 +4282,30 @@ if(isset($_POST['add_contact'])){
         mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");
     }
 
-    //Check to see if a file is attached
-    if($_FILES['file']['tmp_name'] != ''){
+    // Check for and process image/photo
+    $extended_alert_description = '';
+    if ($_FILES['file']['tmp_name'] != '') {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
-        // get details of the uploaded file
-        $file_error = 0;
-        $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = $_FILES['file']['name'];
-        $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+            $file_tmp_path = $_FILES['file']['tmp_name'];
 
-        // sanitize file-name
-        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
-
-        // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if(in_array($file_extension,$allowed_file_extensions) === false){
-            $file_error = 1;
-        }
-
-        //Check File Size
-        if($file_size > 2097152){
-            $file_error = 1;
-        }
-
-        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$session_company_id/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
-
             move_uploaded_file($file_tmp_path, $dest_path);
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '$new_file_name' WHERE contact_id = $contact_id");
-
-            $_SESSION['alert_message'] = 'Photo successfully uploaded. ';
-        }else{
-
-            $_SESSION['alert_message'] = 'There was an error moving the photo to the upload directory. Please make sure the upload directory is writable by web server.';
+            $extended_alert_description = '. File successfully uploaded.';
+        } else {
+            $_SESSION['alert_type'] = "error";
+            $extended_alert_description = '. Error uploading file. Check upload directory is writable/correct file type/size';
         }
     }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = '$session_name created contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] .= "Contact <strong>$name</strong> created";
+    $_SESSION['alert_message'] .= "Contact <strong>$name</strong> created" . $extended_alert_description;
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -4496,23 +4315,9 @@ if(isset($_POST['edit_contact'])){
 
     validateTechRole();
 
-    $contact_id = intval($_POST['contact_id']);
-    $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
-    $department = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['department'])));
-    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $extension = preg_replace("/[^0-9]/", '',$_POST['extension']);
-    $mobile = preg_replace("/[^0-9]/", '',$_POST['mobile']);
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
-    $primary_contact = intval($_POST['primary_contact']);
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
-    $contact_important = intval($_POST['contact_important']);
-    $contact_billing = intval($_POST['contact_billing']);
-    $contact_technical = intval($_POST['contact_technical']);
-    $location_id = intval($_POST['location']);
-    $auth_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['auth_method'])));
+    require_once('models/contact.php');
 
+    $contact_id = intval($_POST['contact_id']);
     $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
 
     if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
@@ -4559,7 +4364,7 @@ if(isset($_POST['edit_contact'])){
     // Check for and process image/photo
     $extended_alert_description = '';
     if ($_FILES['file']['tmp_name'] != '') {
-        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'gif', 'png'))) {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
             // Set directory in which the uploaded file will be moved
             $file_tmp_path = $_FILES['file']['tmp_name'];
