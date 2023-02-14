@@ -5540,6 +5540,7 @@ if(isset($_POST['edit_software'])){
 
     $software_id = intval($_POST['software_id']);
     $login_id = intval($_POST['login_id']);
+    $client_id = intval($_POST['client_id']);
     $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
     $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['version'])));
     $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
