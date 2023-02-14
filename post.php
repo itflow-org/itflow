@@ -6650,6 +6650,8 @@ if(isset($_POST['add_ticket_reply'])){
     $ticket_status = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['status'])));
     $ticket_reply_time_worked = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['time'])));
 
+    $client_id = intval($_POST['client_id']);
+
     if(isset($_POST['public_reply_type'])){
         $ticket_reply_type = 'Public';
     } else {
@@ -6753,12 +6755,14 @@ if(isset($_POST['edit_ticket_reply'])){
     $ticket_reply = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['ticket_reply']))));
     $ticket_reply_time_worked = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['time'])));
 
+    $client_id = intval($_POST['client_id']);
+
     mysqli_query($mysqli,"UPDATE ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_time_worked = '$ticket_reply_time_worked' WHERE ticket_reply_id = $ticket_reply_id AND ticket_reply_type != 'Client' AND company_id = $session_company_id") or die(mysqli_error($mysqli));
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update Modify', log_action = 'Modify', log_description = '$ticket_update_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Modify', log_description = '$session_name modified ticket reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_reply_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Ticket update modified";
+    $_SESSION['alert_message'] = "Ticket reply updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6773,9 +6777,10 @@ if(isset($_GET['archive_ticket_reply'])){
     mysqli_query($mysqli,"UPDATE ticket_replies SET ticket_reply_archived_at = NOW() WHERE ticket_reply_id = $ticket_reply_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Update', log_action = 'Archive', log_description = '$ticket_update_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Archive', log_description = '$session_name arhived ticket reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_reply_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Ticket update archived";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Ticket reply archived";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6830,6 +6835,7 @@ if(isset($_POST['merge_ticket'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Merged', log_description = 'Merged ticket $ticket_prefix$ticket_number into $ticket_prefix$merge_into_ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Ticket merged into $ticket_prefix$merge_into_ticket_number.";
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }

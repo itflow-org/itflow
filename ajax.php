@@ -170,7 +170,7 @@ if (isset($_POST['contact_set_notes'])) {
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['notes'])));
 
     // Update notes
-    mysqli_query($mysqli, "UPDATE contacts SET contact_notes = '$notes' WHERE contact_id = contact_id");
+    mysqli_query($mysqli, "UPDATE contacts SET contact_notes = '$notes' WHERE contact_id = $contact_id");
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact notes', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");

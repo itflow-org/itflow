@@ -251,6 +251,7 @@ if (isset($_GET['ticket_id'])) {
                 <?php if ($ticket_status != "Closed") { ?>
                     <form class="mb-3" action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
+                        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                         <div class="form-group">
                             <textarea class="form-control summernote" name="ticket_reply" required></textarea>
                         </div>
