@@ -50,7 +50,14 @@ if (isset($_GET['contact_id'])) {
 
     // Related Software Query
     //$sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
-    $sql_related_software = mysqli_query($mysqli, "SELECT * FROM software_contacts LEFT JOIN software ON software_contacts.software_id = software.software_id LEFT JOIN logins on software.software_id = logins.login_id WHERE software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
+    $sql_related_software = mysqli_query(
+        $mysqli,
+        "SELECT * FROM software_contacts 
+        LEFT JOIN software ON software_contacts.software_id = software.software_id 
+        LEFT JOIN logins on software.software_id = logins.login_software_id 
+        WHERE software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id 
+        ORDER BY software.software_id DESC"
+    );
 
     $software_count = mysqli_num_rows($sql_related_software);
 
