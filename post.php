@@ -4305,7 +4305,7 @@ if(isset($_POST['add_contact'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = '$session_name created contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] .= "Contact <strong>$name</strong> created" . $extended_alert_description;
+    $_SESSION['alert_message'] = "Contact <strong>$name</strong> created" . $extended_alert_description;
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -5556,8 +5556,8 @@ if(isset($_POST['edit_software'])){
         $expire = "0000-00-00";
     }
     $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
-    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['username'])));
-    $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
+    $username = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['username'])));
+    $password = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['password'])));
 
     mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = '$purchase', software_expire = '$expire', software_notes = '$notes' WHERE software_id = $software_id AND company_id = $session_company_id");
 
