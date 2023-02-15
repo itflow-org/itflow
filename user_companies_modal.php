@@ -14,6 +14,10 @@
 
                 <div class="modal-body bg-white">
 
+                    <div class="alert alert-danger" role="alert">
+                        <b>The multi-company feature is deprecated and should not be used.</b>
+                    </div>
+
                     <div class="alert alert-info">
                         Select Companies that the user will need access to
                     </div>

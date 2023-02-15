@@ -190,6 +190,7 @@ if(isset($_POST['edit_user'])){
 if(isset($_GET['activate_user'])){
 
     validateAdminRole();
+    validateCSRFToken($_GET['csrf_token']);
 
     $user_id = intval($_GET['activate_user']);
 
@@ -207,6 +208,7 @@ if(isset($_GET['activate_user'])){
 if(isset($_GET['disable_user'])){
 
     validateAdminRole();
+    validateCSRFToken($_GET['csrf_token']);
 
     $user_id = intval($_GET['disable_user']);
 
@@ -6836,7 +6838,7 @@ if(isset($_POST['merge_ticket'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Merged', log_description = 'Merged ticket $ticket_prefix$ticket_number into $ticket_prefix$merge_into_ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Ticket merged into $ticket_prefix$merge_into_ticket_number.";
-    
+
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }

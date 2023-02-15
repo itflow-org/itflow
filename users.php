@@ -10,11 +10,14 @@ if (!empty($_GET['sb'])) {
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM users, user_settings
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT SQL_CALC_FOUND_ROWS * FROM users, user_settings
     WHERE users.user_id = user_settings.user_id
     AND (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
     AND user_archived_at IS NULL
-    ORDER BY $sb $o LIMIT $record_from, $record_to");
+    ORDER BY $sb $o LIMIT $record_from, $record_to"
+);
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
@@ -67,9 +70,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $user_status = intval($row['user_status']);
                     if ($user_status == 2) {
                         $user_status_display = "<span class='text-info'>Invited</span>";
-                    }elseif ($user_status == 1) {
+                    } elseif ($user_status == 1) {
                         $user_status_display = "<span class='text-success'>Active</span>";
-                    }else{
+                    } else{
                         $user_status_display = "<span class='text-danger'>Disabled</span>";
                     }
                     $user_avatar = htmlentities($row['user_avatar']);
@@ -78,9 +81,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $user_role = $row['user_role'];
                     if ($user_role == 3) {
                         $user_role_display = "Administrator";
-                    }elseif ($user_role == 2) {
+                    } elseif ($user_role == 2) {
                         $user_role_display = "Technician";
-                    }else{
+                    } else {
                         $user_role_display = "Accountant";
                     }
                     $user_company_access_sql = mysqli_query($mysqli, "SELECT company_id FROM user_companies WHERE user_id = $user_id");
@@ -95,8 +98,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $sql_last_login = mysqli_query(
                         $mysqli,
                         "SELECT * FROM logs 
-              WHERE log_user_id = $user_id AND log_type = 'Login'
-              ORDER BY log_id DESC LIMIT 1"
+                        WHERE log_user_id = $user_id AND log_type = 'Login'
+                        ORDER BY log_id DESC LIMIT 1"
                     );
                     $row = mysqli_fetch_array($sql_last_login);
                     $log_created_at = $row['log_created_at'];
@@ -115,11 +118,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <a class="text-dark" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">
                                 <?php if (!empty($user_avatar)) { ?>
                                     <img class="img-size-50 img-circle" src="<?php echo "uploads/users/$user_id/$user_avatar"; ?>">
-                                <?php }else{ ?>
+                                <?php } else { ?>
                                     <span class="fa-stack fa-2x">
-                  <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                  <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
-                </span>
+                                        <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                                        <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
+                                    </span>
                                     <br>
                                 <?php } ?>
 
@@ -142,9 +145,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">Edit</a>
                                     <?php if ($user_status == 0) { ?>
-                                        <a class="dropdown-item text-success" href="post.php?activate_user=<?php echo $user_id; ?>">Activate</a>
+                                        <a class="dropdown-item text-success" href="post.php?activate_user=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">Activate</a>
                                     <?php }elseif ($user_status == 1) { ?>
-                                        <a class="dropdown-item text-danger" href="post.php?disable_user=<?php echo $user_id; ?>">Disable</a>
+                                        <a class="dropdown-item text-danger" href="post.php?disable_user=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">Disable</a>
                                     <?php } ?>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserCompaniesModal<?php echo $user_id; ?>">Company Access</a>
@@ -157,9 +160,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <?php
 
-                    include("user_edit_modal.php");
-                    include("user_companies_modal.php");
-                    include("user_archive_modal.php");
+                    require("user_edit_modal.php");
+                    require("user_companies_modal.php");
+                    require("user_archive_modal.php");
 
                 }
 
@@ -168,7 +171,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </tbody>
             </table>
         </div>
-        <?php include("pagination.php"); ?>
+        <?php require_once("pagination.php"); ?>
     </div>
 </div>
 <script>
@@ -179,9 +182,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-include("user_add_modal.php");
-include("user_invite_modal.php");
-
-include("footer.php");
-
-?>
+require_once("user_add_modal.php");
+require_once("user_invite_modal.php");
+require_once("footer.php");
