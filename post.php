@@ -18,7 +18,7 @@ if(isset($_GET['switch_company'])){
     //Get Company Name
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $company_id");
     $row = mysqli_fetch_array($sql);
-    $company_name = $row['company_name'];
+    $company_name = strip_tags(mysqli_real_escape_string($mysqli,$row['company_name']));
 
     //Check to see if user has Permission to access the company
     if(in_array($company_id,$session_user_company_access_array)){
@@ -197,7 +197,7 @@ if(isset($_GET['activate_user'])){
     // Get User Name
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
-    $user_name = $row['user_name'];
+    $user_name = strip_tags(mysqli_real_escape_string($mysqli,$row['user_name']));
 
     mysqli_query($mysqli,"UPDATE users SET user_status = 1 WHERE user_id = $user_id");
 
@@ -220,7 +220,7 @@ if(isset($_GET['disable_user'])){
     // Get User Name
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
-    $user_name = $row['user_name'];
+    $user_name = strip_tags(mysqli_real_escape_string($mysqli,$row['user_name']));
 
     mysqli_query($mysqli,"UPDATE users SET user_status = 0 WHERE user_id = $user_id");
 
@@ -402,7 +402,7 @@ if(isset($_GET['archive_user'])){
     // Get user details
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
-    $name = $row['user_name'];
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$row['user_name']));
 
     // Archive user query
     mysqli_query($mysqli,"UPDATE users SET user_name = '$name (archived)', user_password = '$password', user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
@@ -454,7 +454,7 @@ if(isset($_GET['delete_api_key'])){
 
     // Get API Key Name
     $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT * FROM api_keys WHERE api_key_id = $api_key_id AND company_id = $session_company_id"));
-    $name = $row['api_key_name'];
+    $name = strip_tags(mysqli_real_escape_string($mysqli,$row['api_key_name']));
 
     mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_id = $api_key_id AND company_id = $session_company_id");
 
@@ -637,7 +637,7 @@ if(isset($_GET['archive_company'])){
     //Get Company Name
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $company_id");
     $row = mysqli_fetch_array($sql);
-    $company_name = $row['company_name'];
+    $company_name = strip_tags(mysqli_real_escape_string($mysqli,$row['company_name']));
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Archive', log_description = '$session_name archived company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
@@ -659,7 +659,7 @@ if(isset($_GET['delete_company'])){
     // Get Company Name
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $company_id");
     $row = mysqli_fetch_array($sql);
-    $company_name = $row['company_name'];
+    $company_name = strip_tags(mysqli_real_escape_string($mysqli,$row['company_name']));
 
     // Delete Company and all relational data A-Z
 
@@ -1070,16 +1070,16 @@ if(isset($_POST['send_telemetry_data'])){
 
     validateAdminRole();
 
-    $comments = $_POST['comments'];
+    $comments = strip_tags(mysqli_real_escape_string($mysqli,$_POST['comments']));
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies LIMIT 1");
     $row = mysqli_fetch_array($sql);
 
-    $company_name = $row['company_name'];
-    $city = $row['company_city'];
-    $state = $row['company_state'];
-    $country = $row['company_country'];
-    $currency = $row['company_currency'];
+    $company_name = strip_tags(mysqli_real_escape_string($mysqli,$row['company_name']));
+    $city = strip_tags(mysqli_real_escape_string($mysqli,$row['company_city']));
+    $state = strip_tags(mysqli_real_escape_string($mysqli,$row['company_state']));
+    $country = strip_tags(mysqli_real_escape_string($mysqli,$row['company_country']));
+    $currency = strip_tags(mysqli_real_escape_string($mysqli,$row['company_currency']));
     $current_version = exec("git rev-parse HEAD");
 
     // Client Count
@@ -1503,11 +1503,11 @@ if(isset($_GET['update'])){
         $sql = mysqli_query($mysqli,"SELECT * FROM companies LIMIT 1");
         $row = mysqli_fetch_array($sql);
 
-        $company_name = $row['company_name'];
-        $city = $row['company_city'];
-        $state = $row['company_state'];
-        $country = $row['company_country'];
-        $currency = $row['company_currency'];
+        $company_name = strip_tags(mysqli_real_escape_string($mysqli,$row['company_name']));
+        $city = strip_tags(mysqli_real_escape_string($mysqli,$row['company_city']));
+        $state = strip_tags(mysqli_real_escape_string($mysqli,$row['company_state']));
+        $country = strip_tags(mysqli_real_escape_string($mysqli,$row['company_country']));
+        $currency = strip_tags(mysqli_real_escape_string($mysqli,$row['company_currency']));
         $current_version = exec("git rev-parse HEAD");
 
         // Client Count
