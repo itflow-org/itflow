@@ -18,7 +18,7 @@ if(isset($_GET['switch_company'])){
     //Get Company Name
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $company_id");
     $row = mysqli_fetch_array($sql);
-    $company_name = strip_tags(mysqli_real_escape_string($mysqli,$row['company_name']));
+    $company_name = sanitizeInput($row['company_name']);
 
     //Check to see if user has Permission to access the company
     if(in_array($company_id,$session_user_company_access_array)){
@@ -126,7 +126,7 @@ if(isset($_POST['edit_user'])){
     $user_id = intval($_POST['user_id']);
     $new_password = trim($_POST['new_password']);
 
-    $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
+    $existing_file_name = sanitizeInput($_POST['existing_file_name']);
     $extended_log_description = '';
     if(!empty($_POST['2fa'])) {
         $two_fa = $_POST['2fa'];
@@ -197,7 +197,7 @@ if(isset($_GET['activate_user'])){
     // Get User Name
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
-    $user_name = strip_tags(mysqli_real_escape_string($mysqli,$row['user_name']));
+    $user_name = sanitizeInput($row['user_name']);
 
     mysqli_query($mysqli,"UPDATE users SET user_status = 1 WHERE user_id = $user_id");
 
@@ -220,7 +220,7 @@ if(isset($_GET['disable_user'])){
     // Get User Name
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
-    $user_name = strip_tags(mysqli_real_escape_string($mysqli,$row['user_name']));
+    $user_name = sanitizeInput($row['user_name']);
 
     mysqli_query($mysqli,"UPDATE users SET user_status = 0 WHERE user_id = $user_id");
 
@@ -240,8 +240,8 @@ if(isset($_POST['edit_profile'])){
     validateCSRFToken($_POST['csrf_token']);
 
     $user_id = $session_user_id;
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['email'])));
+    $name = sanitizeInput($_POST['name']);
+    $email = sanitizeInput($_POST['email']);
     $new_password = trim($_POST['new_password']);
     $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
     $logout = false;

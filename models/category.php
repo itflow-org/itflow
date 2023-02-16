@@ -1,4 +1,4 @@
 <?php
-$name = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['name'])));
-$type = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['type'])));
-$color = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['color'])));
+$name = sanitizeInput($_POST['name']);
+$type = sanitizeInput($_POST['type']);
+$color = sanitizeInput($_POST['color']);
