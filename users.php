@@ -108,8 +108,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $log_user_os = getOS($log_user_agent);
                     $log_user_browser = getWebBrowser($log_user_agent);
                     $last_login = "$log_user_os<br>$log_user_browser<br><i class='fa fa-fw fa-globe'></i> $log_ip";
-                    if (empty($last_login)) {
-                        $last_login = "Never logged in";
+                    if (mysqli_num_rows($sql_last_login) == 0) {
+                        $last_login = "<span class='text-bold'>Never logged in</span>";
                     }
 
                     ?>
