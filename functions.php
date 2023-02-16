@@ -641,3 +641,10 @@ function sanitizeInput($input) {
     // Return sanitized input
     return $input;
 }
+
+function sanitizeForEmail($data) {
+  $sanitized = htmlspecialchars($data);
+  $sanitized = strip_tags($sanitized);
+  $sanitized = trim($sanitized);
+  return $sanitized;
+}
