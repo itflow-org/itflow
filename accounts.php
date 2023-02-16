@@ -1,6 +1,6 @@
 <?php
 
-require_once("inc_all_settings.php");
+require_once("inc_all.php");
 
 if (!empty($_GET['sb'])) {
     $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));

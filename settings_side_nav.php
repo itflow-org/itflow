@@ -43,13 +43,6 @@
         <li class="nav-header mt-3">TAGS & CATEGORIES</li>
 
         <li class="nav-item">
-          <a href="accounts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "accounts.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-piggy-bank"></i>
-            <p>Accounts</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
           <a href="settings_taxes.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_taxes.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-balance-scale"></i>
             <p>Taxes</p>
