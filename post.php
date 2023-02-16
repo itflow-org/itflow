@@ -243,7 +243,7 @@ if(isset($_POST['edit_profile'])){
     $name = sanitizeInput($_POST['name']);
     $email = sanitizeInput($_POST['email']);
     $new_password = trim($_POST['new_password']);
-    $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
+    $existing_file_name = sanitizeInput($_POST['existing_file_name']);
     $logout = false;
     $extended_log_description = '';
 
@@ -379,7 +379,7 @@ if(isset($_POST['edit_user_companies'])){
     //Get User Name
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
-    $name = $row['user_name'];
+    $name = sanitizeInput($row['user_name']);
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name updated company permissions for user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Company permssions updated for user <strong>$name</strong>";
@@ -402,7 +402,7 @@ if(isset($_GET['archive_user'])){
     // Get user details
     $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$row['user_name']));
+    $name = sanitizeInput($row['user_name']);
 
     // Archive user query
     mysqli_query($mysqli,"UPDATE users SET user_name = '$name (archived)', user_password = '$password', user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
@@ -425,9 +425,9 @@ if(isset($_POST['add_api_key'])){
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
 
-    $secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['key'])));
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
+    $secret = sanitizeInput($_POST['key']);
+    $name = sanitizeInput($_POST['name']);
+    $expire = sanitizeInput($_POST['expire']);
     $client = intval($_POST['client']);
 
     mysqli_query($mysqli,"INSERT INTO api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_expire = '$expire', api_key_client_id = '$client', company_id = $session_company_id");
@@ -454,7 +454,7 @@ if(isset($_GET['delete_api_key'])){
 
     // Get API Key Name
     $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT * FROM api_keys WHERE api_key_id = $api_key_id AND company_id = $session_company_id"));
-    $name = strip_tags(mysqli_real_escape_string($mysqli,$row['api_key_name']));
+    $name = sanitizeInput($row['api_key_name']);
 
     mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_id = $api_key_id AND company_id = $session_company_id");
 
