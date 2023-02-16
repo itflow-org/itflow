@@ -637,7 +637,7 @@ if(isset($_GET['archive_company'])){
     //Get Company Name
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $company_id");
     $row = mysqli_fetch_array($sql);
-    $company_name = strip_tags(mysqli_real_escape_string($mysqli,$row['company_name']));
+    $company_name = sanitizeInput($row['company_name']);
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Archive', log_description = '$session_name archived company $company_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
@@ -775,16 +775,16 @@ if(isset($_POST['edit_mail_settings'])){
 
     validateAdminRole();
 
-    $config_smtp_host = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_host'])));
+    $config_smtp_host = sanitizeInput($_POST['config_smtp_host']);
     $config_smtp_port = intval($_POST['config_smtp_port']);
-    $config_smtp_encryption = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_encryption'])));
-    $config_smtp_username = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_smtp_username'])));
-    $config_smtp_password = trim(mysqli_real_escape_string($mysqli,$_POST['config_smtp_password']));
-    $config_mail_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_email'])));
-    $config_mail_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_mail_from_name'])));
-    $config_imap_host = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_imap_host'])));
+    $config_smtp_encryption = sanitizeInput($_POST['config_smtp_encryption']);
+    $config_smtp_username = sanitizeInput($_POST['config_smtp_username']);
+    $config_smtp_password = sanitizeInput($_POST['config_smtp_password']);
+    $config_mail_from_email = sanitizeInput($_POST['config_mail_from_email']);
+    $config_mail_from_name = sanitizeInput($_POST['config_mail_from_name']);
+    $config_imap_host = sanitizeInput($_POST['config_imap_host']);
     $config_imap_port = intval($_POST['config_imap_port']);
-    $config_imap_encryption = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_imap_encryption'])));
+    $config_imap_encryption = sanitizeInput($_POST['config_imap_encryption']);
 
     mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_encryption = '$config_smtp_encryption', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_imap_host = '$config_imap_host', config_imap_port = $config_imap_port, config_imap_encryption = '$config_imap_encryption' WHERE company_id = $session_company_id");
 
@@ -960,14 +960,14 @@ if(isset($_POST['edit_theme_settings'])){
 
     validateAdminRole();
 
-    $theme = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['theme'])));
+    $theme = sanitizeInput($_POST['theme']);
 
     mysqli_query($mysqli,"UPDATE settings SET config_theme = '$theme' WHERE company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified theme settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Theme updated";
+    $_SESSION['alert_message'] = "Changed theme to <strong>$theme</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -980,7 +980,7 @@ if(isset($_POST['edit_alert_settings'])){
     $config_enable_cron = intval($_POST['config_enable_cron']);
     $config_enable_alert_domain_expire = intval($_POST['config_enable_alert_domain_expire']);
     $config_send_invoice_reminders = intval($_POST['config_send_invoice_reminders']);
-    $config_invoice_overdue_reminders = strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_overdue_reminders']));
+    $config_invoice_overdue_reminders = sanitizeInput($_POST['config_invoice_overdue_reminders']);
 
     mysqli_query($mysqli,"UPDATE settings SET config_send_invoice_reminders = $config_send_invoice_reminders, config_invoice_overdue_reminders = '$config_invoice_overdue_reminders', config_enable_cron = $config_enable_cron, config_enable_alert_domain_expire = $config_enable_alert_domain_expire WHERE company_id = $session_company_id");
 
@@ -1075,11 +1075,11 @@ if(isset($_POST['send_telemetry_data'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM companies LIMIT 1");
     $row = mysqli_fetch_array($sql);
 
-    $company_name = strip_tags(mysqli_real_escape_string($mysqli,$row['company_name']));
-    $city = strip_tags(mysqli_real_escape_string($mysqli,$row['company_city']));
-    $state = strip_tags(mysqli_real_escape_string($mysqli,$row['company_state']));
-    $country = strip_tags(mysqli_real_escape_string($mysqli,$row['company_country']));
-    $currency = strip_tags(mysqli_real_escape_string($mysqli,$row['company_currency']));
+    $company_name = sanitizeInput($row['company_name']);
+    $city = sanitizeInput($row['company_city']);
+    $state = sanitizeInput($row['company_state']);
+    $country = sanitizeInput($row['company_country']);
+    $currency = sanitizeInput($row['company_currency']);
     $current_version = exec("git rev-parse HEAD");
 
     // Client Count
@@ -1503,11 +1503,11 @@ if(isset($_GET['update'])){
         $sql = mysqli_query($mysqli,"SELECT * FROM companies LIMIT 1");
         $row = mysqli_fetch_array($sql);
 
-        $company_name = strip_tags(mysqli_real_escape_string($mysqli,$row['company_name']));
-        $city = strip_tags(mysqli_real_escape_string($mysqli,$row['company_city']));
-        $state = strip_tags(mysqli_real_escape_string($mysqli,$row['company_state']));
-        $country = strip_tags(mysqli_real_escape_string($mysqli,$row['company_country']));
-        $currency = strip_tags(mysqli_real_escape_string($mysqli,$row['company_currency']));
+        $company_name = sanitizeInput($row['company_name']);
+        $city = sanitizeInput($row['company_city']);
+        $state = sanitizeInput($row['company_state']);
+        $country = sanitizeInput($row['company_country']);
+        $currency = sanitizeInput($row['company_currency']);
         $current_version = exec("git rev-parse HEAD");
 
         // Client Count
@@ -1922,7 +1922,7 @@ if(isset($_GET['archive_client'])){
     // Get Client Name
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
     $row = mysqli_fetch_array($sql);
-    $client_name = strip_tags(mysqli_real_escape_string($mysqli, $row['client_name']));
+    $client_name = sanitizeInput($row['client_name']);
 
     mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
 
@@ -1942,7 +1942,7 @@ if(isset($_GET['undo_archive_client'])){
     // Get Client Name
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
     $row = mysqli_fetch_array($sql);
-    $client_name = strip_tags(mysqli_real_escape_string($mysqli, $row['client_name']));
+    $client_name = sanitizeInput($row['client_name']);
 
     mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id AND company_id = $session_company_id");
 
@@ -2212,8 +2212,8 @@ if(isset($_GET['delete_event'])){
     // Get Event Title
     $sql = mysqli_query($mysqli,"SELECT * FROM events WHERE event_id = $event_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $event_title = $row['event_title'];
-    $client_id = $row['event_client_id'];
+    $event_title = sanitizeInput($row['event_title']);
+    $client_id = intval($row['event_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM events WHERE event_id = $event_id AND company_id = $session_company_id");
 
@@ -2350,7 +2350,7 @@ if(isset($_GET['archive_vendor'])){
     //Get Vendor Name
     $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $vendor_name = $row['vendor_name'];
+    $vendor_name = sanitizeInput($row['vendor_name']);
 
     mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
 
@@ -2369,7 +2369,7 @@ if(isset($_GET['delete_vendor'])){
     //Get Vendor Name
     $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_id = $vendor_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $vendor_name = strip_tags(mysqli_real_escape_string($mysqli, $row['vendor_name']));
+    $vendor_name = sanitizeInput($row['vendor_name']);
     $client_id = intval($row['vendor_client_id']);
     $vendor_template_id = intval($row['vendor_template_id']);
 
@@ -2475,7 +2475,7 @@ if(isset($_GET['delete_product'])){
     //Get Product Name
     $sql = mysqli_query($mysqli,"SELECT * FROM products WHERE product_id = $product_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $product_name = $row['product_name'];
+    $product_name = sanitizeInput($row['product_name']);
 
     mysqli_query($mysqli,"DELETE FROM products WHERE product_id = $product_id AND company_id = $session_company_id");
 
@@ -2526,7 +2526,7 @@ if(isset($_GET['delete_trip'])){
 
     //Get Client ID
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT * FROM trips WHERE trip_id = $trip_id AND company_id = $session_company_id"));
-    $client_id = $row['trip_client_id'];
+    $client_id = intval($row['trip_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM trips WHERE trip_id = $trip_id AND company_id = $session_company_id");
 
@@ -2802,8 +2802,8 @@ if(isset($_GET['dismiss_all_notifications'])){
     $num_notifications = mysqli_num_rows($sql);
 
     while($row = mysqli_fetch_array($sql)){
-        $notification_id = $row['notification_id'];
-        $notification_dismissed_at = $row['notification_dismissed_at'];
+        $notification_id = intval($row['notification_id']);
+        $notification_dismissed_at = sanitizeInput($row['notification_dismissed_at']);
 
         mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = NOW(), notification_dismissed_by = $session_user_id WHERE notification_id = $notification_id");
 
@@ -2902,7 +2902,7 @@ if(isset($_GET['delete_expense'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $expense_receipt = $row['expense_receipt'];
+    $expense_receipt = sanitizeInput($row['expense_receipt']);
 
     unlink("uploads/expenses/$session_company_id/$expense_receipt");
 
@@ -2988,7 +2988,7 @@ if(isset($_POST['add_transfer'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Create', log_description = '$date - $amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Transfer added";
+    $_SESSION['alert_message'] = "Transfer complete";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -3022,8 +3022,8 @@ if(isset($_GET['delete_transfer'])){
 
     //Query the transfer ID to get the Payment and Expense IDs, so we can delete those as well
     $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT * FROM transfers WHERE transfer_id = $transfer_id AND company_id = $session_company_id"));
-    $expense_id = $row['transfer_expense_id'];
-    $revenue_id = $row['transfer_revenue_id'];
+    $expense_id = intval($row['transfer_expense_id']);
+    $revenue_id = intval($row['transfer_revenue_id']);
 
     mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id AND company_id = $session_company_id");
 
@@ -3049,7 +3049,7 @@ if(isset($_POST['add_invoice'])){
     //Get Net Terms
     $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients WHERE client_id = $client AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $client_net_terms = $row['client_net_terms'];
+    $client_net_terms = intval($row['client_net_terms']);
 
     //Get the last Invoice Number and add 1 for the new invoice number
     $invoice_number = $config_invoice_next_number;
@@ -3237,12 +3237,12 @@ if(isset($_POST['add_quote_copy'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $quote_amount = $row['quote_amount'];
-    $quote_currency_code = $row['quote_currency_code'];
-    $quote_scope = mysqli_real_escape_string($mysqli,$row['quote_scope']);
-    $quote_note = mysqli_real_escape_string($mysqli,$row['quote_note']);
-    $client_id = $row['quote_client_id'];
-    $category_id = $row['quote_category_id'];
+    $quote_amount = floatval($row['quote_amount']);
+    $quote_currency_code = sanitizeInput($row['quote_currency_code']);
+    $quote_scope = sanitizeInput($row['quote_scope']);
+    $quote_note = sanitizeInput($row['quote_note']);
+    $client_id = intval($row['quote_client_id']);
+    $category_id = intval($row['quote_category_id']);
 
     //Generate a unique URL key for clients to access
     $quote_url_key = randomString(156);
@@ -3255,15 +3255,15 @@ if(isset($_POST['add_quote_copy'])){
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_array($sql_items)){
-        $item_id = $row['item_id'];
-        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
-        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
-        $item_quantity = $row['item_quantity'];
-        $item_price = $row['item_price'];
-        $item_subtotal = $row['item_subtotal'];
-        $item_tax = $row['item_tax'];
-        $item_total = $row['item_total'];
-        $tax_id = $row['item_tax_id'];
+        $item_id = intval($row['item_id']);
+        $item_name = sanitizeInput($row['item_name']);
+        $item_description = sanitizeInput($row['item_description']);
+        $item_quantity = floatval($row['item_quantity']);
+        $item_price = floatval($row['item_price']);
+        $item_subtotal = floatval($row['item_subtotal']);
+        $item_tax = floatval($row['item_tax']);
+        $item_total = floatval($row['item_total']);
+        $tax_id = intval($row['item_tax_id']);
 
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_tax_id = $tax_id, item_quote_id = $new_quote_id, company_id = $session_company_id");
     }
@@ -3289,18 +3289,18 @@ if(isset($_POST['add_quote_to_invoice'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $quote_amount = $row['quote_amount'];
-    $quote_currency_code = $row['quote_currency_code'];
-    $quote_scope = mysqli_real_escape_string($mysqli,$row['quote_scope']);
-    $quote_note = mysqli_real_escape_string($mysqli,$row['quote_note']);
+    $quote_amount = floatval($row['quote_amount']);
+    $quote_currency_code = sanitizeInput($row['quote_currency_code']);
+    $quote_scope = sanitizeInput($row['quote_scope']);
+    $quote_note = sanitizeInput($row['quote_note']);
 
-    $client_id = $row['quote_client_id'];
-    $category_id = $row['quote_category_id'];
+    $client_id = intval($row['quote_client_id']);
+    $category_id = intval($row['quote_category_id']);
 
     //Generate a unique URL key for clients to access
     $url_key = randomString(156);
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$quote_scope', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$quote_amount', invoice_currency_code = '$quote_currency_code', invoice_note = '$quote_note', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$quote_scope', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_category_id = $category_id, invoice_status = 'Draft', invoice_amount = $quote_amount, invoice_currency_code = '$quote_currency_code', invoice_note = '$quote_note', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $session_company_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -3308,17 +3308,17 @@ if(isset($_POST['add_quote_to_invoice'])){
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_array($sql_items)){
-        $item_id = $row['item_id'];
-        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
-        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
-        $item_quantity = $row['item_quantity'];
-        $item_price = $row['item_price'];
-        $item_subtotal = $row['item_subtotal'];
-        $item_tax = $row['item_tax'];
-        $item_total = $row['item_total'];
-        $tax_id = $row['item_tax_id'];
+        $item_id = intval($row['item_id']);
+        $item_name = sanitizeInput($row['item_name']);
+        $item_description = sanitizeInput($row['item_description']);
+        $item_quantity = floatval($row['item_quantity']);
+        $item_price = floatval($row['item_price']);
+        $item_subtotal = floatval($row['item_subtotal']);
+        $item_tax = floatval($row['item_tax']);
+        $item_total = floatval($row['item_total']);
+        $tax_id = intval($row['item_tax_id']);
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_tax_id = $tax_id, item_invoice_id = $new_invoice_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id, company_id = $session_company_id");
     }
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Invoiced' WHERE quote_id = $quote_id AND company_id = $session_company_id");
@@ -3336,8 +3336,8 @@ if(isset($_POST['add_quote_item'])){
 
     $quote_id = intval($_POST['quote_id']);
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
+    $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -3347,7 +3347,7 @@ if(isset($_POST['add_quote_item'])){
     if($tax_id > 0){
         $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_array($sql);
-        $tax_percent = $row['tax_percent'];
+        $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
     }else{
         $tax_amount = 0;
@@ -3355,16 +3355,16 @@ if(isset($_POST['add_quote_item'])){
 
     $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_tax_id = $tax_id, item_quote_id = $quote_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_quote_id = $quote_id, company_id = $session_company_id");
 
     //Update Invoice Balances
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
 
-    $new_quote_amount = $row['quote_amount'] + $total;
+    $new_quote_amount = floatval($row['quote_amount']) + $total;
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount' WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Item added";
 
@@ -3375,7 +3375,7 @@ if(isset($_POST['add_quote_item'])){
 if(isset($_POST['quote_note'])){
 
     $quote_id = intval($_POST['quote_id']);
-    $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
+    $note = sanitizeInput($_POST['note']);
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$note' WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
@@ -3435,17 +3435,17 @@ if(isset($_GET['delete_quote_item'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $quote_id = $row['item_quote_id'];
-    $item_subtotal = $row['item_subtotal'];
-    $item_tax = $row['item_tax'];
-    $item_total = $row['item_total'];
+    $quote_id = intval($row['item_quote_id']);
+    $item_subtotal = floatval($row['item_subtotal']);
+    $item_tax = floatval($row['item_tax']);
+    $item_total = floatval($row['item_total']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
 
-    $new_quote_amount = $row['quote_amount'] - $item_total;
+    $new_quote_amount = floatval($row['quote_amount']) - $item_total;
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount' WHERE quote_id = $quote_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
 
@@ -3521,34 +3521,34 @@ if(isset($_GET['email_quote'])){
     );
 
     $row = mysqli_fetch_array($sql);
-    $quote_id = $row['quote_id'];
-    $quote_prefix = $row['quote_prefix'];
-    $quote_number = $row['quote_number'];
-    $quote_scope = $row['quote_scope'];
-    $quote_status = $row['quote_status'];
-    $quote_date = $row['quote_date'];
-    $quote_amount = $row['quote_amount'];
-    $quote_note = $row['quote_note'];
-    $quote_url_key = $row['quote_url_key'];
-    $quote_currency_code = $row['quote_currency_code'];
-    $client_id = $row['client_id'];
-    $client_name = $row['client_name'];
-    $contact_name = $row['contact_name'];
-    $contact_email = $row['contact_email'];
+    $quote_id = intval($row['quote_id']);
+    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_number = intval($row['quote_number']);
+    $quote_scope = sanitizeInput($row['quote_scope']);
+    $quote_status = sanitizeInput($row['quote_status']);
+    $quote_date = sanitizeInput($row['quote_date']);
+    $quote_amount = floatval($row['quote_amount']);
+    $quote_note = sanitizeInput($row['quote_note']);
+    $quote_url_key = sanitizeInput($row['quote_url_key']);
+    $quote_currency_code = sanitizeInput($row['quote_currency_code']);
+    $client_id = intval($row['client_id']);
+    $client_name = sanitizeInput($row['client_name']);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_email = sanitizeInput($row['contact_email']);
     $contact_phone = formatPhoneNumber($row['contact_phone']);
-    $contact_extension = $row['contact_extension'];
+    $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-    $client_website = $row['client_website'];
-    $company_name = $row['company_name'];
-    $company_country = $row['company_country'];
-    $company_address = $row['company_address'];
-    $company_city = $row['company_city'];
-    $company_state = $row['company_state'];
-    $company_zip = $row['company_zip'];
+    $client_website = sanitizeInput($row['client_website']);
+    $company_name = sanitizeInput($row['company_name']);
+    $company_country = sanitizeInput($row['company_country']);
+    $company_address = sanitizeInput($row['company_address']);
+    $company_city = sanitizeInput($row['company_city']);
+    $company_state = sanitizeInput($row['company_state']);
+    $company_zip = sanitizeInput($row['company_zip']);
     $company_phone = formatPhoneNumber($row['company_phone']);
-    $company_email = $row['company_email'];
-    $company_website = $row['company_website'];
-    $company_logo = $row['company_logo'];
+    $company_email = sanitizeInput($row['company_email']);
+    $company_website = sanitizeInput($row['company_website']);
+    $company_logo = sanitizeInput($row['company_logo']);
 
     $subject = "Quote [$quote_scope]";
     $body    = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href='https://$config_base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>Sales<br>$config_quote_from_email<br>$company_phone";
@@ -3662,8 +3662,8 @@ if(isset($_GET['delete_recurring'])){
 if(isset($_POST['add_recurring_item'])){
 
     $recurring_id = intval($_POST['recurring_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
+    $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -3673,7 +3673,7 @@ if(isset($_POST['add_recurring_item'])){
     if($tax_id > 0){
         $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_array($sql);
-        $tax_percent = $row['tax_percent'];
+        $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
     }else{
         $tax_amount = 0;
@@ -3681,16 +3681,16 @@ if(isset($_POST['add_recurring_item'])){
 
     $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_tax_id = $tax_id, item_recurring_id = $recurring_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_recurring_id = $recurring_id, company_id = $session_company_id");
 
     //Update Recurring Balances
 
     $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
 
-    $new_recurring_amount = $row['recurring_amount'] + $total;
+    $new_recurring_amount = floatval($row['recurring_amount']) + $total;
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount' WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = $new_recurring_amount WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice Updated";
 
@@ -3701,11 +3701,11 @@ if(isset($_POST['add_recurring_item'])){
 if(isset($_POST['recurring_note'])){
 
     $recurring_id = intval($_POST['recurring_id']);
-    $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
+    $note = sanitizeInput($_POST['note']);
 
     mysqli_query($mysqli,"UPDATE recurring SET recurring_note = '$note' WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> <strong>Notes added</strong>";
+    $_SESSION['alert_message'] = "Notes added";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -3716,17 +3716,17 @@ if(isset($_GET['delete_recurring_item'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $recurring_id = $row['item_recurring_id'];
-    $item_subtotal = $row['item_subtotal'];
-    $item_tax = $row['item_tax'];
-    $item_total = $row['item_total'];
+    $recurring_id = intval($row['item_recurring_id']);
+    $item_subtotal = floatval($row['item_subtotal']);
+    $item_tax = floatval($row['item_tax']);
+    $item_total = floatval($row['item_total']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
 
-    $new_recurring_amount = $row['recurring_amount'] - $item_total;
+    $new_recurring_amount = floatval($row['recurring_amount']) - $item_total;
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount' WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = $new_recurring_amount WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
 
@@ -3781,21 +3781,21 @@ if(isset($_GET['delete_invoice'])){
     //Delete Items Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
-        $item_id = $row['item_id'];
+        $item_id = intval($row['item_id']);
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     }
 
     //Delete History Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE history_invoice_id = $invoice_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
-        $history_id = $row['history_id'];
+        $history_id = intval($row['history_id']);
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
 
     //Delete Payments Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_invoice_id = $invoice_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
-        $payment_id = $row['payment_id'];
+        $payment_id = intval($row['payment_id']);
         mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id AND company_id = $session_company_id");
     }
 
@@ -3811,8 +3811,8 @@ if(isset($_GET['delete_invoice'])){
 if(isset($_POST['add_invoice_item'])){
 
     $invoice_id = intval($_POST['invoice_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
+    $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -3822,7 +3822,7 @@ if(isset($_POST['add_invoice_item'])){
     if($tax_id > 0){
         $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_array($sql);
-        $tax_percent = $row['tax_percent'];
+        $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
     }else{
         $tax_amount = 0;
@@ -3830,16 +3830,16 @@ if(isset($_POST['add_invoice_item'])){
 
     $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_tax_id = $tax_id, item_invoice_id = $invoice_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_invoice_id = $invoice_id, company_id = $session_company_id");
 
     //Update Invoice Balances
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
 
-    $new_invoice_amount = $row['invoice_amount'] + $total;
+    $new_invoice_amount = floatval($row['invoice_amount']) + $total;
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Item added";
 
@@ -3851,7 +3851,7 @@ if(isset($_POST['add_invoice_item'])){
 if(isset($_POST['invoice_note'])){
 
     $invoice_id = intval($_POST['invoice_id']);
-    $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
+    $note = sanitizeInput($_POST['note']);
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$note' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
@@ -3867,8 +3867,8 @@ if(isset($_POST['edit_item'])){
     $quote_id = intval($_POST['quote_id']);
     $recurring_id = intval($_POST['recurring_id']);
     $item_id = intval($_POST['item_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
+    $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -3878,7 +3878,7 @@ if(isset($_POST['edit_item'])){
     if($tax_id > 0){
         $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_array($sql);
-        $tax_percent = $row['tax_percent'];
+        $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
     }else{
         $tax_amount = 0;
@@ -3886,32 +3886,32 @@ if(isset($_POST['edit_item'])){
 
     $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = '$qty', item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_tax_id = $tax_id WHERE item_id = $item_id");
+    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id WHERE item_id = $item_id");
 
     if($invoice_id > 0){
         //Update Invoice Balances by tallying up invoice items
         $sql_invoice_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS invoice_total FROM invoice_items WHERE item_invoice_id = $invoice_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql_invoice_total);
-        $new_invoice_amount = $row['invoice_total'];
+        $new_invoice_amount = floatval($row['invoice_total']);
 
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     }elseif($quote_id > 0){
         //Update Quote Balances by tallying up items
         $sql_quote_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS quote_total FROM invoice_items WHERE item_quote_id = $quote_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql_quote_total);
-        $new_quote_amount = $row['quote_total'];
+        $new_quote_amount = floatval($row['quote_total']);
 
-        mysqli_query($mysqli,"UPDATE quotes SET quote_amount = '$new_quote_amount' WHERE quote_id = $quote_id AND company_id = $session_company_id");
+        mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id AND company_id = $session_company_id");
 
     }else{
         //Update Invoice Balances by tallying up invoice items
 
         $sql_recurring_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS recurring_total FROM invoice_items WHERE item_recurring_id = $recurring_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql_recurring_total);
-        $new_recurring_amount = $row['recurring_total'];
+        $new_recurring_amount = floatval($row['recurring_total']);
 
-        mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount' WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
+        mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = $new_recurring_amount WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
 
     }
 
@@ -3926,17 +3926,17 @@ if(isset($_GET['delete_invoice_item'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $invoice_id = $row['item_invoice_id'];
-    $item_subtotal = $row['item_subtotal'];
-    $item_tax = $row['item_tax'];
-    $item_total = $row['item_total'];
+    $invoice_id = intval($row['item_invoice_id']);
+    $item_subtotal = floatval($row['item_subtotal']);
+    $item_tax = floatval($row['item_tax']);
+    $item_total = floatval($row['item_total']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
 
-    $new_invoice_amount = $row['invoice_amount'] - $item_total;
+    $new_invoice_amount = floatval($row['invoice_amount']) - $item_total;
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
 
@@ -3953,12 +3953,12 @@ if(isset($_POST['add_payment'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $balance = floatval($_POST['balance']);
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
+    $date = sanitizeInput($_POST['date']);
     $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
-    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
-    $payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method'])));
-    $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
+    $currency_code = sanitizeInput($_POST['currency_code']);
+    $payment_method = sanitizeInput($_POST['payment_method']);
+    $reference = sanitizeInput($_POST['reference']);
     $email_receipt = intval($_POST['email_receipt']);
 
     //Check to see if amount entered is greater than the balance of the invoice
@@ -3966,12 +3966,12 @@ if(isset($_POST['add_payment'])){
         $_SESSION['alert_message'] = "Payment is more than the balance";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }else{
-        mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = '$amount', payment_currency_code = '$currency_code', payment_account_id = $account, payment_method = '$payment_method', payment_reference = '$reference', payment_invoice_id = $invoice_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = $amount, payment_currency_code = '$currency_code', payment_account_id = $account, payment_method = '$payment_method', payment_reference = '$reference', payment_invoice_id = $invoice_id, company_id = $session_company_id");
 
         //Add up all the payments for the invoice and get the total amount paid to the invoice
         $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payments_amount FROM payments WHERE payment_invoice_id = $invoice_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql_total_payments_amount);
-        $total_payments_amount = $row['payments_amount'];
+        $total_payments_amount = floatval($row['payments_amount']);
 
         //Get the invoice total
         $sql = mysqli_query($mysqli,"SELECT * FROM invoices
@@ -3983,33 +3983,27 @@ if(isset($_POST['add_payment'])){
         );
 
         $row = mysqli_fetch_array($sql);
-        $invoice_amount = $row['invoice_amount'];
-        $invoice_prefix = $row['invoice_prefix'];
-        $invoice_number = $row['invoice_number'];
-        $invoice_url_key = $row['invoice_url_key'];
-        $invoice_currency_code = $row['invoice_currency_code'];
-        $client_name = $row['client_name'];
-        $contact_name = $row['contact_name'];
-        $contact_email = $row['contact_email'];
-        $contact_phone = $row['contact_phone'];
-        if(strlen($contact_phone)>2){
-            $contact_phone = substr($row['contact_phone'],0,3)."-".substr($row['contact_phone'],3,3)."-".substr($row['contact_phone'],6,4);
-        }
-        $contact_extension = $row['contact_extension'];
-        $contact_mobile = $row['contact_mobile'];
-        if(strlen($contact_mobile)>2){
-            $contact_mobile = substr($row['contact_mobile'],0,3)."-".substr($row['contact_mobile'],3,3)."-".substr($row['contact_mobile'],6,4);
-        }
-        $company_name = $row['company_name'];
-        $company_country = $row['company_country'];
-        $company_address = $row['company_address'];
-        $company_city = $row['company_city'];
-        $company_state = $row['company_state'];
-        $company_zip = $row['company_zip'];
+        $invoice_amount = floatval($row['invoice_amount']);
+        $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+        $invoice_number = intval($row['invoice_number']);
+        $invoice_url_key = sanitizeInput($row['invoice_url_key']);
+        $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+        $client_name = sanitizeInput($row['client_name']);
+        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_email = sanitizeInput($row['contact_email']);
+        $contact_phone = formatPhoneNumber($row['contact_phone']);
+        $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
+        $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+        $company_name = sanitizeInput($row['company_name']);
+        $company_country = sanitizeInput($row['company_country']);
+        $company_address = sanitizeInput($row['company_address']);
+        $company_city = sanitizeInput($row['company_city']);
+        $company_state = sanitizeInput($row['company_state']);
+        $company_zip = sanitizeInput($row['company_zip']);
         $company_phone = formatPhoneNumber($row['company_phone']);
-        $company_email = $row['company_email'];
-        $company_website = $row['company_website'];
-        $company_logo = $row['company_logo'];
+        $company_email = sanitizeInput($row['company_email']);
+        $company_website = sanitizeInput($row['company_website']);
+        $company_logo = sanitizeInput($row['company_logo']);
 
         //Calculate the Invoice balance
         $invoice_balance = $invoice_amount - $total_payments_amount;
@@ -4825,8 +4819,8 @@ if(isset($_GET['archive_location'])){
     // Get Location Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $location_name = strip_tags(mysqli_real_escape_string($mysqli, $row['location_name']));
-    $client_id = $row['location_client_id'];
+    $location_name = sanitizeInput($row['location_name']);
+    $client_id = intval($row['location_client_id']);
 
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id AND company_id = $session_company_id");
 
@@ -4847,8 +4841,8 @@ if(isset($_GET['undo_archive_location'])){
     // Get Location Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $location_name = strip_tags(mysqli_real_escape_string($mysqli, $row['location_name']));
-    $client_id = $row['location_client_id'];
+    $location_name = sanitizeInput($row['location_name']);
+    $client_id = intval($row['location_client_id']);
 
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id AND company_id = $session_company_id");
 
@@ -4869,8 +4863,8 @@ if(isset($_GET['delete_location'])){
     // Get Location Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $location_name = strip_tags(mysqli_real_escape_string($mysqli, $row['location_name']));
-    $client_id = $row['location_client_id'];
+    $location_name = sanitizeInput($row['location_name']);
+    $client_id = intval($row['location_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM locations WHERE location_id = $location_id AND company_id = $session_company_id");
 
@@ -4891,7 +4885,7 @@ if(isset($_GET['export_client_locations_csv'])){
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
 
-    $client_name = $row['client_name'];
+    $client_name = sanitizeInput($row['client_name']);
 
     //Locations
     $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL AND company_id = $session_company_id ORDER BY location_name ASC");
@@ -5204,8 +5198,8 @@ if(isset($_GET['archive_asset'])){
     // Get Asset Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $asset_name = strip_tags(mysqli_real_escape_string($mysqli, $row['asset_name']));
-    $client_id = $row['asset_client_id'];
+    $asset_name = sanitizeInput($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
 
     mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $asset_id AND company_id = $session_company_id");
 
@@ -5228,8 +5222,8 @@ if(isset($_GET['delete_asset'])){
     // Get Asset Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $asset_name = strip_tags(mysqli_real_escape_string($mysqli, $row['asset_name']));
-    $client_id = $row['asset_client_id'];
+    $asset_name = sanitizeInput($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id AND company_id = $session_company_id");
 
@@ -5632,8 +5626,8 @@ if(isset($_GET['archive_software'])){
     // Get Software Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $software_name = strip_tags(mysqli_real_escape_string($mysqli, $row['software_name']));
-    $client_id = $row['software_client_id'];
+    $software_name = sanitizeInput($row['software_name']);
+    $client_id = intval($row['software_client_id']);
 
     mysqli_query($mysqli,"UPDATE software SET software_archived_at = NOW() WHERE software_id = $software_id AND company_id = $session_company_id");
 
@@ -5660,8 +5654,8 @@ if(isset($_GET['delete_software'])){
     // Get Software Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $software_name = strip_tags(mysqli_real_escape_string($mysqli, $row['software_name']));
-    $client_id = $row['software_client_id'];
+    $software_name = sanitizeInput($row['software_name']);
+    $client_id = intval($row['software_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM software WHERE software_id = $software_id AND company_id = $session_company_id");
 
@@ -5823,8 +5817,8 @@ if(isset($_GET['delete_login'])){
     // Get Login Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $login_name = strip_tags(mysqli_real_escape_string($mysqli, $row['login_name']));
-    $client_id = $row['login_client_id'];
+    $login_name = sanitizeInput($row['login_name']);
+    $client_id = intval($row['login_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM logins WHERE login_id = $login_id AND company_id = $session_company_id");
 
@@ -6055,8 +6049,8 @@ if(isset($_GET['delete_network'])){
     // Get Network Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT network_name, network_client_id FROM networks WHERE network_id = $network_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $network_name = strip_tags(mysqli_real_escape_string($mysqli, $row['network_name']));
-    $client_id = $row['network_client_id'];
+    $network_name = sanitizeInput($row['network_name']);
+    $client_id = intval($row['network_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM networks WHERE network_id = $network_id AND company_id = $session_company_id");
 
@@ -6207,8 +6201,8 @@ if(isset($_GET['delete_certificate'])){
     // Get Certificate Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $certificate_name = strip_tags(mysqli_real_escape_string($mysqli, $row['certificate_name']));
-    $client_id = $row['certificate_client_id'];
+    $certificate_name = sanitizeInput($row['certificate_name']);
+    $client_id = intval($row['certificate_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM certificates WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
 
@@ -6372,8 +6366,8 @@ if(isset($_GET['delete_domain'])){
     // Get Domain Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $domain_name = strip_tags(mysqli_real_escape_string($mysqli, $row['domain_name']));
-    $client_id = $row['domain_client_id'];
+    $domain_name = sanitizeInput($row['domain_name']);
+    $client_id = intval($row['domain_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
@@ -6568,8 +6562,8 @@ if(isset($_POST['assign_ticket'])){
         // Get & verify assigned agent details
         $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = '$assigned_to' AND user_settings.user_role > 1");
         $agent_details = mysqli_fetch_array($agent_details_sql);
-        $agent_name = $agent_details['user_name'];
-        $agent_email = $agent_details['user_email'];
+        $agent_name = sanitizeInput($agent_details['user_name']);
+        $agent_email = sanitizeInput($agent_details['user_email']);
         $ticket_reply = "Ticket re-assigned to $agent_name.";
 
         if(!$agent_name){
@@ -6583,9 +6577,9 @@ if(isset($_POST['assign_ticket'])){
     // Get & verify ticket details
     $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_client_id FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_status != 'Closed'");
     $ticket_details = mysqli_fetch_array($ticket_details_sql);
-    $ticket_prefix = $ticket_details['ticket_prefix'];
-    $ticket_number = $ticket_details['ticket_number'];
-    $ticket_subject = $ticket_details['ticket_subject'];
+    $ticket_prefix = sanitizeInput($ticket_details['ticket_prefix']);
+    $ticket_number = intval($ticket_details['ticket_number']);
+    $ticket_subject = sanitizeInput($ticket_details['ticket_subject']);
     $client_id = intval($ticket_details['ticket_client_id']);
 
     if(!$ticket_subject){
@@ -6703,11 +6697,11 @@ if(isset($_POST['add_ticket_reply'])){
 
     $row = mysqli_fetch_array($ticket_sql);
 
-    $contact_name = $row['contact_name'];
-    $contact_email = $row['contact_email'];
-    $ticket_prefix = $row['ticket_prefix'];
-    $ticket_number = $row['ticket_number'];
-    $ticket_subject = $row['ticket_subject'];
+    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_email = sanitizeInput($row['contact_email']);
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_subject = sanitizeInput($row['ticket_subject']);
     $client_id = intval($row['ticket_client_id']);
     $ticket_created_by = intval($row['ticket_created_by']);
     $ticket_assigned_to = intval($row['ticket_assigned_to']);
@@ -6888,11 +6882,11 @@ if(isset($_GET['close_ticket'])){
         ");
         $row = mysqli_fetch_array($ticket_sql);
 
-        $contact_name = $row['contact_name'];
-        $contact_email = $row['contact_email'];
-        $ticket_prefix = $row['ticket_prefix'];
-        $ticket_number = $row['ticket_number'];
-        $ticket_subject = $row['ticket_subject'];
+        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_email = sanitizeInput($row['contact_email']);
+        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+        $ticket_number = intval($row['ticket_number']);
+        $ticket_subject = sanitizeInput($row['ticket_subject']);
         $company_phone = formatPhoneNumber($row['company_phone']);
 
         // Check email valid
@@ -6939,27 +6933,27 @@ if(isset($_POST['add_invoice_from_ticket'])){
     );
 
     $row = mysqli_fetch_array($sql);
-    $client_id = $row['client_id'];
-    $client_net_terms = $row['client_net_terms'];
+    $client_id = intval($row['client_id']);
+    $client_net_terms = intval($row['client_net_terms']);
     if($client_net_terms == 0){
         $client_net_terms = $config_default_net_terms;
     }
 
-    $ticket_prefix = $row['ticket_prefix'];
-    $ticket_number = $row['ticket_number'];
-    $ticket_category = $row['ticket_category'];
-    $ticket_subject = $row['ticket_subject'];
-    $ticket_created_at = $row['ticket_created_at'];
-    $ticket_updated_at = $row['ticket_updated_at'];
-    $ticket_closed_at = $row['ticket_closed_at'];
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_category = sanitizeInput($row['ticket_category']);
+    $ticket_subject = sanitizeInput($row['ticket_subject']);
+    $ticket_created_at = sanitizeInput($row['ticket_created_at']);
+    $ticket_updated_at = sanitizeInput($row['ticket_updated_at']);
+    $ticket_closed_at = sanitizeInput($row['ticket_closed_at']);
 
-    $contact_id = $row['contact_id'];
-    $contact_name = $row['contact_name'];
-    $contact_email = $row['contact_email'];
+    $contact_id = intval($row['contact_id']);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_email = sanitizeInput($row['contact_email']);
 
-    $asset_id = $row['asset_id'];
+    $asset_id = intval($row['asset_id']);
 
-    $location_name = $row['location_name'];
+    $location_name = sanitizeInput($row['location_name']);
 
     if($invoice_id == 0){
 
@@ -6976,8 +6970,8 @@ if(isset($_POST['add_invoice_from_ticket'])){
     }
 
     //Add Item
-    $item_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['item_name'])));
-    $item_description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['item_description'])));
+    $item_name = sanitizeInput($_POST['item_name']);
+    $item_description = sanitizeInput($_POST['item_description']);
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -6987,7 +6981,7 @@ if(isset($_POST['add_invoice_from_ticket'])){
     if($tax_id > 0){
         $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_array($sql);
-        $tax_percent = $row['tax_percent'];
+        $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
     }else{
         $tax_amount = 0;
@@ -6995,16 +6989,16 @@ if(isset($_POST['add_invoice_from_ticket'])){
 
     $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $qty, item_price = '$price', item_subtotal = '$subtotal', item_tax = '$tax_amount', item_total = '$total', item_tax_id = $tax_id, item_invoice_id = $invoice_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_invoice_id = $invoice_id, company_id = $session_company_id");
 
     //Update Invoice Balances
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
 
-    $new_invoice_amount = $row['invoice_amount'] + $total;
+    $new_invoice_amount = floatval($row['invoice_amount']) + $total;
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = '$new_invoice_amount' WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created from Ticket $ticket_prefix$ticket_number', history_invoice_id = $invoice_id, company_id = $session_company_id");
 
@@ -7145,7 +7139,7 @@ if(isset($_GET['delete_scheduled_ticket'])){
     $scheduled_ticket_subject = strip_tags(mysqli_real_escape_string($mysqli, $row['scheduled_ticket_subject']));
     $scheduled_ticket_frequency = strip_tags(mysqli_real_escape_string($mysqli, $row['scheduled_ticket_frequency']));
 
-    $client_id = $row['scheduled_ticket_client_id'];
+    $client_id = intval($row['scheduled_ticket_client_id']);
 
     // Delete
     mysqli_query($mysqli, "DELETE FROM scheduled_tickets WHERE scheduled_ticket_id = $scheduled_ticket_id");
