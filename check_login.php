@@ -23,8 +23,8 @@ if (!isset($_SESSION['logged']) || !$_SESSION['logged']) {
 }
 
 // User IP & UA
-$session_ip = strip_tags(mysqli_real_escape_string($mysqli, getIP()));
-$session_user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
+$session_ip = sanitizeInput(getIP());
+$session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
 $session_user_id = $_SESSION['user_id'];
 

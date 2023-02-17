@@ -12,13 +12,13 @@ require_once("functions.php");
 require_once("rfc6238.php");
 
 // IP & User Agent for logging
-$ip = strip_tags(mysqli_real_escape_string($mysqli, getIP()));
-$user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
+$ip = sanitizeInput(getIP());
+$user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
 // Block brute force password attacks - check recent failed login attempts for this IP
 //  Block access if more than 15 failed login attempts have happened in the last 10 minutes
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS failed_login_count FROM logs WHERE log_ip = '$ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 10 MINUTE)"));
-$failed_login_count = $row['failed_login_count'];
+$failed_login_count = intval($row['failed_login_count']);
 
 if ($failed_login_count >= 15) {
 
@@ -77,10 +77,10 @@ if (isset($_POST['login'])) {
         // User password correct (partial login)
 
         // Set temporary user variables
-        $user_name = strip_tags(mysqli_real_escape_string($mysqli, $row['user_name']));
-        $user_id = $row['user_id'];
-        $user_email = $row['user_email'];
-        $token = $row['user_token'];
+        $user_name = sanitizeInput($row['user_name']);
+        $user_id = intval($row['user_id']);
+        $user_email = sanitizeInput($row['user_email']);
+        $token = sanitizeInput($row['user_token']);
 
         // Checking for user 2FA
         if (empty($token) || TokenAuth6238::verify($token, $current_code)) {
@@ -89,10 +89,10 @@ if (isset($_POST['login'])) {
 
             // Check this login isn't suspicious
             $sql_ip_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ip_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_ip = '$ip' AND log_user_id = '$user_id'"));
-            $ip_previous_logins = $sql_ip_prev_logins['ip_previous_logins'];
+            $ip_previous_logins = sanitizeInput($sql_ip_prev_logins['ip_previous_logins']);
 
             $sql_ua_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ua_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_user_agent = '$user_agent' AND log_user_id = '$user_id'"));
-            $ua_prev_logins = $sql_ua_prev_logins['ua_previous_logins'];
+            $ua_prev_logins = sanitizeInput($sql_ua_prev_logins['ua_previous_logins']);
 
             // Notify if both the user agent and IP are different
             if (!empty($config_smtp_host) && $ip_previous_logins == 0 && $ua_prev_logins == 0) {

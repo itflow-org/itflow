@@ -1783,17 +1783,17 @@ if(isset($_POST['add_client'])){
     validateAdminRole();
 
     $location_phone = preg_replace("/[^0-9]/", '',$_POST['location_phone']);
-    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
-    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
-    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
-    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
-    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
-    $contact = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact'])));
-    $title = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['title'])));
+    $address = sanitizeInput($_POST['address']);
+    $city = sanitizeInput($_POST['city']);
+    $state = sanitizeInput($_POST['state']);
+    $zip = sanitizeInput($_POST['zip']);
+    $country = sanitizeInput($_POST['country']);
+    $contact = sanitizeInput($_POST['contact']);
+    $title = sanitizeInput($_POST['title']);
     $contact_phone = preg_replace("/[^0-9]/", '',$_POST['contact_phone']);
     $contact_extension = preg_replace("/[^0-9]/", '',$_POST['contact_extension']);
     $contact_mobile = preg_replace("/[^0-9]/", '',$_POST['contact_mobile']);
-    $contact_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['contact_email'])));
+    $contact_email = sanitizeInput($_POST['contact_email']);
 
     $extended_log_description = '';
 
@@ -1846,10 +1846,10 @@ if(isset($_POST['add_client'])){
 
         // NS, MX, A and WHOIS records/data
         $records = getDomainRecords($website);
-        $a = mysqli_real_escape_string($mysqli, $records['a']);
-        $ns = mysqli_real_escape_string($mysqli, $records['ns']);
-        $mx = mysqli_real_escape_string($mysqli, $records['mx']);
-        $whois = mysqli_real_escape_string($mysqli, $records['whois']);
+        $a = sanitizeInput($records['a']);
+        $ns = sanitizeInput($records['ns']);
+        $mx = sanitizeInput($records['mx']);
+        $whois = sanitizeInput($records['whois']);
 
         // Add domain record
         mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$website', domain_registrar = '0',  domain_webhost = '0', domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_client_id = $client_id, company_id = $session_company_id");
@@ -1863,9 +1863,9 @@ if(isset($_POST['add_client'])){
         // Get SSL cert for domain (if exists)
         $certificate = getSSL($website);
         if($certificate['success'] == "TRUE"){
-            $expire = mysqli_real_escape_string($mysqli, $certificate['expire']);
-            $issued_by = mysqli_real_escape_string($mysqli, $certificate['issued_by']);
-            $public_key = mysqli_real_escape_string($mysqli, $certificate['public_key']);
+            $expire = sanitizeInput($certificate['expire']);
+            $issued_by = sanitizeInput($certificate['issued_by']);
+            $public_key = sanitizeInput($certificate['public_key']);
 
             mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$website', certificate_domain = '$website', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
 
@@ -3077,7 +3077,7 @@ if(isset($_POST['edit_invoice'])){
     require_once('models/invoice.php');
 
     $invoice_id = intval($_POST['invoice_id']);
-    $due = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['due'])));
+    $due = sanitizeInput($_POST['due']);
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_scope = '$scope', invoice_date = '$date', invoice_due = '$due', invoice_category_id = $category WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
 
@@ -3093,12 +3093,12 @@ if(isset($_POST['edit_invoice'])){
 if(isset($_POST['add_invoice_copy'])){
 
     $invoice_id = intval($_POST['invoice_id']);
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
+    $date = sanitizeInput($_POST['date']);
 
     //Get Net Terms
     $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients, invoices WHERE client_id = invoice_client_id AND invoice_id = $invoice_id AND invoices.company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $client_net_terms = $row['client_net_terms'];
+    $client_net_terms = intval($row['client_net_terms']);
 
     $invoice_number = $config_invoice_next_number;
     $new_config_invoice_next_number = $config_invoice_next_number + 1;
@@ -3106,17 +3106,17 @@ if(isset($_POST['add_invoice_copy'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $invoice_scope = $row['invoice_scope'];
-    $invoice_amount = $row['invoice_amount'];
-    $invoice_currency_code = $row['invoice_currency_code'];
-    $invoice_note = mysqli_real_escape_string($mysqli,$row['invoice_note']);
-    $client_id = $row['invoice_client_id'];
-    $category_id = $row['invoice_category_id'];
+    $invoice_scope = sanitizeInput($row['invoice_scope']);
+    $invoice_amount = floatval($row['invoice_amount']);
+    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+    $invoice_note = sanitizeInput($row['invoice_note']);
+    $client_id = intval($row['invoice_client_id']);
+    $category_id = intval($row['invoice_category_id']);
 
     //Generate a unique URL key for clients to access
     $url_key = randomString(156);
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$invoice_scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_category_id = $category_id, invoice_status = 'Draft', invoice_amount = '$invoice_amount', invoice_currency_code = '$invoice_currency_code', invoice_note = '$invoice_note', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $session_company_id") or die(mysql_error());
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$invoice_scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_category_id = $category_id, invoice_status = 'Draft', invoice_amount = $invoice_amount, invoice_currency_code = '$invoice_currency_code', invoice_note = '$invoice_note', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $session_company_id") or die(mysql_error());
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -3124,17 +3124,17 @@ if(isset($_POST['add_invoice_copy'])){
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id");
     while($row = mysqli_fetch_array($sql_items)){
-        $item_id = $row['item_id'];
-        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
-        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
-        $item_quantity = $row['item_quantity'];
-        $item_price = $row['item_price'];
-        $item_subtotal = $row['item_subtotal'];
-        $item_tax = $row['item_tax'];
-        $item_total = $row['item_total'];
-        $tax_id = $row['item_tax_id'];
+        $item_id = intval($row['item_id']);
+        $item_name = sanitizeInput($row['item_name']);
+        $item_description = sanitizeInput($row['item_description']);
+        $item_quantity = floatval($row['item_quantity']);
+        $item_price = floatval($row['item_price']);
+        $item_subtotal = floatval($row['item_subtotal']);
+        $item_tax = floatval($row['item_tax']);
+        $item_total = floatval($row['item_total']);
+        $tax_id = intval($row['item_tax_id']);
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_tax_id = $tax_id, item_invoice_id = $new_invoice_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id, company_id = $session_company_id");
     }
 
     //Logging
@@ -3149,24 +3149,24 @@ if(isset($_POST['add_invoice_copy'])){
 if(isset($_POST['add_invoice_recurring'])){
 
     $invoice_id = intval($_POST['invoice_id']);
-    $recurring_frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
+    $recurring_frequency = sanitizeInput($_POST['frequency']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $invoice_date = $row['invoice_date'];
-    $invoice_amount = $row['invoice_amount'];
-    $invoice_currency_code = $row['invoice_currency_code'];
-    $invoice_scope = mysqli_real_escape_string($mysqli,$row['invoice_scope']);
-    $invoice_note = mysqli_real_escape_string($mysqli,$row['invoice_note']); //SQL Escape in case notes have , them
-    $client_id = $row['invoice_client_id'];
-    $category_id = $row['invoice_category_id'];
+    $invoice_date = sanitizeInput($row['invoice_date']);
+    $invoice_amount = floatval($row['invoice_amount']);
+    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+    $invoice_scope = sanitizeInput($row['invoice_scope']);
+    $invoice_note = sanitizeInput($row['invoice_note']); //SQL Escape in case notes have , them
+    $client_id = intval($row['invoice_client_id']);
+    $category_id = intval($row['invoice_category_id']);
 
     //Get the last Recurring Number and add 1 for the new Recurring number
     $recurring_number = $config_recurring_next_number;
     $new_config_recurring_next_number = $config_recurring_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_recurring_next_number = $new_config_recurring_next_number WHERE company_id = $session_company_id");
 
-    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_prefix = '$config_recurring_prefix', recurring_number = $recurring_number, recurring_scope = '$invoice_scope', recurring_frequency = '$recurring_frequency', recurring_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_status = 1, recurring_amount = '$invoice_amount', recurring_currency_code = '$invoice_currency_code', recurring_note = '$invoice_note', recurring_category_id = $category_id, recurring_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_prefix = '$config_recurring_prefix', recurring_number = $recurring_number, recurring_scope = '$invoice_scope', recurring_frequency = '$recurring_frequency', recurring_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_frequency), recurring_status = 1, recurring_amount = $invoice_amount, recurring_currency_code = '$invoice_currency_code', recurring_note = '$invoice_note', recurring_category_id = $category_id, recurring_client_id = $client_id, company_id = $session_company_id");
 
     $recurring_id = mysqli_insert_id($mysqli);
 
@@ -3174,17 +3174,17 @@ if(isset($_POST['add_invoice_recurring'])){
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql_items)){
-        $item_id = $row['item_id'];
-        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
-        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
-        $item_quantity = $row['item_quantity'];
-        $item_price = $row['item_price'];
-        $item_subtotal = $row['item_subtotal'];
-        $item_tax = $row['item_tax'];
-        $item_total = $row['item_total'];
-        $tax_id = $row['item_tax_id'];
+        $item_id = intval($row['item_id']);
+        $item_name = sanitizeInput($row['item_name']);
+        $item_description = sanitizeInput($row['item_description']);
+        $item_quantity = floatval($row['item_quantity']);
+        $item_price = floatval($row['item_price']);
+        $item_subtotal = floatval($row['item_subtotal']);
+        $item_tax = floatval($row['item_tax']);
+        $item_total = floatval($row['item_total']);
+        $tax_id = intval($row['item_tax_id']);
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_tax_id = $tax_id, item_recurring_id = $recurring_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_tax_id = $tax_id, item_recurring_id = $recurring_id, company_id = $session_company_id");
     }
 
     //Logging
@@ -3228,7 +3228,7 @@ if(isset($_POST['add_quote'])){
 if(isset($_POST['add_quote_copy'])){
 
     $quote_id = intval($_POST['quote_id']);
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
+    $date = sanitizeInput($_POST['date']);
 
     //Get the last Invoice Number and add 1 for the new invoice number
     $quote_number = $config_quote_next_number;
@@ -3247,7 +3247,7 @@ if(isset($_POST['add_quote_copy'])){
     //Generate a unique URL key for clients to access
     $quote_url_key = randomString(156);
 
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$quote_scope', quote_date = '$date', quote_category_id = $category_id, quote_status = 'Draft', quote_amount = '$quote_amount', quote_currency_code = '$quote_currency_code', quote_note = '$quote_note', quote_url_key = '$quote_url_key', quote_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$quote_scope', quote_date = '$date', quote_category_id = $category_id, quote_status = 'Draft', quote_amount = $quote_amount, quote_currency_code = '$quote_currency_code', quote_note = '$quote_note', quote_url_key = '$quote_url_key', quote_client_id = $client_id, company_id = $session_company_id");
 
     $new_quote_id = mysqli_insert_id($mysqli);
 
@@ -3265,7 +3265,7 @@ if(isset($_POST['add_quote_copy'])){
         $item_total = floatval($row['item_total']);
         $tax_id = intval($row['item_tax_id']);
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_tax_id = $tax_id, item_quote_id = $new_quote_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_tax_id = $tax_id, item_quote_id = $new_quote_id, company_id = $session_company_id");
     }
 
     //Logging
@@ -3280,7 +3280,7 @@ if(isset($_POST['add_quote_copy'])){
 if(isset($_POST['add_quote_to_invoice'])){
 
     $quote_id = intval($_POST['quote_id']);
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
+    $date = sanitizeInput($_POST['date']);
     $client_net_terms = intval($_POST['client_net_terms']);
 
     $invoice_number = $config_invoice_next_number;
@@ -3410,14 +3410,14 @@ if(isset($_GET['delete_quote'])){
     //Delete Items Associated with the Quote
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
-        $item_id = $row['item_id'];
+        $item_id = intval($row['item_id']);
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     }
 
     //Delete History Associated with the Quote
     $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE history_quote_id = $quote_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
-        $history_id = $row['history_id'];
+        $history_id = intval($row['history_id']);
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
 
@@ -3469,7 +3469,7 @@ if(isset($_GET['mark_quote_sent'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Update', log_description = '$quote_id marked sent', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> Quote marked sent";
+    $_SESSION['alert_message'] = "Quote marked sent";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -3486,7 +3486,7 @@ if(isset($_GET['accept_quote'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = 'Accepted Quote $quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "<i class='fa fa-2x fa-check-circle'></i> Quote accepted";
+    $_SESSION['alert_message'] = "Quote accepted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -3584,10 +3584,10 @@ if(isset($_GET['email_quote'])){
 if(isset($_POST['add_recurring'])){
 
     $client = intval($_POST['client']);
-    $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
-    $start_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date'])));
+    $frequency = sanitizeInput($_POST['frequency']);
+    $start_date = sanitizeInput($_POST['start_date']);
     $category = intval($_POST['category']);
-    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
+    $scope = sanitizeInput($_POST['scope']);
 
     //Get the last Recurring Number and add 1 for the new Recurring number
     $recurring_number = $config_recurring_next_number;
@@ -3612,10 +3612,10 @@ if(isset($_POST['add_recurring'])){
 if(isset($_POST['edit_recurring'])){
 
     $recurring_id = intval($_POST['recurring_id']);
-    $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
-    $next_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['next_date'])));
+    $frequency = sanitizeInput($_POST['frequency']);
+    $next_date = sanitizeInput($_POST['next_date']);
     $category = intval($_POST['category']);
-    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
+    $scope = sanitizeInput($_POST['scope']);
     $status = intval($_POST['status']);
 
     mysqli_query($mysqli,"UPDATE recurring SET recurring_scope = '$scope', recurring_frequency = '$frequency', recurring_next_date = '$next_date', recurring_category_id = $category, recurring_status = $status WHERE recurring_id = $recurring_id AND company_id = $session_company_id");
@@ -3639,14 +3639,14 @@ if(isset($_GET['delete_recurring'])){
     //Delete Items Associated with the Recurring
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
-        $item_id = $row['item_id'];
+        $item_id = intval($row['item_id']);
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id AND company_id = $session_company_id");
     }
 
     //Delete History Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE history_recurring_id = $recurring_id AND company_id = $session_company_id");
     while($row = mysqli_fetch_array($sql)){;
-        $history_id = $row['history_id'];
+        $history_id = intval($row['history_id']);
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id AND company_id = $session_company_id");
     }
 
@@ -4086,18 +4086,18 @@ if(isset($_GET['delete_payment'])){
 
     $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_id = $payment_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $invoice_id = $row['payment_invoice_id'];
-    $deleted_payment_amount = $row['payment_amount'];
+    $invoice_id = intval($row['payment_invoice_id']);
+    $deleted_payment_amount = floatval($row['payment_amount']);
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_amount FROM payments WHERE payment_invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql_total_payments_amount);
-    $total_payments_amount = $row['total_payments_amount'];
+    $total_payments_amount = floatval($row['total_payments_amount']);
 
     //Get the invoice total
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $invoice_amount = $row['invoice_amount'];
+    $invoice_amount = floatval($row['invoice_amount']);
 
     //Calculate the Invoice balance
     $invoice_balance = $invoice_amount - $total_payments_amount + $deleted_payment_amount;
@@ -4218,16 +4218,16 @@ if(isset($_GET['email_invoice'])){
 
 if(isset($_POST['add_revenue'])){
 
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
+    $date = sanitizeInput($_POST['date']);
     $amount = floatval($_POST['amount']);
-    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
+    $currency_code = sanitizeInput($_POST['currency_code']);
     $account = intval($_POST['account']);
     $category = intval($_POST['category']);
-    $payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
+    $payment_method = sanitizeInput($_POST['payment_method']);
+    $description = sanitizeInput($_POST['description']);
+    $reference = sanitizeInput($_POST['reference']);
 
-    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account, company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Create', log_description = '$date - $amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -4241,16 +4241,16 @@ if(isset($_POST['add_revenue'])){
 if(isset($_POST['edit_revenue'])){
 
     $revenue_id = intval($_POST['revenue_id']);
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
+    $date = sanitizeInput($_POST['date']);
     $amount = floatval($_POST['amount']);
-    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
+    $currency_code = sanitizeInput($_POST['currency_code']);
     $account = intval($_POST['account']);
     $category = intval($_POST['category']);
-    $payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $reference = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['reference'])));
+    $payment_method = sanitizeInput($_POST['payment_method']);
+    $description = sanitizeInput($_POST['description']);
+    $reference = sanitizeInput($_POST['reference']);
 
-    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = '$amount', revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account WHERE revenue_id = $revenue_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Modify', log_description = '$revenue_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -4334,7 +4334,7 @@ if(isset($_POST['edit_contact'])){
     require_once('models/contact.php');
 
     $contact_id = intval($_POST['contact_id']);
-    $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
+    $existing_file_name = sanitizeInput($_POST['existing_file_name']);
 
     if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
@@ -4349,7 +4349,7 @@ if(isset($_POST['edit_contact'])){
 
     // Set password
     if(!empty($_POST['contact_password'])){
-        $password_hash = mysqli_real_escape_string($mysqli,password_hash($_POST['contact_password'], PASSWORD_DEFAULT));
+        $password_hash = password_hash($_POST['contact_password'], PASSWORD_DEFAULT);
         mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_id = '$contact_id' AND contact_client_id = '$client_id'");
     }
 
@@ -4418,8 +4418,8 @@ if(isset($_GET['archive_contact'])){
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $contact_name = strip_tags(mysqli_real_escape_string($mysqli, $row['contact_name']));
-    $client_id = $row['contact_client_id'];
+    $contact_name = sanitizeInput($row['contact_name']);
+    $client_id = intval($row['contact_client_id']);
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NOW() WHERE contact_id = $contact_id AND company_id = $session_company_id");
 
@@ -4427,7 +4427,7 @@ if(isset($_GET['archive_contact'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id, company_id = $session_company_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> archived.<br><a class='text-white text-bold' href='post.php?undo_archive_contact=$contact_id'>Undo</a>";
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> archived";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -4442,7 +4442,7 @@ if(isset($_GET['delete_contact'])){
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $contact_name = strip_tags(mysqli_real_escape_string($mysqli, $row['contact_name']));
+    $contact_name = sanitizeInput($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id AND company_id = $session_company_id");
@@ -4649,15 +4649,15 @@ if(isset($_POST['add_location'])){
     validateAdminRole();
 
     $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
-    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
-    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
-    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
-    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
+    $name = sanitizeInput($_POST['name']);
+    $country = sanitizeInput($_POST['country']);
+    $address = sanitizeInput($_POST['address']);
+    $city = sanitizeInput($_POST['city']);
+    $state = sanitizeInput($_POST['state']);
+    $zip = sanitizeInput($_POST['zip']);
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $hours = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours'])));
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $hours = sanitizeInput($_POST['hours']);
+    $notes = sanitizeInput($_POST['notes']);
     $contact = intval($_POST['contact']);
     $primary_location = intval($_POST['primary_location']);
 
@@ -4731,19 +4731,19 @@ if(isset($_POST['edit_location'])){
 
     $location_id = intval($_POST['location_id']);
     $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $country = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['country'])));
-    $address = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['address'])));
-    $city = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['city'])));
-    $state = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['state'])));
-    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['zip'])));
+    $name = sanitizeInput($_POST['name']);
+    $country = sanitizeInput($_POST['country']);
+    $address = sanitizeInput($_POST['address']);
+    $city = sanitizeInput($_POST['city']);
+    $state = sanitizeInput($_POST['state']);
+    $zip = sanitizeInput($_POST['zip']);
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $hours = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['hours'])));
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $hours = sanitizeInput($_POST['hours']);
+    $notes = sanitizeInput($_POST['notes']);
     $contact = intval($_POST['contact']);
     $primary_location = intval($_POST['primary_location']);
 
-    $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
+    $existing_file_name = sanitizeInput($_POST['existing_file_name']);
 
     if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
@@ -5051,32 +5051,32 @@ if(isset($_POST['add_asset'])){
     validateTechRole();
 
     $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
-    $make = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['make'])));
-    $model = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['model'])));
-    $serial = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial'])));
-    $os = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['os'])));
-    $ip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['ip'])));
-    $mac = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['mac'])));
-    $status = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['status'])));
+    $name = sanitizeInput($_POST['name']);
+    $type = sanitizeInput($_POST['type']);
+    $make = sanitizeInput($_POST['make']);
+    $model = sanitizeInput($_POST['model']);
+    $serial = sanitizeInput($_POST['serial']);
+    $os = sanitizeInput($_POST['os']);
+    $ip = sanitizeInput($_POST['ip']);
+    $mac = sanitizeInput($_POST['mac']);
+    $status = sanitizeInput($_POST['status']);
     $location = intval($_POST['location']);
     $vendor = intval($_POST['vendor']);
     $contact = intval($_POST['contact']);
     $network = intval($_POST['network']);
-    $purchase_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date'])));
+    $purchase_date = sanitizeInput($_POST['purchase_date']);
     if(empty($purchase_date)){
         $purchase_date = "0000-00-00";
     }
-    $warranty_expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire'])));
+    $warranty_expire = sanitizeInput($_POST['warranty_expire']);
     if(empty($warranty_expire)){
         $warranty_expire = "0000-00-00";
     }
-    $install_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['install_date'])));
+    $install_date = sanitizeInput($_POST['install_date']);
     if(empty($install_date)){
         $install_date = "0000-00-00";
     }
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $notes = sanitizeInput($_POST['notes']);
 
     $alert_extended = "";
 
@@ -5115,32 +5115,32 @@ if(isset($_POST['edit_asset'])){
     $asset_id = intval($_POST['asset_id']);
     $login_id = intval($_POST['login_id']);
     $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
-    $make = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['make'])));
-    $model = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['model'])));
-    $serial = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['serial'])));
-    $os = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['os'])));
-    $ip = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['ip'])));
-    $mac = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['mac'])));
-    $status = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['status'])));
+    $name = sanitizeInput($_POST['name']);
+    $type = sanitizeInput($_POST['type']);
+    $make = sanitizeInput($_POST['make']);
+    $model = sanitizeInput($_POST['model']);
+    $serial = sanitizeInput($_POST['serial']);
+    $os = sanitizeInput($_POST['os']);
+    $ip = sanitizeInput($_POST['ip']);
+    $mac = sanitizeInput($_POST['mac']);
+    $status = sanitizeInput($_POST['status']);
     $location = intval($_POST['location']);
     $vendor = intval($_POST['vendor']);
     $contact = intval($_POST['contact']);
     $network = intval($_POST['network']);
-    $purchase_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase_date'])));
+    $purchase_date = sanitizeInput($_POST['purchase_date']);
     if(empty($purchase_date)){
         $purchase_date = "0000-00-00";
     }
-    $warranty_expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['warranty_expire'])));
+    $warranty_expire = sanitizeInput($_POST['warranty_expire']);
     if(empty($warranty_expire)){
         $warranty_expire = "0000-00-00";
     }
-    $install_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['install_date'])));
+    $install_date = sanitizeInput($_POST['install_date']);
     if(empty($install_date)){
         $install_date = "0000-00-00";
     }
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $notes = sanitizeInput($_POST['notes']);
     $username = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['username'])));
     $password = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['password'])));
 
@@ -5422,11 +5422,11 @@ if(isset($_POST['add_software_template'])){
 
     validateTechRole();
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['version'])));
-    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
-    $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license_type'])));
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $name = sanitizeInput($_POST['name']);
+    $version = sanitizeInput($_POST['version']);
+    $type = sanitizeInput($_POST['type']);
+    $license_type = sanitizeInput($_POST['license_type']);
+    $notes = sanitizeInput($_POST['notes']);
 
     mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_template = 1, software_client_id = 0, company_id = $session_company_id");
 
@@ -5444,11 +5444,11 @@ if(isset($_POST['edit_software_template'])){
     validateTechRole();
 
     $software_id = intval($_POST['software_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['version'])));
-    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
-    $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license_type'])));
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $name = sanitizeInput($_POST['name']);
+    $version = sanitizeInput($_POST['version']);
+    $type = sanitizeInput($_POST['type']);
+    $license_type = sanitizeInput($_POST['license_type']);
+    $notes = sanitizeInput($_POST['notes']);
 
     mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes' WHERE software_id = $software_id AND company_id = $session_company_id");
 
@@ -5472,11 +5472,11 @@ if(isset($_POST['add_software_from_template'])){
 
     $row = mysqli_fetch_array($sql_software);
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_name'])));
-    $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_version'])));
-    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_type'])));
-    $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_license_type'])));
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['software_notes'])));
+    $name = sanitizeInput($_POST['name']);
+    $version = sanitizeInput($_POST['version']);
+    $type = sanitizeInput($_POST['type']);
+    $license_type = sanitizeInput($_POST['license_type']);
+    $notes = sanitizeInput($_POST['notes']);
 
     // Software add query
     mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_client_id = $client_id, company_id = $session_company_id");
@@ -5495,23 +5495,24 @@ if(isset($_POST['add_software'])){
     validateTechRole();
 
     $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['version'])));
-    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
-    $key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['key'])));
-    $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license_type'])));
+    $name = sanitizeInput($_POST['name']);
+    $version = sanitizeInput($_POST['version']);
+    $type = sanitizeInput($_POST['type']);
+    $license_type = sanitizeInput($_POST['license_type']);
+    $notes = sanitizeInput($_POST['notes']);
+    $key = sanitizeInput($_POST['key']);
     $seats = intval($_POST['seats']);
-    $purchase = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase'])));
+    $purchase = sanitizeInput($_POST['purchase']);
     if(empty($purchase)){
         $purchase = "0000-00-00";
     }
-    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
+    $expire = sanitizeInput($_POST['expire']);
     if(empty($expire)){
         $expire = "0000-00-00";
     }
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $notes = sanitizeInput($_POST['notes']);
 
-    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = '$seats', software_purchase = '$purchase', software_expire = '$expire', software_notes = '$notes', software_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = '$purchase', software_expire = '$expire', software_notes = '$notes', software_client_id = $client_id, company_id = $session_company_id");
 
     $software_id = mysqli_insert_id($mysqli);
 
@@ -5557,21 +5558,22 @@ if(isset($_POST['edit_software'])){
     $software_id = intval($_POST['software_id']);
     $login_id = intval($_POST['login_id']);
     $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $version = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['version'])));
-    $type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['type'])));
-    $key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['key'])));
-    $license_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['license_type'])));
+    $name = sanitizeInput($_POST['name']);
+    $version = sanitizeInput($_POST['version']);
+    $type = sanitizeInput($_POST['type']);
+    $license_type = sanitizeInput($_POST['license_type']);
+    $notes = sanitizeInput($_POST['notes']);
+    $key = sanitizeInput($_POST['key']);
     $seats = intval($_POST['seats']);
-    $purchase = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['purchase'])));
+    $purchase = sanitizeInput($_POST['purchase']);
     if(empty($purchase)){
         $purchase = "0000-00-00";
     }
-    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
+    $expire = sanitizeInput($_POST['expire']);
     if(empty($expire)){
         $expire = "0000-00-00";
     }
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $notes = sanitizeInput($_POST['notes']);
     $username = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['username'])));
     $password = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['password'])));
 
@@ -5754,12 +5756,12 @@ if(isset($_POST['add_login'])){
     validateTechRole();
 
     $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['uri'])));
-    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['username']))));
-    $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
-    $otp_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['otp_secret'])));
-    $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
+    $name = sanitizeInput($_POST['name']);
+    $uri = sanitizeInput($_POST['uri']);
+    $username = encryptLoginEntry($_POST['username']);
+    $password = encryptLoginEntry($_POST['password']);
+    $otp_secret = sanitizeInput($_POST['otp_secret']);
+    $note = sanitizeInput($_POST['note']);
     $important = intval($_POST['important']);
     $contact_id = intval($_POST['contact']);
     $vendor_id = intval($_POST['vendor']);
@@ -5784,12 +5786,12 @@ if(isset($_POST['edit_login'])){
     validateTechRole();
 
     $login_id = intval($_POST['login_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $uri = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['uri'])));
-    $username = trim(strip_tags(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['username']))));
-    $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
-    $otp_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['otp_secret'])));
-    $note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
+    $name = sanitizeInput($_POST['name']);
+    $uri = sanitizeInput($_POST['uri']);
+    $username = encryptLoginEntry($_POST['username']);
+    $password = encryptLoginEntry($_POST['password']);
+    $otp_secret = sanitizeInput($_POST['otp_secret']);
+    $note = sanitizeInput($_POST['note']);
     $important = intval($_POST['important']);
     $contact_id = intval($_POST['contact']);
     $vendor_id = intval($_POST['vendor']);
@@ -5997,11 +5999,11 @@ if(isset($_POST['add_network'])){
     validateTechRole();
 
     $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $name = sanitizeInput($_POST['name']);
     $vlan = intval($_POST['vlan']);
-    $network = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['network'])));
-    $gateway = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['gateway'])));
-    $dhcp_range = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range'])));
+    $network = sanitizeInput($_POST['network']);
+    $gateway = sanitizeInput($_POST['gateway']);
+    $dhcp_range = sanitizeInput($_POST['dhcp_range']);
     $location_id = intval($_POST['location']);
 
     mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_location_id = $location_id, network_client_id = $client_id, company_id = $session_company_id");
@@ -6022,11 +6024,11 @@ if(isset($_POST['edit_network'])){
     validateTechRole();
 
     $network_id = intval($_POST['network_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $name = sanitizeInput($_POST['name']);
     $vlan = intval($_POST['vlan']);
-    $network = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['network'])));
-    $gateway = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['gateway'])));
-    $dhcp_range = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['dhcp_range'])));
+    $network = sanitizeInput($_POST['network']);
+    $gateway = sanitizeInput($_POST['gateway']);
+    $dhcp_range = sanitizeInput($_POST['dhcp_range']);
     $location_id = intval($_POST['location']);
     $client_id = intval($_POST['client_id']);
 
@@ -6120,11 +6122,11 @@ if(isset($_POST['add_certificate'])){
     validateTechRole();
 
     $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $domain = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['domain'])));
-    $issued_by = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['issued_by'])));
-    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
-    $public_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['public_key'])));
+    $name = sanitizeInput($_POST['name']);
+    $domain = sanitizeInput($_POST['domain']);
+    $issued_by = sanitizeInput($_POST['issued_by']);
+    $expire = sanitizeInput($_POST['expire']);
+    $public_key = sanitizeInput($_POST['public_key']);
     $domain_id = intval($_POST['domain_id']);
 
     // Parse public key data for a manually provided public key
@@ -6133,7 +6135,7 @@ if(isset($_POST['add_certificate'])){
         $public_key_obj = openssl_x509_parse($_POST['public_key']);
         if ($public_key_obj) {
             $expire = date('Y-m-d', $public_key_obj['validTo_time_t']);
-            $issued_by = strip_tags(mysqli_real_escape_string($mysqli,$public_key_obj['issuer']['O']));
+            $issued_by = sanitizeInput($public_key_obj['issuer']['O']);
         }
     }
 
@@ -6159,11 +6161,11 @@ if(isset($_POST['edit_certificate'])){
     validateTechRole();
 
     $certificate_id = intval($_POST['certificate_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $domain = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['domain'])));
-    $issued_by = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['issued_by'])));
-    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
-    $public_key = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['public_key'])));
+    $name = sanitizeInput($_POST['name']);
+    $domain = sanitizeInput($_POST['domain']);
+    $issued_by = sanitizeInput($_POST['issued_by']);
+    $expire = sanitizeInput($_POST['expire']);
+    $public_key = sanitizeInput($_POST['public_key']);
     $domain_id = intval($_POST['domain_id']);
     $client_id = intval($_POST['client_id']);
 
@@ -6173,7 +6175,7 @@ if(isset($_POST['edit_certificate'])){
         $public_key_obj = openssl_x509_parse($_POST['public_key']);
         if ($public_key_obj) {
             $expire = date('Y-m-d', $public_key_obj['validTo_time_t']);
-            $issued_by = strip_tags(mysqli_real_escape_string($mysqli,$public_key_obj['issuer']['O']));
+            $issued_by = sanitizeInput($public_key_obj['issuer']['O']);
         }
     }
 
@@ -6272,11 +6274,11 @@ if(isset($_POST['add_domain'])){
     validateTechRole();
 
     $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $name = sanitizeInput($_POST['name']);
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
     $extended_log_description = '';
-    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
+    $expire = sanitizeInput($_POST['expire']);
     if(empty($expire)){
         $expire = "0000-00-00";
     }
@@ -6288,11 +6290,11 @@ if(isset($_POST['add_domain'])){
 
     // NS, MX, A and WHOIS records/data
     $records = getDomainRecords($name);
-    $a = mysqli_real_escape_string($mysqli, $records['a']);
-    $ns = mysqli_real_escape_string($mysqli, $records['ns']);
-    $mx = mysqli_real_escape_string($mysqli, $records['mx']);
-    $txt = mysqli_real_escape_string($mysqli, $records['txt']);
-    $whois = mysqli_real_escape_string($mysqli, $records['whois']);
+    $a = sanitizeInput($records['a']);
+    $ns = sanitizeInput($records['ns']);
+    $mx = sanitizeInput($records['mx']);
+    $txt = sanitizeInput($records['txt']);
+    $whois = sanitizeInput($records['whois']);
 
     // Add domain record
     mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_client_id = $client_id, company_id = $session_company_id");
@@ -6304,9 +6306,9 @@ if(isset($_POST['add_domain'])){
     // Get SSL cert for domain (if exists)
     $certificate = getSSL($name);
     if($certificate['success'] == "TRUE"){
-        $expire = mysqli_real_escape_string($mysqli, $certificate['expire']);
-        $issued_by = mysqli_real_escape_string($mysqli, $certificate['issued_by']);
-        $public_key = mysqli_real_escape_string($mysqli, $certificate['public_key']);
+        $expire = sanitizeInput($certificate['expire']);
+        $issued_by = sanitizeInput($certificate['issued_by']);
+        $public_key = sanitizeInput($certificate['public_key']);
 
         mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$name', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
         $extended_log_description = ', with associated SSL cert';
@@ -6326,10 +6328,10 @@ if(isset($_POST['edit_domain'])){
     validateTechRole();
 
     $domain_id = intval($_POST['domain_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $name = sanitizeInput($_POST['name']);
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
-    $expire = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expire'])));
+    $expire = sanitizeInput($_POST['expire']);
     if(empty($expire)){
         $expire = "0000-00-00";
     }
@@ -6340,11 +6342,11 @@ if(isset($_POST['edit_domain'])){
 
     // Update NS, MX, A and WHOIS records/data
     $records = getDomainRecords($name);
-    $a = mysqli_real_escape_string($mysqli, $records['a']);
-    $ns = mysqli_real_escape_string($mysqli, $records['ns']);
-    $mx = mysqli_real_escape_string($mysqli, $records['mx']);
-    $txt = mysqli_real_escape_string($mysqli, $records['txt']);
-    $whois = mysqli_real_escape_string($mysqli, $records['whois']);
+    $a = sanitizeInput($records['a']);
+    $ns = sanitizeInput($records['ns']);
+    $mx = sanitizeInput($records['mx']);
+    $txt = sanitizeInput($records['txt']);
+    $whois = sanitizeInput($records['whois']);
 
     mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
@@ -6445,8 +6447,8 @@ if(isset($_POST['add_ticket'])){
     $client_id = intval($_POST['client']);
     $assigned_to = intval($_POST['assigned_to']);
     $contact = intval($_POST['contact']);
-    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
-    $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
+    $subject = sanitizeInput($_POST['subject']);
+    $priority = sanitizeInput($_POST['priority']);
     $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
@@ -6455,7 +6457,7 @@ if(isset($_POST['add_ticket'])){
     if($client_id > 0 && $contact == 0){
         $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
-        $contact = $row['primary_contact'];
+        $contact = intval($row['primary_contact']);
     }
 
     //Get the next Ticket Number and add 1 for the new ticket number
@@ -6481,7 +6483,7 @@ if(isset($_POST['add_ticket'])){
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
         $ticket_prefix = $row['ticket_prefix'];
-        $ticket_number = $row['ticket_number'];
+        $ticket_number = intval($row['ticket_number']);
         $ticket_subject = $row['ticket_subject'];
         $company_phone = formatPhoneNumber($row['company_phone']);
 
@@ -6525,13 +6527,13 @@ if(isset($_POST['edit_ticket'])){
     $ticket_id = intval($_POST['ticket_id']);
     $assigned_to = intval($_POST['assigned_to']);
     $contact_id = intval($_POST['contact']);
-    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
-    $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
+    $subject = sanitizeInput($_POST['subject']);
+    $priority = sanitizeInput($_POST['priority']);
     $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
     $client_id = intval($_POST['client_id']);
-    $ticket_number = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['ticket_number'])));
+    $ticket_number = intval($_POST['ticket_number']);
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
 
@@ -6626,10 +6628,10 @@ if(isset($_GET['delete_ticket'])){
     // Get Ticket and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_client_id FROM tickets WHERE ticket_id = $ticket_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $ticket_prefix = strip_tags(mysqli_real_escape_string($mysqli,$row['ticket_prefix']));
-    $ticket_number = strip_tags(mysqli_real_escape_string($mysqli,$row['ticket_number']));
-    $ticket_subject = strip_tags(mysqli_real_escape_string($mysqli,$row['ticket_subject']));
-    $ticket_status = strip_tags(mysqli_real_escape_string($mysqli,$row['ticket_status']));
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = sanitizeInput($row['ticket_number']);
+    $ticket_subject = sanitizeInput($row['ticket_subject']);
+    $ticket_status = sanitizeInput($row['ticket_status']);
     $client_id = intval($row['ticket_client_id']);
 
     if ($ticket_status !== 'Closed') {
@@ -6664,8 +6666,8 @@ if(isset($_POST['add_ticket_reply'])){
 
     $ticket_id = intval($_POST['ticket_id']);
     $ticket_reply = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['ticket_reply']))));
-    $ticket_status = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['status'])));
-    $ticket_reply_time_worked = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['time'])));
+    $ticket_status = sanitizeInput($_POST['status']);
+    $ticket_reply_time_worked = sanitizeInput($_POST['time']);
 
     $client_id = intval($_POST['client_id']);
 
@@ -6770,7 +6772,7 @@ if(isset($_POST['edit_ticket_reply'])){
 
     $ticket_reply_id = intval($_POST['ticket_reply_id']);
     $ticket_reply = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['ticket_reply']))));
-    $ticket_reply_time_worked = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['time'])));
+    $ticket_reply_time_worked = sanitizeInput($_POST['time']);
 
     $client_id = intval($_POST['client_id']);
 
@@ -6809,7 +6811,7 @@ if(isset($_POST['merge_ticket'])){
 
     $ticket_id = intval($_POST['ticket_id']);
     $merge_into_ticket_number = intval($_POST['merge_into_ticket_number']);
-    $merge_comment = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['merge_comment'])));
+    $merge_comment = sanitizeInput($_POST['merge_comment']);
     $ticket_reply_type = 'Internal';
 
     //Get current ticket details
@@ -6820,10 +6822,10 @@ if(isset($_POST['merge_ticket'])){
         exit();
     }
     $row = mysqli_fetch_array($sql);
-    $ticket_prefix = trim(mysqli_real_escape_string($mysqli,$row['ticket_prefix']));
-    $ticket_number = trim(mysqli_real_escape_string($mysqli,$row['ticket_number']));
-    $ticket_subject = trim(mysqli_real_escape_string($mysqli,$row['ticket_subject']));
-    $ticket_details = trim(mysqli_real_escape_string($mysqli,$row['ticket_details']));
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_subject = sanitizeInput($row['ticket_subject']);
+    $ticket_details = sanitizeInput($row['ticket_details']);
 
     //Get merge into ticket id (as it may differ from the number)
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_number = '$merge_into_ticket_number'");
@@ -6833,7 +6835,7 @@ if(isset($_POST['merge_ticket'])){
         exit();
     }
     $merge_row = mysqli_fetch_array($sql);
-    $merge_into_ticket_id = trim(mysqli_real_escape_string($mysqli,$merge_row['ticket_id']));
+    $merge_into_ticket_id = intval($merge_row['ticket_id']);
 
     if($ticket_number == $merge_into_ticket_number){
         $_SESSION['alert_message'] = "Cannot merge into the same ticket.";
@@ -6851,7 +6853,7 @@ if(isset($_POST['merge_ticket'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Merged', log_description = 'Merged ticket $ticket_prefix$ticket_number into $ticket_prefix$merge_into_ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Ticket merged into $ticket_prefix$merge_into_ticket_number.";
+    $_SESSION['alert_message'] = "Ticket merged into $ticket_prefix$merge_into_ticket_number";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -6919,9 +6921,9 @@ if(isset($_POST['add_invoice_from_ticket'])){
 
     $invoice_id = intval($_POST['invoice_id']);
     $ticket_id = intval($_POST['ticket_id']);
-    $date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date'])));
+    $date = sanitizeInput($_POST['date']);
     $category = intval($_POST['category']);
-    $scope = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['scope'])));
+    $scope = sanitizeInput($_POST['scope']);
 
     $sql = mysqli_query($mysqli, "SELECT * FROM tickets 
         LEFT JOIN clients ON ticket_client_id = client_id
@@ -7079,7 +7081,7 @@ if(isset($_POST['add_scheduled_ticket'])){
     if($client_id > 0 && $contact == 0){
         $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
-        $contact = $row['primary_contact'];
+        $contact = intval($row['primary_contact']);
     }
 
     // Add scheduled ticket
@@ -7108,12 +7110,12 @@ if(isset($_POST['edit_scheduled_ticket'])){
 
     $client_id = intval($_POST['client_id']);
     $scheduled_ticket_id = intval($_POST['scheduled_ticket_id']);
-    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
-    $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
+    $subject = sanitizeInput($_POST['subject']);
+    $priority = sanitizeInput($_POST['priority']);
     $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
     $asset_id = intval($_POST['asset']);
-    $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
-    $next_run_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['next_date'])));
+    $frequency = sanitizeInput($_POST['frequency']);
+    $next_run_date = sanitizeInput($_POST['next_date']);
 
     // Edit scheduled ticket
     mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_next_run = '$next_run_date', scheduled_ticket_asset_id = $asset_id, company_id = $session_company_id WHERE scheduled_ticket_id = $scheduled_ticket_id");
@@ -7136,8 +7138,8 @@ if(isset($_GET['delete_scheduled_ticket'])){
     // Get Scheduled Ticket Subject Ticket Prefix, Number and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT * FROM scheduled_tickets WHERE scheduled_ticket_id = $scheduled_ticket_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
-    $scheduled_ticket_subject = strip_tags(mysqli_real_escape_string($mysqli, $row['scheduled_ticket_subject']));
-    $scheduled_ticket_frequency = strip_tags(mysqli_real_escape_string($mysqli, $row['scheduled_ticket_frequency']));
+    $scheduled_ticket_subject = sanitizeInput($row['scheduled_ticket_subject']);
+    $scheduled_ticket_frequency = sanitizeInput($row['scheduled_ticket_frequency']);
 
     $client_id = intval($row['scheduled_ticket_client_id']);
 
@@ -7157,12 +7159,12 @@ if(isset($_POST['add_service'])){
     validateTechRole();
 
     $client_id = intval($_POST['client_id']);
-    $service_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $service_description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $service_category = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['category']))); //TODO: Needs integration with company categories
-    $service_importance = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['importance'])));
-    $service_backup = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['backup'])));
-    $service_notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
+    $service_name = sanitizeInput($_POST['name']);
+    $service_description = sanitizeInput($_POST['description']);
+    $service_category = sanitizeInput($_POST['category']); //TODO: Needs integration with company categories
+    $service_importance = sanitizeInput($_POST['importance']);
+    $service_backup = sanitizeInput($_POST['backup']);
+    $service_notes = sanitizeInput($_POST['note']);
 
     // Create Service
     $service_sql = mysqli_query($mysqli, "INSERT INTO services SET service_name = '$service_name', service_description = '$service_description', service_category = '$service_category', service_importance = '$service_importance', service_backup = '$service_backup', service_notes = '$service_notes', service_client_id = '$client_id', company_id = '$session_company_id'");
@@ -7260,12 +7262,12 @@ if(isset($_POST['edit_service'])){
 
     $client_id = intval($_POST['client_id']);
     $service_id = intval($_POST['service_id']);
-    $service_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $service_description = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['description'])));
-    $service_category = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['category']))); //TODO: Needs integration with company categories
-    $service_importance = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['importance'])));
-    $service_backup = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['backup'])));
-    $service_notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['note'])));
+    $service_name = sanitizeInput($_POST['name']);
+    $service_description = sanitizeInput($_POST['description']);
+    $service_category = sanitizeInput($_POST['category']); //TODO: Needs integration with company categories
+    $service_importance = sanitizeInput($_POST['importance']);
+    $service_backup = sanitizeInput($_POST['backup']);
+    $service_notes = sanitizeInput($_POST['note']);
 
     // Update main service details
     mysqli_query($mysqli, "UPDATE services SET service_name = '$service_name', service_description = '$service_description', service_category = '$service_category', service_importance = '$service_importance', service_backup = '$service_backup', service_notes = '$service_notes' WHERE service_id = '$service_id' AND company_id = '$session_company_id'");
@@ -7392,7 +7394,7 @@ if(isset($_GET['delete_service'])){
 
 if(isset($_POST['add_file'])){
     $client_id = intval($_POST['client_id']);
-    $file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['new_name'])));
+    $file_name = sanitizeInput($_POST['new_name']);
 
     if(!file_exists("uploads/clients/$session_company_id/$client_id")) {
         mkdir("uploads/clients/$session_company_id/$client_id");
@@ -7459,9 +7461,9 @@ if(isset($_GET['delete_file'])){
 
     $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql_file);
-    $client_id = $row['file_client_id'];
-    $file_name = $row['file_name'];
-    $file_reference_name = $row['file_reference_name'];
+    $client_id = intval($row['file_client_id']);
+    $file_name = sanitizeInput($row['file_name']);
+    $file_reference_name = sanitizeInput($row['file_reference_name']);
 
     unlink("uploads/clients/$session_company_id/$client_id/$file_reference_name");
 
@@ -7470,7 +7472,8 @@ if(isset($_GET['delete_file'])){
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Delete', log_description = '$file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "File deleted";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "File <strong>$file_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -7487,21 +7490,21 @@ if(isset($_POST['add_document'])){
     $purifier = new HTMLPurifier($purifier_config);
 
     $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $name = sanitizeInput($_POST['name']);
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
-    $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
+    $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $_POST['content']));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
 
     $folder = intval($_POST['folder']);
 
     // Document add query
     $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_client_id = $client_id, company_id = $session_company_id");
-    $document_id = $mysqli->insert_id;
+    $document_id = mysqli_insert_id($mysqli);
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = 'Created $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Document added";
+    $_SESSION['alert_message'] = "Document <strong>$name</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -7518,19 +7521,19 @@ if(isset($_POST['add_document_template'])){
     $purifier = new HTMLPurifier($purifier_config);
 
     $client_id = intval($_POST['client_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $name = sanitizeInput($_POST['name']);
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
-    $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
+    $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $_POST['content']));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
 
     // Document add query
     $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_template = 1, document_folder_id = 0, document_client_id = 0, company_id = $session_company_id");
-    $document_id = $mysqli->insert_id;
+    $document_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document Template', log_action = 'Create', log_description = 'Created Document Template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document Template', log_action = 'Create', log_description = '$session_name created document template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $document_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Document Template created";
+    $_SESSION['alert_message'] = "Document template <strong>$name</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -7549,7 +7552,7 @@ if(isset($_POST['add_document_from_template'])){
 
     // GET POST Data
     $client_id = intval($_POST['client_id']);
-    $document_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $document_name = sanitizeInput($_POST['name']);
     $document_template_id = intval($_POST['document_template_id']);
     $folder = intval($_POST['folder']);
 
@@ -7560,17 +7563,17 @@ if(isset($_POST['add_document_from_template'])){
 
     $document_template_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['document_name'])));
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($row['document_content']))));
-    $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $row['document_content']))));
+    $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $row['document_content']));
 
     // Document add query
     $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$document_name', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_client_id = $client_id, company_id = $session_company_id");
 
-    $document_id = $mysqli->insert_id;
+    $document_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = 'Document $document_name created from template $document_template_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = 'Document $document_name created from template $document_template_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $document_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Document created from template";
+    $_SESSION['alert_message'] = "Document <strong>$document_name</strong> created from template";
 
     header("Location: client_document_details.php?client_id=$client_id&document_id=$document_id");
 
@@ -7587,9 +7590,10 @@ if(isset($_POST['edit_document'])){
     $purifier = new HTMLPurifier($purifier_config);
 
     $document_id = intval($_POST['document_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $client_id = intval($_POST['client_id']);
+    $name = sanitizeInput($_POST['name']);
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
-    $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
+    $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $_POST['content']));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
     $folder = intval($_POST['folder']);
 
@@ -7597,10 +7601,10 @@ if(isset($_POST['edit_document'])){
     mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_folder_id = $folder WHERE document_id = $document_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Modify', log_description = '$session_name updated document $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $document_id, company_id = $session_company_id");
 
 
-    $_SESSION['alert_message'] = "Document updated";
+    $_SESSION['alert_message'] = "Document <strong>$name</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -7617,19 +7621,19 @@ if(isset($_POST['edit_document_template'])){
     $purifier = new HTMLPurifier($purifier_config);
 
     $document_id = intval($_POST['document_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $name = sanitizeInput($_POST['name']);
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
-    $content_raw = trim(mysqli_real_escape_string($mysqli, strip_tags($_POST['name'] . " " . str_replace("<", " <", $_POST['content']))));
+    $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $_POST['content']));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
 
     // Document edit query
     mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw' WHERE document_id = $document_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document Template', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document Template', log_action = 'Modify', log_description = '$session_name modified document template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $document_id, company_id = $session_company_id");
 
 
-    $_SESSION['alert_message'] = "Document Template updated";
+    $_SESSION['alert_message'] = "Document Template <strong>$name</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -7657,16 +7661,16 @@ if(isset($_POST['add_folder'])){
     validateTechRole();
 
     $client_id = intval($_POST['client_id']);
-    $folder_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['folder_name'])));
+    $folder_name = sanitizeInput($_POST['folder_name']);
 
     // Document folder add query
     $add_folder = mysqli_query($mysqli,"INSERT INTO folders SET folder_name = '$folder_name', folder_client_id = $client_id, company_id = $session_company_id");
-    $folder_id = $mysqli->insert_id;
+    $folder_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Create', log_description = 'Created $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', company_id = $session_company_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Create', log_description = '$session_name created folder $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $folder_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Folder created";
+    $_SESSION['alert_message'] = "Folder <strong>$folder_name</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -7677,15 +7681,16 @@ if(isset($_POST['rename_folder'])){
     validateTechRole();
 
     $folder_id = intval($_POST['folder_id']);
-    $folder_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['folder_name'])));
+    $client_id = intval($_POST['client_id']);
+    $folder_name = sanitizeInput($_POST['folder_name']);
 
     // Folder edit query
     mysqli_query($mysqli,"UPDATE folders SET folder_name = '$folder_name' WHERE folder_id = $folder_id AND company_id = $session_company_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Modify', log_description = '$folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Modify', log_description = '$session_name renamed folder to $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $folder_id, company_id = $session_company_id");
 
-    $_SESSION['alert_message'] = "Folder renamed";
+    $_SESSION['alert_message'] = "Folder <strong>$folder_name</strong> renamed";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -7702,7 +7707,7 @@ if(isset($_GET['delete_folder'])){
     // Move files in deleted folder back to the root folder /
     $sql_documents = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_folder_id = $folder_id");
     while($row = mysqli_fetch_array($sql_documents)){
-        $document_id = $row['document_id'];
+        $document_id = intval($row['document_id']);
 
         mysqli_query($mysqli,"UPDATE documents SET document_folder_id = 0 WHERE document_id = $document_id");
     }
@@ -7729,17 +7734,18 @@ if(isset($_GET['deactivate_shared_item'])){
     // Get details of the shared link
     $sql = mysqli_query($mysqli, "SELECT item_type, item_related_id, item_client_id FROM shared_items WHERE item_id = '$item_id'");
     $row = mysqli_fetch_array($sql);
-    $item_type = $row['item_type'];
-    $item_related_id = $row['item_related_id'];
-    $item_client_id = $row['item_client_id'];
+    $item_type = sanitizeInput($row['item_type']);
+    $item_related_id = intval($row['item_related_id']);
+    $item_client_id = intval($row['item_client_id']);
 
     // Deactivate item id
     mysqli_query($mysqli, "UPDATE shared_items SET item_active = '0' WHERE item_id = '$item_id'");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'Delete', log_description = '$session_name deactivated shared $item_type link. Item ID: $item_related_id. Share ID $item_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = '$item_client_id', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'Delete', log_description = '$session_name deactivated shared $item_type link. Item ID: $item_related_id. Share ID $item_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $item_client_id, log_user_id = $session_user_id, log_entity_id = $item_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Link deactivated";
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
@@ -7749,18 +7755,18 @@ if(isset($_GET['force_recurring'])){
     $sql_recurring = mysqli_query($mysqli,"SELECT * FROM recurring, clients WHERE client_id = recurring_client_id AND recurring_id = $recurring_id AND recurring.company_id = $session_company_id");
 
     $row = mysqli_fetch_array($sql_recurring);
-    $recurring_id = $row['recurring_id'];
-    $recurring_scope = $row['recurring_scope'];
-    $recurring_frequency = $row['recurring_frequency'];
-    $recurring_status = $row['recurring_status'];
-    $recurring_last_sent = $row['recurring_last_sent'];
-    $recurring_next_date = $row['recurring_next_date'];
-    $recurring_amount = $row['recurring_amount'];
-    $recurring_currency_code = $row['recurring_currency_code'];
-    $recurring_note = mysqli_real_escape_string($mysqli,$row['recurring_note']);
-    $category_id = $row['recurring_category_id'];
-    $client_id = $row['recurring_client_id'];
-    $client_net_terms = $row['client_net_terms'];
+    $recurring_id = intval($row['recurring_id']);
+    $recurring_scope = sanitizeInput($row['recurring_scope']);
+    $recurring_frequency = sanitizeInput($row['recurring_frequency']);
+    $recurring_status = sanitizeInput($row['recurring_status']);
+    $recurring_last_sent = sanitizeInput($row['recurring_last_sent']);
+    $recurring_next_date = sanitizeInput($row['recurring_next_date']);
+    $recurring_amount = floatval($row['recurring_amount']);
+    $recurring_currency_code = sanitizeInput($row['recurring_currency_code']);
+    $recurring_note = sanitizeInput($row['recurring_note']);
+    $category_id = intval($row['recurring_category_id']);
+    $client_id = intval($row['recurring_client_id']);
+    $client_net_terms = intval($row['client_net_terms']);
 
     //Get the last Invoice Number and add 1 for the new invoice number
     $new_invoice_number = $config_invoice_next_number;
@@ -7770,7 +7776,7 @@ if(isset($_GET['force_recurring'])){
     //Generate a unique URL key for clients to access
     $url_key = randomString(156);
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = '$new_invoice_number', invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_currency_code = '$recurring_currency_code', invoice_note = '$recurring_note', invoice_category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = '$new_invoice_number', invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = $recurring_amount, invoice_currency_code = '$recurring_currency_code', invoice_note = '$recurring_note', invoice_category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $session_company_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -7778,19 +7784,19 @@ if(isset($_GET['force_recurring'])){
     $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id AND company_id = $session_company_id ORDER BY item_id ASC");
 
     while($row = mysqli_fetch_array($sql_invoice_items)){
-        $item_id = $row['item_id'];
-        $item_name = mysqli_real_escape_string($mysqli,$row['item_name']);
-        $item_description = mysqli_real_escape_string($mysqli,$row['item_description']);
-        $item_quantity = $row['item_quantity'];
-        $item_price = $row['item_price'];
-        $item_subtotal = $row['item_subtotal'];
-        $tax_id = $row['item_tax_id'];
+        $item_id = intval($row['item_id']);
+        $item_name = sanitizeInput($row['item_name']);
+        $item_description = sanitizeInput($row['item_description']);
+        $item_quantity = floatval($row['item_quantity']);
+        $item_price = floatval($row['item_price']);
+        $item_subtotal = floatval($row['item_subtotal']);
+        $tax_id = intval($row['item_tax_id']);
 
         //Recalculate Item Tax since Tax percents can change.
         if($tax_id > 0){
             $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id AND company_id = $session_company_id");
             $row = mysqli_fetch_array($sql);
-            $tax_percent = $row['tax_percent'];
+            $tax_percent = floatval($row['tax_percent']);
             $item_tax_amount = $item_subtotal * $tax_percent / 100;
         }else{
             $item_tax_amount = 0;
@@ -7799,9 +7805,9 @@ if(isset($_GET['force_recurring'])){
         $item_total = $item_subtotal + $item_tax_amount;
 
         //Update Recurring Items with new tax
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_tax = '$item_tax_amount', item_total = '$item_total', item_tax_id = $tax_id WHERE item_id = $item_id");
+        mysqli_query($mysqli,"UPDATE invoice_items SET item_tax = $item_tax_amount, item_total = $item_total, item_tax_id = $tax_id WHERE item_id = $item_id");
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax_amount', item_total = '$item_total', item_tax_id = $tax_id, item_invoice_id = $new_invoice_id, company_id = $session_company_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax_amount, item_total = $item_total, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id, company_id = $session_company_id");
     }
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_invoice_id = $new_invoice_id, company_id = $session_company_id");
@@ -7809,7 +7815,7 @@ if(isset($_GET['force_recurring'])){
     //Update Recurring Balances by tallying up recurring items also update recurring dates
     $sql_recurring_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS recurring_total FROM invoice_items WHERE item_recurring_id = $recurring_id");
     $row = mysqli_fetch_array($sql_recurring_total);
-    $new_recurring_amount = $row['recurring_total'];
+    $new_recurring_amount = floatval($row['recurring_total']);
 
     mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = '$new_recurring_amount', recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency) WHERE recurring_id = $recurring_id");
 
@@ -7830,7 +7836,7 @@ if(isset($_GET['force_recurring'])){
         $invoice_scope = $row['invoice_scope'];
         $invoice_date = $row['invoice_date'];
         $invoice_due = $row['invoice_due'];
-        $invoice_amount = $row['invoice_amount'];
+        $invoice_amount = floatval($row['invoice_amount']);
         $invoice_url_key = $row['invoice_url_key'];
         $client_id = $row['client_id'];
         $client_name = $row['client_name'];
@@ -7872,7 +7878,7 @@ if(isset($_GET['force_recurring'])){
     } //End Recurring Invoices Loop
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Create', log_description = 'Recurring Forced to an Invoice', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Create', log_description = '$session_name forced recurring invoice into an invoice', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $new_invoice_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice Forced";
 

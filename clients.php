@@ -15,7 +15,7 @@ if (isset($_GET['p'])) {
 
 //Custom Query Filter
 if (isset($_GET['query'])) {
-    $query = strip_tags(mysqli_real_escape_string($mysqli, $_GET['query']));
+    $query = sanitizeInput($_GET['query']);
     //Phone Numbers
     $phone_query = preg_replace("/[^0-9]/", '', $query);
     if (empty($phone_query)) {
@@ -28,7 +28,7 @@ if (isset($_GET['query'])) {
 
 //Column Filter
 if (!empty($_GET['sortby'])) {
-    $sortby = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sortby']));
+    $sortby = sanitizeInput($_GET['sortby']);
 } else {
     $sortby = "client_accessed_at";
 }
@@ -121,7 +121,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="query" value="<?php if (isset($query)) {echo strip_tags(htmlentities($query));} ?>" placeholder="Search Clients" autofocus>
+                            <input type="search" class="form-control" name="query" value="<?php if (isset($query)) { echo stripslashes(htmlentities($query)); } ?>" placeholder="Search Clients" autofocus>
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>

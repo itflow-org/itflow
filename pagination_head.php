@@ -34,7 +34,7 @@ if (isset($_GET['o'])) {
 
 // Search
 if (isset($_GET['q'])) {
-    $q = strip_tags(mysqli_real_escape_string($mysqli, trim($_GET['q'])));
+    $q = sanitizeInput($_GET['q']);
 } else {
     $q = "";
 }

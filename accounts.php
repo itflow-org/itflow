@@ -3,7 +3,7 @@
 require_once("inc_all.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "account_name";
 }
@@ -32,7 +32,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-body">
             <form autocomplete="off">
                 <div class="input-group">
-                    <input type="search" class="form-control col-md-4" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Accounts">
+                    <input type="search" class="form-control col-md-4" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Accounts">
                     <div class="input-group-append">
                         <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                     </div>
@@ -53,23 +53,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $account_id = $row['account_id'];
+                        $account_id = intval($row['account_id']);
                         $account_name = htmlentities($row['account_name']);
-                        $opening_balance = $row['opening_balance'];
+                        $opening_balance = floatval($row['opening_balance']);
                         $account_currency_code = htmlentities($row['account_currency_code']);
                         $account_notes = htmlentities($row['account_notes']);
 
                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                         $row = mysqli_fetch_array($sql_payments);
-                        $total_payments = $row['total_payments'];
+                        $total_payments = floatval($row['total_payments']);
 
                         $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
                         $row = mysqli_fetch_array($sql_revenues);
-                        $total_revenues = $row['total_revenues'];
+                        $total_revenues = floatval($row['total_revenues']);
 
                         $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
                         $row = mysqli_fetch_array($sql_expenses);
-                        $total_expenses = $row['total_expenses'];
+                        $total_expenses = floatval($row['total_expenses']);
 
                         $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
                         ?>
