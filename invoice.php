@@ -25,7 +25,7 @@ if (isset($_GET['invoice_id'])) {
     $row = mysqli_fetch_array($sql);
     $invoice_id = intval($row['invoice_id']);
     $invoice_prefix = htmlentities($row['invoice_prefix']);
-    $invoice_number = htmlentities($row['invoice_number']);
+    $invoice_number = intval($row['invoice_number']);
     $invoice_scope = htmlentities($row['invoice_scope']);
     $invoice_status = htmlentities($row['invoice_status']);
     $invoice_date = htmlentities($row['invoice_date']);
@@ -73,7 +73,7 @@ if (isset($_GET['invoice_id'])) {
     //Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql_amount_paid);
-    $amount_paid = $row['amount_paid'];
+    $amount_paid = floatval($row['amount_paid']);
 
     $balance = $invoice_amount - $amount_paid;
 
@@ -121,27 +121,33 @@ if (isset($_GET['invoice_id'])) {
 
                 <div class="col-8">
                     <?php if ($invoice_status == 'Draft') { ?>
-                        <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-fw fa-paper-plane"></i> Send
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
                         </button>
                         <div class="dropdown-menu">
                             <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
-                                <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send Email</a>
+                                <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
+                                    <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
+                                </a>
                                 <div class="dropdown-divider"></div>
                             <?php } ?>
-                            <a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">Mark Sent</a>
+                            <a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">
+                                <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
+                            </a>
                         </div>
                     <?php } ?>
 
                     <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft') { ?>
-                        <a class="btn btn-success" href="#" data-toggle="modal" data-target="#addPaymentModal"><i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment</a>
+                        <a class="btn btn-success" href="#" data-toggle="modal" data-target="#addPaymentModal">
+                            <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
+                        </a>
                     <?php } ?>
                 </div>
 
                 <div class="col-4">
 
                     <div class="dropdown dropleft text-center float-right">
-                        <button class="btn btn-dark" type="button" data-toggle="dropdown">
+                        <button class="btn btn-secondary" type="button" data-toggle="dropdown">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
@@ -260,8 +266,8 @@ if (isset($_GET['invoice_id'])) {
                                 <tbody>
                                 <?php
 
-                                $total_tax = 0;
-                                $sub_total = 0;
+                                $total_tax = 0.00;
+                                $sub_total = 0.00;
 
                                 while ($row = mysqli_fetch_array($sql_invoice_items)) {
                                     $item_id = intval($row['item_id']);
@@ -406,7 +412,7 @@ if (isset($_GET['invoice_id'])) {
         <div class="col-sm">
             <div class="card">
                 <div class="card-header text-bold">
-                    <i class="fa fa-fw fa-history mr-2"></i>History
+                    <i class="fa fa-history mr-2"></i>History
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                             <i class="fas fa-minus"></i>
@@ -451,7 +457,7 @@ if (isset($_GET['invoice_id'])) {
         <div class="col-sm d-print-none">
             <div class="card">
                 <div class="card-header text-bold">
-                    <i class="fa fa-fw fa-credit-card mr-2"></i>Payments
+                    <i class="fa fa-credit-card mr-2"></i>Payments
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                             <i class="fas fa-minus"></i>
@@ -679,8 +685,8 @@ require_once("footer.php");
                         ],
                         // Items
                         <?php
-                        $total_tax = 0;
-                        $sub_total = 0;
+                        $total_tax = 0.00;
+                        $sub_total = 0.00;
 
                         $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
 

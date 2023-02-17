@@ -16,23 +16,23 @@ if (isset($_GET['recurring_id'])) {
     );
 
     $row = mysqli_fetch_array($sql);
-    $recurring_id = $row['recurring_id'];
+    $recurring_id = intval($row['recurring_id']);
     $recurring_prefix = htmlentities($row['recurring_prefix']);
-    $recurring_number = htmlentities($row['recurring_number']);
+    $recurring_number = intval($row['recurring_number']);
     $recurring_scope = htmlentities($row['recurring_scope']);
     $recurring_frequency = htmlentities($row['recurring_frequency']);
     $recurring_status = htmlentities($row['recurring_status']);
     $recurring_created_at = date('Y-m-d', strtotime($row['recurring_created_at']));
-    $recurring_last_sent = $row['recurring_last_sent'];
+    $recurring_last_sent = htmlentities($row['recurring_last_sent']);
     if ($recurring_last_sent == 0) {
         $recurring_last_sent = '-';
     }
-    $recurring_next_date = $row['recurring_next_date'];
+    $recurring_next_date = htmlentities($row['recurring_next_date']);
     $recurring_amount = floatval($row['recurring_amount']);
     $recurring_currency_code = htmlentities($row['recurring_currency_code']);
     $recurring_note = htmlentities($row['recurring_note']);
-    $category_id = $row['recurring_category_id'];
-    $client_id = $row['client_id'];
+    $category_id = intval($row['recurring_category_id']);
+    $client_id = intval($row['client_id']);
     $client_name = htmlentities($row['client_name']);
     $location_address = htmlentities($row['location_address']);
     $location_city = htmlentities($row['location_city']);
@@ -44,7 +44,7 @@ if (isset($_GET['recurring_id'])) {
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $client_website = htmlentities($row['client_website']);
     $client_currency_code = htmlentities($row['client_currency_code']);
-    $client_net_terms = htmlentities($row['client_net_terms']);
+    $client_net_terms = intval($row['client_net_terms']);
 
     if ($recurring_status == 1) {
         $status = "Active";
@@ -53,7 +53,7 @@ if (isset($_GET['recurring_id'])) {
         $status = "Inactive";
         $status_badge_color = "secondary";
     }
-    $company_id = $row['company_id'];
+    $company_id = intval($row['company_id']);
     $company_name = htmlentities($row['company_name']);
     $company_country = htmlentities($row['company_country']);
     $company_address = htmlentities($row['company_address']);
@@ -87,26 +87,31 @@ if (isset($_GET['recurring_id'])) {
             <a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>"> <?php echo $client_name; ?></a>
         </li>
         <li class="breadcrumb-item active"><?php echo "$recurring_prefix$recurring_number"; ?></li>
-        <span class="ml-3 p-2 badge badge-<?php echo $status_badge_color; ?>"><?php echo $status; ?></span>
     </ol>
 
     <div class="card">
         <div class="card-header d-print-none">
 
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-8">
                 </div>
-                <div class="col-md-8">
-                    <div class="dropdown dropleft text-center">
-                        <button class="btn btn-primary btn-sm float-right" type="button" data-toggle="dropdown">
-                            <i class="fas fa-ellipsis-h"></i>
+                <div class="col-4">
+                    <div class="dropdown dropleft text-center float-right">
+                        <button class="btn btn-secondary" type="button" data-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringModal<?php echo $recurring_id; ?>">Edit</a>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringModal<?php echo $recurring_id; ?>">
+                                <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
+                            </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="post.php?force_recurring=<?php echo $recurring_id; ?>">Force Send</a>
+                            <a class="dropdown-item" href="post.php?force_recurring=<?php echo $recurring_id; ?>">
+                                <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Force Send
+                            </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">Delete</a>
+                            <a class="dropdown-item text-danger" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">
+                                <i class="fa fa-fw fa-trash mr-2"></i>Delete
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -116,15 +121,20 @@ if (isset($_GET['recurring_id'])) {
         <div class="card-body">
 
             <div class="row mb-4">
-                <div class="col-sm-2">
+                <div class="col-2">
                     <img class="img-fluid" alt="Company logo" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
                 </div>
-                <div class="col-sm-10">
-                    <h3 class="text-right"><strong>Recurring Invoice</strong><br><small class="text-secondary"><?php echo ucwords($recurring_frequency); ?>ly</small></h3>
+                <div class="col-10">
+                    <div class="ribbon-wrapper">
+                        <div class="ribbon bg-<?php echo $status_badge_color; ?>">
+                            <?php echo $status; ?>
+                        </div>
+                    </div>
+                    <h3 class="text-right mt-5"><strong>Recurring Invoice</strong><br><small class="text-secondary"><?php echo ucwords($recurring_frequency); ?>ly</small></h3>
                 </div>
             </div>
             <div class="row mb-4">
-                <div class="col-sm">
+                <div class="col">
                     <ul class="list-unstyled">
                         <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
                         <li><?php echo $company_address; ?></li>
@@ -133,7 +143,7 @@ if (isset($_GET['recurring_id'])) {
                         <li><?php echo $company_email; ?></li>
                     </ul>
                 </div>
-                <div class="col-sm">
+                <div class="col">
                     <ul class="list-unstyled text-right">
                         <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
                         <li><?php echo $location_address; ?></li>
@@ -150,17 +160,19 @@ if (isset($_GET['recurring_id'])) {
                 <div class="col-sm-4">
                     <table class="table">
                         <tr>
-                            <td>Created</td>
-                            <td class="text-right"><?php echo $recurring_created_at; ?></td>
-                        </tr>
-                        <tr>
                             <td>Next Date</td>
-                            <td class="text-right"><?php echo $recurring_next_date; ?></td>
+                            <td class="text-right text-bold"><?php echo $recurring_next_date; ?></td>
                         </tr>
                         <tr>
                             <td>Last Sent</td>
                             <td class="text-right"><?php echo $recurring_last_sent; ?></td>
                         </tr>
+                        <tr>
+                            <td>Created</td>
+                            <td class="text-right text-secondary"><?php echo $recurring_created_at; ?></td>
+                        </tr>
+                        
+                        
                     </table>
                 </div>
             </div>
@@ -173,41 +185,49 @@ if (isset($_GET['recurring_id'])) {
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
-                                <tr>
-                                    <th class="d-print-none"></th>
-                                    <th>Item</th>
-                                    <th>Description</th>
-                                    <th class="text-center">Qty</th>
-                                    <th class="text-right">Price</th>
-                                    <th class="text-right">Tax</th>
-                                    <th class="text-right">Total</th>
-                                </tr>
+                                    <tr>
+                                        <th class="d-print-none"></th>
+                                        <th>Item</th>
+                                        <th>Description</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-right">Price</th>
+                                        <th class="text-right">Tax</th>
+                                        <th class="text-right">Total</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                 <?php
 
-                                $total_tax = 0;
-                                $sub_total = 0;
+                                $total_tax = 0.00;
+                                $sub_total = 0.00;
 
                                 while ($row = mysqli_fetch_array($sql_items)) {
-                                    $item_id = $row['item_id'];
+                                    $item_id = intval($row['item_id']);
                                     $item_name = htmlentities($row['item_name']);
                                     $item_description = htmlentities($row['item_description']);
                                     $item_quantity = floatval($row['item_quantity']);
                                     $item_price = floatval($row['item_price']);
                                     $item_tax = floatval($row['item_tax']);
                                     $item_total = floatval($row['item_total']);
-                                    $item_created_at = $row['item_created_at'];
-                                    $tax_id = $row['item_tax_id'];
+                                    $item_created_at = htmlentities($row['item_created_at']);
+                                    $tax_id = intval($row['item_tax_id']);
                                     $total_tax = $item_tax + $total_tax;
                                     $sub_total = $item_price * $item_quantity + $sub_total;
 
                                     ?>
 
                                     <tr>
-                                        <td class="text-center d-print-none">
-                                            <a class="text-secondary" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit"></i></a>
-                                            <a class="text-danger" href="post.php?delete_recurring_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash-alt"></i></a>
+                                        <td class="d-print-none">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit mr-2"></i>Edit</a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item text-danger" href="post.php?delete_recurring_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-times mr-2"></i>Remove</a>
+                                                </div>
+                                            </div>  
                                         </td>
                                         <td><?php echo $item_name; ?></td>
                                         <td><div style="white-space:pre-line"><?php echo $item_description; ?></div></td>
@@ -221,43 +241,43 @@ if (isset($_GET['recurring_id'])) {
 
                                     require("item_edit_modal.php");
 
-                                }
+                                    }
 
-                                ?>
+                                    ?>
 
-                                <tr class="d-print-none">
-                                    <form action="post.php" method="post">
-                                        <input type="hidden" name="recurring_id" value="<?php echo $recurring_id; ?>">
-                                        <td></td>
-                                        <td><input type="text" class="form-control" id="name" name="name" placeholder="Item" required></td>
-                                        <td><textarea class="form-control"  rows="1" id="desc" name="description" placeholder="Description"></textarea></td>
-                                        <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" id="qty" name="qty" placeholder="QTY"></td>
-                                        <td><input type="number" step="0.01" class="form-control" style="text-align: right;" id="price" name="price" placeholder="Price"></td>
-                                        <td>
-                                            <select class="form-control select2" name="tax_id" required>
-                                                <option value="0">None</option>
-                                                <?php
-
-                                                $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC");
-                                                while ($row = mysqli_fetch_array($taxes_sql)) {
-                                                    $tax_id = $row['tax_id'];
-                                                    $tax_name = htmlentities($row['tax_name']);
-                                                    $tax_percent = htmlentities($row['tax_percent']);
-                                                    ?>
-                                                    <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
-
+                                    <tr class="d-print-none">
+                                        <form action="post.php" method="post">
+                                            <input type="hidden" name="recurring_id" value="<?php echo $recurring_id; ?>">
+                                            <td></td>
+                                            <td><input type="text" class="form-control" id="name" name="name" placeholder="Item" required></td>
+                                            <td><textarea class="form-control"  rows="1" id="desc" name="description" placeholder="Description"></textarea></td>
+                                            <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" id="qty" name="qty" placeholder="QTY"></td>
+                                            <td><input type="number" step="0.01" class="form-control" style="text-align: right;" id="price" name="price" placeholder="Price"></td>
+                                            <td>
+                                                <select class="form-control" name="tax_id" required>
+                                                    <option value="0">No Tax</option>
                                                     <?php
-                                                }
-                                                ?>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-link text-success" type="submit" name="add_recurring_item">
-                                                <i class="fa fa-fw fa-check"></i>
-                                            </button>
-                                        </td>
-                                    </form>
-                                </tr>
+
+                                                    $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC");
+                                                    while ($row = mysqli_fetch_array($taxes_sql)) {
+                                                        $tax_id = intval($row['tax_id']);
+                                                        $tax_name = htmlentities($row['tax_name']);
+                                                        $tax_percent = floatval($row['tax_percent']);
+                                                        ?>
+                                                        <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-light text-success" type="submit" name="add_recurring_item">
+                                                    <i class="fa fa-fw fa-check"></i>
+                                                </button>
+                                            </td>
+                                        </form>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -268,10 +288,10 @@ if (isset($_GET['recurring_id'])) {
             <div class="row mb-4">
                 <div class="col-sm-7">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header text-bold">
                             Notes
                             <div class="card-tools d-print-none">
-                                <a href="#" class="btn btn-tool" data-toggle="modal" data-target="#recurringNoteModal">
+                                <a href="#" class="btn btn-light btn-tool" data-toggle="modal" data-target="#recurringNoteModal">
                                     <i class="fas fa-edit"></i>
                                 </a>
                             </div>
@@ -308,8 +328,8 @@ if (isset($_GET['recurring_id'])) {
     <div class="row mb-3">
         <div class="col-sm d-print-none">
             <div class="card">
-                <div class="card-header">
-                    <i class="fa fa-fw fa-history"></i> History
+                <div class="card-header text-bold">
+                    <i class="fas fa-history mr-2"></i>History
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                             <i class="fas fa-minus"></i>

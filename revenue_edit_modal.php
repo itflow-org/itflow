@@ -64,26 +64,27 @@
 
                                     $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$revenue_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id  ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_array($sql_accounts)) {
-                                        $account_id_select = $row['account_id'];
+                                        $account_id_select = intval($row['account_id']);
                                         $account_name_select = htmlentities($row['account_name']);
+                                        $account_currency_code_select = htmlentities($row['account_currency_code']);
                                         $opening_balance = floatval($row['opening_balance']);
 
                                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id_select");
                                         $row = mysqli_fetch_array($sql_payments);
-                                        $total_payments = $row['total_payments'];
+                                        $total_payments = floatval($row['total_payments']);
 
                                         $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id_select");
                                         $row = mysqli_fetch_array($sql_revenues);
-                                        $total_revenues = $row['total_revenues'];
+                                        $total_revenues = floatval($row['total_revenues']);
 
                                         $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id_select");
                                         $row = mysqli_fetch_array($sql_expenses);
-                                        $total_expenses = $row['total_expenses'];
+                                        $total_expenses = floatval($row['total_expenses']);
 
                                         $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                                         ?>
-                                        <option <?php if ($account_id == $account_id_select) { echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance, 2); ?>]</option>
+                                        <option <?php if ($account_id == $account_id_select) { echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [ <?php echo numfmt_format_currency($currency_format, $balance, $account_currency_code_select); ?> ]</option>
 
                                         <?php
                                     }
@@ -104,7 +105,7 @@
 
                                     $sql_category = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$revenue_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_array($sql_category)) {
-                                        $category_id_select = $row['category_id'];
+                                        $category_id_select = intval($row['category_id']);
                                         $category_name = htmlentities($row['category_name']);
                                         ?>
                                         <option <?php if ($category_id_select == $category_id) { echo "selected"; } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name; ?></option>
@@ -165,8 +166,8 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="edit_revenue" class="btn btn-primary"><strong><i class="fas fa-check"></i> Save</strong></button>
+                    <button type="submit" name="edit_revenue" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

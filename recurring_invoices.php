@@ -2,7 +2,7 @@
 require_once("inc_all.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "recurring_next_date";
 }
@@ -15,8 +15,8 @@ if (empty($_GET['canned_date'])) {
 
 //Date Filter
 if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
-    $dtf = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtf']));
-    $dtt = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtt']));
+    $dtf = sanitizeInput($_GET['dtf']);
+    $dtt = sanitizeInput($_GET['dtt']);
 } elseif ($_GET['canned_date'] == "today") {
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');
@@ -71,9 +71,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-sync-alt"></i> Recurring Invoices</h3>
+        <h3 class="card-title mt-2"><i class="fa fa-sync-alt mr-2"></i>Recurring Invoices</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRecurringModal"><i class="fas fa-fw fa-plus"></i> New Recurring</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRecurringModal"><i class="fas fa-plus mr-2"></i>New Recurring</button>
         </div>
     </div>
 
@@ -145,9 +145,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
-                    $recurring_id = $row['recurring_id'];
+                    $recurring_id = intval($row['recurring_id']);
                     $recurring_prefix = htmlentities($row['recurring_prefix']);
-                    $recurring_number = htmlentities($row['recurring_number']);
+                    $recurring_number = intval($row['recurring_number']);
                     $recurring_scope = htmlentities($row['recurring_scope']);
                     $recurring_frequency = htmlentities($row['recurring_frequency']);
                     $recurring_status = htmlentities($row['recurring_status']);
@@ -155,14 +155,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     if ($recurring_last_sent == 0) {
                         $recurring_last_sent = "-";
                     }
-                    $recurring_next_date = $row['recurring_next_date'];
+                    $recurring_next_date = htmlentities($row['recurring_next_date']);
                     $recurring_amount = floatval($row['recurring_amount']);
                     $recurring_currency_code = htmlentities($row['recurring_currency_code']);
-                    $recurring_created_at = $row['recurring_created_at'];
-                    $client_id = $row['client_id'];
+                    $recurring_created_at = htmlentities($row['recurring_created_at']);
+                    $client_id = intval($row['client_id']);
                     $client_name = htmlentities($row['client_name']);
                     $client_currency_code = htmlentities($row['client_currency_code']);
-                    $category_id = $row['category_id'];
+                    $category_id = intval($row['category_id']);
                     $category_name = htmlentities($row['category_name']);
                     if ($recurring_status == 1) {
                         $status = "Active";
@@ -175,18 +175,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
 
                     <tr>
-                        <td><a href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>"><?php echo "$recurring_prefix$recurring_number"; ?></a></td>
-                        <td><?php echo $recurring_next_date; ?></td>
+                        <td class="text-bold">
+                            <a href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>"><?php echo "$recurring_prefix$recurring_number"; ?></a>
+                        </td>
+                        <td class="text-bold"><?php echo $recurring_next_date; ?></td>
                         <td><?php echo $recurring_scope; ?></td>
-                        <td><?php echo ucwords($recurring_frequency); ?>ly</td>
-                        <td><a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code); ?></td>
+                        <td class="text-bold"><?php echo ucwords($recurring_frequency); ?>ly</td>
+                        <td class="text-bold"><a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                        <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code); ?></td>
                         <td><?php echo $recurring_last_sent; ?></td>
                         <td><?php echo $category_name; ?></td>
                         <td>
-               <span class="p-2 badge badge-<?php echo $status_badge_color; ?>">
-                <?php echo $status; ?>
-              </span>
+                            <span class="p-2 badge badge-<?php echo $status_badge_color; ?>">
+                                <?php echo $status; ?>
+                            </span>
 
                         </td>
                         <td>
@@ -195,9 +197,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringModal<?php echo $recurring_id; ?>">Edit</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringModal<?php echo $recurring_id; ?>">
+                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                    </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">Delete</a>
+                                    <a class="dropdown-item text-danger" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </a>
                                 </div>
                             </div>
                         </td>
@@ -206,8 +212,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
                     require("recurring_invoice_edit_modal.php");
 
-                }
-                ?>
+                    }
+                    ?>
 
                 </tbody>
             </table>

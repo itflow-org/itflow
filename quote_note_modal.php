@@ -15,8 +15,8 @@
           </div>
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="quote_note" class="btn btn-primary"><strong><i class="fas fa-check"></i> Save</strong></button>
+          <button type="submit" name="quote_note" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
         </div>
       </form>
     </div>

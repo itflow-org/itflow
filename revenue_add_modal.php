@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-money-bill-alt"></i> New Revenue</h5>
+                <h5 class="modal-title"><i class="fas fa-money-bill-alt mr-2"></i>New Revenue</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -63,26 +63,27 @@
 
                                     $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL AND company_id = $session_company_id ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
-                                        $account_id = $row['account_id'];
+                                        $account_id = intval($row['account_id']);
                                         $account_name = htmlentities($row['account_name']);
+                                        $account_currency_code = htmlentities($row['account_currency_code']);
                                         $opening_balance = floatval($row['opening_balance']);
 
                                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                                         $row = mysqli_fetch_array($sql_payments);
-                                        $total_payments = $row['total_payments'];
+                                        $total_payments = floatval($row['total_payments']);
 
                                         $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
                                         $row = mysqli_fetch_array($sql_revenues);
-                                        $total_revenues = $row['total_revenues'];
+                                        $total_revenues = floatval($row['total_revenues']);
 
                                         $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
                                         $row = mysqli_fetch_array($sql_expenses);
-                                        $total_expenses = $row['total_expenses'];
+                                        $total_expenses = floatval($row['total_expenses']);
 
                                         $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                                         ?>
-                                        <option <?php if ($config_default_payment_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance, 2); ?>]</option>
+                                        <option <?php if ($config_default_payment_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [ <?php echo numfmt_format_currency($currency_format, $balance, $account_currency_code); ?> ]</option>
 
                                         <?php
                                     }
@@ -103,7 +104,7 @@
 
                                     $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
-                                        $category_id = $row['category_id'];
+                                        $category_id = intval($row['category_id']);
                                         $category_name = htmlentities($row['category_name']);
                                         ?>
                                         <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
@@ -141,7 +142,7 @@
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $category_name = htmlentities($row['category_name']);
                                         ?>
-                                        <option><?php echo "$category_name"; ?></option>
+                                        <option><?php echo $category_name; ?></option>
 
                                         <?php
                                     }
@@ -164,8 +165,8 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_revenue" class="btn btn-primary"><strong><i class="fas fa-check"></i> Add Revenue</strong></button>
+                    <button type="submit" name="add_revenue" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Add Revenue</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

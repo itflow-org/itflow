@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-sync-alt"></i> New Recurring Invoice</h5>
+        <h5 class="modal-title"><i class="fa fa-sync-alt mr-2"></i>New Recurring Invoice</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -10,6 +10,17 @@
       <form action="post.php" method="post" autocomplete="off">
 
         <div class="modal-body bg-white">
+
+          <div class="form-group">
+            <label>Scope</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+              </div>
+              <input type="text" class="form-control" name="scope" placeholder="Quick description">
+            </div>
+          </div>
+          
           <?php if (isset($_GET['client_id'])) { ?>
           <input type="hidden" name="client" value="<?php echo $client_id; ?>">
           <?php }else{ ?>
@@ -26,7 +37,7 @@
                 
                 $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC"); 
                 while ($row = mysqli_fetch_array($sql)) {
-                  $client_id = $row['client_id'];
+                  $client_id = intval($row['client_id']);
                   $client_name = htmlentities($row['client_name']);
                 ?>
                   <option value="<?php echo $client_id; ?>"><?php echo "$client_name"; ?></option>
@@ -77,7 +88,7 @@
                 
                 $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC"); 
                 while ($row = mysqli_fetch_array($sql)) {
-                  $category_id = $row['category_id'];
+                  $category_id = intval($row['category_id']);
                   $category_name = htmlentities($row['category_name']);
                 ?>
                 <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
@@ -92,20 +103,10 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label>Scope</label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
-              </div>
-              <input type="text" class="form-control" name="scope" placeholder="Quick description">
-            </div>
-          </div>
-
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_recurring" class="btn btn-primary"><strong><i class="fas fa-check"></i> Create</strong></button>
+          <button type="submit" name="add_recurring" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
         </div>
       </form>
     </div>

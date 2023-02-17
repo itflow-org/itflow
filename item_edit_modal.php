@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-edit mr-2"></i>Edit Line Item: <?php echo $item_name; ?></h5>
+        <h5 class="modal-title"><i class="fa fa-edit mr-2"></i>Editing Line Item: <strong><?php echo $item_name; ?></strong></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -29,15 +29,8 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label>Description</label>
-            <div class="input-group">
-              <textarea class="form-control" rows="5" name="description"><?php echo $item_description; ?></textarea>
-            </div>
-          </div>
-          
           <div class="form-row">
-            <div class="col">
+            <div class="col-sm">
 
               <div class="form-group">
                 <label>QTY <strong class="text-danger">*</strong></label>
@@ -51,7 +44,7 @@
 
             </div>
 
-            <div class="col">
+            <div class="col-sm">
 
               <div class="form-group">
                 <label>Price <strong class="text-danger">*</strong></label>
@@ -68,13 +61,20 @@
           </div>
 
           <div class="form-group">
+            <label>Description</label>
+            <div class="input-group">
+              <textarea class="form-control" rows="5" name="description"><?php echo $item_description; ?></textarea>
+            </div>
+          </div>
+
+          <div class="form-group">
             <label>Tax <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
               </div>
               <select class="form-control select2" name="tax_id" required>
-                <option value="0">None</option>
+                <option value="0">No Tax</option>
                 <?php 
                 
                 $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE (tax_archived_at > '$item_created_at' OR tax_archived_at IS NULL) AND company_id = $session_company_id ORDER BY tax_name ASC"); 
@@ -95,8 +95,8 @@
           
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="edit_item" class="btn btn-primary"><strong><i class="fas fa-check"></i> Save</strong></button>
+          <button type="submit" name="edit_item" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
         </div>
       </form>
     </div>

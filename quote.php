@@ -22,19 +22,19 @@ if (isset($_GET['quote_id'])) {
     }
 
     $row = mysqli_fetch_array($sql);
-    $quote_id = $row['quote_id'];
+    $quote_id = intval($row['quote_id']);
     $quote_prefix = htmlentities($row['quote_prefix']);
     $quote_number = htmlentities($row['quote_number']);
     $quote_scope = htmlentities($row['quote_scope']);
     $quote_status = htmlentities($row['quote_status']);
-    $quote_date = $row['quote_date'];
+    $quote_date = htmlentities($row['quote_date']);
     $quote_amount = floatval($row['quote_amount']);
     $quote_currency_code = htmlentities($row['quote_currency_code']);
     $quote_note = htmlentities($row['quote_note']);
     $quote_url_key = htmlentities($row['quote_url_key']);
-    $quote_created_at = $row['quote_created_at'];
-    $category_id = $row['quote_category_id'];
-    $client_id = $row['client_id'];
+    $quote_created_at = htmlentities($row['quote_created_at']);
+    $category_id = intval($row['quote_category_id']);
+    $client_id = intval($row['client_id']);
     $client_name = htmlentities($row['client_name']);
     $location_address = htmlentities($row['location_address']);
     $location_city = htmlentities($row['location_city']);
@@ -46,11 +46,11 @@ if (isset($_GET['quote_id'])) {
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $client_website = htmlentities($row['client_website']);
     $client_currency_code = htmlentities($row['client_currency_code']);
-    $client_net_terms = htmlentities($row['client_net_terms']);
+    $client_net_terms = intval($row['client_net_terms']);
     if ($client_net_terms == 0) {
         $client_net_terms = $config_default_net_terms;
     }
-    $company_id = $row['company_id'];
+    $company_id = intval($row['company_id']);
     $company_name = htmlentities($row['company_name']);
     $company_country = htmlentities($row['company_country']);
     $company_address = htmlentities($row['company_address']);
@@ -102,7 +102,6 @@ if (isset($_GET['quote_id'])) {
             <a href="client_quotes.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
         </li>
         <li class="breadcrumb-item active"><?php echo "$quote_prefix$quote_number"; ?></li>
-        <span class="ml-3 p-2 badge badge-<?php echo $quote_badge_color; ?>"><?php echo $quote_status; ?></span>
     </ol>
 
     <div class="card">
@@ -110,48 +109,73 @@ if (isset($_GET['quote_id'])) {
 
             <div class="row">
 
-                <div class="col-md-4">
+                <div class="col-8">
                     <?php if ($quote_status == 'Draft') { ?>
-                        <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-fw fa-paper-plane"></i> Send
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                            <i class="fas fa-paper-plane mr-2"></i>Send
                         </button>
                         <div class="dropdown-menu">
                             <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
-                                <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send Email</a>
+                                <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">
+                                    <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
+                                </a>
                                 <div class="dropdown-divider"></div>
                             <?php } ?>
-                            <a class="dropdown-item" href="post.php?mark_quote_sent=<?php echo $quote_id; ?>">Mark Sent</a>
+                            <a class="dropdown-item" href="post.php?mark_quote_sent=<?php echo $quote_id; ?>">
+                                <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
+                            </a>
                         </div>
                     <?php } ?>
 
                     <?php if ($quote_status == 'Sent' || $quote_status == 'Viewed') { ?>
-                        <a class="btn btn-success" href="post.php?accept_quote=<?php echo $quote_id; ?>"><i class="fas fa-fw fa-check"></i> Accept</a>
-                        <a class="btn btn-danger" href="post.php?decline_quote=<?php echo $quote_id; ?>"><i class="fas fa-fw fa-times"></i> Decline</a>
+                        <a class="btn btn-success" href="post.php?accept_quote=<?php echo $quote_id; ?>">
+                            <i class="fas fa-thumbs-up mr-2"></i>Accept
+                        </a>
+                        <a class="btn btn-outline-danger" href="post.php?decline_quote=<?php echo $quote_id; ?>">
+                            <i class="fas fa-thumbs-down mr-2"></i>Decline
+                        </a>
                     <?php } ?>
 
                     <?php if ($quote_status == 'Accepted') { ?>
-                        <a class="btn btn-success btn-sm" href="#" data-toggle="modal" data-target="#addQuoteToInvoiceModal<?php echo $quote_id; ?>"><i class="fas fa-fw fa-check"></i> Invoice</a>
+                        <a class="btn btn-primary" href="#" data-toggle="modal" data-target="#addQuoteToInvoiceModal<?php echo $quote_id; ?>">
+                            <i class="fas fa-check mr-2"></i>Invoice
+                        </a>
                     <?php } ?>
 
                 </div>
 
-                <div class="col-md-8">
-                    <div class="dropdown dropleft text-center">
-                        <button class="btn btn-primary btn-sm float-right" type="button" data-toggle="dropdown">
-                            <i class="fas fa-ellipsis-h"></i>
+                <div class="col-4">
+                    <div class="dropdown dropleft text-center float-right">
+                        <button class="btn btn-secondary" type="button" data-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuoteModal<?php echo $quote_id ?>">Edit</a>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">Copy</a>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuoteModal<?php echo $quote_id ?>">
+                                <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
+                            </a>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">
+                                <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy
+                            </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#" onclick="window.print();">Print</a>
-                            <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$quote_date-$company_name-$client_name-Quote-$quote_prefix$quote_number.pdf"; ?>');">Download PDF</a>
+                            <a class="dropdown-item" href="#" onclick="window.print();">
+                                <i class="fa fa-fw fa-print text-secondary mr-2"></i>Print
+                            </a>
+                            <a class="dropdown-item" href="#" 
+                                onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$quote_date-$company_name-$client_name-Quote-$quote_prefix$quote_number.pdf"; ?>');">
+                                <i class="fa fa-fw fa-download text-secondary mr-2"></i>Download PDF
+                            </a>
                             <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
-                                <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">Send Email</a>
+                                <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">
+                                    <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
+                                </a>
                             <?php } ?>
-                            <a class="dropdown-item" target="_blank" href="guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">Guest URL</a>
+                            <a class="dropdown-item" target="_blank" href="guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">
+                                <i class="fa fa-fw fa-link text-secondary mr-2"></i>Guest URL
+                            </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger" href="#">Delete</a>
+                            <a class="dropdown-item text-danger" href="#">
+                                <i class="fa fa-fw fa-times text-danger text-bold mr-2"></i>Delete
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -161,15 +185,20 @@ if (isset($_GET['quote_id'])) {
         <div class="card-body">
 
             <div class="row mb-4">
-                <div class="col-sm-2">
-                    <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
+                <div class="col-2">
+                    <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>" alt="Company logo">
                 </div>
-                <div class="col-sm-10">
-                    <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo "$quote_prefix$quote_number"; ?></small></h3>
+                <div class="col-10">
+                    <div class="ribbon-wrapper">
+                        <div class="ribbon bg-<?php echo $quote_badge_color; ?>">
+                            <?php echo $quote_status; ?>
+                        </div>
+                    </div>
+                    <h3 class="text-right mt-5"><strong>Quote</strong><br><small class="text-secondary"><?php echo "$quote_prefix$quote_number"; ?></small></h3>
                 </div>
             </div>
             <div class="row mb-4">
-                <div class="col-sm">
+                <div class="col">
                     <ul class="list-unstyled">
                         <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
                         <li><?php echo $company_address; ?></li>
@@ -178,7 +207,7 @@ if (isset($_GET['quote_id'])) {
                         <li><?php echo $company_email; ?></li>
                     </ul>
                 </div>
-                <div class="col-sm">
+                <div class="col">
                     <ul class="list-unstyled text-right">
                         <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
                         <li><?php echo $location_address; ?></li>
@@ -223,29 +252,37 @@ if (isset($_GET['quote_id'])) {
                                 <tbody>
                                 <?php
 
-                                $total_tax = 0;
-                                $sub_total = 0;
+                                $total_tax = 0.00;
+                                $sub_total = 0.00;
 
                                 while ($row = mysqli_fetch_array($sql_items)) {
-                                    $item_id = $row['item_id'];
+                                    $item_id = intval($row['item_id']);
                                     $item_name = htmlentities($row['item_name']);
                                     $item_description = htmlentities($row['item_description']);
                                     $item_quantity = floatval($row['item_quantity']);
                                     $item_price = floatval($row['item_price']);
                                     $item_tax = floatval($row['item_tax']);
                                     $item_total = floatval($row['item_total']);
-                                    $item_created_at = $row['item_created_at'];
-                                    $tax_id = $row['item_tax_id'];
+                                    $item_created_at = htmlentities($row['item_created_at']);
+                                    $tax_id = intval($row['item_tax_id']);
                                     $total_tax = $item_tax + $total_tax;
                                     $sub_total = $item_price * $item_quantity + $sub_total;
 
                                     ?>
 
                                     <tr>
-                                        <td class="text-center d-print-none">
+                                        <td class="d-print-none">
                                             <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") { ?>
-                                                <a class="text-secondary" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit"></i></a>
-                                                <a class="text-danger" href="post.php?delete_quote_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash-alt"></i></a>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit mr-2"></i>Edit</a>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item text-danger" href="post.php?delete_quote_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-times mr-2"></i>Remove</a>
+                                                    </div>
+                                                </div>  
                                             <?php } ?>
                                         </td>
                                         <td><?php echo $item_name; ?></td>
@@ -275,15 +312,15 @@ if (isset($_GET['quote_id'])) {
                                         <td><input type="number" step="0.01" min="0" class="form-control" id="qty" style="text-align: center;" name="qty" placeholder="QTY"></td>
                                         <td><input type="number" step="0.01" class="form-control" id="price" style="text-align: right;" name="price" placeholder="Price (<?php echo $quote_currency_code; ?>)"></td>
                                         <td>
-                                            <select class="form-control select2" id="tax" name="tax_id" required>
-                                                <option value="0">None</option>
+                                            <select class="form-control" id="tax" name="tax_id" required>
+                                                <option value="0">No Tax</option>
                                                 <?php
 
-                                                $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC");
+                                                $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC");
                                                 while ($row = mysqli_fetch_array($taxes_sql)) {
-                                                    $tax_id = $row['tax_id'];
+                                                    $tax_id = intval($row['tax_id']);
                                                     $tax_name = htmlentities($row['tax_name']);
-                                                    $tax_percent = htmlentities($row['tax_percent']);
+                                                    $tax_percent = floatval($row['tax_percent']);
                                                     ?>
                                                     <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
 
@@ -292,9 +329,9 @@ if (isset($_GET['quote_id'])) {
                                                 ?>
                                             </select>
                                         </td>
-                                        <td>
-                                            <button class="btn btn-link text-success" type="submit" name="add_quote_item">
-                                                <i class="fa fa-fw fa-check"></i>
+                                        <td class="text-center">
+                                            <button class="btn btn-light text-success" type="submit" name="add_quote_item">
+                                                <i class="fa fa-check"></i>
                                             </button>
                                         </td>
                                     </form>
@@ -309,10 +346,10 @@ if (isset($_GET['quote_id'])) {
             <div class="row mb-4">
                 <div class="col-7">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header text-bold">
                             Notes
                             <div class="card-tools d-print-none">
-                                <a href="#" class="btn btn-tool" data-toggle="modal" data-target="#quoteNoteModal">
+                                <a href="#" class="btn btn-light btn-tool" data-toggle="modal" data-target="#quoteNoteModal">
                                     <i class="fas fa-edit"></i>
                                 </a>
                             </div>
@@ -354,8 +391,8 @@ if (isset($_GET['quote_id'])) {
     <div class="row mb-3">
         <div class="col-sm d-print-none">
             <div class="card">
-                <div class="card-header">
-                    <i class="fa fa-fw fa-history"></i> History
+                <div class="card-header text-bold">
+                    <i class="fa fa-history mr-2"></i>History
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                             <i class="fas fa-minus"></i>
@@ -378,7 +415,7 @@ if (isset($_GET['quote_id'])) {
                         <?php
 
                         while ($row = mysqli_fetch_array($sql_history)) {
-                            $history_created_at = $row['history_created_at'];
+                            $history_created_at = htmlentities($row['history_created_at']);
                             $history_status = htmlentities($row['history_status']);
                             $history_description = htmlentities($row['history_description']);
 
@@ -565,8 +602,8 @@ require_once("footer.php");
                         ],
                         // Items
                         <?php
-                        $total_tax = 0;
-                        $sub_total = 0;
+                        $total_tax = 0.00;
+                        $sub_total = 0.00;
 
                         $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_id ASC");
 

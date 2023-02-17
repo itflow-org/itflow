@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-edit mr-2"></i>Quote Notes</h5>
+        <h5 class="modal-title text-white"><i class="fa fa-edit mr-2"></i>Editing: <strong>Recurring Invoice</strong> Notes</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -15,8 +15,8 @@
           </div>
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="recurring_note" class="btn btn-primary"><strong><i class="fas fa-check"></i> Save</strong></button>
+          <button type="submit" name="recurring_note" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
         </div>
       </form>
     </div>

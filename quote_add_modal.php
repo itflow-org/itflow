@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-file"></i> New Quote</h5>
+                <h5 class="modal-title"><i class="fa fa-file mr-2"></i>New Quote</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -10,6 +10,16 @@
             <form action="post.php" method="post" autocomplete="off">
 
                 <div class="modal-body bg-white">
+
+                    <div class="form-group">
+                        <label>Scope</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="scope" placeholder="Quick description">
+                        </div>
+                    </div>
 
                     <?php if (isset($_GET['client_id'])) { ?>
                         <input type="hidden" name="client" value="<?php echo $client_id; ?>">
@@ -40,16 +50,6 @@
                     <?php } ?>
 
                     <div class="form-group">
-                        <label>Date <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                            </div>
-                            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
                         <label>Category <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -76,19 +76,19 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Scope</label>
+                        <label>Date <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="scope" placeholder="Quick description">
+                            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
                         </div>
                     </div>
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_quote" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
+                    <button type="submit" name="add_quote" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

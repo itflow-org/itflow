@@ -3,7 +3,7 @@
 require_once("inc_all.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "revenue_date";
 }
@@ -22,8 +22,8 @@ if (empty($_GET['canned_date'])) {
 
 //Date Filter
 if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
-    $dtf = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtf']));
-    $dtt = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtt']));
+    $dtf = sanitizeInput($_GET['dtf']);
+    $dtt = sanitizeInput($_GET['dtt']);
 } elseif ($_GET['canned_date'] == "today") {
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');
@@ -72,9 +72,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-credit-card"></i> Revenues</h3>
+        <h3 class="card-title mt-2"><i class="fa fa-credit-card mr-2"></i>Revenues</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRevenueModal"><i class="fas fa-fw fa-plus"></i> Add Revenue</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRevenueModal"><i class="fas fa-plus mr-2"></i>New Revenue</button>
         </div>
     </div>
 
@@ -83,7 +83,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div class="row">
                 <div class="col-sm-4">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo strip_tags(htmlentities($q));} ?>" placeholder="Search Revenues">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(htmlentities($q));} ?>" placeholder="Search Revenues">
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -142,7 +142,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
-                    $revenue_id = $row['revenue_id'];
+                    $revenue_id = intval($row['revenue_id']);
                     $revenue_description = htmlentities($row['revenue_description']);
                     $revenue_reference = htmlentities($row['revenue_reference']);
                     if (empty($revenue_reference)) {
@@ -150,14 +150,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     } else {
                         $revenue_reference_display = $revenue_reference;
                     }
-                    $revenue_date = $row['revenue_date'];
+                    $revenue_date = htmlentities($row['revenue_date']);
                     $revenue_payment_method = htmlentities($row['revenue_payment_method']);
                     $revenue_amount = floatval($row['revenue_amount']);
                     $revenue_currency_code = htmlentities($row['revenue_currency_code']);
-                    $revenue_created_at = $row['revenue_created_at'];
-                    $account_id = $row['account_id'];
+                    $revenue_created_at = htmlentities($row['revenue_created_at']);
+                    $account_id = intval($row['account_id']);
                     $account_name = htmlentities($row['account_name']);
-                    $category_id = $row['category_id'];
+                    $category_id = intval($row['category_id']);
                     $category_name = htmlentities($row['category_name']);
 
                     ?>
@@ -165,7 +165,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <td><a href="#" data-toggle="modal" data-target="#editRevenueModal<?php echo $revenue_id; ?>"><?php echo $revenue_date; ?></a></td>
                         <td><?php echo $category_name; ?></td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $revenue_amount, $revenue_currency_code); ?></td>
+                        <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $revenue_amount, $revenue_currency_code); ?></td>
                         <td><?php echo $revenue_payment_method; ?></td>
                         <td><?php echo $revenue_reference_display; ?></td>
                         <td><?php echo $account_name; ?></td>
@@ -175,9 +175,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRevenueModal<?php echo $revenue_id; ?>">Edit</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRevenueModal<?php echo $revenue_id; ?>">
+                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                    </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger" href="post.php?delete_revenue=<?php echo $revenue_id; ?>">Delete</a>
+                                    <a class="dropdown-item text-danger" href="post.php?delete_revenue=<?php echo $revenue_id; ?>">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </a>
                                 </div>
                             </div>
                             <?php
