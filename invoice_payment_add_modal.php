@@ -14,7 +14,7 @@
         <div class="modal-body bg-white">
           
           <div class="form-row">
-            <div class="col">
+            <div class="col-md">
 
               <div class="form-group">
                 <label>Date <strong class="text-danger">*</strong></label>
@@ -28,7 +28,7 @@
 
             </div>
 
-            <div class="col">
+            <div class="col-md">
             
               <div class="form-group">
                 <label>Amount <strong class="text-danger">*</strong></label>

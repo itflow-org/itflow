@@ -55,8 +55,8 @@ if (empty($_GET['canned_date'])) {
 
 //Date Filter
 if ($_GET['canned_date'] == "custom" && !empty($_GET['date_from'])) {
-    $date_from = strip_tags(mysqli_real_escape_string($mysqli, $_GET['date_from']));
-    $date_to = strip_tags(mysqli_real_escape_string($mysqli, $_GET['date_to']));
+    $date_from = sanitizeInput($_GET['date_from']);
+    $date_to = sanitizeInput($_GET['date_to']);
 } elseif ($_GET['canned_date'] == "today") {
     $date_from = date('Y-m-d');
     $date_to = date('Y-m-d');
@@ -178,10 +178,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $client_id = $row['client_id'];
+                        $client_id = intval($row['client_id']);
                         $client_name = htmlentities($row['client_name']);
                         $client_type = htmlentities($row['client_type']);
-                        $location_id = $row['location_id'];
+                        $location_id = intval($row['location_id']);
                         $location_country = htmlentities($row['location_country']);
                         $location_address = htmlentities($row['location_address']);
                         $location_city = htmlentities($row['location_city']);
@@ -192,7 +192,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $location_address_display = "$location_address<br>$location_city $location_state $location_zip";
                         }
-                        $contact_id = $row['contact_id'];
+                        $contact_id = intval($row['contact_id']);
                         $contact_name = htmlentities($row['contact_name']);
                         $contact_title = htmlentities($row['contact_title']);
                         $contact_phone = formatPhoneNumber($row['contact_phone']);
@@ -205,8 +205,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_referral = htmlentities($row['client_referral']);
                         $client_notes = htmlentities($row['client_notes']);
                         $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));
-                        $client_updated_at = $row['client_updated_at'];
-                        $client_archive_at = $row['client_archived_at'];
+                        $client_updated_at = htmlentities($row['client_updated_at']);
+                        $client_archive_at = htmlentities($row['client_archived_at']);
 
                         //Client Tags
 
@@ -215,7 +215,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_tags.client_id = $client_id");
                         while ($row = mysqli_fetch_array($sql_client_tags)) {
 
-                            $client_tag_id = $row['tag_id'];
+                            $client_tag_id = intval($row['tag_id']);
                             $client_tag_name = htmlentities($row['tag_name']);
                             $client_tag_color = htmlentities($row['tag_color']);
                             $client_tag_icon = htmlentities($row['tag_icon']);
@@ -236,12 +236,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' ");
                         $row = mysqli_fetch_array($sql_invoice_amounts);
 
-                        $invoice_amounts = $row['invoice_amounts'];
+                        $invoice_amounts = floatval($row['invoice_amounts']);
 
                         $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
                         $row = mysqli_fetch_array($sql_amount_paid);
 
-                        $amount_paid = $row['amount_paid'];
+                        $amount_paid = floatval($row['amount_paid']);
 
                         $balance = $invoice_amounts - $amount_paid;
                         //set Text color on balance
@@ -255,13 +255,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND recurring_client_id = $client_id AND company_id = $session_company_id");
                         $row = mysqli_fetch_array($sql_recurring_monthly_total);
 
-                        $recurring_monthly_total = $row['recurring_monthly_total'];
+                        $recurring_monthly_total = floatval($row['recurring_monthly_total']);
 
                         //Get Yearly Recurring Total
                         $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND recurring_client_id = $client_id AND company_id = $session_company_id");
                         $row = mysqli_fetch_array($sql_recurring_yearly_total);
 
-                        $recurring_yearly_total = $row['recurring_yearly_total'] / 12;
+                        $recurring_yearly_total = floatval($row['recurring_yearly_total']) / 12;
 
                         $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
 
