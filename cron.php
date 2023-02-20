@@ -6,7 +6,7 @@ require_once("functions.php");
 $sql_companies = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id");
 
 while ($row = mysqli_fetch_array($sql_companies)) {
-    $company_id = $row['company_id'];
+    $company_id = intval($row['company_id']);
     $company_name = $row['company_name'];
     $company_phone = formatPhoneNumber($row['company_phone']);
     $company_email = $row['company_email'];
@@ -95,16 +95,16 @@ while ($row = mysqli_fetch_array($sql_companies)) {
         $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT domain_id, domain_name FROM `domains` WHERE company_id = $company_id ORDER BY domain_updated_at LIMIT 1"));
 
         if ($row) {
-            $domain_id = $row['domain_id'];
-            $domain_name = $row['domain_name'];
+            $domain_id = intval($row['domain_id']);
+            $domain_name = sanitizeInput($row['domain_name']);
 
             $expire = getDomainExpirationDate($domain_name);
             $records = getDomainRecords($domain_name);
-            $a = mysqli_real_escape_string($mysqli, $records['a']);
-            $ns = mysqli_real_escape_string($mysqli, $records['ns']);
-            $mx = mysqli_real_escape_string($mysqli, $records['mx']);
-            $txt = mysqli_real_escape_string($mysqli, $records['txt']);
-            $whois = mysqli_real_escape_string($mysqli, $records['whois']);
+            $a = sanitizeInput($records['a']);
+            $ns = sanitizeInput($records['ns']);
+            $mx = sanitizeInput($records['mx']);
+            $txt = sanitizeInput($records['txt']);
+            $whois = sanitizeInput($records['whois']);
 
             // Update the domain
             mysqli_query($mysqli, "UPDATE domains SET domain_name = '$domain_name',  domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
@@ -139,13 +139,13 @@ while ($row = mysqli_fetch_array($sql_companies)) {
             );
 
             while ($row = mysqli_fetch_array($sql)) {
-                $domain_id = $row['domain_id'];
-                $domain_name = mysqli_real_escape_string($mysqli, $row['domain_name']);
-                $domain_expire = $row['domain_expire'];
-                $client_id = $row['client_id'];
-                $client_name = mysqli_real_escape_string($mysqli, $row['client_name']);
+                $domain_id = intval($row['domain_id']);
+                $domain_name = sanitizeInput($row['domain_name']);
+                $domain_expire = sanitizeInput($row['domain_expire']);
+                $client_id = intval($row['client_id']);
+                $client_name = sanitizeInput($row['client_name']);
 
-                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Domain', notification = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Domain', notification = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', notification_client_id = $client_id, company_id = $company_id");
 
             }
 
@@ -167,14 +167,14 @@ while ($row = mysqli_fetch_array($sql_companies)) {
             );
 
             while ($row = mysqli_fetch_array($sql)) {
-                $certificate_id = $row['certificate_id'];
-                $certificate_name = mysqli_real_escape_string($mysqli, $row['certificate_name']);
-                $certificate_domain = $row['certificate_domain'];
-                $certificate_expire = $row['certificate_expire'];
-                $client_id = $row['client_id'];
-                $client_name = mysqli_real_escape_string($mysqli, $row['client_name']);
+                $certificate_id = intval($row['certificate_id']);
+                $certificate_name = sanitizeInput($row['certificate_name']);
+                $certificate_domain = sanitizeInput($row['certificate_domain']);
+                $certificate_expire = sanitizeInput($row['certificate_expire']);
+                $client_id = intval($row['client_id']);
+                $client_name = sanitizeInput($row['client_name']);
 
-                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Certificate', notification = 'Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Certificate', notification = 'Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire', notification_client_id = $client_id, company_id = $company_id");
 
             }
 
@@ -196,13 +196,13 @@ while ($row = mysqli_fetch_array($sql_companies)) {
             );
 
             while ($row = mysqli_fetch_array($sql)) {
-                $asset_id = $row['asset_id'];
-                $asset_name = mysqli_real_escape_string($mysqli, $row['asset_name']);
-                $asset_warranty_expire = $row['asset_warranty_expire'];
-                $client_id = $row['client_id'];
-                $client_name = mysqli_real_escape_string($mysqli, $row['client_name']);
+                $asset_id = intval($row['asset_id']);
+                $asset_name = sanitizeInput($row['asset_name']);
+                $asset_warranty_expire = sanitizeInput($row['asset_warranty_expire']);
+                $client_id = intval($row['client_id']);
+                $client_name = sanitizeInput($row['client_name']);
 
-                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Asset', notification = 'Asset $asset_name warranty for $client_name will expire in $day Days on $asset_warranty_expire', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Asset', notification = 'Asset $asset_name warranty for $client_name will expire in $day Days on $asset_warranty_expire', notification_client_id = $client_id, company_id = $company_id");
 
             }
 
@@ -219,28 +219,28 @@ while ($row = mysqli_fetch_array($sql_companies)) {
 
         if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
             while ($row = mysqli_fetch_array($sql_scheduled_tickets)) {
-                $schedule_id = $row['scheduled_ticket_id'];
-                $subject = mysqli_real_escape_string($mysqli, $row['scheduled_ticket_subject']);
-                $details = mysqli_real_escape_string($mysqli, $row['scheduled_ticket_details']);
-                $priority = $row['scheduled_ticket_priority'];
-                $frequency = strtolower($row['scheduled_ticket_frequency']);
-                $created_id = $row['scheduled_ticket_created_by'];
-                $client_id = $row['scheduled_ticket_client_id'];
-                $contact_id = $row['scheduled_ticket_contact_id'];
-                $asset_id = $row['scheduled_ticket_asset_id'];
-                $company_id = $row['company_id'];
+                $schedule_id = intval($row['scheduled_ticket_id']);
+                $subject = sanitizeInput($row['scheduled_ticket_subject']);
+                $details = sanitizeInput($row['scheduled_ticket_details']);
+                $priority = sanitizeInput($row['scheduled_ticket_priority']);
+                $frequency = sanitizeInput(strtolower($row['scheduled_ticket_frequency']));
+                $created_id = intval($row['scheduled_ticket_created_by']);
+                $client_id = intval($row['scheduled_ticket_client_id']);
+                $contact_id = intval($row['scheduled_ticket_contact_id']);
+                $asset_id = intval($row['scheduled_ticket_asset_id']);
+                $company_id = intval($row['company_id']);
 
                 //Get the next Ticket Number and add 1 for the new ticket number
                 $ticket_number = $config_ticket_next_number;
                 $new_config_ticket_next_number = $config_ticket_next_number + 1;
-                mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = '$company_id'");
+                mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = $company_id");
 
                 // Raise the ticket
-                mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = $created_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, company_id = $company_id");
+                mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_by = $created_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, company_id = $company_id");
                 $id = mysqli_insert_id($mysqli);
 
                 // Logging
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created scheduled $frequency ticket - $subject', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id, log_user_id = $created_id");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created scheduled $frequency ticket - $subject', log_client_id = $client_id, company_id = $company_id, log_user_id = $created_id");
 
                 // E-mail client
                 if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
@@ -284,7 +284,7 @@ while ($row = mysqli_fetch_array($sql_companies)) {
                         );
 
                         if ($mail !== true) {
-                            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $company_id");
+                            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', company_id = $company_id");
                             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail',  company_id = $company_id");
                         }
 
@@ -316,7 +316,7 @@ while ($row = mysqli_fetch_array($sql_companies)) {
 
                 // Update the run date
                 $next_run = $next_run->format('Y-m-d');
-                $a = mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_next_run = '$next_run' WHERE scheduled_ticket_id = '$schedule_id'");
+                $a = mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_next_run = '$next_run' WHERE scheduled_ticket_id = $schedule_id");
 
             }
         }
@@ -342,17 +342,17 @@ while ($row = mysqli_fetch_array($sql_companies)) {
             );
 
             while ($row = mysqli_fetch_array($sql)) {
-                $invoice_id = $row['invoice_id'];
-                $invoice_prefix = $row['invoice_prefix'];
-                $invoice_number = $row['invoice_number'];
+                $invoice_id = intval($row['invoice_id']);
+                $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+                $invoice_number = intval($row['invoice_number']);
                 $invoice_status = $row['invoice_status'];
                 $invoice_date = $row['invoice_date'];
                 $invoice_due = $row['invoice_due'];
                 $invoice_url_key = $row['invoice_url_key'];
-                $invoice_amount = $row['invoice_amount'];
+                $invoice_amount = floatval($row['invoice_amount']);
                 $invoice_currency_code = $row['invoice_currency_code'];
-                $client_id = $row['client_id'];
-                $client_name = mysqli_real_escape_string($mysqli, $row['client_name']);
+                $client_id = intval($row['client_id']);
+                $client_name = sanitizeInput($row['client_name']);
                 $contact_name = $row['contact_name'];
                 $contact_email = $row['contact_email'];
 
@@ -378,11 +378,11 @@ while ($row = mysqli_fetch_array($sql_companies)) {
                 );
 
                 if ($mail === true) {
-                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
+                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_invoice_id = $invoice_id, company_id = $company_id");
                 } else {
-                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
+                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_invoice_id = $invoice_id, company_id = $company_id");
 
-                    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $company_id");
+                    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', company_id = $company_id");
                     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', company_id = $company_id");
                 }
 
@@ -396,25 +396,25 @@ while ($row = mysqli_fetch_array($sql_companies)) {
         $sql_recurring = mysqli_query($mysqli, "SELECT * FROM recurring LEFT JOIN clients ON client_id = recurring_client_id WHERE recurring_next_date = CURDATE() AND recurring_status = 1 AND recurring.company_id = $company_id");
 
         while ($row = mysqli_fetch_array($sql_recurring)) {
-            $recurring_id = $row['recurring_id'];
-            $recurring_scope = $row['recurring_scope'];
-            $recurring_frequency = $row['recurring_frequency'];
-            $recurring_status = $row['recurring_status'];
-            $recurring_last_sent = $row['recurring_last_sent'];
-            $recurring_next_date = $row['recurring_next_date'];
-            $recurring_amount = $row['recurring_amount'];
-            $recurring_currency_code = $row['recurring_currency_code'];
-            $recurring_note = mysqli_real_escape_string($mysqli, $row['recurring_note']); //Escape SQL
-            $category_id = $row['recurring_category_id'];
-            $client_id = $row['recurring_client_id'];
-            $client_name = mysqli_real_escape_string($mysqli, $row['client_name']); //Escape SQL just in case a name is like Safran's etc
-            $client_net_terms = $row['client_net_terms'];
+            $recurring_id = intval($row['recurring_id']);
+            $recurring_scope = sanitizeInput($row['recurring_scope']);
+            $recurring_frequency = sanitizeInput($row['recurring_frequency']);
+            $recurring_status = sanitizeInput($row['recurring_status']);
+            $recurring_last_sent = sanitizeInput($row['recurring_last_sent']);
+            $recurring_next_date = sanitizeInput($row['recurring_next_date']);
+            $recurring_amount = floatval($row['recurring_amount']);
+            $recurring_currency_code = sanitizeInput($row['recurring_currency_code']);
+            $recurring_note = sanitizeInput($row['recurring_note']); //Escape SQL
+            $category_id = intval($row['recurring_category_id']);
+            $client_id = intval($row['recurring_client_id']);
+            $client_name = sanitizeInput($row['client_name']); //Escape SQL just in case a name is like Safran's etc
+            $client_net_terms = intvak($row['client_net_terms']);
 
 
             //Get the last Invoice Number and add 1 for the new invoice number
             $sql_invoice_number = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = $company_id");
             $row = mysqli_fetch_array($sql_invoice_number);
-            $config_invoice_next_number = $row['config_invoice_next_number'];
+            $config_invoice_next_number = intval($row['config_invoice_next_number']);
 
             $new_invoice_number = $config_invoice_next_number;
             $new_config_invoice_next_number = $config_invoice_next_number + 1;
@@ -423,7 +423,7 @@ while ($row = mysqli_fetch_array($sql_companies)) {
             //Generate a unique URL key for clients to access
             $url_key = randomString(156);
 
-            mysqli_query($mysqli, "INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $new_invoice_number, invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = '$recurring_amount', invoice_currency_code = '$recurring_currency_code', invoice_note = '$recurring_note', invoice_category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_created_at = NOW(), invoice_client_id = $client_id, company_id = $company_id");
+            mysqli_query($mysqli, "INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $new_invoice_number, invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = $recurring_amount, invoice_currency_code = '$recurring_currency_code', invoice_note = '$recurring_note', invoice_category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_client_id = $client_id, company_id = $company_id");
 
             $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -431,50 +431,50 @@ while ($row = mysqli_fetch_array($sql_companies)) {
             $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id ORDER BY item_id ASC");
 
             while ($row = mysqli_fetch_array($sql_invoice_items)) {
-                $item_id = $row['item_id'];
-                $item_name = mysqli_real_escape_string($mysqli, $row['item_name']); //SQL Escape incase of ,
-                $item_description = mysqli_real_escape_string($mysqli, $row['item_description']); //SQL Escape incase of ,
-                $item_quantity = $row['item_quantity'];
-                $item_price = $row['item_price'];
-                $item_subtotal = $row['item_subtotal'];
-                $item_tax = $row['item_tax'];
-                $item_total = $row['item_total'];
-                $tax_id = $row['item_tax_id'];
+                $item_id = intval($row['item_id']);
+                $item_name = sanitizeInput($row['item_name']); //SQL Escape incase of ,
+                $item_description = sanitizeInput($row['item_description']); //SQL Escape incase of ,
+                $item_quantity = floatval($row['item_quantity']);
+                $item_price = floatval($row['item_price']);
+                $item_subtotal = floatval($row['item_subtotal']);
+                $item_tax = floatval($row['item_tax']);
+                $item_total = floatval($row['item_total']);
+                $tax_id = intval($row['item_tax_id']);
 
                 //Insert Items into New Invoice
-                mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = '$item_quantity', item_price = '$item_price', item_subtotal = '$item_subtotal', item_tax = '$item_tax', item_total = '$item_total', item_created_at = NOW(), item_tax_id = $tax_id, item_invoice_id = $new_invoice_id, company_id = $company_id");
+                mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id, company_id = $company_id");
 
             }
 
-            mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+            mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_invoice_id = $new_invoice_id, company_id = $company_id");
 
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Sent', notification = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Sent', notification = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', notification_client_id = $client_id, company_id = $company_id");
 
             //Update recurring dates
 
-            mysqli_query($mysqli, "UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency), recurring_updated_at = NOW() WHERE recurring_id = $recurring_id");
+            mysqli_query($mysqli, "UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency) WHERE recurring_id = $recurring_id");
 
             if ($config_recurring_auto_send_invoice == 1) {
                 $sql = mysqli_query(
                     $mysqli,
                     "SELECT * FROM invoices
-                  LEFT JOIN clients ON invoice_client_id = client_id
-                  LEFT JOIN contacts ON contact_id = primary_contact
-                  WHERE invoice_id = $new_invoice_id
-                  AND invoices.company_id = $company_id"
+                    LEFT JOIN clients ON invoice_client_id = client_id
+                    LEFT JOIN contacts ON contact_id = primary_contact
+                    WHERE invoice_id = $new_invoice_id
+                    AND invoices.company_id = $company_id"
                 );
 
                 $row = mysqli_fetch_array($sql);
                 $invoice_prefix = $row['invoice_prefix'];
-                $invoice_number = $row['invoice_number'];
+                $invoice_number = intval($row['invoice_number']);
                 $invoice_date = $row['invoice_date'];
                 $invoice_due = $row['invoice_due'];
-                $invoice_amount = $row['invoice_amount'];
+                $invoice_amount = floatval($row['invoice_amount']);
                 $invoice_url_key = $row['invoice_url_key'];
-                $client_id = $row['client_id'];
+                $client_id = intval($row['client_id']);
                 $client_name = $row['client_name'];
                 $contact_name = $row['contact_name'];
-                $contact_email = $row['contact_email'];
+                $contact_email = sanitizeInput($row['contact_email']);
 
 
                 $subject = "Invoice $invoice_prefix$invoice_number";
@@ -495,13 +495,13 @@ while ($row = mysqli_fetch_array($sql_companies)) {
                 );
 
                 if ($mail === true) {
-                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
-                    mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Sent', invoice_updated_at = NOW(), invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id");
+                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Invoice!', history_invoice_id = $new_invoice_id, company_id = $company_id");
+                    mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Sent', invoice_client_id = $client_id WHERE invoice_id = $new_invoice_id");
 
                 } else {
-                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Draft', history_description = 'Cron Failed to send Invoice!', history_created_at = NOW(), history_invoice_id = $new_invoice_id, company_id = $company_id");
+                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Draft', history_description = 'Cron Failed to send Invoice!', history_invoice_id = $new_invoice_id, company_id = $company_id");
 
-                    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $company_id");
+                    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', company_id = $company_id");
                     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', company_id = $company_id");
                 }
 
@@ -760,7 +760,7 @@ while ($row = mysqli_fetch_array($sql_companies)) {
          */
 
         // Send Alert to inform Cron was run
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron.php successfully executed', notification_timestamp = NOW(), company_id = $company_id");
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron.php successfully executed', company_id = $company_id");
 
         // Logging
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Ended', log_description = 'Cron executed successfully for $company_name', company_id = $company_id");
@@ -770,5 +770,3 @@ while ($row = mysqli_fetch_array($sql_companies)) {
     // End Cron enabled check
 
 } // End Company Loop through
-
-
