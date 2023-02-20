@@ -2,7 +2,7 @@
 require_once("inc_all.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "trip_date";
 }
@@ -21,8 +21,8 @@ if (empty($_GET['canned_date'])) {
 
 //Date Filter
 if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
-    $dtf = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtf']));
-    $dtt = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtt']));
+    $dtf = sanitizeInput($_GET['dtf']);
+    $dtt = sanitizeInput($_GET['dtt']);
 } elseif ($_GET['canned_date'] == "today") {
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');
@@ -76,9 +76,9 @@ $total_pages = ceil($total_found_rows / 10);
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-route"></i> Trips</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-route mr-2"></i>Trips</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTripModal"><i class="fas fa-fw fa-plus"></i> New Trip</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTripModal"><i class="fas fa-plus mr-2"></i>New Trip</button>
             </div>
         </div>
 
@@ -87,7 +87,7 @@ $total_pages = ceil($total_found_rows / 10);
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Trips">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Trips">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -96,7 +96,7 @@ $total_pages = ceil($total_found_rows / 10);
                     </div>
                     <div class="col-sm-8">
                         <div class="float-right">
-                            <button type="button" class="btn btn-default btn-lg" data-toggle="modal" data-target="#exportTripsModal"><i class="fa fa-fw fa-download"></i> Export</button>
+                            <button type="button" class="btn btn-default btn-lg" data-toggle="modal" data-target="#exportTripsModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
                         </div>
                     </div>
                 </div>
@@ -152,15 +152,15 @@ $total_pages = ceil($total_found_rows / 10);
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $trip_id = $row['trip_id'];
-                        $trip_date = $row['trip_date'];
+                        $trip_id = intval($row['trip_id']);
+                        $trip_date = htmlentities($row['trip_date']);
                         $trip_purpose = htmlentities($row['trip_purpose']);
                         $trip_source = htmlentities($row['trip_source']);
                         $trip_destination = htmlentities($row['trip_destination']);
                         $trip_miles = htmlentities($row['trip_miles']);
-                        $trip_user_id = $row['trip_user_id'];
+                        $trip_user_id = intval($row['trip_user_id']);
                         $round_trip = htmlentities($row['round_trip']);
-                        $client_id = $row['client_id'];
+                        $client_id = intval($row['client_id']);
                         $client_name = htmlentities($row['client_name']);
                         if (empty($client_name)) {
                             $client_name_display = "-";
@@ -194,12 +194,20 @@ $total_pages = ceil($total_found_rows / 10);
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="//maps.google.com?q=<?php echo $trip_source; ?> to <?php echo $trip_destination; ?>" target="_blank">Map it</a>
+                                        <a class="dropdown-item" href="//maps.google.com?q=<?php echo $trip_source; ?> to <?php echo $trip_destination; ?>" target="_blank">
+                                            <i class="fa fa-fw fa-map-marker mr-2"></i>Map it
+                                        </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>">Edit</a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTripCopyModal<?php echo $trip_id; ?>">Copy</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>">
+                                            <i class="fa fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTripCopyModal<?php echo $trip_id; ?>">
+                                            <i class="fa fa-fw fa-copy mr-2"></i>Copy
+                                        </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?delete_trip=<?php echo $trip_id; ?>">Delete</a>
+                                        <a class="dropdown-item text-danger" href="post.php?delete_trip=<?php echo $trip_id; ?>">
+                                            <i class="fa fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
                                     </div>
                                 </div>
                             </td>

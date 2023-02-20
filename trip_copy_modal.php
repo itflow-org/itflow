@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-route"></i> Copying Trip</h5>
+                <h5 class="modal-title"><i class="fa fa-route mr-2"></i>Copying Trip</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -76,7 +76,7 @@
                                 // WIP Need to only show users within the session company
                                 $sql_trips = mysqli_query($mysqli, "SELECT * FROM users ORDER BY user_name ASC");
                                 while ($row = mysqli_fetch_array($sql_trips)) {
-                                    $user_id_select = $row['user_id'];
+                                    $user_id_select = intval($row['user_id']);
                                     $user_name_select = htmlentities($row['user_name']);
                                     ?>
                                     <option <?php if ($trip_user_id == $user_id_select) { echo "selected"; } ?> value="<?php echo $user_id_select; ?>"><?php echo $user_name_select; ?></option>
@@ -102,7 +102,7 @@
 
                                     $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_array($sql_clients)) {
-                                        $client_id_select = $row['client_id'];
+                                        $client_id_select = intval($row['client_id']);
                                         $client_name_select = htmlentities($row['client_name']);
                                         ?>
                                         <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
@@ -116,8 +116,8 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_trip" class="btn btn-primary text-bold"><i class="fa fa-fw fa-check"></i> Copy</button>
+                    <button type="submit" name="add_trip" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Copy</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

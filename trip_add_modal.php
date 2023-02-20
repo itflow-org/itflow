@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-route"></i> New Trip</h5>
+                <h5 class="modal-title"><i class="fa fa-route mr-2"></i>New Trip</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -75,7 +75,7 @@
                                 // WIP Need to only show users within the session company
                                 $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id IN('$session_user_company_access') ORDER BY user_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
-                                    $user_id = $row['user_id'];
+                                    $user_id = intval($row['user_id']);
                                     $user_name = htmlentities($row['user_name']);
                                     ?>
                                     <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
@@ -103,7 +103,7 @@
 
                                     $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
-                                        $client_id = $row['client_id'];
+                                        $client_id = intval($row['client_id']);
                                         $client_name = htmlentities($row['client_name']);
                                         ?>
                                         <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
@@ -120,8 +120,8 @@
                 </div>
 
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_trip" class="btn btn-primary text-bold"><i class="fa fa-fw fa-check"></i> Create</button>
+                    <button type="submit" name="add_trip" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div> <!-- Modal Content -->
