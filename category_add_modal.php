@@ -2,13 +2,13 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-list"></i> New <?php echo $category; ?> Category</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-list mr-2"></i>New <?php echo htmlentities($category); ?> Category</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="type" value="<?php echo $category; ?>">
+                <input type="hidden" name="type" value="<?php echo htmlentities($category); ?>">
 
                 <div class="modal-body bg-white">
 
@@ -38,8 +38,8 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_category" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
+                    <button type="submit" name="add_category" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

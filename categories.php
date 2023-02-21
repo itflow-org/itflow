@@ -3,13 +3,13 @@
 require_once("inc_all_settings.php");
 
 if (isset($_GET['category'])) {
-    $category = strip_tags(mysqli_real_escape_string($mysqli, $_GET['category']));
+    $category = sanitizeInput($_GET['category']);
 } else {
     $category = "Expense";
 }
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "category_name";
 }
@@ -48,9 +48,9 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-list"></i> <?php echo htmlentities($category); ?> Categories</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-list mr-2"></i><?php echo htmlentities($category); ?> Categories</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCategoryModal"><i class="fas fa-fw fa-plus"></i> New</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCategoryModal"><i class="fas fa-plus mr-2"></i>New</button>
             </div>
         </div>
         <div class="card-body">
@@ -59,7 +59,7 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
                 <div class="row">
                     <div class="col-sm-4 mb-2">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Categories">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Categories">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -89,14 +89,14 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $category_id = $row['category_id'];
+                        $category_id = intval($row['category_id']);
                         $category_name = htmlentities($row['category_name']);
                         $category_color = htmlentities($row['category_color']);
                         //$colors_used_array[] = $row['category_color'];
 
                         ?>
                         <tr>
-                            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editCategoryModal<?php echo $category_id; ?>"><?php echo "$category_name"; ?></a></td>
+                            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editCategoryModal<?php echo $category_id; ?>"><?php echo $category_name; ?></a></td>
                             <td><i class="fa fa-3x fa-circle" style="color:<?php echo $category_color; ?>;"></i></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
@@ -104,9 +104,13 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editCategoryModal<?php echo $category_id; ?>">Edit</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editCategoryModal<?php echo $category_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?archive_category=<?php echo $category_id; ?>">Archive</a>
+                                        <a class="dropdown-item text-danger" href="post.php?archive_category=<?php echo $category_id; ?>">
+                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                        </a>
                                     </div>
                                 </div>
                             </td>

@@ -12,13 +12,13 @@
                 <?php
                 // Query is run from client_assets.php
                 while ($row = mysqli_fetch_array($sql_tickets)) {
-                    $ticket_id = $row['ticket_id'];
+                    $ticket_id = intval($row['ticket_id']);
                     $ticket_prefix = htmlentities($row['ticket_prefix']);
-                    $ticket_number = htmlentities($row['ticket_number']);
+                    $ticket_number = intval($row['ticket_number']);
                     $ticket_subject = htmlentities($row['ticket_subject']);
                     $ticket_status = htmlentities($row['ticket_status']);
-                    $ticket_created_at = $row['ticket_created_at'];
-                    $ticket_updated_at = $row['ticket_updated_at'];
+                    $ticket_created_at = htmlentities($row['ticket_created_at']);
+                    $ticket_updated_at = htmlentities($row['ticket_updated_at']);
                     ?>
                     <p>
                         <i class="fas fa-fw fa-ticket-alt"></i>
@@ -27,7 +27,7 @@
                 <?php } ?>
             </div>
             <div class="modal-footer bg-white">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
             </div>
 
         </div>

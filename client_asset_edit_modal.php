@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-<?php echo $device_icon; ?>"></i> Editing asset: <strong><?php echo $asset_name; ?></strong></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-<?php echo $device_icon; ?> mr-2"></i>Editing asset: <strong><?php echo $asset_name; ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -123,7 +123,7 @@
 
                                         $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id ORDER BY location_name ASC");
                                         while ($row = mysqli_fetch_array($sql_locations)) {
-                                            $location_id_select = $row['location_id'];
+                                            $location_id_select = intval($row['location_id']);
                                             $location_name_select = htmlentities($row['location_name']);
                                             ?>
                                             <option <?php if ($asset_location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
@@ -145,7 +145,7 @@
 
                                         $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE (contact_archived_at > '$asset_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_name ASC");
                                         while ($row = mysqli_fetch_array($sql_contacts)) {
-                                            $contact_id_select = $row['contact_id'];
+                                            $contact_id_select = intval($row['contact_id']);
                                             $contact_name_select = htmlentities($row['contact_name']);
                                             ?>
                                             <option <?php if ($asset_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?php echo $contact_id_select; ?>">
@@ -183,7 +183,7 @@
 
                                         $sql_networks = mysqli_query($mysqli, "SELECT * FROM networks WHERE (network_archived_at > '$asset_created_at' OR network_archived_at IS NULL) AND network_client_id = $client_id ORDER BY network_name ASC");
                                         while ($row = mysqli_fetch_array($sql_networks)) {
-                                            $network_id_select = $row['network_id'];
+                                            $network_id_select = intval($row['network_id']);
                                             $network_name_select = htmlentities($row['network_name']);
                                             $network_select = htmlentities($row['network']);
 
@@ -231,7 +231,7 @@
 
                                         $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE (vendor_archived_at > '$asset_created_at' OR vendor_archived_at IS NULL) AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                                         while ($row = mysqli_fetch_array($sql_vendors)) {
-                                            $vendor_id_select = $row['vendor_id'];
+                                            $vendor_id_select = intval($row['vendor_id']);
                                             $vendor_name_select = htmlentities($row['vendor_name']);
                                             ?>
                                             <option <?php if ($asset_vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
@@ -310,8 +310,8 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="edit_asset" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
+                    <button type="submit" name="edit_asset" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

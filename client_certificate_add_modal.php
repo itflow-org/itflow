@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-lock"></i> New Certificate</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-lock mr-2"></i>New Certificate</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -75,7 +75,7 @@
                                 <?php
                                 $domains_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = '$client_id'");
                                 while ($domain_row = mysqli_fetch_array($domains_sql)) {
-                                    $domain_id = $domain_row['domain_id'];
+                                    $domain_id = intval($domain_row['domain_id']);
                                     $domain_name = htmlentities($domain_row['domain_name']);
                                     echo "<option value=\"$domain_id\">$domain_name</option>";
                                 }
@@ -86,8 +86,8 @@
                 </div>
 
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
                     <button type="submit" name="add_certificate" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

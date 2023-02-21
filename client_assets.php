@@ -4,34 +4,34 @@ require_once("inc_all_client.php");
 //Get Asset Counts
 //All Asset Count
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS count FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id"));
-$all_count = $row['count'];
+$all_count = intval($row['count']);
 //Workstation Count
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS count FROM assets WHERE (asset_type = 'laptop' OR asset_type = 'desktop') 
   AND asset_archived_at IS NULL AND asset_client_id = $client_id"));
-$workstation_count = $row['count'];
+$workstation_count = intval($row['count']);
 
 //Server Count
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS count FROM assets WHERE (asset_type = 'server') 
   AND asset_archived_at IS NULL AND asset_client_id = $client_id"));
-$server_count = $row['count'];
+$server_count = intval($row['count']);
 
 //Virtual Server Count
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS count FROM assets WHERE (asset_type = 'virtual machine') 
   AND asset_archived_at IS NULL AND asset_client_id = $client_id"));
-$virtual_count = $row['count'];
+$virtual_count = intval($row['count']);
 
 //Network Device Count
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS count FROM assets WHERE (asset_type = 'Firewall/Router' OR asset_type = 'switch' OR asset_type = 'access point')
   AND asset_archived_at IS NULL AND asset_client_id = $client_id"));
-$network_count = $row['count'];
+$network_count = intval($row['count']);
 
 //Other Count
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS count FROM assets WHERE (asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point')
   AND asset_archived_at IS NULL AND asset_client_id = $client_id"));
-$other_count = $row['count'];
+$other_count = intval($row['count']);
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "asset_name";
 }
@@ -74,20 +74,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop"></i> Assets</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-fw fa-plus"></i> New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(htmlentities($_GET['type']))); } else { echo "Asset"; } ?></button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-plus mr-2"></i>New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(htmlentities($_GET['type']))); } else { echo "Asset"; } ?></button>
             </div>
         </div>
         <div class="card-body">
             <form autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                <input type="hidden" name="type" value="<?php echo strip_tags(htmlentities($_GET['type'])); ?>">
+                <input type="hidden" name="type" value="<?php echo stripslashes(htmlentities($_GET['type'])); ?>">
                 <div class="row">
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(htmlentities($_GET['type']))); } else { echo "Asset"; } ?>s">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search <?php if (!empty($_GET['type'])) { echo ucwords(stripslashes(htmlentities($_GET['type']))); } else { echo "Asset"; } ?>s">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -160,7 +160,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $asset_id = $row['asset_id'];
+                        $asset_id = intval($row['asset_id']);
                         $asset_type = htmlentities($row['asset_type']);
                         $asset_name = htmlentities($row['asset_name']);
                         $asset_make = htmlentities($row['asset_make']);
@@ -185,34 +185,34 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
                         $asset_mac = htmlentities($row['asset_mac']);
                         $asset_status = htmlentities($row['asset_status']);
-                        $asset_purchase_date = $row['asset_purchase_date'];
-                        $asset_warranty_expire = $row['asset_warranty_expire'];
-                        $asset_install_date = $row['asset_install_date'];
+                        $asset_purchase_date = htmlentities($row['asset_purchase_date']);
+                        $asset_warranty_expire = htmlentities($row['asset_warranty_expire']);
+                        $asset_install_date = htmlentities($row['asset_install_date']);
                         if (empty($asset_install_date)) {
                             $asset_install_date_display = "-";
                         } else {
                             $asset_install_date_display = $asset_install_date;
                         }
                         $asset_notes = htmlentities($row['asset_notes']);
-                        $asset_created_at = $row['asset_created_at'];
-                        $asset_vendor_id = $row['asset_vendor_id'];
-                        $asset_location_id = $row['asset_location_id'];
-                        $asset_contact_id = $row['asset_contact_id'];
-                        $asset_network_id = $row['asset_network_id'];
+                        $asset_created_at = htmlentities($row['asset_created_at']);
+                        $asset_vendor_id = intval($row['asset_vendor_id']);
+                        $asset_location_id = intval($row['asset_location_id']);
+                        $asset_contact_id = intval($row['asset_contact_id']);
+                        $asset_network_id = intval($row['asset_network_id']);
 
                         $device_icon = getAssetIcon($asset_type);
 
-                        $contact_name = $row['contact_name'];
+                        $contact_name = htmlentities($row['contact_name']);
                         if (empty($contact_name)) {
                             $contact_name = "-";
                         }
 
-                        $location_name = $row['location_name'];
+                        $location_name = htmlentities($row['location_name']);
                         if (empty($location_name)) {
                             $location_name = "-";
                         }
 
-                        $login_id = $row['login_id'];
+                        $login_id = intval($row['login_id']);
                         $login_username = htmlentities(decryptLoginEntry($row['login_username']));
                         $login_password = htmlentities(decryptLoginEntry($row['login_password']));
 
@@ -302,18 +302,30 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAssetInterfaceModal<?php echo $asset_id; ?>">Interfaces</a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">Edit</a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#copyAssetModal<?php echo $asset_id; ?>">Copy</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#copyAssetModal<?php echo $asset_id; ?>">
+                                            <i class="fas fa-fw fa-copy mr-2"></i>Copy
+                                        </a>
                                         <?php if ($document_count > 0) { ?>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#assetDocumentsModal<?php echo $asset_id; ?>">Documents (<?php echo $document_count; ?>)</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#assetDocumentsModal<?php echo $asset_id; ?>">
+                                                <i class="fas fa-fw fa-document mr-2"></i>Documents (<?php echo $document_count; ?>)
+                                            </a>
                                         <?php } ?>
                                         <?php if ($ticket_count > 0) { ?>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#assetTicketsModal<?php echo $asset_id; ?>">Tickets (<?php echo $ticket_count; ?>)</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#assetTicketsModal<?php echo $asset_id; ?>">
+                                                <i class="fas fa-fw fa-life-ring mr-2"></i>Tickets (<?php echo $ticket_count; ?>)
+                                            </a>
                                         <?php } ?>
                                         <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="post.php?archive_asset=<?php echo $asset_id; ?>">Archive</a>
-                                            <a class="dropdown-item text-danger" href="post.php?delete_asset=<?php echo $asset_id; ?>">Delete</a>
+                                            <a class="dropdown-item text-danger" href="post.php?archive_asset=<?php echo $asset_id; ?>">
+                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset=<?php echo $asset_id; ?>">
+                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete</a>
                                         <?php } ?>
                                     </div>
                                 </div>

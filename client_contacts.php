@@ -3,7 +3,7 @@
 require_once("inc_all_client.php");
 
 if (isset($_GET['q'])) {
-    $q = strip_tags(mysqli_real_escape_string($mysqli, $_GET['q']));
+    $q = sanitizeInput($_GET['q']);
     //Phone Numbers
     $n = preg_replace("/[^0-9]/", '', $q);
     if (empty($n)) {
@@ -16,7 +16,7 @@ if (isset($_GET['q'])) {
 }
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "contact_name";
 }
@@ -25,10 +25,12 @@ if (!empty($_GET['sb'])) {
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM contacts 
-  LEFT JOIN locations ON location_id = contact_location_id
-  WHERE contact_archived_at IS NULL 
-  AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%'  OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$n%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$n%')
-  AND contact_client_id = $client_id ORDER BY $sb $o LIMIT $record_from, $record_to");
+    LEFT JOIN locations ON location_id = contact_location_id
+    WHERE contact_archived_at IS NULL 
+    AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%'  OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$n%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$n%')
+    AND contact_client_id = $client_id 
+    ORDER BY $sb $o LIMIT $record_from, $record_to"
+);
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
@@ -36,11 +38,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-users"></i> Contacts</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-users mr-2"></i>Contacts</h3>
             <div class="card-tools">
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addContactModal">
-                        <i class="fas fa-fw fa-plus"></i> New Contact
+                        <i class="fas fa-plus mr-2"></i>New Contact
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
@@ -56,7 +58,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Contacts">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Contacts">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -65,8 +67,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-8">
                         <div class="float-right">
-                            <a href="post.php?export_client_contacts_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
-                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importContactModal"><i class="fa fa-fw fa-upload"></i> Import</button>
+                            <a href="post.php?export_client_contacts_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importContactModal"><i class="fa fa-fw fa-upload mr-2"></i>Import</button>
                         </div>
                     </div>
 
@@ -90,7 +92,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $contact_id = $row['contact_id'];
+                        $contact_id = intval($row['contact_id']);
                         $contact_name = htmlentities($row['contact_name']);
                         $contact_title = htmlentities($row['contact_title']);
                         if (empty($contact_title)) {
@@ -98,7 +100,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $contact_title_display = "<small class='text-secondary'>$contact_title</small>";
                         }
-                        $contact_department =htmlentities($row['contact_department']);
+                        $contact_department = htmlentities($row['contact_department']);
                         if (empty($contact_department)) {
                             $contact_department_display = "-";
                         } else {
@@ -129,13 +131,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $contact_important = intval($row['contact_important']);
                         $contact_billing = intval($row['contact_billing']);
                         $contact_technical = intval($row['contact_technical']);
-                        $contact_created_at = $row['contact_created_at'];
+                        $contact_created_at = htmlentities($row['contact_created_at']);
                         if ($contact_id == $primary_contact) {
                             $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
                         } else {
                             $primary_contact_display = false;
                         }
-                        $contact_location_id = $row['contact_location_id'];
+                        $contact_location_id = intval($row['contact_location_id']);
                         $location_name = htmlentities($row['location_name']);
                         if (empty($location_name)) {
                             $location_name_display = "-";
@@ -171,9 +173,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <?php } else { ?>
 
                                         <span class="fa-stack fa-2x">
-                                        <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                        <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
-                                    </span>
+                                            <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                                            <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+                                        </span>
 
                                         <br>
 
@@ -195,13 +197,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">View Details</a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">Edit</a>
+                                        <a class="dropdown-item" href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
+                                            <i class="fas fa-fw fa-eye-open mr-2"></i>View Details
+                                        </a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
                                         <?php if ($session_user_role == 3 && $contact_id !== $primary_contact) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="post.php?archive_contact=<?php echo $contact_id; ?>">Archive</a>
+                                            <a class="dropdown-item text-danger" href="post.php?archive_contact=<?php echo $contact_id; ?>">
+                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                            </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_contact=<?php echo $contact_id; ?>">Delete</a>
+                                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_contact=<?php echo $contact_id; ?>">
+                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            </a>
                                         <?php } ?>
                                     </div>
                                 </div>

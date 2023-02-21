@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-desktop"></i> New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags($_GET['type'])); }else{ echo "Asset"; } ?></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-desktop mr-2"></i>New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags($_GET['type'])); }else{ echo "Asset"; } ?></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -66,7 +66,7 @@
                             <?php //Do not display Make Model or Serial if Virtual is selected
                             if ($_GET['type'] !== 'virtual') { ?>
                                 <div class="form-group">
-                                    <label>Make </label>
+                                    <label>Make</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
@@ -124,7 +124,7 @@
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
-                                            $location_id = $row['location_id'];
+                                            $location_id = intval($row['location_id']);
                                             $location_name = htmlentities($row['location_name']);
                                             ?>
                                             <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
@@ -147,7 +147,7 @@
 
                                             $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
                                             while ($row = mysqli_fetch_array($sql)) {
-                                                $contact_id = $row['contact_id'];
+                                                $contact_id = intval($row['contact_id']);
                                                 $contact_name = htmlentities($row['contact_name']);
                                                 ?>
                                                 <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?></option>
@@ -186,7 +186,7 @@
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
-                                            $network_id = $row['network_id'];
+                                            $network_id = intval($row['network_id']);
                                             $network_name = htmlentities($row['network_name']);
                                             $network = htmlentities($row['network']);
 
@@ -234,7 +234,7 @@
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id AND vendor_template = 0 ORDER BY vendor_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
-                                            $vendor_id = $row['vendor_id'];
+                                            $vendor_id = intval($row['vendor_id']);
                                             $vendor_name = htmlentities($row['vendor_name']);
                                             ?>
                                             <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
@@ -312,8 +312,8 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_asset" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
+                    <button type="submit" name="add_asset" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>
