@@ -201,7 +201,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $contact_email = htmlentities($row['contact_email']);
                         $client_website = htmlentities($row['client_website']);
                         $client_currency_code = htmlentities($row['client_currency_code']);
-                        $client_net_terms = htmlentities($row['client_net_terms']);
+                        $client_net_terms = intval($row['client_net_terms']);
                         $client_referral = htmlentities($row['client_referral']);
                         $client_notes = htmlentities($row['client_notes']);
                         $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));
@@ -331,11 +331,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">
+                                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                            </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="post.php?archive_client=<?php echo $client_id; ?>">Archive</a>
+                                            <a class="dropdown-item text-danger" href="post.php?archive_client=<?php echo $client_id; ?>">
+                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                            </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">Delete</a>
+                                            <a class="dropdown-item text-danger text-bold" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">
+                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            </a>
                                         </div>
                                     </div>
                                 </td>

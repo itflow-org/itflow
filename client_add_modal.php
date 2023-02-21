@@ -274,7 +274,7 @@
                                 $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 AND company_id = $session_company_id ORDER BY tag_name ASC");
 
                                 while ($row = mysqli_fetch_array($sql_tags_select)) {
-                                    $tag_id_select = $row['tag_id'];
+                                    $tag_id_select = intval($row['tag_id']);
                                     $tag_name_select = htmlentities($row['tag_name']);
                                     $tag_color_select = htmlentities($row['tag_color']);
                                     $tag_icon_select = htmlentities($row['tag_icon']);
@@ -300,8 +300,8 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_client" class="btn btn-primary text-bold" onclick="promptPrimaryContact()"><i class="fa fa-check"></i> Create</button>
+                    <button type="submit" name="add_client" class="btn btn-primary text-bold" onclick="promptPrimaryContact()"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

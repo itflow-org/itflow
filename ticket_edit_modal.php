@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-life-ring"></i> Editing ticket: <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong> - <?php echo $client_name; ?></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Editing ticket: <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong> - <?php echo $client_name; ?></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -15,16 +15,16 @@
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-life-ring"></i> Details</a>
+                            <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-contacts<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-users"></i> Contacts</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-contacts<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-users mr-2"></i>Contacts</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-assets<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-desktop"></i> Assets</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-assets<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-vendors<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-building"></i> Vendors</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-vendors<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-building mr-2"></i>Vendors</a>
                         </li>
                     </ul>
 
@@ -81,7 +81,7 @@
                                             AND user_role > 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
                                         );
                                         while ($row = mysqli_fetch_array($sql_assign_to_select)) {
-                                            $user_id = $row['user_id'];
+                                            $user_id = intval($row['user_id']);
                                             $user_name = htmlentities($row['user_name']);
                                             ?>
                                             <option <?php if ($ticket_assigned_to == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
@@ -109,7 +109,7 @@
 
                                         $sql_client_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                                         while ($row = mysqli_fetch_array($sql_client_contacts_select)) {
-                                            $contact_id_select = $row['contact_id'];
+                                            $contact_id_select = intval($row['contact_id']);
                                             $contact_name_select = htmlentities($row['contact_name']);
                                             ?>
                                             <option <?php if ($contact_id_select == $contact_id) { echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
@@ -137,7 +137,7 @@
 
                                         $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
                                         while ($row = mysqli_fetch_array($sql_assets)) {
-                                            $asset_id_select = $row['asset_id'];
+                                            $asset_id_select = intval($row['asset_id']);
                                             $asset_name_select = htmlentities($row['asset_name']);
                                             ?>
                                             <option <?php if (!empty($asset_id) && $asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
@@ -165,7 +165,7 @@
 
                                         $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 ORDER BY vendor_name ASC");
                                         while ($row = mysqli_fetch_array($sql_vendors)) {
-                                            $vendor_id_select = $row['vendor_id'];
+                                            $vendor_id_select = intval($row['vendor_id']);
                                             $vendor_name_select = htmlentities($row['vendor_name']);
                                             ?>
                                             <option <?php if (!empty($vendor_id) && $vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
@@ -184,8 +184,8 @@
                 </div>
 
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="edit_ticket" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
+                    <button type="submit" name="edit_ticket" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
 
             </form>

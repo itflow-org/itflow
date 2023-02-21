@@ -24,10 +24,11 @@ if (isset($_GET['ticket_id'])) {
     } else {
 
         $row = mysqli_fetch_array($sql);
-        $client_id = $row['client_id'];
+        $client_id = intval($row['client_id']);
         $client_name = htmlentities($row['client_name']);
         $client_type = htmlentities($row['client_type']);
         $client_website = htmlentities($row['client_website']);
+        
         $client_net_terms = htmlentities($row['client_net_terms']);
         if ($client_net_terms == 0) {
             $client_net_terms = $config_default_net_terms;
@@ -39,22 +40,6 @@ if (isset($_GET['ticket_id'])) {
         $ticket_subject = htmlentities($row['ticket_subject']);
         $ticket_details = $row['ticket_details'];
         $ticket_priority = htmlentities($row['ticket_priority']);
-        $ticket_feedback = htmlentities($row['ticket_feedback']);
-        $ticket_status = htmlentities($row['ticket_status']);
-        $ticket_created_at = $row['ticket_created_at'];
-        $ticket_date = date('Y-m-d', strtotime($ticket_created_at));
-        $ticket_updated_at = $row['ticket_updated_at'];
-        $ticket_closed_at = $row['ticket_closed_at'];
-        $ticket_created_by = $row['ticket_created_by'];
-
-        if ($ticket_status == "Open") {
-            $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
-        } elseif ($ticket_status == "Working") {
-            $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
-        } else {
-            $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
-        }
-
         //Set Ticket Bage Color based of priority
         if ($ticket_priority == "High") {
             $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
@@ -65,8 +50,36 @@ if (isset($_GET['ticket_id'])) {
         } else {
             $ticket_priority_display = "-";
         }
+        $ticket_feedback = htmlentities($row['ticket_feedback']);
+        
+        $ticket_status = htmlentities($row['ticket_status']);
+        if ($ticket_status == "Open") {
+            $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
+        } elseif ($ticket_status == "Working") {
+            $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
+        } else {
+            $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
+        }
+        
+        $ticket_created_at = htmlentities($row['ticket_created_at']);
+        $ticket_date = date('Y-m-d', strtotime($ticket_created_at));
+        $ticket_updated_at = htmlentities($row['ticket_updated_at']);
+        $ticket_closed_at = htmlentities($row['ticket_closed_at']);
+        
+        $ticket_assigned_to = intval($row['ticket_assigned_to']);
+        if (empty($ticket_assigned_to)) {
+            $ticket_assigned_to_display = "<span class='text-danger'>Not Assigned</span>";
+        } else {
+            $ticket_assigned_to_display = htmlentities($row['user_name']);
+        }
 
-        $contact_id = $row['contact_id'];
+        //Ticket Created By
+        $ticket_created_by = intval($row['ticket_created_by']);
+        $ticket_created_by_sql = mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $ticket_created_by");
+        $row = mysqli_fetch_array($ticket_created_by_sql);
+        $ticket_created_by_display = htmlentities($row['user_name']);
+
+        $contact_id = intval($row['contact_id']);
         $contact_name = htmlentities($row['contact_name']);
         $contact_title = htmlentities($row['contact_title']);
         $contact_email = htmlentities($row['contact_email']);
@@ -74,7 +87,22 @@ if (isset($_GET['ticket_id'])) {
         $contact_extension = htmlentities($row['contact_extension']);
         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
 
-        $asset_id = $row['asset_id'];
+        if ($contact_id) {
+            //Get Contact Ticket Stats
+            $ticket_related_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");
+            $row = mysqli_fetch_array($ticket_related_open);
+            $ticket_related_open = intval($row['ticket_related_open']);
+
+            $ticket_related_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'Closed' AND ticket_contact_id = $contact_id ");
+            $row = mysqli_fetch_array($ticket_related_closed);
+            $ticket_related_closed = intval($row['ticket_related_closed']);
+
+            $ticket_related_total = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_total FROM tickets WHERE ticket_contact_id = $contact_id ");
+            $row = mysqli_fetch_array($ticket_related_total);
+            $ticket_related_total = intval($row['ticket_related_total']);
+        }
+
+        $asset_id = intval($row['asset_id']);
         $asset_ip = htmlentities($row['asset_ip']);
         $asset_name = htmlentities($row['asset_name']);
         $asset_type = htmlentities($row['asset_type']);
@@ -82,9 +110,9 @@ if (isset($_GET['ticket_id'])) {
         $asset_model = htmlentities($row['asset_model']);
         $asset_serial = htmlentities($row['asset_serial']);
         $asset_os = htmlentities($row['asset_os']);
-        $asset_warranty_expire = $row['asset_warranty_expire'];
+        $asset_warranty_expire = htmlentities($row['asset_warranty_expire']);
 
-        $vendor_id = $row['ticket_vendor_id'];
+        $vendor_id = intval($row['ticket_vendor_id']);
         $vendor_name = htmlentities($row['vendor_name']);
         $vendor_description = htmlentities($row['vendor_description']);
         $vendor_account_number = htmlentities($row['vendor_account_number']);
@@ -105,45 +133,10 @@ if (isset($_GET['ticket_id'])) {
         $location_zip = htmlentities($row['location_zip']);
         $location_phone = formatPhoneNumber($row['location_phone']);
 
-        $ticket_assigned_to = $row['ticket_assigned_to'];
-        if (empty($ticket_assigned_to)) {
-            $ticket_assigned_to_display = "<span class='text-danger'>Not Assigned</span>";
-        } else {
-            $ticket_assigned_to_display = htmlentities($row['user_name']);
-        }
-
-        //Ticket Created By
-        $ticket_created_by = $row['ticket_created_by'];
-        $ticket_created_by_sql = mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $ticket_created_by");
-        $row = mysqli_fetch_array($ticket_created_by_sql);
-        $ticket_created_by_display = htmlentities($row['user_name']);
-
-        //Ticket Assigned To
-        if (empty($ticket_assigned_to)) {
-            $ticket_assigned_to_display = "<span class='text-danger'>Not Assigned</span>";
-        } else {
-            $ticket_assigned_to_display = htmlentities($row['user_name']);
-        }
-
-        if ($contact_id) {
-            //Get Contact Ticket Stats
-            $ticket_related_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");
-            $row = mysqli_fetch_array($ticket_related_open);
-            $ticket_related_open = $row['ticket_related_open'];
-
-            $ticket_related_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'Closed' AND ticket_contact_id = $contact_id ");
-            $row = mysqli_fetch_array($ticket_related_closed);
-            $ticket_related_closed = $row['ticket_related_closed'];
-
-            $ticket_related_total = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_total FROM tickets WHERE ticket_contact_id = $contact_id ");
-            $row = mysqli_fetch_array($ticket_related_total);
-            $ticket_related_total = $row['ticket_related_total'];
-        }
-
         //Get Total Ticket Time
         $ticket_total_reply_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
         $row = mysqli_fetch_array($ticket_total_reply_time);
-        $ticket_total_reply_time = $row['ticket_total_reply_time'];
+        $ticket_total_reply_time = htmlentities($row['ticket_total_reply_time']);
 
         //Client Tags
         $client_tag_name_display_array = array();
@@ -151,7 +144,7 @@ if (isset($_GET['ticket_id'])) {
         $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_tags.client_id = $client_id");
         while ($row = mysqli_fetch_array($sql_client_tags)) {
 
-            $client_tag_id = $row['tag_id'];
+            $client_tag_id = intval($row['tag_id']);
             $client_tag_name = htmlentities($row['tag_name']);
             $client_tag_color = htmlentities($row['tag_color']);
             $client_tag_icon = htmlentities($row['tag_icon']);
@@ -189,11 +182,16 @@ if (isset($_GET['ticket_id'])) {
         }
 
         // Get technicians to assign the ticket to
-        $sql_assign_to_select = mysqli_query($mysqli, "SELECT users.user_id, user_name FROM users
-                                  LEFT JOIN user_companies ON users.user_id = user_companies.user_id
-                                  LEFT JOIN user_settings on users.user_id = user_settings.user_id
-                                  WHERE user_companies.company_id = $session_company_id 
-                                  AND user_role > 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+        $sql_assign_to_select = mysqli_query(
+            $mysqli, 
+            "SELECT users.user_id, user_name FROM users
+            LEFT JOIN user_companies ON users.user_id = user_companies.user_id
+            LEFT JOIN user_settings on users.user_id = user_settings.user_id
+            WHERE user_companies.company_id = $session_company_id
+            AND user_role > 1
+            AND user_archived_at IS NULL
+            ORDER BY user_name ASC"
+        );
 
         ?>
 
@@ -303,21 +301,21 @@ if (isset($_GET['ticket_id'])) {
                 <?php
 
                 while ($row = mysqli_fetch_array($sql_ticket_replies)) {
-                    $ticket_reply_id = $row['ticket_reply_id'];
+                    $ticket_reply_id = intval($row['ticket_reply_id']);
                     $ticket_reply = $row['ticket_reply'];
                     $ticket_reply_type = htmlentities($row['ticket_reply_type']);
-                    $ticket_reply_created_at = $row['ticket_reply_created_at'];
-                    $ticket_reply_updated_at = $row['ticket_reply_updated_at'];
-                    $ticket_reply_by = $row['ticket_reply_by'];
+                    $ticket_reply_created_at = htmlentities($row['ticket_reply_created_at']);
+                    $ticket_reply_updated_at = htmlentities($row['ticket_reply_updated_at']);
+                    $ticket_reply_by = intval($row['ticket_reply_by']);
 
                     if ($ticket_reply_type == "Client") {
                         $ticket_reply_by_display = htmlentities($row['contact_name']);
                         $user_initials = initials($row['contact_name']);
-                        $user_avatar = $row['contact_photo'];
+                        $user_avatar = htmlentities($row['contact_photo']);
                         $avatar_link = "uploads/clients/$session_company_id/$client_id/$user_avatar";
                     } else {
                         $ticket_reply_by_display = htmlentities($row['user_name']);
-                        $user_id = $row['user_id'];
+                        $user_id = intval($row['user_id']);
                         $user_avatar = htmlentities($row['user_avatar']);
                         $user_initials = initials($row['user_name']);
                         $avatar_link = "uploads/users/$user_id/$user_avatar";
@@ -475,7 +473,7 @@ if (isset($_GET['ticket_id'])) {
                             <?php }
 
                             if (!empty($asset_ip)) { ?>
-                                <i class="fa fa-fw fa-network-wired text-secondary ml-1 mr-2 mb-2"></i><?php echo "$asset_ip"; ?>
+                                <i class="fa fa-fw fa-network-wired text-secondary ml-1 mr-2 mb-2"></i><?php echo $asset_ip; ?>
                                 <br>
                             <?php }
 
@@ -512,13 +510,13 @@ if (isset($_GET['ticket_id'])) {
                                                 <?php
                                                 // Query is run from client_assets.php
                                                 while ($row = mysqli_fetch_array($sql_asset_tickets)) {
-                                                    $service_ticket_id = $row['ticket_id'];
+                                                    $service_ticket_id = intval($row['ticket_id']);
                                                     $service_ticket_prefix = htmlentities($row['ticket_prefix']);
-                                                    $service_ticket_number = $row['ticket_number'];
+                                                    $service_ticket_number = intval($row['ticket_number']);
                                                     $service_ticket_subject = htmlentities($row['ticket_subject']);
                                                     $service_ticket_status = htmlentities($row['ticket_status']);
-                                                    $service_ticket_created_at = $row['ticket_created_at'];
-                                                    $service_ticket_updated_at = $row['ticket_updated_at'];
+                                                    $service_ticket_created_at = htmlentities($row['ticket_created_at']);
+                                                    $service_ticket_updated_at = htmlentities($row['ticket_updated_at']);
                                                     ?>
                                                     <p>
                                                         <i class="fas fa-fw fa-ticket-alt"></i>
@@ -592,7 +590,7 @@ if (isset($_GET['ticket_id'])) {
                                 <?php
 
                                 while ($row = mysqli_fetch_array($sql_assign_to_select)) {
-                                    $user_id = $row['user_id'];
+                                    $user_id = intval($row['user_id']);
                                     $user_name = htmlentities($row['user_name']); ?>
                                     <option <?php if ($ticket_assigned_to == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                                 <?php } ?>

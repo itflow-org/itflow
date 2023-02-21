@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-calendar"></i> <?php echo $event_title; ?></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-calendar mr-2"></i><?php echo $event_title; ?></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -15,13 +15,13 @@
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-event<?php echo $event_id; ?>"><i class="fa fa-fw fa-calendar"></i> Event</a>
+                            <a class="nav-link active" data-toggle="pill" href="#pills-event<?php echo $event_id; ?>"><i class="fa fa-fw fa-calendar mr-2"></i>Event</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-more<?php echo $event_id; ?>"><i class="fa fa-fw fa-info-circle"></i> More</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-more<?php echo $event_id; ?>"><i class="fa fa-fw fa-info-circle mr-2"></i>More</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-attendees<?php echo $event_id; ?>"><i class="fa fa-fw fa-users"></i> Attendees</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-attendees<?php echo $event_id; ?>"><i class="fa fa-fw fa-users mr-2"></i>Attendees</a>
                         </li>
                     </ul>
 
@@ -52,7 +52,7 @@
 
                                         $sql_calendars_select = mysqli_query($mysqli, "SELECT * FROM calendars WHERE company_id = $session_company_id ORDER BY calendar_name ASC");
                                         while ($row = mysqli_fetch_array($sql_calendars_select)) {
-                                            $calendar_id_select = $row['calendar_id'];
+                                            $calendar_id_select = intval($row['calendar_id']);
                                             $calendar_name_select = htmlentities($row['calendar_name']);
                                             $calendar_color_select = htmlentities($row['calendar_color']);
                                             ?>
@@ -118,7 +118,7 @@
 
                                             $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN contacts ON primary_contact = contact_id WHERE clients.company_id = $session_company_id ORDER BY client_name ASC");
                                             while ($row = mysqli_fetch_array($sql_clients)) {
-                                                $client_id_select = $row['client_id'];
+                                                $client_id_select = intval($row['client_id']);
                                                 $client_name_select = htmlentities($row['client_name']);
                                                 $contact_email_select = htmlentities($row['contact_email']);
                                                 ?>
@@ -145,9 +145,9 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <a href="post.php?delete_event=<?php echo $event_id; ?>" class="btn btn-danger mr-auto"><i class="fa fa-trash"></i> Delete</a>
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="edit_event" class="btn btn-primary"><strong><i class="fa fa-check"></i> Update</button>
+                    <a class="btn text-danger mr-auto" href="post.php?delete_event=<?php echo $event_id; ?>"><i class="fa fa-calendar-times mr-2"></i>Delete</a>
+                    <button type="submit" name="edit_event" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

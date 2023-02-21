@@ -4137,7 +4137,7 @@ if(isset($_GET['email_invoice'])){
     );
 
     $row = mysqli_fetch_array($sql);
-    $invoice_id = $row['invoice_id'];
+    $invoice_id = intval($row['invoice_id']);
     $invoice_prefix = $row['invoice_prefix'];
     $invoice_number = $row['invoice_number'];
     $invoice_status = $row['invoice_status'];
@@ -4147,7 +4147,6 @@ if(isset($_GET['email_invoice'])){
     $invoice_url_key = $row['invoice_url_key'];
     $invoice_currency_code = $row['invoice_currency_code'];
     $client_id = $row['client_id'];
-    $client_name = $row['client_name'];
     $client_name = $row['client_name'];
     $contact_name = $row['contact_name'];
     $contact_email = $row['contact_email'];

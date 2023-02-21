@@ -82,6 +82,9 @@ while ($row = mysqli_fetch_array($sql_companies)) {
         // Clean-up old dismissed notifications
         mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_dismissed_at < CURDATE() - INTERVAL 90 DAY");
 
+        //Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron cleaned up old data', company_id = $company_id");
+
 
 
         /*
@@ -158,6 +161,8 @@ while ($row = mysqli_fetch_array($sql_companies)) {
             }
 
         }
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for domain expiring', company_id = $company_id");
 
         // CERTIFICATES EXPIRING
 
@@ -187,6 +192,8 @@ while ($row = mysqli_fetch_array($sql_companies)) {
             }
 
         }
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for certificates expiring', company_id = $company_id");
 
         // Asset Warranties Expiring
 
@@ -215,6 +222,8 @@ while ($row = mysqli_fetch_array($sql_companies)) {
             }
 
         }
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for asset warranties expiring', company_id = $company_id");
 
         // Scheduled tickets
 
@@ -328,7 +337,8 @@ while ($row = mysqli_fetch_array($sql_companies)) {
 
             }
         }
-
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created sent out scheduled tickets', company_id = $company_id");
 
         // PAST DUE INVOICE Notifications
         //$invoiceAlertArray = [$config_invoice_overdue_reminders];
@@ -397,6 +407,8 @@ while ($row = mysqli_fetch_array($sql_companies)) {
             }
 
         }
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for past due invoices and sent out notifications to the primary contacts email', company_id = $company_id");
 
         //Send Recurring Invoices that match todays date and are active
 
@@ -515,6 +527,8 @@ while ($row = mysqli_fetch_array($sql_companies)) {
 
             } //End if Autosend is on
         } //End Recurring Invoices Loop
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created invoices from recurring invoices and sent emails out', company_id = $company_id");
 
 
         // TELEMETRY

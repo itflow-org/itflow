@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-calendar-plus"></i> New Event</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-calendar-plus mr-2"></i>New Event</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -12,13 +12,13 @@
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-event"><i class="fa fa-fw fa-calendar"></i> Event</a>
+                            <a class="nav-link active" data-toggle="pill" href="#pills-event"><i class="fa fa-fw fa-calendar mr-2"></i>Event</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-more"><i class="fa fa-fw fa-info-circle"></i> More</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-more"><i class="fa fa-fw fa-info-circle mr-2"></i>More</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-attendees"><i class="fa fa-fw fa-users"></i> Attendees</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-attendees"><i class="fa fa-fw fa-users mr-2"></i>Attendees</a>
                         </li>
                     </ul>
 
@@ -50,7 +50,7 @@
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM calendars WHERE company_id = $session_company_id ORDER BY calendar_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
-                                            $calendar_id = $row['calendar_id'];
+                                            $calendar_id = intval($row['calendar_id']);
                                             $calendar_name = htmlentities($row['calendar_name']);
                                             $calendar_color = htmlentities($row['calendar_color']);
                                             ?>
@@ -119,7 +119,7 @@
 
                                             $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN contacts ON primary_contact = contact_id WHERE clients.company_id = $session_company_id ORDER BY client_name ASC");
                                             while ($row = mysqli_fetch_array($sql)) {
-                                                $client_id = $row['client_id'];
+                                                $client_id = intval($row['client_id']);
                                                 $client_name = htmlentities($row['client_name']);
                                                 $contact_email = htmlentities($row['contact_email']);
                                                 ?>
@@ -147,8 +147,8 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_event" class="btn btn-primary"><strong><i class="fa fa-check"></i> Create</strong></button>
+                    <button type="submit" name="add_event" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

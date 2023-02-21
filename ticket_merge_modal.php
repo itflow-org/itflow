@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-md">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-life-ring"></i> Merge & Close <?php echo "$ticket_prefix$ticket_number"; ?> into another ticket</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Merge & Close <?php echo "$ticket_prefix$ticket_number"; ?> into another ticket</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -50,8 +50,8 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" id="merge_ticket_btn" name="merge_ticket" class="btn btn-primary" disabled>Merge</button>
+                    <button type="submit" id="merge_ticket_btn" name="merge_ticket" class="btn btn-primary text-bold" disabled><i class="fa fa-check mr-2"></i>Merge</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                     <!-- Merge button starts disabled. Is enabled by the merge_into_number_get_details Javascript function-->
                 </div>
             </form>

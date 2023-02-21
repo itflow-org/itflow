@@ -46,10 +46,10 @@
         <div class="dropdown-divider"></div>
         <?php
         while ($row = mysqli_fetch_array($sql_notifications)) {
-            $notification_id = $row['notification_id'];
+            $notification_id = intval($row['notification_id']);
             $notification_type = htmlentities($row['notification_type']);
             $notification = htmlentities($row['notification']);
-            $notification_timestamp = $row['notification_timestamp'];
+            $notification_timestamp = htmlentities($row['notification_timestamp']);
         ?>
 
         <a href="post.php?dismiss_notification=<?php echo $notification_id; ?>" class="dropdown-item">

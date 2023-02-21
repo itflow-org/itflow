@@ -24,9 +24,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-piggy-bank"></i> Accounts</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-piggy-bank mr-2"></i>Accounts</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAccountModal"><i class="fas fa-fw fa-plus"></i> New Account</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAccountModal"><i class="fas fa-plus mr-2"></i>New Account</button>
             </div>
         </div>
         <div class="card-body">
@@ -84,10 +84,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>">Edit</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
                                         <?php if ($balance == 0) { //Cannot Archive an Account until it reaches 0 Balance ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="post.php?archive_account=<?php echo $account_id; ?>">Archive</a>
+                                            <a class="dropdown-item text-danger" href="post.php?archive_account=<?php echo $account_id; ?>">
+                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                            </a>
                                         <?php } ?>
                                     </div>
                                 </div>
