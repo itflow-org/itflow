@@ -140,7 +140,7 @@
                                             $asset_id_select = intval($row['asset_id']);
                                             $asset_name_select = htmlentities($row['asset_name']);
                                             ?>
-                                            <option <?php if (!empty($asset_id) && $asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
+                                            <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
 
                                             <?php
                                         }
@@ -168,7 +168,7 @@
                                             $vendor_id_select = intval($row['vendor_id']);
                                             $vendor_name_select = htmlentities($row['vendor_name']);
                                             ?>
-                                            <option <?php if (!empty($vendor_id) && $vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
+                                            <option <?php if ($vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
 
                                             <?php
                                         }

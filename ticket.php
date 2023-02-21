@@ -29,13 +29,13 @@ if (isset($_GET['ticket_id'])) {
         $client_type = htmlentities($row['client_type']);
         $client_website = htmlentities($row['client_website']);
         
-        $client_net_terms = htmlentities($row['client_net_terms']);
+        $client_net_terms = intval($row['client_net_terms']);
         if ($client_net_terms == 0) {
             $client_net_terms = $config_default_net_terms;
         }
 
         $ticket_prefix = htmlentities($row['ticket_prefix']);
-        $ticket_number = htmlentities($row['ticket_number']);
+        $ticket_number = intval($row['ticket_number']);
         $ticket_category = htmlentities($row['ticket_category']);
         $ticket_subject = htmlentities($row['ticket_subject']);
         $ticket_details = $row['ticket_details'];
@@ -73,12 +73,6 @@ if (isset($_GET['ticket_id'])) {
             $ticket_assigned_to_display = htmlentities($row['user_name']);
         }
 
-        //Ticket Created By
-        $ticket_created_by = intval($row['ticket_created_by']);
-        $ticket_created_by_sql = mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $ticket_created_by");
-        $row = mysqli_fetch_array($ticket_created_by_sql);
-        $ticket_created_by_display = htmlentities($row['user_name']);
-
         $contact_id = intval($row['contact_id']);
         $contact_name = htmlentities($row['contact_name']);
         $contact_title = htmlentities($row['contact_title']);
@@ -86,21 +80,6 @@ if (isset($_GET['ticket_id'])) {
         $contact_phone = formatPhoneNumber($row['contact_phone']);
         $contact_extension = htmlentities($row['contact_extension']);
         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-
-        if ($contact_id) {
-            //Get Contact Ticket Stats
-            $ticket_related_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");
-            $row = mysqli_fetch_array($ticket_related_open);
-            $ticket_related_open = intval($row['ticket_related_open']);
-
-            $ticket_related_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'Closed' AND ticket_contact_id = $contact_id ");
-            $row = mysqli_fetch_array($ticket_related_closed);
-            $ticket_related_closed = intval($row['ticket_related_closed']);
-
-            $ticket_related_total = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_total FROM tickets WHERE ticket_contact_id = $contact_id ");
-            $row = mysqli_fetch_array($ticket_related_total);
-            $ticket_related_total = intval($row['ticket_related_total']);
-        }
 
         $asset_id = intval($row['asset_id']);
         $asset_ip = htmlentities($row['asset_ip']);
@@ -132,6 +111,27 @@ if (isset($_GET['ticket_id'])) {
         $location_state = htmlentities($row['location_state']);
         $location_zip = htmlentities($row['location_zip']);
         $location_phone = formatPhoneNumber($row['location_phone']);
+
+        //Ticket Created By
+        $ticket_created_by = intval($row['ticket_created_by']);
+        $ticket_created_by_sql = mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $ticket_created_by");
+        $row = mysqli_fetch_array($ticket_created_by_sql);
+        $ticket_created_by_display = htmlentities($row['user_name']);
+
+        if ($contact_id) {
+            //Get Contact Ticket Stats
+            $ticket_related_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");
+            $row = mysqli_fetch_array($ticket_related_open);
+            $ticket_related_open = intval($row['ticket_related_open']);
+
+            $ticket_related_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'Closed' AND ticket_contact_id = $contact_id ");
+            $row = mysqli_fetch_array($ticket_related_closed);
+            $ticket_related_closed = intval($row['ticket_related_closed']);
+
+            $ticket_related_total = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_total FROM tickets WHERE ticket_contact_id = $contact_id ");
+            $row = mysqli_fetch_array($ticket_related_total);
+            $ticket_related_total = intval($row['ticket_related_total']);
+        }
 
         //Get Total Ticket Time
         $ticket_total_reply_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");

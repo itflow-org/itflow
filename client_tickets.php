@@ -2,7 +2,7 @@
 require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "ticket_number";
 }
@@ -23,6 +23,7 @@ $sql = mysqli_query(
     LEFT JOIN users ON ticket_assigned_to = user_id
     LEFT JOIN assets ON ticket_asset_id = asset_id
     LEFT JOIN locations ON ticket_location_id = location_id
+    LEFT JOIN vendors ON ticket_vendor_id = vendor_id
     WHERE ticket_client_id = $client_id
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to"
@@ -34,14 +35,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring"></i> Tickets</h3>
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets</h3>
         <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
         <div class="dropdown-menu">
             <a class="dropdown-item text-dark" href="client_scheduled_tickets.php?client_id=<?php echo $client_id; ?>">Scheduled Tickets</a>
         </div>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal"><i class="fas fa-fw fa-plus"></i> New Ticket</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
+                    <i class="fas fa-plus mr-2"></i>New Ticket
+                </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addScheduledTicketModal">Scheduled</a>
@@ -56,7 +59,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Tickets">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Tickets">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -65,7 +68,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-8">
                     <div class="float-right">
-                        <a href="post.php?export_client_tickets_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
+                        <a href="post.php?export_client_tickets_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
                     </div>
                 </div>
 
@@ -92,15 +95,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
-                    $ticket_id = $row['ticket_id'];
+                    $ticket_id = intval($row['ticket_id']);
                     $ticket_prefix = htmlentities($row['ticket_prefix']);
                     $ticket_number = htmlentities($row['ticket_number']);
                     $ticket_subject = htmlentities($row['ticket_subject']);
                     $ticket_details = $row['ticket_details'];
                     $ticket_priority = htmlentities($row['ticket_priority']);
                     $ticket_status = htmlentities($row['ticket_status']);
-                    $ticket_created_at = $row['ticket_created_at'];
-                    $ticket_updated_at = $row['ticket_updated_at'];
+                    $ticket_created_at = htmlentities($row['ticket_created_at']);
+                    $ticket_updated_at = htmlentities($row['ticket_updated_at']);
                     if (empty($ticket_updated_at)) {
                         if ($ticket_status == "Closed") {
                             $ticket_updated_at_display = "<p>Never</p>";
@@ -110,7 +113,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     } else {
                         $ticket_updated_at_display = $ticket_updated_at;
                     }
-                    $ticket_closed_at = $row['ticket_closed_at'];
+                    $ticket_closed_at = htmlentities($row['ticket_closed_at']);
 
                     if ($ticket_status == "Open") {
                         $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
@@ -129,7 +132,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     } else{
                         $ticket_priority_display = "-";
                     }
-                    $ticket_assigned_to = $row['ticket_assigned_to'];
+                    $ticket_assigned_to = intval($row['ticket_assigned_to']);
                     if (empty($ticket_assigned_to)) {
                         if ($ticket_status == "Closed") {
                             $ticket_assigned_to_display = "<p>Not Assigned</p>";
@@ -139,7 +142,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     } else {
                         $ticket_assigned_to_display = htmlentities($row['user_name']);
                     }
-                    $contact_id = $row['contact_id'];
+                    $contact_id = intval($row['contact_id']);
                     $contact_name = htmlentities($row['contact_name']);
                     if (empty($contact_name)) {
                         $contact_display = "-";
@@ -151,6 +154,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $contact_phone = formatPhoneNumber($row['contact_phone']);
                     $contact_extension = htmlentities($row['contact_extension']);
                     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+
+                    $asset_id = intval($row['asset_id']);
+                    $vendor_id = intval($row['vendor_id']);
 
                     ?>
 
