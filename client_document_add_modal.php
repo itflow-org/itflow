@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-file-alt"></i> New Document</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-file-alt mr-2"></i>New Document</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -29,7 +29,7 @@
                                 <?php
                                 $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
                                 while ($row = mysqli_fetch_array($sql_folders)) {
-                                    $folder_id = $row['folder_id'];
+                                    $folder_id = intval($row['folder_id']);
                                     $folder_name = htmlentities($row['folder_name']);
 
                                     ?>
@@ -43,8 +43,8 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_document" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
+                    <button type="submit" name="add_document" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

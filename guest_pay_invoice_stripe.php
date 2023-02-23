@@ -24,7 +24,7 @@ if ($config_stripe_enable == 0 || $config_stripe_account == 0 || empty($config_s
 //  Users are directed to this page with the invoice_id and url_key params to make a payment
 if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent'])) {
 
-    $invoice_url_key = mysqli_real_escape_string($mysqli, $_GET['url_key']);
+    $invoice_url_key = sanitizeInput($_GET['url_key']);
     $invoice_id = intval($_GET['invoice_id']);
 
     // Query invoice details
@@ -51,22 +51,22 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     // Process invoice, client and company details/settings
     $row = mysqli_fetch_array($sql);
-    $invoice_id = $row['invoice_id'];
+    $invoice_id = intval($row['invoice_id']);
     $invoice_prefix = htmlentities($row['invoice_prefix']);
-    $invoice_number = htmlentities($row['invoice_number']);
+    $invoice_number = intval($row['invoice_number']);
     $invoice_status = htmlentities($row['invoice_status']);
-    $invoice_date = $row['invoice_date'];
-    $invoice_due = $row['invoice_due'];
+    $invoice_date = htmlentities($row['invoice_date']);
+    $invoice_due = htmlentities($row['invoice_due']);
     $invoice_amount = floatval($row['invoice_amount']);
     $invoice_currency_code = htmlentities($row['invoice_currency_code']);
-    $client_id = $row['client_id'];
+    $client_id = intval($row['client_id']);
     $client_name = htmlentities($row['client_name']);
     $company_locale = htmlentities($row['company_locale']);
 
     // Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql_amount_paid);
-    $amount_paid = $row['amount_paid'];
+    $amount_paid = floatval($row['amount_paid']);
     $balance_to_pay = $invoice_amount - $amount_paid;
 
     // Get invoice items
@@ -162,7 +162,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 } elseif (isset($_GET['payment_intent'], $_GET['payment_intent_client_secret'])) {
 
     // Params from GET
-    $pi_id = mysqli_real_escape_string($mysqli, $_GET['payment_intent']);
+    $pi_id = sanitizeInput($_GET['payment_intent']);
     $pi_cs = $_GET['payment_intent_client_secret'];
 
     // Initialize stripe
@@ -187,7 +187,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_invoice_id = intval($pi_obj->metadata->itflow_invoice_id);
     $pi_client_id = intval($pi_obj->metadata->itflow_client_id);
     $pi_amount_paid = floatval(($pi_obj->amount_received / 100));
-    $pi_currency = strtoupper(mysqli_real_escape_string($mysqli, $pi_obj->currency));
+    $pi_currency = strtoupper(sanitizeInput($pi_obj->currency));
     $pi_livemode = $pi_obj->livemode;
 
     // Get/Check invoice (& client/primary contact)
@@ -211,12 +211,12 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $row = mysqli_fetch_array($invoice_sql);
     $invoice_id = intval($row['invoice_id']);
     $invoice_prefix = htmlentities($row['invoice_prefix']);
-    $invoice_number = htmlentities($row['invoice_number']);
+    $invoice_number = intval($row['invoice_number']);
     $invoice_amount = floatval($row['invoice_amount']);
     $invoice_currency_code = htmlentities($row['invoice_currency_code']);
     $invoice_url_key = htmlentities($row['invoice_url_key']);
     $invoice_company_id = intval($row['company_id']);
-    $client_id = $row['client_id'];
+    $client_id = intval($row['client_id']);
     $client_name = htmlentities($row['client_name']);
     $contact_name = $row['contact_name'];
     $contact_email = $row['contact_email'];
@@ -244,11 +244,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id AND company_id = $invoice_company_id");
 
     // Add Payment to History
-    mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = '$pi_amount_paid', payment_currency_code = '$pi_currency', payment_account_id = $config_stripe_account, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id, company_id = $invoice_company_id");
+    mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $config_stripe_account, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id, company_id = $invoice_company_id");
     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Payment added - $ip - $os - $browser', history_invoice_id = $invoice_id, company_id = $invoice_company_id");
 
     // Notify
-    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Paid', notification = 'Invoice $invoice_prefix$invoice_number has been paid - $ip - $os - $browser', notification_timestamp = NOW(), notification_client_id = $pi_client_id, company_id = $invoice_company_id");
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Paid', notification = 'Invoice $invoice_prefix$invoice_number has been paid - $ip - $os - $browser', notification_client_id = $pi_client_id, company_id = $invoice_company_id");
 
     // Logging
     $extended_log_desc = '';
@@ -262,7 +262,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $row = mysqli_fetch_array($sql_settings);
 
     $config_smtp_host = $row['config_smtp_host'];
-    $config_smtp_port = $row['config_smtp_port'];
+    $config_smtp_port = intval($row['config_smtp_port']);
     $config_smtp_encryption = $row['config_smtp_encryption'];
     $config_smtp_username = $row['config_smtp_username'];
     $config_smtp_password = $row['config_smtp_password'];
@@ -295,7 +295,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         } else {
             mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Failed!', history_invoice_id = $invoice_id, company_id = $invoice_company_id");
 
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $invoice_company_id");
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', company_id = $invoice_company_id");
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', company_id = $invoice_company_id");
         }
     }

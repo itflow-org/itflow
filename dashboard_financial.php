@@ -28,32 +28,32 @@ $largest_income_month = 0;
 //Get Total income
 $sql_total_payments_to_invoices = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments_to_invoices FROM payments WHERE YEAR(payment_date) = $year AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_payments_to_invoices);
-$total_payments_to_invoices = $row['total_payments_to_invoices'];
+$total_payments_to_invoices = floatval($row['total_payments_to_invoices']);
 //Do not grab transfer payment as these have a category_id of 0
 $sql_total_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE YEAR(revenue_date) = $year AND revenue_category_id > 0 AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_revenues);
-$total_revenues = $row['total_revenues'];
+$total_revenues = floatval($row['total_revenues']);
 
 $total_income = $total_payments_to_invoices + $total_revenues;
 
 //Get Total expenses and do not grab transfer expenses as these have a vendor of 0
 $sql_total_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_vendor_id > 0 AND YEAR(expense_date) = $year AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_expenses);
-$total_expenses = $row['total_expenses'];
+$total_expenses = floatval($row['total_expenses']);
 
 //Total up all the Invoices that are not draft or cancelled
 $sql_invoice_totals = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' AND YEAR(invoice_date) = $year AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_invoice_totals);
-$invoice_totals = $row['invoice_totals'];
+$invoice_totals = floatval($row['invoice_totals']);
 
 //Quaeries from Receivables
 $sql_total_payments_to_invoices_all_years = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments_to_invoices_all_years FROM payments WHERE company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_payments_to_invoices_all_years);
-$total_payments_to_invoices_all_years = $row['total_payments_to_invoices_all_years'];
+$total_payments_to_invoices_all_years = floatval($row['total_payments_to_invoices_all_years']);
 
 $sql_invoice_totals_all_years = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals_all_years FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_invoice_totals_all_years);
-$invoice_totals_all_years = $row['invoice_totals_all_years'];
+$invoice_totals_all_years = floatval($row['invoice_totals_all_years']);
 
 $receivables = $invoice_totals_all_years - $total_payments_to_invoices_all_years;
 
@@ -82,25 +82,25 @@ $sql_latest_expenses = mysqli_query(
 //Get Monthly Recurring Total
 $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_recurring_monthly_total);
-$recurring_monthly_total = $row['recurring_monthly_total'];
+$recurring_monthly_total = floatval($row['recurring_monthly_total']);
 
 //Get Yearly Recurring Total
 $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_recurring_yearly_total);
-$recurring_yearly_total = $row['recurring_yearly_total'];
+$recurring_yearly_total = floatval($row['recurring_yearly_total']);
 
 //Get Total Miles Driven
 $sql_miles_driven = mysqli_query($mysqli, "SELECT SUM(trip_miles) AS total_miles FROM trips WHERE YEAR(trip_date) = $year AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_miles_driven);
-$total_miles = $row['total_miles'];
+$total_miles = floatval($row['total_miles']);
 
 //Get Total Clients added
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND company_id = $session_company_id"));
-$clients_added = $row['clients_added'];
+$clients_added = intval($row['clients_added']);
 
 //Get Total Vendors added
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND vendor_template = 0 AND company_id = $session_company_id"));
-$vendors_added = $row['vendors_added'];
+$vendors_added = intval($row['vendors_added']);
 
 ?>
 
@@ -242,7 +242,7 @@ $vendors_added = $row['vendors_added'];
     <div class="col-md-12">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-fw fa-chart-area"></i> Cash Flow</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Cash Flow</h3>
                 <div class="card-tools">
                     <a href="report_income_summary.php" class="btn btn-tool">
                         <i class="fas fa-eye"></i>
@@ -261,7 +261,7 @@ $vendors_added = $row['vendors_added'];
     <div class="col-lg-4">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-chart-pie"></i> Income by Category</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-chart-pie mr-2"></i>Income by Category</h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="remove">
                         <i class="fas fa-times"></i>
@@ -277,7 +277,7 @@ $vendors_added = $row['vendors_added'];
     <div class="col-lg-4">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa fa-fw fa-shopping-cart"></i> Expenses by Category</h3>
+                <h3 class="card-title"><i class="fa fa-fw fa-shopping-cart mr-2"></i>Expenses by Category</h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="remove">
                         <i class="fas fa-times"></i>
@@ -293,7 +293,7 @@ $vendors_added = $row['vendors_added'];
     <div class="col-lg-4">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa fa-fw fa-building"></i> Expenses by Vendor</h3>
+                <h3 class="card-title"><i class="fa fa-fw fa-building mr-2"></i>Expenses by Vendor</h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="remove">
                         <i class="fas fa-times"></i>
@@ -309,7 +309,7 @@ $vendors_added = $row['vendors_added'];
     <div class="col-md-4">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa fa-fw fa-piggy-bank"></i> Account Balances</h3>
+                <h3 class="card-title"><i class="fa fa-fw fa-piggy-bank mr-2"></i>Account Balances</h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="remove">
                         <i class="fas fa-times"></i>
@@ -321,9 +321,9 @@ $vendors_added = $row['vendors_added'];
                     <tbody>
                     <?php
                     while ($row = mysqli_fetch_array($sql_accounts)) {
-                        $account_id = $row['account_id'];
+                        $account_id = intval($row['account_id']);
                         $account_name = htmlentities($row['account_name']);
-                        $opening_balance = $row['opening_balance'];
+                        $opening_balance = floatval($row['opening_balance']);
 
                         ?>
                         <tr>
@@ -331,15 +331,15 @@ $vendors_added = $row['vendors_added'];
                             <?php
                             $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                             $row = mysqli_fetch_array($sql_payments);
-                            $total_payments = $row['total_payments'];
+                            $total_payments = floatval($row['total_payments']);
 
                             $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
                             $row = mysqli_fetch_array($sql_revenues);
-                            $total_revenues = $row['total_revenues'];
+                            $total_revenues = floatval($row['total_revenues']);
 
                             $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
                             $row = mysqli_fetch_array($sql_expenses);
-                            $total_expenses = $row['total_expenses'];
+                            $total_expenses = floatval($row['total_expenses']);
 
                             $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
@@ -361,7 +361,7 @@ $vendors_added = $row['vendors_added'];
     <div class="col-md-4">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-credit-card"></i> Latest Income</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-credit-card mr-2"></i>Latest Income</h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="remove">
                         <i class="fas fa-times"></i>
@@ -381,10 +381,10 @@ $vendors_added = $row['vendors_added'];
                     <tbody>
                     <?php
                     while ($row = mysqli_fetch_array($sql_latest_invoice_payments)) {
-                        $payment_date = $row['payment_date'];
+                        $payment_date = htmlentities($row['payment_date']);
                         $payment_amount = floatval($row['payment_amount']);
                         $invoice_prefix = htmlentities($row['invoice_prefix']);
-                        $invoice_number = htmlentities($row['invoice_number']);
+                        $invoice_number = intval($row['invoice_number']);
                         $client_name = htmlentities($row['client_name']);
                         ?>
                         <tr>
@@ -404,7 +404,7 @@ $vendors_added = $row['vendors_added'];
     <div class="col-md-4">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-shopping-cart"></i> Latest Expenses</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-shopping-cart mr-2"></i>Latest Expenses</h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="remove">
                         <i class="fas fa-times"></i>
@@ -424,7 +424,7 @@ $vendors_added = $row['vendors_added'];
                     <tbody>
                     <?php
                     while ($row = mysqli_fetch_array($sql_latest_expenses)) {
-                        $expense_date = $row['expense_date'];
+                        $expense_date = htmlentities($row['expense_date']);
                         $expense_amount = floatval($row['expense_amount']);
                         $vendor_name = htmlentities($row['vendor_name']);
                         $category_name = htmlentities($row['category_name']);
@@ -447,7 +447,7 @@ $vendors_added = $row['vendors_added'];
     <div class="col-md-12">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-fw fa-route"></i> Trip Flow</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-route mr-2"></i>Trip Flow</h3>
                 <div class="card-tools">
                     <a href="trips.php" class="btn btn-tool">
                         <i class="fas fa-eye"></i>
@@ -492,11 +492,11 @@ $vendors_added = $row['vendors_added'];
                     for($month = 1; $month<=12; $month++) {
                     $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month AND payments.company_id = $session_company_id");
                     $row = mysqli_fetch_array($sql_payments);
-                    $payments_for_month = $row['payment_amount_for_month'];
+                    $payments_for_month = floatval($row['payment_amount_for_month']);
 
                     $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month AND company_id = $session_company_id");
                     $row = mysqli_fetch_array($sql_revenues);
-                    $revenues_for_month = $row['revenue_amount_for_month'];
+                    $revenues_for_month = floatval($row['revenue_amount_for_month']);
 
                     $income_for_month = $payments_for_month + $revenues_for_month;
 
@@ -531,11 +531,11 @@ $vendors_added = $row['vendors_added'];
                         for($month = 1; $month<=12; $month++) {
                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year-1 AND MONTH(payment_date) = $month AND payments.company_id = $session_company_id");
                         $row = mysqli_fetch_array($sql_payments);
-                        $payments_for_month = $row['payment_amount_for_month'];
+                        $payments_for_month = floatval($row['payment_amount_for_month']);
 
                         $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year-1 AND MONTH(revenue_date) = $month AND company_id = $session_company_id");
                         $row = mysqli_fetch_array($sql_revenues);
-                        $revenues_for_month = $row['revenue_amount_for_month'];
+                        $revenues_for_month = floatval($row['revenue_amount_for_month']);
 
                         $income_for_month = $payments_for_month + $revenues_for_month;
 
@@ -573,7 +573,7 @@ $vendors_added = $row['vendors_added'];
                         for($month = 1; $month<=12; $month++) {
                         $sql_projected = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amount_for_month FROM invoices WHERE YEAR(invoice_due) = $year AND MONTH(invoice_due) = $month AND invoice_status NOT LIKE 'Cancelled' AND invoice_status NOT LIKE 'Draft' AND company_id = $session_company_id");
                         $row = mysqli_fetch_array($sql_projected);
-                        $invoice_for_month = $row['invoice_amount_for_month'];
+                        $invoice_for_month = floatval($row['invoice_amount_for_month']);
 
                         if ($invoice_for_month > 0 && $invoice_for_month > $largest_invoice_month) {
                             $largest_invoice_month = $invoice_for_month;
@@ -609,7 +609,7 @@ $vendors_added = $row['vendors_added'];
                         for($month = 1; $month<=12; $month++) {
                         $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND expenses.company_id = $session_company_id");
                         $row = mysqli_fetch_array($sql_expenses);
-                        $expenses_for_month = $row['expense_amount_for_month'];
+                        $expenses_for_month = floatval($row['expense_amount_for_month']);
 
                         if ($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month) {
                             $largest_expense_month = $expenses_for_month;
@@ -685,7 +685,7 @@ $vendors_added = $row['vendors_added'];
                     for($month = 1; $month<=12; $month++) {
                     $sql_trips = mysqli_query($mysqli, "SELECT SUM(trip_miles) AS trip_miles_for_month FROM trips WHERE YEAR(trip_date) = $year AND MONTH(trip_date) = $month AND trips.company_id = $session_company_id");
                     $row = mysqli_fetch_array($sql_trips);
-                    $trip_miles_for_month = $row['trip_miles_for_month'];
+                    $trip_miles_for_month = floatval($row['trip_miles_for_month']);
                     $largest_trip_miles_month = 0;
 
                     if ($trip_miles_for_month > 0 && $trip_miles_for_month > $largest_trip_miles_month) {
@@ -760,11 +760,11 @@ $vendors_added = $row['vendors_added'];
                     <?php
                     $sql_categories = mysqli_query($mysqli, "SELECT DISTINCT category_name, category_id FROM categories, invoices WHERE invoice_category_id = category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year AND categories.company_id = $session_company_id");
                     while ($row = mysqli_fetch_array($sql_categories)) {
-                        $category_id = $row['category_id'];
+                        $category_id = intval($row['category_id']);
 
                         $sql_invoices = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS income_amount_for_year FROM invoices WHERE invoice_category_id = $category_id AND YEAR(invoice_date) = $year AND company_id = $session_company_id");
                         $row = mysqli_fetch_array($sql_invoices);
-                        $income_amount_for_year = $row['income_amount_for_year'];
+                        $income_amount_for_year = floatval($row['income_amount_for_year']);
                         echo "$income_amount_for_year,";
                     }
 
@@ -821,7 +821,7 @@ $vendors_added = $row['vendors_added'];
 
                         $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_year FROM expenses WHERE expense_category_id = $category_id AND YEAR(expense_date) = $year");
                         $row = mysqli_fetch_array($sql_expenses);
-                        $expense_amount_for_year = $row['expense_amount_for_year'];
+                        $expense_amount_for_year = floatval($row['expense_amount_for_year']);
                         echo "$expense_amount_for_year,";
                     }
 
@@ -874,7 +874,7 @@ $vendors_added = $row['vendors_added'];
 
                         $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_year FROM expenses WHERE expense_vendor_id = $vendor_id AND YEAR(expense_date) = $year");
                         $row = mysqli_fetch_array($sql_expenses);
-                        $expense_amount_for_year = $row['expense_amount_for_year'];
+                        $expense_amount_for_year = floatval($row['expense_amount_for_year']);
                         echo "$expense_amount_for_year,";
                     }
 

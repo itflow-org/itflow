@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-network-wired"></i> New Network</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-network-wired mr-2"></i>New Network</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -52,7 +52,7 @@
           </div>
 
           <div class="form-group">
-            <label>DHCP Range</label>
+            <label>DHCP Range / IPs</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
@@ -73,7 +73,7 @@
                 
                 $sql = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC"); 
                 while ($row = mysqli_fetch_array($sql)) {
-                  $location_id = $row['location_id'];
+                  $location_id = intval($row['location_id']);
                   $location_name = htmlentities($row['location_name']);
                 ?>
                 <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
@@ -87,8 +87,8 @@
 
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_network" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
+          <button type="submit" name="add_network" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
         </div>
       </form>
     </div>

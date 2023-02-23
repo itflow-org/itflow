@@ -16,10 +16,11 @@
 						<input type="file" class="form-control-file" name="file" accept=".csv">
 					</div>
 					<hr>
-					<div>Download <a href="post.php?download_client_logins_csv_template=<?php echo $client_id; ?>">sample csv template</a></div>
+					<div>Download <a class="text-bold" href="post.php?download_client_logins_csv_template=<?php echo $client_id; ?>">sample csv template</a></div>
 				</div>
 				<div class="modal-footer bg-white">
-					<button type="submit" name="import_client_logins_csv" class="btn btn-primary">Import</button>
+					<button type="submit" name="import_client_logins_csv" class="btn btn-primary"><i class="fa fa-upload mr-2"></i>Import</button>
+					<button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
 				</div>
 			</form>
 		</div>

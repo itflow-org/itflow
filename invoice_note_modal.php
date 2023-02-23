@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fas fa-edit mr-2"></i>Invoice Notes</h5>
+        <h5 class="modal-title text-white"><i class="fas fa-fw fa-edit mr-2"></i>Invoice Notes</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -16,7 +16,7 @@
         </div>
         <div class="modal-footer bg-white">
           <button type="submit" name="invoice_note" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
-          <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Close</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
         </div>
       </form>
     </div>

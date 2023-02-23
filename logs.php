@@ -3,7 +3,7 @@
 require_once("inc_all_settings.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "log_id";
 }
@@ -22,8 +22,8 @@ if (empty($_GET['canned_date'])) {
 
 //Date Filter
 if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
-    $dtf = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtf']));
-    $dtt = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtt']));
+    $dtf = sanitizeInput($_GET['dtf']);
+    $dtt = sanitizeInput($_GET['dtt']);
 } elseif ($_GET['canned_date'] == "today") {
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');
@@ -72,14 +72,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-eye"></i> Audit Logs</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-eye mr-2"></i>Audit Logs</h3>
         </div>
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search audit logs">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search audit logs">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -108,13 +108,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date From</label>
-                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo $dtf; ?>">
+                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo htmlentities($dtf); ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date To</label>
-                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo $dtt; ?>">
+                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo htmlentities($dtt); ?>">
                             </div>
                         </div>
                     </div>
@@ -140,7 +140,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $log_id = $row['log_id'];
+                        $log_id = intval($row['log_id']);
                         $log_type = htmlentities($row['log_type']);
                         $log_action = htmlentities($row['log_action']);
                         $log_description = htmlentities($row['log_description']);
@@ -148,8 +148,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $log_user_agent = htmlentities($row['log_user_agent']);
                         $log_user_os = getOS($log_user_agent);
                         $log_user_browser = getWebBrowser($log_user_agent);
-                        $log_created_at = $row['log_created_at'];
-                        $user_id = $row['user_id'];
+                        $log_created_at = htmlentities($row['log_created_at']);
+                        $user_id = intval($row['user_id']);
                         $user_name = htmlentities($row['user_name']);
                         if (empty($user_name)) {
                             $user_name_display = "-";
@@ -157,13 +157,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $user_name_display = $user_name;
                         }
                         $client_name = htmlentities($row['client_name']);
-                        $client_id = $row['client_id'];
+                        $client_id = intval($row['client_id']);
                         if (empty($client_name)) {
                             $client_name_display = "-";
                         } else {
                             $client_name_display = "<a href='client_logs.php?client_id=$client_id&tab=logs'>$client_name</a>";
                         }
-                        $log_entity_id = $row['log_entity_id'];
+                        $log_entity_id = intval($row['log_entity_id']);
 
                         ?>
 

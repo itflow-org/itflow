@@ -4,7 +4,7 @@ require_once("inc_all.php");
 
 if (isset($_GET['query'])) {
 
-    $query = trim(strip_tags(mysqli_real_escape_string($mysqli, $_GET['query'])));
+    $query = sanitizeInput($_GET['query']);
 
     $phone_query = preg_replace("/[^0-9]/", '', $query);
     if (empty($phone_query)) {
@@ -24,7 +24,7 @@ if (isset($_GET['query'])) {
     $q = htmlentities($_GET['query']);
     ?>
 
-    <h4 class="text-center"><i class="fa fa-search"></i> Search all things</h4>
+    <h4 class="text-center"><i class="fas fa-fw fa-search mr-2"></i>Search all things</h4>
     <hr>
     <div class="row">
 
@@ -35,7 +35,7 @@ if (isset($_GET['query'])) {
             <div class="col-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-users"></i> Clients</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-users mr-2"></i>Clients</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -49,7 +49,7 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_clients)) {
-                                $client_id = $row['client_id'];
+                                $client_id = intval($row['client_id']);
                                 $client_name = htmlentities($row['client_name']);
                                 $location_phone = formatPhoneNumber($row['location_phone']);
                                 $client_website = htmlentities($row['client_website']);
@@ -77,7 +77,7 @@ if (isset($_GET['query'])) {
             <div class="col-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-users"></i> Contacts</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-users mr-2"></i>Contacts</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -94,14 +94,14 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_contacts)) {
-                                $contact_id = $row['contact_id'];
+                                $contact_id = intval($row['contact_id']);
                                 $contact_name = htmlentities($row['contact_name']);
                                 $contact_title = htmlentities($row['contact_title']);
                                 $contact_phone = formatPhoneNumber($row['contact_phone']);
                                 $contact_extension = htmlentities($row['contact_extension']);
                                 $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                                 $contact_email = htmlentities($row['contact_email']);
-                                $client_id = $row['client_id'];
+                                $client_id = intval($row['client_id']);
                                 $client_name = htmlentities($row['client_name']);
                                 $contact_department = htmlentities($row['contact_department']);
 
@@ -133,7 +133,7 @@ if (isset($_GET['query'])) {
             <div class="col-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-building"></i> Vendors</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-building mr-2"></i>Vendors</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -175,7 +175,7 @@ if (isset($_GET['query'])) {
             <div class="col-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-box"></i> Products</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-box mr-2"></i>Products</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -214,7 +214,7 @@ if (isset($_GET['query'])) {
             <div class="col-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-file-alt"></i> Documents</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-file-alt mr-2"></i>Documents</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -230,9 +230,9 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_array($sql_documents)) {
                                 $document_name = htmlentities($row['document_name']);
-                                $document_client_id = $row['document_client_id'];
+                                $document_client_id = intval($row['document_client_id']);
                                 $document_client = htmlentities($row['client_name']);
-                                $document_updated = $row['document_updated_at'];
+                                $document_updated = htmlentities($row['document_updated_at']);
 
                                 ?>
                                 <tr>
@@ -258,7 +258,7 @@ if (isset($_GET['query'])) {
             <div class="col-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-tags"></i> Tickets</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-life-ring mr-2"></i>Tickets</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -274,9 +274,9 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_tickets)) {
-                                $ticket_id = $row['ticket_id'];
-                                $ticket_prefix = $row['ticket_prefix'];
-                                $ticket_number = $row['ticket_number'];
+                                $ticket_id = intval($row['ticket_id']);
+                                $ticket_prefix = htmlentities($row['ticket_prefix']);
+                                $ticket_number = intval($row['ticket_number']);
                                 $ticket_subject = htmlentities($row['ticket_subject']);
                                 $ticket_client = htmlentities($row['client_name']);
                                 $ticket_status = htmlentities($row['ticket_status']);
@@ -307,7 +307,7 @@ if (isset($_GET['query'])) {
             <div class="col-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-key"></i> Logins</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-key mr-2"></i>Logins</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -323,7 +323,7 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_array($sql_logins)) {
                                 $login_name = htmlentities($row['login_name']);
-                                $login_client_id = $row['login_client_id'];
+                                $login_client_id = intval($row['login_client_id']);
                                 $login_username = htmlentities(decryptLoginEntry($row['login_username']));
                                 $login_password = htmlentities(decryptLoginEntry($row['login_password']));
 

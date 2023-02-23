@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-box"></i> New Product</h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-box mr-2"></i>New Product</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -32,7 +32,7 @@
 
                                 $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL AND company_id = $session_company_id");
                                 while ($row = mysqli_fetch_array($sql)) {
-                                    $category_id = $row['category_id'];
+                                    $category_id = intval($row['category_id']);
                                     $category_name = htmlentities($row['category_name']);
                                     ?>
                                     <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
@@ -73,9 +73,9 @@
 
                                         $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL AND company_id = $session_company_id ORDER BY tax_name ASC");
                                         while ($row = mysqli_fetch_array($taxes_sql)) {
-                                            $tax_id = $row['tax_id'];
+                                            $tax_id = intval($row['tax_id']);
                                             $tax_name = htmlentities($row['tax_name']);
-                                            $tax_percent = htmlentities($row['tax_percent']);
+                                            $tax_percent = floatval($row['tax_percent']);
                                             ?>
                                             <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
 
@@ -96,8 +96,8 @@
                 </div>
 
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_product" class="btn btn-primary"><storng><i class="fas fa-check"></i> Create</storng></button>
+                    <button type="submit" name="add_product" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
                 </div>
 
             </form>

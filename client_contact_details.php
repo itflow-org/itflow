@@ -11,7 +11,6 @@ if (isset($_GET['contact_id'])) {
     ");
 
     $row = mysqli_fetch_array($sql);
-    $contact_id = $row['contact_id'];
     $contact_name = htmlentities($row['contact_name']);
     $contact_title = htmlentities($row['contact_title']);
     $contact_department =htmlentities($row['contact_department']);
@@ -25,13 +24,13 @@ if (isset($_GET['contact_id'])) {
     $contact_important = intval($row['contact_important']);
     $contact_billing = intval($row['contact_billing']);
     $contact_technical = intval($row['contact_technical']);
-    $contact_created_at = $row['contact_created_at'];
+    $contact_created_at = htmlentities($row['contact_created_at']);
     if ($contact_id == $primary_contact) {
         $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
     } else {
         $primary_contact_display = false;
     }
-    $contact_location_id = $row['contact_location_id'];
+    $contact_location_id = intval($row['contact_location_id']);
     $location_name = htmlentities($row['location_name']);
     if (empty($location_name)) {
         $location_name_display = "-";
@@ -126,7 +125,7 @@ if (isset($_GET['contact_id'])) {
         <div class="col-md-9">
 
 
-            <ol class="breadcrumb d-print-none">
+            <ol class="breadcrumb">
                 <li class="breadcrumb-item">
                     <a href="invoices.php">Home</a>
                 </li>
@@ -144,7 +143,7 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark <?php if ($asset_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-desktop"></i> Assets</h3>
+                    <h3 class="card-title"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -165,7 +164,7 @@ if (isset($_GET['contact_id'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_related_assets)) {
-                                $asset_id = $row['asset_id'];
+                                $asset_id = intval($row['asset_id']);
                                 $asset_type = htmlentities($row['asset_type']);
                                 $asset_name = htmlentities($row['asset_name']);
                                 $asset_make = htmlentities($row['asset_make']);
@@ -190,20 +189,20 @@ if (isset($_GET['contact_id'])) {
                                 }
                                 $asset_mac = htmlentities($row['asset_mac']);
                                 $asset_status = htmlentities($row['asset_status']);
-                                $asset_purchase_date = $row['asset_purchase_date'];
-                                $asset_warranty_expire = $row['asset_warranty_expire'];
-                                $asset_install_date = $row['asset_install_date'];
+                                $asset_purchase_date = htmlentities($row['asset_purchase_date']);
+                                $asset_warranty_expire = htmlentities($row['asset_warranty_expire']);
+                                $asset_install_date = htmlentities($row['asset_install_date']);
                                 if (empty($asset_install_date)) {
                                     $asset_install_date_display = "-";
                                 } else {
                                     $asset_install_date_display = $asset_install_date;
                                 }
                                 $asset_notes = htmlentities($row['asset_notes']);
-                                $asset_created_at = $row['asset_created_at'];
-                                $asset_vendor_id = $row['asset_vendor_id'];
-                                $asset_location_id = $row['asset_location_id'];
-                                $asset_network_id = $row['asset_network_id'];
-                                $asset_contact_id = $row['asset_contact_id'];
+                                $asset_created_at = htmlentities($row['asset_created_at']);
+                                $asset_vendor_id = intval($row['asset_vendor_id']);
+                                $asset_location_id = intval($row['asset_location_id']);
+                                $asset_network_id = intval($row['asset_network_id']);
+                                $asset_contact_id = intval($row['asset_contact_id']);
 
                                 $login_id = $row['login_id'];
                                 $login_username = htmlentities(decryptLoginEntry($row['login_username']));
@@ -228,12 +227,20 @@ if (isset($_GET['contact_id'])) {
                                             <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                             <div class="dropdown-menu">
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAssetInterfaceModal<?php echo $asset_id; ?>">Interfaces</a>
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">Edit</a>
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#copyAssetModal<?php echo $asset_id; ?>">Copy</a>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
+                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                </a>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#copyAssetModal<?php echo $asset_id; ?>">
+                                                    <i class="fas fa-fw fa-copy mr-2"></i>Copy
+                                                </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger" href="post.php?archive_asset=<?php echo $asset_id; ?>">Archive</a>
-                                                    <a class="dropdown-item text-danger" href="post.php?delete_asset=<?php echo $asset_id; ?>">Delete</a>
+                                                    <a class="dropdown-item text-danger" href="post.php?archive_asset=<?php echo $asset_id; ?>">
+                                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                    </a>
+                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset=<?php echo $asset_id; ?>">
+                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                    </a>
                                                 <?php } ?>
                                             </div>
                                         </div>
@@ -259,7 +266,7 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark <?php if ($login_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-key"></i> Passwords</h3>
+                    <h3 class="card-title"><i class="fa fa-fw fa-key mr-2"></i>Passwords</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -278,7 +285,7 @@ if (isset($_GET['contact_id'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_related_logins)) {
-                                $login_id = $row['login_id'];
+                                $login_id = intval($row['login_id']);
                                 $login_name = htmlentities($row['login_name']);
                                 $login_uri = htmlentities($row['login_uri']);
                                 if (empty($login_uri)) {
@@ -301,10 +308,10 @@ if (isset($_GET['contact_id'])) {
                                     $otp_display = "<span onmouseenter='showOTP($login_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
                                 }
                                 $login_note = htmlentities($row['login_note']);
-                                $login_contact_id = $row['login_contact_id'];
-                                $login_vendor_id = $row['login_vendor_id'];
-                                $login_asset_id = $row['login_asset_id'];
-                                $login_software_id = $row['login_software_id'];
+                                $login_contact_id = intval($row['login_contact_id']);
+                                $login_vendor_id = intval($row['login_vendor_id']);
+                                $login_asset_id = intval($row['login_asset_id']);
+                                $login_software_id = intval($row['login_software_id']);
 
                                 ?>
                                 <tr>
@@ -326,11 +333,17 @@ if (isset($_GET['contact_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">Edit</a>
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">Share</a>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">
+                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                </a>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">
+                                                    <i class="fas fa-fw fa-share-alt mr-2"></i>Share
+                                                </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger" href="post.php?delete_login=<?php echo $login_id; ?>">Delete</a>
+                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_login=<?php echo $login_id; ?>">
+                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                    </a>
                                                 <?php } ?>
                                             </div>
                                         </div>
@@ -353,7 +366,7 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark <?php if ($software_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-cube"></i> Licenses</h3>
+                    <h3 class="card-title"><i class="fa fa-fw fa-cube mr-2"></i>Licenses</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -371,21 +384,21 @@ if (isset($_GET['contact_id'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_related_software)) {
-                                $software_id = $row['software_id'];
+                                $software_id = intval($row['software_id']);
                                 $software_name = htmlentities($row['software_name']);
                                 $software_version = htmlentities($row['software_version']);
                                 $software_type = htmlentities($row['software_type']);
                                 $software_license_type = htmlentities($row['software_license_type']);
                                 $software_key = htmlentities($row['software_key']);
                                 $software_seats = htmlentities($row['software_seats']);
-                                $software_purchase = $row['software_purchase'];
-                                $software_expire = $row['software_expire'];
+                                $software_purchase = htmlentities($row['software_purchase']);
+                                $software_expire = htmlentities($row['software_expire']);
                                 $software_notes = htmlentities($row['software_notes']);
 
                                 $seat_count = 0;
 
                                 // Get Login
-                                $login_id = $row['login_id'];
+                                $login_id = intval($row['login_id']);
                                 $login_username = htmlentities(decryptLoginEntry($row['login_username']));
                                 $login_password = htmlentities(decryptLoginEntry($row['login_password']));
 
@@ -393,7 +406,7 @@ if (isset($_GET['contact_id'])) {
                                 $asset_licenses_sql = mysqli_query($mysqli, "SELECT asset_id FROM software_assets WHERE software_id = $software_id");
                                 $asset_licenses_array = array();
                                 while ($row = mysqli_fetch_array($asset_licenses_sql)) {
-                                    $asset_licenses_array[] = $row['asset_id'];
+                                    $asset_licenses_array[] = intval($row['asset_id']);
                                     $seat_count = $seat_count + 1;
                                 }
                                 $asset_licenses = implode(',', $asset_licenses_array);
@@ -402,7 +415,7 @@ if (isset($_GET['contact_id'])) {
                                 $contact_licenses_sql = mysqli_query($mysqli, "SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
                                 $contact_licenses_array = array();
                                 while ($row = mysqli_fetch_array($contact_licenses_sql)) {
-                                    $contact_licenses_array[] = $row['contact_id'];
+                                    $contact_licenses_array[] = intval($row['contact_id']);
                                     $seat_count = $seat_count + 1;
                                 }
                                 $contact_licenses = implode(',', $contact_licenses_array);
@@ -419,10 +432,14 @@ if (isset($_GET['contact_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>">Edit</a>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>">
+                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger" href="post.php?delete_software=<?php echo $software_id; ?>">Delete</a>
+                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_software=<?php echo $software_id; ?>">
+                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                    </a>
                                                 <?php } ?>
                                             </div>
                                         </div>
@@ -444,7 +461,7 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark <?php if ($ticket_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-life-ring"></i> Tickets</h3>
+                    <h3 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -464,14 +481,14 @@ if (isset($_GET['contact_id'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_related_tickets)) {
-                                $ticket_id = $row['ticket_id'];
+                                $ticket_id = intval($row['ticket_id']);
                                 $ticket_prefix = htmlentities($row['ticket_prefix']);
-                                $ticket_number = htmlentities($row['ticket_number']);
+                                $ticket_number = intval($row['ticket_number']);
                                 $ticket_subject = htmlentities($row['ticket_subject']);
                                 $ticket_priority = htmlentities($row['ticket_priority']);
                                 $ticket_status = htmlentities($row['ticket_status']);
-                                $ticket_created_at = $row['ticket_created_at'];
-                                $ticket_updated_at = $row['ticket_updated_at'];
+                                $ticket_created_at = htmlentities($row['ticket_created_at']);
+                                $ticket_updated_at = htmlentities($row['ticket_updated_at']);
                                 if (empty($ticket_updated_at)) {
                                     if ($ticket_status == "Closed") {
                                         $ticket_updated_at_display = "<p>Never</p>";
@@ -481,7 +498,7 @@ if (isset($_GET['contact_id'])) {
                                 } else {
                                     $ticket_updated_at_display = $ticket_updated_at;
                                 }
-                                $ticket_closed_at = $row['ticket_closed_at'];
+                                $ticket_closed_at = htmlentities($row['ticket_closed_at']);
 
                                 if ($ticket_status == "Open") {
                                     $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
@@ -500,7 +517,7 @@ if (isset($_GET['contact_id'])) {
                                 } else {
                                     $ticket_priority_display = "-";
                                 }
-                                $ticket_assigned_to = $row['ticket_assigned_to'];
+                                $ticket_assigned_to = intval($row['ticket_assigned_to']);
                                 if (empty($ticket_assigned_to)) {
                                     if ($ticket_status == "Closed") {
                                         $ticket_assigned_to_display = "<p>Not Assigned</p>";

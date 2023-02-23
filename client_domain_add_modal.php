@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-globe"></i> New Domain</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-globe mr-2"></i>New Domain</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -33,7 +33,7 @@
 
                                 $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
-                                    $vendor_id = $row['vendor_id'];
+                                    $vendor_id = intval($row['vendor_id']);
                                     $vendor_name = htmlentities($row['vendor_name']);
                                     ?>
                                     <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
@@ -54,7 +54,7 @@
 
                                 $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
-                                    $vendor_id = $row['vendor_id'];
+                                    $vendor_id = intval($row['vendor_id']);
                                     $vendor_name = htmlentities($row['vendor_name']);
                                     ?>
                                     <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
@@ -75,8 +75,8 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_domain" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
+                    <button type="submit" name="add_domain" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

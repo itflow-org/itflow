@@ -2,7 +2,7 @@
 require_once("inc_all.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "payment_date";
 }
@@ -21,8 +21,8 @@ if (empty($_GET['canned_date'])) {
 
 //Date Filter
 if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
-    $dtf = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtf']));
-    $dtt = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtt']));
+    $dtf = sanitizeInput($_GET['dtf']);
+    $dtt = sanitizeInput($_GET['dtt']);
 } elseif ($_GET['canned_date'] == "today") {
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');
@@ -73,7 +73,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-credit-card"></i> Payments</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-credit-card mr-2"></i>Payments</h3>
         </div>
 
         <div class="card-body">
@@ -81,7 +81,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo strip_tags(htmlentities($q));} ?>" placeholder="Search Payments">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(htmlentities($q));} ?>" placeholder="Search Payments">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -141,12 +141,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $invoice_id = $row['invoice_id'];
+                        $invoice_id = intval($row['invoice_id']);
                         $invoice_prefix = htmlentities($row['invoice_prefix']);
-                        $invoice_number = htmlentities($row['invoice_number']);
+                        $invoice_number = intval($row['invoice_number']);
                         $invoice_status = htmlentities($row['invoice_status']);
-                        $invoice_date = $row['invoice_date'];
-                        $payment_date = $row['payment_date'];
+                        $invoice_date = htmlentities($row['invoice_date']);
+                        $payment_date = htmlentities($row['payment_date']);
                         $payment_method = htmlentities($row['payment_method']);
                         $payment_amount = floatval($row['payment_amount']);
                         $payment_currency_code = htmlentities($row['payment_currency_code']);
@@ -156,7 +156,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $payment_reference_display = $payment_reference;
                         }
-                        $client_id = $row['client_id'];
+                        $client_id = intval($row['client_id']);
                         $client_name = htmlentities($row['client_name']);
                         $account_name = htmlentities($row['account_name']);
 

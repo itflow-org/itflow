@@ -31,29 +31,29 @@ if (isset($_GET['client_id'])) {
         $client_website = htmlentities($row['client_website']);
         $client_referral = htmlentities($row['client_referral']);
         $client_currency_code = htmlentities($row['client_currency_code']);
-        $client_net_terms = $row['client_net_terms'];
+        $client_net_terms = intval($row['client_net_terms']);
         if ($client_net_terms == 0) {
             $client_net_terms = $config_default_net_terms;
         }
         $client_notes = htmlentities($row['client_notes']);
-        $client_created_at = $row['client_created_at'];
-        $primary_contact = $row['primary_contact'];
-        $primary_location = $row['primary_location'];
-        $contact_id = $row['contact_id'];
+        $client_created_at = htmlentities($row['client_created_at']);
+        $primary_contact = intval($row['primary_contact']);
+        $primary_location = intval($row['primary_location']);
+        $contact_id = intval($row['contact_id']);
         $contact_name = htmlentities($row['contact_name']);
         $contact_title = htmlentities($row['contact_title']);
         $contact_email = htmlentities($row['contact_email']);
-        $contact_phone = $row['contact_phone'];
-        $contact_extension = $row['contact_extension'];
-        $contact_mobile = $row['contact_mobile'];
-        $location_id = $row['location_id'];
+        $contact_phone = formatPhoneNumber($row['contact_phone']);
+        $contact_extension = htmlentities($row['contact_extension']);
+        $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+        $location_id = intval($row['location_id']);
         $location_name = htmlentities($row['location_name']);
         $location_address = htmlentities($row['location_address']);
         $location_city = htmlentities($row['location_city']);
         $location_state = htmlentities($row['location_state']);
         $location_zip = htmlentities($row['location_zip']);
         $location_country = htmlentities($row['location_country']);
-        $location_phone = $row['location_phone'];
+        $location_phone = formatPhoneNumber($row['location_phone']);
 
         //Client Tags
 
@@ -62,7 +62,7 @@ if (isset($_GET['client_id'])) {
         $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_tags.client_id = $client_id");
         while ($row = mysqli_fetch_array($sql_client_tags)) {
 
-            $client_tag_id = $row['tag_id'];
+            $client_tag_id = intval($row['tag_id']);
             $client_tag_name = htmlentities($row['tag_name']);
             $client_tag_color = htmlentities($row['tag_color']);
             $client_tag_icon = htmlentities($row['tag_icon']);
@@ -79,12 +79,12 @@ if (isset($_GET['client_id'])) {
         $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled'");
         $row = mysqli_fetch_array($sql_invoice_amounts);
 
-        $invoice_amounts = $row['invoice_amounts'];
+        $invoice_amounts = floatval($row['invoice_amounts']);
 
         $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
         $row = mysqli_fetch_array($sql_amount_paid);
 
-        $amount_paid = $row['amount_paid'];
+        $amount_paid = floatval($row['amount_paid']);
 
         $balance = $invoice_amounts - $amount_paid;
 
@@ -92,13 +92,13 @@ if (isset($_GET['client_id'])) {
         $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND recurring_client_id = $client_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql_recurring_monthly_total);
 
-        $recurring_monthly_total = $row['recurring_monthly_total'];
+        $recurring_monthly_total = floatval($row['recurring_monthly_total']);
 
         //Get Yearly Recurring Total
         $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND recurring_client_id = $client_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql_recurring_yearly_total);
 
-        $recurring_yearly_total = $row['recurring_yearly_total'] / 12;
+        $recurring_yearly_total = floatval($row['recurring_yearly_total']) / 12;
 
         $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
 
@@ -197,7 +197,7 @@ if (isset($_GET['client_id'])) {
             AND domain_archived_at IS NULL
             AND company_id = $session_company_id"
         ));
-        $num_domains_expiring = $row['num'];
+        $num_domains_expiring = intval($row['num']);
 
         // Count Certificates Expiring within 30 Days
         $row = mysqli_fetch_assoc(mysqli_query(
@@ -209,7 +209,7 @@ if (isset($_GET['client_id'])) {
             AND certificate_archived_at IS NULL
             AND company_id = $session_company_id"
         ));
-        $num_certs_expiring = $row['num'];
+        $num_certs_expiring = intval($row['num']);
 
         // Get Asset Warranties Expiring
         $sql_asset_warranties_expiring = mysqli_query(

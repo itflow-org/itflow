@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-cube"></i> New License from Template</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-cube mr-2"></i>New License from Template</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -22,7 +22,7 @@
                                 <?php
                                 $sql_software_templates = mysqli_query($mysqli, "SELECT * FROM software WHERE software_template = 1 AND company_id = $session_company_id AND software_archived_at IS NULL ORDER BY software_name ASC");
                                 while($row = mysqli_fetch_array($sql_software_templates)){
-                                    $software_template_id = $row['software_id'];
+                                    $software_template_id = intval($row['software_id']);
                                     $software_template_name = htmlentities($row['software_name']);
 
                                     ?>
@@ -36,10 +36,8 @@
                 </div>
 
                 <div class="modal-footer bg-white">
-
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_software_from_template" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
-
+                    <button type="submit" name="add_software_from_template" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

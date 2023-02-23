@@ -2,7 +2,7 @@
 require_once("inc_all_settings.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "tag_name";
 }
@@ -43,9 +43,9 @@ if ($num_rows > 0) {
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-tags"></i> Tags</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-tags mr-2"></i>Tags</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTagModal"><i class="fas fa-fw fa-plus"></i> New</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTagModal"><i class="fas fa-plus mr-2"></i>New Tag</button>
             </div>
         </div>
 
@@ -54,7 +54,7 @@ if ($num_rows > 0) {
                 <div class="col-sm-4 mb-2">
                     <form autocomplete="off">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Tags">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Tags">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -80,7 +80,7 @@ if ($num_rows > 0) {
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $tag_id = $row['tag_id'];
+                        $tag_id = intval($row['tag_id']);
                         $tag_name = htmlentities($row['tag_name']);
                         $tag_type = htmlentities($row['tag_type']);
                         $tag_color = htmlentities($row['tag_color']);
@@ -88,7 +88,7 @@ if ($num_rows > 0) {
 
                         ?>
                         <tr>
-                            <td><?php echo "<i class='fa fa-fw fa-$tag_icon'></i>"; ?> <a class="text-dark" href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>"><?php echo "$tag_name"; ?></a></td>
+                            <td><?php echo "<i class='fas fa-fw fa-$tag_icon mr-2'></i>"; ?><a class="text-dark" href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>"><?php echo "$tag_name"; ?></a></td>
                             <td><?php echo $tag_type; ?></td>
                             <td><i class="fa fa-3x fa-circle" style="color:<?php echo $tag_color; ?>;"></i></td>
                             <td>
@@ -97,9 +97,13 @@ if ($num_rows > 0) {
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>">Edit</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?delete_tag=<?php echo $tag_id; ?>">Delete</a>
+                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_tag=<?php echo $tag_id; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
                                     </div>
                                 </div>
                             </td>

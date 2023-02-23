@@ -2,7 +2,7 @@
 require_once("inc_all_settings.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "user_name";
 }
@@ -25,11 +25,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-users"></i> Users</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-users mr-2"></i>Users</h3>
         <div class="card-tools">
             <div class="btn-group">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">
-                    <i class="fas fa-fw fa-plus"></i> New User
+                    <i class="fas fa-fw fa-user-plus mr-2"></i>New User
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
@@ -41,7 +41,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-body">
         <form autocomplete="off">
             <div class="input-group">
-                <input type="search" class="form-control col-md-4" name="q" value="<?php if (isset($q)) {echo strip_tags(htmlentities($q));} ?>" placeholder="Search Users">
+                <input type="search" class="form-control col-md-4" name="q" value="<?php if (isset($q)) {echo stripslashes(htmlentities($q));} ?>" placeholder="Search Users">
                 <div class="input-group-append">
                     <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                 </div>
@@ -64,7 +64,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
-                    $user_id = $row['user_id'];
+                    $user_id = intval($row['user_id']);
                     $user_name = htmlentities($row['user_name']);
                     $user_email = htmlentities($row['user_email']);
                     $user_status = intval($row['user_status']);
@@ -77,7 +77,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
                     $user_avatar = htmlentities($row['user_avatar']);
                     $user_token = htmlentities($row['user_token']);
-                    $user_default_company = $row['user_default_company'];
+                    $user_default_company = intval($row['user_default_company']);
                     $user_role = $row['user_role'];
                     if ($user_role == 3) {
                         $user_role_display = "Administrator";
@@ -89,7 +89,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $user_company_access_sql = mysqli_query($mysqli, "SELECT company_id FROM user_companies WHERE user_id = $user_id");
                     $user_company_access_array = array();
                     while ($row = mysqli_fetch_array($user_company_access_sql)) {
-                        $user_company_access_array[] = $row['company_id'];
+                        $user_company_access_array[] = intval($row['company_id']);
                     }
                     $user_company_access = implode(',', $user_company_access_array);
 
@@ -102,7 +102,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ORDER BY log_id DESC LIMIT 1"
                     );
                     $row = mysqli_fetch_array($sql_last_login);
-                    $log_created_at = $row['log_created_at'];
+                    $log_created_at = htmlentities($row['log_created_at']);
                     $log_ip = htmlentities($row['log_ip']);
                     $log_user_agent = htmlentities($row['log_user_agent']);
                     $log_user_os = getOS($log_user_agent);
@@ -143,16 +143,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">Edit</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">
+                                        <i class="fas fa-fw fa-user-edit mr-2"></i>Edit
+                                    </a>
                                     <?php if ($user_status == 0) { ?>
-                                        <a class="dropdown-item text-success" href="post.php?activate_user=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">Activate</a>
+                                        <a class="dropdown-item text-success" href="post.php?activate_user=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-user-check mr-2"></i>Activate
+                                        </a>
                                     <?php }elseif ($user_status == 1) { ?>
-                                        <a class="dropdown-item text-danger" href="post.php?disable_user=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">Disable</a>
+                                        <a class="dropdown-item text-danger" href="post.php?disable_user=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-user-slash mr-2"></i>Disable
+                                        </a>
                                     <?php } ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserCompaniesModal<?php echo $user_id; ?>">Company Access</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserCompaniesModal<?php echo $user_id; ?>">
+                                        <i class="fas fa-fw fa-user-shield mr-2"></i>Company Access
+                                    </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#archiveUserModal<?php echo $user_id; ?>">Archive</a>
+                                    <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#archiveUserModal<?php echo $user_id; ?>">
+                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                    </a>
                                 </div>
                             </div>
                         </td>

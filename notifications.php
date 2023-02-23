@@ -8,11 +8,11 @@ $sql = mysqli_query($mysqli, "SELECT * FROM notifications LEFT JOIN clients ON n
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-bell"></i> Notifications</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-bell mr-2"></i>Notifications</h3>
             <div class="card-tools">
 
-                <?php if (mysqli_num_rows($sql) > 0) { ?><a href="post.php?dismiss_all_notifications" class="btn btn-primary"><i class="fa fa-check"></i> Dismiss All</a><?php } ?>
-                <a href="notifications_dismissed.php" class="btn btn-secondary"><i class="fa fa-history"></i> Dismissed</a>
+                <?php if (mysqli_num_rows($sql) > 0) { ?><a href="post.php?dismiss_all_notifications" class="btn btn-primary"><i class="fas fa-fw fa-check mr-2"></i>Dismiss All</a><?php } ?>
+                <a href="notifications_dismissed.php" class="btn btn-secondary"><i class="fas fa-fw fa-history mr-2"></i>Dismissed</a>
             </div>
         </div>
         <div class="card-body">
@@ -33,12 +33,12 @@ $sql = mysqli_query($mysqli, "SELECT * FROM notifications LEFT JOIN clients ON n
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $notification_id = $row['notification_id'];
+                        $notification_id = intval($row['notification_id']);
                         $notification_type = htmlentities($row['notification_type']);
                         $notification = htmlentities($row['notification']);
-                        $notification_timestamp = $row['notification_timestamp'];
+                        $notification_timestamp = htmlentities($row['notification_timestamp']);
                         $client_name = htmlentities($row['client_name']);
-                        $client_id = $row['client_id'];
+                        $client_id = intval($row['client_id']);
                         if (empty($client_name)) {
                             $client_name_display = "-";
                         } else {
@@ -51,7 +51,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM notifications LEFT JOIN clients ON n
                             <td><?php echo $notification_type; ?></td>
                             <td><?php echo $notification; ?></td>
                             <td><?php echo $client_name_display; ?></td>
-                            <td class="text-center"><a class="btn btn-info btn-sm" href="post.php?dismiss_notification=<?php echo $notification_id; ?>"><i class="fa fa-check"></a></td>
+                            <td class="text-center"><a class="btn btn-info btn-sm" href="post.php?dismiss_notification=<?php echo $notification_id; ?>"><i class="fas fa-check"></a></td>
                         </tr>
 
                     <?php } ?>

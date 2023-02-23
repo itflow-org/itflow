@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-cube"></i> Editing license: <strong><?php echo $software_name; ?></strong></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-cube mr-2"></i>Editing license: <strong><?php echo $software_name; ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -140,7 +140,7 @@
                                 $sql_assets_select = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
 
                                 while ($row = mysqli_fetch_array($sql_assets_select)) {
-                                    $asset_id_select = $row['asset_id'];
+                                    $asset_id_select = intval($row['asset_id']);
                                     $asset_name_select = htmlentities($row['asset_name']);
                                     $asset_type_select = htmlentities($row['asset_type']);
                                     $contact_name_select = htmlentities($row['contact_name']);
@@ -171,7 +171,7 @@
                                 $sql_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
 
                                 while ($row = mysqli_fetch_array($sql_contacts_select)) {
-                                    $contact_id_select = $row['contact_id'];
+                                    $contact_id_select = intval($row['contact_id']);
                                     $contact_name_select = htmlentities($row['contact_name']);
                                     $contact_email_select = htmlentities($row['contact_email']);
 
@@ -226,8 +226,8 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="edit_software" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
+                    <button type="submit" name="edit_software" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

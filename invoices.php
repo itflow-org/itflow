@@ -22,32 +22,32 @@ $overdue_count = $row['num'];
 
 $sql_total_draft = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_draft FROM invoices WHERE invoice_status = 'Draft' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_draft);
-$total_draft = $row['total_draft'];
+$total_draft = floatval($row['total_draft']);
 
 $sql_total_sent = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_sent FROM invoices WHERE invoice_status = 'Sent' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_sent);
-$total_sent = $row['total_sent'];
+$total_sent = floatval($row['total_sent']);
 
 $sql_total_viewed = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_viewed FROM invoices WHERE invoice_status = 'Viewed' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_viewed);
-$total_viewed = $row['total_viewed'];
+$total_viewed = floatval($row['total_viewed']);
 
 $sql_total_cancelled = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_cancelled FROM invoices WHERE invoice_status = 'Cancelled' AND company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_cancelled);
-$total_cancelled = $row['total_cancelled'];
+$total_cancelled = floatval($row['total_cancelled']);
 
 $sql_total_partial = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_partial FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoices.company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_partial);
-$total_partial = $row['total_partial'];
+$total_partial = floatval($row['total_partial']);
 $total_partial_count = mysqli_num_rows($sql_total_partial);
 
 $sql_total_overdue_partial = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_overdue_partial FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoice_due < CURDATE() AND invoices.company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_overdue_partial);
-$total_overdue_partial = $row['total_overdue_partial'];
+$total_overdue_partial = floatval($row['total_overdue_partial']);
 
 $sql_total_overdue = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_overdue FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Paid' AND invoice_due < CURDATE() AND invoices.company_id = $session_company_id");
 $row = mysqli_fetch_array($sql_total_overdue);
-$total_overdue = $row['total_overdue'];
+$total_overdue = floatval($row['total_overdue']);
 
 $real_overdue_amount = $total_overdue - $total_overdue_partial;
 
@@ -196,7 +196,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-file-invoice mr-2"></i>Invoices</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-invoice mr-2"></i>Invoices</h3>
             <div class="card-tools">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addInvoiceModal"><i class="fas fa-plus mr-2"></i>New Invoice</button>
             </div>
@@ -325,14 +325,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">Edit</a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">Copy</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">
+                                            <i class="fas fa-fw fa-copy mr-2"></i>Copy
+                                        </a>
                                         <div class="dropdown-divider"></div>
                                         <?php if (!empty($config_smtp_host)) { ?>
-                                            <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">Send</a>
+                                            <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
+                                                <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
+                                            </a>
                                             <div class="dropdown-divider"></div>
                                         <?php } ?>
-                                        <a class="dropdown-item text-danger" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">Delete</a>
+                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
                                     </div>
                                 </div>
                             </td>

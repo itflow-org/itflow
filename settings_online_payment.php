@@ -8,7 +8,7 @@ $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id =
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-credit-card"></i> Online Payment</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-credit-card mr-2"></i>Online Payment</h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
@@ -46,14 +46,19 @@ $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id =
                         <label>Account</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                             </div>
-                            <select class="form-control" name="config_stripe_account">
+                            <select class="form-control select2" name="config_stripe_account" required>
                                 <option value="">- Account -</option>
                                 <?php
-                                while ($row = mysqli_fetch_array($sql_accounts)) { ?>
-                                    <option value="<?php echo $row['account_id'] ?>" <?php if ($row['account_id'] == $config_stripe_account) { echo "selected"; } ?>><?php echo $row['account_name'] ?></option>
-                                <?php }
+                                while ($row = mysqli_fetch_array($sql_accounts)) {
+                                    $account_id = intval($row['account_id']);
+                                    $account_name = htmlentities($row['account_name']); 
+                                ?>
+                                    
+                                    <option value="<?php echo $account_id ?>" <?php if ($account_id == $config_stripe_account) { echo "selected"; } ?>><?php echo $account_name ?></option>
+                                <?php 
+                                }
                                 ?>
                             </select>
 
@@ -64,7 +69,7 @@ $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id =
 
                 <hr>
 
-                <button type="submit" name="edit_online_payment_settings" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
+                <button type="submit" name="edit_online_payment_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
 
             </form>
         </div>

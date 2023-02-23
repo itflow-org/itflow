@@ -18,6 +18,17 @@
 
 <?php echo randomString(100); ?>
 <br>
+<form>
+<?php
+$timezones = DateTimeZone::listIdentifiers();
+echo '<select name="timezone">';
+foreach ($timezones as $timezone) {
+  echo '<option value="' . $timezone . '">' . $timezone . '</option>';
+}
+echo '</select>';
+
+?>
+</form>
 
 <script>toastr.success('Have Fun Wozz!!')</script>
 

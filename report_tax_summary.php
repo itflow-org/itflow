@@ -18,9 +18,9 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $sessio
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-balance-scale"></i> Collected Tax Summary</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-balance-scale mr-2"></i>Collected Tax Summary</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
+                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
             </div>
         </div>
         <div class="card-body p-0">
@@ -29,7 +29,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $sessio
                     <?php
 
                     while ($row = mysqli_fetch_array($sql_all_years)) {
-                        $all_years = $row['all_years'];
+                        $all_years = intval($row['all_years']);
                         ?>
                         <option <?php if ($year == $all_years) { echo "selected"; } ?> > <?php echo $all_years; ?></option>
 
@@ -54,7 +54,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $sessio
                     <tbody>
                     <?php
                     while ($row = mysqli_fetch_array($sql_tax)) {
-                        $tax_id = $row['tax_id'];
+                        $tax_id = intval($row['tax_id']);
                         $tax_name = htmlentities($row['tax_name']);
                         ?>
 
@@ -78,7 +78,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $sessio
                                 );
 
                                 $row = mysqli_fetch_array($sql_tax_collected);
-                                $tax_collected_for_month = $row['tax_collected_for_month'];
+                                $tax_collected_for_month = floatval($row['tax_collected_for_month']);
 
                                 $tax_collected_quarter_one = $tax_collected_quarter_one + $tax_collected_for_month;
                             }
@@ -104,7 +104,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $sessio
                                 );
 
                                 $row = mysqli_fetch_array($sql_tax_collected);
-                                $tax_collected_for_month = $row['tax_collected_for_month'];
+                                $tax_collected_for_month = floatval($row['tax_collected_for_month']);
 
                                 $tax_collected_quarter_two = $tax_collected_quarter_two + $tax_collected_for_month;
                             }
@@ -130,7 +130,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $sessio
                                 );
 
                                 $row = mysqli_fetch_array($sql_tax_collected);
-                                $tax_collected_for_month = $row['tax_collected_for_month'];
+                                $tax_collected_for_month = floatval($row['tax_collected_for_month']);
 
                                 $tax_collected_quarter_three = $tax_collected_quarter_three + $tax_collected_for_month;
                             }
@@ -156,7 +156,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $sessio
                                 );
 
                                 $row = mysqli_fetch_array($sql_tax_collected);
-                                $tax_collected_for_month = $row['tax_collected_for_month'];
+                                $tax_collected_for_month = floatval($row['tax_collected_for_month']);
 
                                 $tax_collected_quarter_four = $tax_collected_quarter_four + $tax_collected_for_month;
                             }
@@ -194,7 +194,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $sessio
                             );
 
                             $row = mysqli_fetch_array($sql_tax_collected);
-                            $tax_collected_for_month = $row['tax_collected_for_month'];
+                            $tax_collected_for_month = floatval($row['tax_collected_for_month']);
 
                             $tax_collected_total_quarter_one = $tax_collected_total_quarter_one + $tax_collected_for_month;
                         }
@@ -219,7 +219,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $sessio
                             );
 
                             $row = mysqli_fetch_array($sql_tax_collected);
-                            $tax_collected_for_month = $row['tax_collected_for_month'];
+                            $tax_collected_for_month = floatval($row['tax_collected_for_month']);
 
                             $tax_collected_total_quarter_two = $tax_collected_total_quarter_two + $tax_collected_for_month;
                         }
@@ -244,7 +244,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $sessio
                             );
 
                             $row = mysqli_fetch_array($sql_tax_collected);
-                            $tax_collected_for_month = $row['tax_collected_for_month'];
+                            $tax_collected_for_month = floatval($row['tax_collected_for_month']);
 
                             $tax_collected_total_quarter_three = $tax_collected_total_quarter_three + $tax_collected_for_month;
                         }
@@ -269,7 +269,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $sessio
                             );
 
                             $row = mysqli_fetch_array($sql_tax_collected);
-                            $tax_collected_for_month = $row['tax_collected_for_month'];
+                            $tax_collected_for_month = floatval($row['tax_collected_for_month']);
 
                             $tax_collected_total_quarter_four = $tax_collected_total_quarter_four + $tax_collected_for_month;
                         }

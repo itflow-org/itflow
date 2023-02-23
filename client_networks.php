@@ -2,7 +2,7 @@
 require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "network_name";
 }
@@ -25,9 +25,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-network-wired"></i> Networks</h3>
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-network-wired mr-2"></i>Networks</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addNetworkModal"><i class="fas fa-fw fa-plus"></i> New Network</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addNetworkModal"><i class="fas fa-plus mr-2"></i>New Network</button>
         </div>
     </div>
     <div class="card-body">
@@ -37,7 +37,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Networks">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Networks">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -70,7 +70,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
-                    $network_id = $row['network_id'];
+                    $network_id = intval($row['network_id']);
                     $network_name = htmlentities($row['network_name']);
                     $network_vlan = htmlentities($row['network_vlan']);
                     if (empty($network_vlan)) {
@@ -86,7 +86,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     } else {
                         $network_dhcp_range_display = $network_dhcp_range;
                     }
-                    $network_location_id = $row['network_location_id'];
+                    $network_location_id = intval($row['network_location_id']);
                     $location_name = htmlentities($row['location_name']);
                     if (empty($location_name)) {
                         $location_name_display = "-";
@@ -98,7 +98,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <th>
                             <i class="fa fa-fw fa-network-wired text-secondary"></i>
-                            <a class="text-dark" href="#" data-toggle="modal" onclick="populateNetworkEditModal(<?php echo $client_id, ",", $network_id ?>)" data-target="#editNetworkModal"><?php echo $network_name; ?></a></th>
+                            <a class="text-dark" href="#" data-toggle="modal" onclick="populateNetworkEditModal(<?php echo $client_id, ",", $network_id ?>)"
+                                data-target="#editNetworkModal"><?php echo $network_name; ?>
+                            </a>
+                        </th>
                         <td><?php echo $network_vlan_display; ?></td>
                         <td><?php echo $network; ?></td>
                         <td><?php echo $network_gateway; ?></td>
@@ -110,10 +113,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateNetworkEditModal(<?php echo $client_id, ",", $network_id ?>)" data-target="#editNetworkModal">Edit</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateNetworkEditModal(<?php echo $client_id, ",", $network_id ?>)" data-target="#editNetworkModal">
+                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                    </a>
                                     <?php if ($session_user_role == 3) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?delete_network=<?php echo $network_id; ?>">Delete</a>
+                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_network=<?php echo $network_id; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2">Delete
+                                        </a>
                                     <?php } ?>
                                 </div>
                             </div>

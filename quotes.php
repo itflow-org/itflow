@@ -144,7 +144,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     while ($row = mysqli_fetch_array($sql)) {
                         $quote_id = intval($row['quote_id']);
                         $quote_prefix = htmlentities($row['quote_prefix']);
-                        $quote_number = htmlentities($row['quote_number']);
+                        $quote_number = intval($row['quote_number']);
                         $quote_scope = htmlentities($row['quote_scope']);
                         if (empty($quote_scope)) {
                             $quote_scope_display = "-";

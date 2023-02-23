@@ -23,7 +23,7 @@ function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
     }
 
     // Verify the contact has access to the provided ticket ID
-    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = '$requested_ticket_id' AND $ticket_state_snippet AND ticket_client_id = '$session_client_id' LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $requested_ticket_id AND $ticket_state_snippet AND ticket_client_id = $session_client_id LIMIT 1");
     $row = mysqli_fetch_array($sql);
     $ticket_id = $row['ticket_id'];
 

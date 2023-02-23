@@ -157,6 +157,11 @@ if (isset($_GET['ticket_id'])) {
         }
         $client_tags_display = implode(' ', $client_tag_name_display_array);
 
+        // Get the number of responses
+            $ticket_responses_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_responses FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
+            $row = mysqli_fetch_array($ticket_responses_sql);
+            $ticket_responses = intval($row['ticket_responses']);
+
         // Get & format asset warranty expiry
         $date = date('Y-m-d H:i:s');
         $dt_value = $asset_warranty_expire; //sample date
@@ -208,7 +213,7 @@ if (isset($_GET['ticket_id'])) {
 
         <div class="row mb-3">
             <div class="col-9">
-                <h3><i class="fas fa-fw fa-life-ring text-secondary"></i> Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <?php echo $ticket_status_display; ?></h3>
+                <h3><i class="fas fa-fw fa-life-ring text-secondary mr-2"></i>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <?php echo $ticket_status_display; ?></h3>
             </div>
             <?php if ($ticket_status != "Closed") { ?>
                 <div class="col-3">
@@ -217,11 +222,17 @@ if (isset($_GET['ticket_id'])) {
                             <i class="fas fa-fw fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">Merge</a>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">
+                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                            </a>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
+                                <i class="fas fa-fw fa-clone mr-2"></i>Merge
+                            </a>
                             <?php if ($session_user_role == 3) { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
+                                <a class="dropdown-item text-danger text-bold" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
+                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                            </a>
                             <?php } ?>
                         </div>
                     </div>
@@ -236,7 +247,7 @@ if (isset($_GET['ticket_id'])) {
                 <div class="card card-outline card-primary mb-3">
 
                     <div class="card-header">
-                        <h3 class="card-title"><?php echo $ticket_subject; ?></h3>
+                        <h3 class="card-title text-bold"><?php echo $ticket_subject; ?></h3>
                     </div>
 
                     <div class="card-body">
@@ -251,7 +262,7 @@ if (isset($_GET['ticket_id'])) {
                         <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
                         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                         <div class="form-group">
-                            <textarea class="form-control summernote" name="ticket_reply" required></textarea>
+                            <textarea class="form-control summernote" name="ticket_reply" placeholder="Type a response" required></textarea>
                         </div>
                         <div class="form-row">
                             <div class="col-md-2">
@@ -280,13 +291,13 @@ if (isset($_GET['ticket_id'])) {
                                 <div class="form-group">
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="public_reply_type" value="1" checked>
-                                        <label class="custom-control-label" for="customControlAutosizing">Email update to client (Public Update)</label>
+                                        <label class="custom-control-label" for="customControlAutosizing">Email contact<br><small class="text-secondary">(Public Update)</small></label>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-md-2">
-                                <button type="submit" name="add_ticket_reply" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> Save & Reply</button>
+                                <button type="submit" name="add_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Respond</button>
                             </div>
 
                         </div>
@@ -296,6 +307,8 @@ if (isset($_GET['ticket_id'])) {
                     </form>
                     <!-- End IF for reply modal -->
                 <?php } ?>
+
+                <h5 class="mb-4">Responses (<?php echo $ticket_responses; ?>)</h5>
 
                 <!-- Ticket replies -->
                 <?php
@@ -356,10 +369,14 @@ if (isset($_GET['ticket_id'])) {
                                             <i class="fas fa-fw fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#replyEditTicketModal<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-edit text-secondary"></i> Edit</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#replyEditTicketModal<?php echo $ticket_reply_id; ?>">
+                                                <i class="fas fa-fw fa-edit text-secondary mr-2"></i>Edit
+                                            </a>
                                             <?php if ($session_user_role == 3) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>"><i class="fas fa-fw fa-trash text-danger"></i> Archive</a>
+                                                <a class="dropdown-item text-danger" href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>">
+                                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                </a>
                                             <?php } ?>
                                         </div>
                                     </div>
@@ -605,10 +622,14 @@ if (isset($_GET['ticket_id'])) {
                 <?php if ($config_module_enable_accounting) { ?>
                     <div class="card card-body card-outline card-dark mb-2">
                         <div class="">
-                            <a href="#" class="btn btn-outline-success btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">Invoice Ticket</a>
+                            <a href="#" class="btn btn-info btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
+                                <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice Ticket
+                            </a>
                             <?php
                             if ($ticket_status !== "Closed") { ?>
-                                <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-outline-danger btn-block">Close Ticket</a>
+                                <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block">
+                                    <i class="fas fa-fw fa-gavel mr-2"></i>Close Ticket
+                                </a>
                             <?php } ?>
                         </div>
                     </div>

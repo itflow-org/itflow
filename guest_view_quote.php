@@ -9,7 +9,7 @@ if (!isset($_GET['quote_id'], $_GET['url_key'])) {
 }
 
 
-$url_key = mysqli_real_escape_string($mysqli, $_GET['url_key']);
+$url_key = sanitizeInput($_GET['url_key']);
 $quote_id = intval($_GET['quote_id']);
 
 $sql = mysqli_query(
@@ -33,16 +33,16 @@ if (mysqli_num_rows($sql) !== 1) {
 
 $row = mysqli_fetch_array($sql);
 
-$quote_id = $row['quote_id'];
+$quote_id = intval($row['quote_id']);
 $quote_prefix = htmlentities($row['quote_prefix']);
-$quote_number = htmlentities($row['quote_number']);
+$quote_number = intval($row['quote_number']);
 $quote_status = htmlentities($row['quote_status']);
-$quote_date = $row['quote_date'];
+$quote_date = htmlentities($row['quote_date']);
 $quote_amount = floatval($row['quote_amount']);
 $quote_currency_code = htmlentities($row['quote_currency_code']);
 $quote_note = htmlentities($row['quote_note']);
-$category_id = $row['category_id'];
-$client_id = $row['client_id'];
+$category_id = intval($row['category_id']);
+$client_id = intval($row['client_id']);
 $client_name = htmlentities($row['client_name']);
 $location_address = htmlentities($row['location_address']);
 $location_city = htmlentities($row['location_city']);
@@ -54,11 +54,11 @@ $contact_extension = htmlentities($row['contact_extension']);
 $contact_mobile = formatPhoneNumber($row['contact_mobile']);
 $client_website = htmlentities($row['client_website']);
 $client_currency_code = htmlentities($row['client_currency_code']);
-$client_net_terms = htmlentities($row['client_net_terms']);
+$client_net_terms = intval($row['client_net_terms']);
 if ($client_net_terms == 0) {
     $client_net_terms = intval($row['config_default_net_terms']);
 }
-$company_id = $row['company_id'];
+$company_id = intval($row['company_id']);
 $company_name = htmlentities($row['company_name']);
 $company_address = htmlentities($row['company_address']);
 $company_city = htmlentities($row['company_city']);
@@ -83,11 +83,11 @@ if ($quote_status == 'Sent') {
 }
 
 //Mark viewed in history
-mysqli_query($mysqli, "INSERT INTO history SET history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser', history_created_at = NOW(), history_quote_id = $quote_id, company_id = $company_id");
+mysqli_query($mysqli, "INSERT INTO history SET history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser', history_quote_id = $quote_id, company_id = $company_id");
 
 if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Viewed") {
-    $client_name_escaped = mysqli_escape_string($mysqli, $row['client_name']);
-    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Quote Viewed', notification = 'Quote $quote_prefix$quote_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+    $client_name_escaped = sanitizeInput($row['client_name']);
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Quote Viewed', notification = 'Quote $quote_prefix$quote_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_client_id = $client_id, company_id = $company_id");
 }
 
 ?>
@@ -99,14 +99,20 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                 <?php
                 if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Viewed") {
                     ?>
-                    <a class="btn btn-success" href="guest_post.php?accept_quote=<?php echo $quote_id; ?>&company_id=<?php echo $company_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-check"></i> Accept</a>
-                    <a class="btn btn-danger" href="guest_post.php?decline_quote=<?php echo $quote_id; ?>&company_id=<?php echo $company_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-times"></i> Decline</a>
+                    <a class="btn btn-success" href="guest_post.php?accept_quote=<?php echo $quote_id; ?>&company_id=<?php echo $company_id; ?>&url_key=<?php echo $url_key; ?>">
+                        <i class="fas fa-fw fa-thumbs-up mr-2"></i>Accept
+                    </a>
+                    <a class="btn btn-danger" href="guest_post.php?decline_quote=<?php echo $quote_id; ?>&company_id=<?php echo $company_id; ?>&url_key=<?php echo $url_key; ?>">
+                        <i class="fas fa-fw fa-thumbs-down mr-2"></i>Decline
+                    </a>
                 <?php } ?>
             </div>
 
             <div class="float-right">
-                <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
-                <a class="btn btn-primary" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$quote_date-$company_name-QUOTE-$quote_prefix$quote_number.pdf"; ?>');"><i class="fa fa-fw fa-download"></i> Download</a>
+                <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</a>
+                <a class="btn btn-primary" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$quote_date-$company_name-QUOTE-$quote_prefix$quote_number.pdf"; ?>');">
+                    <i class="fa fa-fw fa-download mr-2"></i>Download
+                </a>
             </div>
         </div>
         <div class="card-body">
@@ -182,7 +188,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                                 $total_tax = $sub_total = 0; // Default 0
 
                                 while ($row = mysqli_fetch_array($sql_items)) {
-                                    $item_id = $row['item_id'];
+                                    $item_id = intval($row['item_id']);
                                     $item_name = htmlentities($row['item_name']);
                                     $item_description = htmlentities($row['item_description']);
                                     $item_quantity = floatval($row['item_quantity']);
@@ -343,7 +349,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                                     style: 'invoiceDateTitle'
                                 },
                                 {
-                                    text: <?php echo json_encode($quote_date) ?>,
+                                    text: <?php echo json_encode(html_entity_decode($quote_date)) ?>,
                                     style: 'invoiceDateValue'
                                 },
                             ],

@@ -17,9 +17,9 @@ $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE compan
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring"></i> Ticket Summary</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring mr-2"></i>Ticket Summary</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
+            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
         </div>
     </div>
     <div class="card-body p-0">
@@ -27,7 +27,7 @@ $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE compan
             <select onchange="this.form.submit()" class="form-control" name="year">
                 <?php
                 while ($row = mysqli_fetch_array($sql_ticket_years)) {
-                    $ticket_year = $row['ticket_year']; ?>
+                    $ticket_year = intval($row['ticket_year']); ?>
                     <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?php echo $ticket_year; ?></option>
                 <?php } ?>
             </select>
@@ -64,7 +64,7 @@ $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE compan
 
                     $sql_tickets = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS tickets_for_month FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month");
                     $row = mysqli_fetch_array($sql_tickets);
-                    $tickets_for_month = $row['tickets_for_month'];
+                    $tickets_for_month = intval($row['tickets_for_month']);
 
                     $total_tickets_for_all_months = $tickets_for_month + $total_tickets_for_all_months;
                     ?>
@@ -114,7 +114,7 @@ $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE compan
 
                         $sql_tickets = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS tickets_for_month FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month");
                         $row = mysqli_fetch_array($sql_tickets);
-                        $tickets_for_month = $row['tickets_for_month'];
+                        $tickets_for_month = intval($row['tickets_for_month']);
 
                         if ($tickets_for_month > 0 && $tickets_for_month > $largest_ticket_month) {
                             $largest_ticket_month = $tickets_for_month;

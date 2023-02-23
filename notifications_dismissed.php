@@ -3,7 +3,7 @@ require_once("inc_all.php");
 
 //Column Filter
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "notification_timestamp";
 }
@@ -16,8 +16,8 @@ if (!isset($_GET['o'])) {
 
 //Date From and Date To Filter
 if (!empty($_GET['dtf'])) {
-    $dtf = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtf']));
-    $dtt = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtt']));
+    $dtf = sanitizeInput($_GET['dtf']);
+    $dtt = sanitizeInput($_GET['dtt']);
 } else {
     $dtf = "0000-00-00";
     $dtt = "9999-00-00";
@@ -47,14 +47,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-bell"></i> Dismissed Notications</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-bell mr-2"></i>Dismissed Notications</h3>
         </div>
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Dismissed Notifications">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Dismissed Notifications">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -98,14 +98,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                    $notification_id = $row['notification_id'];
-                    $notification_timestamp = $row['notification_timestamp'];
+                    $notification_id = intval($row['notification_id']);
+                    $notification_timestamp = htmlentities($row['notification_timestamp']);
                     $notification_type = htmlentities($row['notification_type']);
                     $notification = htmlentities($row['notification']);
-                    $notification_dismissed_at = $row['notification_dismissed_at'];
+                    $notification_dismissed_at = htmlentities($row['notification_dismissed_at']);
                     $user_name = htmlentities($row['user_name']);
                     $client_name = htmlentities($row['client_name']);
-                    $client_id = $row['client_id'];
+                    $client_id = intval($row['client_id']);
                     if (empty($client_name)) {
                         $client_name_display = "-";
                     } else {

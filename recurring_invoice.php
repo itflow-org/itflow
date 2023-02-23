@@ -81,7 +81,7 @@ if (isset($_GET['recurring_id'])) {
 
     <ol class="breadcrumb d-print-none">
         <li class="breadcrumb-item">
-            <a href="recurring_invoices.php"> Recurring Invoices</a>
+            <a href="recurring_invoices.php">Recurring Invoices</a>
         </li>
         <li class="breadcrumb-item">
             <a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>"> <?php echo $client_name; ?></a>
@@ -329,7 +329,7 @@ if (isset($_GET['recurring_id'])) {
         <div class="col-sm d-print-none">
             <div class="card">
                 <div class="card-header text-bold">
-                    <i class="fas fa-history mr-2"></i>History
+                    <i class="fas fa-fw fa-history mr-2"></i>History
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                             <i class="fas fa-minus"></i>
@@ -351,7 +351,7 @@ if (isset($_GET['recurring_id'])) {
                         <?php
 
                         while ($row = mysqli_fetch_array($sql_history)) {
-                            $history_created_at = $row['history_created_at'];
+                            $history_created_at = htmlentities($row['history_created_at']);
                             $history_status = htmlentities($row['history_status']);
                             $history_description = htmlentities($row['history_description']);
 

@@ -3,7 +3,7 @@
 require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "recurring_id";
 }
@@ -25,9 +25,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-sync-alt"></i> Recurring Invoices</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-sync-alt mr-2"></i>Recurring Invoices</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRecurringModal"><i class="fas fa-fw fa-plus"></i> New Recurring</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRecurringModal"><i class="fas fa-plus mr-2"></i>New Recurring</button>
         </div>
     </div>
     <div class="card-body">
@@ -37,7 +37,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Recurring Invoices">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Recurring Invoices">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -46,7 +46,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-8">
                     <div class="float-right">
-                        <a href="post.php?export_client_recurring_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
+                        <a href="post.php?export_client_recurring_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
                     </div>
                 </div>
 
@@ -72,21 +72,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
-                    $recurring_id = $row['recurring_id'];
+                    $recurring_id = intval($row['recurring_id']);
                     $recurring_prefix = htmlentities($row['recurring_prefix']);
-                    $recurring_number = htmlentities($row['recurring_number']);
+                    $recurring_number = intval($row['recurring_number']);
                     $recurring_scope = htmlentities($row['recurring_scope']);
                     $recurring_frequency = htmlentities($row['recurring_frequency']);
                     $recurring_status = htmlentities($row['recurring_status']);
-                    $recurring_last_sent = $row['recurring_last_sent'];
+                    $recurring_last_sent = htmlentities($row['recurring_last_sent']);
                     if ($recurring_last_sent == 0) {
                         $recurring_last_sent = "-";
                     }
-                    $recurring_next_date = $row['recurring_next_date'];
+                    $recurring_next_date = htmlentities($row['recurring_next_date']);
                     $recurring_amount = floatval($row['recurring_amount']);
                     $recurring_currency_code = htmlentities($row['recurring_currency_code']);
-                    $recurring_created_at = $row['recurring_created_at'];
-                    $category_id = $row['category_id'];
+                    $recurring_created_at = htmlentities($row['recurring_created_at']);
+                    $category_id = intval($row['category_id']);
                     $category_name = htmlentities($row['category_name']);
                     if ($recurring_status == 1) {
                         $status = "Active";
@@ -99,10 +99,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
 
                     <tr>
-                        <td><a href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>"><?php echo "$recurring_prefix$recurring_number"; ?></a></td>
+                        <td class="text-bold"><a href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>"><?php echo "$recurring_prefix$recurring_number"; ?></a></td>
                         <td><?php echo $recurring_scope; ?></td>
-                        <td><?php echo ucwords($recurring_frequency); ?>ly</td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code); ?></td>
+                        <td class="text-bold"><?php echo ucwords($recurring_frequency); ?>ly</td>
+                        <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code); ?></td>
                         <td><?php echo $recurring_last_sent; ?></td>
                         <td><?php echo $recurring_next_date; ?></td>
                         <td><?php echo $category_name; ?></td>
@@ -117,9 +117,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>">Edit</a>
+                                    <a class="dropdown-item" href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>">
+                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                    </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">Delete</a>
+                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </a>
                                 </div>
                             </div>
                         </td>

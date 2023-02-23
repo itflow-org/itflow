@@ -3,7 +3,7 @@
 require_once("inc_all.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "expense_date";
 }
@@ -22,8 +22,8 @@ if (empty($_GET['canned_date'])) {
 
 //Date Filter
 if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
-    $dtf = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtf']));
-    $dtt = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtt']));
+    $dtf = sanitizeInput($_GET['dtf']);
+    $dtt = sanitizeInput($_GET['dtt']);
 } elseif ($_GET['canned_date'] == "today") {
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');
@@ -74,9 +74,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-shopping-cart"></i> Expenses</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-shopping-cart mr-2"></i>Expenses</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addExpenseModal"><i class="fas fa-fw fa-plus"></i> New Expense</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addExpenseModal"><i class="fas fa-plus mr-2"></i>New Expense</button>
             </div>
         </div>
 
@@ -85,7 +85,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo strip_tags(htmlentities($q));} ?>" placeholder="Search Expenses">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(htmlentities($q));} ?>" placeholder="Search Expenses">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -94,7 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                     <div class="col-sm-8">
                         <div class="float-right">
-                            <button type="button" class="btn btn-default btn-lg" data-toggle="modal" data-target="#exportExpensesModal"><i class="fa fa-fw fa-download"></i> Export</button>
+                            <button type="button" class="btn btn-default btn-lg" data-toggle="modal" data-target="#exportExpensesModal"><i class="fas fa-fw fa-download mr-2"></i>Export</button>
                         </div>
                     </div>
                 </div>
@@ -149,20 +149,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $expense_id = $row['expense_id'];
-                        $expense_date = $row['expense_date'];
+                        $expense_id = intval($row['expense_id']);
+                        $expense_date = htmlentities($row['expense_date']);
                         $expense_amount = floatval($row['expense_amount']);
                         $expense_currency_code = htmlentities($row['expense_currency_code']);
                         $expense_description = htmlentities($row['expense_description']);
                         $expense_receipt = htmlentities($row['expense_receipt']);
                         $expense_reference = htmlentities($row['expense_reference']);
-                        $expense_created_at = $row['expense_created_at'];
-                        $expense_vendor_id = $row['expense_vendor_id'];
+                        $expense_created_at = htmlentities($row['expense_created_at']);
+                        $expense_vendor_id = intval($row['expense_vendor_id']);
                         $vendor_name = htmlentities($row['vendor_name']);
-                        $expense_category_id = $row['expense_category_id'];
+                        $expense_category_id = intval($row['expense_category_id']);
                         $category_name = htmlentities($row['category_name']);
                         $account_name = htmlentities($row['account_name']);
-                        $expense_account_id = $row['expense_account_id'];
+                        $expense_account_id = intval($row['expense_account_id']);
 
                         if (empty($expense_receipt)) {
                             $receipt_attached = "";
@@ -177,7 +177,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $vendor_name; ?></td>
                             <td><?php echo $category_name; ?></td>
                             <td><?php echo truncate($expense_description, 50); ?></td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code); ?></td>
+                            <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code); ?></td>
                             <td><?php echo $account_name; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
@@ -187,15 +187,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="dropdown-menu">
                                         <?php
                                         if (!empty($expense_receipt)) { ?>
-                                            <a class="dropdown-item" href="<?php echo "uploads/expenses/$session_company_id/$expense_receipt"; ?>" download="<?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf"; ?>">Download</a>
+                                            <a class="dropdown-item" href="<?php echo "uploads/expenses/$session_company_id/$expense_receipt"; ?>" download="<?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf"; ?>">
+                                                <i class="fas fa-fw fa-download mr-2"></i>Download
+                                            </a>
                                             <div class="dropdown-divider"></div>
                                         <?php } ?>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>">Edit</a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseCopyModal<?php echo $expense_id; ?>">Copy</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseCopyModal<?php echo $expense_id; ?>">
+                                            <i class="fas fa-fw fa-copy mr-2"></i>Copy
+                                        </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseRefundModal<?php echo $expense_id; ?>">Refund</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseRefundModal<?php echo $expense_id; ?>">
+                                            <i class="fas fa-fw fa-undo-alt mr-2"></i>Refund
+                                        </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?delete_expense=<?php echo $expense_id; ?>">Delete</a>
+                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_expense=<?php echo $expense_id; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
                                     </div>
                                 </div>
                             </td>

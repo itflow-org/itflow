@@ -11,7 +11,7 @@ if (!empty($_GET['folder_id'])) {
 
 // Sort by
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "document_name";
 }
@@ -50,7 +50,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card card-dark">
         <div class="card-header py-2">
             <h3 class="card-title mt-2">
-                <i class="fa fa-fw fa-file-alt"></i> Documents
+                <i class="fa fa-fw fa-file-alt mr-2"></i>Documents
             </h3>
             <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
             <div class="dropdown-menu">
@@ -61,11 +61,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDocumentModal">
-                        <i class="fas fa-fw fa-plus"></i> New Document
+                        <i class="fas fa-plus mr-2"></i>New Document
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addFolderModal"><i class="fa fa-fw fa-folder-plus"></i> Folder</a>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addFolderModal">
+                            <i class="fa fa-fw fa-folder-plus mr-2"></i>Folder
+                        </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentFromTemplateModal">From Template</a>
                     </div>
@@ -86,11 +88,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php
                         $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
                         while ($row = mysqli_fetch_array($sql_folders)) {
-                            $folder_id = $row['folder_id'];
+                            $folder_id = intval($row['folder_id']);
                             $folder_name = htmlentities($row['folder_name']);
 
                             $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_id') AS num FROM documents WHERE document_folder_id = $folder_id"));
-                            $num_documents = $row['num'];
+                            $num_documents = intval($row['num']);
 
                             ?>
 
@@ -117,7 +119,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFolderModal<?php echo $folder_id; ?>">Rename</a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger" href="post.php?delete_folder=<?php echo $folder_id; ?>">Delete</a>
+                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_folder=<?php echo $folder_id; ?>">Delete</a>
                                                 <?php } ?>
                                             </div>
                                         </div>
@@ -136,10 +138,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-9">
                     <form autocomplete="off">
-                        <input type="hidden" name="client_id" value="<?php echo intval($client_id); ?>">
+                        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                         <input type="hidden" name="folder_id" value="<?php echo $get_folder_id; ?>">
                         <div class="input-group">
-                            <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Documents">
+                            <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Documents">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
                             </div>
@@ -169,12 +171,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php
 
                             while ($row = mysqli_fetch_array($sql)) {
-                                $document_id = $row['document_id'];
+                                $document_id = intval($row['document_id']);
                                 $document_name = htmlentities($row['document_name']);
-                                $document_content = $row['document_content'];
-                                $document_created_at = $row['document_created_at'];
-                                $document_updated_at = $row['document_updated_at'];
-                                $document_folder_id = $row['document_folder_id'];
+                                $document_content = htmlentities($row['document_content']);
+                                $document_created_at = htmlentities($row['document_created_at']);
+                                $document_updated_at = htmlentities($row['document_updated_at']);
+                                $document_folder_id = intval($row['document_folder_id']);
 
                                 ?>
 
@@ -190,11 +192,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">Edit</a>
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">Share</a>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">
+                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                </a>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">
+                                                    <i class="fas fa-fw fa-share mr-2"></i>Share
+                                                </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger" href="post.php?delete_document=<?php echo $document_id; ?>">Delete</a>
+                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_document=<?php echo $document_id; ?>">
+                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                    </a>
                                                 <?php } ?>
                                             </div>
                                         </div>

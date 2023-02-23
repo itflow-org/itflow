@@ -2,7 +2,7 @@
 require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "payment_date";
 }
@@ -32,7 +32,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-3">
-        <h3 class="card-title"><i class="fa fa-fw fa-credit-card"></i> Payments</h3>
+        <h3 class="card-title"><i class="fa fa-fw fa-credit-card mr-2"></i>Payments</h3>
     </div>
     <div class="card-body">
         <form autocomplete="off">
@@ -41,7 +41,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Payments">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Payments">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -50,7 +50,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-8">
                     <div class="float-right">
-                        <a href="post.php?export_client_payments_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
+                        <a href="post.php?export_client_payments_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
                     </div>
                 </div>
 
@@ -75,14 +75,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
-                    $invoice_id = $row['invoice_id'];
+                    $invoice_id = intval($row['invoice_id']);
                     $invoice_prefix = htmlentities($row['invoice_prefix']);
-                    $invoice_number = htmlentities($row['invoice_number']);
+                    $invoice_number = intval($row['invoice_number']);
                     $invoice_status = htmlentities($row['invoice_status']);
                     $invoice_amount = floatval($row['invoice_amount']);
                     $invoice_currency_code = htmlentities($row['invoice_currency_code']);
-                    $invoice_date = $row['invoice_date'];
-                    $payment_date = $row['payment_date'];
+                    $invoice_date = htmlentities($row['invoice_date']);
+                    $payment_date = htmlentities($row['payment_date']);
                     $payment_method = htmlentities($row['payment_method']);
                     $payment_reference = htmlentities($row['payment_reference']);
                     if (empty($payment_reference)) {
@@ -99,9 +99,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <td><?php echo $payment_date; ?></td>
                         <td><?php echo $invoice_date; ?></td>
-                        <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
+                        <td class="text-bold"><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
+                        <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
                         <td><?php echo $payment_method; ?></td>
                         <td><?php echo $payment_reference_display; ?></td>
                         <td><?php echo $account_name; ?></td>

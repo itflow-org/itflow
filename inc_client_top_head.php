@@ -1,11 +1,3 @@
-<?php
-
-$contact_phone = formatPhoneNumber($contact_phone);
-$contact_mobile = formatPhoneNumber($contact_mobile);
-$location_phone = formatPhoneNumber($location_phone);
-
-?>
-
 <div class="card">
     <div class="card-body">
         <div class="row">
@@ -89,14 +81,24 @@ $location_phone = formatPhoneNumber($location_phone);
                             <i class="fas fa-fw fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>" target="_blank">Export Data PDF<br><small class="text-secondary">(without passwords)</small></a>
-                            <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>&passwords" target="_blank">Export Data PDF<br><small class="text-secondary">(with passwords)</small></a>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">
+                                <i class="fas fa-fw fa-edit mr-2"></i>Edit Client
+                            </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">Edit Client</a>
+                            <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>" target="_blank">
+                                <i class="fas fa-fw fa-download mr-2"></i>Export Data PDF<br><small class="text-secondary">(without passwords)</small>
+                            </a>
+                            <a class="dropdown-item text-danger" href="post.php?export_client_pdf=<?php echo $client_id; ?>&passwords" target="_blank">
+                                <i class="fas fa-fw fa-download mr-2"></i>Export Data PDF<br><small class="text-secondary">(with passwords)</small>
+                            </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger" href="post.php?archive_client=<?php echo $client_id; ?>">Archive Client</a>
+                            <a class="dropdown-item text-danger" href="post.php?archive_client=<?php echo $client_id; ?>">
+                                <i class="fas fa-fw fa-archive mr-2"></i>Archive Client
+                            </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">Delete Client</a>
+                            <a class="dropdown-item text-danger text-bold" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">
+                                <i class="fas fa-fw fa-trash mr-2"></i>Delete Client
+                            </a>
                         </div>
                     </div>
                 <?php } ?>

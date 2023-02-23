@@ -2,7 +2,7 @@
 require_once("inc_all_client.php");
 
 if (isset($_GET['q'])) {
-    $q = strip_tags(mysqli_real_escape_string($mysqli, $_GET['q']));
+    $q = sanitizeInput($_GET['q']);
     //Phone Numbers
     $phone_query = preg_replace("/[^0-9]/", '', $q);
     if (empty($phone_query)) {
@@ -35,7 +35,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-share"></i> Shared Items (Links)</h3>
+            <h3 class="card-title"><i class="fa fa-fw fa-share mr-2"></i>Shared Items (Links)</h3>
         </div>
         <div class="card-body">
             <form autocomplete="off">
@@ -70,16 +70,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $item_id = $row['item_id'];
+                        $item_id = intval($row['item_id']);
                         $item_active = htmlentities($row['item_active']);
                         $item_key = htmlentities($row['item_key']);
                         $item_type = htmlentities($row['item_type']);
-                        $item_related_id = $row['item_related_id'];
+                        $item_related_id = intval($row['item_related_id']);
                         $item_note = htmlentities($row['item_note']);
                         $item_views = htmlentities($row['item_views']);
                         $item_view_limit = htmlentities($row['item_view_limit']);
-                        $item_created_at = $row['item_created_at'];
-                        $item_expire_at = $row['item_expire_at'];
+                        $item_created_at = htmlentities($row['item_created_at']);
+                        $item_expire_at = htmlentities($row['item_expire_at']);
 
                         if ($item_type == 'Login') {
                             $share_item_sql = mysqli_query($mysqli, "SELECT login_name FROM logins WHERE login_id = '$item_related_id' AND login_client_id = '$client_id'");
@@ -110,7 +110,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item text-danger" href="post.php?deactivate_shared_item=<?php echo $item_id; ?>">Deactivate</a>
+                                            <a class="dropdown-item text-danger" href="post.php?deactivate_shared_item=<?php echo $item_id; ?>">
+                                                <i class="fas fa-fw fa-times mr-2"></i>Deactivate
+                                            </a>
                                         </div>
                                     </div>
                                 <?php } ?>

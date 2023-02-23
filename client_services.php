@@ -3,7 +3,7 @@
 require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "service_name";
 }
@@ -25,9 +25,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 ?>
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream"></i> Services</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream mr-2"></i>Services</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addServiceModal"><i class="fas fa-fw fa-plus"></i> New Service</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addServiceModal"><i class="fas fa-plus mr-2"></i>New Service</button>
             </div>
         </div>
 
@@ -36,7 +36,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <form autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <div class="input-group">
-                    <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Services">
+                    <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Services">
                     <div class="input-group-append">
                         <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
                     </div>
@@ -52,7 +52,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-dark">Category</a></th>
                         <th><a class="text-dark">Updated</a></th>
                         <th><a class="text-dark">Importance</a></th>
-
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -60,15 +59,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $service_id = $row['service_id'];
+                        $service_id = intval($row['service_id']);
                         $service_name = htmlentities($row['service_name']);
                         $service_description = htmlentities($row['service_description']);
                         $service_category = htmlentities($row['service_category']);
                         $service_importance = htmlentities($row['service_importance']);
                         $service_backup = htmlentities($row['service_backup']);
                         $service_notes = htmlentities($row['service_notes']);
-                        $service_updated_at = $row['service_updated_at'];
-                        $service_review_due = $row['service_review_due'];
+                        $service_updated_at = htmlentities($row['service_updated_at']);
+                        $service_review_due = htmlentities($row['service_review_due']);
 
                         // Service Importance
                         if ($service_importance == "High") {
@@ -97,10 +96,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editServiceModal<?php echo $service_id; ?>">Edit</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editServiceModal<?php echo $service_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="post.php?delete_service=<?php echo $service_id; ?>">Delete</a>
+                                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_service=<?php echo $service_id; ?>">
+                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            </a>
                                         <?php } ?>
                                     </div>
                                 </div>
@@ -117,7 +120,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             LEFT JOIN logins ON service_assets.asset_id = logins.login_asset_id
                             LEFT JOIN networks ON assets.asset_network_id = networks.network_id
                             LEFT JOIN locations ON assets.asset_location_id = locations.location_id
-                            WHERE service_id = '$service_id'"
+                            WHERE service_id = $service_id"
                         );
 
                         // Associated logins
@@ -125,7 +128,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $mysqli,
                             "SELECT * FROM service_logins
                             LEFT JOIN logins ON service_logins.login_id = logins.login_id
-                            WHERE service_id = '$service_id'"
+                            WHERE service_id = $service_id"
                         );
 
                         // Associated Domains
@@ -133,14 +136,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $mysqli,
                             "SELECT * FROM service_domains
                             LEFT JOIN domains ON service_domains.domain_id = domains.domain_id
-                            WHERE service_id = '$service_id'"
+                            WHERE service_id = $service_id"
                         );
                         // Associated Certificates
                         $sql_certificates = mysqli_query(
                             $mysqli,
                             "SELECT * FROM service_certificates
                             LEFT JOIN certificates ON service_certificates.certificate_id = certificates.certificate_id
-                            WHERE service_id = '$service_id'"
+                            WHERE service_id = $service_id"
                         );
 
                         // Associated URLs ---- REMOVED for now
@@ -152,7 +155,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $mysqli,
                             "SELECT * FROM service_vendors
                             LEFT JOIN vendors ON service_vendors.vendor_id = vendors.vendor_id
-                            WHERE service_id = '$service_id'"
+                            WHERE service_id = $service_id"
                         );
 
                         // Associated Contacts
@@ -160,7 +163,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $mysqli,
                             "SELECT * FROM service_contacts
                             LEFT JOIN contacts ON service_contacts.contact_id = contacts.contact_id
-                            WHERE service_id = '$service_id'"
+                            WHERE service_id = $service_id"
                         );
 
                         // Associated Documents
@@ -168,7 +171,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $mysqli,
                             "SELECT * FROM service_documents
                             LEFT JOIN documents ON service_documents.document_id = documents.document_id
-                            WHERE service_id = '$service_id'"
+                            WHERE service_id = $service_id"
                         );
 
                         require("client_service_edit_modal.php");

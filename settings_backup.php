@@ -3,16 +3,16 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark mb-3">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-database"></i> Download Database</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Download Database</h3>
         </div>
         <div class="card-body" style="text-align: center;">
-            <a class="btn btn-primary btn-lg p-3" href="post.php?download_database"><i class="fa fa-fw fa-4x fa-download"></i><br><br>Download</a>
+            <a class="btn btn-primary btn-lg p-3" href="post.php?download_database"><i class="fas fa-fw fa-4x fa-download"></i><br><br>Download</a>
         </div>
     </div>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-key"></i> Backup Master Encryption Key</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-key mr-2"></i>Backup Master Encryption Key</h3>
         </div>
         <div class="card-body">
             <div class="card-body">
@@ -23,7 +23,7 @@ require_once("inc_all_settings.php"); ?>
                             <div class="input-group-prepend">
                                 <input type="password" class="form-control" placeholder="Enter your account password" name="password" autocomplete="new-password" required>
                             </div>
-                            <button class="btn btn-primary" type="submit" name="backup_master_key"><i class="fa fa-fw fa-key"></i> Get Master Key</button>
+                            <button class="btn btn-primary" type="submit" name="backup_master_key"><i class="fas fa-fw fa-key mr-2"></i>Get Master Key</button>
                         </div>
                     </div>
                 </form>

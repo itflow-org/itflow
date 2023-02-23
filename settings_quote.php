@@ -3,7 +3,7 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-file"></i> Quote Settings</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-file mr-2"></i>Quote Settings</h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
@@ -24,7 +24,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="number" min="0" class="form-control" name="config_quote_next_number" placeholder="Next Quote Number" value="<?php echo htmlentities($config_quote_next_number); ?>" required>
+                        <input type="number" min="0" class="form-control" name="config_quote_next_number" placeholder="Next Quote Number" value="<?php echo intval($config_quote_next_number); ?>" required>
                     </div>
                 </div>
 
@@ -55,7 +55,7 @@ require_once("inc_all_settings.php"); ?>
 
                 <hr>
 
-                <button type="submit" name="edit_quote_settings" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
+                <button type="submit" name="edit_quote_settings" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
 
             </form>
         </div>

@@ -5,10 +5,10 @@ require_once("functions.php");
 
 session_start();
 
-$ip = trim(strip_tags(mysqli_real_escape_string($mysqli, getIP())));
-$ua = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
-$os = strip_tags(mysqli_real_escape_string($mysqli, getOS($ua)));
-$browser = strip_tags(mysqli_real_escape_string($mysqli, getWebBrowser($ua)));
+$ip = sanitizeInput(getIP());
+$ua = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
+$os = sanitizeInput(getOS($ua));
+$browser = sanitizeInput(getWebBrowser($ua));
 
 ?>
 
@@ -52,7 +52,7 @@ $browser = strip_tags(mysqli_real_escape_string($mysqli, getWebBrowser($ua)));
                     }
                     ?>
                     <div class="alert alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
-                        <?php echo $_SESSION['alert_message']; ?>
+                        <?php echo htmlentities($_SESSION['alert_message']); ?>
                         <button class='close' data-dismiss='alert'>&times;</button>
                     </div>
                     <?php

@@ -157,7 +157,7 @@ $total_pages = ceil($total_found_rows / 10);
                         $trip_purpose = htmlentities($row['trip_purpose']);
                         $trip_source = htmlentities($row['trip_source']);
                         $trip_destination = htmlentities($row['trip_destination']);
-                        $trip_miles = htmlentities($row['trip_miles']);
+                        $trip_miles = floatval($row['trip_miles']);
                         $trip_user_id = intval($row['trip_user_id']);
                         $round_trip = htmlentities($row['round_trip']);
                         $client_id = intval($row['client_id']);
@@ -205,7 +205,7 @@ $total_pages = ceil($total_found_rows / 10);
                                             <i class="fa fa-fw fa-copy mr-2"></i>Copy
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?delete_trip=<?php echo $trip_id; ?>">
+                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_trip=<?php echo $trip_id; ?>">
                                             <i class="fa fa-fw fa-trash mr-2"></i>Delete
                                         </a>
                                     </div>

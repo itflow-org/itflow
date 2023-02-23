@@ -39,7 +39,7 @@ $company_logo = $row['company_logo'];
 
 // Mail
 $config_smtp_host = $row['config_smtp_host'];
-$config_smtp_port = $row['config_smtp_port'];
+$config_smtp_port = intval($row['config_smtp_port']);
 $config_smtp_encryption = $row['config_smtp_encryption'];
 $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
@@ -61,12 +61,12 @@ if (isset($_POST['login'])) {
     session_start();
 
     // Passed login brute force check
-    $email = strip_tags(mysqli_real_escape_string($mysqli, $_POST['email']));
+    $email = sanitizeInput($_POST['email']);
     $password = $_POST['password'];
 
     $current_code = 0; // Default value
     if (isset($_POST['current_code'])) {
-        $current_code = strip_tags(mysqli_real_escape_string($mysqli, $_POST['current_code']));
+        $current_code = sanitizeInput($_POST['current_code']);
     }
 
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_email = '$email' AND user_archived_at IS NULL AND user_status = 1"));
@@ -88,10 +88,10 @@ if (isset($_POST['login'])) {
             // FULL LOGIN SUCCESS - 2FA not configured or was successful
 
             // Check this login isn't suspicious
-            $sql_ip_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ip_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_ip = '$ip' AND log_user_id = '$user_id'"));
+            $sql_ip_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ip_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_ip = '$ip' AND log_user_id = $user_id"));
             $ip_previous_logins = sanitizeInput($sql_ip_prev_logins['ip_previous_logins']);
 
-            $sql_ua_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ua_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_user_agent = '$user_agent' AND log_user_id = '$user_id'"));
+            $sql_ua_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ua_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_user_agent = '$user_agent' AND log_user_id = $user_id"));
             $ua_prev_logins = sanitizeInput($sql_ua_prev_logins['ua_previous_logins']);
 
             // Notify if both the user agent and IP are different
@@ -127,7 +127,7 @@ if (isset($_POST['login'])) {
             // Session info
             $_SESSION['user_id'] = $user_id;
             $_SESSION['user_name'] = $user_name;
-            $_SESSION['user_role'] = $row['user_role'];
+            $_SESSION['user_role'] = intval($row['user_role']);
             $_SESSION['csrf_token'] = randomString(156);
             $_SESSION['logged'] = true;
 
@@ -176,7 +176,7 @@ if (isset($_POST['login'])) {
             if ($current_code !== 0) {
 
                 // Logging
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$user_name failed 2FA', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$user_name failed 2FA', log_ip = '$ip', log_user_agent = '$user_agent', log_user_id = $user_id");
 
                 // Email the tech to advise their credentials may be compromised
                 if (!empty($config_smtp_host)) {
@@ -211,7 +211,7 @@ if (isset($_POST['login'])) {
 
         // Password incorrect or user doesn't exist - show generic error
 
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent'");
 
         $response = "
               <div class='alert alert-danger'>

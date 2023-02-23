@@ -36,7 +36,7 @@ require_once('inc_portal.php');
                     <input type="password" class="form-control" minlength="6" required data-toggle="password" name="new_password" placeholder="Leave blank for no change" autocomplete="new-password">
                 </div>
             </div>
-            <button type="submit" name="edit_profile" class="btn btn-primary mt-3"><i class="fa fa-fw fa-check"></i> Save password</button>
+            <button type="submit" name="edit_profile" class="btn btn-primary text-bold mt-3"><i class="fas fa-check mr-2"></i>Save password</button>
         </form>
     </div>
 <?php endif ?>

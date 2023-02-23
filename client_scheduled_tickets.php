@@ -3,7 +3,7 @@
 require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "scheduled_ticket_subject";
 }
@@ -28,7 +28,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-sync"></i> Scheduled Tickets</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-sync mr-2"></i>Scheduled Tickets</h3>
             <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
             <div class="dropdown-menu">
                 <a class="dropdown-item text-dark" href="client_tickets.php?client_id=<?php echo $client_id; ?>">Tickets</a>
@@ -43,7 +43,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Scheduled Tickets">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Scheduled Tickets">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -71,18 +71,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $scheduled_ticket_id = $row['scheduled_ticket_id'];
+                        $scheduled_ticket_id = intval($row['scheduled_ticket_id']);
                         $scheduled_ticket_subject = htmlentities($row['scheduled_ticket_subject']);
                         $scheduled_ticket_priority = htmlentities($row['scheduled_ticket_priority']);
                         $scheduled_ticket_frequency = htmlentities($row['scheduled_ticket_frequency']);
-                        $scheduled_ticket_next_run = $row['scheduled_ticket_next_run'];
+                        $scheduled_ticket_next_run = htmlentities($row['scheduled_ticket_next_run']);
                         ?>
 
                         <tr>
                             <td><a href="#" data-toggle="modal" data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?> </a></td>
-                            <td><a> <?php echo $scheduled_ticket_priority ?></a></td>
-                            <td><a> <?php echo $scheduled_ticket_frequency ?></a></td>
-                            <td><a> <?php echo $scheduled_ticket_next_run ?></a></td>
+                            <td><a><?php echo $scheduled_ticket_priority ?></a></td>
+                            <td><a><?php echo $scheduled_ticket_frequency ?></a></td>
+                            <td><a><?php echo $scheduled_ticket_next_run ?></a></td>
 
                             <td>
                                 <div class="dropdown dropleft text-center">
@@ -91,11 +91,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item" href="#" data-toggle="modal"
-                                           data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)">Edit</a>
+                                           data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
                                         <?php
                                         if ($session_user_role == 3) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?delete_scheduled_ticket=<?php echo $scheduled_ticket_id; ?>">Delete</a>
+                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_scheduled_ticket=<?php echo $scheduled_ticket_id; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
                                     </div>
                                     <?php } ?>
                                 </div>

@@ -17,9 +17,9 @@ $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-users"></i> Income By Client</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-users mr-2"></i>Income By Client</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
+            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
         </div>
     </div>
     <div class="card-body">
@@ -28,7 +28,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $
                 <?php
 
                 while ($row = mysqli_fetch_array($sql_payment_years)) {
-                    $payment_year = $row['payment_year'];
+                    $payment_year = intval($row['payment_year']);
                     ?>
                     <option <?php if ($year == $payment_year) { ?> selected <?php } ?> > <?php echo $payment_year; ?></option>
 
@@ -48,7 +48,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $
                 <tbody>
                 <?php
                 while ($row = mysqli_fetch_array($sql_clients)) {
-                    $client_id = $row['client_id'];
+                    $client_id = intval($row['client_id']);
                     $client_name = htmlentities($row['client_name']);
 
                     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND invoice_client_id = $client_id");

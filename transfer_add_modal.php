@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-exchange-alt"></i> Transfering Funds</h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-exchange-alt mr-2"></i>Transfering Funds</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -46,21 +46,21 @@
 
                                 $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL AND company_id = $session_company_id ORDER BY account_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
-                                    $account_id = $row['account_id'];
+                                    $account_id = intval($row['account_id']);
                                     $account_name = htmlentities($row['account_name']);
                                     $opening_balance = floatval($row['opening_balance']);
 
                                     $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                                     $row = mysqli_fetch_array($sql_payments);
-                                    $total_payments = $row['total_payments'];
+                                    $total_payments = floatval($row['total_payments']);
 
                                     $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
                                     $row = mysqli_fetch_array($sql_revenues);
-                                    $total_revenues = $row['total_revenues'];
+                                    $total_revenues = floatval($row['total_revenues']);
 
                                     $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
                                     $row = mysqli_fetch_array($sql_expenses);
-                                    $total_expenses = $row['total_expenses'];
+                                    $total_expenses = floatval($row['total_expenses']);
 
                                     $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
@@ -84,21 +84,21 @@
 
                                 $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL AND company_id = $session_company_id ORDER BY account_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
-                                    $account_id = $row['account_id'];
+                                    $account_id = intval($row['account_id']);
                                     $account_name = htmlentities($row['account_name']);
                                     $opening_balance = floatval($row['opening_balance']);
 
                                     $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                                     $row = mysqli_fetch_array($sql_payments);
-                                    $total_payments = $row['total_payments'];
+                                    $total_payments = floatval($row['total_payments']);
 
                                     $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
                                     $row = mysqli_fetch_array($sql_revenues);
-                                    $total_revenues = $row['total_revenues'];
+                                    $total_revenues = floatval($row['total_revenues']);
 
                                     $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
                                     $row = mysqli_fetch_array($sql_expenses);
-                                    $total_expenses = $row['total_expenses'];
+                                    $total_expenses = floatval($row['total_expenses']);
 
                                     $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
@@ -117,8 +117,8 @@
                 </div>
 
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_transfer" class="btn btn-primary text-bold"><i class="fa fa-fw fa-check"></i> Transfer</button>
+                    <button type="submit" name="add_transfer" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Transfer</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

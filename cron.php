@@ -16,7 +16,7 @@ while ($row = mysqli_fetch_array($sql_companies)) {
     $company_country = $row['company_country'];
     $company_locale = $row['company_locale'];
     $company_currency = $row['company_currency'];
-    $config_enable_cron = $row['config_enable_cron'];
+    $config_enable_cron = intval($row['config_enable_cron']);
     $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
     $config_invoice_prefix = $row['config_invoice_prefix'];
     $config_invoice_from_email = $row['config_invoice_from_email'];
@@ -24,25 +24,25 @@ while ($row = mysqli_fetch_array($sql_companies)) {
     $config_smtp_host = $row['config_smtp_host'];
     $config_smtp_username = $row['config_smtp_username'];
     $config_smtp_password = $row['config_smtp_password'];
-    $config_smtp_port = $row['config_smtp_port'];
+    $config_smtp_port =intval($row['config_smtp_port']);
     $config_smtp_encryption = $row['config_smtp_encryption'];
     $config_mail_from_email = $row['config_mail_from_email'];
     $config_mail_from_name = $row['config_mail_from_name'];
-    $config_recurring_auto_send_invoice = $row['config_recurring_auto_send_invoice'];
+    $config_recurring_auto_send_invoice = intval($row['config_recurring_auto_send_invoice']);
 
     // Tickets
     $config_ticket_prefix = $row['config_ticket_prefix'];
-    $config_ticket_next_number = $row['config_ticket_next_number'];
+    $config_ticket_next_number = intval($row['config_ticket_next_number']);
     $config_ticket_from_name = $row['config_ticket_from_name'];
     $config_ticket_from_email = $row['config_ticket_from_email'];
 
     //Get Config for Telemetry
     $config_theme = $row['config_theme'];
-    $config_ticket_email_parse = $row['config_ticket_email_parse'];
-    $config_module_enable_itdoc = $row['config_module_enable_itdoc'];
-    $config_module_enable_ticketing = $row['config_module_enable_ticketing'];
+    $config_ticket_email_parse = intval($row['config_ticket_email_parse']);
+    $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
+    $config_module_enable_ticketing = intval($row['config_module_enable_ticketing']);
     $config_module_enable_accounting = $row['config_module_enable_accounting'];
-    $config_telemetry = $row['config_telemetry'];
+    $config_telemetry = intval($row['config_telemetry']);
 
     // Set Currency Format
     $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);

@@ -3,7 +3,7 @@
 require_once("inc_all_settings.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "api_key_name";
 }
@@ -25,9 +25,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-key"></i> API Keys</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-key mr-2"></i>API Keys</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addApiKeyModal"><i class="fas fa-fw fa-plus"></i> New Key</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addApiKeyModal"><i class="fas fa-plus mr-2"></i>New Key</button>
             </div>
         </div>
         <div class="card-body">
@@ -56,11 +56,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $api_key_id = $row['api_key_id'];
+                        $api_key_id = intval($row['api_key_id']);
                         $api_key_name = htmlentities($row['api_key_name']);
                         $api_key_secret = htmlentities("************" . substr($row['api_key_secret'], -4));
-                        $api_key_created_at = $row['api_key_created_at'];
-                        $api_key_expire = $row['api_key_expire'];
+                        $api_key_created_at = htmlentities($row['api_key_created_at']);
+                        $api_key_expire = htmlentities($row['api_key_expire']);
                         if ($api_key_expire < date("Y-m-d H:i:s")) {
                             $api_key_expire = $api_key_expire . " (Expired)";
                         }
@@ -73,7 +73,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
                         <tr>
-                            <td><?php echo $api_key_name; ?></td>
+                            <td class="text-bold"><?php echo $api_key_name; ?></td>
                             <td><?php echo $api_key_client; ?></td>
                             <td><?php echo $api_key_secret; ?></td>
                             <td><?php echo $api_key_created_at; ?></td>
@@ -84,7 +84,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item text-danger" href="post.php?delete_api_key=<?php echo $api_key_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">Revoke</a>
+                                        <a class="dropdown-item text-danger" href="post.php?delete_api_key=<?php echo $api_key_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-times mr-2"></i>Revoke
+                                        </a>
                                     </div>
                                 </div>
                             </td>

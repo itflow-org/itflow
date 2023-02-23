@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-cube"></i> New License</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-cube mr-2"></i>New License</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -41,7 +41,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Software name" required autofocus>
+                                    <input type="text" class="form-control" name="name" placeholder="Software name" required>
                                 </div>
                             </div>
 
@@ -139,7 +139,7 @@
                                 $sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
 
                                 while ($row = mysqli_fetch_array($sql)) {
-                                    $asset_id = $row['asset_id'];
+                                    $asset_id = intval($row['asset_id']);
                                     $asset_name = htmlentities($row['asset_name']);
                                     $asset_type = htmlentities($row['asset_type']);
                                     $contact_name = htmlentities($row['contact_name']);
@@ -170,7 +170,7 @@
                                 $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
 
                                 while ($row = mysqli_fetch_array($sql)) {
-                                    $contact_id = $row['contact_id'];
+                                    $contact_id = intval($row['contact_id']);
                                     $contact_name = htmlentities($row['contact_name']);
                                     $contact_email = htmlentities($row['contact_email']);
 
@@ -225,8 +225,8 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_software" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
+                    <button type="submit" name="add_software" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

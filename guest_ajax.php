@@ -22,7 +22,7 @@ if (isset($_GET['stripe_create_pi'])) {
     $jsonStr = file_get_contents('php://input');
     $jsonObj = json_decode($jsonStr, true);
     $invoice_id = intval($jsonObj['invoice_id']);
-    $url_key = mysqli_real_escape_string($mysqli, $jsonObj['url_key']);
+    $url_key = sanitizeInput($jsonObj['url_key']);
 
     // Query invoice details
     $invoice_sql = mysqli_query(
@@ -43,16 +43,16 @@ if (isset($_GET['stripe_create_pi'])) {
     // Invoice exists - get details for payment
     $row = mysqli_fetch_array($invoice_sql);
     $invoice_prefix = htmlentities($row['invoice_prefix']);
-    $invoice_number = htmlentities($row['invoice_number']);
+    $invoice_number = intval($row['invoice_number']);
     $invoice_amount = floatval($row['invoice_amount']);
     $invoice_currency_code = htmlentities($row['invoice_currency_code']);
-    $client_id = $row['client_id'];
+    $client_id = intval($row['client_id']);
     $client_name = htmlentities($row['client_name']);
 
     // Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql_amount_paid);
-    $amount_paid = $row['amount_paid'];
+    $amount_paid = floatval($row['amount_paid']);
     $balance_to_pay = $invoice_amount - $amount_paid;
 
     if (intval($balance_to_pay) == 0) {

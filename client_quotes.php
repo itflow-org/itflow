@@ -3,7 +3,7 @@
 require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "quote_number";
 }
@@ -32,9 +32,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-file"></i> Quotes</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-file mr-2"></i>Quotes</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuoteModal"><i class="fas fa-fw fa-plus"></i> New Quote</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuoteModal"><i class="fas fa-plus mr-2"></i>New Quote</button>
             </div>
         </div>
         <div class="card-body">
@@ -44,7 +44,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Quotes">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Quotes">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -53,7 +53,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-8">
                         <div class="float-right">
-                            <a href="post.php?export_client_quotes_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
+                            <a href="post.php?export_client_quotes_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
                         </div>
                     </div>
 
@@ -77,7 +77,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $quote_id = $row['quote_id'];
+                        $quote_id = intval($row['quote_id']);
                         $quote_prefix = htmlentities($row['quote_prefix']);
                         $quote_number = htmlentities($row['quote_number']);
                         $quote_scope = htmlentities($row['quote_scope']);
@@ -87,11 +87,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $quote_scope_display = $quote_scope;
                         }
                         $quote_status = htmlentities($row['quote_status']);
-                        $quote_date = $row['quote_date'];
+                        $quote_date = htmlentities($row['quote_date']);
                         $quote_amount = floatval($row['quote_amount']);
                         $quote_currency_code = htmlentities($row['quote_currency_code']);
-                        $quote_created_at = $row['quote_created_at'];
-                        $category_id = $row['category_id'];
+                        $quote_created_at = htmlentities($row['quote_created_at']);
+                        $category_id = intval($row['category_id']);
                         $category_name = htmlentities($row['category_name']);
 
                         //Set Badge color based off of quote status
@@ -112,9 +112,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td><a href="quote.php?quote_id=<?php echo $quote_id; ?>"><?php echo "$quote_prefix$quote_number"; ?></a></td>
+                            <td class="text-bold"><a href="quote.php?quote_id=<?php echo $quote_id; ?>"><?php echo "$quote_prefix$quote_number"; ?></a></td>
                             <td><?php echo $quote_scope_display; ?></td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
+                            <td class="text-right text-bold"><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
                             <td><?php echo $quote_date; ?></td>
                             <td><?php echo $category_name; ?></td>
                             <td>

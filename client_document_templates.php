@@ -4,7 +4,7 @@
 
 // Sort by
 if (!empty($_GET['sb'])) {
-  $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+  $sb = sanitizeInput($_GET['sb']);
 } else {
   $sb = "document_name";
 }
@@ -34,23 +34,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
   <div class="card-header py-2">
-    <h3 class="card-title mt-2"><i class="fa fa-fw fa-file"></i> Document Templates</h3>
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-file mr-2"></i>Document Templates</h3>
     <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
     <div class="dropdown-menu">
       <a class="dropdown-item text-dark" href="client_documents.php?client_id=<?php echo $client_id; ?>">Documents</a>
     </div>
     <div class="card-tools">
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDocumentTemplateModal">
-        <i class="fas fa-fw fa-plus"></i> New Template
+        <i class="fas fa-plus mr-2"></i>New Template
       </button>
     </div>
   </div>
   <div class="card-body">
 
     <form autocomplete="off">
-      <input type="hidden" name="client_id" value="<?php echo intval($client_id); ?>">
+      <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
       <div class="input-group">
-        <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search templates">
+        <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search templates">
         <div class="input-group-append">
           <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
         </div>
@@ -80,12 +80,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
           <?php
 
           while ($row = mysqli_fetch_array($sql)) {
-            $document_id = $row['document_id'];
+            $document_id = intval($row['document_id']);
             $document_name = htmlentities($row['document_name']);
-            $document_content = $row['document_content'];
-            $document_created_at = $row['document_created_at'];
-            $document_updated_at = $row['document_updated_at'];
-            $document_folder_id = $row['document_folder_id'];
+            $document_content = htmlentities($row['document_content']);
+            $document_created_at = htmlentities($row['document_created_at']);
+            $document_updated_at = htmlentities($row['document_updated_at']);
+            $document_folder_id = intval($row['document_folder_id']);
 
           ?>
 
@@ -101,10 +101,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                   <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editDocumentTemplateModal<?php echo $document_id; ?>">Edit</a>
+                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editDocumentTemplateModal<?php echo $document_id; ?>">
+                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                  </a>
                   <?php if ($session_user_role == 3) { ?>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item text-danger" href="post.php?delete_document=<?php echo $document_id; ?>">Delete</a>
+                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_document=<?php echo $document_id; ?>">
+                      <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                    </a>
                   <?php } ?>
                 </div>
               </div>

@@ -21,21 +21,21 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
-$ip = strip_tags(mysqli_real_escape_string($mysqli, getIP()));
-$user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
+$ip = sanitizeInput(getIP());
+$user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
-$sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id FROM settings WHERE company_id = '1'");
+$sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id FROM settings WHERE company_id = 1");
 $settings = mysqli_fetch_array($sql_settings);
 $azure_client_id = $settings['config_azure_client_id'];
 
-$company_sql = mysqli_query($mysqli, "SELECT company_name, company_logo FROM companies WHERE company_id = '1'");
+$company_sql = mysqli_query($mysqli, "SELECT company_name, company_logo FROM companies WHERE company_id = 1");
 $company_results = mysqli_fetch_array($company_sql);
 $company_name = $company_results['company_name'];
 $company_logo = $company_results['company_logo'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
-    $email = strip_tags(mysqli_real_escape_string($mysqli, $_POST['email']));
+    $email = sanitizeInput($_POST['email']);
     $password = $_POST['password'];
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -47,22 +47,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             if (password_verify($password, $row['contact_password_hash'])) {
 
                 $_SESSION['client_logged_in'] = true;
-                $_SESSION['client_id'] = $row['contact_client_id'];
-                $_SESSION['contact_id'] = $row['contact_id'];
-                $_SESSION['company_id'] = $row['company_id'];
+                $_SESSION['client_id'] = intval($row['contact_client_id']);
+                $_SESSION['contact_id'] = intval($row['contact_id']);
+                $_SESSION['company_id'] = intval($row['company_id']);
                 $_SESSION['login_method'] = "local";
 
                 header("Location: index.php");
 
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $row[contact_email] successfully logged in locally', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $row[contact_client_id]");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $row[contact_email] successfully logged in locally', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $row[contact_client_id]");
 
             } else {
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent'");
                 $_SESSION['login_message'] = 'Incorrect username or password.';
             }
 
         } else {
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent'");
             $_SESSION['login_message'] = 'Incorrect username or password.';
         }
     }

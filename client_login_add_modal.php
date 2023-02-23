@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-key"></i> New Login</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i>New Login</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -109,7 +109,7 @@
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
-                                            $contact_id = $row['contact_id'];
+                                            $contact_id = intval($row['contact_id']);
                                             $contact_name = htmlentities($row['contact_name']);
                                             ?>
                                             <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?></option>
@@ -133,7 +133,7 @@
 
                                         $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
                                         while ($row = mysqli_fetch_array($sql_vendors)) {
-                                            $vendor_id = $row['vendor_id'];
+                                            $vendor_id = intval($row['vendor_id']);
                                             $vendor_name = htmlentities($row['vendor_name']);
                                             ?>
                                             <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
@@ -157,7 +157,7 @@
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
-                                            $asset_id = $row['asset_id'];
+                                            $asset_id = intval($row['asset_id']);
                                             $asset_name = htmlentities($row['asset_name']);
                                             ?>
                                             <option value="<?php echo $asset_id; ?>"><?php echo $asset_name; ?></option>
@@ -181,7 +181,7 @@
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
-                                            $software_id = $row['software_id'];
+                                            $software_id = intval($row['software_id']);
                                             $software_name = htmlentities($row['software_name']);
                                             ?>
                                             <option value="<?php echo $software_id; ?>"><?php echo $software_name; ?></option>
@@ -206,8 +206,8 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_login" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
+                    <button type="submit" name="add_login" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

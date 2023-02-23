@@ -17,9 +17,9 @@ $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE company_id = $
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-building"></i> Expense By Vendor</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-building mr-2"></i>Expense By Vendor</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
+            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
         </div>
     </div>
     <div class="card-body">
@@ -28,7 +28,7 @@ $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE company_id = $
                 <?php
 
                 while ($row = mysqli_fetch_array($sql_payment_years)) {
-                    $payment_year = $row['payment_year'];
+                    $payment_year = intval($row['payment_year']);
                     ?>
                     <option <?php if ($year == $payment_year) { ?> selected <?php } ?> > <?php echo $payment_year; ?></option>
 
@@ -50,7 +50,7 @@ $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE company_id = $
                 <tbody>
                 <?php
                 while ($row = mysqli_fetch_array($sql_vendors)) {
-                    $vendor_id = $row['vendor_id'];
+                    $vendor_id = intval($row['vendor_id']);
                     $vendor_name = htmlentities($row['vendor_name']);
 
                     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS amount_paid FROM expenses WHERE YEAR(expense_date) = $year AND expense_vendor_id = $vendor_id");

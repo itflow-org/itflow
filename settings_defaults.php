@@ -4,7 +4,7 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-cog"></i> Defaults</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-cog mr-2"></i>Defaults</h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
@@ -21,7 +21,7 @@ require_once("inc_all_settings.php"); ?>
 
                             $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
-                                $account_id = $row['account_id'];
+                                $account_id = intval($row['account_id']);
                                 $account_name = htmlentities($row['account_name']); ?>
                                 <option <?php if ($config_default_transfer_from_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
                             <?php } ?>
@@ -42,7 +42,7 @@ require_once("inc_all_settings.php"); ?>
 
                             $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
-                                $account_id = $row['account_id'];
+                                $account_id = intval($row['account_id']);
                                 $account_name = htmlentities($row['account_name']); ?>
                                 <option <?php if ($config_default_transfer_to_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
                             <?php } ?>
@@ -63,7 +63,7 @@ require_once("inc_all_settings.php"); ?>
 
                             $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
-                                $account_id = $row['account_id'];
+                                $account_id = intval($row['account_id']);
                                 $account_name = htmlentities($row['account_name']); ?>
                                 <option <?php if ($config_default_payment_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
                             <?php } ?>
@@ -84,7 +84,7 @@ require_once("inc_all_settings.php"); ?>
 
                             $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
-                                $account_id = $row['account_id'];
+                                $account_id = intval($row['account_id']);
                                 $account_name = htmlentities($row['account_name']); ?>
                                 <option <?php if ($config_default_expense_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
                             <?php } ?>
@@ -145,7 +145,7 @@ require_once("inc_all_settings.php"); ?>
 
                             $sql = mysqli_query($mysqli, "SELECT * FROM calendars WHERE company_id = $session_company_id ORDER BY calendar_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
-                                $calendar_id = $row['calendar_id'];
+                                $calendar_id = intval($row['calendar_id']);
                                 $calendar_name = htmlentities($row['calendar_name']); ?>
                                 <option <?php if ($config_default_calendar == $calendar_id) { echo "selected"; } ?> value="<?php echo $calendar_id; ?>"><?php echo $calendar_name; ?></option>
                             <?php } ?>

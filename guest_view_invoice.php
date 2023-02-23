@@ -8,7 +8,7 @@ if (!isset($_GET['invoice_id'], $_GET['url_key'])) {
     exit();
 }
 
-$url_key = mysqli_real_escape_string($mysqli, $_GET['url_key']);
+$url_key = sanitizeInput($_GET['url_key']);
 $invoice_id = intval($_GET['invoice_id']);
 
 $sql = mysqli_query(
@@ -31,17 +31,17 @@ if (mysqli_num_rows($sql) !== 1) {
 }
 
 $row = mysqli_fetch_array($sql);
-$invoice_id = $row['invoice_id'];
+$invoice_id = intval($row['invoice_id']);
 $invoice_prefix = htmlentities($row['invoice_prefix']);
-$invoice_number = htmlentities($row['invoice_number']);
+$invoice_number = intval($row['invoice_number']);
 $invoice_status = htmlentities($row['invoice_status']);
-$invoice_date = $row['invoice_date'];
-$invoice_due = $row['invoice_due'];
+$invoice_date = htmlentities($row['invoice_date']);
+$invoice_due = htmlentities($row['invoice_due']);
 $invoice_amount = floatval($row['invoice_amount']);
 $invoice_currency_code = htmlentities($row['invoice_currency_code']);
 $invoice_note = htmlentities($row['invoice_note']);
-$invoice_category_id = $row['invoice_category_id'];
-$client_id = $row['client_id'];
+$invoice_category_id = intval($row['invoice_category_id']);
+$client_id = intval($row['client_id']);
 $client_name = htmlentities($row['client_name']);
 $location_address = htmlentities($row['location_address']);
 $location_city = htmlentities($row['location_city']);
@@ -53,11 +53,11 @@ $contact_extension = htmlentities($row['contact_extension']);
 $contact_mobile = formatPhoneNumber($row['contact_mobile']);
 $client_website = htmlentities($row['client_website']);
 $client_currency_code = htmlentities($row['client_currency_code']);
-$client_net_terms = htmlentities($row['client_net_terms']);
+$client_net_terms = intval(($row['client_net_terms']);
 if ($client_net_terms == 0) {
     $client_net_terms = intval($row['config_default_net_terms']);
 }
-$company_id = $row['company_id'];
+$company_id = intval($row['company_id']);
 $company_name = htmlentities($row['company_name']);
 $company_address = htmlentities($row['company_address']);
 $company_city = htmlentities($row['company_city']);
@@ -72,7 +72,7 @@ if (!empty($company_logo)) {
 }
 $company_locale = htmlentities($row['company_locale']);
 $config_invoice_footer = htmlentities($row['config_invoice_footer']);
-$config_stripe_enable = $row['config_stripe_enable'];
+$config_stripe_enable = intval($row['config_stripe_enable']);
 $config_stripe_publishable = $row['config_stripe_publishable'];
 $config_stripe_secret = $row['config_stripe_secret'];
 
@@ -90,18 +90,18 @@ if ($invoice_status == 'Sent') {
 }
 
 //Mark viewed in history
-mysqli_query($mysqli, "INSERT INTO history SET history_status = '$invoice_status', history_description = 'Invoice viewed - $ip - $os - $browser', history_created_at = NOW(), history_invoice_id = $invoice_id, company_id = $company_id");
+mysqli_query($mysqli, "INSERT INTO history SET history_status = '$invoice_status', history_description = 'Invoice viewed - $ip - $os - $browser', history_invoice_id = $invoice_id, company_id = $company_id");
 
 if ($invoice_status !== 'Paid') {
-    $client_name_escaped = mysqli_real_escape_string($mysqli, $row['client_name']);
-    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Viewed', notification = 'Invoice $invoice_prefix$invoice_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+    $client_name_escaped = sanitizeInput($row['client_name']);
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Viewed', notification = 'Invoice $invoice_prefix$invoice_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_client_id = $client_id, company_id = $company_id");
 }
 $sql_payments = mysqli_query($mysqli, "SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
 //Add up all the payments for the invoice and get the total amount paid to the invoice
 $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
 $row = mysqli_fetch_array($sql_amount_paid);
-$amount_paid = $row['amount_paid'];
+$amount_paid = floatval($row['amount_paid']);
 
 $balance = $invoice_amount - $amount_paid;
 
@@ -122,12 +122,12 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
     <div class="card">
         <div class="card-header bg-light d-print-none">
             <div class="float-right">
-                <a class="btn btn-secondary" data-toggle="collapse" href="#collapsePreviousInvoices"><i class="fa fa-fw fa-history"></i> Invoice History</a>
-                <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fa fa-fw fa-print"></i> Print</a>
-                <a class="btn btn-primary" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$invoice_date-$company_name-Invoice-$invoice_prefix$invoice_number.pdf"; ?>');"><i class="fa fa-fw fa-download"></i> Download</a>
+                <a class="btn btn-secondary" data-toggle="collapse" href="#collapsePreviousInvoices"><i class="fas fa-fw fa-history mr-2"></i>Invoice History</a>
+                <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</a>
+                <a class="btn btn-primary" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$invoice_date-$company_name-Invoice-$invoice_prefix$invoice_number.pdf"; ?>');"><i class="fa fa-fw fa-download mr-2"></i>Download</a>
                 <?php
                 if ($invoice_status !== "Paid" && $invoice_status  !== "Cancelled" && $invoice_status !== "Draft" && $config_stripe_enable == 1) { ?>
-                    <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card"></i> Pay Online</a>
+                    <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Online</a>
                 <?php } ?>
             </div>
         </div>
@@ -206,11 +206,11 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                                 <tbody>
                                 <?php
 
-                                $total_tax = 0;
-                                $sub_total = 0;
+                                $total_tax = 0.00;
+                                $sub_total = 0.00;
 
                                 while ($row = mysqli_fetch_array($sql_invoice_items)) {
-                                    $item_id = $row['item_id'];
+                                    $item_id = intval($row['item_id']);
                                     $item_name = htmlentities($row['item_name']);
                                     $item_description = htmlentities($row['item_description']);
                                     $item_quantity = floatval($row['item_quantity']);
@@ -372,7 +372,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                                     style: 'invoiceDateTitle'
                                 },
                                 {
-                                    text: <?php echo json_encode($invoice_date) ?>,
+                                    text: <?php echo json_encode(html_entity_decode($invoice_date)) ?>,
                                     style: 'invoiceDateValue'
                                 },
                             ],
@@ -383,7 +383,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                                     style: 'invoiceDateTitle'
                                 },
                                 {
-                                    text: <?php echo json_encode($invoice_due) ?>,
+                                    text: <?php echo json_encode(html_entity_decode($invoice_due)) ?>,
                                     style: 'invoiceDateValue'
                                 },
                             ],
@@ -716,7 +716,7 @@ if (mysqli_num_rows($sql) > 1) { ?>
 
     <div class="card d-print-none card-danger">
         <div class="card-header">
-            <strong><i class="fa fa-fw fa-exclamation-triangle"></i> Previous Unpaid Invoices</strong>
+            <strong><i class="fa fa-fw fa-exclamation-triangle mr-2"></i>Previous Unpaid Invoices</strong>
         </div>
         <div card="card-body">
             <table class="table">
@@ -732,11 +732,11 @@ if (mysqli_num_rows($sql) > 1) { ?>
                 <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
-                    $invoice_id = $row['invoice_id'];
+                    $invoice_id = intval($row['invoice_id']);
                     $invoice_prefix = htmlentities($row['invoice_prefix']);
-                    $invoice_number = htmlentities($row['invoice_number']);
-                    $invoice_date = $row['invoice_date'];
-                    $invoice_due = $row['invoice_due'];
+                    $invoice_number = intval($row['invoice_number']);
+                    $invoice_date = htmlentities($row['invoice_date']);
+                    $invoice_due = htmlentities($row['invoice_due']);
                     $invoice_amount = floatval($row['invoice_amount']);
                     $invoice_currency_code = htmlentities($row['invoice_currency_code']);
                     $invoice_url_key = htmlentities($row['invoice_url_key']);
@@ -774,7 +774,7 @@ if (mysqli_num_rows($sql) > 1) { ?>
 
     <div class="card d-print-none card-light">
         <div class="card-header">
-            <strong><i class="fa fa-fw fa-clock"></i> Current Invoices</strong>
+            <strong><i class="fas fa-fw fa-clock mr-2"></i>Current Invoices</strong>
         </div>
         <div card="card-body">
             <table class="table">
@@ -790,11 +790,11 @@ if (mysqli_num_rows($sql) > 1) { ?>
                 <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
-                    $invoice_id = $row['invoice_id'];
+                    $invoice_id = intval($row['invoice_id']);
                     $invoice_prefix = htmlentities($row['invoice_prefix']);
-                    $invoice_number = htmlentities($row['invoice_number']);
-                    $invoice_date = $row['invoice_date'];
-                    $invoice_due = $row['invoice_due'];
+                    $invoice_number = intval($row['invoice_number']);
+                    $invoice_date = htmlentities($row['invoice_date']);
+                    $invoice_due = htmlentities($row['invoice_due']);
                     $invoice_amount = floatval($row['invoice_amount']);
                     $invoice_currency_code = htmlentities($row['invoice_currency_code']);
                     $invoice_url_key = htmlentities($row['invoice_url_key']);
@@ -832,7 +832,7 @@ if (mysqli_num_rows($sql) > 1) { ?>
 
     <div class="card d-print-none collapse" id="collapsePreviousInvoices">
         <div class="card-header bg-dark">
-            <strong><i class="fa fa-fw fa-history"></i> Previous Invoices Paid</strong>
+            <strong><i class="fas fa-fw fa-history mr-2"></i>Previous Invoices Paid</strong>
         </div>
         <div card="card-body">
             <table class="table">
@@ -848,11 +848,11 @@ if (mysqli_num_rows($sql) > 1) { ?>
                 <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
-                    $invoice_id = $row['invoice_id'];
+                    $invoice_id = intval($row['invoice_id']);
                     $invoice_prefix = htmlentities($row['invoice_prefix']);
-                    $invoice_number = htmlentities($row['invoice_number']);
-                    $invoice_date = $row['invoice_date'];
-                    $invoice_due = $row['invoice_due'];
+                    $invoice_number = intval($row['invoice_number']);
+                    $invoice_date = htmlentities($row['invoice_date']);
+                    $invoice_due = htmlentities($row['invoice_due']);
                     $invoice_amount = floatval($row['invoice_amount']);
                     $invoice_currency_code = htmlentities($row['invoice_currency_code']);
                     $invoice_url_key = htmlentities($row['invoice_url_key']);
@@ -876,8 +876,8 @@ if (mysqli_num_rows($sql) > 1) { ?>
                     $sql_payments = mysqli_query($mysqli, "SELECT * FROM payments WHERE payment_invoice_id = $invoice_id ORDER BY payment_date DESC");
 
                     while ($row = mysqli_fetch_array($sql_payments)) {
-                        $payment_id = $row['payment_id'];
-                        $payment_date = $row['payment_date'];
+                        $payment_id = intval($row['payment_id']);
+                        $payment_date = htmlentities($row['payment_date']);
                         $payment_amount = floatval($row['payment_amount']);
                         $payment_currency_code = htmlentities($row['payment_currency_code']);
                         $payment_method = htmlentities($row['payment_method']);

@@ -3,7 +3,7 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-broadcast-tower"></i> Telemetry</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-broadcast-tower mr-2"></i>Telemetry</h3>
         </div>
         <div class="card-body">
 
@@ -33,9 +33,9 @@ require_once("inc_all_settings.php"); ?>
                 <hr>
 
                 <?php if ($config_telemetry > 0) { ?>
-                    <button type="submit" name="send_telemetry_data" class="btn btn-success"><i class="fa fa-fw fa-paper-plane"></i> Send Telemetry Data</button>
+                    <button type="submit" name="send_telemetry_data" class="btn btn-success"><i class="fas fa-fw fa-paper-plane mr-2"></i>Send Telemetry Data</button>
                 <?php } ?>
-                <button type="submit" name="edit_telemetry_settings" class="btn btn-primary text-bold float-right"><i class="fa fa-check"></i> Save</button>
+                <button type="submit" name="edit_telemetry_settings" class="btn btn-primary text-bold float-right"><i class="fas fa-check mr-2"></i>Save</button>
 
             </form>
         </div>

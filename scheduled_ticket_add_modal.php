@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-sync"></i> New Scheduled Ticket</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-sync mr-2"></i>New Scheduled Ticket</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -23,10 +23,10 @@
 
                                     $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
-                                        $contact_id = $row['contact_id'];
+                                        $contact_id = intval($row['contact_id']);
                                         $contact_name = htmlentities($row['contact_name']);
                                         ?>
-                                        <option value="<?php echo $contact_id; ?>" <?php if ($primary_contact == $contact_id) { echo "selected"; } ?>><?php echo "$contact_name"; ?></option>
+                                        <option value="<?php echo $contact_id; ?>" <?php if ($primary_contact == $contact_id) { echo "selected"; } ?>><?php echo $contact_name; ?></option>
 
                                         <?php
                                     }
@@ -47,10 +47,10 @@
 
                                     $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
-                                        $client_id = $row['client_id'];
+                                        $client_id = intval($row['client_id']);
                                         $client_name = htmlentities($row['client_name']);
                                         ?>
-                                        <option value="<?php echo $client_id; ?>"><?php echo "$client_name"; ?></option>
+                                        <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
 
                                         <?php
                                     }
@@ -122,7 +122,7 @@
 
                                 $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
                                 while ($row = mysqli_fetch_array($sql_assets)) {
-                                    $asset_id_select = $row['asset_id'];
+                                    $asset_id_select = intval($row['asset_id']);
                                     $asset_name_select = htmlentities($row['asset_name']);
                                     ?>
                                     <option value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
@@ -140,8 +140,8 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_scheduled_ticket" class="btn btn-primary">Save</button>
+                    <button type="submit" name="add_scheduled_ticket" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

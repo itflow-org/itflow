@@ -24,7 +24,7 @@ if (isset($_GET['quote_id'])) {
     $row = mysqli_fetch_array($sql);
     $quote_id = intval($row['quote_id']);
     $quote_prefix = htmlentities($row['quote_prefix']);
-    $quote_number = htmlentities($row['quote_number']);
+    $quote_number = intval($row['quote_number']);
     $quote_scope = htmlentities($row['quote_scope']);
     $quote_status = htmlentities($row['quote_status']);
     $quote_date = htmlentities($row['quote_date']);
@@ -278,9 +278,13 @@ if (isset($_GET['quote_id'])) {
                                                         <i class="fas fa-ellipsis-v"></i>
                                                     </button>
                                                     <div class="dropdown-menu">
-                                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit mr-2"></i>Edit</a>
+                                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>">
+                                                            <i class="fa fa-fw fa-edit mr-2"></i>Edit
+                                                        </a>
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger" href="post.php?delete_quote_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-times mr-2"></i>Remove</a>
+                                                        <a class="dropdown-item text-danger" href="post.php?delete_quote_item=<?php echo $item_id; ?>">
+                                                            <i class="fa fa-fw fa-times mr-2"></i>Remove
+                                                        </a>
                                                     </div>
                                                 </div>  
                                             <?php } ?>
@@ -558,7 +562,7 @@ require_once("footer.php");
                                 style: 'invoiceDateTitle'
                             },
                             {
-                                text: <?php echo json_encode($quote_date) ?>,
+                                text: <?php echo json_encode(html_entity_decode($quote_date)) ?>,
                                 style: 'invoiceDateValue'
                             },
                         ],

@@ -60,7 +60,7 @@ $sql_domains_expiring = mysqli_query(
                         <?php
 
                         while ($row = mysqli_fetch_array($sql_important_contacts)) {
-                            $contact_id = $row['contact_id'];
+                            $contact_id = intval($row['contact_id']);
                             $contact_name = htmlentities($row['contact_name']);
                             $contact_title = htmlentities($row['contact_title']);
                             $contact_email = htmlentities($row['contact_email']);
@@ -108,9 +108,9 @@ $sql_domains_expiring = mysqli_query(
                     <?php
 
                     while ($row = mysqli_fetch_array($sql_contacts)) {
-                        $contact_id = $row['contact_id'];
+                        $contact_id = intval($row['contact_id']);
                         $contact_name = htmlentities($row['contact_name']);
-                        $contact_updated_at = $row['contact_updated_at'];
+                        $contact_updated_at = htmlentities($row['contact_updated_at']);
 
                         ?>
                         <p class="mb-1">
@@ -124,9 +124,9 @@ $sql_domains_expiring = mysqli_query(
                     <?php
 
                     while ($row = mysqli_fetch_array($sql_vendors)) {
-                        $vendor_id = $row['vendor_id'];
+                        $vendor_id = intval($row['vendor_id']);
                         $vendor_name = htmlentities($row['vendor_name']);
-                        $vendor_updated_at = $row['vendor_updated_at'];
+                        $vendor_updated_at = htmlentities($row['vendor_updated_at']);
 
                         ?>
                         <p class="mb-1">
@@ -159,9 +159,9 @@ $sql_domains_expiring = mysqli_query(
                     <?php
 
                     while ($row = mysqli_fetch_array($sql_domains_expiring)) {
-                        $domain_id = $row['domain_id'];
+                        $domain_id = intval($row['domain_id']);
                         $domain_name = htmlentities($row['domain_name']);
-                        $domain_expire = $row['domain_expire'];
+                        $domain_expire = htmlentities($row['domain_expire']);
 
                         ?>
                         <p class="mb-1">
@@ -176,9 +176,9 @@ $sql_domains_expiring = mysqli_query(
                     <?php
 
                     while ($row = mysqli_fetch_array($sql_asset_warranties_expiring)) {
-                        $asset_id = $row['asset_id'];
+                        $asset_id = intval($row['asset_id']);
                         $asset_name = htmlentities($row['asset_name']);
-                        $asset_warranty_expire = $row['asset_warranty_expire'];
+                        $asset_warranty_expire = htmlentities($row['asset_warranty_expire']);
 
                         ?>
                         <p class="mb-1">
@@ -195,9 +195,9 @@ $sql_domains_expiring = mysqli_query(
                     <?php
 
                     while ($row = mysqli_fetch_array($sql_asset_retire)) {
-                        $asset_id = $row['asset_id'];
+                        $asset_id = intval($row['asset_id']);
                         $asset_name = htmlentities($row['asset_name']);
-                        $asset_install_date = $row['asset_install_date'];
+                        $asset_install_date = htmlentities($row['asset_install_date']);
 
                         ?>
                         <p class="mb-1">
@@ -224,7 +224,7 @@ $sql_domains_expiring = mysqli_query(
 
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fa fa-life-ring"></i> Stale Tickets <small>(14d)</small></h5>
+                    <h5 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Stale Tickets <small>(14d)</small></h5>
                 </div>
                 <div class="card-body">
 
@@ -233,11 +233,11 @@ $sql_domains_expiring = mysqli_query(
                         <?php
 
                         while ($row = mysqli_fetch_array($sql_tickets_stale)) {
-                            $ticket_id = $row['ticket_id'];
+                            $ticket_id = intval($row['ticket_id']);
                             $ticket_prefix = htmlentities($row['ticket_prefix']);
-                            $ticket_number = $row['ticket_number'];
+                            $ticket_number = intval($row['ticket_number']);
                             $ticket_subject = htmlentities($row['ticket_subject']);
-                            $ticket_created_at = $row['ticket_created_at'];
+                            $ticket_created_at = htmlentities($row['ticket_created_at']);
 
                             ?>
                             <tr>

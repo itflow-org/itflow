@@ -2,7 +2,7 @@
 require_once("inc_all_settings.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "tax_name";
 }
@@ -24,9 +24,9 @@ $num_rows = mysqli_num_rows($sql);
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-balance-scale"></i> Taxes</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-balance-scale mr-2"></i>Taxes</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTaxModal"><i class="fas fa-fw fa-plus"></i> New Tax</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTaxModal"><i class="fas fa-plus mr-2"></i>New Tax</button>
             </div>
         </div>
         <div class="card-body">
@@ -43,13 +43,13 @@ $num_rows = mysqli_num_rows($sql);
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $tax_id = $row['tax_id'];
+                        $tax_id = intval($row['tax_id']);
                         $tax_name = htmlentities($row['tax_name']);
-                        $tax_percent = $row['tax_percent'];
+                        $tax_percent = floatval($row['tax_percent']);
 
                         ?>
                         <tr>
-                            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTaxModal<?php echo $tax_id; ?>"><?php echo "$tax_name"; ?></a></td>
+                            <td><a class="text-dark text-bold" href="#" data-toggle="modal" data-target="#editTaxModal<?php echo $tax_id; ?>"><?php echo $tax_name; ?></a></td>
                             <td><?php echo "$tax_percent%"; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
@@ -57,9 +57,13 @@ $num_rows = mysqli_num_rows($sql);
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaxModal<?php echo $tax_id; ?>">Edit</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaxModal<?php echo $tax_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?archive_tax=<?php echo $tax_id; ?>">Archive</a>
+                                        <a class="dropdown-item text-danger" href="post.php?archive_tax=<?php echo $tax_id; ?>">
+                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                        </a>
                                     </div>
                                 </div>
                             </td>

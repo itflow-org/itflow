@@ -24,7 +24,7 @@
 
                         while ($row = mysqli_fetch_array($sql)) {
 
-                            $company_id = $row['company_id'];
+                            $company_id = intval($row['company_id']);
                             $company_name = htmlentities($row['company_name']);
 
                             ?>

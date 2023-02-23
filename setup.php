@@ -846,8 +846,8 @@ if (isset($_POST['add_user'])) {
         exit;
     }
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['name'])));
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['email'])));
+    $name = sanitizeInput($_POST['name']);
+    $email = sanitizeInput($_POST['email']);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
     //Generate master encryption key
@@ -856,7 +856,7 @@ if (isset($_POST['add_user'])) {
     //Generate user specific key
     $user_specific_encryption_ciphertext = setupFirstUserSpecificKey($_POST['password'], $site_encryption_master_key);
 
-    mysqli_query($mysqli,"INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext', user_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext'");
 
     $user_id = mysqli_insert_id($mysqli);
 
@@ -919,21 +919,21 @@ if (isset($_POST['add_company_settings'])) {
 
     $sql = mysqli_query($mysqli,"SELECT user_id FROM users");
     $row = mysqli_fetch_array($sql);
-    $user_id = $row['user_id'];
+    $user_id = intval($row['user_id']);
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['name'])));
-    $country = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['country'])));
-    $address = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['address'])));
-    $city = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['city'])));
-    $state = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['state'])));
-    $zip = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['zip'])));
+    $name = sanitizeInput($_POST['name']);
+    $country = sanitizeInput($_POST['country']);
+    $address = sanitizeInput($_POST['address']);
+    $city = sanitizeInput($_POST['city']);
+    $state = sanitizeInput($_POST['state']);
+    $zip = sanitizeInput($_POST['zip']);
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['email'])));
-    $website = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['website'])));
-    $locale = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['locale'])));
-    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['currency_code'])));
+    $email = sanitizeInput($_POST['email']);
+    $website = sanitizeInput($_POST['website']);
+    $locale = sanitizeInput($_POST['locale']);
+    $currency_code = sanitizeInput($_POST['currency_code']);
 
-    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code', company_created_at = NOW()");
+    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code'");
 
     $company_id = mysqli_insert_id($mysqli);
 
@@ -992,25 +992,25 @@ if (isset($_POST['add_company_settings'])) {
     mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company_id");
 
     $latest_database_version = LATEST_DATABASE_VERSION;
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_current_database_version = '$latest_database_version',  config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_recurring_auto_send_invoice = 1, config_default_net_terms = 30, config_send_invoice_reminders = 1, config_enable_cron = 0, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-'");
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_current_database_version = '$latest_database_version',  config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-'");
 
     //Create Some Data
 
-    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', opening_balance = 0, account_currency_code = '$currency_code', account_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_currency_code = '$currency_code', company_id = $company_id");
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue', category_created_at = NOW(), company_id = $company_id");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red', category_created_at = NOW(), company_id = $company_id");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Advertising', category_type = 'Expense', category_color = 'green', category_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue', company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red', company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Advertising', category_type = 'Expense', category_color = 'green', company_id = $company_id");
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Service', category_type = 'Income', category_color = 'blue', category_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Service', category_type = 'Income', category_color = 'blue', company_id = $company_id");
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Friend', category_type = 'Referral', category_color = 'blue', category_created_at = NOW(), company_id = $company_id");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Search Engine', category_type = 'Referral', category_color = 'red', category_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Friend', category_type = 'Referral', category_color = 'blue', company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Search Engine', category_type = 'Referral', category_color = 'red', company_id = $company_id");
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'blue', category_created_at = NOW(), company_id = $company_id");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'red', category_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'blue', company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'red', company_id = $company_id");
 
-    mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue', calendar_created_at = NOW(), company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue', company_id = $company_id");
 
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> created!";
@@ -1023,7 +1023,7 @@ if (isset($_POST['add_telemetry'])) {
 
     if (isset($_POST['share_data']) && $_POST['share_data'] == 1) {
 
-        $comments = trim(strip_tags($_POST['comments']));
+        $comments = sanitizeInput($_POST['comments']);
 
         $sql = mysqli_query($mysqli,"SELECT * FROM companies LIMIT 1");
         $row = mysqli_fetch_array($sql);
@@ -1175,7 +1175,7 @@ if (isset($_POST['add_telemetry'])) {
                 if (!empty($_SESSION['alert_message'])) {
                     ?>
                     <div class="alert alert-info" id="alert">
-                        <?php echo $_SESSION['alert_message']; ?>
+                        <?php echo htmlentities($_SESSION['alert_message']); ?>
                         <button class='close' data-dismiss='alert'>&times;</button>
                     </div>
                     <?php
@@ -1187,14 +1187,14 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card mb-3">
                         <div class="card-header">
-                            <h6 class="mt-1"><i class="fa fa-fw fa-checkmark"></i> Setup Checks</h6>
+                            <h6 class="mt-1"><i class="fas fa-fw fa-checkmark mr-2"></i>Setup Checks</h6>
                         </div>
                         <div class="card-body">
                             <ul class="mb-4">
                                 <li>Upload is readable and writeable</li>
                                 <li>PHP 7+ Installed</li>
                             </ul>
-                            <div style="text-align: center;"><a href="?database" class="btn btn-lg btn-primary mb-5">Install</a></div>
+                            <div style="text-align: center;"><a href="?database" class="btn btn-lg btn-primary text-bold mb-5">Install</a></div>
                         </div>
                     </div>
 
@@ -1204,7 +1204,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fa fa-fw fa-database"></i> Connect your Database</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Connect your Database</h3>
                         </div>
                         <div class="card-body">
                             <?php if (file_exists('config.php')) { ?>
@@ -1257,7 +1257,7 @@ if (isset($_POST['add_telemetry'])) {
                                     </div>
 
                                     <hr>
-                                    <button type="submit" name="add_database" class="btn btn-primary">Next <i class="fa fa-fw fa-arrow-circle-right"></i></button>
+                                    <button type="submit" name="add_database" class="btn btn-primary text-bold">Next <i class="fas fa-fw fa-arrow-circle-right"></i></button>
                                 </form>
                             <?php } ?>
                         </div>
@@ -1267,7 +1267,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fa fa-fw fa-user"></i> Create your first user</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-user mr-2"></i>Create your first user</h3>
                         </div>
                         <div class="card-body">
 
@@ -1312,7 +1312,7 @@ if (isset($_POST['add_telemetry'])) {
 
                                 <hr>
 
-                                <button type="submit" name="add_user" class="btn btn-primary">Next <i class="fa fa-fw fa-arrow-circle-right"></i></button>
+                                <button type="submit" name="add_user" class="btn btn-primary text-bold">Next <i class="fa fa-fw fa-arrow-circle-right"></i></button>
                             </form>
                         </div>
                     </div>
@@ -1321,7 +1321,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fa fa-fw fa-building"></i> Company Details</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-building mr-2"></i>Company Details</h3>
                         </div>
                         <div class="card-body">
                             <?php if (mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users")) < 0) { ?>
@@ -1461,7 +1461,7 @@ if (isset($_POST['add_telemetry'])) {
 
                                     <hr>
 
-                                    <button type="submit" name="add_company_settings" class="btn btn-primary">Next <i class="fa fa-fw fa-arrow-circle-right"></i></button>
+                                    <button type="submit" name="add_company_settings" class="btn btn-primary text-bold">Next <i class="fas fa-fw fa-arrow-circle-right"></i></button>
 
                                 </form>
                             <?php } ?>
@@ -1473,7 +1473,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fa fa-fw fa-share-alt"></i> Telemetry</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-broadcast-tower mr-2"></i>Telemetry</h3>
                         </div>
                         <div class="card-body">
                             <form method="post" autocomplete="off">
@@ -1499,7 +1499,7 @@ if (isset($_POST['add_telemetry'])) {
 
                                 <hr>
 
-                                <button type="submit" name="add_telemetry" class="btn btn-primary">Finish and Sign in <i class="fa fa-fw fa-check-circle"></i></button>
+                                <button type="submit" name="add_telemetry" class="btn btn-primary text-bold">Finish and Sign in <i class="fas fa-fw fa-check-circle"></i></button>
 
                             </form>
 
@@ -1510,7 +1510,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fa fa-fw fa-cube"></i> Welcome to ITFlow Setup</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-cube mr-2"></i>ITFlow Setup</h3>
                         </div>
                         <div class="card-body">
                             <p><b>Thank you for choosing to try ITFlow!</b> Feel free to reach out on the <a href="https://forum.itflow.org/t/support" target="_blank">forums</a> if you have any questions.</p>
@@ -1528,7 +1528,7 @@ if (isset($_POST['add_telemetry'])) {
                             ?>
                             <hr>
                             <div style="text-align: center;">
-                                <a href="?database" class="btn btn-primary">Begin Setup <i class="fa fa-fw fa-arrow-alt-circle-right"></i></a>
+                                <a href="?database" class="btn btn-primary text-bold">Begin Setup <i class="fas fa-fw fa-arrow-alt-circle-right"></i></a>
                             </div>
                         </div>
                     </div>

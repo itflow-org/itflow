@@ -14,9 +14,9 @@ $row = mysqli_fetch_array($sql_document);
 $folder_name = htmlentities($row['folder_name']);
 $document_name = htmlentities($row['document_name']);
 $document_content = $row['document_content'];
-$document_created_at = $row['document_created_at'];
-$document_updated_at = $row['document_updated_at'];
-$document_folder_id = $row['document_folder_id'];
+$document_created_at = htmlentities($row['document_created_at']);
+$document_updated_at = htmlentities($row['document_updated_at']);
+$document_folder_id = intval($row['document_folder_id']);
 
 ?>
 
@@ -35,10 +35,10 @@ $document_folder_id = $row['document_folder_id'];
   </li>
   <?php if ($document_folder_id > 0) { ?>
   <li class="breadcrumb-item">
-    <a href="client_documents.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $document_folder_id; ?>"><i class="fas fa-folder-open"></i> <?php echo $folder_name; ?></a>
+    <a href="client_documents.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $document_folder_id; ?>"><i class="fas fa-fw fa-folder-open mr-2"></i><?php echo $folder_name; ?></a>
   </li>
   <?php } ?>
-  <li class="breadcrumb-item active"><i class="fas fa-file"></i> <?php echo "$document_name"; ?></li>
+  <li class="breadcrumb-item active"><i class="fas fa-file"></i> <?php echo $document_name; ?></li>
 </ol>
 
 <div class="row">
@@ -55,16 +55,23 @@ $document_folder_id = $row['document_folder_id'];
 	<div class="col-md-3">
     <div class="card bg-light">
       <div class="card-body">
-        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>"><i class="fas fa-edit"></i> Edit</button>
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#editDocumentModal"><i class="fas fa-copy"></i> Copy</button>
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)"><i class="fas fa-share"></i> Share</button>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">
+          <i class="fas fa-fw fa-edit mr-2"></i>Edit
+        </button>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#editDocumentModal">
+          <i class="fas fa-fw fa-copy mr-2"></i>Copy
+        </button>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#shareModal" 
+          onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">
+          <i class="fas fa-fw fa-share mr-2"></i>Share
+        </button>
         <hr>
-        <h6><i class="fas fa-paperclip"></i> Files</h6>
-        <h6><i class="fas fa-key"></i> Passwords</h6>
-        <h6><i class="fas fa-users"></i> Contacts</h6>
-        <h6><i class="fas fa-laptop"></i> Assets</h6>
-        <h6><i class="fas fa-cube"></i> Software</h6>
-        <h6><i class="fas fa-building"></i> Vendors</h6>
+        <h6><i class="fas fa-fw fa-paperclip mr-2"></i>Files</h6>
+        <h6><i class="fas fa-fw fa-key mr-2"></i>Passwords</h6>
+        <h6><i class="fas fa-fw fa-users mr-2"></i>Contacts</h6>
+        <h6><i class="fas fa-fw fa-laptop mr-2"></i>Assets</h6>
+        <h6><i class="fas fa-fw fa-cube mr-2"></i>Software</h6>
+        <h6><i class="fas fa-fw fa-building mr-2"></i>Vendors</h6>
         
       </div>
     </div>

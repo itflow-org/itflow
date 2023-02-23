@@ -12,7 +12,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-paperclip"></i> Files</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-paperclip mr-2"></i>Files</h3>
             <div class="card-tools">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addFileModal"><i class="fas fa-fw fa-cloud-upload-alt"></i> Upload File</button>
             </div>
@@ -29,7 +29,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
                 <?php
 
                 while ($row = mysqli_fetch_array($sql_files_images)) {
-                    $file_id = $row['file_id'];
+                    $file_id = intval($row['file_id']);
                     $file_name = htmlentities($row['file_name']);
                     $file_reference_name = htmlentities($row['file_reference_name']);
                     $file_ext = htmlentities($row['file_ext']);
@@ -64,7 +64,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
 
                     <?php
                     while ($row = mysqli_fetch_array($sql_files_other)) {
-                        $file_id = $row['file_id'];
+                        $file_id = intval($row['file_id']);
                         $file_name = htmlentities($row['file_name']);
                         $file_reference_name = htmlentities($row['file_reference_name']);
                         $file_ext = htmlentities($row['file_ext']);

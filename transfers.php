@@ -4,7 +4,7 @@ require_once("inc_all.php");
 
 //Column Sortby Filter
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "transfer_date";
 }
@@ -23,8 +23,8 @@ if (empty($_GET['canned_date'])) {
 
 //Date Filter
 if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
-    $dtf = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtf']));
-    $dtt = strip_tags(mysqli_real_escape_string($mysqli, $_GET['dtt']));
+    $dtf = sanitizeInput($_GET['dtf']);
+    $dtt = sanitizeInput($_GET['dtt']);
 } elseif ($_GET['canned_date'] == "today") {
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');
@@ -73,9 +73,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-exchange-alt"></i> Transfers</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-exchange-alt mr-2"></i>Transfers</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTransferModal"><i class="fas fa-fw fa-plus"></i> New Transfer</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTransferModal"><i class="fas fa-plus mr-2"></i>New Transfer</button>
             </div>
         </div>
 
@@ -84,7 +84,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo strip_tags(htmlentities($q));} ?>" placeholder="Search Transfers">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(htmlentities($q));} ?>" placeholder="Search Transfers">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -141,22 +141,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $transfer_id = $row['transfer_id'];
-                        $transfer_date = $row['transfer_date'];
-                        $transfer_account_from = $row['transfer_account_from'];
-                        $transfer_account_to = $row['transfer_account_to'];
+                        $transfer_id = intval($row['transfer_id']);
+                        $transfer_date = htmlentities($row['transfer_date']);
+                        $transfer_account_from = intval($row['transfer_account_from']);
+                        $transfer_account_to = intval($row['transfer_account_to']);
                         $transfer_amount = floatval($row['transfer_amount']);
                         $transfer_notes = htmlentities($row['transfer_notes']);
-                        $transfer_created_at = $row['transfer_created_at'];
-                        $expense_id = $row['transfer_expense_id'];
-                        $revenue_id = $row['transfer_revenue_id'];
+                        $transfer_created_at = htmlentities($row['transfer_created_at']);
+                        $expense_id = intval($row['transfer_expense_id']);
+                        $revenue_id = intval($row['transfer_revenue_id']);
 
-                        $sql2 = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $transfer_account_from");
-                        $row = mysqli_fetch_array($sql2);
+                        $sql_from = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $transfer_account_from");
+                        $row = mysqli_fetch_array($sql_from);
                         $account_name_from = htmlentities($row['account_name']);
 
-                        $sql2 = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $transfer_account_to");
-                        $row = mysqli_fetch_array($sql2);
+                        $sql_to = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $transfer_account_to");
+                        $row = mysqli_fetch_array($sql_to);
                         $account_name_to = htmlentities($row['account_name']);
 
                         ?>
@@ -164,16 +164,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTransferModal<?php echo $transfer_id; ?>"><?php echo $transfer_date; ?></a></td>
                             <td><?php echo $account_name_from; ?></td>
                             <td><?php echo $account_name_to; ?></td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $transfer_amount, $session_company_currency); ?></td>
+                            <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $transfer_amount, $session_company_currency); ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTransferModal<?php echo $transfer_id; ?>">Edit</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTransferModal<?php echo $transfer_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?delete_transfer=<?php echo $transfer_id; ?>">Delete</a>
+                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_transfer=<?php echo $transfer_id; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
                                     </div>
                                 </div>
                             </td>

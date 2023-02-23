@@ -17,9 +17,9 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-coins"></i> Income Summary</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-coins mr-2"></i>Income Summary</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
+            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
         </div>
     </div>
     <div class="card-body p-0">
@@ -28,7 +28,7 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
                 <?php
 
                 while ($row = mysqli_fetch_array($sql_payment_years)) {
-                    $payment_year = $row['payment_year'];
+                    $payment_year = intval($row['payment_year']);
                     ?>
                     <option <?php if ($year == $payment_year) { ?> selected <?php } ?> > <?php echo $payment_year; ?></option>
 
@@ -64,7 +64,7 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
                 <tbody>
                 <?php
                 while ($row = mysqli_fetch_array($sql_categories)) {
-                    $category_id = $row['category_id'];
+                    $category_id = intval($row['category_id']);
                     $category_name = htmlentities($row['category_name']);
 
                     ?>
@@ -80,12 +80,12 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
                             //Payments to Invoices
                             $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_category_id = $category_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
                             $row = mysqli_fetch_array($sql_payments);
-                            $payment_amount_for_month = $row['payment_amount_for_month'];
+                            $payment_amount_for_month = floatval($row['payment_amount_for_month']);
 
                             //Revenues
                             $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
                             $row = mysqli_fetch_array($sql_revenues);
-                            $revenues_amount_for_month = $row['revenue_amount_for_month'];
+                            $revenues_amount_for_month = floatval($row['revenue_amount_for_month']);
 
                             $payment_amount_for_month = $payment_amount_for_month + $revenues_amount_for_month;
                             $total_payment_for_all_months = $payment_amount_for_month + $total_payment_for_all_months;
@@ -116,11 +116,11 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
                     for($month = 1; $month<=12; $month++) {
                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_total_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month AND payments.company_id = $session_company_id");
                         $row = mysqli_fetch_array($sql_payments);
-                        $payment_total_amount_for_month = $row['payment_total_amount_for_month'];
+                        $payment_total_amount_for_month = floatval($row['payment_total_amount_for_month']);
 
                         $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month AND revenues.company_id = $session_company_id");
                         $row = mysqli_fetch_array($sql_revenues);
-                        $revenues_total_amount_for_month = $row['revenue_amount_for_month'];
+                        $revenues_total_amount_for_month = floatval($row['revenue_amount_for_month']);
 
                         $payment_total_amount_for_month = $payment_total_amount_for_month + $revenues_total_amount_for_month;
 
@@ -173,11 +173,11 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
                     for ($month = 1; $month<=12; $month++) {
                     $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month AND payments.company_id = $session_company_id");
                     $row = mysqli_fetch_array($sql_payments);
-                    $payments_for_month = $row['payment_amount_for_month'];
+                    $payments_for_month = floatval($row['payment_amount_for_month']);
 
                     $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month AND company_id = $session_company_id");
                     $row = mysqli_fetch_array($sql_revenues);
-                    $revenues_for_month = $row['revenue_amount_for_month'];
+                    $revenues_for_month = floatval($row['revenue_amount_for_month']);
 
                     $income_for_month = $payments_for_month + $revenues_for_month;
 

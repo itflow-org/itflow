@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-file mr-2"></i>New Invoice</h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-file mr-2"></i>New Invoice</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -37,7 +37,7 @@
 
                                     $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
-                                        $client_id = $row['client_id'];
+                                        $client_id = intval($row['client_id']);
                                         $client_name = htmlentities($row['client_name']);
                                         ?>
                                         <option value="<?php echo $client_id; ?>"><?php echo "$client_name"; ?></option>
@@ -63,7 +63,7 @@
 
                                 $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
-                                    $category_id = $row['category_id'];
+                                    $category_id = intval($row['category_id']);
                                     $category_name = htmlentities($row['category_name']);
                                     ?>
                                     <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>

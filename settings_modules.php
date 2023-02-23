@@ -3,7 +3,7 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-puzzle-piece"></i> Modules</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-puzzle-piece mr-2"></i>Modules</h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
@@ -31,7 +31,7 @@ require_once("inc_all_settings.php"); ?>
 
                 <hr>
 
-                <button type="submit" name="edit_module_settings" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
+                <button type="submit" name="edit_module_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
 
             </form>
         </div>

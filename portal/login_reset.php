@@ -24,10 +24,10 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
-$ip = strip_tags(mysqli_real_escape_string($mysqli, getIP()));
-$user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
+$ip = sanitizeInput(getIP());
+$user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
-$company_sql = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = '1'");
+$company_sql = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1");
 $company_results = mysqli_fetch_array($company_sql);
 $company_name = $company_results['company_name'];
 
@@ -40,21 +40,21 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
      */
     if (isset($_POST['password_reset_email_request'])) {
 
-        $email = strip_tags(mysqli_real_escape_string($mysqli, $_POST['email']));
+        $email = sanitizeInput($_POST['email']);
 
         $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_email, contact_client_id, company_id FROM contacts WHERE contact_email = '$email' AND contact_auth_method = 'local' LIMIT 1");
         $row = mysqli_fetch_assoc($sql);
 
-        $id = $row['contact_id'];
+        $id = intval($row['contact_id']);
         $name = $row['contact_name'];
-        $client = $row['contact_client_id'];
-        $company = $row['company_id'];
+        $client = intval($row['contact_client_id']);
+        $company = intval($row['company_id']);
 
         if ($row['contact_email'] == $email) {
             $token = randomString(156);
             $url = "https://$config_base_url/portal/login_reset.php?email=$email&token=$token&client=$client";
             mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = '$token' WHERE contact_id = $id LIMIT 1");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $client, company_id = $company");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client, company_id = $company");
 
 
             // Send reset email
@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
             // Error handling
             if ($mail !== true) {
-                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', notification_timestamp = NOW(), company_id = $company");
+                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', company_id = $company");
                 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', company_id = $company");
             }
 
@@ -97,16 +97,16 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             $_SESSION['login_message'] = WORDING_ERROR;
         }
 
-        $token = strip_tags(mysqli_real_escape_string($mysqli, $_POST['token']));
-        $email = strip_tags(mysqli_real_escape_string($mysqli, $_POST['email']));
-        $client = intval(strip_tags(mysqli_real_escape_string($mysqli, $_POST['client'])));
+        $token = sanitizeInput($_POST['token']);
+        $email = sanitizeInput($_POST['email']);
+        $client = intval($_POST['client']);
 
         // Query user
         $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' AND contact_password_reset_token = '$token' AND contact_client_id = $client AND contact_auth_method = 'local' LIMIT 1");
         $contact_row = mysqli_fetch_array($sql);
-        $contact_id = $contact_row['contact_id'];
+        $contact_id = intval($contact_row['contact_id']);
         $name = $contact_row['contact_name'];
-        $company = $contact_row['company_id'];
+        $company = intval($contact_row['company_id']);
 
         // Ensure the token is correct
         if (sha1($contact_row['contact_password_reset_token']) == sha1($token)) {
@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             // Set password, invalidate token, logging
             $password = mysqli_real_escape_string($mysqli, password_hash($_POST['new_password'], PASSWORD_DEFAULT));
             mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password', contact_password_reset_token = NULL WHERE contact_id = $contact_id LIMIT 1");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Reset portal password for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $client, company_id = $company");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Reset portal password for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client, company_id = $company");
 
             // Send confirmation email
             $subject = "Password reset confirmation for $company_name ITFlow Portal";
@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
             // Error handling
             if ($mail !== true) {
-                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', notification_timestamp = NOW(), company_id = $company");
+                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', company_id = $company");
                 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', company_id = $company");
             }
 
@@ -192,9 +192,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                  */
                 if (isset($_GET['token']) && isset($_GET['email']) && isset($_GET['client'])) {
 
-                    $token = strip_tags(mysqli_real_escape_string($mysqli, $_GET['token']));
-                    $email = strip_tags(mysqli_real_escape_string($mysqli, $_GET['email']));
-                    $client = intval(strip_tags(mysqli_real_escape_string($mysqli, $_GET['client'])));
+                    $token = sanitizeInput($_GET['token']);
+                    $email = sanitizeInput($_GET['email']);
+                    $client = intval($_GET['client']);
 
                     $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' AND contact_password_reset_token = '$token' AND contact_client_id = $client LIMIT 1");
                     $contact_row = mysqli_fetch_array($sql);
@@ -250,7 +250,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 <?php
                 // Show feedback from session
                 if (!empty($_SESSION['login_message'])) {
-                    echo $_SESSION['login_message'];
+                    echo htmlentities($_SESSION['login_message']);
                     unset($_SESSION['login_message']);
                 }
                 ?>

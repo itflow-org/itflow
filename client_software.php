@@ -2,7 +2,7 @@
 require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "software_name";
 }
@@ -25,11 +25,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube"></i> Licenses</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-cube mr-2"></i>Licenses</h3>
             <div class="card-tools">
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSoftwareModal">
-                        <i class="fas fa-fw fa-plus"></i> New License
+                        <i class="fas fa-plus mr-2"></i>New License
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
@@ -45,7 +45,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Licenses">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Licenses">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -54,7 +54,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-8">
                         <div class="float-right">
-                            <a href="post.php?export_client_software_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
+                            <a href="post.php?export_client_software_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
                         </div>
                     </div>
 
@@ -77,19 +77,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $software_id = $row['software_id'];
+                        $software_id = intval($row['software_id']);
                         $software_name = htmlentities($row['software_name']);
                         $software_version = htmlentities($row['software_version']);
                         $software_type = htmlentities($row['software_type']);
                         $software_license_type = htmlentities($row['software_license_type']);
                         $software_key = htmlentities($row['software_key']);
                         $software_seats = htmlentities($row['software_seats']);
-                        $software_purchase = $row['software_purchase'];
-                        $software_expire = $row['software_expire'];
+                        $software_purchase = htmlentities($row['software_purchase']);
+                        $software_expire = htmlentities($row['software_expire']);
                         $software_notes = htmlentities($row['software_notes']);
 
                         // Get Login
-                        $login_id = $row['login_id'];
+                        $login_id = intval($row['login_id']);
                         $login_username = htmlentities(decryptLoginEntry($row['login_username']));
                         $login_password = htmlentities(decryptLoginEntry($row['login_password']));
 
@@ -99,7 +99,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $asset_licenses_sql = mysqli_query($mysqli, "SELECT asset_id FROM software_assets WHERE software_id = $software_id");
                         $asset_licenses_array = array();
                         while ($row = mysqli_fetch_array($asset_licenses_sql)) {
-                            $asset_licenses_array[] = $row['asset_id'];
+                            $asset_licenses_array[] = intval($row['asset_id']);
                             $seat_count = $seat_count + 1;
                         }
                         $asset_licenses = implode(',', $asset_licenses_array);
@@ -108,7 +108,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $contact_licenses_sql = mysqli_query($mysqli, "SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
                         $contact_licenses_array = array();
                         while ($row = mysqli_fetch_array($contact_licenses_sql)) {
-                            $contact_licenses_array[] = $row['contact_id'];
+                            $contact_licenses_array[] = intval($row['contact_id']);
                             $seat_count = $seat_count + 1;
                         }
                         $contact_licenses = implode(',', $contact_licenses_array);
@@ -168,12 +168,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>">Edit</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?archive_software=<?php echo $software_id; ?>">Archive and<br><small>Remove Licenses</small></a>
+                                        <a class="dropdown-item text-danger" href="post.php?archive_software=<?php echo $software_id; ?>">
+                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive and<br><small>Remove Licenses</small></a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_software=<?php echo $software_id; ?>">Delete and<br><small>Remove Licenses</small></a>
+                                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_software=<?php echo $software_id; ?>">
+                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete and<br><small>Remove Licenses</small></a>
                                         <?php } ?>
                                     </div>
                                 </div>

@@ -54,13 +54,13 @@ $invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_clie
 
                 <?php
                 while ($row = mysqli_fetch_array($invoices_sql)) {
-                    $invoice_id = $row['invoice_id'];
+                    $invoice_id = intval($row['invoice_id']);
                     $invoice_prefix = htmlentities($row['invoice_prefix']);
-                    $invoice_number = htmlentities($row['invoice_number']);
+                    $invoice_number = intval($row['invoice_number']);
                     $invoice_scope = htmlentities($row['invoice_scope']);
                     $invoice_status = htmlentities($row['invoice_status']);
-                    $invoice_date = $row['invoice_date'];
-                    $invoice_due = $row['invoice_due'];
+                    $invoice_date = htmlentities($row['invoice_date']);
+                    $invoice_due = htmlentities($row['invoice_due']);
                     $invoice_amount = floatval($row['invoice_amount']);
                     $invoice_url_key = htmlentities($row['invoice_url_key']);
 

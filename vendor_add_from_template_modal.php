@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-building"></i> New Vendor from Template</h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-building mr-2"></i>New Vendor from Template</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -24,7 +24,7 @@
                                 <?php
                                 $sql_vendor_templates = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 1 AND company_id = $session_company_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
                                 while ($row = mysqli_fetch_array($sql_vendor_templates)) {
-                                    $vendor_template_id = $row['vendor_id'];
+                                    $vendor_template_id = intval($row['vendor_id']);
                                     $vendor_template_name = htmlentities($row['vendor_name']);
 
                                     ?>
@@ -38,10 +38,8 @@
                 </div>
 
                 <div class="modal-footer bg-white">
-
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_vendor_from_template" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create Vendor</button>
-
+                    <button type="submit" name="add_vendor_from_template" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create Vendor</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fas fa-edit mr-2"></i>Quote Notes</h5>
+        <h5 class="modal-title text-white"><i class="fas fa-fw fa-edit mr-2"></i>Quote Notes</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>

@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header text-white">
-                <h5 class="modal-title"><i class="fa fa-fw fa-copy"></i> Copying expense</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-copy mr-2"></i>Copying expense</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -46,21 +46,21 @@
 
                                     $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_array($sql_accounts)) {
-                                        $account_id_select = $row['account_id'];
+                                        $account_id_select = intval($row['account_id']);
                                         $account_name_select = htmlentities($row['account_name']);
                                         $opening_balance = floatval($row['opening_balance']);
 
                                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id_select");
                                         $row = mysqli_fetch_array($sql_payments);
-                                        $total_payments = $row['total_payments'];
+                                        $total_payments = floatval($row['total_payments']);
 
                                         $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id_select");
                                         $row = mysqli_fetch_array($sql_revenues);
-                                        $total_revenues = $row['total_revenues'];
+                                        $total_revenues = floatval($row['total_revenues']);
 
                                         $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id_select");
                                         $row = mysqli_fetch_array($sql_expenses);
-                                        $total_expenses = $row['total_expenses'];
+                                        $total_expenses = floatval($row['total_expenses']);
 
                                         $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
                                         ?>
@@ -84,7 +84,7 @@
 
                                     $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND company_id = $session_company_id ORDER BY vendor_name ASC");
                                     while ($row = mysqli_fetch_array($sql_vendors)) {
-                                        $vendor_id_select = $row['vendor_id'];
+                                        $vendor_id_select = intval($row['vendor_id']);
                                         $vendor_name_select = htmlentities($row['vendor_name']);
                                         ?>
                                         <option <?php if ($expense_vendor_id == $vendor_id_select) { ?> selected <?php } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
@@ -116,7 +116,7 @@
 
                                     $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Expense' AND company_id = $session_company_id ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_array($sql_categories)) {
-                                        $category_id_select = $row['category_id'];
+                                        $category_id_select = intval($row['category_id']);
                                         $category_name_select = htmlentities($row['category_name']);
                                         ?>
                                         <option <?php if ($expense_category_id == $category_id_select) { ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
@@ -147,8 +147,8 @@
                 </div>
 
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_expense" class="btn btn-primary text-bold"><i class="fa fa-fw fa-check"></i> Copy</button>
+                    <button type="submit" name="add_expense" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Copy</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

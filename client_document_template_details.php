@@ -14,8 +14,8 @@ $row = mysqli_fetch_array($sql_document);
 
 $document_name = htmlentities($row['document_name']);
 $document_content = $row['document_content'];
-$document_created_at = $row['document_created_at'];
-$document_updated_at = $row['document_updated_at'];
+$document_created_at = htmlentities($row['document_created_at']);
+$document_updated_at = htmlentities($row['document_updated_at']);
 
 ?>
 
@@ -35,18 +35,22 @@ $document_updated_at = $row['document_updated_at'];
   <li class="breadcrumb-item">
     <a href="client_document_templates.php?client_id=<?php echo $client_id; ?>">Templates</a>
   </li>
-  <li class="breadcrumb-item active"><i class="fas fa-file"></i> <?php echo "$document_name"; ?></li>
+  <li class="breadcrumb-item active"><i class="fas fa-file"></i> <?php echo $document_name; ?></li>
 </ol>
 
 
 <div class="card card-dark">
   <div class="card-header">
 
-    <h3 class="card-title mt-2"><i class="fa fa-fw fa-file"></i> <?php echo $document_name; ?></h3>
+    <h3 class="card-title mt-2"><i class="fa fa-fw fa-file mr-2"></i><?php echo $document_name; ?></h3>
 
     <div class="card-tools">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editDocumentTemplateModal<?php echo $document_id; ?>"><i class="fas fa-edit"></i> Edit</button>
-      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#editDocumentModal"><i class="fas fa-copy"></i> Copy</button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editDocumentTemplateModal<?php echo $document_id; ?>">
+        <i class="fas fa-edit mr-2"></i>Edit
+      </button>
+      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#editDocumentModal">
+        <i class="fas fa-copy mr-2"></i>Copy
+      </button>
     </div>
   </div>
   <div class="card-body">

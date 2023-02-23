@@ -3,7 +3,7 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-envelope"></i> Mail Settings</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-envelope mr-2"></i>Mail Settings</h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
@@ -24,7 +24,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
                         </div>
-                        <input type="number" min="0" class="form-control" name="config_smtp_port" placeholder="Mail Server Port Number" value="<?php echo htmlentities($config_smtp_port); ?>" required>
+                        <input type="number" min="0" class="form-control" name="config_smtp_port" placeholder="Mail Server Port Number" value="<?php echo intval($config_smtp_port); ?>" required>
                     </div>
                 </div>
 
@@ -103,7 +103,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
                         </div>
-                        <input type="number" min="0" class="form-control" name="config_imap_port" placeholder="Incoming Mail Server Port Number (993)" value="<?php echo htmlentities($config_imap_port); ?>">
+                        <input type="number" min="0" class="form-control" name="config_imap_port" placeholder="Incoming Mail Server Port Number (993)" value="<?php echo intval($config_imap_port); ?>">
                     </div>
                 </div>
 
@@ -123,7 +123,7 @@ require_once("inc_all_settings.php"); ?>
 
                 <hr>
 
-                <button type="submit" name="edit_mail_settings" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
+                <button type="submit" name="edit_mail_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
 
             </form>
         </div>
@@ -133,14 +133,14 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-paper-plane"></i> Test Email Sending</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-paper-plane mr-2"></i>Test Email Sending</h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
                 <div class="input-group">
                     <input type="email" class="form-control " name="email" placeholder="Email address to test">
                     <div class="input-group-append">
-                        <button type="submit" name="test_email_smtp" class="btn btn-success"><i class="fa fa-fw fa-paper-plane"></i> Send</button>
+                        <button type="submit" name="test_email_smtp" class="btn btn-success"><i class="fas fa-fw fa-paper-plane mr-2"></i>Send</button>
                     </div>
                 </div>
             </form>
@@ -153,12 +153,12 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-paper-plane"></i> Test Email Receiving</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-paper-plane mr-2"></i>Test Email Receiving</h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
                 <div class="input-group-append">
-                    <button type="submit" name="test_email_imap" class="btn btn-success"><i class="fa fa-fw fa-inbox"></i> Test</button>
+                    <button type="submit" name="test_email_imap" class="btn btn-success"><i class="fas fa-fw fa-inbox mr-2"></i>Test</button>
                 </div>
             </form>
         </div>

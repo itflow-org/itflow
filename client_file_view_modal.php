@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-xl ">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-image"></i> <?php echo $file_name; ?></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-image mr-2"></i><?php echo $file_name; ?></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>

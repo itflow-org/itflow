@@ -3,7 +3,7 @@
 require_once("inc_all_client.php");
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "login_name";
 }
@@ -25,9 +25,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-key"></i> Passwords</h3>
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-key mr-2"></i>Passwords</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLoginModal"><i class="fas fa-fw fa-plus"></i> New Login</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLoginModal"><i class="fas fa-plus mr-2"></i>New Login</button>
         </div>
     </div>
     <div class="card-body">
@@ -37,7 +37,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Passwords">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Passwords">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -46,8 +46,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-8">
                     <div class="float-right">
-                        <a href="post.php?export_client_logins_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importLoginModal"><i class="fa fa-fw fa-upload"></i> Import</button>
+                        <a href="post.php?export_client_logins_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importLoginModal"><i class="fa fa-fw fa-upload mr-2"></i>Import</button>
                     </div>
                 </div>
 
@@ -59,7 +59,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_name&o=<?php echo $disp; ?>">Name</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_username&o=<?php echo $disp; ?>">Username</a></th>
+                    <th>Username</th>
                     <th>Password</th>
                     <th>OTP</th>
                     <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_uri&o=<?php echo $disp; ?>">URI</a></th>
@@ -70,7 +70,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
-                    $login_id = $row['login_id'];
+                    $login_id = intval($row['login_id']);
                     $login_name = htmlentities($row['login_name']);
                     $login_uri = htmlentities($row['login_uri']);
                     if (empty($login_uri)) {
@@ -93,11 +93,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $otp_display = "<span onmouseenter='showOTP($login_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
                     }
                     $login_note = htmlentities($row['login_note']);
-                    $login_important = $row['login_important'];
-                    $login_contact_id = $row['login_contact_id'];
-                    $login_vendor_id = $row['login_vendor_id'];
-                    $login_asset_id = $row['login_asset_id'];
-                    $login_software_id = $row['login_software_id'];
+                    $login_important = intval($row['login_important']);
+                    $login_contact_id = intval($row['login_contact_id']);
+                    $login_vendor_id = intval($row['login_vendor_id']);
+                    $login_asset_id = intval($row['login_asset_id']);
+                    $login_software_id = intval($row['login_software_id']);
 
                     ?>
                     <tr>
@@ -119,11 +119,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">Edit</a>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">Share</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">
+                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                    </a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">
+                                        <i class="fas fa-fw fa-share mr-2"></i>Share
+                                    </a>
                                     <?php if ($session_user_role == 3) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?delete_login=<?php echo $login_id; ?>">Delete</a>
+                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_login=<?php echo $login_id; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
                                     <?php } ?>
                                 </div>
                             </div>

@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-folder"></i> Renaming folder: <strong><?php echo $folder_name; ?></strong></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-folder mr-2"></i>Renaming folder: <strong><?php echo $folder_name; ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -24,8 +24,8 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="rename_folder" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Rename</button>
+                    <button type="submit" name="rename_folder" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Rename</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

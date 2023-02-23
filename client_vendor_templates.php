@@ -2,7 +2,7 @@
 require_once("inc_all_client.php");
 
 if (isset($_GET['q'])) {
-    $q = strip_tags(mysqli_real_escape_string($mysqli, $_GET['q']));
+    $q = sanitizeInput($_GET['q']);
     //Phone Numbers
     $phone_query = preg_replace("/[^0-9]/", '', $q);
     if (empty($phone_query)) {
@@ -14,7 +14,7 @@ if (isset($_GET['q'])) {
 }
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "vendor_name";
 }
@@ -36,7 +36,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card card-dark">
         <div class="card-header py-2">
             <h3 class="card-title mt-2">
-                <i class="fa fa-fw fa-building"></i> Vendor Templates
+                <i class="fa fa-fw fa-building mr-2"></i>Vendor Templates
             </h3>
             <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
             <div class="dropdown-menu">
@@ -44,7 +44,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </div>
             <div class="card-tools">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addVendorTemplateModal">
-                    <i class="fas fa-fw fa-plus"></i> New Template
+                    <i class="fas fa-plus mr-2"></i>New Template
                 </button>
             </div>
         </div>
@@ -79,7 +79,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $vendor_id = $row['vendor_id'];
+                        $vendor_id = intval($row['vendor_id']);
                         $vendor_name = htmlentities($row['vendor_name']);
                         $vendor_description = htmlentities($row['vendor_description']);
                         if (empty($vendor_description)) {
@@ -141,10 +141,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editVendorTemplateModal<?php echo $vendor_id; ?>">Edit</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editVendorTemplateModal<?php echo $vendor_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="post.php?delete_vendor=<?php echo $vendor_id; ?>">Delete</a>
+                                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_vendor=<?php echo $vendor_id; ?>">
+                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            </a>
                                         <?php } ?>
                                     </div>
                                 </div>

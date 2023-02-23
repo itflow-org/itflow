@@ -15,7 +15,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
     <div class="col-md-3">
         <div class="card card-dark">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fa fa-fw fa-user"></i> Your User Details</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-cog mr-2"></i>Your User Details</h3>
             </div>
             <div class="card-body">
 
@@ -84,7 +84,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
 
                     <?php } ?>
 
-                    <button type="submit" name="edit_profile" class="btn btn-primary btn-block mt-3"><i class="fa fa-fw fa-check"></i> Save</button>
+                    <button type="submit" name="edit_profile" class="btn btn-primary btn-block mt-3"><i class="fas fa-check mr-2"></i>Save</button>
 
 
                 </form>
@@ -147,19 +147,19 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
     <div class="col-md-3">
         <div class="card card-dark">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fa fa-fw fa-sign-in-alt"></i> Your Recent Sign ins</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-sign-in-alt mr-2"></i>Your Recent Sign ins</h3>
             </div>
             <table class="table table-borderless table-sm">
                 <tbody>
                 <?php
 
                 while ($row = mysqli_fetch_array($sql_recent_logins)) {
-                    $log_id = $row['log_id'];
+                    $log_id = intval($row['log_id']);
                     $log_ip = htmlentities($row['log_ip']);
                     $log_user_agent = htmlentities($row['log_user_agent']);
                     $log_user_os = getOS($log_user_agent);
                     $log_user_browser = getWebBrowser($log_user_agent);
-                    $log_created_at = $row['log_created_at'];
+                    $log_created_at = htmlentities($row['log_created_at']);
 
                     ?>
 
@@ -180,7 +180,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
     <div class="col-md-6">
         <div class="card card-dark">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fa fa-fw fa-history"></i> Your Recent Activity</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-history mr-2"></i>Your Recent Activity</h3>
             </div>
 
 
@@ -189,11 +189,11 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
                 <?php
 
                 while ($row = mysqli_fetch_array($sql_recent_logs)) {
-                    $log_id = $row['log_id'];
+                    $log_id = intval($row['log_id']);
                     $log_type = htmlentities($row['log_type']);
                     $log_action = htmlentities($row['log_action']);
                     $log_description = htmlentities($row['log_description']);
-                    $log_created_at = $row['log_created_at'];
+                    $log_created_at = htmlentities($row['log_created_at']);
 
                     if ($log_action == 'Create') {
                         $log_icon = "plus text-success";

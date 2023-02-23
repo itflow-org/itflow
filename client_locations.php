@@ -3,7 +3,7 @@
 require_once("inc_all_client.php");
 
 if (isset($_GET['q'])) {
-    $q = strip_tags(mysqli_real_escape_string($mysqli, $_GET['q']));
+    $q = sanitizeInput($_GET['q']);
     //Phone Numbers
     $phone_query = preg_replace("/[^0-9]/", '', $q);
     if (empty($phone_query)) {
@@ -15,7 +15,7 @@ if (isset($_GET['q'])) {
 }
 
 if (!empty($_GET['sb'])) {
-    $sb = strip_tags(mysqli_real_escape_string($mysqli, $_GET['sb']));
+    $sb = sanitizeInput($_GET['sb']);
 } else {
     $sb = "location_name";
 }
@@ -37,9 +37,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-map-marker-alt"></i> Locations</h3>
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-map-marker-alt mr-2"></i>Locations</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLocationModal"><i class="fas fa-fw fa-plus"></i> New Location</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLocationModal"><i class="fas fa-plus mr-2"></i>New Location</button>
         </div>
     </div>
     <div class="card-body">
@@ -49,7 +49,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Locations">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Locations">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -58,8 +58,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-8">
                     <div class="float-right">
-                        <a href="post.php?export_client_locations_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importLocationModal"><i class="fa fa-fw fa-upload"></i> Import</button>
+                        <a href="post.php?export_client_locations_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importLocationModal"><i class="fa fa-fw fa-upload mr-2"></i>Import</button>
                     </div>
                 </div>
 
@@ -81,7 +81,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
-                    $location_id = $row['location_id'];
+                    $location_id = intval($row['location_id']);
                     $location_name = htmlentities($row['location_name']);
                     $location_country = htmlentities($row['location_country']);
                     $location_address = htmlentities($row['location_address']);
@@ -102,8 +102,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
                     $location_photo = htmlentities($row['location_photo']);
                     $location_notes = htmlentities($row['location_notes']);
-                    $location_created_at = $row['location_created_at'];
-                    $location_contact_id = $row['location_contact_id'];
+                    $location_created_at = htmlentities($row['location_created_at']);
+                    $location_contact_id = intval($row['location_contact_id']);
                     if ($location_id == $primary_location) {
                         $primary_location_display = "<p class='text-success'>Primary Location</p>";
                     } else {
@@ -126,11 +126,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">Edit</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">
+                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                    </a>
                                     <?php if ($session_user_role == 3 && $location_id !== $primary_location) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?archive_location=<?php echo $location_id; ?>">Archive</a>
-                                        <a class="dropdown-item text-danger" href="post.php?delete_location=<?php echo $location_id; ?>">Delete</a>
+                                        <a class="dropdown-item text-danger" href="post.php?archive_location=<?php echo $location_id; ?>">
+                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_location=<?php echo $location_id; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
                                     <?php } ?>
                                 </div>
                             </div>
