@@ -53,7 +53,7 @@ $contact_extension = htmlentities($row['contact_extension']);
 $contact_mobile = formatPhoneNumber($row['contact_mobile']);
 $client_website = htmlentities($row['client_website']);
 $client_currency_code = htmlentities($row['client_currency_code']);
-$client_net_terms = intval(($row['client_net_terms']);
+$client_net_terms = intval($row['client_net_terms']);
 if ($client_net_terms == 0) {
     $client_net_terms = intval($row['config_default_net_terms']);
 }
@@ -133,10 +133,10 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
         </div>
         <div class="card-body">
             <div class="row mb-4">
-                <div class="col-sm-2">
+                <div class="col-2">
                     <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
                 </div>
-                <div class="col-sm-10">
+                <div class="col-10">
                     <?php if ($invoice_status == "Paid") { ?>
                         <div class="ribbon-wrapper">
                             <div class="ribbon bg-success">
@@ -148,7 +148,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                 </div>
             </div>
             <div class="row mb-4">
-                <div class="col-sm">
+                <div class="col">
                     <ul class="list-unstyled">
                         <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
                         <li><?php echo $company_address; ?></li>
@@ -158,7 +158,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                     </ul>
 
                 </div>
-                <div class="col-sm">
+                <div class="col">
 
                     <ul class="list-unstyled text-right">
                         <li><h4><strong><?php echo $client_name; ?></strong></h4></li>

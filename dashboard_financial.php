@@ -327,7 +327,7 @@ $vendors_added = intval($row['vendors_added']);
 
                         ?>
                         <tr>
-                            <td><?php echo $account_name; ?></a></td>
+                            <td><?php echo $account_name; ?></td>
                             <?php
                             $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                             $row = mysqli_fetch_array($sql_payments);

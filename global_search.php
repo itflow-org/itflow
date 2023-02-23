@@ -32,7 +32,7 @@ if (isset($_GET['query'])) {
 
             <!-- Clients-->
 
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
                         <h6 class="mt-1"><i class="fas fa-fw fa-users mr-2"></i>Clients</h6>
@@ -74,7 +74,7 @@ if (isset($_GET['query'])) {
 
             <!-- Contacts-->
 
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
                         <h6 class="mt-1"><i class="fas fa-fw fa-users mr-2"></i>Contacts</h6>
@@ -130,7 +130,7 @@ if (isset($_GET['query'])) {
         <?php if (mysqli_num_rows($sql_vendors) > 0) { ?>
 
             <!-- Vendors -->
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
                         <h6 class="mt-1"><i class="fas fa-fw fa-building mr-2"></i>Vendors</h6>
@@ -172,7 +172,7 @@ if (isset($_GET['query'])) {
         <?php if (mysqli_num_rows($sql_products) > 0) { ?>
 
             <!-- Products -->
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
                         <h6 class="mt-1"><i class="fas fa-fw fa-box mr-2"></i>Products</h6>
@@ -211,7 +211,7 @@ if (isset($_GET['query'])) {
         <?php if (mysqli_num_rows($sql_documents) > 0) { ?>
 
             <!-- Documents -->
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
                         <h6 class="mt-1"><i class="fas fa-fw fa-file-alt mr-2"></i>Documents</h6>
@@ -255,7 +255,7 @@ if (isset($_GET['query'])) {
         <?php if (mysqli_num_rows($sql_tickets) > 0) { ?>
 
             <!-- Tickets -->
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
                         <h6 class="mt-1"><i class="fas fa-fw fa-life-ring mr-2"></i>Tickets</h6>
@@ -304,7 +304,7 @@ if (isset($_GET['query'])) {
         <?php if (mysqli_num_rows($sql_logins) > 0) { ?>
 
             <!-- Logins -->
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
                         <h6 class="mt-1"><i class="fas fa-fw fa-key mr-2"></i>Logins</h6>

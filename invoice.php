@@ -193,10 +193,10 @@ if (isset($_GET['invoice_id'])) {
         <div class="card-body">
 
             <div class="row mb-4">
-                <div class="col-2">
+                <div class="col-sm-2">
                     <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>" alt="Company logo">
                 </div>
-                <div class="col-10">
+                <div class="col-sm-10">
                     <div class="ribbon-wrapper">
                         <div class="ribbon bg-<?php echo $invoice_badge_color; ?>">
                             <?php echo $invoice_status; ?>
