@@ -48,7 +48,7 @@
         
       </a>
       <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right" style="left: inherit; right: 0px;">
-        <span class="dropdown-item dropdown-header"><?php echo $num_notifications; ?> Notifications</span>
+        <span class="dropdown-item dropdown-header"><i class="fas fa-fw fa-bell mr-2"></i><?php echo $num_notifications; ?> Notifications</span>
         <div class="dropdown-divider"></div>
         <?php
         while ($row = mysqli_fetch_array($sql_notifications)) {
@@ -59,8 +59,11 @@
         ?>
 
         <a href="post.php?dismiss_notification=<?php echo $notification_id; ?>" class="dropdown-item">
-          <i class="fas fa-bullhorn mr-2"></i> <?php echo $notification; ?>
-          <span class="float-right text-muted text-sm"><?php echo $notification_timestamp; ?></span>
+          <p class="mb-0">
+            <span class="text-bold"><i class="fas fa-bullhorn mr-2"></i><?php echo $notification_type; ?></span>
+            <span class="float-right text-muted text-sm"><?php echo $notification_timestamp; ?></span>
+          </p>
+          <small class="text-secondary"><?php echo $notification; ?></small>
         </a>
         
         <?php
@@ -70,7 +73,7 @@
         <div class="dropdown-divider"></div>
         <a href="notifications.php" class="dropdown-item dropdown-footer text-primary">See All Notifications</a>
         <div class="dropdown-divider"></div>
-        <a href="post.php?dismiss_all_notifications" class="dropdown-item dropdown-footer text-success text-bold"><i class="fa fa-fw fa-check mr-2"></i>Dismiss All Notifications</a>
+        <a href="post.php?dismiss_all_notifications" class="dropdown-item dropdown-footer text-secondary text-bold"><i class="fa fa-fw fa-check mr-2"></i>Dismiss All Notifications</a>
       </div>
     </li>
     <?php } else { ?>
