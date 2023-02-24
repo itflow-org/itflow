@@ -112,8 +112,8 @@ if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
     $dtf = date('Y-m-d', strtotime("first day of january last year"));
     $dtt = date('Y-m-d', strtotime("last day of december last year"));
 } else {
-    $dtf = "0000-00-00";
-    $dtt = "9999-00-00";
+    $dtf = "1000-01-01";
+    $dtt = "9999-01-01";
 }
 
 //Rebuild URL
