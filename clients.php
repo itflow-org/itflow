@@ -82,8 +82,8 @@ if ($_GET['canned_date'] == "custom" && !empty($_GET['date_from'])) {
     $date_from = date('Y-m-d', strtotime("first day of january last year"));
     $date_to = date('Y-m-d', strtotime("last day of december last year"));
 } else {
-    $date_from = "0000-00-00";
-    $date_to = "9999-00-00";
+    $date_from = "1000-01-01";
+    $date_to = "9999-01-01";
 }
 
 //Rebuild URL
