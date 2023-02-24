@@ -19,8 +19,8 @@ if (!empty($_GET['dtf'])) {
     $dtf = sanitizeInput($_GET['dtf']);
     $dtt = sanitizeInput($_GET['dtt']);
 } else {
-    $dtf = "0000-00-00";
-    $dtt = "9999-00-00";
+    $dtf = "1000-01-01";
+    $dtt = "9999-01-01";
 }
 
 //Rebuild URL
