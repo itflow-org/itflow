@@ -27,11 +27,13 @@ if (isset($_GET['o'])) {
         $o = "DESC";
         $disp = "ASC";
     }
-} else {
+} elseif(isset($o)) {
     if ($o == "ASC") {
         $disp = "DESC";
+        //$o = "ASC";
     } else {
         $disp = "ASC";
+        //$o = "DESC";
     }
 }
 
