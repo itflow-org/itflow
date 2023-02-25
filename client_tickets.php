@@ -29,20 +29,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <div class="card card-dark">
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets</h3>
-        <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
-        <div class="dropdown-menu">
-            <a class="dropdown-item text-dark" href="client_scheduled_tickets.php?client_id=<?php echo $client_id; ?>">Scheduled Tickets</a>
-        </div>
         <div class="card-tools">
-            <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
-                    <i class="fas fa-plus mr-2"></i>New Ticket
-                </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addScheduledTicketModal">Scheduled</a>
-                </div>
-            </div>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
+                <i class="fas fa-plus mr-2"></i>New Ticket
+            </button>
         </div>
     </div>
     <div class="card-body">
@@ -169,10 +159,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
+                                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
+                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            </a>
                                         <?php } ?>
                                     </div>
                                 </div>
@@ -196,5 +190,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once("ticket_add_modal.php");
-require_once("scheduled_ticket_add_modal.php");
 require_once("footer.php");

@@ -19,7 +19,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-lock mr-2"></i>Certificates</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-lock mr-2"></i>Certificates</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCertificateModal"><i class="fas fa-plus mr-2"></i>New Certificate</button>
         </div>
@@ -80,10 +80,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal">Edit</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal">
+                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                    </a>
                                     <?php if ($session_user_role == 3) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?delete_certificate=<?php echo $certificate_id; ?>">Delete</a>
+                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_certificate=<?php echo $certificate_id; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
                                     <?php } ?>
                                 </div>
                             </div>

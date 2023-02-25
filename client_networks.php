@@ -24,7 +24,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-network-wired mr-2"></i>Networks</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-network-wired mr-2"></i>Networks</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addNetworkModal"><i class="fas fa-plus mr-2"></i>New Network</button>
         </div>
@@ -45,7 +45,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-8">
                     <div class="float-right">
-                        <a href="post.php?export_client_networks_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download"></i> Export</a>
+                        <a href="post.php?export_client_networks_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
                     </div>
                 </div>
 
@@ -71,7 +71,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 while ($row = mysqli_fetch_array($sql)) {
                     $network_id = intval($row['network_id']);
                     $network_name = htmlentities($row['network_name']);
-                    $network_vlan = htmlentities($row['network_vlan']);
+                    $network_vlan = intval($row['network_vlan']);
                     if (empty($network_vlan)) {
                         $network_vlan_display = "-";
                     } else {
@@ -118,7 +118,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <?php if ($session_user_role == 3) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger text-bold" href="post.php?delete_network=<?php echo $network_id; ?>">
-                                            <i class="fas fa-fw fa-trash mr-2">Delete
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                         </a>
                                     <?php } ?>
                                 </div>

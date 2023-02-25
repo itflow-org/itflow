@@ -82,10 +82,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <tr>
                             <!-- Name/Category/Updated/Importance from DB -->
-                            <td><a href="#" data-toggle="modal" data-target="#viewServiceModal<?php echo $service_id; ?>"> <?php echo $service_name ?></a></td>
-                            <td><a> <?php echo $service_category ?></a></td>
-                            <td><a> <?php echo $service_updated_at ?></a></td>
-                            <td><a> <?php echo $service_importance ?></a></td>
+                            <td class="text-bold"><a href="#" data-toggle="modal" data-target="#viewServiceModal<?php echo $service_id; ?>"> <?php echo $service_name ?></a></td>
+                            <td><?php echo $service_category ?></td>
+                            <td><?php echo $service_updated_at ?></td>
+                            <td><?php echo $service_importance ?></td>
 
                             <!-- Action -->
                             <td>

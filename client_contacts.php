@@ -183,7 +183,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item" href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
-                                            <i class="fas fa-fw fa-eye-open mr-2"></i>View Details
+                                            <i class="fas fa-fw fa-eye mr-2"></i>Details
                                         </a>
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit

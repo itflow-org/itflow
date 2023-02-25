@@ -1,11 +1,10 @@
 <?php
-require_once("inc_all.php");
 
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "scheduled_ticket_subject";
-}
+// Default Column Sortby Filter
+$sb = "scheduled_ticket_subject";
+$o = "ASC";
+
+require_once("inc_all.php");
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
@@ -20,13 +19,14 @@ $sql = mysqli_query(
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+
 ?>
 
     <script src="js/scheduled_tickets_edit_modal.js"></script>
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-sync mr-2"></i>Scheduled Tickets</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-clock mr-2"></i>Scheduled Tickets</h3>
             <div class='card-tools'>
                 <div class="float-left">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addScheduledTicketModal">

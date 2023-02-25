@@ -55,9 +55,7 @@ $sql = mysqli_query(
     ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
-
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
-
 
 //Get Total tickets open
 $sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_status != 'Closed' AND company_id = $session_company_id");
@@ -93,11 +91,6 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                     <a href="?status=Closed" class="text-white"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
                 </small>
             </h3>
-            <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
-            <div class="dropdown-menu">
-                <a class="dropdown-item text-dark" href="scheduled_tickets.php">Scheduled Tickets</a>
-            </div>
-
             <div class='card-tools'>
                 <div class="float-left">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
@@ -111,9 +104,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {
-                                echo stripslashes(htmlentities($q));
-                            } ?>" placeholder="Search Tickets">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Tickets">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse"
                                         data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
@@ -358,12 +349,14 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#" data-toggle="modal"
-                                               data-target="#editTicketModal<?php echo $ticket_id; ?>">Edit</a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">
+                                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                            </a>
                                             <?php if ($session_user_role == 3) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger"
-                                                   href="post.php?delete_ticket=<?php echo $ticket_id; ?>">Delete</a>
+                                                <a class="dropdown-item text-danger text-bold" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
+                                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                </a>
                                             <?php } ?>
                                         </div>
                                     </div>
