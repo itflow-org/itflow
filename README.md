@@ -108,8 +108,7 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
   
 <!-- ROADMAP -->
 ## Roadmap / Future to-do
-
-* MeshCentral (Export common software applications to Software)
+* Comprehensive API to allow custom third party integration
 * CalDAV to integrate with 3rd party calendars
 * CardDAV to integrate with 3rd party Address books
 * Recent caller toast alerts to click and bring up the clients account right away
