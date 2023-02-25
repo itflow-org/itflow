@@ -30,10 +30,8 @@ if (isset($_GET['o'])) {
 } elseif(isset($o)) {
     if ($o == "ASC") {
         $disp = "DESC";
-        //$o = "ASC";
     } else {
         $disp = "ASC";
-        //$o = "DESC";
     }
 }
 
@@ -45,15 +43,9 @@ if (isset($_GET['q'])) {
     if (empty($phone_query)) {
         $phone_query = $q;
     }
-    //Phone Numbers
-    $n = preg_replace("/[^0-9]/", '', $q);
-    if (empty($n)) {
-        $n = $q;
-    }
 } else {
     $q = "";
     $phone_query = "";
-    $n = "";
 }
 
 // Sortby
