@@ -49,6 +49,10 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <input type="file" class="form-control-file" name="file">
+                            </div>
+
                         </div>
 
                         <div class="tab-pane fade" id="pills-address<?php echo $company_id; ?>">
