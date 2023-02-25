@@ -28,7 +28,7 @@ if (isset($_GET['ticket_id'])) {
         $client_name = htmlentities($row['client_name']);
         $client_type = htmlentities($row['client_type']);
         $client_website = htmlentities($row['client_website']);
-        
+
         $client_net_terms = intval($row['client_net_terms']);
         if ($client_net_terms == 0) {
             $client_net_terms = $config_default_net_terms;
@@ -51,7 +51,7 @@ if (isset($_GET['ticket_id'])) {
             $ticket_priority_display = "-";
         }
         $ticket_feedback = htmlentities($row['ticket_feedback']);
-        
+
         $ticket_status = htmlentities($row['ticket_status']);
         if ($ticket_status == "Open") {
             $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
@@ -60,12 +60,12 @@ if (isset($_GET['ticket_id'])) {
         } else {
             $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
         }
-        
+
         $ticket_created_at = htmlentities($row['ticket_created_at']);
         $ticket_date = date('Y-m-d', strtotime($ticket_created_at));
         $ticket_updated_at = htmlentities($row['ticket_updated_at']);
         $ticket_closed_at = htmlentities($row['ticket_closed_at']);
-        
+
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
         if (empty($ticket_assigned_to)) {
             $ticket_assigned_to_display = "<span class='text-danger'>Not Assigned</span>";
@@ -141,7 +141,7 @@ if (isset($_GET['ticket_id'])) {
         //Client Tags
         $client_tag_name_display_array = array();
         $client_tag_id_array = array();
-        $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_tags.client_id = $client_id");
+        $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.client_tags_tag_id = tags.tag_id WHERE client_tags.client_tags_client_id = $client_id");
         while ($row = mysqli_fetch_array($sql_client_tags)) {
 
             $client_tag_id = intval($row['tag_id']);
@@ -188,7 +188,7 @@ if (isset($_GET['ticket_id'])) {
 
         // Get technicians to assign the ticket to
         $sql_assign_to_select = mysqli_query(
-            $mysqli, 
+            $mysqli,
             "SELECT users.user_id, user_name FROM users
             LEFT JOIN user_companies ON users.user_id = user_companies.user_id
             LEFT JOIN user_settings on users.user_id = user_settings.user_id

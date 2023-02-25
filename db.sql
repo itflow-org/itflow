@@ -207,9 +207,9 @@ DROP TABLE IF EXISTS `client_tags`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `client_tags` (
-  `client_id` int(11) NOT NULL,
-  `tag_id` int(11) NOT NULL,
-  PRIMARY KEY (`client_id`,`tag_id`)
+  `client_tags_client_id` int(11) NOT NULL,
+  `client_tags_tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`client_tags_client_id`,`client_tags_tag_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

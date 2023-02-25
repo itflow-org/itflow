@@ -674,7 +674,7 @@ if(isset($_GET['delete_company'])){
     $sql = mysqli_query($mysqli,"SELECT client_id FROM clients WHERE company_id = $company_id");
     while($row = mysqli_fetch_array($sql)){
         $client_id = $row['client_id'];
-        mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_id = $client_id");
+        mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_tags_client_id = $client_id");
         mysqli_query($mysqli,"DELETE FROM shared_items WHERE item_client_id = $client_id");
     }
     mysqli_query($mysqli,"DELETE FROM clients WHERE company_id = $company_id");
@@ -1835,7 +1835,7 @@ if(isset($_POST['add_client'])){
     if(isset($_POST['tags'])){
         foreach($_POST['tags'] as $tag){
             $tag = intval($tag);
-            mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
+            mysqli_query($mysqli,"INSERT INTO client_tags SET client_tags_client_id = $client_id, tag_id = $tag");
         }
     }
 
@@ -1897,12 +1897,12 @@ if(isset($_POST['edit_client'])){
 
     //Tags
     //Delete existing tags
-    mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_id = $client_id");
+    mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_tags_client_id = $client_id");
 
     //Add new tags
     foreach($_POST['tags'] as $tag){
         $tag = intval($tag);
-        mysqli_query($mysqli,"INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
+        mysqli_query($mysqli,"INSERT INTO client_tags SET client_tags_client_id = $client_id, client_tags_tag_id = $tag");
     }
 
     //Logging
@@ -1972,7 +1972,7 @@ if(isset($_GET['delete_client'])){
     mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM assets WHERE asset_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM certificates WHERE certificate_client_id = $client_id");
-    mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_id = $client_id");
+    mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_tags_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_client_id = $client_id");
     mysqli_query($mysqli,"DELETE FROM documents WHERE document_client_id = $client_id");
 
@@ -7744,7 +7744,7 @@ if(isset($_GET['deactivate_shared_item'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'Delete', log_description = '$session_name deactivated shared $item_type link. Item ID: $item_related_id. Share ID $item_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $item_client_id, log_user_id = $session_user_id, log_entity_id = $item_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Link deactivated";
-    
+
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
