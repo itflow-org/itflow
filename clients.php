@@ -26,8 +26,6 @@ $sql = mysqli_query(
     ORDER BY $sb $o LIMIT $record_from, $record_to
 ");
 
-var_dump(mysqli_error($mysqli));
-
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
