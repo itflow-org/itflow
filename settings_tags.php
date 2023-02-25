@@ -19,6 +19,8 @@ $sql = mysqli_query(
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
+$colors_used_array = [];
+
 if ($num_rows > 0) {
     //Colors Used
     $sql_colors_used = mysqli_query(

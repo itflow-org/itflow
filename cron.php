@@ -24,7 +24,7 @@ while ($row = mysqli_fetch_array($sql_companies)) {
     $config_smtp_host = $row['config_smtp_host'];
     $config_smtp_username = $row['config_smtp_username'];
     $config_smtp_password = $row['config_smtp_password'];
-    $config_smtp_port =intval($row['config_smtp_port']);
+    $config_smtp_port = intval($row['config_smtp_port']);
     $config_smtp_encryption = $row['config_smtp_encryption'];
     $config_mail_from_email = $row['config_mail_from_email'];
     $config_mail_from_name = $row['config_mail_from_name'];
@@ -276,7 +276,7 @@ while ($row = mysqli_fetch_array($sql_companies)) {
                     $contact_name = $row['contact_name'];
                     $contact_email = $row['contact_email'];
                     $ticket_prefix = $row['ticket_prefix'];
-                    $ticket_number = $row['ticket_number'];
+                    $ticket_number = intval($row['ticket_number']);
                     $ticket_subject = $row['ticket_subject'];
                     $company_phone = formatPhoneNumber($row['company_phone']);
 
@@ -374,7 +374,7 @@ while ($row = mysqli_fetch_array($sql_companies)) {
                 $contact_name = $row['contact_name'];
                 $contact_email = $row['contact_email'];
 
-                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_timestamp = NOW(), notification_client_id = $client_id, company_id = $company_id");
+                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_client_id = $client_id, company_id = $company_id");
 
                 $subject = "Overdue Invoice $invoice_prefix$invoice_number";
                 $body    = "Hello $contact_name,<br><br>According to our records, we have not received payment for invoice $invoice_prefix$invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $company_phone.
