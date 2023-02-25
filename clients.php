@@ -14,8 +14,8 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM clients
     LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contact_archived_at IS NULL
     LEFT JOIN locations ON clients.primary_location = locations.location_id AND location_archived_at IS NULL
-    LEFT JOIN client_tags on client_tags.client_tags_client_id = clients.client_id
-    LEFT JOIN tags on tags.tag_id = client_tags.client_tags_tag_id
+    LEFT JOIN client_tags ON client_tags.client_tag_client_id = clients.client_id
+    LEFT JOIN tags ON tags.tag_id = client_tags.client_tag_tag_id
     WHERE (client_name LIKE '%$q%' OR client_type LIKE '%$q%' OR client_referral LIKE '%$q%' OR contact_email LIKE '%$q%' OR contact_name LIKE '%$q%' OR contact_phone LIKE '%$phone_query%'
     OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%')
     OR tag_name LIKE '%$q%'
@@ -136,7 +136,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         $client_tag_name_display_array = array();
                         $client_tag_id_array = array();
-                        $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.client_tags_tag_id = tags.tag_id WHERE client_tags.client_tags_client_id = $client_id");
+                        $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.client_tag_tag_id = tags.tag_id WHERE client_tags.client_tag_client_id = $client_id");
                         while ($row = mysqli_fetch_array($sql_client_tags)) {
 
                             $client_tag_id = intval($row['tag_id']);
