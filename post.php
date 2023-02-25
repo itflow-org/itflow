@@ -1750,7 +1750,7 @@ if(isset($_GET['update'])){
 
     $_SESSION['alert_message'] = "Update successful";
 
-    sleep(2);
+    sleep(1);
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -1771,7 +1771,7 @@ if(isset($_GET['update_db'])){
 
     $_SESSION['alert_message'] = "Database structure update successful";
 
-    sleep(2);
+    sleep(1);
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
