@@ -1,25 +1,10 @@
 <?php
 
+// Default Column Sortby Filter
+$sb = "contact_name";
+$o = "ASC";
+
 require_once("inc_all_client.php");
-
-if (isset($_GET['q'])) {
-    $q = sanitizeInput($_GET['q']);
-    //Phone Numbers
-    $n = preg_replace("/[^0-9]/", '', $q);
-    if (empty($n)) {
-        $n = $q;
-    }
-} else {
-    $q = "";
-    //Phone Numbers
-    $n = "";
-}
-
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "contact_name";
-}
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));

@@ -1,12 +1,10 @@
 <?php
 
-require_once("inc_all_client.php");
+// Default Column Sortby Filter
+$sb = "domain_name";
+$o = "ASC";
 
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "domain_name";
-}
+require_once("inc_all_client.php");
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));

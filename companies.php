@@ -1,11 +1,10 @@
 <?php
-require_once("inc_all_settings.php");
 
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "company_name";
-}
+// Default Column Sortby Filter
+$sb = "company_name";
+$o = "ASC";
+
+require_once("inc_all_settings.php");
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));

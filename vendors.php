@@ -1,34 +1,10 @@
 <?php
 
+// Default Column Sortby/Order Filter
+$sb = "vendor_name";
+$o = "ASC";
+
 require_once("inc_all.php");
-
-if (isset($_GET['q'])) {
-    $q = sanitizeInput($_GET['q']);
-    //Phone Numbers
-    $phone_query = preg_replace("/[^0-9]/", '', $q);
-    if (empty($phone_query)) {
-        $phone_query = $q;
-    }
-} else {
-    $q = "";
-    $phone_query = "";
-}
-
-//Column Filter
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "vendor_name";
-}
-
-//Date From and Date To Filter
-if (!empty($_GET['dtf'])) {
-    $dtf = sanitizeInput($_GET['dtf']);
-    $dtt = sanitizeInput($_GET['dtt']);
-} else {
-    $dtf = "0000-00-00";
-    $dtt = "9999-00-00";
-}
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
@@ -70,8 +46,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if (!empty($_GET['dtf'])) { echo "show"; } ?>" id="advancedFilter">
+                <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Canned Date</label>
+                                <select class="form-control select2" name="canned_date">
+                                    <option <?php if ($_GET['canned_date'] == "custom") { echo "selected"; } ?> value="custom">Custom</option>
+                                    <option <?php if ($_GET['canned_date'] == "today") { echo "selected"; } ?> value="today">Today</option>
+                                    <option <?php if ($_GET['canned_date'] == "yesterday") { echo "selected"; } ?> value="yesterday">Yesterday</option>
+                                    <option <?php if ($_GET['canned_date'] == "thisweek") { echo "selected"; } ?> value="thisweek">This Week</option>
+                                    <option <?php if ($_GET['canned_date'] == "lastweek") { echo "selected"; } ?> value="lastweek">Last Week</option>
+                                    <option <?php if ($_GET['canned_date'] == "thismonth") { echo "selected"; } ?> value="thismonth">This Month</option>
+                                    <option <?php if ($_GET['canned_date'] == "lastmonth") { echo "selected"; } ?> value="lastmonth">Last Month</option>
+                                    <option <?php if ($_GET['canned_date'] == "thisyear") { echo "selected"; } ?> value="thisyear">This Year</option>
+                                    <option <?php if ($_GET['canned_date'] == "lastyear") { echo "selected"; } ?> value="lastyear">Last Year</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date From</label>

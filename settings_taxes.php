@@ -1,17 +1,16 @@
 <?php
-require_once("inc_all_settings.php");
 
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "tax_name";
-}
+// Default Column Sortby Filter
+$sb = "tax_name";
+$o = "ASC";
+
+require_once("inc_all_settings.php");
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query(
-    $mysqli,
+    $mysqli, 
     "SELECT * FROM taxes
     WHERE tax_archived_at IS NULL
     AND company_id = $session_company_id

@@ -1,12 +1,10 @@
 <?php
 
-require_once("inc_all_settings.php");
+// Default Column Sortby Filter
+$sb = "api_key_name";
+$o = "ASC";
 
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "api_key_name";
-}
+require_once("inc_all_settings.php");
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));

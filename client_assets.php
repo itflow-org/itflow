@@ -1,4 +1,9 @@
 <?php
+
+// Default Column Sortby Filter
+$sb = "asset_name";
+$o = "ASC";
+
 require_once("inc_all_client.php");
 
 //Get Asset Counts
@@ -29,12 +34,6 @@ $network_count = intval($row['count']);
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS count FROM assets WHERE (asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point')
   AND asset_archived_at IS NULL AND asset_client_id = $client_id"));
 $other_count = intval($row['count']);
-
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "asset_name";
-}
 
 //Asset Type from GET
 if (isset($_GET['type']) && ($_GET['type']) == 'workstation') {

@@ -1,20 +1,10 @@
 <?php
-require_once("inc_all_client.php");
 
-if (isset($_GET['q'])) {
-    $q = sanitizeInput($_GET['q']);
-    //Phone Numbers
-    $phone_query = preg_replace("/[^0-9]/", '', $q);
-    if (empty($phone_query)) {
-        $phone_query = $q;
-    }
-} else {
-    $q = "";
-    $phone_query = "";
-}
-
-// Sort
+// Default Column Sortby Filter
 $sb = "item_created_at";
+$o = "DESC";
+
+require_once("inc_all_client.php");
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
@@ -44,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo strip_tags(htmlentities($q)); } ?>" placeholder="Search Shared Items">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Shared Items">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>

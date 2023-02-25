@@ -1,5 +1,9 @@
 <?php
 
+// Default Column Sortby Filter
+$sb = "document_name";
+$o = "ASC";
+
 require_once("inc_all_client.php");
 
 // Folder
@@ -7,13 +11,6 @@ if (!empty($_GET['folder_id'])) {
     $folder = intval($_GET['folder_id']);
 } else {
     $folder = 0;
-}
-
-// Sort by
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "document_name";
 }
 
 // Search query SQL snippet

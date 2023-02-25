@@ -1,12 +1,10 @@
 <?php
 
-require_once("inc_all_client.php");
+// Default Column Sortby Filter
+$sb = "recurring_last_sent";
+$o = "DESC";
 
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "recurring_id";
-}
+require_once("inc_all_client.php");
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));

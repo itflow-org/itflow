@@ -1,24 +1,10 @@
 <?php
 
+// Default Column Sortby Filter
+$sb = "vendor_name";
+$o = "ASC";
+
 require_once("inc_all_settings.php");
-
-if (isset($_GET['q'])) {
-    $q = sanitizeInput($_GET['q']);
-    //Phone Numbers
-    $phone_query = preg_replace("/[^0-9]/", '', $q);
-    if (empty($phone_query)) {
-        $phone_query = $q;
-    }
-} else {
-    $q = "";
-    $phone_query = "";
-}
-
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "vendor_name";
-}
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));

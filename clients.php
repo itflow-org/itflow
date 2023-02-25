@@ -1,105 +1,25 @@
 <?php
 
+// Default Column Sortby/Order Filter
+$sb = "client_accessed_at";
+$o = "DESC";
+
 require_once("inc_all.php");
 
-//Paging
-if (isset($_GET['p'])) {
-    $p = intval($_GET['p']);
-    $record_from = (($p)-1)*$_SESSION['records_per_page'];
-    $record_to = $_SESSION['records_per_page'];
-} else {
-    $record_from = 0;
-    $record_to = $_SESSION['records_per_page'];
-    $p = 1;
-}
-
-//Custom Query Filter
-if (isset($_GET['query'])) {
-    $query = sanitizeInput($_GET['query']);
-    //Phone Numbers
-    $phone_query = preg_replace("/[^0-9]/", '', $query);
-    if (empty($phone_query)) {
-        $phone_query = $query;
-    }
-} else {
-    $query = "";
-    $phone_query = "";
-}
-
-//Column Filter
-if (!empty($_GET['sortby'])) {
-    $sortby = sanitizeInput($_GET['sortby']);
-} else {
-    $sortby = "client_accessed_at";
-}
-
-//Column Order Filter
-if (isset($_GET['order'])) {
-    if ($_GET['order'] == 'ASC') {
-        $order = "ASC";
-        $order_display = "DESC";
-    } else {
-        $order = "DESC";
-        $order_display = "ASC";
-    }
-} else {
-    $order = "DESC";
-    $order_display = "ASC";
-}
-
-if (empty($_GET['canned_date'])) {
-    //Prevents lots of undefined variable errors.
-    // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
-    $_GET['canned_date'] = 'custom';
-}
-
-//Date Filter
-if ($_GET['canned_date'] == "custom" && !empty($_GET['date_from'])) {
-    $date_from = sanitizeInput($_GET['date_from']);
-    $date_to = sanitizeInput($_GET['date_to']);
-} elseif ($_GET['canned_date'] == "today") {
-    $date_from = date('Y-m-d');
-    $date_to = date('Y-m-d');
-} elseif ($_GET['canned_date'] == "yesterday") {
-    $date_from = date('Y-m-d', strtotime("yesterday"));
-    $date_to = date('Y-m-d', strtotime("yesterday"));
-} elseif ($_GET['canned_date'] == "thisweek") {
-    $date_from = date('Y-m-d', strtotime("monday this week"));
-    $date_to = date('Y-m-d');
-} elseif ($_GET['canned_date'] == "lastweek") {
-    $date_from = date('Y-m-d', strtotime("monday last week"));
-    $date_to = date('Y-m-d', strtotime("sunday last week"));
-} elseif ($_GET['canned_date'] == "thismonth") {
-    $date_from = date('Y-m-01');
-    $date_to = date('Y-m-d');
-} elseif ($_GET['canned_date'] == "lastmonth") {
-    $date_from = date('Y-m-d', strtotime("first day of last month"));
-    $date_to = date('Y-m-d', strtotime("last day of last month"));
-} elseif ($_GET['canned_date'] == "thisyear") {
-    $date_from = date('Y-01-01');
-    $date_to = date('Y-m-d');
-} elseif ($_GET['canned_date'] == "lastyear") {
-    $date_from = date('Y-m-d', strtotime("first day of january last year"));
-    $date_to = date('Y-m-d', strtotime("last day of december last year"));
-} else {
-    $date_from = "0000-00-00";
-    $date_to = "9999-00-00";
-}
-
 //Rebuild URL
-$url_query_strings_sortby = http_build_query(array_merge($_GET, array('sortby' => $sortby, 'order' => $order)));
+$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM clients
     LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contact_archived_at IS NULL
     LEFT JOIN locations ON clients.primary_location = locations.location_id AND location_archived_at IS NULL
-    WHERE (client_name LIKE '%$query%' OR client_type LIKE '%$query%' OR client_referral LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_name LIKE '%$query%' OR contact_phone LIKE '%$phone_query%'
-    OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$query%' OR location_city LIKE '%$query%' OR location_state LIKE '%$query%' OR location_zip LIKE '%$query%')
+    WHERE (client_name LIKE '%$q%' OR client_type LIKE '%$q%' OR client_referral LIKE '%$q%' OR contact_email LIKE '%$q%' OR contact_name LIKE '%$q%' OR contact_phone LIKE '%$phone_query%'
+    OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%')
     AND client_archived_at IS NULL
-    AND DATE(client_created_at) BETWEEN '$date_from' AND '$date_to'
+    AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
     AND clients.company_id = $session_company_id
-    ORDER BY $sortby $order LIMIT $record_from, $record_to
+    ORDER BY $sb $o LIMIT $record_from, $record_to
 ");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -121,7 +41,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="query" value="<?php if (isset($query)) { echo stripslashes(htmlentities($query)); } ?>" placeholder="Search Clients" autofocus>
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Clients" autofocus>
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -129,7 +49,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if (!empty($_GET['date_from'])) { echo "show"; } ?>" id="advancedFilter">
+                <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
@@ -150,13 +70,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date From</label>
-                                <input type="date" class="form-control" name="date_from" max="2999-12-31" value="<?php echo htmlentities($date_from); ?>">
+                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo htmlentities($dtf); ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date To</label>
-                                <input type="date" class="form-control" name="date_to" max="2999-12-31" value="<?php echo htmlentities($date_to); ?>">
+                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo htmlentities($dtt); ?>">
                             </div>
                         </div>
                     </div>
@@ -167,9 +87,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-striped table-hover table-borderless">
                     <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=client_name&order=<?php echo $order_display; ?>">Name</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=location_city&order=<?php echo $order_display; ?>">Primary Address </a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sortby; ?>&sortby=contact_name&order=<?php echo $order_display; ?>">Primary Contact</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Name</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=location_city&o=<?php echo $disp; ?>">Primary Address </a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Primary Contact</a></th>
                         <?php if ($session_user_role == 3 || $session_user_role == 1 && $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
                         <?php if ($session_user_role == 3) { ?> <th class="text-center">Action</th> <?php } ?>
                     </tr>

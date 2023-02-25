@@ -1,27 +1,10 @@
 <?php
+
+// Default Column Sortby Filter
+$sb = "notification_timestamp";
+$o = "DESC";
+
 require_once("inc_all.php");
-
-//Column Filter
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "notification_timestamp";
-}
-
-// Reverse default sort
-if (!isset($_GET['o'])) {
-    $o = "DESC";
-    $disp = "ASC";
-}
-
-//Date From and Date To Filter
-if (!empty($_GET['dtf'])) {
-    $dtf = sanitizeInput($_GET['dtf']);
-    $dtt = sanitizeInput($_GET['dtt']);
-} else {
-    $dtf = "0000-00-00";
-    $dtt = "9999-00-00";
-}
 
 //Rebuild URL
 

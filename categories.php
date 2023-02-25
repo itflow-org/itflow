@@ -1,17 +1,15 @@
 <?php
 
+// Default Column Sortby Filter
+$sb = "category_name";
+$o = "ASC";
+
 require_once("inc_all_settings.php");
 
 if (isset($_GET['category'])) {
     $category = sanitizeInput($_GET['category']);
 } else {
     $category = "Expense";
-}
-
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "category_name";
 }
 
 //Rebuild URL

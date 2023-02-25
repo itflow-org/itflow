@@ -1,24 +1,10 @@
 <?php
 
+// Default Column Sortby Filter
+$sb = "location_name";
+$o = "ASC";
+
 require_once("inc_all_client.php");
-
-if (isset($_GET['q'])) {
-    $q = sanitizeInput($_GET['q']);
-    //Phone Numbers
-    $phone_query = preg_replace("/[^0-9]/", '', $q);
-    if (empty($phone_query)) {
-        $phone_query = $q;
-    }
-} else {
-    $q = "";
-    $phone_query = "";
-}
-
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "location_name";
-}
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
@@ -29,7 +15,8 @@ $sql = mysqli_query(
     WHERE location_client_id = $client_id
     AND location_archived_at IS NULL
     AND (location_name LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%') 
-    ORDER BY $sb $o LIMIT $record_from, $record_to");
+    ORDER BY $sb $o LIMIT $record_from, $record_to"
+);
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 

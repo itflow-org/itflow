@@ -1,58 +1,10 @@
 <?php
+
+// Default Column Sortby/Order Filter
+$sb = "trip_date";
+$o = "DESC";
+
 require_once("inc_all.php");
-
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "trip_date";
-}
-
-// Reverse default sort
-if (!isset($_GET['o'])) {
-    $o = "DESC";
-    $disp = "ASC";
-}
-
-if (empty($_GET['canned_date'])) {
-    //Prevents lots of undefined variable errors.
-    // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
-    $_GET['canned_date'] = 'custom';
-}
-
-//Date Filter
-if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
-    $dtf = sanitizeInput($_GET['dtf']);
-    $dtt = sanitizeInput($_GET['dtt']);
-} elseif ($_GET['canned_date'] == "today") {
-    $dtf = date('Y-m-d');
-    $dtt = date('Y-m-d');
-} elseif ($_GET['canned_date'] == "yesterday") {
-    $dtf = date('Y-m-d', strtotime("yesterday"));
-    $dtt = date('Y-m-d', strtotime("yesterday"));
-} elseif ($_GET['canned_date'] == "thisweek") {
-    $dtf = date('Y-m-d', strtotime("monday this week"));
-    $dtt = date('Y-m-d');
-} elseif ($_GET['canned_date'] == "lastweek") {
-    $dtf = date('Y-m-d', strtotime("monday last week"));
-    $dtt = date('Y-m-d', strtotime("sunday last week"));
-} elseif ($_GET['canned_date'] == "thismonth") {
-    $dtf = date('Y-m-01');
-    $dtt = date('Y-m-d');
-} elseif ($_GET['canned_date'] == "lastmonth") {
-    $dtf = date('Y-m-d', strtotime("first day of last month"));
-    $dtt = date('Y-m-d', strtotime("last day of last month"));
-} elseif ($_GET['canned_date'] == "thisyear") {
-    $dtf = date('Y-01-01');
-    $dtt = date('Y-m-d');
-} elseif ($_GET['canned_date'] == "lastyear") {
-    $dtf = date('Y-m-d', strtotime("first day of january last year"));
-    $dtt = date('Y-m-d', strtotime("last day of december last year"));
-} else {
-    $dtf = "0000-00-00";
-    $dtt = "9999-00-00";
-}
-
-
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
@@ -69,8 +21,6 @@ $sql = mysqli_query(
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
-$total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / 10);
 
 ?>
 
@@ -100,7 +50,7 @@ $total_pages = ceil($total_found_rows / 10);
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if (!empty($_GET['dtf'])) { echo "show"; } ?>" id="advancedFilter">
+                <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">

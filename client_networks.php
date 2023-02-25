@@ -1,11 +1,10 @@
 <?php
-require_once("inc_all_client.php");
 
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "network_name";
-}
+// Default Column Sortby Filter
+$sb = "network_name";
+$o = "ASC";
+
+require_once("inc_all_client.php");
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
