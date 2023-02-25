@@ -1835,7 +1835,7 @@ if(isset($_POST['add_client'])){
     if(isset($_POST['tags'])){
         foreach($_POST['tags'] as $tag){
             $tag = intval($tag);
-            mysqli_query($mysqli,"INSERT INTO client_tags SET client_tags_client_id = $client_id, tag_id = $tag");
+            mysqli_query($mysqli,"INSERT INTO client_tags SET client_tags_client_id = $client_id, client_tags_tag_id = $tag");
         }
     }
 
