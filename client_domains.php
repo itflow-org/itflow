@@ -65,8 +65,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     while ($row = mysqli_fetch_array($sql)) {
                         $domain_id = intval($row['domain_id']);
                         $domain_name = htmlentities($row['domain_name']);
-                        $domain_registrar = htmlentities($row['domain_registrar']);
-                        $domain_webhost = htmlentities($row['domain_webhost']);
+                        $domain_registrar = intval($row['domain_registrar']);
+                        $domain_webhost = intval($row['domain_webhost']);
                         $domain_expire = htmlentities($row['domain_expire']);
                         $domain_registrar_name = htmlentities($row['vendor_name']);
                         if (empty($domain_registrar_name)) {

@@ -46,6 +46,7 @@ $sql = mysqli_query(
     LEFT JOIN users ON ticket_assigned_to = user_id
     LEFT JOIN assets ON ticket_asset_id = asset_id
     LEFT JOIN locations ON ticket_location_id = location_id
+    LEFT JOIN vendors ON ticket_vendor_id = vendor_id
     WHERE tickets.company_id = $session_company_id
     AND ticket_assigned_to LIKE '%$ticket_assigned_filter%'
     AND $ticket_status_snippet
@@ -325,6 +326,9 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         } else {
                             $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
                         }
+
+                        $asset_id = intval($row['asset_id']);
+                        $vendor_id = intval($row['vendor_id']);
 
                         ?>
 

@@ -31,7 +31,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
     <div class="card-body">
         <form autocomplete="off">
-            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
             <div class="row">
 
                 <div class="col-md-4">
@@ -103,7 +102,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <?php
 
-                    require("client_software_template_edit_modal.php");
+                    require("settings_software_template_edit_modal.php");
                 }
 
                 ?>
@@ -116,5 +115,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once("client_software_template_add_modal.php");
+require_once("settings_software_template_add_modal.php");
 require_once("footer.php");

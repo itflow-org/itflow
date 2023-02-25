@@ -308,6 +308,7 @@ if (isset($_GET['contact_id'])) {
                                     $otp_display = "<span onmouseenter='showOTP($login_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
                                 }
                                 $login_note = htmlentities($row['login_note']);
+                                $login_important = intval($row['login_important']);
                                 $login_contact_id = intval($row['login_contact_id']);
                                 $login_vendor_id = intval($row['login_vendor_id']);
                                 $login_asset_id = intval($row['login_asset_id']);
