@@ -1,12 +1,10 @@
 <?php
 
-require_once("inc_all_client.php");
+// Default Column Sortby Filter
+$sb = "scheduled_ticket_subject";
+$o = "ASC";
 
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
-} else {
-    $sb = "scheduled_ticket_subject";
-}
+require_once("inc_all_client.php");
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
@@ -28,10 +26,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-sync mr-2"></i>Scheduled Tickets</h3>
-            <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
-            <div class="dropdown-menu">
-                <a class="dropdown-item text-dark" href="client_tickets.php?client_id=<?php echo $client_id; ?>">Tickets</a>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-clock mr-2"></i>Scheduled Tickets</h3>
+            <div class='card-tools'>
+                <div class="float-left">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addScheduledTicketModal">
+                        <i class="fas fa-plus mr-2"></i>New Scheduled Ticket
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -79,10 +80,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td><a href="#" data-toggle="modal" data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?> </a></td>
-                            <td><a><?php echo $scheduled_ticket_priority ?></a></td>
-                            <td><a><?php echo $scheduled_ticket_frequency ?></a></td>
-                            <td><a><?php echo $scheduled_ticket_next_run ?></a></td>
+                            <td class="text-bold"><a href="#" data-toggle="modal" data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?></a></td>
+                            <td><?php echo $scheduled_ticket_priority ?></td>
+                            <td><?php echo $scheduled_ticket_frequency ?></td>
+                            <td><?php echo $scheduled_ticket_next_run ?></td>
 
                             <td>
                                 <div class="dropdown dropleft text-center">
@@ -113,10 +114,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </div>
             <?php
             require_once('pagination.php');
-            require_once("scheduled_ticket_edit_modal.php")
+            require_once("scheduled_ticket_edit_modal.php");
             ?>
         </div>
     </div>
 
 <?php
+
+require_once("scheduled_ticket_add_modal.php");
+
 require_once("footer.php");
