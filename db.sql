@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.5.18-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.5.19-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: itflow_dev
 -- ------------------------------------------------------
--- Server version	10.5.18-MariaDB-1:10.5.18+maria~ubu2004
+-- Server version	10.5.19-MariaDB-1:10.5.19+maria~ubu2004
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -207,9 +207,9 @@ DROP TABLE IF EXISTS `client_tags`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `client_tags` (
-  `client_tags_client_id` int(11) NOT NULL,
-  `client_tags_tag_id` int(11) NOT NULL,
-  PRIMARY KEY (`client_tags_client_id`,`client_tags_tag_id`)
+  `client_tag_client_id` int(11) NOT NULL,
+  `client_tag_tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`client_tag_client_id`,`client_tag_tag_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1538,4 +1538,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-02-09 14:35:51
+-- Dump completed on 2023-02-25 15:25:59
