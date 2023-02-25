@@ -53,6 +53,7 @@ if (isset($_GET['q'])) {
 } else {
     $q = "";
     $phone_query = "";
+    $n = "";
 }
 
 // Sortby
