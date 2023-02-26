@@ -2282,8 +2282,8 @@ if(isset($_POST['add_vendor_from_template'])){
 
     $name = sanitizeInput($row['vendor_name']);
     $description = sanitizeInput($row['vendor_description']);
-    $account_number = sanitizeInput(,$row['vendor_account_number']);
-    $contact_name = sanitizeInput(,$row['vendor_contact_name']);
+    $account_number = sanitizeInput($row['vendor_account_number']);
+    $contact_name = sanitizeInput($row['vendor_contact_name']);
     $phone = preg_replace("/[^0-9]/", '',$row['vendor_phone']);
     $extension = preg_replace("/[^0-9]/", '',$row['vendor_extension']);
     $email = sanitizeInput($row['vendor_email']);
