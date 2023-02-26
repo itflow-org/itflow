@@ -83,7 +83,7 @@
         <span class="dropdown-item dropdown-header">No Notifications</span>
         <div class="dropdown-divider"></div>
         <div class="text-center text-secondary p-3">
-          <i class='far fa-fw fa-4x fa-bell-slash'></i>
+          <i class='far fa-fw fa-4x fa-bell'></i>
         </div>
         <div class="dropdown-divider"></div>
         <a href="notifications_dismissed.php" class="dropdown-item dropdown-footer">See Dismissed Notifications</a>

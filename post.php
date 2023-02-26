@@ -565,7 +565,7 @@ if(isset($_POST['edit_company'])){
     validateAdminRole();
 
     $company_id = intval($_POST['company_id']);
-    $existing_file_name = strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name']));
+    $existing_file_name = sanitizeInputI($mysqli,$_POST['existing_file_name']);
 
     if(!file_exists("uploads/settings/$company_id/")) {
         mkdir("uploads/settings/$company_id");
@@ -659,7 +659,7 @@ if(isset($_GET['delete_company'])){
     // Get Company Name
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = $company_id");
     $row = mysqli_fetch_array($sql);
-    $company_name = strip_tags(mysqli_real_escape_string($mysqli,$row['company_name']));
+    $company_name = sanitizeInput($row['company_name']);
 
     // Delete Company and all relational data A-Z
 
@@ -758,7 +758,7 @@ if(isset($_GET['delete_company'])){
 if(isset($_POST['verify'])){
 
     require_once("rfc6238.php");
-    $currentcode = mysqli_real_escape_string($mysqli,$_POST['code']);  //code to validate, for example received from device
+    $currentcode = sanitizeInput($_POST['code']);  //code to validate, for example received from device
 
     if(TokenAuth6238::verify($session_token,$currentcode)){
         $_SESSION['alert_message'] = "VALID!";
@@ -827,7 +827,7 @@ if(isset($_POST['test_email_smtp'])){
 
     validateAdminRole();
 
-    $email = strip_tags(mysqli_real_escape_string($mysqli,$_POST['email']));
+    $email = sanitizeInput($_POST['email']);
     $subject = "Hi'ya there Chap";
     $body    = "Hello there Chap ;) Don't worry this won't hurt a bit, it's just a test";
 
@@ -871,12 +871,12 @@ if(isset($_POST['edit_invoice_settings'])){
 
     validateAdminRole();
 
-    $config_invoice_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_prefix'])));
+    $config_invoice_prefix = sanitizeInput($_POST['config_invoice_prefix']);
     $config_invoice_next_number = intval($_POST['config_invoice_next_number']);
-    $config_invoice_footer = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_footer'])));
-    $config_invoice_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_from_email'])));
-    $config_invoice_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_invoice_from_name'])));
-    $config_recurring_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_recurring_prefix'])));
+    $config_invoice_footer = sanitizeInput($_POST['config_invoice_footer']);
+    $config_invoice_from_email = sanitizeInput($_POST['config_invoice_from_email']);
+    $config_invoice_from_name = sanitizeInput($_POST['config_invoice_from_name']);
+    $config_recurring_prefix = sanitizeInput($_POST['config_recurring_prefix']);
     $config_recurring_next_number = intval($_POST['config_recurring_next_number']);
 
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer', config_invoice_from_email = '$config_invoice_from_email', config_invoice_from_name = '$config_invoice_from_name', config_recurring_prefix = '$config_recurring_prefix', config_recurring_next_number = $config_recurring_next_number WHERE company_id = $session_company_id");
@@ -894,11 +894,11 @@ if(isset($_POST['edit_quote_settings'])){
 
     validateAdminRole();
 
-    $config_quote_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_prefix'])));
+    $config_quote_prefix = sanitizeInput($_POST['config_quote_prefix']);
     $config_quote_next_number = intval($_POST['config_quote_next_number']);
-    $config_quote_footer = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_footer'])));
-    $config_quote_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_from_email'])));
-    $config_quote_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_quote_from_name'])));
+    $config_quote_footer = sanitizeInput($_POST['config_quote_footer']);
+    $config_quote_from_email = sanitizeInput($_POST['config_quote_from_email']);
+    $config_quote_from_name = sanitizeInput($_POST['config_quote_from_name']);
 
     mysqli_query($mysqli,"UPDATE settings SET config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer', config_quote_from_email = '$config_quote_from_email', config_quote_from_name = '$config_quote_from_name' WHERE company_id = $session_company_id");
 
@@ -915,10 +915,10 @@ if(isset($_POST['edit_ticket_settings'])){
 
     validateAdminRole();
 
-    $config_ticket_prefix = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_prefix'])));
+    $config_ticket_prefix = sanitizeInput($_POST['config_ticket_prefix']);
     $config_ticket_next_number = intval($_POST['config_ticket_next_number']);
-    $config_ticket_from_email = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_from_email'])));
-    $config_ticket_from_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_ticket_from_name'])));
+    $config_ticket_from_email = sanitizeInput($_POST['config_ticket_from_email']);
+    $config_ticket_from_name = sanitizeInput($_POST['config_ticket_from_name']);
     $config_ticket_email_parse = intval($_POST['config_ticket_email_parse']);
     $config_ticket_client_general_notifications = intval($_POST['config_ticket_client_general_notifications']);
 
@@ -939,8 +939,8 @@ if(isset($_POST['edit_default_settings'])){
 
     $expense_account = intval($_POST['expense_account']);
     $payment_account = intval($_POST['payment_account']);
-    $payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['payment_method'])));
-    $expense_payment_method = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['expense_payment_method'])));
+    $payment_method = sanitizeInput($_POST['payment_method']);
+    $expense_payment_method = sanitizeInput($_POST['expense_payment_method']);
     $transfer_from_account = intval($_POST['transfer_from_account']);
     $transfer_to_account = intval($_POST['transfer_to_account']);
     $calendar = intval($_POST['calendar']);
@@ -998,8 +998,8 @@ if(isset($_POST['edit_online_payment_settings'])){
     validateAdminRole();
 
     $config_stripe_enable = intval($_POST['config_stripe_enable']);
-    $config_stripe_publishable = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_stripe_publishable'])));
-    $config_stripe_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['config_stripe_secret'])));
+    $config_stripe_publishable = sanitizeInput($_POST['config_stripe_publishable']);
+    $config_stripe_secret = sanitizeInput($_POST['config_stripe_secret']);
     $config_stripe_account = intval($_POST['config_stripe_account']);
 
     mysqli_query($mysqli,"UPDATE settings SET config_stripe_enable = $config_stripe_enable, config_stripe_publishable = '$config_stripe_publishable', config_stripe_secret = '$config_stripe_secret', config_stripe_account = $config_stripe_account WHERE company_id = $session_company_id");
@@ -1016,8 +1016,8 @@ if(isset($_POST['edit_integrations_settings'])){
 
     validateAdminRole();
 
-    $azure_client_id = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['azure_client_id'])));
-    $azure_client_secret = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['azure_client_secret'])));
+    $azure_client_id = sanitizeInput($_POST['azure_client_id']);
+    $azure_client_secret = sanitizeInput($_POST['azure_client_secret']);
 
     mysqli_query($mysqli,"UPDATE settings SET config_azure_client_id = '$azure_client_id', config_azure_client_secret = '$azure_client_secret' WHERE company_id = $session_company_id");
 
@@ -1070,7 +1070,7 @@ if(isset($_POST['send_telemetry_data'])){
 
     validateAdminRole();
 
-    $comments = strip_tags(mysqli_real_escape_string($mysqli,$_POST['comments']));
+    $comments = sanitizeInput($_POST['comments']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies LIMIT 1");
     $row = mysqli_fetch_array($sql);
@@ -1328,7 +1328,7 @@ if(isset($_POST['enable_2fa'])){
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
 
-    $token = mysqli_real_escape_string($mysqli,$_POST['token']);
+    $token = sanitizeInput($_POST['token']);
 
     mysqli_query($mysqli,"UPDATE users SET user_token = '$token' WHERE user_id = $session_user_id");
 
@@ -1966,7 +1966,7 @@ if(isset($_GET['delete_client'])){
     //Get Client Name
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
     $row = mysqli_fetch_array($sql);
-    $client_name = strip_tags(mysqli_real_escape_string($mysqli, $row['client_name']));
+    $client_name = sanitizeInput($row['client_name']);
 
     // Delete Client Data
     mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_client_id = $client_id");
@@ -2076,8 +2076,8 @@ if(isset($_GET['delete_client'])){
 
 if(isset($_POST['add_calendar'])){
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $color = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['color'])));
+    $name = sanitizeInput($_POST['name']);
+    $color = sanitizeInput($_POST['color']);
 
     mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = '$name', calendar_color = '$color', company_id = $session_company_id");
 
@@ -2103,7 +2103,7 @@ if(isset($_POST['add_event'])){
     //Get Calendar Name
     $sql = mysqli_query($mysqli,"SELECT * FROM calendars WHERE calendar_id = $calendar_id");
     $row = mysqli_fetch_array($sql);
-    $calendar_name = strip_tags(mysqli_real_escape_string($mysqli, $row['calendar_name']));
+    $calendar_name = sanitizeInput($row['calendar_name']);
 
     //If email is checked
     if($email_event == 1){
@@ -2280,18 +2280,18 @@ if(isset($_POST['add_vendor_from_template'])){
 
     $row = mysqli_fetch_array($sql_vendor);
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['vendor_name'])));
-    $description = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['vendor_description'])));
-    $account_number = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['vendor_account_number'])));
-    $contact_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['vendor_contact_name'])));
-    $phone = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['vendor_phone'])));
-    $extension = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['vendor_extension'])));
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['vendor_email'])));
-    $website = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['vendor_website'])));
-    $hours = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['vendor_hours'])));
-    $sla = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['vendor_sla'])));
-    $code = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['vendor_code'])));
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['vendor_notes'])));
+    $name = sanitizeInput($row['vendor_name']);
+    $description = sanitizeInput($row['vendor_description']);
+    $account_number = sanitizeInput(,$row['vendor_account_number']);
+    $contact_name = sanitizeInput(,$row['vendor_contact_name']);
+    $phone = preg_replace("/[^0-9]/", '',$row['vendor_phone']);
+    $extension = preg_replace("/[^0-9]/", '',$row['vendor_extension']);
+    $email = sanitizeInput($row['vendor_email']);
+    $website = sanitizeInput($row['vendor_website']);
+    $hours = sanitizeInput($row['vendor_hours']);
+    $sla = sanitizeInput($row['vendor_sla']);
+    $code = sanitizeInput($row['vendor_code']);
+    $notes = sanitizeInput($row['vendor_notes']);
 
     // Vendor add query
     mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_client_id = $client_id, vendor_template_id = $vendor_template_id, company_id = $session_company_id");
@@ -2541,10 +2541,10 @@ if(isset($_GET['delete_trip'])){
 
 if(isset($_POST['add_account'])){
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $name = sanitizeInput($_POST['name']);
     $opening_balance = floatval($_POST['opening_balance']);
-    $currency_code = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['currency_code'])));
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $currency_code = sanitizeInput($_POST['currency_code']);
+    $notes = sanitizeInput($_POST['notes']);
 
     mysqli_query($mysqli,"INSERT INTO accounts SET account_name = '$name', opening_balance = '$opening_balance', account_currency_code = '$currency_code', account_notes = '$notes', company_id = $session_company_id");
 
@@ -2560,8 +2560,8 @@ if(isset($_POST['add_account'])){
 if(isset($_POST['edit_account'])){
 
     $account_id = intval($_POST['account_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['notes'])));
+    $name = sanitizeInput($_POST['name']);
+    $notes = sanitizeInput($_POST['notes']);
 
     mysqli_query($mysqli,"UPDATE accounts SET account_name = '$name', account_notes = '$notes' WHERE account_id = $account_id AND company_id = $session_company_id");
 
@@ -2718,7 +2718,7 @@ if(isset($_GET['delete_tag'])){
 
 if(isset($_POST['add_tax'])){
 
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $name = sanitizeInput($_POST['name']);
     $percent = floatval($_POST['percent']);
 
     mysqli_query($mysqli,"INSERT INTO taxes SET tax_name = '$name', tax_percent = $percent, company_id = $session_company_id");
@@ -2735,7 +2735,7 @@ if(isset($_POST['add_tax'])){
 if(isset($_POST['edit_tax'])){
 
     $tax_id = intval($_POST['tax_id']);
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['name'])));
+    $name = sanitizeInput($_POST['name']);
     $percent = floatval($_POST['percent']);
 
     mysqli_query($mysqli,"UPDATE taxes SET tax_name = '$name', tax_percent = $percent WHERE tax_id = $tax_id AND company_id = $session_company_id");
@@ -2860,7 +2860,7 @@ if(isset($_POST['edit_expense'])){
     require_once('models/expense.php');
 
     $expense_id = intval($_POST['expense_id']);
-    $existing_file_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['existing_file_name'])));
+    $existing_file_name = sanitizeInput($_POST['existing_file_name']);
 
 
     // Check for and process attachment
@@ -2918,8 +2918,8 @@ if(isset($_GET['delete_expense'])){
 }
 
 if(isset($_POST['export_expenses_csv'])){
-    $date_from = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_from'])));
-    $date_to = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_to'])));
+    $date_from = sanitizeInput($_POST['date_from']);
+    $date_to = sanitizeInput($_POST['date_to']);
     if(!empty($date_from) && !empty($date_to)){
         $date_query = "AND DATE(expense_date) BETWEEN '$date_from' AND '$date_to'";
         $file_name_date = "$date_from-to-$date_to";
@@ -4544,19 +4544,19 @@ if(isset($_POST["import_client_contacts_csv"])){
         while(($column = fgetcsv($file, 1000, ",")) !== false){
             $duplicate_detect = 0;
             if(isset($column[0])){
-                $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
+                $name = sanitizeInput($column[0]);
                 if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$name' AND contact_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }
             if(isset($column[1])){
-                $title = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[1])));
+                $title = sanitizeInput($column[1]);
             }
             if(isset($column[2])){
-                $department = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[2])));
+                $department = sanitizeInput($column[2]);
             }
             if(isset($column[3])){
-                $email = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[3])));
+                $email = sanitizeInput($column[3]);
             }
             if(isset($column[4])){
                 $phone = preg_replace("/[^0-9]/", '',$column[4]);
@@ -4568,7 +4568,7 @@ if(isset($_POST["import_client_contacts_csv"])){
                 $mobile = preg_replace("/[^0-9]/", '',$column[6]);
             }
             if(isset($column[7])){
-                $location = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[7])));
+                $location = sanitizeInput($column[7]);
                 $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
                 $row = mysqli_fetch_assoc($sql_location);
                 $location_id = intval($row['location_id']);
@@ -4965,28 +4965,28 @@ if(isset($_POST["import_client_locations_csv"])){
         while(($column = fgetcsv($file, 1000, ",")) !== false){
             $duplicate_detect = 0;
             if(isset($column[0])){
-                $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
+                $name = sanitizeInput($column[0]);
                 if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$name' AND location_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }
             if(isset($column[1])){
-                $address = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[1])));
+                $address = sanitizeInput($column[1]);
             }
             if(isset($column[2])){
-                $city = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[2])));
+                $city = sanitizeInput($column[2]);
             }
             if(isset($column[3])){
-                $state = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[3])));
+                $state = sanitizeInput($column[3]);
             }
             if(isset($column[4])){
-                $zip = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[4])));
+                $zip = sanitizeInput($column[4]);
             }
             if(isset($column[5])){
                 $phone = preg_replace("/[^0-9]/", '',$column[5]);
             }
             if(isset($column[6])){
-                $hours = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[6])));
+                $hours = sanitizeInput($column[6]);
             }
 
             // Check if duplicate was detected
@@ -5275,34 +5275,34 @@ if(isset($_POST["import_client_assets_csv"])){
         while(($column = fgetcsv($file, 1000, ",")) !== false){
             $duplicate_detect = 0;
             if(isset($column[0])){
-                $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
+                $name = sanitizeInput($column[0]);
                 if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_name = '$name' AND asset_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }
             if(isset($column[1])){
-                $type = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[1])));
+                $type = sanitizeInput($column[1]);
             }
             if(isset($column[2])){
-                $make = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[2])));
+                $make = sanitizeInput($column[2]);
             }
             if(isset($column[3])){
-                $model = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[3])));
+                $model = sanitizeInput($column[3]);
             }
             if(isset($column[4])){
-                $serial = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[4])));
+                $serial = sanitizeInput($column[4]);
             }
             if(isset($column[5])){
-                $os = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[5])));
+                $os = sanitizeInput(column[5]);
             }
             if(isset($column[6])){
-                $contact = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[6])));
+                $contact = sanitizeInput($column[6]);
                 $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$contact' AND contact_client_id = $client_id");
                 $row = mysqli_fetch_assoc($sql_contact);
                 $contact_id = intval($row['contact_id']);
             }
             if(isset($column[7])){
-                $location = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[7])));
+                $location = sanitizeInput($column[7]);
                 $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
                 $row = mysqli_fetch_assoc($sql_location);
                 $location_id = intval($row['location_id']);
@@ -5534,8 +5534,8 @@ if(isset($_POST['add_software'])){
     }
 
     if(!empty($_POST['username'])) {
-        $username = strip_tags(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['username'])));
-        $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($_POST['password'])));
+        $username = sanitizeInput(encryptLoginEntry($_POST['username']));
+        $password = sanitizeInput(encryptLoginEntry($_POST['password']));
 
         mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_software_id = $software_id, login_client_id = $client_id, company_id = $session_company_id");
 
@@ -5922,19 +5922,19 @@ if(isset($_POST["import_client_logins_csv"])){
         while(($column = fgetcsv($file, 1000, ",")) !== false){
             $duplicate_detect = 0;
             if(isset($column[0])){
-                $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[0])));
+                $name = sanitizeInput($column[0]);
                 if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM logins WHERE login_name = '$name' AND login_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }
             if(isset($column[1])){
-                $username = trim(strip_tags(mysqli_real_escape_string($mysqli, encryptLoginEntry($column[1]))));
+                $username = sanitizeInput(encryptLoginEntry($column[1]));
             }
             if(isset($column[2])){
-                $password = trim(mysqli_real_escape_string($mysqli,encryptLoginEntry($column[2])));
+                $password = sanitizeInput(encryptLoginEntry($column[2]));
             }
             if(isset($column[3])){
-                $url = trim(strip_tags(mysqli_real_escape_string($mysqli, $column[3])));
+                $url = sanitizeInput($column[3]);
             }
 
             // Check if duplicate was detected
@@ -7070,12 +7070,12 @@ if(isset($_POST['add_scheduled_ticket'])){
 
     $client_id = intval($_POST['client']);
     $contact = intval($_POST['contact']);
-    $subject = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['subject'])));
-    $priority = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['priority'])));
+    $subject = sanitizeInput($_POST['subject']);
+    $priority = sanitizeInput($_POST['priority']);
     $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
     $asset_id = intval($_POST['asset']);
-    $frequency = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['frequency'])));
-    $start_date = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['start_date'])));
+    $frequency = sanitizeInput($_POST['frequency']);
+    $start_date = sanitizeInput($_POST['start_date']);
 
     if($client_id > 0 && $contact == 0){
         $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
@@ -7084,7 +7084,7 @@ if(isset($_POST['add_scheduled_ticket'])){
     }
 
     // Add scheduled ticket
-    mysqli_query($mysqli, "INSERT INTO scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_start_date = '$start_date', scheduled_ticket_next_run = '$start_date', scheduled_ticket_created_by = '$session_user_id', scheduled_ticket_client_id = '$client_id', scheduled_ticket_contact_id = '$contact', scheduled_ticket_asset_id = '$asset_id', company_id = '$session_company_id'");
+    mysqli_query($mysqli, "INSERT INTO scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_start_date = '$start_date', scheduled_ticket_next_run = '$start_date', scheduled_ticket_created_by = $session_user_id, scheduled_ticket_client_id = $client_id, scheduled_ticket_contact_id = $contact, scheduled_ticket_asset_id = $asset_id, company_id = $session_company_id");
 
     $scheduled_ticket_id = mysqli_insert_id($mysqli);
 
@@ -7406,7 +7406,7 @@ if(isset($_POST['add_file'])){
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
         if(empty($file_name)) {
-            $file_name = trim(strip_tags(mysqli_real_escape_string($mysqli, $_FILES['file']['name'])));
+            $file_name = sanitizeInput($_FILES['file']['name']);
         }
         $file_size = $_FILES['file']['size'];
         $file_type = $_FILES['file']['type'];
@@ -7560,7 +7560,7 @@ if(isset($_POST['add_document_from_template'])){
 
     $row = mysqli_fetch_array($sql_document);
 
-    $document_template_name = trim(strip_tags(mysqli_real_escape_string($mysqli,$row['document_name'])));
+    $document_template_name = sanitizeInput($row['document_name']);
     $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($row['document_content']))));
     $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $row['document_content']));
 
@@ -7886,8 +7886,8 @@ if(isset($_GET['force_recurring'])){
 } //End Force Recurring
 
 if(isset($_POST['export_trips_csv'])){
-    $date_from = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_from'])));
-    $date_to = trim(strip_tags(mysqli_real_escape_string($mysqli,$_POST['date_to'])));
+    $date_from = sanitizeInput($_POST['date_from']);
+    $date_to = sanitizeInput($_POST['date_to']);
     if(!empty($date_from) && !empty($date_to)){
         $date_query = "AND DATE(trip_date) BETWEEN '$date_from' AND '$date_to'";
         $file_name_date = "$date_from-to-$date_to";
