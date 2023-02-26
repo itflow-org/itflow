@@ -28,13 +28,11 @@
                                         ?>
                                         <option value="<?php echo $contact_id; ?>" <?php if ($primary_contact == $contact_id) { echo "selected"; } ?>><?php echo $contact_name; ?></option>
 
-                                        <?php
-                                    }
-                                    ?>
+                                    <?php } ?>
                                 </select>
                             </div>
                         </div>
-                    <?php }else{ ?>
+                    <?php  } else { ?>
                         <div class="form-group">
                             <label>Client <strong class="text-danger">*</strong></label>
                             <div class="input-group">
@@ -47,14 +45,12 @@
 
                                     $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
-                                        $client_id = intval($row['client_id']);
+                                        $selectable_client_id = intval($row['client_id']);
                                         $client_name = htmlentities($row['client_name']);
                                         ?>
-                                        <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                        <option value="<?php echo $selectable_client_id; ?>"><?php echo $client_name; ?></option>
 
-                                        <?php
-                                    }
-                                    ?>
+                                    <?php } ?>
                                 </select>
                             </div>
                         </div>
@@ -110,29 +106,31 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Asset</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                            </div>
-                            <select class="form-control select2" name="asset">
-                                <option value="0">- None -</option>
-                                <?php
+                    <?php if (isset($client_id)) { ?>
 
-                                $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
-                                while ($row = mysqli_fetch_array($sql_assets)) {
-                                    $asset_id_select = intval($row['asset_id']);
-                                    $asset_name_select = htmlentities($row['asset_name']);
-                                    ?>
-                                    <option value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
-
+                        <div class="form-group">
+                            <label>Asset</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                                </div>
+                                <select class="form-control select2" name="asset">
+                                    <option value="0">- None -</option>
                                     <?php
-                                }
-                                ?>
-                            </select>
+                                    $sql_assets = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+
+                                    while ($row = mysqli_fetch_array($sql_assets)) {
+                                        $asset_id_select = intval($row['asset_id']);
+                                        $asset_name_select = htmlentities($row['asset_name']);
+                                        ?>
+                                        <option value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
+
+                                    <?php } ?>
+                                </select>
+                            </div>
                         </div>
-                    </div>
+
+                    <?php } ?>
 
                     <div class="form-group">
                         <textarea class="form-control summernote" rows="8" name="details"></textarea>
