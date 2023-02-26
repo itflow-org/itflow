@@ -12,12 +12,12 @@ $details = trim(mysqli_real_escape_string($mysqli, $purifier->purify(html_entity
 $frequency = sanitizeInput($_POST['frequency']);
 
 
-$asset_id = "";
+$asset_id = "0";
 if (isset($_POST['asset'])) {
     $asset_id = intval($_POST['asset']);
 }
 
-$contact_id = "";
+$contact_id = "0";
 if (isset($_POST['contact'])) {
     $contact_id = intval($_POST['contact']);
 }
