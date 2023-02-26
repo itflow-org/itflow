@@ -85,11 +85,8 @@
                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit Client
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="post.php?export_client_pdf=<?php echo $client_id; ?>" target="_blank">
-                                <i class="fas fa-fw fa-download mr-2"></i>Export Data PDF<br><small class="text-secondary">(without passwords)</small>
-                            </a>
-                            <a class="dropdown-item text-danger" href="post.php?export_client_pdf=<?php echo $client_id; ?>&passwords" target="_blank">
-                                <i class="fas fa-fw fa-download mr-2"></i>Export Data PDF<br><small class="text-secondary">(with passwords)</small>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#exportClientPDFModal">
+                                <i class="fas fa-fw fa-file-pdf mr-2"></i>Export Data
                             </a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-danger" href="post.php?archive_client=<?php echo $client_id; ?>">
@@ -110,6 +107,7 @@
 <?php
 
 require_once("client_edit_modal.php");
+require_once("client_download_pdf_modal.php");
 require_once("client_delete_modal.php");
 require_once("category_quick_add_modal.php");
 
