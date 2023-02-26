@@ -7065,7 +7065,7 @@ if (isset($_POST['add_scheduled_ticket'])) {
     require_once('models/scheduled_ticket.php');
     $start_date = sanitizeInput($_POST['start_date']);
 
-    if($client_id > 0 && $contact_id == 0){
+    if ($client_id > 0 && $contact_id == 0) {
         $sql = mysqli_query($mysqli, "SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
         $contact_id = intval($row['primary_contact']);
