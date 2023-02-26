@@ -146,6 +146,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_os&o=<?php echo $disp; ?>">Operating System</a></th>
                         <?php } ?>
+                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_ip&o=<?php echo $disp; ?>">IP</a></th>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_install_date&o=<?php echo $disp; ?>">Install Date</a></th>
                         <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'servers' && $_GET['type'] !== 'other') { ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Assigned To</a></th>
@@ -180,7 +181,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if (empty($asset_ip)) {
                             $asset_ip_display = "-";
                         } else {
-                            $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text='$asset_ip'><i class='far fa-copy text-secondary'></i></button>";
+                            $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text=" . $asset_ip . "><i class='far fa-copy text-secondary'></i></button>";
                         }
                         $asset_mac = htmlentities($row['asset_mac']);
                         $asset_status = htmlentities($row['asset_status']);
@@ -290,6 +291,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
                                 <td><?php echo $asset_os_display; ?></td>
                             <?php } ?>
+                            <td><?php echo $asset_ip_display; ?></td>
                             <td><?php echo $asset_install_date_display; ?></td>
                             <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other' && $_GET['type'] !== 'servers') { ?>
                                 <td><?php echo $contact_name; ?></td>
