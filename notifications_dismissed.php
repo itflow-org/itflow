@@ -68,12 +68,54 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-hover">
                     <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification_timestamp&o=<?php echo $disp; ?>">Timestamp <i class="fa fa-sort-numeric<?php if ($disp=='ASC') { echo "-up"; } else { echo "-down"; }?>"></i></a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification_type&o=<?php echo $disp; ?>">Type <i class="fa fa-sort-alpha<?php if ($disp=='ASC') { echo "-up"; } else { echo "-down"; }?>"></i></a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification&o=<?php echo $disp; ?>">Notification <i class="fa fa-sort-alpha<?php if ($disp=='ASC') { echo "-up"; } else { echo "-down"; }?>"></i></a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client <i class="fa fa-sort-numeric<?php if ($disp=='ASC') { echo "-up"; } else { echo "-down"; }?>"></i></a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification_dismissed_at&o=<?php echo $disp; ?>">Dismissed At <i class="fa fa-sort-numeric<?php if ($disp=='ASC') { echo "-up"; } else { echo "-down"; }?>"></i></a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">Dismissed By <i class="fa fa-sort-numeric<?php if ($disp=='ASC') { echo "-up"; } else { echo "-down"; }?>"></i></a></th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification_timestamp&o=<?php echo $disp; ?>">
+                                Timestamp 
+                                <?php if($sb == "notification_timestamp") { ?>
+                                    <i class="fa fa-sort-numeric<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
+                                <?php } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification_type&o=<?php echo $disp; ?>">
+                                Type
+                                <?php if($sb == "notification_type") { ?> 
+                                    <i class="fa fa-sort-alpha<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
+                                <?php } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification&o=<?php echo $disp; ?>">
+                                Notification
+                                <?php if($sb == "notification") { ?>
+                                    <i class="fa fa-sort-alpha<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
+                                <?php } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">
+                                Client
+                                <?php if($sb == "client_name") { ?>
+                                    <i class="fa fa-sort-alpha<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
+                                <?php } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification_dismissed_at&o=<?php echo $disp; ?>">
+                                Dismissed At
+                                <?php if($sb == "notification_dismissed_at") { ?>
+                                    <i class="fa fa-sort-numeric<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
+                                <?php } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">
+                                Dismissed By
+                                <?php if($sb == "user_name") { ?>
+                                    <i class="fa fa-sort-alpha<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
+                                <?php } ?>
+                            </a>
+                        </th>
 
                     </tr>
                     </thead>
