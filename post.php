@@ -7058,38 +7058,26 @@ if(isset($_GET['export_client_tickets_csv'])){
 
 }
 
-if(isset($_POST['add_scheduled_ticket'])){
+if (isset($_POST['add_scheduled_ticket'])) {
 
     validateTechRole();
 
-    // HTML Purifier
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
-
-    $client_id = intval($_POST['client']);
-    $contact = intval($_POST['contact']);
-    $subject = sanitizeInput($_POST['subject']);
-    $priority = sanitizeInput($_POST['priority']);
-    $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
-    $asset_id = intval($_POST['asset']);
-    $frequency = sanitizeInput($_POST['frequency']);
+    require_once('models/scheduled_ticket.php');
     $start_date = sanitizeInput($_POST['start_date']);
 
-    if($client_id > 0 && $contact == 0){
-        $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
+    if ($client_id > 0 && $contact_id == 0) {
+        $sql = mysqli_query($mysqli, "SELECT primary_contact FROM clients WHERE client_id = $client_id AND company_id = $session_company_id");
         $row = mysqli_fetch_array($sql);
-        $contact = intval($row['primary_contact']);
+        $contact_id = intval($row['primary_contact']);
     }
 
     // Add scheduled ticket
-    mysqli_query($mysqli, "INSERT INTO scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_start_date = '$start_date', scheduled_ticket_next_run = '$start_date', scheduled_ticket_created_by = $session_user_id, scheduled_ticket_client_id = $client_id, scheduled_ticket_contact_id = $contact, scheduled_ticket_asset_id = $asset_id, company_id = $session_company_id");
+    mysqli_query($mysqli, "INSERT INTO scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_start_date = '$start_date', scheduled_ticket_next_run = '$start_date', scheduled_ticket_created_by = $session_user_id, scheduled_ticket_client_id = $client_id, scheduled_ticket_contact_id = $contact_id, scheduled_ticket_asset_id = $asset_id, company_id = $session_company_id");
 
     $scheduled_ticket_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Create', log_description = '$session_name created scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id, company_id = $session_company_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Create', log_description = '$session_name created scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Scheduled ticket <strong>$subject - $frequency</strong> created";
 
@@ -7097,30 +7085,19 @@ if(isset($_POST['add_scheduled_ticket'])){
 
 }
 
-if(isset($_POST['edit_scheduled_ticket'])){
+if (isset($_POST['edit_scheduled_ticket'])) {
 
     validateTechRole();
 
-    // HTML Purifier
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
-
-    $client_id = intval($_POST['client_id']);
+    require_once('models/scheduled_ticket.php');
     $scheduled_ticket_id = intval($_POST['scheduled_ticket_id']);
-    $subject = sanitizeInput($_POST['subject']);
-    $priority = sanitizeInput($_POST['priority']);
-    $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
-    $asset_id = intval($_POST['asset']);
-    $frequency = sanitizeInput($_POST['frequency']);
     $next_run_date = sanitizeInput($_POST['next_date']);
 
     // Edit scheduled ticket
     mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_next_run = '$next_run_date', scheduled_ticket_asset_id = $asset_id, company_id = $session_company_id WHERE scheduled_ticket_id = $scheduled_ticket_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Modify', log_description = '$session_name modified scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id, company_id = $session_company_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Modify', log_description = '$session_name modified scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Scheduled ticket <strong>$subject - $frequency</strong> updated";
 
@@ -7128,14 +7105,14 @@ if(isset($_POST['edit_scheduled_ticket'])){
 
 }
 
-if(isset($_GET['delete_scheduled_ticket'])){
+if (isset($_GET['delete_scheduled_ticket'])) {
 
     validateAdminRole();
 
     $scheduled_ticket_id = intval($_GET['delete_scheduled_ticket']);
 
     // Get Scheduled Ticket Subject Ticket Prefix, Number and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT * FROM scheduled_tickets WHERE scheduled_ticket_id = $scheduled_ticket_id AND company_id = $session_company_id");
+    $sql = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_id = $scheduled_ticket_id AND company_id = $session_company_id");
     $row = mysqli_fetch_array($sql);
     $scheduled_ticket_subject = sanitizeInput($row['scheduled_ticket_subject']);
     $scheduled_ticket_frequency = sanitizeInput($row['scheduled_ticket_frequency']);
@@ -7146,9 +7123,38 @@ if(isset($_GET['delete_scheduled_ticket'])){
     mysqli_query($mysqli, "DELETE FROM scheduled_tickets WHERE scheduled_ticket_id = $scheduled_ticket_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Delete', log_description = '$session_name deleted scheduled ticket for $subject - $frequency', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id, company_id = $session_company_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Delete', log_description = '$session_name deleted scheduled ticket for $subject - $frequency', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id, company_id = $session_company_id");
 
     $_SESSION['alert_message'] = "Scheduled ticket <strong>$subject - $frequency</strong> deleted";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['bulk_delete_scheduled_tickets'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $scheduled_ticket_ids = $_POST['scheduled_ticket_ids']; // Get array of scheduled tickets IDs to be deleted
+
+    if (!empty($scheduled_ticket_ids)) {
+
+        // Cycle through array and delete each scheduled ticket
+        foreach ($scheduled_ticket_ids as $scheduled_ticket_id) {
+
+            $scheduled_ticket_id = intval($scheduled_ticket_id);
+            mysqli_query($mysqli, "DELETE FROM scheduled_tickets WHERE scheduled_ticket_id = $scheduled_ticket_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Delete', log_description = '$session_name deleted scheduled ticket (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id, company_id = $session_company_id");
+
+            $count++;
+        }
+
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Delete', log_description = '$session_name bulk deleted $count scheduled tickets', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+
+        $_SESSION['alert_message'] = "Deleted $count scheduled ticket(s)";
+
+    }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
