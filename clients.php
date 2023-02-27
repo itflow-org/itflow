@@ -17,8 +17,7 @@ $sql = mysqli_query(
     LEFT JOIN client_tags ON client_tags.client_tag_client_id = clients.client_id
     LEFT JOIN tags ON tags.tag_id = client_tags.client_tag_tag_id
     WHERE (client_name LIKE '%$q%' OR client_type LIKE '%$q%' OR client_referral LIKE '%$q%' OR contact_email LIKE '%$q%' OR contact_name LIKE '%$q%' OR contact_phone LIKE '%$phone_query%'
-    OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%')
-    OR tag_name LIKE '%$q%'
+    OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR tag_name LIKE '%$q%')
     AND client_archived_at IS NULL
     AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
     AND clients.company_id = $session_company_id
